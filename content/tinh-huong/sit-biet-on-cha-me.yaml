@@ -1,0 +1,9 @@
+# Tình huống khởi đầu (xem data/tinh-huong-khoi-dau.csv). Trang chỉ được tạo khi có ≥ 3 tác phẩm đã xuất bản.
+id: sit-biet-on-cha-me
+slug: biet-on-cha-me
+tieu_de: "Biết ơn cha mẹ"
+nhom: gia_dinh
+mo_dau: "CAN_BO_SUNG"
+tac_pham:
+  - { ref: cd-0001, hop_khi: "NHAP_AI Bạn muốn nói lời biết ơn cha mẹ, nhất là dịp Vu Lan hay mừng thọ." }
+tu_khoa: ["biết ơn cha mẹ", "công cha nghĩa mẹ", "vu lan", "hiếu thảo"]

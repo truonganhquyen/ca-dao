@@ -1,0 +1,6 @@
+id: lx-tu-mau
+tu: "từ mẫu"
+loai: tu_co
+giai_nghia: "Giải nghĩa giả dùng để kiểm thử."
+nguon:
+  - { ref: src-sach-thu, trang: "1" }

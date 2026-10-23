@@ -1,0 +1,9 @@
+# DỮ LIỆU GIẢ — chỉ dùng cho kiểm thử, không phải tư liệu thật.
+id: src-sach-thu
+loai: sach
+tac_gia: ["Tác giả Thử"]
+ten: "Sách dùng để kiểm thử"
+nxb: "NXB Thử"
+nam: 2000
+ban_quyen: co_ban_quyen
+da_xac_minh_ban_in: false

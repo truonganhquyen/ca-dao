@@ -1,0 +1,34 @@
+name: Kiểm tra repo
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  kiem-tra:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lấy mã nguồn
+        uses: actions/checkout@v4
+
+      - name: Cài Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Cài phụ thuộc
+        shell: bash
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            echo "Chưa có package-lock.json; tạm dùng npm install. Sau khi tạo lockfile, CI sẽ tự chuyển sang npm ci."
+            npm install --no-audit --no-fund
+          fi
+
+      - name: Chạy cổng kiểm tra hiện tại
+        run: npm run kiem-tra

@@ -1,0 +1,7 @@
+# MẪU NGƯỜI ĐÓNG GÓP — content/nguoi-dong-gop/ctb-####.yaml
+# CHỈ tên hiển thị. Email, số điện thoại, tên thật của người chọn ẩn danh KHÔNG BAO GIỜ vào kho này.
+id: ctb-
+ten_hien_thi: ""
+kieu_hien_thi: but_danh    # ten_that | but_danh | an_danh
+vai_tro: []                # bien_soan | co_van | dong_gop | ghi_am | nguoi_the_hien
+gioi_thieu: ""

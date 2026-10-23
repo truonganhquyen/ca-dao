@@ -1,0 +1,12 @@
+# MẪU MỤC TỪ (Từ điển dùng chung) — content/muc-tu/lx-<slug>.yaml
+# Đặc tả: docs/10-dac-ta-du-lieu.md mục 4.4. Một mục từ dùng chung cho mọi tác phẩm.
+id: lx-
+tu: ""                 # dạng hiển thị
+bien_the: []           # cách viết khác
+loai:                  # tu_co | phuong_ngu | han_viet | dien_tich | dia_danh | nhan_vat | phong_tuc | do_vat
+vung: []               # bắt buộc với phuong_ngu
+giai_nghia: ""         # ≤ 40 từ, hiện trong ô chú giải nhanh
+giai_nghia_day_du: ""  # Markdown, hiện ở trang /tu-dien/<slug>
+nguon:
+  - { ref: , trang: "" }
+xem_them: []

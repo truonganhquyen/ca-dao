@@ -1,0 +1,16 @@
+# DỮ LIỆU GIẢ — cố ý trùng lời với cd-9001
+id: cd-9002
+slug: dong-thu-nghiem-2
+the_loai: ca_dao
+tieu_de: "Dòng thử nghiệm thứ nhất"
+ban_dai_dien: v1
+di_ban:
+  - id: v1
+    loi: |
+      Dòng thử nghiệm thứ nhất,
+      Dòng thứ hai có từ mẫu ở đây
+    vung: [khong_ro]
+    nguon: []
+    xac_thuc: D
+trang_thai: nhap
+bien_soan: { nguoi: ctb-0001, ngay_tao: "2026-10-05" }

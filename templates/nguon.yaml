@@ -1,0 +1,17 @@
+# MẪU NGUỒN — content/nguon/src-<slug>.yaml
+# Đặc tả: docs/10-dac-ta-du-lieu.md mục 4.6 và docs/12-chinh-sach-nguon.md
+# CHỈ điền thông tin nhìn thấy trên bản in đang cầm trên tay. Không lấy từ trí nhớ, web hay AI.
+id: src-
+loai:                  # sach | tap_chi | luan_van | dien_da | ghi_am | web | dong_gop
+tac_gia: []            # ghi "(chủ biên)" nếu có
+ten: ""
+nxb: CAN_BO_SUNG
+nam: CAN_BO_SUNG
+noi_xb: ""
+tap: ""
+tai_ban: ""            # lần in / tái bản
+isbn: ""
+url: ""
+ban_quyen: chua_ro     # cong_cong | co_ban_quyen | duoc_phep | chua_ro
+da_xac_minh_ban_in: false
+ghi_chu: ""

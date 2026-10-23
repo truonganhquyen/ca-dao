@@ -1,0 +1,6 @@
+# MẪU MÔ-TÍP — content/mo-tip/mt-<slug>.yaml
+# Danh sách tác phẩm thuộc mô-típ KHÔNG lưu ở đây; được tính lúc build từ trường mo_tip của tác phẩm.
+id: mt-
+ten: ""                # vd: "Thân em như…"
+mo_ta: ""              # Markdown, giới thiệu ngắn đặc điểm và ý nghĩa của công thức
+nguon: []

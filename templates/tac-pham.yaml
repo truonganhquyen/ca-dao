@@ -1,0 +1,61 @@
+# MẪU TÁC PHẨM — sao chép thành content/tac-pham/<id>.yaml (vd: cd-0142.yaml)
+# Đặc tả từng trường: docs/10-dac-ta-du-lieu.md mục 4.1
+# Quy ước: thiếu thông tin -> ghi CAN_BO_SUNG. Văn bản do AI soạn nháp -> mở đầu bằng NHAP_AI.
+# Cả hai dấu này chặn việc chuyển trạng thái sang cho_kiem_dinh / da_xuat_ban.
+
+id:                    # cd-#### | tn-#### | tng-#### | dd-#### | ve-#### | cdo-####  (bất biến, không tái sử dụng)
+slug:                  # không dấu, chữ thường, nối gạch ngang, ≤ 60 ký tự; đổi slug thì thêm dòng vào redirects.yaml
+the_loai:              # ca_dao | tuc_ngu | thanh_ngu | dong_dao | ve | cau_do
+the_tho:               # chỉ ca dao: luc_bat | luc_bat_bien_the | song_that_luc_bat | van_4 | van_5 | hop_the
+tieu_de: ""            # thường là dòng đầu của bản tham chiếu
+ban_dai_dien: v1       # id dị bản dùng làm "Bản tham chiếu" (phải mức A hoặc B khi kiểm định)
+ly_do_chon: ""         # một câu: vì sao chọn bản này
+
+di_ban:
+  - id: v1
+    loi: |
+      CAN_BO_SUNG
+    vung: [khong_ro]
+    dia_danh: ""       # đúng như người kể / sách gọi, kể cả tên cũ
+    nguon:
+      - { ref: src-CAN_BO_SUNG, trang: "CAN_BO_SUNG" }
+    xac_thuc: D        # A | B | C | D — chỉ người biên soạn nâng mức
+    ghi_chu: ""
+
+chu_giai: []
+#  - { di_ban: v1, cum_tu: "Thái Sơn", muc_tu: lx-thai-son }            # thường chỉ cần thế này
+#  - { di_ban: v1, dong: 3, cum_tu: "cò", muc_tu: lx-... }              # khi cụm từ có ở nhiều dòng
+#  - { di_ban: v1, dong: 3, cum_tu: "cò", lan: 2, muc_tu: lx-... }      # khi cụm từ lặp trong cùng dòng
+#  Gõ cụm từ đúng như trong lời. Không cần đếm âm tiết: máy tự tìm vị trí và báo nếu mơ hồ.
+
+nghia_ngan: ""         # ≤ 40 từ, nên ≤ 25 (dùng cho thẻ chia sẻ, kết quả tìm, mô tả SEO)
+dien_giai:
+  - goc_nhin: "Nghĩa phổ thông"
+    noi_dung: ""
+    nguon: []
+
+# chỉ tục ngữ:
+# nghia_den: ""
+# nghia_bong: ""
+# linh_vuc: []
+# goc_kiem_chung: { ket_luan: chua_ro, noi_dung: "", nguon: [] }
+
+am_luat: { nhip: "", van: [], ghi_chu: "" }
+dien_xuong: { hinh_thuc: [khong_ro], nguoi_the_hien: "", boi_canh: "" }
+
+mo_ta_tinh_huong: ["", ""]   # ≥ 2 câu đời thường, ngôi thứ hai ("Khi bạn…")
+cam_xuc: []
+chu_de: []
+mo_tip: []
+lien_quan: []
+sgk: []
+#  - { bo_sach: ket_noi_tri_thuc, lop: 6, bai: "" }
+
+canh_bao_noi_dung: ""        # bài phản ánh định kiến xưa: giải thích bối cảnh
+xac_thuc_dan_gian: binh_thuong
+can_cu_xac_thuc_dan_gian: ""
+tranh_luan: false
+ghi_chu_tranh_luan: ""
+
+trang_thai: nhap             # nhap | cho_kiem_dinh | da_xuat_ban | an
+bien_soan: { nguoi: ctb-0001, ngay_tao: "YYYY-MM-DD", ngay_kiem_dinh: "" }

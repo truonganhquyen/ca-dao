@@ -1,0 +1,50 @@
+# HỒ SƠ KHUNG — trạng thái nháp. Lời dưới đây chép theo dạng phổ biến, CHƯA đối chiếu bản in.
+# Việc của người biên soạn: đối chiếu từng chữ với ≥ 2 nguồn in, ghi số trang, viết lại mọi chuỗi NHAP_AI.
+id: cd-0001
+slug: cong-cha-nhu-nui-thai-son
+the_loai: ca_dao
+the_tho: luc_bat
+tieu_de: "Công cha như núi Thái Sơn"
+ban_dai_dien: v1
+ly_do_chon: "CAN_BO_SUNG"
+
+di_ban:
+  - id: v1
+    loi: |
+      Công cha như núi Thái Sơn
+      Nghĩa mẹ như nước trong nguồn chảy ra
+      Một lòng thờ mẹ kính cha
+      Cho tròn chữ hiếu mới là đạo con
+    vung: [toan_quoc]
+    nguon:
+      - { ref: src-kho-tang-ca-dao-nguoi-viet, trang: "CAN_BO_SUNG" }
+    xac_thuc: D
+    ghi_chu: "Hai dòng đầu thường được trích độc lập."
+
+chu_giai:
+  - { di_ban: v1, cum_tu: "Thái Sơn", muc_tu: lx-thai-son }   # chỉ xuất hiện 1 lần: không cần "dong"
+
+nghia_ngan: "NHAP_AI Ví công cha cao lớn như núi, nghĩa mẹ dồi dào như nguồn nước; khuyên con giữ trọn đạo hiếu."
+dien_giai:
+  - goc_nhin: "Nghĩa phổ thông"
+    noi_dung: "CAN_BO_SUNG"
+    nguon: []
+
+am_luat: { nhip: "", van: [], ghi_chu: "" }
+dien_xuong: { hinh_thuc: [hat_ru], nguoi_the_hien: "", boi_canh: "CAN_BO_SUNG" }
+
+mo_ta_tinh_huong:
+  - "NHAP_AI Khi bạn muốn nói lời biết ơn cha mẹ mà không biết diễn đạt thế nào"
+  - "NHAP_AI Khi bạn viết thiệp mừng thọ bố mẹ"
+cam_xuc: [biet_on, thuong_nho]
+chu_de: [gia_dinh]
+mo_tip: [mt-cong-cha-nghia-me]
+lien_quan: []
+sgk: []
+
+canh_bao_noi_dung: ""
+xac_thuc_dan_gian: binh_thuong
+tranh_luan: false
+
+trang_thai: nhap
+bien_soan: { nguoi: ctb-0001, ngay_tao: "2026-10-04" }

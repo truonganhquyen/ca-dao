@@ -1,0 +1,49 @@
+# HỒ SƠ KHUNG CÓ DỊ BẢN — trạng thái nháp. Lời CHƯA đối chiếu bản in.
+# v2 là đầu mối mức D (chưa có nguồn): ví dụ cách lưu một dị bản nghe nói tới mà chưa kiểm được.
+id: cd-0002
+slug: con-co-lan-loi-bo-song
+the_loai: ca_dao
+the_tho: luc_bat
+tieu_de: "Con cò lặn lội bờ sông"
+ban_dai_dien: v1
+ly_do_chon: "CAN_BO_SUNG"
+
+di_ban:
+  - id: v1
+    loi: |
+      Con cò lặn lội bờ sông
+      Gánh gạo đưa chồng tiếng khóc nỉ non
+      Nàng về nuôi cái cùng con
+      Để anh đi trẩy nước non Cao Bằng
+    vung: [khong_ro]
+    nguon:
+      - { ref: src-kho-tang-ca-dao-nguoi-viet, trang: "CAN_BO_SUNG" }
+    xac_thuc: D
+  - id: v2
+    loi: |
+      Cái cò lặn lội bờ sông
+      Gánh gạo đưa chồng tiếng khóc nỉ non
+    vung: [khong_ro]
+    nguon: []
+    xac_thuc: D
+    ghi_chu: "Đầu mối: dòng đầu dùng \"Cái cò\". Cần tìm nguồn in hoặc tư liệu điền dã trước khi nâng mức."
+
+chu_giai:
+  - { di_ban: v1, cum_tu: "nỉ non", muc_tu: lx-ni-non }
+  - { di_ban: v1, cum_tu: "trẩy", muc_tu: lx-tray }
+  - { di_ban: v2, cum_tu: "nỉ non", muc_tu: lx-ni-non }
+
+nghia_ngan: "CAN_BO_SUNG"
+dien_giai:
+  - goc_nhin: "Nghĩa phổ thông"
+    noi_dung: "CAN_BO_SUNG"
+    nguon: []
+
+dien_xuong: { hinh_thuc: [khong_ro] }
+mo_ta_tinh_huong: ["CAN_BO_SUNG", "CAN_BO_SUNG"]
+chu_de: [than_phan_con_nguoi, gia_dinh]
+
+xac_thuc_dan_gian: binh_thuong
+tranh_luan: false
+trang_thai: nhap
+bien_soan: { nguoi: ctb-0001, ngay_tao: "2026-10-04" }
