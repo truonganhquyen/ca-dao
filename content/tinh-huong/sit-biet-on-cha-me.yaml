@@ -1,4 +1,4 @@
-# Tình huống khởi đầu (xem data/tinh-huong-khoi-dau.csv). Trang chỉ được tạo khi có ≥ 3 tác phẩm đã xuất bản.
+# Tình huống khởi đầu (xem data/tinh-huong-khoi-dau.csv). Trang chỉ được tạo khi có ≥ 2 tác phẩm công khai.
 id: sit-biet-on-cha-me
 slug: biet-on-cha-me
 tieu_de: "Biết ơn cha mẹ"

@@ -1,15 +1,16 @@
 {
   "name": "kho-tang-ca-dao-tuc-ngu",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "private": true,
-  "description": "Kho tàng Ca dao Tục ngữ Việt Nam — bộ tài liệu, kiểm tra dữ liệu và quy trình thực thi AI agent",
+  "description": "Kho tàng Ca dao Tục ngữ Việt Nam — tài liệu, kiểm tra dữ liệu và quy trình thực thi AI agent (hướng v2)",
   "type": "module",
   "scripts": {
     "check:data": "node scripts/kiem-tra-du-lieu.mjs",
     "test:fixtures": "node scripts/test-fixtures.mjs",
     "health": "node scripts/kiem-tra-du-lieu.mjs --suc-khoe",
     "health:json": "node scripts/kiem-tra-du-lieu.mjs --suc-khoe --json",
-    "kiem-tra": "npm run check:data && npm run test:fixtures",
+    "kiem-nhat-quan": "node scripts/kiem-nhat-quan.mjs",
+    "kiem-tra": "npm run check:data && npm run test:fixtures && npm run kiem-nhat-quan",
     "trang-thai": "node scripts/trang-thai.mjs",
     "viec-tiep-theo": "node scripts/viec-tiep-theo.mjs"
   },

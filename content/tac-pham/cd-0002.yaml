@@ -1,5 +1,5 @@
 # HỒ SƠ KHUNG CÓ DỊ BẢN — trạng thái nháp. Lời CHƯA đối chiếu bản in.
-# v2 là đầu mối mức D (chưa có nguồn): ví dụ cách lưu một dị bản nghe nói tới mà chưa kiểm được.
+# v2 là đầu mối chưa có nguồn (nhãn tự tính: D, không hiện trên trang): ví dụ cách lưu một dị bản nghe nói tới mà chưa kiểm được.
 id: cd-0002
 slug: con-co-lan-loi-bo-song
 the_loai: ca_dao
@@ -18,14 +18,12 @@ di_ban:
     vung: [khong_ro]
     nguon:
       - { ref: src-kho-tang-ca-dao-nguoi-viet, trang: "CAN_BO_SUNG" }
-    xac_thuc: D
   - id: v2
     loi: |
       Cái cò lặn lội bờ sông
       Gánh gạo đưa chồng tiếng khóc nỉ non
     vung: [khong_ro]
     nguon: []
-    xac_thuc: D
     ghi_chu: "Đầu mối: dòng đầu dùng \"Cái cò\". Cần tìm nguồn in hoặc tư liệu điền dã trước khi nâng mức."
 
 chu_giai:

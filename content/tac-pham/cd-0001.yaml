@@ -18,7 +18,6 @@ di_ban:
     vung: [toan_quoc]
     nguon:
       - { ref: src-kho-tang-ca-dao-nguoi-viet, trang: "CAN_BO_SUNG" }
-    xac_thuc: D
     ghi_chu: "Hai dòng đầu thường được trích độc lập."
 
 chu_giai:

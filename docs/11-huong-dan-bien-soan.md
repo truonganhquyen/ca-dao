@@ -2,101 +2,101 @@
 
 | | |
 |---|---|
-| Phiên bản | 1.1 · 05/10/2026 |
-| Trạng thái | **Ổn định**, trừ mục 9 (chờ Q-004) |
-| Đọc khi | Trước khi biên soạn hồ sơ đầu tiên; mỗi khi phân vân cách viết |
-| Dành cho | Người biên soạn. AI agent đọc để biết giới hạn của việc soạn nháp |
+| Phiên bản | 2.0 · 23/10/2026 (biên soạn qua CMS, nội dung từ đường ống thu thập; D-036, D-039, D-042, D-045) |
+| Trạng thái | **Ổn định** |
+| Đọc khi | Trước khi duyệt bài đầu tiên; mỗi khi phân vân cách viết |
+| Dành cho | Người biên soạn (làm việc trong CMS ở `/admin`). AI agent đọc để biết giới hạn của việc soạn nháp |
 
-Mục tiêu của một hồ sơ: người đọc **tin** được lời, **hiểu** được trong 10 giây, và **cảm** được bài ca dao gắn với đời sống của mình.
+Mục tiêu của một bài: người đọc **biết** lời lấy từ đâu và đã kiểm đến đâu, **hiểu** được trong 10 giây, và **cảm** được bài ca dao gắn với đời sống của mình. Bài được công khai sớm và **cải tiến dần** — không cần hoàn hảo ngay (D-039).
 
 ---
 
-## 1. Quy trình cho một hồ sơ (mục tiêu ~40 phút)
+## 1. Quy trình cho một bài (mục tiêu 10–15 phút)
 
-| Bước | Việc | Thời gian |
+Đường ống (T-039) đã chuẩn bị sẵn bài nháp: lời lấy nguyên văn từ nguồn có URL, bản phổ biến nhất được đề xuất làm bản tham chiếu, cụm từ gợi ý chú giải, nghĩa ngắn và mô tả tình huống do AI soạn nháp (mang `NHAP_AI`). Việc của người biên soạn là **đọc, sửa, quyết định**.
+
+| Bước | Việc trong CMS | Thời gian |
 |---|---|---|
-| 1 | Chọn bài tiếp theo trong `data/danh-sach-uu-tien.csv` | 2 phút |
-| 2 | Thu thập: đối chiếu lời trong **≥ 2 nguồn in**, ghi số trang; chụp ảnh trang làm bằng chứng nội bộ (không đưa lên kho công khai) | 10 phút |
-| 3 | (Tùy chọn) Dùng AI soạn nháp **từ chính các đoạn trích đã thu thập**, theo `templates/prompt-soan-nhap.md` | 3 phút |
-| 4 | Kiểm chứng từng khẳng định; xóa mọi thứ không có nguồn; viết lại mọi chuỗi `NHAP_AI` bằng lời của dự án | 15 phút |
-| 5 | Viết `mo_ta_tinh_huong`; chọn chủ đề, cảm xúc, mô-típ; thêm tác phẩm vào tệp tình huống kèm "Hợp khi…" | 5 phút |
-| 6 | `npm run check:data`; xem trước trên điện thoại | 3 phút |
-| 7 | Đặt `cho_kiem_dinh`. **Đọc lại sau ít nhất 24 giờ** với "mắt tươi", rồi đặt `da_xuat_ban` và điền `ngay_kiem_dinh` | 2 phút |
+| 1 | Mở bài nháp từ danh sách (hoặc Bàn biên tập). Đọc lời; mở link nguồn để so nhanh | 2 phút |
+| 2 | Lời có chỗ nghi sai chữ? Ghi `ghi_chu`, **không tự sửa lời** khi chưa có nguồn khác. Chọn bản tham chiếu nếu có nhiều bản; viết `ly_do_chon` một câu | 2 phút |
+| 3 | Đọc nghĩa ngắn và mô tả tình huống AI soạn: sửa câu nào chưa ổn; xóa câu nào không có căn cứ | 3 phút |
+| 4 | Chú giải: giữ cụm từ thật sự khó với học sinh lớp 7; với mục từ mới, đọc ý của chú thích tham chiếu rồi **viết lại bằng lời của mình** (mục 5) | 4 phút |
+| 5 | Thêm bài vào một tình huống nếu thật sự hợp (trong bộ "Tình huống" của CMS) | 1 phút |
+| 6 | Đánh dấu **"Tôi đã đọc và đồng ý phần AI soạn"** (`nhap_ai_da_duyet`), đổi trạng thái sang **Công khai**, lưu | 1 phút |
+| 7 | Mở bản xem trước trên điện thoại sau vài phút; có lỗi kiểm tra thì GitHub gửi email và Bàn biên tập hiện lý do | 1 phút |
 
-**Bấm giờ 10 hồ sơ đầu theo từng phần**, ghi vào các cột tương ứng của `data/danh-sach-uu-tien.csv`:
+**Thêm nhanh:** nghe ai đọc một câu hay mà kho chưa có, dùng bộ "Thêm nhanh" (tiêu đề, lời, vùng, nguồn nếu có) để lưu nháp ngay; làm giàu sau. Bài chưa có nguồn gốc nào thì chưa công khai được (R21) — khi đó ghi người kể vào `nguoi_ke` và chờ nguồn hoặc đóng góp.
 
-| Cột | Gồm | Bước |
+**Bài công khai còn thiếu phần** (chưa có chú giải, chưa thuộc tình huống…) vẫn lên trang, kèm dòng "Bài đang được bổ sung". Bài chưa có nghĩa ngắn và chú giải/tình huống thì tự mang `noindex` — Google chưa thấy cho tới khi bài có giá trị riêng.
+
+## 2. Chọn bài cho MVP (100–150 bài)
+
+Kho thô có hàng nghìn bài; chỉ xuất bản có chọn lọc (D-045). Thứ tự ưu tiên:
+
+| Tầng | Nội dung | Vì sao |
 |---|---|---|
-| `phut_tim_nguon` | Tìm sách, tìm đúng trang, tìm dị bản | 1–2 |
-| `phut_xac_minh` | Đối chiếu từng chữ giữa các nguồn, xác minh thông tin thư mục | 2, 4 |
-| `phut_nhap_lieu` | Tạo tệp YAML, dị bản, nguồn | 3–4 |
-| `phut_chu_giai` | Chú giải, mục từ, nghĩa, tầng đời thường | 4–5 |
-| `phut_qa` | Kiểm tra máy, xem trước, đọc lại sau 24 giờ | 6–7 |
+| T1 | Ca dao, tục ngữ trong SGK Ngữ văn hiện hành (3 bộ sách) | Giáo viên là kênh vào mạnh nhất |
+| T2 | Bài cho 20 tình huống ra mắt (`data/tinh-huong-khoi-dau.csv`, cột `ra_mat = co`), mỗi tình huống ≥ 2 bài | Tìm theo cảm xúc cần tình huống có bài |
+| T3 | Bài theo dịp sắp tới: Tết Đinh Mùi 2027, 8/3, Vu Lan | Mở công khai trước Tết |
+| T4 | Trọn chùm mô-típ tiêu biểu ("Thân em như…", "Chiều chiều…", "Công cha… nghĩa mẹ…") | Cho thấy dị bản và mô-típ |
 
-Tổng trung bình quyết định kịch bản lộ trình (`00` mục 7). **Tỉ lệ giữa các phần quyết định nên tối ưu gì trước:** nếu tìm nguồn + xác minh chiếm phần lớn, ưu tiên giải bài toán nguồn (sắp sẵn sách, danh mục trang) thay vì tối ưu công cụ nhập liệu.
+**Không chọn cho MVP:** bài trào phúng hiện đại, bài nhắc nhân vật/sự kiện thế kỷ 20, nội dung thô tục (đường ống gắn cờ sẵn). Bài có định kiến xưa chọn được nếu có `canh_bao_noi_dung` và không gắn tình huống.
 
-## 2. Chọn bản tham chiếu
+Sau khi mở công khai: hằng tháng sắp xếp lại theo **truy vấn không có kết quả**, tình huống còn thiếu bài và bài được xem nhiều mà còn nhãn D (ưu tiên tìm nguồn in để nâng nhãn).
 
-Thứ tự ưu tiên khi có nhiều dị bản mức A/B:
+## 3. Chọn bản tham chiếu
 
-1. Bản thống nhất giữa sách giáo khoa hiện hành và các tuyển tập đã đối chiếu.
-2. Bản xuất hiện trong nhiều tuyển tập uy tín nhất.
-3. Bản trọn vẹn hơn (đủ các cặp câu) khi các bản khác chỉ là trích đoạn.
+Thứ tự ưu tiên khi có nhiều bản:
 
-`ly_do_chon` là **một câu nêu căn cứ**, ví dụ: "Bản phổ biến nhất, thống nhất giữa SGK và hai tuyển tập đã đối chiếu." Không viết "bản đúng", "bản gốc", "bản chuẩn".
+1. Bản có nhãn A/B (đã đối chiếu tư liệu / ghi từ người kể).
+2. Bản thống nhất giữa SGK và nhiều nguồn.
+3. Bản xuất hiện ở nhiều nguồn độc lập nhất (lưu ý: các trang web hay chép lại nhau — năm trang giống nhau không bằng một bản in).
+4. Bản trọn vẹn hơn (đủ các cặp câu) khi các bản khác chỉ là trích đoạn.
 
-Chưa có dị bản nào đạt A/B thì tác phẩm ở lại `nhap`. Bài chỉ sống trong truyền miệng chưa có ghi âm nằm trong hàng đợi chờ chiến dịch ghi âm.
+`ly_do_chon` là **một câu nêu căn cứ**, ví dụ: "Bản phổ biến nhất trong các nguồn đã thấy." Không viết "bản đúng", "bản gốc", "bản chuẩn".
 
-## 3. Viết nghĩa
+## 4. Viết nghĩa
 
-**`nghia_ngan`** (hiện ở khối "Hiểu trong 10 giây", kết quả tìm, thẻ chia sẻ):
+**`nghia_ngan`** (khối "Hiểu trong 10 giây", kết quả tìm, mô tả trên Google):
 - Một câu, nên ≤ 25 từ, tối đa 40.
 - Nói **bài này nói gì**, không nói "bài này dạy ta bài học sâu sắc".
-- Có nhiều cách hiểu: `nghia_ngan` nêu phần các cách hiểu cùng chấp nhận; nếu không có phần chung, viết thẳng "Câu này có nhiều cách hiểu: …" và để chi tiết ở `dien_giai`. Không chọn một cách hiểu làm "đúng" khi tài liệu chưa thống nhất.
+- Có nhiều cách hiểu: nêu phần các cách hiểu cùng chấp nhận; nếu không có phần chung, viết thẳng "Câu này có nhiều cách hiểu: …". Không chọn một cách hiểu làm "đúng" khi tài liệu chưa thống nhất.
 
 **`dien_giai`** (nghĩa và cách hiểu):
-- Mỗi góc nhìn một mục, có nguồn. Góc nhìn đầu tiên luôn là "Nghĩa phổ thông".
-- Góc nhìn khác (văn hóa học, ngôn ngữ học…) chỉ thêm khi có tài liệu nói như vậy.
-- Cách hiểu còn tranh luận: ghi "Có ý kiến cho rằng… (nguồn)", và cân nhắc đặt `tranh_luan: true`.
+- Mỗi góc nhìn một mục. Góc nhìn đầu tiên luôn là "Nghĩa phổ thông".
+- Dựa vào ý của nguồn nào thì ghi nguồn đó (`cach_dung: tham_khao`). Góc nhìn chuyên môn (văn hóa học, ngôn ngữ học…) chỉ thêm khi có tài liệu nói như vậy.
+- Cách hiểu còn tranh luận: "Có ý kiến cho rằng… (nguồn)", cân nhắc `tranh_luan: true`.
 
-**Tục ngữ:** điền `nghia_den`; có nghĩa bóng thì điền `nghia_bong`. Tục ngữ kinh nghiệm (thời tiết, nông nghiệp, sức khỏe) có thể thêm `goc_kiem_chung`; để `chua_ro` khi chưa có nguồn khoa học dẫn được.
-
-## 4. Viết tầng đời thường
-
-**`mo_ta_tinh_huong`** (≥ 2 câu): viết như người thường nói, ngôi thứ hai.
-- Tốt: "Khi bạn muốn nói lời biết ơn cha mẹ mà không biết diễn đạt thế nào."
-- Không tốt: "Thể hiện đạo lý hiếu nghĩa trong văn hóa truyền thống."
-
-**"Hợp khi…"** (trong tệp tình huống): một câu cho biết bài này hợp với hoàn cảnh nào **trong tình huống đó**.
-- Chỉ viết khi bài **thật sự hợp**. Không ghép gượng để tình huống đủ 3 bài.
-- Ví dụ khớp gượng cần tránh: ghép "Công cha như núi Thái Sơn" với "thương mẹ nhưng vừa cãi nhau" chỉ vì cùng nói về cha mẹ.
+**Tục ngữ:** điền `nghia_den`; có nghĩa bóng thì điền `nghia_bong`. Tục ngữ kinh nghiệm có thể thêm `goc_kiem_chung`; để `chua_ro` khi chưa có nguồn khoa học dẫn được.
 
 ## 5. Chú giải và mục từ
 
-**Phép thử chú giải:** học sinh lớp 7 có thể không hiểu hoặc hiểu sai từ này không? Có thì chú giải.
-Chú giải: từ cổ, phương ngữ, Hán Việt, điển tích, địa danh, nhân vật, phong tục, đồ vật cũ. Không chú giải từ phổ thông ("chiều", "đứng") trừ khi có nghĩa riêng.
+**Phép thử chú giải:** học sinh lớp 7 có thể không hiểu hoặc hiểu sai từ này không? Có thì chú giải. Chú giải: từ cổ, phương ngữ, Hán Việt, điển tích, địa danh, nhân vật, phong tục, đồ vật cũ. Không chú giải từ phổ thông.
 
-**Cách khai chú giải:** gõ cụm từ đúng như trong lời: `{ di_ban: v1, cum_tu: "Thái Sơn", muc_tu: lx-thai-son }`. Không cần đếm dòng hay âm tiết. Chỉ khi máy báo "xuất hiện N lần" mới thêm `dong` (cụm từ ở nhiều dòng) hoặc `lan` (lặp trong cùng dòng).
+**Cách khai:** gõ cụm từ đúng như trong lời: `{ di_ban: v1, cum_tu: "Thái Sơn", muc_tu: lx-thai-son }`. Chỉ khi máy báo "xuất hiện N lần" mới thêm `dong` hoặc `lan`.
 
-**Trước khi tạo mục từ mới:** tìm trong `content/muc-tu/` (kể cả `bien_the`). Đã có thì trỏ tới; nghĩa trong bài khác nghĩa chung thì dùng `nghia_tai_cho`.
+**Trước khi tạo mục từ mới:** tìm trong danh sách mục từ (kể cả `bien_the`). Đã có thì trỏ tới; nghĩa trong bài khác nghĩa chung thì dùng `nghia_tai_cho`.
 
-**`giai_nghia`** ≤ 40 từ, có nguồn từ điển hoặc sách tham khảo. **`giai_nghia_day_du`** cho trang từ điển: có thể dài hơn, vẫn phải có nguồn.
+**Viết giải nghĩa từ chú thích tham chiếu (D-046):**
+- Đọc chú thích của Ca dao Mẹ (hoặc nguồn khác) để **hiểu ý**, rồi **viết lại bằng lời của mình**; ghi nguồn với `cach_dung: tham_khao`. Trang sẽ hiện "Tham khảo: Ca dao Mẹ ↗".
+- **Chép nguyên văn** (`cach_dung: trich_nguyen_van`) chỉ khi: nguồn đã cho phép bằng văn bản, **hoặc** là định nghĩa rất ngắn (≤ 15 từ) mà cách viết đúng nào cũng gần như trùng. Máy chặn trường hợp khác (R20) — kể cả ở bài nháp, vì kho mã là công khai.
+- Không bao giờ chép ảnh hay đoạn bình dài.
+- `giai_nghia` ≤ 40 từ. `giai_nghia_day_du` cho trang từ điển: viết bằng lời của dự án.
 
 ## 6. Âm luật và diễn xướng
 
-- **`am_luat`:** chỉ điền khi người biên soạn tự kiểm từng tiếng (ví dụ cách ngắt nhịp, cặp vần). Không chép luật bằng trắc do AI sinh ra mà không kiểm.
+- **`am_luat`:** chỉ điền khi tự kiểm từng tiếng. Không chép luật bằng trắc do AI sinh ra mà không kiểm.
 - **`dien_xuong`:** chỉ ghi hình thức diễn xướng có căn cứ. Không rõ thì `khong_ro`. **Không bịa bối cảnh cho đủ trường.**
 
 ## 7. Bài có định kiến xưa
 
-Một số ca dao, tục ngữ phản ánh định kiến (giới, vùng miền, nghề nghiệp, dân tộc):
 - **Giữ nguyên văn bản** như tư liệu.
 - Viết `canh_bao_noi_dung`: giải thích bối cảnh xã hội, không phán xét áp đặt, không lờ đi.
-- **Không** gắn vào tình huống mang tính khuyên dùng (máy kiểm R11); **không** cho tạo thẻ chia sẻ (giao diện kiểm, `20` mục 7).
+- **Không** gắn vào tình huống (R11 chặn) — bài vẫn công khai được mà không cần tình huống.
 
 ## 8. Nghi không phải dân gian
 
-Đặt `xac_thuc_dan_gian: nghi_gan_nham` hoặc `phong_tac_hien_dai` **chỉ khi có căn cứ cụ thể** (tác giả đã biết, lần xuất hiện đầu gần đây, bản dịch từ tiếng nước ngoài…), ghi ở `can_cu_xac_thuc_dan_gian`. Một lỗi ở loại nhãn này gây hại uy tín gấp nhiều lần; chưa chắc thì để `binh_thuong` và ghi chú nội bộ.
+Đặt `xac_thuc_dan_gian: nghi_gan_nham` hoặc `phong_tac_hien_dai` **chỉ khi có căn cứ cụ thể**, ghi ở `can_cu_xac_thuc_dan_gian`. Chưa chắc thì để `binh_thuong` và ghi chú nội bộ. Các bài trào phúng hiện đại trên trang web nguồn nếu được chọn thì phải mang cờ này kèm căn cứ.
 
 ## 9. Văn phong
 
@@ -107,32 +107,30 @@ Một số ca dao, tục ngữ phản ánh định kiến (giới, vùng miền,
 | Giải thích bối cảnh xã hội xưa | Phán xét đạo đức áp đặt |
 | Tầng đời thường: ngôi thứ hai, từ ngữ hằng ngày | Từ hàn lâm trong phần dành cho người trẻ |
 | Ghi "chưa rõ" khi chưa rõ | Bịa bối cảnh cho đủ trường |
-| "Bản tham chiếu", "dị bản", "cộng đồng ghi nhận" | "Bản gốc", "bản đúng", "bản chuẩn", "bản sai" |
+| "Bản tham chiếu", "dị bản", "lời phổ biến" | "Bản gốc", "bản đúng", "bản chuẩn", "bản sai" |
 | Tôn trọng giọng địa phương | Chế giễu hoặc "sửa" phương ngữ |
 
-**Quy ước bỏ dấu** cho văn bản dự án tự viết: **chờ Q-004.** Lời trích từ sách luôn giữ nguyên bản in.
+**Đặt dấu** cho văn bản dự án tự viết: theo SGK, dấu ở âm chính — **hoà, thuỷ, khoẻ** (D-038). Lời trích luôn giữ nguyên như nguồn.
 
 ## 10. Quy tắc dùng AI
 
-1. AI **chỉ** làm việc trên đoạn nguồn người biên soạn đưa vào lệnh.
+1. AI **chỉ** làm việc trên nội dung nguồn được đưa vào lệnh (lời từ kho thô, chú thích tham chiếu).
 2. AI **không bao giờ** là nguồn. Không ghi "theo AI…" ở bất cứ đâu.
-3. Mọi tên sách, số trang, niên đại, địa danh, vùng do AI đưa ra mà không có trong đoạn nguồn: **xóa**.
-4. Mọi chuỗi AI viết mang tiền tố `NHAP_AI` cho tới khi người biên soạn viết lại. Máy chặn xuất bản nếu còn.
-5. AI không được đặt mức A/B, không được đặt trạng thái khác `nhap`.
+3. AI **không bao giờ** viết hay sửa lời, dị bản, tên sách, số trang, niên đại, địa danh, vùng (lằn ranh 1).
+4. Mọi chuỗi AI viết mang tiền tố `NHAP_AI`. Chỉ lên trang khi người biên soạn đã đọc và đánh dấu `nhap_ai_da_duyet` (D-042); trang khi đó hiện "Phần giải nghĩa có hỗ trợ của AI, đã được người biên soạn duyệt".
+5. AI không được đặt trạng thái khác `nhap`, không đặt `nhap_ai_da_duyet`, không đặt `cach_dung: trich_nguyen_van`.
 6. Lệnh mẫu lưu ở `templates/prompt-soan-nhap.md`; sửa lệnh thì ghi vào `01`.
 
-## 11. Danh sách kiểm định trước khi xuất bản
+## 11. Danh sách kiểm trước khi công khai
 
-Máy kiểm phần có mã R; người kiểm phần còn lại.
+Máy kiểm phần có mã R (tầng LỖI chặn; tầng NHẮC hiện ở Bàn biên tập); người kiểm phần còn lại. Bài được công khai khi các mục **in đậm** đạt — phần còn lại cải tiến dần.
 
-- [ ] Lời bản tham chiếu khớp từng chữ với ≥ 1 nguồn in, có số trang. (R08, R17)
-- [ ] Mỗi dị bản có nguồn, vùng, mức bằng chứng. (R02, R08)
-- [ ] Mọi từ học sinh lớp 7 có thể không hiểu đều có chú giải; mỗi chú giải trỏ mục từ có nguồn. (R06, R09)
-- [ ] `nghia_ngan` một câu, không sáo rỗng, ≤ 40 từ. (R07)
-- [ ] Mỗi cách hiểu trong `dien_giai` có nguồn; cách hiểu tranh luận được nói rõ. (R10, R14)
+- [ ] **Bản tham chiếu có nguồn gốc ghi rõ; nguồn web có url và ngày truy cập.** (R21, R22)
+- [ ] **Đã đọc và đồng ý mọi phần AI soạn.** (R09)
+- [ ] **Không có chú thích chép nguyên văn trái quy tắc.** (R20)
+- [ ] **Bài có cảnh báo/cờ không nằm trong tình huống.** (R11)
+- [ ] `nghia_ngan` một câu, không sáo rỗng, ≤ 40 từ. (R07, R10)
+- [ ] Từ khó với học sinh lớp 7 có chú giải; mục từ có nguồn. (R06, R10)
 - [ ] Không có khẳng định niên đại, tác giả, địa danh gốc, bối cảnh diễn xướng không có căn cứ.
-- [ ] ≥ 2 câu `mo_ta_tinh_huong` viết như người thường nói; thuộc ≥ 1 tình huống với "Hợp khi…" thật sự hợp. (R10)
-- [ ] Bài có định kiến xưa có `canh_bao_noi_dung` và không nằm trong tình huống khuyên dùng. (R11)
-- [ ] Không còn `CAN_BO_SUNG` / `NHAP_AI`. (R09)
-- [ ] Xem trước trên điện thoại: lời xuống dòng đúng, chú giải mở được, thẻ chia sẻ đúng dấu.
-- [ ] Đọc lại sau ≥ 24 giờ.
+- [ ] Thuộc ≥ 1 tình huống thật sự hợp (nếu có). (R10)
+- [ ] Xem trước trên điện thoại: lời xuống dòng đúng, chú giải mở được, nhãn và dòng nguồn gốc đúng.

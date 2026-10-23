@@ -1,5 +1,6 @@
-# Bộ từ vựng kiểm soát v1 — Kho tàng Ca dao Tục ngữ Việt Nam
-# Đặc tả: docs/10-dac-ta-du-lieu.md (mục 7)
+# Bộ từ vựng kiểm soát v2 — Kho tàng Ca dao Tục ngữ Việt Nam
+# Đặc tả: docs/10-dac-ta-du-lieu.md (mục 7). v2 (D-041, D-046): trang_thai thêm cong_khai, ngừng cho_kiem_dinh/da_xuat_ban;
+# xac_thuc thành mã nhãn do máy tự tính; thêm nhóm cach_dung.
 #
 # Quy tắc:
 # - `ma` chỉ gồm chữ thường không dấu, chữ số và gạch dưới (ngoại lệ duy nhất: mức A/B/C/D).
@@ -25,15 +26,22 @@ the_tho:
 
 trang_thai:
   - { ma: nhap, nhan: "Nháp", mo_ta: "Đang biên soạn. Không lên trang." }
-  - { ma: cho_kiem_dinh, nhan: "Chờ kiểm định", mo_ta: "Đã xong, chờ đọc lại sau ít nhất 24 giờ. Không lên trang." }
-  - { ma: da_xuat_ban, nhan: "Đã xuất bản", mo_ta: "Hiển thị công khai." }
-  - { ma: an, nhan: "Ẩn", mo_ta: "Từng xuất bản, tạm ẩn vì lỗi hoặc khiếu nại. Không lên trang." }
+  - { ma: cho_kiem_dinh, nhan: "Chờ kiểm định", ngung_dung: true, mo_ta: "Ngừng từ D-041." }
+  - { ma: da_xuat_ban, nhan: "Đã xuất bản", ngung_dung: true, mo_ta: "Ngừng từ D-041; thay bằng cong_khai." }
+  - { ma: cong_khai, nhan: "Công khai", mo_ta: "Hiển thị trên trang, kèm nhãn mức kiểm do máy tính." }
+  - { ma: an, nhan: "Ẩn", mo_ta: "Tạm ẩn vì lỗi hoặc khiếu nại. Không lên trang." }
 
+# Mã nhãn bằng chứng của dị bản. KHÔNG nhập tay: máy tính từ nguồn (scripts/lib/suy-ra.mjs, D-041).
 xac_thuc:
-  - { ma: A, nhan: "Đã đối chiếu tư liệu", mo_ta: "Đối chiếu trực tiếp bản in, có số trang." }
-  - { ma: B, nhan: "Có tư liệu điền dã", mo_ta: "Có ghi âm hoặc phiếu điền dã từ người kể, có đồng ý." }
-  - { ma: C, nhan: "Cộng đồng ghi nhận", mo_ta: "Người dùng gửi, đã qua duyệt hình thức, chưa đối chiếu." }
-  - { ma: D, nhan: "Chưa đủ nguồn", mo_ta: "Đầu mối nội bộ. Không bao giờ hiển thị." }
+  - { ma: A, nhan: "Đã đối chiếu tư liệu", mo_ta: "Nguồn in hoặc bản quét đã xác minh, có số trang." }
+  - { ma: B, nhan: "Ghi từ người kể", mo_ta: "Có ghi âm hoặc phiếu điền dã được phép công bố." }
+  - { ma: C, nhan: "Cộng đồng gửi", mo_ta: "Người dùng gửi, đã qua duyệt hình thức, chưa đối chiếu." }
+  - { ma: D, nhan: "Lời phổ biến – chưa đối chiếu", mo_ta: "Có nguồn gốc (thường là trang web) nhưng chưa đối chiếu với tư liệu." }
+
+# Cách dùng một nguồn cho chú thích / diễn giải (D-046, R20).
+cach_dung:
+  - { ma: tham_khao, nhan: "Tham khảo", mo_ta: "Lấy ý nghĩa, dự án tự viết lại bằng lời của mình." }
+  - { ma: trich_nguyen_van, nhan: "Trích nguyên văn", mo_ta: "Chỉ khi nguồn cho phép, hoặc là định nghĩa rất ngắn (≤ 15 từ)." }
 
 xac_thuc_dan_gian:
   - { ma: binh_thuong, nhan: "Bình thường" }

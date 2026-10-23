@@ -1,7 +1,7 @@
 ## Công việc
 
 - Task: T-xxx
-- Giai đoạn: GĐx
+- Mốc: Chuẩn bị / A / B / C
 - AI-Agent: <!-- Codex / Claude Code / công cụ khác -->
 
 ## Mục tiêu
@@ -19,12 +19,13 @@
 ## Tiêu chí chấp nhận
 
 - [ ] Đã đối chiếu đầy đủ acceptance criteria trong backlog.
-- [ ] Không mở rộng scope sang phase/tính năng khác.
+- [ ] Không mở rộng scope sang mốc/tính năng khác.
+- [ ] Không vượt ba lằn ranh (AGENTS.md): AI không viết lời/nguồn; nhãn không nhập tay; không dữ liệu cá nhân; không chép chú thích/ảnh của nguồn; kho thô không vào repo này.
 
 ## Kiểm tra
 
 - [ ] `npm run kiem-tra`
-- [ ] Kiểm tra bổ sung theo task/phase (nếu có)
+- [ ] Kiểm tra bổ sung theo task/mốc (nếu có)
 
 Kết quả chính:
 
@@ -32,9 +33,10 @@ Kết quả chính:
 Dán tóm tắt kết quả kiểm tra ở đây.
 ```
 
-## Ảnh hưởng tới cổng chất lượng
+## Bản xem trước và mốc
 
-<!-- Cổng nào? Điều kiện nào được tiến thêm? -->
+- Link bản xem trước: <!-- bắt buộc từ T-035; người sáng lập duyệt bằng điện thoại -->
+- Điều kiện xong của mốc (docs/22 mục 2) được tiến thêm:
 
 ## Human Gate / câu hỏi còn lại
 

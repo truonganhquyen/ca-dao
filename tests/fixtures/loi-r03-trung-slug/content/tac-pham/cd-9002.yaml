@@ -1,0 +1,31 @@
+# DỮ LIỆU GIẢ — lời không phải ca dao thật.
+id: cd-9002
+slug: dong-thu-nghiem
+the_loai: ca_dao
+the_tho: luc_bat
+tieu_de: "Câu thử khác hẳn dòng một"
+ban_dai_dien: v1
+ly_do_chon: "Bản duy nhất trong dữ liệu thử."
+di_ban:
+  - id: v1
+    loi: |
+      Câu thử khác hẳn dòng một
+      Câu thử khác hẳn dòng hai
+    vung: [toan_quoc]
+    nguon:
+      - { ref: src-sach-thu, trang: "12" }
+chu_giai: []
+nghia_ngan: "Nghĩa ngắn giả dùng để kiểm thử."
+dien_giai:
+  - goc_nhin: "Nghĩa phổ thông"
+    noi_dung: "Diễn giải giả."
+    nguon:
+      - { ref: src-sach-thu, trang: "12" }
+mo_ta_tinh_huong:
+  - "Khi bạn chạy kiểm thử"
+  - "Khi bạn kiểm tra công cụ"
+chu_de: [gia_dinh]
+xac_thuc_dan_gian: binh_thuong
+tranh_luan: false
+trang_thai: nhap
+bien_soan: { nguoi: ctb-0001, ngay_tao: "2026-10-04" }

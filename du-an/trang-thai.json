@@ -1,22 +1,23 @@
 {
-  "phien_ban": 1,
-  "cap_nhat": "2026-10-06",
-  "giai_doan": "GD0",
-  "ten_giai_doan": "Chung minh mo hinh du lieu",
+  "phien_ban": 2,
+  "cap_nhat": "2026-10-23",
+  "huong": "v2 — Trung thực hơn hoàn hảo (D-039)",
+  "thu_tu_giai_doan": ["CHUAN_BI", "MOC_A", "MOC_B", "MOC_C", "SAU"],
+  "giai_doan": "CHUAN_BI",
+  "ten_giai_doan": "Tài khoản, tài liệu v2, thư cho nguồn",
   "trang_thai_giai_doan": "DANG_THUC_HIEN",
-  "cong_chat_luong_tiep_theo": "GD0_EXIT",
+  "moc_tiep_theo": "MOC_A",
   "cong_viec_hien_tai": null,
   "human_gate_dang_chan": [],
-  "quyet_dinh_dang_mo": ["Q-001", "Q-002", "Q-003", "Q-004", "Q-005", "Q-006", "Q-007", "Q-008"],
+  "quyet_dinh_dang_mo": ["Q-005", "Q-006", "Q-007", "Q-008"],
   "schema": {
-    "da_dong_bang": false
+    "phien_ban": "2.0"
   },
-  "ho_so_gd0": {
-    "muc_tieu": 10,
-    "hoan_thanh": 0
+  "noi_dung": {
+    "muc_tieu_mvp": "100–150"
   },
   "kiem_tra_cuoi": {
-    "trang_thai": "CHUA_CHAY",
-    "thoi_diem": null
+    "trang_thai": "DAT",
+    "thoi_diem": "2026-10-23"
   }
 }

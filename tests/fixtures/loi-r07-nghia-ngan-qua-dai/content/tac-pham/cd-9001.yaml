@@ -1,0 +1,32 @@
+# DỮ LIỆU GIẢ — lời không phải ca dao thật.
+id: cd-9001
+slug: dong-thu-nghiem
+the_loai: ca_dao
+the_tho: luc_bat
+tieu_de: "Dòng thử nghiệm thứ nhất"
+ban_dai_dien: v1
+ly_do_chon: "Bản duy nhất trong dữ liệu thử."
+di_ban:
+  - id: v1
+    loi: |
+      Dòng thử nghiệm thứ nhất
+      Dòng thứ hai có từ mẫu ở đây
+    vung: [toan_quoc]
+    nguon:
+      - { ref: src-sach-thu, trang: "12" }
+chu_giai:
+  - { di_ban: v1, cum_tu: "từ mẫu", muc_tu: lx-tu-mau }
+nghia_ngan: "từ1 từ2 từ3 từ4 từ5 từ6 từ7 từ8 từ9 từ10 từ11 từ12 từ13 từ14 từ15 từ16 từ17 từ18 từ19 từ20 từ21 từ22 từ23 từ24 từ25 từ26 từ27 từ28 từ29 từ30 từ31 từ32 từ33 từ34 từ35 từ36 từ37 từ38 từ39 từ40 từ41 từ42 từ43 từ44 từ45"
+dien_giai:
+  - goc_nhin: "Nghĩa phổ thông"
+    noi_dung: "Diễn giải giả."
+    nguon:
+      - { ref: src-sach-thu, trang: "12" }
+mo_ta_tinh_huong:
+  - "Khi bạn chạy kiểm thử"
+  - "Khi bạn kiểm tra công cụ"
+chu_de: [gia_dinh]
+xac_thuc_dan_gian: binh_thuong
+tranh_luan: false
+trang_thai: cong_khai
+bien_soan: { nguoi: ctb-0001, ngay_tao: "2026-10-04" }

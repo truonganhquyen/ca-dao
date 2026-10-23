@@ -1,6 +1,6 @@
-# Thứ tự thẻ tình huống ở khu "Hôm nay bạn đang…" trên trang chủ (T-108).
+# Thứ tự thẻ tình huống ở khu "Hôm nay bạn đang…" trên trang chủ (T-043).
 # Mỗi dịp: khoảng ngày (YYYY-MM-DD, bao gồm hai đầu) và danh sách id tình huống đưa lên đầu.
-# Ngoài mọi khoảng: dùng `mac_dinh`. Tình huống chưa đủ 3 bài đã xuất bản thì bị bỏ qua.
+# Ngoài mọi khoảng: dùng `mac_dinh`. Tình huống chưa đủ 2 bài công khai (NGUONG_TRANG_TINH_HUONG) thì bị bỏ qua.
 # Dịp theo lịch âm (Tết, Vu Lan, Trung thu) phải kiểm ngày dương lịch mỗi năm trước khi thêm.
 
 mac_dinh: [sit-biet-on-cha-me, sit-khi-nho-me, sit-xa-que, sit-tham-thuong-trom-nho, sit-kien-tri, sit-doan-ket, sit-loi-an-tieng-noi, sit-doan-mua-nang]

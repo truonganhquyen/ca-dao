@@ -1,0 +1,8 @@
+id: au-0001
+tac_pham: cd-9001
+di_ban: v9
+loai: doc
+nguoi_the_hien: { kieu_hien_thi: an_danh, the_he: "sinh khoảng 1940" }
+tep: { url_phat: "https://example.org/thu.mp3", url_luu_tru: "https://example.org/thu-goc.wav" }
+giay_phep: cc_by_4_0
+ma_dong_y: "dy-thu-0001"

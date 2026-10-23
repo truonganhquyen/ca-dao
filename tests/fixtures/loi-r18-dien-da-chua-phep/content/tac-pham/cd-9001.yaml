@@ -14,7 +14,6 @@ di_ban:
     vung: [toan_quoc]
     nguon:
       - { ref: src-phieu-thu }
-    xac_thuc: B
 chu_giai:
   - { di_ban: v1, cum_tu: "từ mẫu", muc_tu: lx-tu-mau }
 nghia_ngan: "Nghĩa ngắn giả dùng để kiểm thử."
@@ -29,5 +28,5 @@ mo_ta_tinh_huong:
 chu_de: [gia_dinh]
 xac_thuc_dan_gian: binh_thuong
 tranh_luan: false
-trang_thai: da_xuat_ban
-bien_soan: { nguoi: ctb-0001, ngay_tao: "2026-10-04", ngay_kiem_dinh: "2026-10-05" }
+trang_thai: cong_khai
+bien_soan: { nguoi: ctb-0001, ngay_tao: "2026-10-04" }

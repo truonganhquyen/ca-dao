@@ -1,5 +1,5 @@
 # MẪU GHI ÂM — content/ghi-am/au-####.yaml (chỉ siêu dữ liệu; tệp âm thanh lưu ngoài)
-# Đặc tả: docs/10 mục 4.7 và docs/41-ghi-am-va-dong-y.md
+# Đặc tả: docs/10 mục 4.7 và docs/luu-tru/41-ghi-am-va-dong-y.md (ghi âm để sau, T-067)
 # KHÔNG tạo tệp này khi chưa có hồ sơ đồng ý hai lớp (ma_dong_y) trong kho riêng tư.
 id: au-
 tac_pham:
@@ -21,4 +21,3 @@ tep:
 giay_phep: cc_by_4_0
 ma_dong_y: ""          # mã hồ sơ đồng ý, lưu ở kho riêng tư
 ban_chep: ""           # lời chép lại đúng như nghe
-xac_thuc: B
