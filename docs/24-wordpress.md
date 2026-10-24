@@ -38,7 +38,7 @@ wordpress/
 └── tests/                   kiểm thử chạy trong Playground (kiem-thu.php, blueprint-kiem-thu.json)
 ```
 
-Giữ ít plugin bên thứ ba (mỗi plugin là một nguy cơ bảo mật). Dự kiến chỉ thêm: sao lưu, chống spam form, SEO (T-050).
+Giữ ít plugin bên thứ ba (mỗi plugin là một nguy cơ bảo mật). Đang dùng: Two Factor (xác thực hai lớp, của WordPress.org). Dự kiến chỉ thêm: chống spam form, SEO (T-050). Sao lưu do FlashPanel làm.
 
 ## 3. Mô hình dữ liệu
 
@@ -72,7 +72,7 @@ Kiểu bộ đọc: `cadao_me` (API WordPress + trang, đã kiểm ở T-038); s
 
 ## 6. Phát triển và kiểm thử tại máy
 
-WordPress Playground (PHP 8.3 chạy bằng WebAssembly, cơ sở dữ liệu SQLite, có `intl`) — không cần cài PHP/MySQL. Cần Node ≥ 24.18.
+WordPress Playground (PHP 8.5 — như máy chủ — chạy bằng WebAssembly, cơ sở dữ liệu SQLite, có `intl`) — không cần cài PHP/MySQL. Cần Node ≥ 24.18.
 
 ```bash
 npm run test:wordpress            # kiểm thử plugin (CI chạy ở job "wordpress"); thêm -- --mang để thử bộ đọc trên cadao.me thật
@@ -89,15 +89,20 @@ Trên Windows (Git Bash) đặt `MSYS_NO_PATHCONV=1` để Git Bash không đổ
 
 Bài, mục từ, nguồn trong `content/*.yaml` → WordPress bằng script nhập (qua REST API hoặc WP-CLI), giữ lời nguyên văn và dòng nguồn. Sau đó ngừng triển khai site Astro; repo vẫn giữ mã plugin, theme, tài liệu.
 
-## 8. Hosting (T-074, người sáng lập chọn)
+## 8. Máy chủ (T-074, T-075)
 
-| Yêu cầu | Vì sao |
+**cadao.sdigi.net** — VPS của người sáng lập (Ubuntu 24.04), quản lý bằng **FlashPanel** (gói miễn phí), web server Apache + PHP-FPM, MariaDB 10.11. Tên miền qua Cloudflare (proxy bật, chứng chỉ Let's Encrypt do FlashPanel cấp và gia hạn). VPS còn chạy **các site khác của người sáng lập**: chỉ đụng tới site cadao.
+
+| Thành phần | Cách làm |
 |---|---|
-| PHP 8.3 trở lên, MySQL 8 / MariaDB 10.11 | WordPress 7.1 khuyến nghị PHP 8.3+ |
-| HTTPS miễn phí, sao lưu tự động hằng ngày | Nội dung nằm trong cơ sở dữ liệu, không còn trong Git |
-| Cho chạy cron thật (hoặc WP-Cron ổn định) | Nguồn tự động chạy theo lịch |
-| Cho phép kết nối ra ngoài (`wp_remote_get`) | Bộ đọc lấy bài từ nguồn |
-| Có SSH / WP-CLI (nên có) | Agent cài đặt, chuyển dữ liệu |
-| Máy chủ gần Việt Nam (nên có) | Tốc độ cho người đọc |
+| Site, PHP 8.5, SSL, cài WordPress | Người sáng lập bấm trong FlashPanel |
+| **Cách ly** | Gói miễn phí không có ô "Website Isolation" khi tạo site → *Cài Đặt → Update Owner* `cadao`: FlashPanel tạo tài khoản Linux riêng, pool PHP riêng, thêm vào nhóm `isolated` (ACL chặn vào `/home` của site khác) |
+| Bổ sung cách ly | `cai-dat.sh` gỡ `cadao` khỏi nhóm `www-data` (nhóm đó gửi lệnh được tới pool PHP chung của các site khác), `wp-config.php` quyền 600 |
+| Tiếng Việt, múi giờ, đường dẫn, plugin, cron | `wordpress/may-chu/cai-dat.sh` (chạy bằng root, chạy lại được) |
+| Cập nhật plugin sau khi gộp PR | `sudo -u cadao bash /home/cadao/bin/cap-nhat-plugin.sh` — lấy `wordpress/plugins/ca-dao` từ nhánh `main`, thay thư mục một lần |
+| Lịch chạy | `DISABLE_WP_CRON`; `/etc/cron.d/cadao-wordpress` chạy `wp cron event run --due-now` mỗi phút |
+| WP-CLI | `sudo -u cadao /home/cadao/bin/wp <lệnh>` |
+| Chặn công cụ tìm kiếm | `blog_public = 0` tới khi mở công khai (H5, T-053) — ô "Discourage search engines" của FlashPanel đã không có tác dụng, script đặt lại |
+| Sao lưu | Người sáng lập: FlashPanel → *Sao Lưu*, hằng ngày, gồm site và cơ sở dữ liệu cadao, lưu ra ngoài VPS (Google Drive…) |
 
-Lựa chọn: hosting WordPress có quản lý tại Việt Nam hoặc quốc tế, hay WordPress.com gói cho cài plugin. Agent so sánh cụ thể khi người sáng lập cần.
+Agent vào VPS bằng khóa SSH riêng trên máy người sáng lập (không dùng mật khẩu). Không ghi IP, tài khoản hay thông tin các site khác vào repo.
