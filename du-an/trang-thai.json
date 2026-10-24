@@ -1,12 +1,12 @@
 {
   "phien_ban": 2,
-  "cap_nhat": "2026-10-23",
+  "cap_nhat": "2026-10-24",
   "huong": "v2 — Trung thực hơn hoàn hảo (D-039)",
   "thu_tu_giai_doan": ["CHUAN_BI", "MOC_A", "MOC_B", "MOC_C", "SAU"],
-  "giai_doan": "CHUAN_BI",
-  "ten_giai_doan": "Tài khoản, tài liệu v2, thư cho nguồn",
+  "giai_doan": "MOC_A",
+  "ten_giai_doan": "Chạy được",
   "trang_thai_giai_doan": "DANG_THUC_HIEN",
-  "moc_tiep_theo": "MOC_A",
+  "moc_tiep_theo": "MOC_B",
   "cong_viec_hien_tai": null,
   "human_gate_dang_chan": [],
   "quyet_dinh_dang_mo": ["Q-005", "Q-006", "Q-007", "Q-008"],
@@ -18,6 +18,6 @@
   },
   "kiem_tra_cuoi": {
     "trang_thai": "DAT",
-    "thoi_diem": "2026-10-23"
+    "thoi_diem": "2026-10-24"
   }
 }
