@@ -1,5 +1,5 @@
 // TỆP SINH TỰ ĐỘNG bởi scripts/sinh-tu-schema.mjs — không sửa tay.
-// Sửa scripts/lib/schema.mjs hoặc taxonomy/tu-vung-kiem-soat.yaml rồi chạy `npm run sinh:schema`.
+// Sửa scripts/lib/schema.mjs, scripts/lib/giao-dien-cms.mjs hoặc taxonomy/tu-vung-kiem-soat.yaml rồi chạy `npm run sinh:schema`.
 
 export const TU_VUNG = {
   the_loai: [

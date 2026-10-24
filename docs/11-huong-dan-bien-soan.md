@@ -13,6 +13,8 @@ Mục tiêu của một bài: người đọc **biết** lời lấy từ đâu 
 
 ## 1. Quy trình cho một bài (mục tiêu 10–15 phút)
 
+Cách bấm trong CMS (đăng nhập, Thêm nhanh, công khai, thêm vào tình huống, đọc lỗi): `docs/huong-dan/bien-soan-cms.md`.
+
 Đường ống (T-039) đã chuẩn bị sẵn bài nháp: lời lấy nguyên văn từ nguồn có URL, bản phổ biến nhất được đề xuất làm bản tham chiếu, cụm từ gợi ý chú giải, nghĩa ngắn và mô tả tình huống do AI soạn nháp (mang `NHAP_AI`). Việc của người biên soạn là **đọc, sửa, quyết định**.
 
 | Bước | Việc trong CMS | Thời gian |

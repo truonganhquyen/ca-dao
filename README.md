@@ -59,7 +59,7 @@ npm run viec-tiep-theo # đề xuất task kỹ thuật READY tiếp theo
 │   ├── 21-kien-truc-ky-thuat.md      Astro 7, CMS, Cloudflare, tìm kiếm, kho thô, đường ống thu thập
 │   ├── 22-backlog-trien-khai.md      task T-031..T-069, mốc và điều kiện xong
 │   ├── 23-ke-hoach-kiem-thu.md       fixture, giao diện, trợ năng, tìm kiếm, tiêu chí theo mốc
-│   ├── huong-dan/                    hướng dẫn từng bước cho người sáng lập (kết nối Cloudflare…)
+│   ├── huong-dan/                    hướng dẫn từng bước cho người sáng lập (kết nối Cloudflare, đăng nhập và biên soạn trong CMS)
 │   └── luu-tru/                      tài liệu v1.2 không còn dùng hằng ngày (xem README trong đó)
 ├── taxonomy/tu-vung-kiem-soat.yaml   từ vựng kiểm soát v2
 ├── templates/                        mẫu YAML + lệnh AI soạn nháp
