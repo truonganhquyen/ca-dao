@@ -24,12 +24,13 @@
 
 ## Đang chờ người sáng lập
 
+- **Tạo đăng nhập GitHub cho CMS** (một lần, ~20 phút): theo `docs/huong-dan/dang-nhap-cms.md`, rồi gửi địa chỉ Worker cho agent — cần cho T-037.
 - **T-034** · Gửi thư cho Ca dao Mẹ — không gấp, nhưng phải xong trước khi mở công khai (T-053).
 - **T-049** · Chốt tên miền (Q-005) — trước Mốc C.
 
 ## Công việc kỹ thuật tiếp theo
 
-**T-037** (CMS Sveltia), **T-038** (kho thô) và **T-040** (trang tác phẩm) sẵn sàng, chạy song song được.
+**T-037** đang làm (chờ đăng nhập GitHub, xem trên); **T-038** (kho thô) và **T-040** (trang tác phẩm) sẵn sàng, chạy song song được.
 
 ## Quyết định đang mở
 

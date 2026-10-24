@@ -32,7 +32,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | **Mốc A · Chạy được** ||||||
 | T-035 | Khởi tạo Astro 7 + Tailwind 4 + CI + triển khai Cloudflare (D-049) | A | T-032, T-033 | — | DONE |
 | T-036 | Mô tả schema một nguồn → Zod + cấu hình CMS | A | T-035 | — | DONE |
-| T-037 | CMS Sveltia: đăng nhập GitHub, form tiếng Việt, "Thêm nhanh", duyệt nháp AI | A | T-036 | — | BLOCKED |
+| T-037 | CMS Sveltia: đăng nhập GitHub, form tiếng Việt, "Thêm nhanh", duyệt nháp AI | A | T-036 | — | IN_PROGRESS |
 | T-038 | Thu thập kho thô từ cadao.me | A | T-032, T-033 | — | BLOCKED |
 | T-039 | Đường ống ứng viên: kho thô → bài nháp trong content/ | A | T-036, T-038 | — | BLOCKED |
 | T-040 | Trang tác phẩm đọc theo lớp, nhãn tự tính, nguồn gốc, sáng/tối, in, thanh điều hướng dưới | A | T-035 | — | BLOCKED |
@@ -120,6 +120,7 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 **Đọc:** `21` mục 12; `11`.
 **Việc:** Sveltia CMS (ghim phiên bản) ở `/admin`; đăng nhập GitHub qua một Worker OAuth nhỏ; nhãn tiếng Việt, ví dụ trong từng ô; form tác phẩm theo thứ tự **Lời → Nguồn → Nghĩa → Chú giải → Tình huống → Nâng cao** (âm luật, diễn xướng, kiểm chứng: thu gọn); bộ "**Thêm nhanh**" (tiêu đề, lời, vùng, url nguồn) tạo bài `nhap`; ô đánh dấu `nhap_ai_da_duyet` ghi rõ "Tôi đã đọc và đồng ý mọi phần do AI soạn"; quan hệ tới mục từ, nguồn, mô-típ dạng chọn từ danh sách; hướng dẫn 1 trang cho người sáng lập (gồm cách thêm bài vào tình huống — quan hệ lưu ở tệp tình huống, D-010).
 **Chấp nhận:** người sáng lập tạo một bài từ điện thoại tới `cong_khai` trên bản xem trước mà không thấy YAML; lỗi kiểm tra hiện được cho người sáng lập (email CI + Bàn biên tập).
+**Tiến độ (24/10/2026):** T-037.1 — hướng dẫn tạo đăng nhập (Worker `sveltia-cms-auth` + ứng dụng OAuth GitHub): `docs/huong-dan/dang-nhap-cms.md`. Chờ người sáng lập gửi địa chỉ Worker; phần còn lại (cài Sveltia ở `/admin`, nhãn, thứ tự, "Thêm nhanh") làm ở PR tiếp theo của T-037.
 
 #### T-038 · Kho thô từ cadao.me — A
 **Đọc:** `21` mục 16; `12` mục 4; D-045, D-046.
