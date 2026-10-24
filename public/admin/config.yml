@@ -1,0 +1,1264 @@
+# TỆP SINH TỰ ĐỘNG bởi scripts/sinh-tu-schema.mjs — không sửa tay.
+# Sửa scripts/lib/schema.mjs hoặc taxonomy/tu-vung-kiem-soat.yaml rồi chạy `npm run sinh:schema`.
+backend:
+  name: github
+  repo: truonganhquyen/ca-dao
+  branch: main
+media_folder: public/tep
+collections:
+  - name: tac-pham
+    label: tac-pham
+    folder: content/tac-pham
+    extension: yaml
+    format: yaml
+    create: true
+    identifier_field: id
+    slug: "{{fields.id}}"
+    summary: "{{fields.id}} · {{fields.tieu_de}}"
+    fields:
+      - name: id
+        label: id
+        required: true
+        widget: string
+      - name: slug
+        label: slug
+        required: true
+        widget: string
+        pattern:
+          - ^[a-z0-9]+(-[a-z0-9]+)*$
+          - Sai định dạng
+      - name: the_loai
+        label: the_loai
+        required: true
+        widget: select
+        options:
+          - label: Ca dao
+            value: ca_dao
+          - label: Tục ngữ
+            value: tuc_ngu
+          - label: Thành ngữ
+            value: thanh_ngu
+          - label: Đồng dao
+            value: dong_dao
+          - label: Vè
+            value: ve
+          - label: Câu đố
+            value: cau_do
+      - name: the_tho
+        label: the_tho
+        required: false
+        widget: select
+        options:
+          - label: Lục bát
+            value: luc_bat
+          - label: Lục bát biến thể
+            value: luc_bat_bien_the
+          - label: Song thất lục bát
+            value: song_that_luc_bat
+          - label: Thể bốn chữ
+            value: van_4
+          - label: Thể năm chữ
+            value: van_5
+          - label: Hợp thể
+            value: hop_the
+      - name: tieu_de
+        label: tieu_de
+        required: true
+        widget: string
+      - name: ban_dai_dien
+        label: ban_dai_dien
+        required: true
+        widget: string
+      - name: ly_do_chon
+        label: ly_do_chon
+        required: false
+        widget: string
+      - name: di_ban
+        label: di_ban
+        required: true
+        widget: list
+        fields:
+          - name: id
+            label: id
+            required: true
+            widget: string
+            pattern:
+              - ^v\d+$
+              - Sai định dạng
+          - name: loi
+            label: loi
+            required: true
+            widget: text
+          - name: vung
+            label: vung
+            required: true
+            widget: select
+            multiple: true
+            options:
+              - label: Bắc Bộ
+                value: bac_bo
+              - label: Bắc Trung Bộ
+                value: bac_trung_bo
+              - label: Trung Trung Bộ
+                value: trung_trung_bo
+              - label: Nam Trung Bộ
+                value: nam_trung_bo
+              - label: Tây Nguyên
+                value: tay_nguyen
+              - label: Nam Bộ
+                value: nam_bo
+              - label: Phổ biến toàn quốc
+                value: toan_quoc
+              - label: Chưa rõ vùng
+                value: khong_ro
+            min: 1
+          - name: dia_danh
+            label: dia_danh
+            required: false
+            widget: string
+          - name: nguon
+            label: nguon
+            required: false
+            widget: list
+            fields:
+              - name: ref
+                label: ref
+                required: true
+                widget: relation
+                collection: nguon
+                value_field: id
+                search_fields:
+                  - id
+                  - ten
+                display_fields:
+                  - ten
+              - name: trang
+                label: trang
+                required: false
+                widget: string
+              - name: url
+                label: url
+                required: false
+                widget: string
+                pattern:
+                  - ^https?:\/\/
+                  - Sai định dạng
+              - name: ngay_truy_cap
+                label: ngay_truy_cap
+                required: false
+                widget: datetime
+                format: YYYY-MM-DD
+                time_format: false
+              - name: ban_luu_tru
+                label: ban_luu_tru
+                required: false
+                widget: string
+                pattern:
+                  - ^https?:\/\/
+                  - Sai định dạng
+              - name: cach_dung
+                label: cach_dung
+                required: false
+                widget: select
+                options:
+                  - label: Tham khảo
+                    value: tham_khao
+                  - label: Trích nguyên văn
+                    value: trich_nguyen_van
+              - name: ghi_chu
+                label: ghi_chu
+                required: false
+                widget: string
+            default: []
+          - name: nguoi_ke
+            label: nguoi_ke
+            required: false
+            widget: object
+            fields:
+              - name: the_he
+                label: the_he
+                required: false
+                widget: string
+              - name: quan_he
+                label: quan_he
+                required: false
+                widget: string
+          - name: dong_gop
+            label: dong_gop
+            required: false
+            widget: string
+            pattern:
+              - ^sub-\d{4}-\d{4}$
+              - Sai định dạng
+          - name: ghi_chu
+            label: ghi_chu
+            required: false
+            widget: string
+        min: 1
+      - name: chu_giai
+        label: chu_giai
+        required: false
+        widget: list
+        fields:
+          - name: di_ban
+            label: di_ban
+            required: true
+            widget: string
+          - name: dong
+            label: dong
+            required: false
+            widget: number
+            value_type: int
+            min: 1
+          - name: cum_tu
+            label: cum_tu
+            required: true
+            widget: string
+          - name: lan
+            label: lan
+            required: false
+            widget: number
+            value_type: int
+            min: 1
+          - name: muc_tu
+            label: muc_tu
+            required: true
+            widget: relation
+            collection: muc-tu
+            value_field: id
+            search_fields:
+              - id
+              - tu
+            display_fields:
+              - tu
+          - name: nghia_tai_cho
+            label: nghia_tai_cho
+            required: false
+            widget: string
+      - name: nghia_ngan
+        label: nghia_ngan
+        required: false
+        widget: string
+      - name: dien_giai
+        label: dien_giai
+        required: false
+        widget: list
+        fields:
+          - name: goc_nhin
+            label: goc_nhin
+            required: true
+            widget: string
+          - name: noi_dung
+            label: noi_dung
+            required: true
+            widget: text
+          - name: nguon
+            label: nguon
+            required: false
+            widget: list
+            fields:
+              - name: ref
+                label: ref
+                required: true
+                widget: relation
+                collection: nguon
+                value_field: id
+                search_fields:
+                  - id
+                  - ten
+                display_fields:
+                  - ten
+              - name: trang
+                label: trang
+                required: false
+                widget: string
+              - name: url
+                label: url
+                required: false
+                widget: string
+                pattern:
+                  - ^https?:\/\/
+                  - Sai định dạng
+              - name: ngay_truy_cap
+                label: ngay_truy_cap
+                required: false
+                widget: datetime
+                format: YYYY-MM-DD
+                time_format: false
+              - name: ban_luu_tru
+                label: ban_luu_tru
+                required: false
+                widget: string
+                pattern:
+                  - ^https?:\/\/
+                  - Sai định dạng
+              - name: cach_dung
+                label: cach_dung
+                required: false
+                widget: select
+                options:
+                  - label: Tham khảo
+                    value: tham_khao
+                  - label: Trích nguyên văn
+                    value: trich_nguyen_van
+              - name: ghi_chu
+                label: ghi_chu
+                required: false
+                widget: string
+            default: []
+      - name: nghia_den
+        label: nghia_den
+        required: false
+        widget: string
+      - name: nghia_bong
+        label: nghia_bong
+        required: false
+        widget: string
+      - name: linh_vuc
+        label: linh_vuc
+        required: false
+        widget: select
+        multiple: true
+        options:
+          - label: Thời tiết
+            value: thoi_tiet
+          - label: Nông nghiệp
+            value: nong_nghiep
+          - label: Ứng xử
+            value: ung_xu
+          - label: Gia đình
+            value: gia_dinh
+          - label: Xã hội
+            value: xa_hoi
+          - label: Sức khỏe
+            value: suc_khoe
+          - label: Kinh nghiệm sống
+            value: kinh_nghiem_song
+      - name: goc_kiem_chung
+        label: goc_kiem_chung
+        required: false
+        widget: object
+        fields:
+          - name: ket_luan
+            label: ket_luan
+            required: true
+            widget: select
+            options:
+              - label: Có cơ sở
+                value: co_co_so
+              - label: Đúng một phần
+                value: mot_phan
+              - label: Chưa rõ
+                value: chua_ro
+              - label: Không đúng theo hiểu biết hiện nay
+                value: khong_dung
+          - name: noi_dung
+            label: noi_dung
+            required: false
+            widget: text
+          - name: nguon
+            label: nguon
+            required: false
+            widget: list
+            fields:
+              - name: ref
+                label: ref
+                required: true
+                widget: relation
+                collection: nguon
+                value_field: id
+                search_fields:
+                  - id
+                  - ten
+                display_fields:
+                  - ten
+              - name: trang
+                label: trang
+                required: false
+                widget: string
+              - name: url
+                label: url
+                required: false
+                widget: string
+                pattern:
+                  - ^https?:\/\/
+                  - Sai định dạng
+              - name: ngay_truy_cap
+                label: ngay_truy_cap
+                required: false
+                widget: datetime
+                format: YYYY-MM-DD
+                time_format: false
+              - name: ban_luu_tru
+                label: ban_luu_tru
+                required: false
+                widget: string
+                pattern:
+                  - ^https?:\/\/
+                  - Sai định dạng
+              - name: cach_dung
+                label: cach_dung
+                required: false
+                widget: select
+                options:
+                  - label: Tham khảo
+                    value: tham_khao
+                  - label: Trích nguyên văn
+                    value: trich_nguyen_van
+              - name: ghi_chu
+                label: ghi_chu
+                required: false
+                widget: string
+      - name: am_luat
+        label: am_luat
+        required: false
+        widget: object
+        fields:
+          - name: nhip
+            label: nhip
+            required: false
+            widget: string
+          - name: van
+            label: van
+            required: false
+            widget: list
+            field:
+              name: muc
+              label: muc
+              required: true
+              widget: string
+          - name: ghi_chu
+            label: ghi_chu
+            required: false
+            widget: string
+      - name: dien_xuong
+        label: dien_xuong
+        required: false
+        widget: object
+        fields:
+          - name: hinh_thuc
+            label: hinh_thuc
+            required: false
+            widget: select
+            multiple: true
+            options:
+              - label: Hát ru
+                value: hat_ru
+              - label: Hò lao động
+                value: ho_lao_dong
+              - label: Hát đối đáp
+                value: hat_doi_dap
+              - label: Lý
+                value: ly
+              - label: Đồng dao, trò chơi
+                value: dong_dao_tro_choi
+              - label: Nói thường
+                value: noi_thuong
+              - label: Chưa rõ
+                value: khong_ro
+          - name: nguoi_the_hien
+            label: nguoi_the_hien
+            required: false
+            widget: string
+          - name: boi_canh
+            label: boi_canh
+            required: false
+            widget: string
+      - name: mo_ta_tinh_huong
+        label: mo_ta_tinh_huong
+        required: false
+        widget: list
+        field:
+          name: muc
+          label: muc
+          required: true
+          widget: string
+      - name: cam_xuc
+        label: cam_xuc
+        required: false
+        widget: select
+        multiple: true
+        options:
+          - label: Thương nhớ
+            value: thuong_nho
+          - label: Biết ơn
+            value: biet_on
+          - label: Tự hào
+            value: tu_hao
+          - label: Xót xa
+            value: xot_xa
+          - label: Hờn dỗi
+            value: hon_doi
+          - label: Vui tươi
+            value: vui_tuoi
+          - label: Chế giễu
+            value: che_gieu
+          - label: Khuyên răn
+            value: khuyen_ran
+          - label: An ủi
+            value: an_ui
+          - label: Hy vọng
+            value: hy_vong
+          - label: Say đắm
+            value: say_dam
+          - label: Chua chát
+            value: chua_chat
+        max: 5
+      - name: chu_de
+        label: chu_de
+        required: false
+        widget: select
+        multiple: true
+        options:
+          - label: Gia đình
+            value: gia_dinh
+          - label: Tình yêu, hôn nhân
+            value: tinh_yeu_hon_nhan
+          - label: Quê hương, đất nước
+            value: que_huong_dat_nuoc
+          - label: Lao động, sản xuất
+            value: lao_dong_san_xuat
+          - label: Thiên nhiên, thời tiết
+            value: thien_nhien_thoi_tiet
+          - label: Ứng xử, đạo đức
+            value: ung_xu_dao_duc
+          - label: Thân phận con người
+            value: than_phan_con_nguoi
+          - label: Phê phán xã hội
+            value: phe_phan_xa_hoi
+          - label: Hài hước, châm biếm
+            value: hai_huoc_cham_biem
+          - label: Học tập, thầy trò
+            value: hoc_tap_thay_tro
+          - label: Địa danh, lịch sử
+            value: dia_danh_lich_su
+        max: 3
+      - name: mo_tip
+        label: mo_tip
+        required: false
+        widget: relation
+        collection: mo-tip
+        value_field: id
+        search_fields:
+          - id
+          - ten
+        display_fields:
+          - ten
+        multiple: true
+      - name: lien_quan
+        label: lien_quan
+        required: false
+        widget: relation
+        collection: tac-pham
+        value_field: id
+        search_fields:
+          - id
+          - tieu_de
+        display_fields:
+          - tieu_de
+        multiple: true
+      - name: sgk
+        label: sgk
+        required: false
+        widget: list
+        fields:
+          - name: bo_sach
+            label: bo_sach
+            required: true
+            widget: select
+            options:
+              - label: Kết nối tri thức với cuộc sống
+                value: ket_noi_tri_thuc
+              - label: Chân trời sáng tạo
+                value: chan_troi_sang_tao
+              - label: Cánh Diều
+                value: canh_dieu
+          - name: lop
+            label: lop
+            required: true
+            widget: number
+            value_type: int
+            min: 1
+            max: 12
+          - name: bai
+            label: bai
+            required: false
+            widget: string
+      - name: canh_bao_noi_dung
+        label: canh_bao_noi_dung
+        required: false
+        widget: text
+      - name: xac_thuc_dan_gian
+        label: xac_thuc_dan_gian
+        required: false
+        widget: select
+        options:
+          - label: Bình thường
+            value: binh_thuong
+          - label: Nghi gán nhầm
+            value: nghi_gan_nham
+          - label: Phỏng tác hiện đại
+            value: phong_tac_hien_dai
+      - name: can_cu_xac_thuc_dan_gian
+        label: can_cu_xac_thuc_dan_gian
+        required: false
+        widget: text
+      - name: tranh_luan
+        label: tranh_luan
+        required: false
+        widget: boolean
+      - name: ghi_chu_tranh_luan
+        label: ghi_chu_tranh_luan
+        required: false
+        widget: text
+      - name: nhap_ai_da_duyet
+        label: nhap_ai_da_duyet
+        required: false
+        widget: boolean
+      - name: trang_thai
+        label: trang_thai
+        required: true
+        widget: select
+        options:
+          - label: Nháp
+            value: nhap
+          - label: Công khai
+            value: cong_khai
+          - label: Ẩn
+            value: an
+      - name: bien_soan
+        label: bien_soan
+        required: true
+        widget: object
+        fields:
+          - name: nguoi
+            label: nguoi
+            required: true
+            widget: relation
+            collection: nguoi-dong-gop
+            value_field: id
+            search_fields:
+              - id
+              - ten_hien_thi
+            display_fields:
+              - ten_hien_thi
+          - name: ngay_tao
+            label: ngay_tao
+            required: true
+            widget: datetime
+            format: YYYY-MM-DD
+            time_format: false
+  - name: muc-tu
+    label: muc-tu
+    folder: content/muc-tu
+    extension: yaml
+    format: yaml
+    create: true
+    identifier_field: id
+    slug: "{{fields.id}}"
+    summary: "{{fields.id}} · {{fields.tu}}"
+    fields:
+      - name: id
+        label: id
+        required: true
+        widget: string
+      - name: tu
+        label: tu
+        required: true
+        widget: string
+      - name: bien_the
+        label: bien_the
+        required: false
+        widget: list
+        field:
+          name: muc
+          label: muc
+          required: true
+          widget: string
+      - name: loai
+        label: loai
+        required: true
+        widget: select
+        options:
+          - label: Từ cổ
+            value: tu_co
+          - label: Phương ngữ
+            value: phuong_ngu
+          - label: Hán Việt
+            value: han_viet
+          - label: Điển tích
+            value: dien_tich
+          - label: Địa danh
+            value: dia_danh
+          - label: Nhân vật
+            value: nhan_vat
+          - label: Phong tục
+            value: phong_tuc
+          - label: Đồ vật
+            value: do_vat
+      - name: vung
+        label: vung
+        required: false
+        widget: select
+        multiple: true
+        options:
+          - label: Bắc Bộ
+            value: bac_bo
+          - label: Bắc Trung Bộ
+            value: bac_trung_bo
+          - label: Trung Trung Bộ
+            value: trung_trung_bo
+          - label: Nam Trung Bộ
+            value: nam_trung_bo
+          - label: Tây Nguyên
+            value: tay_nguyen
+          - label: Nam Bộ
+            value: nam_bo
+          - label: Phổ biến toàn quốc
+            value: toan_quoc
+          - label: Chưa rõ vùng
+            value: khong_ro
+      - name: giai_nghia
+        label: giai_nghia
+        required: true
+        widget: string
+      - name: giai_nghia_day_du
+        label: giai_nghia_day_du
+        required: false
+        widget: text
+      - name: nguon
+        label: nguon
+        required: false
+        widget: list
+        fields:
+          - name: ref
+            label: ref
+            required: true
+            widget: relation
+            collection: nguon
+            value_field: id
+            search_fields:
+              - id
+              - ten
+            display_fields:
+              - ten
+          - name: trang
+            label: trang
+            required: false
+            widget: string
+          - name: url
+            label: url
+            required: false
+            widget: string
+            pattern:
+              - ^https?:\/\/
+              - Sai định dạng
+          - name: ngay_truy_cap
+            label: ngay_truy_cap
+            required: false
+            widget: datetime
+            format: YYYY-MM-DD
+            time_format: false
+          - name: ban_luu_tru
+            label: ban_luu_tru
+            required: false
+            widget: string
+            pattern:
+              - ^https?:\/\/
+              - Sai định dạng
+          - name: cach_dung
+            label: cach_dung
+            required: false
+            widget: select
+            options:
+              - label: Tham khảo
+                value: tham_khao
+              - label: Trích nguyên văn
+                value: trich_nguyen_van
+          - name: ghi_chu
+            label: ghi_chu
+            required: false
+            widget: string
+        default: []
+      - name: xem_them
+        label: xem_them
+        required: false
+        widget: relation
+        collection: muc-tu
+        value_field: id
+        search_fields:
+          - id
+          - tu
+        display_fields:
+          - tu
+        multiple: true
+      - name: nhap_ai_da_duyet
+        label: nhap_ai_da_duyet
+        required: false
+        widget: boolean
+  - name: mo-tip
+    label: mo-tip
+    folder: content/mo-tip
+    extension: yaml
+    format: yaml
+    create: true
+    identifier_field: id
+    slug: "{{fields.id}}"
+    summary: "{{fields.id}} · {{fields.ten}}"
+    fields:
+      - name: id
+        label: id
+        required: true
+        widget: string
+      - name: ten
+        label: ten
+        required: true
+        widget: string
+      - name: mo_ta
+        label: mo_ta
+        required: true
+        widget: text
+      - name: nguon
+        label: nguon
+        required: false
+        widget: list
+        fields:
+          - name: ref
+            label: ref
+            required: true
+            widget: relation
+            collection: nguon
+            value_field: id
+            search_fields:
+              - id
+              - ten
+            display_fields:
+              - ten
+          - name: trang
+            label: trang
+            required: false
+            widget: string
+          - name: url
+            label: url
+            required: false
+            widget: string
+            pattern:
+              - ^https?:\/\/
+              - Sai định dạng
+          - name: ngay_truy_cap
+            label: ngay_truy_cap
+            required: false
+            widget: datetime
+            format: YYYY-MM-DD
+            time_format: false
+          - name: ban_luu_tru
+            label: ban_luu_tru
+            required: false
+            widget: string
+            pattern:
+              - ^https?:\/\/
+              - Sai định dạng
+          - name: cach_dung
+            label: cach_dung
+            required: false
+            widget: select
+            options:
+              - label: Tham khảo
+                value: tham_khao
+              - label: Trích nguyên văn
+                value: trich_nguyen_van
+          - name: ghi_chu
+            label: ghi_chu
+            required: false
+            widget: string
+      - name: nhap_ai_da_duyet
+        label: nhap_ai_da_duyet
+        required: false
+        widget: boolean
+  - name: nguon
+    label: nguon
+    folder: content/nguon
+    extension: yaml
+    format: yaml
+    create: true
+    identifier_field: id
+    slug: "{{fields.id}}"
+    summary: "{{fields.id}} · {{fields.ten}}"
+    fields:
+      - name: id
+        label: id
+        required: true
+        widget: string
+      - name: loai
+        label: loai
+        required: true
+        widget: select
+        options:
+          - label: Sách
+            value: sach
+          - label: Tạp chí
+            value: tap_chi
+          - label: Luận văn, luận án
+            value: luan_van
+          - label: Phiếu điền dã
+            value: dien_da
+          - label: Bản ghi âm
+            value: ghi_am
+          - label: Trang web
+            value: web
+          - label: Đóng góp cộng đồng
+            value: dong_gop
+      - name: tac_gia
+        label: tac_gia
+        required: true
+        widget: list
+        field:
+          name: muc
+          label: muc
+          required: true
+          widget: string
+        min: 1
+      - name: ten
+        label: ten
+        required: true
+        widget: string
+      - name: nxb
+        label: nxb
+        required: false
+        widget: string
+      - name: nam
+        label: nam
+        required: false
+        widget: number
+        value_type: int
+      - name: noi_xb
+        label: noi_xb
+        required: false
+        widget: string
+      - name: tap
+        label: tap
+        required: false
+        widget: string
+      - name: tai_ban
+        label: tai_ban
+        required: false
+        widget: string
+      - name: isbn
+        label: isbn
+        required: false
+        widget: string
+      - name: url
+        label: url
+        required: false
+        widget: string
+        pattern:
+          - ^https?:\/\/
+          - Sai định dạng
+      - name: ban_quyen
+        label: ban_quyen
+        required: true
+        widget: select
+        options:
+          - label: Thuộc phạm vi công cộng
+            value: cong_cong
+          - label: Có bản quyền
+            value: co_ban_quyen
+          - label: Được phép sử dụng
+            value: duoc_phep
+          - label: Chưa rõ
+            value: chua_ro
+      - name: da_xac_minh_ban_in
+        label: da_xac_minh_ban_in
+        required: true
+        widget: boolean
+      - name: ghi_chu
+        label: ghi_chu
+        required: false
+        widget: text
+  - name: tinh-huong
+    label: tinh-huong
+    folder: content/tinh-huong
+    extension: yaml
+    format: yaml
+    create: true
+    identifier_field: id
+    slug: "{{fields.id}}"
+    summary: "{{fields.id}} · {{fields.tieu_de}}"
+    fields:
+      - name: id
+        label: id
+        required: true
+        widget: string
+      - name: slug
+        label: slug
+        required: true
+        widget: string
+        pattern:
+          - ^[a-z0-9]+(-[a-z0-9]+)*$
+          - Sai định dạng
+      - name: tieu_de
+        label: tieu_de
+        required: true
+        widget: string
+      - name: nhom
+        label: nhom
+        required: true
+        widget: select
+        options:
+          - label: Gia đình
+            value: gia_dinh
+          - label: Tình yêu
+            value: tinh_yeu
+          - label: Quê hương
+            value: que_huong
+          - label: Học tập, lao động
+            value: hoc_tap_lao_dong
+          - label: Ứng xử
+            value: ung_xu
+          - label: Thời tiết, mùa vụ
+            value: thoi_tiet_mua_vu
+          - label: Thân phận
+            value: than_phan
+          - label: Dịp lễ
+            value: dip_le
+          - label: Vui
+            value: vui
+      - name: mo_dau
+        label: mo_dau
+        required: true
+        widget: text
+      - name: tac_pham
+        label: tac_pham
+        required: false
+        widget: list
+        fields:
+          - name: ref
+            label: ref
+            required: true
+            widget: relation
+            collection: tac-pham
+            value_field: id
+            search_fields:
+              - id
+              - tieu_de
+            display_fields:
+              - tieu_de
+          - name: hop_khi
+            label: hop_khi
+            required: true
+            widget: string
+        default: []
+      - name: tu_khoa
+        label: tu_khoa
+        required: false
+        widget: list
+        field:
+          name: muc
+          label: muc
+          required: true
+          widget: string
+      - name: nhap_ai_da_duyet
+        label: nhap_ai_da_duyet
+        required: false
+        widget: boolean
+  - name: ghi-am
+    label: ghi-am
+    folder: content/ghi-am
+    extension: yaml
+    format: yaml
+    create: true
+    identifier_field: id
+    slug: "{{fields.id}}"
+    summary: "{{fields.id}} · {{fields.id}}"
+    fields:
+      - name: id
+        label: id
+        required: true
+        widget: string
+      - name: tac_pham
+        label: tac_pham
+        required: true
+        widget: relation
+        collection: tac-pham
+        value_field: id
+        search_fields:
+          - id
+          - tieu_de
+        display_fields:
+          - tieu_de
+      - name: di_ban
+        label: di_ban
+        required: true
+        widget: string
+      - name: loai
+        label: loai
+        required: true
+        widget: select
+        options:
+          - label: Đọc
+            value: doc
+          - label: Hát ru
+            value: hat_ru
+          - label: Hò
+            value: ho
+          - label: Lý
+            value: ly
+          - label: Hát đối đáp
+            value: hat_doi_dap
+          - label: Khác
+            value: khac
+      - name: nguoi_the_hien
+        label: nguoi_the_hien
+        required: true
+        widget: object
+        fields:
+          - name: kieu_hien_thi
+            label: kieu_hien_thi
+            required: true
+            widget: select
+            options:
+              - label: Tên thật
+                value: ten_that
+              - label: Bút danh
+                value: but_danh
+              - label: Ẩn danh
+                value: an_danh
+          - name: ten_hien_thi
+            label: ten_hien_thi
+            required: false
+            widget: string
+          - name: the_he
+            label: the_he
+            required: false
+            widget: string
+          - name: vung
+            label: vung
+            required: false
+            widget: select
+            options:
+              - label: Bắc Bộ
+                value: bac_bo
+              - label: Bắc Trung Bộ
+                value: bac_trung_bo
+              - label: Trung Trung Bộ
+                value: trung_trung_bo
+              - label: Nam Trung Bộ
+                value: nam_trung_bo
+              - label: Tây Nguyên
+                value: tay_nguyen
+              - label: Nam Bộ
+                value: nam_bo
+              - label: Phổ biến toàn quốc
+                value: toan_quoc
+              - label: Chưa rõ vùng
+                value: khong_ro
+          - name: dia_danh
+            label: dia_danh
+            required: false
+            widget: string
+      - name: nguoi_ghi
+        label: nguoi_ghi
+        required: false
+        widget: relation
+        collection: nguoi-dong-gop
+        value_field: id
+        search_fields:
+          - id
+          - ten_hien_thi
+        display_fields:
+          - ten_hien_thi
+      - name: ngay_ghi
+        label: ngay_ghi
+        required: false
+        widget: datetime
+        format: YYYY-MM-DD
+        time_format: false
+      - name: dia_diem
+        label: dia_diem
+        required: false
+        widget: string
+      - name: tep
+        label: tep
+        required: true
+        widget: object
+        fields:
+          - name: url_phat
+            label: url_phat
+            required: true
+            widget: string
+          - name: url_luu_tru
+            label: url_luu_tru
+            required: true
+            widget: string
+          - name: thoi_luong
+            label: thoi_luong
+            required: false
+            widget: number
+            value_type: int
+      - name: giay_phep
+        label: giay_phep
+        required: true
+        widget: select
+        options:
+          - label: CC BY 4.0
+            value: cc_by_4_0
+          - label: CC BY-SA 4.0
+            value: cc_by_sa_4_0
+      - name: ma_dong_y
+        label: ma_dong_y
+        required: true
+        widget: string
+      - name: ban_chep
+        label: ban_chep
+        required: false
+        widget: text
+  - name: nguoi-dong-gop
+    label: nguoi-dong-gop
+    folder: content/nguoi-dong-gop
+    extension: yaml
+    format: yaml
+    create: true
+    identifier_field: id
+    slug: "{{fields.id}}"
+    summary: "{{fields.id}} · {{fields.ten_hien_thi}}"
+    fields:
+      - name: id
+        label: id
+        required: true
+        widget: string
+      - name: ten_hien_thi
+        label: ten_hien_thi
+        required: true
+        widget: string
+      - name: kieu_hien_thi
+        label: kieu_hien_thi
+        required: true
+        widget: select
+        options:
+          - label: Tên thật
+            value: ten_that
+          - label: Bút danh
+            value: but_danh
+          - label: Ẩn danh
+            value: an_danh
+      - name: vai_tro
+        label: vai_tro
+        required: true
+        widget: select
+        multiple: true
+        options:
+          - label: Biên soạn
+            value: bien_soan
+          - label: Cố vấn
+            value: co_van
+          - label: Đóng góp
+            value: dong_gop
+          - label: Người ghi âm
+            value: ghi_am
+          - label: Người thể hiện
+            value: nguoi_the_hien
+        min: 1
+      - name: gioi_thieu
+        label: gioi_thieu
+        required: false
+        widget: text

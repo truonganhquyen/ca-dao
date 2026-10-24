@@ -5,3 +5,6 @@
 *.webp binary
 *.woff2 binary
 *.mp3 binary
+# Tệp sinh từ scripts/lib/schema.mjs (npm run sinh:schema): GitHub thu gọn khi xem thay đổi
+src/sinh-ra/** linguist-generated=true
+public/admin/config.yml linguist-generated=true

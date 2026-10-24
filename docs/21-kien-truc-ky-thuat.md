@@ -51,13 +51,16 @@ ca-dao/                      (repo CÔNG KHAI: github.com/truonganhquyen/ca-dao)
 │   ├── lib/suy-ra.mjs             dữ liệu suy ra — dùng chung cho kiểm tra và build
 │   ├── lib/backlog.mjs            đọc trạng thái và backlog
 │   ├── kiem-lien-ket.mjs          kiểm liên kết nội bộ trong dist/ (kiểm thử: tests/lien-ket/)
-│   ├── lib/schema.mjs             (T-036) mô tả schema một nguồn → Zod + cấu hình CMS
+│   ├── lib/schema.mjs             mô tả schema một nguồn (hình dạng dữ liệu) — dùng chung cho validator và bộ sinh
+│   ├── sinh-tu-schema.mjs         sinh Zod, kiểu từ vựng, cấu hình CMS (--kiem: báo lệch)
 │   ├── ung-vien/                  (T-039) đường ống kho thô → bài nháp
 │   └── tao-chi-muc-tim.mjs        (T-041) chỉ mục tìm kiếm
 ├── tests/fixtures/          bộ dữ liệu kiểm thử (tests/lien-ket/: bản build mẫu cho bộ kiểm liên kết)
 ├── src/                     mã Astro: trang, thành phần, đảo tương tác; src/styles/global.css: token màu + Tailwind
 ├── public/                  tệp tĩnh chép nguyên vào dist/
-├── public/admin/            Sveltia CMS (cấu hình sinh tự động ở T-036)
+├── public/admin/            Sveltia CMS: config.yml sinh tự động (T-036), mã CMS ở T-037
+├── src/content.config.ts    7 content collections (glob loader, schema từ src/sinh-ra/)
+├── src/sinh-ra/             tệp sinh tự động: schema.ts (Zod), tu-vung.ts (mã + nhãn từ vựng) — không sửa tay
 ├── astro.config.mjs  tsconfig.json  wrangler.jsonc  .node-version
 ├── config/lich-tinh-huong.yaml
 └── redirects.yaml
@@ -75,7 +78,7 @@ Ba môi trường: **Cục bộ** · **Xem trước** (mỗi nhánh/PR) · **Ch�
 | Mỗi PR (CI + bản xem trước) | `npm run kiem-tra` = dữ liệu → fixture → kiểm thử bộ kiểm liên kết → nhất quán → `astro check` → `astro build` → kiểm liên kết nội bộ trong `dist/` | Bản xem trước có đường dẫn riêng; lỗi bất kỳ bước nào → PR không gộp được |
 | `main` | Như trên | Triển khai chính thức. Lỗi → **không triển khai**, bản cũ vẫn chạy |
 
-- **Triển khai (T-035, D-049):** Cloudflare **Workers Builds** nối với repo `ca-dao` (người sáng lập kết nối một lần: `docs/huong-dan/ket-noi-cloudflare.md`). Lệnh build `npm run build` = `check:data` rồi `astro build` — có LỖI dữ liệu thì dừng trước khi build, không triển khai. Nhánh `main` → `npx wrangler deploy` (chính thức); nhánh khác → `npx wrangler preview` (mặc định của Workers Builds, bản thử nghiệm mở; tạo bản xem trước, link hiện trong bình luận của Cloudflare ở PR). `wrangler.jsonc` chỉ phục vụ `dist/` (`not_found_handling: 404-page`), không có mã máy chủ; khối `previews: {}` bắt buộc cho `wrangler preview`. Phiên bản Node lấy từ `.node-version`, CI dùng cùng tệp.
+- **Triển khai (T-035, D-049):** Cloudflare **Workers Builds** nối với repo `ca-dao` (người sáng lập kết nối một lần: `docs/huong-dan/ket-noi-cloudflare.md`). Lệnh build `npm run build` = `check:data` rồi `astro build` — có LỖI dữ liệu thì dừng trước khi build, không triển khai. Nhánh `main` → `npx wrangler deploy` (chính thức); nhánh khác → `npx wrangler preview` (mặc định của Workers Builds, bản thử nghiệm mở; tạo bản xem trước, link hiện trong bình luận của Cloudflare ở PR). `wrangler.jsonc` chỉ phục vụ `dist/` (`not_found_handling: 404-page`), không có mã máy chủ; khối `previews: {}` bắt buộc cho `wrangler preview`. Đã biết (24/10/2026): bản xem trước không áp dụng `not_found_handling` (đường dẫn lạ trả "Not Found" của Cloudflare); bản chính thức trả đúng trang 404. Phiên bản Node lấy từ `.node-version`, CI dùng cùng tệp.
 - **Mã:** mọi thay đổi qua PR; người sáng lập duyệt bằng cách mở **link bản xem trước** trên điện thoại rồi bấm gộp — không đọc mã (D-035). Claude Code review độc lập trước đó.
 - **Nội dung:** người sáng lập lưu bài trong CMS → commit thẳng vào `main` (D-036) → CI kiểm → tự triển khai; có LỖI thì bản cũ vẫn chạy, GitHub gửi email, Bàn biên tập hiện lý do.
 - **Bảo vệ nhánh `main`:** chặn agent đẩy thẳng (agent luôn làm trên nhánh riêng); cho phép tài khoản người sáng lập/CMS. Repo công khai nên tính năng này miễn phí.
@@ -84,7 +87,9 @@ Ba môi trường: **Cục bộ** · **Xem trước** (mỗi nhánh/PR) · **Ch�
 ## 4. Content collections
 
 - Mỗi thư mục trong `content/` là một collection, nạp bằng glob loader cho tệp `.yaml`.
-- Mô tả schema **một nguồn** (`scripts/lib/schema.mjs`, T-036) sinh ra: schema Zod (để có kiểu trong mã), cấu hình Sveltia CMS, kiểu TypeScript cho từ vựng. Quy tắc nghiệp vụ R01–R22 chỉ nằm trong `scripts/kiem-tra-du-lieu.mjs` (D-019).
+- Mô tả schema **một nguồn** (`scripts/lib/schema.mjs`, T-036) — validator dùng trực tiếp; `npm run sinh:schema` sinh ra `src/sinh-ra/schema.ts` (Zod, để có kiểu trong mã), `src/sinh-ra/tu-vung.ts` (mã + nhãn từ vựng, kiểu TypeScript) và `public/admin/config.yml` (cấu hình Sveltia CMS). `npm run kiem-tra` chạy `kiem-sinh`: tệp sinh lệch với nguồn → LỖI. Quy tắc nghiệp vụ R01–R22 chỉ nằm trong `scripts/kiem-tra-du-lieu.mjs` (D-019); Zod chỉ mô tả kiểu, trường không bắt buộc nhận cả `null`.
+- Ngày: validator đọc YAML không bật kiểu ngày, Astro thì có — ngày không đặt trong ngoặc kép thành `Date`. Zod đưa về chuỗi `YYYY-MM-DD` để mã Astro thấy cùng giá trị với validator.
+- id của mục = tên tệp (`generateId`), không phải trường `slug` như mặc định của glob loader.
 - Chỉ tạo trang cho tác phẩm `cong_khai`; tác phẩm khác vẫn được kiểm nhưng không xuất hiện ở đâu trên site, chỉ mục, sitemap.
 - Dữ liệu suy ra (`10` mục 10) lấy từ `scripts/lib/suy-ra.mjs`; vị trí chú giải lấy từ `phanGiaiNeo()` trong `scripts/lib/neo-chu-giai.mjs` (import trực tiếp vào Astro). Không viết bản tính thứ hai.
 
@@ -197,7 +202,7 @@ Chỉ khi xảy ra một trong ba điều (D-003): hơn 2 biên tập viên làm
 Người sáng lập không làm việc trực tiếp với Git/YAML (Q-002). Chọn **CMS chạy trên Git** để giữ nguyên kiến trúc tĩnh và công cụ kiểm tra:
 
 - **Sveltia CMS** (tương thích cấu hình Decap; còn ở bản 0.x → **ghim phiên bản**, nâng cấp có chủ đích): một tệp JS ở `/admin`, giao diện dùng được trên điện thoại, đăng nhập GitHub qua Worker OAuth nhỏ trên Cloudflare.
-- **Cấu hình sinh tự động** từ mô tả schema (T-036): nhãn tiếng Việt, ví dụ trong từng ô, thứ tự Lời → Nguồn → Nghĩa → Chú giải → Tình huống → Nâng cao; quan hệ (mục từ, nguồn, mô-típ) dạng chọn từ danh sách.
+- **Cấu hình sinh tự động** từ mô tả schema (T-036: kiểu ô, bắt buộc, danh sách chọn từ từ vựng, quan hệ chọn từ danh sách; đã kiểm hợp lệ theo JSON schema của Sveltia). T-037 bổ sung: nhãn tiếng Việt, ví dụ trong từng ô, thứ tự Lời → Nguồn → Nghĩa → Chú giải → Tình huống → Nâng cao; quan hệ (mục từ, nguồn, mô-típ) dạng chọn từ danh sách.
 - Bộ **"Thêm nhanh"** tạo bài `nhap` với tối thiểu trường; ô đánh dấu `nhap_ai_da_duyet`.
 - **Dự phòng:** Pages CMS (dịch vụ có sẵn, cấu hình `.pages.yml`, có trường tham chiếu) nếu Sveltia không đáp ứng.
 

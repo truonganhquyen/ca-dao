@@ -360,7 +360,7 @@ Mỗi quý sau khi mở công khai (T-066): một tệp JSON gộp các tác ph�
 Không có lễ "đóng băng" (D-044), nhưng vẫn giữ kỷ luật: chỉ đổi khi có **hồ sơ thật không biểu diễn hợp lý được** bằng schema hiện có. Không thêm trường, nhóm từ vựng hay giá trị chỉ vì "sau này có thể cần".
 
 1. Ghi quyết định vào `01` (D-xxx), kèm mã hồ sơ thật cần thay đổi này.
-2. Sửa tài liệu này, `scripts/kiem-tra-du-lieu.mjs` (và `scripts/lib/schema.mjs` sau T-036), `scripts/lib/suy-ra.mjs` nếu chạm dữ liệu suy ra, `templates/`, cấu hình CMS sinh tự động, trong cùng một commit.
+2. Sửa tài liệu này, `scripts/lib/schema.mjs` (hình dạng dữ liệu, dùng chung cho validator và bộ sinh), `scripts/kiem-tra-du-lieu.mjs` nếu chạm quy tắc, `scripts/lib/suy-ra.mjs` nếu chạm dữ liệu suy ra, `templates/`, rồi chạy `npm run sinh:schema` (Zod, kiểu từ vựng, cấu hình CMS) — trong cùng một commit. `npm run kiem-tra` báo LỖI nếu tệp sinh ra lệch với nguồn.
 3. Thêm hoặc sửa fixture trong `tests/fixtures/`; chạy `npm run test:fixtures`.
 4. Đổi tên trường đã có dữ liệu: viết script chuyển đổi, chạy trên toàn bộ `content/`, không sửa tay từng tệp.
 5. Tăng "Phiên bản schema" ở đầu tài liệu.
