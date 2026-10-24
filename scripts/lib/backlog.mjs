@@ -50,3 +50,10 @@ export function phuThuocCua(raw) {
 }
 
 export const cauHoiTrong = raw => (!raw || raw === '—') ? [] : [...raw.matchAll(/Q-\d+/g)].map(m => m[0]);
+
+/** Số quyết định (D-xxx) xuất hiện ở đầu hàng của bảng trong docs/01 nhiều hơn một lần. Hai PR cùng lấy một số → trùng. */
+export function maQuyetDinhTrung(nhatKy) {
+  const dem = new Map();
+  for (const m of nhatKy.matchAll(/^\| (D-\d+) \|/gm)) dem.set(m[1], (dem.get(m[1]) ?? 0) + 1);
+  return [...dem].filter(([, n]) => n > 1).map(([ma]) => ma);
+}

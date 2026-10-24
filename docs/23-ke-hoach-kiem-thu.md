@@ -8,7 +8,7 @@
 
 Bốn lớp kiểm thử, xếp theo mức tự động: dữ liệu (tự động hoàn toàn) → giao diện (tự động + tay) → tìm kiếm (bộ truy vấn) → người dùng thật (5 người ở Mốc B).
 
-**Cổng lệnh cho agent/CI:** `npm run kiem-tra` (D-034) = `check:data` + `test:fixtures` + `test:lien-ket` + `kiem-nhat-quan` + `kiem-sinh` (từ T-036) + `astro check` + `astro build` + `kiem-lien-ket` (từ T-035) + `kiem-trang` (dấu nháp lộ ra, từ cấm, ngân sách JS, nội dung trang mẫu) + `quet-trang` (axe WCAG 2.2 A/AA ở 360 px sáng/tối và máy tính, ô chú giải, tắt JavaScript) (từ T-040).
+**Cổng lệnh cho agent/CI:** `npm run kiem-tra` (D-034) = `check:data` + `test:fixtures` + `test:lien-ket` + `test:nhat-quan` + `kiem-nhat-quan` + `kiem-sinh` (từ T-036) + `astro check` + `astro build` + `kiem-lien-ket` (từ T-035) + `kiem-trang` (dấu nháp lộ ra, từ cấm, ngân sách JS, nội dung trang mẫu) + `quet-trang` (axe WCAG 2.2 A/AA ở 360 px sáng/tối và máy tính, ô chú giải, tắt JavaScript) (từ T-040).
 
 ---
 
@@ -18,7 +18,7 @@ Bốn lớp kiểm thử, xếp theo mức tự động: dữ liệu (tự độ
 |---|---|---|
 | Quy tắc R01–R22 (LỖI chặn, NHẮC không chặn) | `npm run check:data` | Mỗi lần lưu (CI), mỗi PR, mỗi build |
 | Chính công cụ kiểm tra | `npm run test:fixtures` | Mỗi PR, mỗi build |
-| Nhất quán backlog / trạng thái / câu hỏi mở | `npm run kiem-nhat-quan` | Mỗi PR |
+| Nhất quán backlog / trạng thái / câu hỏi mở / số quyết định không trùng | `npm run kiem-nhat-quan` (kiểm thử hàm phân tích: `npm run test:nhat-quan`) | Mỗi PR |
 | Kiểu dữ liệu | `npm run check:astro` (`astro check`, nạp content qua Zod sinh từ `scripts/lib/schema.mjs`) | Mỗi PR |
 | Tệp sinh khớp nguồn (Zod, từ vựng, cấu hình CMS) | `npm run kiem-sinh` | Mỗi PR |
 | Sức khỏe dữ liệu, nợ dữ liệu | `npm run health` / Bàn biên tập | Hằng tuần |
