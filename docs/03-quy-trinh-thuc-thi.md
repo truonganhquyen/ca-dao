@@ -124,4 +124,4 @@ Báo cáo ngắn theo đúng thứ tự:
 5. Kết quả `npm run kiem-tra`.
 6. Human Gate/câu hỏi còn lại, nếu có.
 7. Task được đề xuất tiếp theo.
-8. Link bản xem trước (từ T-035).
+8. Link bản xem trước (từ T-035). Thay đổi trong `wordpress/`: thêm link Playground từ `npm run xem-truoc:wordpress`.
