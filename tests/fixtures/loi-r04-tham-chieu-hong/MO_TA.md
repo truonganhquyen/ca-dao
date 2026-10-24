@@ -1,1 +1,1 @@
-Chú giải trỏ tới mục từ không tồn tại.
+Tác phẩm trỏ tới mô-típ không tồn tại.

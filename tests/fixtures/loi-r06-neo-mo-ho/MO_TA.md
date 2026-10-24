@@ -1,1 +1,1 @@
-Cụm từ xuất hiện ở hai dòng mà chú giải không ghi "dong": phải báo mơ hồ, không được tự chọn.
+Neo chú giải: cụm từ xuất hiện ở hai dòng mà chưa khai "dong".

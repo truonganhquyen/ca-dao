@@ -15,7 +15,6 @@ di_ban:
     vung: [toan_quoc]
     nguon:
       - { ref: src-vu-ngoc-phan-tuc-ngu-ca-dao-dan-ca, trang: "CAN_BO_SUNG" }
-    xac_thuc: D
 
 nghia_ngan: "NHAP_AI Kinh nghiệm dân gian đoán thời tiết qua độ cao bay của chuồn chuồn."
 dien_giai:

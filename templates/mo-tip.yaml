@@ -4,3 +4,4 @@ id: mt-
 ten: ""                # vd: "Thân em như…"
 mo_ta: ""              # Markdown, giới thiệu ngắn đặc điểm và ý nghĩa của công thức
 nguon: []
+nhap_ai_da_duyet: false   # true khi người biên soạn đã duyệt phần NHAP_AI

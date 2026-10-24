@@ -11,14 +11,19 @@
 
 | Mã | Câu hỏi | Khuyến nghị | Chặn | Hạn chốt |
 |---|---|---|---|---|
-| Q-001 | Thực tế có bao nhiêu giờ mỗi tuần? | Lập kế hoạch theo 10 giờ; dư thì rút ngắn mốc, không thêm tính năng | Lịch trong `00` mục 7 | Tuần 1 |
-| Q-002 | Người sáng lập có thoải mái làm việc với Git + YAML không? | Có → phương án A. Không → phương án B (bảng tính → script xuất YAML, hoặc CMS chạy trên Git như Sveltia/Decap); thử trên 10 hồ sơ mẫu | T-007 | Tuần 1 |
-| Q-003 | Giấy phép phần dự án tự viết: CC BY-SA 4.0 hay CC BY-NC-SA 4.0? | CC BY-SA 4.0: tương thích Wikipedia/Wiktionary, không cản giáo viên và nhà xuất bản giáo dục; điều khoản phi thương mại cũng không ngăn được trang rác chép lại | T-115 (câu đồng ý trong form), T-201, trang Giấy phép, chân trang, thẻ chia sẻ | Tuần 2 |
-| Q-004 | Quy ước bỏ dấu cho văn bản dự án tự viết ("hòa" hay "hoà") | Chọn một, ghi vào `11` mục 9; lời trích từ sách giữ nguyên bản in; tìm kiếm khớp cả hai kiểu | `11` mục 9 | Tuần 2 |
-| Q-005 | Tên miền (.vn / .org / tên riêng) | Chốt trước khi làm thẻ chia sẻ (tên miền in trên ảnh) | T-111, T-112 (P0.5) | Trước GĐ2 |
-| Q-006 | Lục bát: thụt lề câu lục hay căn giữa? | Mặc định thụt lề, đặt bằng một biến cấu hình; thử với nhóm beta | — (đã có mặc định) | Beta |
-| Q-007 | Có làm đồng dao trong 6 tháng đầu? | Để sau | — | Tháng 3 |
-| Q-008 | Nhận tài trợ? Pháp nhân bảo trợ? | Để giai đoạn 2 | — | GĐ2 |
+| Q-005 | Tên miền (.vn / .org / tên riêng) | Ngắn, không dấu, dễ đọc to trên lớp. Chốt trước khi mở công khai: URL trong trích dẫn phải sống lâu dài | T-049, T-050 | Trước Mốc C |
+| Q-006 | Lục bát: thụt lề câu lục hay căn giữa? | Mặc định thụt lề, đặt bằng một biến cấu hình; hỏi 5 người thử ở Mốc B | — (đã có mặc định) | Mốc B |
+| Q-007 | Có làm đồng dao trong 6 tháng đầu? | Để sau; kho thô vẫn thu thập lời đồng dao | — | Sau Mốc C |
+| Q-008 | Nhận tài trợ? Pháp nhân bảo trợ? | Để sau khi mở công khai | — | Sau Mốc C |
+
+### Câu hỏi đã chốt (23/10/2026)
+
+| Mã | Câu hỏi | Chốt bởi |
+|---|---|---|
+| Q-001 | Thực tế có bao nhiêu giờ mỗi tuần? | D-035 |
+| Q-002 | Người sáng lập có thoải mái làm việc với Git + YAML không? | D-036 |
+| Q-003 | Giấy phép phần dự án tự viết | D-037 |
+| Q-004 | Quy ước bỏ dấu cho văn bản dự án tự viết | D-038 |
 
 ## 2. Quyết định đã chốt
 
@@ -27,53 +32,73 @@ Ngày chốt chung: 04/10/2026, người quyết định: người sáng lập (
 | Mã | Quyết định | Lý do ngắn | Nguồn gốc |
 |---|---|---|---|
 | D-001 | Lấy bản Opus 5.5 làm khung; bổ sung từ GPT, Qwen, Meta và bản review của GPT | Ít "lỗ" nhất ở phần khó sửa về sau | Phiên hợp nhất |
-| D-002 | Kiến trúc tĩnh: Astro + YAML trong Git + Cloudflare Pages | Chi phí gần 0, ít thứ hỏng, lịch sử sửa đổi miễn phí | Opus |
+| D-002 | Kiến trúc tĩnh: Astro + YAML trong Git + Cloudflare Pages. **Phần nơi lưu trữ: thay bởi D-047.** | Chi phí gần 0, ít thứ hỏng, lịch sử sửa đổi miễn phí | Opus |
 | D-003 | Không dùng cơ sở dữ liệu cho tới khi đạt một ngưỡng: > 2 biên tập viên thường xuyên, > 100 đóng góp/tháng, hoặc cần duyệt theo thời gian thực | "Động sau" phải có điều kiện đo được | Review GPT |
 | D-004 | Mô hình Tác phẩm → Dị bản; mỗi tác phẩm có đúng một bản đại diện kèm lý do | Tôn trọng tính truyền miệng, tránh "bản đúng duy nhất" | Opus, GPT |
 | D-005 | Giao diện gọi bản đại diện là "Bản tham chiếu"; không dùng "bản gốc/bản đúng/bản chuẩn" | Nhãn sai làm người đọc hiểu sai dù dữ liệu đúng | Review GPT |
 | D-006 | Chú giải là con trỏ tới Từ điển dùng chung, neo theo dòng + cụm từ + lần xuất hiện | Neo ký tự lệch khi sửa chính tả; giải nghĩa một lần dùng mọi bài | Opus |
-| D-007 | Mức bằng chứng A/B/C/D cho từng dị bản; mức của tác phẩm suy ra từ bản đại diện, không lưu riêng | Tránh hai nơi ghi cùng một sự thật | Opus, GPT, phiên hợp nhất |
+| D-007 | Mức bằng chứng A/B/C/D cho từng dị bản; mức của tác phẩm suy ra từ bản đại diện, không lưu riêng. **Phần "người biên soạn đặt mức": thay bởi D-041 (máy tự tính).** | Tránh hai nơi ghi cùng một sự thật | Opus, GPT, phiên hợp nhất |
 | D-008 | "Nghi không phải dân gian" là cờ riêng ở cấp tác phẩm, không phải mức bằng chứng | Một câu có thể in trong sách (A) mà vẫn bị gán nhầm | Review GPT |
-| D-009 | Trạng thái quy trình: nhap → cho_kiem_dinh → da_xuat_ban; an. Cờ tranh_luan riêng | Tách "đang ở bước nào" khỏi "có bằng chứng gì" | Phiên hợp nhất |
+| D-009 | Trạng thái quy trình: nhap → cho_kiem_dinh → da_xuat_ban; an. Cờ tranh_luan riêng. **Thay bởi D-041.** | Tách "đang ở bước nào" khỏi "có bằng chứng gì" | Phiên hợp nhất |
 | D-010 | Quan hệ tác phẩm–tình huống chỉ lưu ở tệp tình huống (kèm "Hợp khi…"); trang tác phẩm tính ngược lúc build | Tránh dữ liệu hai chiều lệch nhau (cùng nguyên tắc Opus áp cho mô-típ) | Phiên tách tài liệu |
-| D-011 | Dấu `CAN_BO_SUNG` (thiếu thông tin) và `NHAP_AI` (văn bản AI chưa viết lại) chặn chuyển trạng thái | Biến quy tắc "AI không xuất bản" thành kiểm tra máy được | Phiên tách tài liệu |
+| D-011 | Dấu `CAN_BO_SUNG` (thiếu thông tin) và `NHAP_AI` (văn bản AI chưa viết lại) chặn chuyển trạng thái. **Thay bởi D-042, D-043: `NHAP_AI` chưa duyệt chặn công khai; `CAN_BO_SUNG` chỉ làm ẩn trường.** | Biến quy tắc "AI không xuất bản" thành kiểm tra máy được | Phiên tách tài liệu |
 | D-012 | Không tài khoản người dùng; đóng góp qua form có sẵn → bảng tính riêng tư | Không máy chủ, không dữ liệu cá nhân trong Git | Opus |
 | D-013 | Nâng mức chỉ bằng bằng chứng; chuyên gia không tự động "đã xác minh"; không bình chọn | Bằng chứng trước, uy tín sau | Opus, Qwen, GPT |
 | D-014 | Không TTS, kể cả "cho trợ năng" | Thiết bị đã có trình đọc màn hình; giọng máy dễ bị nhầm là tư liệu | Opus |
 | D-015 | Tìm ngữ nghĩa chỉ bật khi recall@5 ≥ 70% trên ≥ 50 truy vấn thật; vector từ tiêu đề + nghĩa ngắn + mô tả tình huống, không từ lời thơ | Kho nhỏ thì vector luôn trả về "gần nhất" dù không hợp | Opus |
 | D-016 | North Star: Lượt dùng tin cậy/tuần (trích dẫn + thẻ có nguồn + tải dữ liệu) | Đo đúng sứ mệnh | Opus, review GPT |
-| D-017 | Thẻ chia sẻ 2 mẫu khi ra mắt (Giấy dó, Mực tàu), 2 khổ | Bớt việc GĐ1 | Review GPT |
-| D-018 | Không xuất bản "mục nhẹ" | Tránh tái tạo trang mỏng | Opus, review GPT |
-| D-019 | Công cụ kiểm tra dữ liệu viết bằng JavaScript (Node), chạy trước build; là nơi duy nhất định nghĩa quy tắc R01–R17 (từ v1.1: R01–R19, xem D-028) | Một nguồn sự thật cho quy tắc; schema Zod trong Astro chỉ để có kiểu dữ liệu | Phiên tách tài liệu |
+| D-017 | Thẻ chia sẻ 2 mẫu khi ra mắt (Giấy dó, Mực tàu), 2 khổ. **Thời điểm: thay bởi D-044 (ảnh xem trước từng bài ở Mốc C; trình tạo thẻ để sau).** | Bớt việc GĐ1 | Review GPT |
+| D-018 | Không xuất bản "mục nhẹ". **Thay bởi D-039.** | Tránh tái tạo trang mỏng | Opus, review GPT |
+| D-019 | Công cụ kiểm tra dữ liệu viết bằng JavaScript (Node), chạy trước build; là nơi duy nhất định nghĩa quy tắc R01–R17 (từ v1.1: R01–R19, xem D-028; từ v2: R01–R22, D-043) | Một nguồn sự thật cho quy tắc; schema Zod trong Astro chỉ để có kiểu dữ liệu | Phiên tách tài liệu |
 
 ### Bổ sung sau review trước triển khai (05/10/2026)
 
 | Mã | Quyết định | Lý do ngắn | Nguồn gốc |
 |---|---|---|---|
 | D-020 | Neo chú giải khai bằng `cum_tu` (thay `tu`); `dong`, `lan` chỉ khai khi cần. Máy phân giải bằng một module duy nhất `scripts/lib/neo-chu-giai.mjs`, dùng cho cả kiểm tra và build; xuất hiện nhiều lần mà chưa chỉ rõ → lỗi, không tự chọn | Con người không nhập thứ máy suy ra được; máy không đoán khi không chắc | Review |
-| D-021 | GĐ0 đo thời gian theo 5 phần (tìm nguồn, xác minh, nhập liệu, chú giải, QA); sau 10 hồ sơ thật, chỉnh schema một lần rồi **đóng băng v1**; chỉ đổi khi hồ sơ thật không biểu diễn được | Biết nút thắt thật trước khi tối ưu; chặn phình schema | Review |
-| D-022 | Thêm **lát cắt dọc** (T-010, Cổng 1.5) với 3 hồ sơ thật trước khi xây diện rộng | Bắt lỗi giao nhau giữa schema, giao diện, tìm kiếm, trích dẫn, build | Review |
-| D-023 | Thử với người dùng sớm: preview kín ở 15–20 hồ sơ, beta khả dụng ở 25–30 (Cổng 2); 60 hồ sơ là mốc mở rộng nội dung, không phải điều kiện beta; ra mắt công khai ~120 khi qua Cổng 3. Thay phần lộ trình của D-001/`00` bản 1.0 | Không làm kín 2–3 tháng rồi mới phát hiện vấn đề | Review |
-| D-024 | MVP chia **P0-Core** (chặn beta) và **P0.5** (chặn ra mắt, không chặn beta): thẻ chia sẻ, ảnh OG riêng, sáng/tối có nút, ngẫu nhiên, câu hôm nay, A–Z, lịch tình huống, trình phát âm thanh, trang Chính sách AI/Giấy phép/Quyền riêng tư, đo lường mở rộng. Thay danh sách 12 hạng mục của bản 1.0 | Chứng minh giá trị cốt lõi trước | Review |
+| D-021 | GĐ0 đo thời gian theo 5 phần; sau 10 hồ sơ thật, chỉnh schema một lần rồi **đóng băng v1**. **Thay bởi D-044.** | Biết nút thắt thật trước khi tối ưu; chặn phình schema | Review |
+| D-022 | Thêm **lát cắt dọc** (T-010, Cổng 1.5) với 3 hồ sơ thật trước khi xây diện rộng. **Thay bởi D-044 (Mốc A đóng vai trò lát cắt dọc).** | Bắt lỗi giao nhau giữa schema, giao diện, tìm kiếm, trích dẫn, build | Review |
+| D-023 | Thử với người dùng sớm: preview kín ở 15–20 hồ sơ, beta khả dụng ở 25–30 (Cổng 2); ra mắt ~120 khi qua Cổng 3. **Thay bởi D-044.** | Không làm kín 2–3 tháng rồi mới phát hiện vấn đề | Review |
+| D-024 | MVP chia **P0-Core** và **P0.5**. **Thay bởi D-044 (tính năng xếp theo Mốc A/B/C).** | Chứng minh giá trị cốt lõi trước | Review |
 | D-025 | Trang tác phẩm đọc theo lớp: lớp 1 mở sẵn (lời → hiểu nhanh → chú giải → nguồn → dị bản), phần sâu thu gọn | Mô hình giàu, trải nghiệm đọc đơn giản | Review |
-| D-026 | Đo lường P0 chỉ 7 sự kiện phục vụ quyết định (`21` mục 7); còn lại để P0.5 trở đi | Tránh nợ đo lường | Review |
-| D-027 | Quyền sử dụng kiểm ở nguồn (`ban_quyen`), ở tư liệu điền dã (R18) và ở ghi âm (`ma_dong_y`); **không** thêm `rights_status` trên tác phẩm | Lời là di sản, chú giải do dự án viết: rủi ro quyền nằm ở nguồn và ghi âm | Review (điều chỉnh) |
+| D-026 | Đo lường P0 chỉ 7 sự kiện phục vụ quyết định. **Thay bởi D-047 (3 sự kiện).** | Tránh nợ đo lường | Review |
+| D-027 | Quyền sử dụng kiểm ở nguồn (`ban_quyen`), ở tư liệu điền dã (R18) và ở ghi âm (`ma_dong_y`); **không** thêm `rights_status` trên tác phẩm. Bổ sung: cách dùng chú thích từ nguồn web, D-046 | Lời là di sản, chú giải do dự án viết: rủi ro quyền nằm ở nguồn và ghi âm | Review (điều chỉnh) |
 | D-028 | Thêm R19 (nghi trùng) và `npm run health` (báo cáo sức khỏe, nợ dữ liệu) vào cùng công cụ kiểm tra | Phát hiện trùng sớm; có danh sách việc mà chưa cần công cụ biên tập | Review |
 | D-029 | Chuẩn trợ năng: **WCAG 2.2 AA** (thay 2.1) | Có nhóm người dùng lớn tuổi; 2.2 thêm tiêu chí về focus và vùng chạm | Review |
-| D-030 | Giao diện công khai: Astro + TypeScript + **Tailwind CSS 4** dùng token ở `20` mục 1.1; đảo tương tác bằng TypeScript thuần + `<dialog>`/`popover` gốc của HTML. **Không** React, shadcn/ui, Base UI ở trang công khai MVP. Tìm kiếm giữ MiniSearch | Ngân sách JS < 50 KB; React runtime riêng đã gần hết ngân sách; MiniSearch cho kiểm soát chuẩn hóa dấu tiếng Việt | Review (điều chỉnh) |
-| D-031 | Công cụ biên tập riêng (Admin "workbench", không phải CRUD), đường ống nạp tư liệu, Rights Gate xanh/vàng/đỏ, monorepo: **thiết kế được ghi nhận, chưa xây**; chỉ làm khi đạt điều kiện kích hoạt ở `21` mục 14 | Một người, chưa có hàng đợi ứng viên; tránh xây trước nhu cầu | Review (hoãn) |
+| D-030 | Giao diện công khai: Astro + TypeScript + **Tailwind CSS 4** dùng token ở `20` mục 1.1; đảo tương tác bằng TypeScript thuần + `<dialog>`/`popover` gốc của HTML. **Không** React, shadcn/ui, Base UI ở trang công khai. Tìm kiếm giữ MiniSearch | Ngân sách JS < 50 KB; MiniSearch cho kiểm soát chuẩn hóa dấu tiếng Việt | Review (điều chỉnh) |
+| D-031 | Công cụ biên tập riêng (Admin), đường ống nạp tư liệu, Rights Gate, monorepo: thiết kế được ghi nhận, chưa xây. **Đường ống: kích hoạt bởi D-045. Admin: thay bởi CMS (D-036) + Bàn biên tập (D-047).** | Một người, chưa có hàng đợi ứng viên; tránh xây trước nhu cầu | Review (hoãn) |
 | D-032 | Dấu vết AI tối thiểu qua Git: commit do AI tạo có dòng `AI-Agent: <công cụ/mô hình>`; người duyệt PR là bước kiểm duyệt; không lưu toàn bộ lệnh | Truy được ai/cái gì đã sửa mà không thêm hạ tầng | Review |
 
 ### Bổ sung cho quy trình agent-driven (06/10/2026)
 
 | Mã | Quyết định | Lý do ngắn | Nguồn gốc |
 |---|---|---|---|
-| D-033 | GitHub là control plane; **Codex Cloud** là planner + implementer chính; **Claude Code** là reviewer độc lập mặc định. Repo tự mô tả phase/task qua `docs/02`, `docs/03`, `docs/04`, `du-an/trang-thai.json`; người sáng lập chỉ cần tham gia tại Human Gate | Giảm việc người sáng lập phải tự chia/giao task; vẫn có kiểm tra độc lập và dấu vết qua Git/PR | Quyết định vận hành 06/10/2026 |
+| D-033 | GitHub là control plane; **Codex Cloud** là planner + implementer chính; **Claude Code** là reviewer độc lập mặc định. Repo tự mô tả giai đoạn/task qua `docs/02`, `docs/03`, `docs/22`, `du-an/trang-thai.json`; người sáng lập chỉ cần tham gia tại Human Gate | Giảm việc người sáng lập phải tự chia/giao task; vẫn có kiểm tra độc lập và dấu vết qua Git/PR | Quyết định vận hành 06/10/2026 |
 | D-034 | Có một cổng lệnh duy nhất `npm run kiem-tra`; CI gọi lệnh này. Khi dự án lớn lên, mở rộng nội dung lệnh thay vì tạo nhiều quy trình kiểm tra không đồng bộ | Agent cần một tiêu chuẩn máy kiểm được để biết task đã đủ điều kiện review | Quyết định vận hành 06/10/2026 |
+
+### Hướng v2: "Trung thực hơn hoàn hảo" (23/10/2026)
+
+Người quyết định: người sáng lập, sau phiên đánh giá bộ tài liệu cùng Claude Code. Thay đổi ghi trong nhánh `task/T-033-huong-v2`.
+
+| Mã | Quyết định | Lý do ngắn | Nguồn gốc |
+|---|---|---|---|
+| D-035 | Q-001: người sáng lập có **dưới 10 giờ/tuần**; lập kế hoạch theo khoảng 5 giờ. Mọi phần mã do agent làm; người sáng lập **không đọc mã**, chỉ mở bản xem trước trên điện thoại rồi gộp | Thời gian của người sáng lập dành cho nội dung và trải nghiệm | Người sáng lập |
+| D-036 | Q-002: người sáng lập không làm việc trực tiếp với Git/YAML → **CMS chạy trên Git: Sveltia CMS** (ghim phiên bản) ở `/admin`; dự phòng Pages CMS. Lưu bài từ CMS ghi thẳng vào nhánh `main` (không qua PR); mã vẫn qua PR | Sửa bằng form, kể cả trên điện thoại; dữ liệu vẫn là YAML trong Git, giữ lịch sử, công cụ kiểm tra, site tĩnh | Người sáng lập |
+| D-037 | Q-003: **CC BY 4.0** cho mọi nội dung và dữ liệu dự án tự viết; **MIT** cho mã; ghi âm **CC BY 4.0**. Lời ca dao, tục ngữ ghi là di sản dân gian, không thuộc dự án. **Không nhập văn bản CC BY-SA** (Wikipedia, Wiktionary) vào dữ liệu | "Dùng thoải mái, chỉ cần ghi nguồn"; giáo viên dùng lại không vướng nghĩa vụ chia sẻ tương tự; vẫn đưa được vào Wikipedia | Đề xuất của Claude, người sáng lập chấp thuận |
+| D-038 | Q-004: văn bản dự án tự viết theo cách đặt dấu của SGK (QĐ 1989/QĐ-BGDĐT, 2018): dấu ở âm chính — **hoà, thuỷ, khoẻ**. Lời trích giữ nguyên như nguồn; tìm kiếm khớp cả hai kiểu | Người dùng chính là giáo viên | Như trên |
+| D-039 | Định hướng **"Trung thực hơn hoàn hảo"**: xuất bản sớm, nhãn mức kiểm luôn trung thực, nội dung cải tiến dần. Lời hứa công khai: **"Mỗi câu ghi rõ lấy từ đâu, và đã được kiểm đến mức nào."** Thay nguyên tắc 1 "Sâu hơn rộng" và D-018 | Cổng chặn nặng khiến một người với dưới 10 giờ/tuần không thể ra mắt; minh bạch giữ được niềm tin | Người sáng lập |
+| D-040 | **Ba lằn ranh** (máy chặn): (1) AI không bao giờ viết lời, dị bản, nguồn, số trang, vùng, tác giả; (2) nhãn mức kiểm luôn khớp dữ liệu; (3) dữ liệu cá nhân và ghi âm phải có đồng ý. Thêm: **bài công khai phải có ít nhất một nguồn gốc ghi rõ** (R21) | Ba thứ này rẻ để giữ, nhưng mất là mất uy tín vĩnh viễn | Như trên |
+| D-041 | **Nhãn bằng chứng do máy tính** từ nguồn (`scripts/lib/suy-ra.mjs`), bỏ trường `xac_thuc` nhập tay. Trạng thái chỉ còn `nhap` · `cong_khai` · `an`; bỏ `cho_kiem_dinh`, `da_xuat_ban` (ngừng dùng), bỏ `ngay_kiem_dinh` ("Cập nhật lần cuối" lấy từ Git). Thay D-009 và phần nhập tay của D-007 | Nhãn không thể sai so với dữ liệu; mỗi cuốn sách chỉ xác minh một lần | Như trên |
+| D-042 | Nháp AI (`NHAP_AI`) lên trang được khi người biên soạn đặt `nhap_ai_da_duyet: true` (một ô đánh dấu trong CMS), không bắt viết lại từ đầu. Trang hiện dòng "Phần giải nghĩa có hỗ trợ của AI, đã được người biên soạn duyệt". Dấu `NHAP_AI` vẫn nằm trong dữ liệu làm dấu vết. Thay phần "bắt viết lại" của D-011 | Phù hợp thời gian của người sáng lập; minh bạch với người đọc | Như trên |
+| D-043 | Công cụ kiểm tra **hai tầng**: **LỖI** (chặn build) cho lỗi kỹ thuật và lằn ranh; **NHẮC** (không chặn) cho phần nên bổ sung, hiện ở báo cáo sức khỏe/Bàn biên tập. Bài công khai chưa có "giá trị riêng" (nghĩa ngắn + chú giải hoặc tình huống) tự gắn `noindex`. R10 (thuộc tình huống) thành NHẮC — gỡ mâu thuẫn với R11 | Nới tự do nội dung nhưng giữ an toàn kỹ thuật và tên miền | Như trên |
+| D-044 | Thay các cổng đếm hồ sơ (Cổng 1, 1.5, 2, 3; đóng băng schema; beta 80%) bằng **3 mốc trải nghiệm**: A "Chạy được", B "Thử nhỏ", C "Mở lặng lẽ" (trước Tết Đinh Mùi 2027). Chỉ giữ cổng tự động trong CI. Mở công khai (Mốc C) là Human Gate. Thay D-021, D-022, D-023, D-024 | Đo bằng trải nghiệm thật thay vì số hồ sơ | Như trên |
+| D-045 | Nội dung MVP: **thu thập có chọn lọc** từ internet, không cần sách giấy. **Thu thập** toàn bộ lời từ nguồn đầu mối vào **kho thô riêng tư** (repo private, không bao giờ vào repo công khai); **xuất bản** chọn lọc: MVP 100–150 bài, tăng dần sau đó; mỗi bài công khai có phần giá trị riêng. Kích hoạt đường ống thu thập (D-031) | Lời dân gian không thuộc sở hữu của ai; xuất bản chọn lọc tránh bị Google coi là bản sao hàng loạt | Như trên |
+| D-046 | **cadao.me (Ca dao Mẹ) là nguồn đầu mối chính.** (1) **Lời:** lấy triệt để, ghi công từng bài ("Lời tham khảo từ Ca dao Mẹ"), nhãn D. (2) **Chú thích:** lưu bản gốc trong kho thô để tham chiếu ý nghĩa; dự án viết lại bằng lời của mình (`cach_dung: tham_khao`, ghi "Tham khảo: Ca dao Mẹ"). Chép nguyên văn 100% (`trich_nguyen_van`) chỉ khi Ca dao Mẹ đồng ý bằng văn bản (`ban_quyen: duoc_phep`) hoặc là định nghĩa rất ngắn ≤ 15 từ (R20, chặn ở mọi trạng thái vì repo công khai). (3) **Ảnh:** không lấy. (4) **Phân loại, thẻ:** chỉ dùng nội bộ làm gợi ý. (5) Thư xin phép dùng chú thích: gửi sau (T-034), trước khi mở công khai | Chú thích, ảnh, cách tuyển chọn là công sức có bản quyền của nhóm Ca dao Mẹ; dự án không thể cấp phép CC BY cho câu chữ của người khác | Như trên |
+| D-047 | Kiến trúc v2: **Astro 6** (đội Astro về Cloudflare từ 01/2026), lưu trữ **Cloudflare** (Workers Static Assets hoặc Pages, chọn theo tài liệu chính thức lúc làm); **Bàn biên tập** `/ban-bien-tap` (noindex, khóa bằng Cloudflare Access) thay `npm run health` cho người sáng lập; đo lường **3 sự kiện** (`tim_khong_ket_qua`, `trich_dan_sao_chep`, `chu_giai_mo`); khai schema một lần (Zod) rồi sinh cấu hình CMS. Không monorepo, không công cụ quản trị riêng. Thay D-026, phần lưu trữ của D-002 | Ít thứ phải bảo trì nhất cho một người | Như trên |
 
 ## 3. Mẫu ghi quyết định mới
 
 ```markdown
 | D-0xx | <quyết định> | <lý do 1 câu> | <ai/nguồn> |
 ```
-Nếu quyết định đổi schema: cập nhật cùng lúc `10-dac-ta-du-lieu.md`, `scripts/kiem-tra-du-lieu.mjs`, `templates/`, và thêm fixture trong `tests/fixtures/`.
+Nếu quyết định đổi schema: cập nhật cùng lúc `10-dac-ta-du-lieu.md`, `scripts/kiem-tra-du-lieu.mjs`, `scripts/lib/suy-ra.mjs` (nếu chạm dữ liệu suy ra), `templates/`, và fixture trong `tests/fixtures/`.

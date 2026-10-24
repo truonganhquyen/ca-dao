@@ -1,1 +1,1 @@
-Lời lấy từ tư liệu điền dã chưa được phép công bố.
+Bài công khai lấy lời từ phiếu điền dã chưa được phép công bố.
