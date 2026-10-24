@@ -6,7 +6,7 @@ Tệp này dành cho mọi AI agent làm việc trong kho mã (Claude Code, Code
 
 **Kho tàng Ca dao Tục ngữ Việt Nam**: một website tĩnh, phi lợi nhuận, không quảng cáo, đọc tốt trên điện thoại; mỗi câu ca dao tục ngữ có giải nghĩa từ khó, tình huống dùng, và **ghi rõ lời lấy từ đâu, đã được kiểm đến mức nào**. Một người vận hành, **dưới 10 giờ/tuần** (lập kế hoạch theo ~5 giờ), không làm việc trực tiếp với Git/YAML — người sáng lập biên soạn qua CMS và duyệt thay đổi bằng cách xem bản xem trước, **không đọc mã** (D-035, D-036).
 
-**Hướng v2 — "Trung thực hơn hoàn hảo"** (D-039): xuất bản sớm, nhãn mức kiểm luôn trung thực, nội dung cải tiến dần. Niềm tin đến từ minh bạch, không đến từ cổng chặn. Một nhãn sai hay một nguồn bịa vẫn có thể phá hủy dự án — vì vậy có **ba lằn ranh** (mục dưới).
+**Hướng v2 — "Trung thực hơn hoàn hảo"** (D-039): xuất bản sớm, nội dung cải tiến dần. **Từ 24/10/2026 (D-054..D-056):** làm dày nội dung là ưu tiên — không chặn đăng vì lý do biên tập, nguồn không bắt buộc (bài tự động tự ghi "Nguồn: …"), chép chú thích có ghi công được phép; và **chuyển sang WordPress** (`docs/24-wordpress.md`): người sáng lập đăng và duyệt bài trong `wp-admin`, nguồn tự động cấu hình trong trang quản trị, bài tự động vào **Chờ duyệt**. Site Astro hiện tại chạy tới khi WordPress lên (T-076). Vẫn giữ các lằn ranh dưới đây.
 
 ## Đọc trước khi làm
 
@@ -22,7 +22,8 @@ Tệp này dành cho mọi AI agent làm việc trong kho mã (Claude Code, Code
 | Biên soạn, soạn nháp AI | `docs/11-huong-dan-bien-soan.md`, `templates/prompt-soan-nhap.md` |
 | Nguồn, bản quyền, thu thập từ web | `docs/12-chinh-sach-nguon.md` |
 | Giao diện, câu chữ | `docs/20-dac-ta-giao-dien.md` |
-| Kỹ thuật, build, CMS, kho thô, tìm kiếm | `docs/21-kien-truc-ky-thuat.md` |
+| Kỹ thuật, build, CMS, kho thô, tìm kiếm | `docs/21-kien-truc-ky-thuat.md` (site Astro hiện tại) |
+| **WordPress** (plugin, theme, nguồn tự động, chuyển đổi) | `docs/24-wordpress.md` |
 | Kiểm thử | `docs/23-ke-hoach-kiem-thu.md` |
 | Đóng góp, ghi âm, cố vấn, vận hành (sau Mốc C) | `docs/luu-tru/` (đọc README của thư mục) |
 
@@ -38,10 +39,10 @@ Nếu người dùng không giao task cụ thể mà yêu cầu tiếp tục d�
 
 Một Q-xxx đang mở chỉ chặn task thực sự phụ thuộc/chạm Q đó; không được dùng một Q không liên quan làm lý do dừng toàn dự án.
 
-## Ba lằn ranh (D-040) — máy chặn, không ngoại lệ
+## Ba lằn ranh (D-040, nới bởi D-054)
 
 1. **AI không bao giờ viết** lời, dị bản, nguồn, số trang, vùng, địa danh, tác giả, niên đại. Lời chỉ vào `content/` bằng hai đường: **trích nguyên văn bằng máy** từ một nguồn có URL (đường ống T-039, không qua AI), hoặc **do người biên soạn nhập**.
-2. **Nhãn mức kiểm luôn khớp dữ liệu.** Nhãn A/B/C/D do máy tính (`scripts/lib/suy-ra.mjs`); không ai nhập tay. Bài công khai phải có ít nhất một nguồn gốc ghi rõ (R21).
+2. **Nguồn ghi đúng sự thật, không bịa.** Trang chỉ hiện một dòng "Nguồn: …" khi có nguồn (D-054); nguồn không bắt buộc. Không ai được ghi một nguồn, số trang, ngày truy cập mà mình không thấy tận mắt — kể cả CMS tự điền mặc định (D-052). Bài tự động ghi đúng địa chỉ trang đã lấy.
 3. **Dữ liệu cá nhân và ghi âm phải có đồng ý.** Không thông tin cá nhân trong kho; ghi âm cần hồ sơ đồng ý.
 
 ## Human Gate
@@ -75,8 +76,8 @@ Ngoài các Human Gate này, agent phải tự quyết các chi tiết kỹ thu�
 10. **Không dùng từ cấm trong giao diện:** "bản gốc", "bản đúng", "bản chuẩn", "bản sai", "AI giải thích", "câu hay nhất". Bản đại diện gọi là **"Bản tham chiếu"**.
 11. **Không chép lời ca dao từ các bản ý tưởng gốc hay từ trí nhớ vào `content/`.** Lời chỉ đến từ đường ống thu thập hoặc người biên soạn.
 12. **Không tự chọn phương án cho câu hỏi còn mở** (Q-xxx), kể cả phương án khuyến nghị.
-13. **Không sao chép chú thích, lời bình, ảnh, cách phân loại** của nguồn web hay tuyển tập. Chú thích được đọc để hiểu ý rồi **viết lại** bằng lời của dự án (`cach_dung: tham_khao`). Chép nguyên văn chỉ khi nguồn đã cho phép, hoặc là định nghĩa ≤ 15 từ — và do người biên soạn quyết (D-046, R20).
-14. **Không đưa kho thô** (dữ liệu thu thập từ nguồn web) vào repo công khai. Kho thô chỉ nằm trong repo riêng tư `truonganhquyen/ca-dao-kho-tho` (D-045). `content/` là công khai — kể cả bài nháp.
+13. **Không chép chú thích của nguồn mà không ghi công.** Chép chú thích, chú giải kèm "Theo …" và liên kết về trang gốc là được phép (D-055 — người sáng lập quyết, đã biết rủi ro bản quyền); chỉ chép từ nguồn có công tắc "Chép chú thích" đang bật. Không tải ảnh; không sao chép cách phân loại, bộ thẻ của nguồn ra trang.
+14. **Không đưa kho thô** (dữ liệu thu thập từ nguồn web) vào repo công khai. Kho thô nằm trong repo riêng tư `truonganhquyen/ca-dao-kho-tho` (D-045) hoặc trong cơ sở dữ liệu WordPress (D-056). `content/` là công khai — kể cả bài nháp.
 
 ## LUÔN LUÔN
 
@@ -107,6 +108,8 @@ npm run build          # kiểm dữ liệu rồi astro build (Cloudflare chạy
 npm run trang-thai     # xem giai đoạn, mốc, Human Gate và số bài
 npm run viec-tiep-theo # đề xuất task kỹ thuật READY tiếp theo
 npm run kiem-tra       # cổng kiểm tra bắt buộc: dữ liệu + fixture + nhất quán + tệp sinh + astro check + build + liên kết + trang + trợ năng
+npm run test:wordpress # kiểm thử plugin WordPress trong Playground (cần Node ≥ 24.18; CI chạy job riêng)
+npm run xem-truoc:wordpress # in link bản xem trước WordPress (Playground trên trình duyệt) cho nhánh đã đẩy — dán vào PR
 npm run sinh:schema    # sinh lại Zod, kiểu từ vựng, cấu hình CMS sau khi sửa schema.mjs hoặc từ vựng
 npm run check:data     # kiểm tra dữ liệu theo R01–R22 (LỖI chặn, NHẮC không chặn)
 npm run test:fixtures  # kiểm thử chính công cụ kiểm tra

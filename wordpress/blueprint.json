@@ -1,0 +1,18 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"meta": {
+		"title": "Kho tàng Ca dao – Tục ngữ (thử tại máy)",
+		"description": "WordPress + plugin ca-dao, tiếng Việt, đường dẫn đẹp. Xem docs/24-wordpress.md mục 6.",
+		"author": "truonganhquyen"
+	},
+	"landingPage": "/wp-admin/",
+	"preferredVersions": { "php": "8.3", "wp": "latest" },
+	"features": { "networking": true },
+	"login": true,
+	"steps": [
+		{ "step": "setSiteLanguage", "language": "vi" },
+		{ "step": "setSiteOptions", "options": { "blogname": "Kho tàng Ca dao Tục ngữ Việt Nam", "timezone_string": "Asia/Ho_Chi_Minh" } },
+		{ "step": "runPHP", "code": "<?php require '/wordpress/wp-load.php'; update_option('permalink_structure', '/%postname%/'); flush_rewrite_rules(); ?>" },
+		{ "step": "activatePlugin", "pluginPath": "/wordpress/wp-content/plugins/ca-dao/ca-dao.php" }
+	]
+}

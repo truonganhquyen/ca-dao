@@ -40,6 +40,8 @@
 
 ## 4. Dùng nội dung của người khác
 
+> **Từ D-055 (24/10/2026):** người sáng lập cho phép **chép chú thích, chú giải có ghi công** ("Theo …" + liên kết về trang gốc), không chờ văn bản cho phép; thư cho Ca dao Mẹ gửi khi phù hợp. Bảng dưới là chính sách trước đó, giữ để tham khảo rủi ro.
+
 | Thành phần | Được | Không được |
 |---|---|---|
 | **Lời** ca dao, tục ngữ | Lời là di sản dân gian, không thuộc sở hữu của ai: trích nguyên văn, **ghi công từng bài** và liên kết về trang đã lấy | Trình bày như thể dự án tự sưu tầm |
