@@ -10,7 +10,7 @@
 
 ## Giai đoạn hiện tại
 
-**Chuẩn bị** — hướng v2 "Trung thực hơn hoàn hảo" (D-039) đã chốt ngày 23/10/2026. Mốc tiếp theo: **A · Chạy được** (`docs/22` mục 2).
+**Mốc A · Chạy được** — hướng v2 "Trung thực hơn hoàn hảo" (D-039). Mốc Chuẩn bị đã xong (T-032, T-033 DONE, 24/10/2026); điều kiện xong của Mốc A ở `docs/22` mục 2. Mốc tiếp theo: **B · Thử nhỏ**.
 
 ## Đã có
 
@@ -18,18 +18,16 @@
 - Tài liệu v2: `AGENTS.md`, `docs/00`–`03`, `10`–`12`, `20`–`23`; tài liệu v1.2 không còn dùng ở `docs/luu-tru/`.
 - Validator hai tầng (LỖI/NHẮC), quy tắc R01–R22; nhãn bằng chứng do máy tính (`scripts/lib/suy-ra.mjs`); 26 bộ fixture.
 - Nguồn đầu mối `content/nguon/src-ca-dao-me.yaml`; 3 hồ sơ khung ở trạng thái `nhap` (chưa có nguồn gốc, không công khai được).
-- GitHub (24/10/2026): repo công khai `truonganhquyen/ca-dao` (nhánh `main` = nguyên trạng v1.2; nhánh `task/T-033-huong-v2` = hướng v2, đang chờ review qua PR) và repo riêng tư `truonganhquyen/ca-dao-kho-tho` (trống, chờ T-038). Commit dùng email ẩn của GitHub.
+- GitHub (24/10/2026): repo công khai `truonganhquyen/ca-dao` (`main` = hướng v2; nhánh `task/T-033-huong-v2` = hướng v2, đang chờ review qua PR) và repo riêng tư `truonganhquyen/ca-dao-kho-tho` (trống, chờ T-038). Commit dùng email ẩn của GitHub.
 
 ## Đang chờ người sáng lập
 
-- **T-032** (phần còn lại) · Tạo tài khoản Cloudflare; cho phép Codex truy cập `ca-dao` và `ca-dao-kho-tho`. Phần GitHub đã xong. Chặn mọi task kỹ thuật của Mốc A.
-- **Review và gộp PR T-033** · Review độc lập theo `CLAUDE.md`, rồi người sáng lập gộp. Chưa gộp thì Codex vẫn đọc luật v1.2 trên `main`.
 - **T-034** · Gửi thư cho Ca dao Mẹ — không gấp, nhưng phải xong trước khi mở công khai (T-053).
 - **T-049** · Chốt tên miền (Q-005) — trước Mốc C.
 
 ## Công việc kỹ thuật tiếp theo
 
-Sau T-032: **T-035** (Astro + CI + triển khai) và **T-038** (kho thô) chạy song song được.
+**T-035** (Astro + CI + triển khai) và **T-038** (kho thô) sẵn sàng, chạy song song được.
 
 ## Quyết định đang mở
 
