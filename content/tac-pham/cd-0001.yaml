@@ -1,49 +1,75 @@
-# HỒ SƠ KHUNG — trạng thái nháp. Lời dưới đây chép theo dạng phổ biến, CHƯA đối chiếu bản in.
-# Việc của người biên soạn: đối chiếu từng chữ với ≥ 2 nguồn in, ghi số trang, viết lại mọi chuỗi NHAP_AI.
-id: cd-0001
-slug: cong-cha-nhu-nui-thai-son
+tieu_de: Công cha như núi Thái Sơn
 the_loai: ca_dao
 the_tho: luc_bat
-tieu_de: "Công cha như núi Thái Sơn"
-ban_dai_dien: v1
-ly_do_chon: "CAN_BO_SUNG"
-
 di_ban:
   - id: v1
-    loi: |
+    loi: |-
       Công cha như núi Thái Sơn
       Nghĩa mẹ như nước trong nguồn chảy ra
       Một lòng thờ mẹ kính cha
       Cho tròn chữ hiếu mới là đạo con
-    vung: [toan_quoc]
+    vung:
+      - toan_quoc
+    dia_danh: ''
     nguon:
-      - { ref: src-kho-tang-ca-dao-nguoi-viet, trang: "CAN_BO_SUNG" }
-    ghi_chu: "Hai dòng đầu thường được trích độc lập."
-
-chu_giai:
-  - { di_ban: v1, cum_tu: "Thái Sơn", muc_tu: lx-thai-son }   # chỉ xuất hiện 1 lần: không cần "dong"
-
-nghia_ngan: "NHAP_AI Ví công cha cao lớn như núi, nghĩa mẹ dồi dào như nguồn nước; khuyên con giữ trọn đạo hiếu."
+      - ref: src-kho-tang-ca-dao-nguoi-viet
+        trang: CAN_BO_SUNG
+        url: ''
+        ngay_truy_cap: ''
+        ban_luu_tru: ''
+        cach_dung: ''
+        ghi_chu: ''
+    nguoi_ke: null
+    dong_gop: ''
+    ghi_chu: Hai dòng đầu thường được trích độc lập.
+ban_dai_dien: v1
+ly_do_chon: CAN_BO_SUNG
+nghia_ngan: NHAP_AI Ví công cha cao lớn như núi, nghĩa mẹ dồi dào như nguồn nước; khuyên con giữ trọn đạo hiếu.
 dien_giai:
-  - goc_nhin: "Nghĩa phổ thông"
-    noi_dung: "CAN_BO_SUNG"
+  - goc_nhin: Nghĩa phổ thông
+    noi_dung: CAN_BO_SUNG
     nguon: []
-
-am_luat: { nhip: "", van: [], ghi_chu: "" }
-dien_xuong: { hinh_thuc: [hat_ru], nguoi_the_hien: "", boi_canh: "CAN_BO_SUNG" }
-
+nghia_den: ''
+nghia_bong: ''
+chu_giai:
+  - di_ban: v1
+    dong: null
+    cum_tu: Thái Sơn
+    lan: null
+    muc_tu: lx-thai-son
+    nghia_tai_cho: ''
 mo_ta_tinh_huong:
-  - "NHAP_AI Khi bạn muốn nói lời biết ơn cha mẹ mà không biết diễn đạt thế nào"
-  - "NHAP_AI Khi bạn viết thiệp mừng thọ bố mẹ"
-cam_xuc: [biet_on, thuong_nho]
-chu_de: [gia_dinh]
-mo_tip: [mt-cong-cha-nghia-me]
+  - NHAP_AI Khi bạn muốn nói lời biết ơn cha mẹ mà không biết diễn đạt thế nào
+  - NHAP_AI Khi bạn viết thiệp mừng thọ bố mẹ
+chu_de:
+  - gia_dinh
+cam_xuc:
+  - biet_on
+  - thuong_nho
+linh_vuc: []
+mo_tip:
+  - mt-cong-cha-nghia-me
 lien_quan: []
 sgk: []
-
-canh_bao_noi_dung: ""
-xac_thuc_dan_gian: binh_thuong
-tranh_luan: false
-
+canh_bao_noi_dung: ''
+nhap_ai_da_duyet: true
 trang_thai: nhap
-bien_soan: { nguoi: ctb-0001, ngay_tao: "2026-10-04" }
+am_luat:
+  nhip: ''
+  van: []
+  ghi_chu: ''
+dien_xuong:
+  hinh_thuc:
+    - hat_ru
+  nguoi_the_hien: ''
+  boi_canh: CAN_BO_SUNG
+goc_kiem_chung: null
+xac_thuc_dan_gian: binh_thuong
+can_cu_xac_thuc_dan_gian: ''
+tranh_luan: false
+ghi_chu_tranh_luan: ''
+id: cd-0001
+slug: cong-cha-nhu-nui-thai-son
+bien_soan:
+  nguoi: ctb-0001
+  ngay_tao: 2026-10-04
