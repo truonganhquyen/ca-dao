@@ -46,8 +46,10 @@ const GOC_URL = `http://127.0.0.1:${mayChu.address().port}`;
 
 const tatCaTep = dir => fs.readdirSync(dir, { withFileTypes: true })
   .flatMap(e => e.isDirectory() ? tatCaTep(path.join(dir, e.name)) : [path.join(dir, e.name)]);
+// /admin/ là giao diện của Sveltia CMS (tải từ CDN, D-052), không phải trang đọc: không quét ở đây
 const dsTrang = tatCaTep(GOC).filter(f => f.endsWith('.html'))
-  .map(f => '/' + path.relative(GOC, f).split(path.sep).join('/').replace(/index\.html$/, '').replace(/\.html$/, ''));
+  .map(f => '/' + path.relative(GOC, f).split(path.sep).join('/').replace(/index\.html$/, '').replace(/\.html$/, ''))
+  .filter(d => !d.startsWith('/admin/'));
 
 const loi = [];
 const trinhDuyet = await puppeteer.launch({ executablePath: chrome, headless: true, args: ['--no-sandbox', '--font-render-hinting=none'] });
