@@ -22,17 +22,18 @@
 - **Trang tác phẩm (T-040):** đọc theo lớp, nhãn tự tính, nguồn gốc ở lớp 1, chú giải chạm-là-hiện (tắt JavaScript vẫn đọc được), sáng/tối, bản in, thanh dưới; quét trợ năng tự động. Chưa có bài `cong_khai` thật: bản xem trước có 3 trang mẫu giao diện dữ liệu giả (D-050).
 - **CMS (T-037):** `/admin` — Sveltia, đăng nhập GitHub qua Worker `sveltia-cms-auth`, form tiếng Việt, "Thêm nhanh"; hướng dẫn `docs/huong-dan/bien-soan-cms.md`.
 - **Schema một nguồn (T-036):** `scripts/lib/schema.mjs` dùng chung cho validator và bộ sinh Zod / kiểu từ vựng / cấu hình CMS (`npm run sinh:schema`); 7 content collections trong Astro.
-- GitHub (24/10/2026): repo công khai `truonganhquyen/ca-dao` (`main` = hướng v2; PR #1–#3 đã gộp) và repo riêng tư `truonganhquyen/ca-dao-kho-tho` (trống, chờ T-038). Commit dùng email ẩn của GitHub.
+- GitHub (24/10/2026): repo công khai `truonganhquyen/ca-dao` (`main` = hướng v2; PR #1–#3 đã gộp) và repo riêng tư `truonganhquyen/ca-dao-kho-tho` (mã thu thập T-038; dữ liệu đổ dần bằng GitHub Actions hằng ngày sau khi PR của repo đó gộp). Commit dùng email ẩn của GitHub.
 
 ## Đang chờ người sáng lập
 
+- **Duyệt danh sách từ gắn cờ thô tục** `tu-tho-tuc.txt` trong repo kho thô (bản khởi đầu do agent soạn; cờ chỉ là gợi ý, không xóa gì).
 - **Thử CMS** (điều kiện xong T-037, PR #9): đăng nhập `/admin` trên điện thoại, tạo một bài thật tới Công khai — `docs/huong-dan/bien-soan-cms.md`. Đăng nhập GitHub đã tạo xong và đã kiểm (24/10/2026).
 - **T-034** · Gửi thư cho Ca dao Mẹ — không gấp, nhưng phải xong trước khi mở công khai (T-053).
 - **T-049** · Chốt tên miền (Q-005) — trước Mốc C.
 
 ## Công việc kỹ thuật tiếp theo
 
-**T-037** xong phần mã (CMS ở PR #9 — còn chờ người sáng lập thử tạo một bài tới công khai từ điện thoại); **T-038** (kho thô) chờ gộp; **T-039** (đường ống ứng viên) khi kho thô có dữ liệu; **T-041** (tìm kiếm) và **T-042** (trích dẫn, chia sẻ) sẵn sàng.
+**T-037** xong phần mã (CMS ở PR #9 — còn chờ người sáng lập thử tạo một bài tới công khai từ điện thoại); **T-038** xong phần mã (gộp PR #8 và kho-tho #1, rồi bấm Run workflow để kho thô có dữ liệu); **T-039** mở khi kho thô có dữ liệu; **T-041** (tìm kiếm) và **T-042** (trích dẫn, chia sẻ) sẵn sàng.
 
 ## Quyết định đang mở
 
