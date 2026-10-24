@@ -24,7 +24,7 @@ Ngày: 23/10/2026 (v2 — hướng "Trung thực hơn hoàn hảo", D-035..D-047
 npm install            # Node.js ≥ 22.12 (CI và Cloudflare dùng Node 24, tệp .node-version)
 npm run dev            # xem website trên máy
 npm run build          # kiểm dữ liệu rồi build vào dist/ (Cloudflare chạy lệnh này)
-npm run kiem-tra       # cổng kiểm tra bắt buộc: dữ liệu + fixture + nhất quán + tệp sinh + astro check + build + liên kết
+npm run kiem-tra       # cổng kiểm tra bắt buộc: dữ liệu + fixture + nhất quán + tệp sinh + astro check + build + liên kết + trang + trợ năng (cần Chrome)
 npm run sinh:schema    # sinh lại Zod, kiểu từ vựng, cấu hình CMS từ scripts/lib/schema.mjs + từ vựng
 npm run check:data     # kiểm dữ liệu R01–R22 (LỖI chặn build, NHẮC không chặn)
 npm run test:fixtures  # 26 bộ dữ liệu mẫu: 5 hợp lệ, 21 lỗi phải bị bắt đúng mã
@@ -94,5 +94,5 @@ Prompt review (Codex hay Claude): **"Review thay đổi hiện tại theo CLAUDE
 
 ## Việc tiếp theo
 
-1. **Mốc A:** T-037 (CMS Sveltia), T-038 (kho thô), T-040 (trang tác phẩm) sẵn sàng; giao cho Codex hoặc Claude đều được.
+1. **Mốc A:** T-037 (CMS, PR #9) và T-038 (kho thô, PR #8) đang chờ gộp; T-041 (tìm kiếm), T-042 (trích dẫn) sẵn sàng. Giao cho Codex hoặc Claude đều được.
 2. **Người sáng lập — T-034:** gửi thư cho Ca dao Mẹ (bản nháp ở `docs/12` mục 7) trước khi mở công khai.
