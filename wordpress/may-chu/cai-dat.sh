@@ -11,6 +11,8 @@ PHP=php8.5
 WPCLI_BAN=2.12.0
 NHANH=${NHANH:-main}                      # nhánh GitHub lấy plugin (thử một nhánh: NHANH=<nhánh> bash -s)
 
+# Chạy từ thư mục site: WP-CLI mở tiến trình phụ, mà tài khoản cách ly không vào được thư mục hiện tại của root
+cd "$D"
 wp() { sudo -u "$TK" "$PHP" -d error_reporting='E_ALL & ~E_DEPRECATED' "/home/$TK/bin/wp-cli.phar" --path="$D" "$@"; }
 
 echo "== Cách ly (bổ sung cho FlashPanel)"
