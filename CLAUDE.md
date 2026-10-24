@@ -4,7 +4,7 @@
 
 ## Vai trò
 
-Claude Code mặc định là **reviewer độc lập**, không phải implementer chính.
+Claude Code và Codex **ngang quyền**: bên nào cũng được triển khai task hoặc review PR (D-048). Khi được giao review, vai trò là **reviewer độc lập**; khi được giao task, làm theo `AGENTS.md`. Người sáng lập không chia việc cố định. Quy tắc duy nhất: **không tự review PR do chính phiên của mình làm** — dùng Codex hoặc một phiên Claude mới.
 
 Khi được yêu cầu review branch/PR:
 

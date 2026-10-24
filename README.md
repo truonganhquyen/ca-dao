@@ -35,8 +35,8 @@ npm run viec-tiep-theo # đề xuất task kỹ thuật READY tiếp theo
 | Ai | Đọc |
 |---|---|
 | **Người sáng lập** | `docs/00` (tài liệu nền) → `docs/02` (đang ở đâu) → `docs/11` (biên soạn trong CMS) |
-| **Codex Cloud** (implementer) | `AGENTS.md` → `docs/02` → `docs/03` → `docs/22`; tự chọn task `READY` |
-| **Claude Code** (reviewer) | `CLAUDE.md`; review độc lập branch/PR, mặc định không sửa file |
+| **Codex Cloud** hoặc **Claude Code** (triển khai) | `AGENTS.md` → `docs/02` → `docs/03` → `docs/22`; tự chọn task `READY` |
+| **Claude Code** hoặc **Codex** (review) | `CLAUDE.md`; review độc lập branch/PR, không tự review PR của mình |
 | **Dev là người** | `AGENTS.md`, `docs/00`, `docs/10`, `docs/21`, `docs/22` |
 
 ## Cấu trúc
@@ -79,15 +79,14 @@ Kho thô (toàn bộ lời thu thập từ nguồn web) nằm ở **repo riêng 
 ```text
 Người sáng lập ── CMS trên điện thoại ─────────────► main (nội dung)
                 └─ mở link xem trước, bấm gộp ◄─────┐
-GitHub repo ── Codex Cloud: tự chọn task READY → code → PR → CI (npm run kiem-tra)
-            └─ Claude Code: review độc lập → APPROVE / REQUEST CHANGES / HUMAN DECISION REQUIRED
+GitHub repo ── Codex hoặc Claude: tự chọn task READY → code → PR → CI (npm run kiem-tra)
+            └─ Bên còn lại (hoặc phiên mới): review độc lập → APPROVE / REQUEST CHANGES / HUMAN DECISION REQUIRED
 ```
 
-Prompt Codex thường ngày: **"Tiếp tục dự án theo quy trình thực thi trong repo."**
-Prompt Claude thường ngày: **"Review thay đổi hiện tại theo CLAUDE.md. Không sửa file."**
+Prompt triển khai (Codex hay Claude): **"Tiếp tục dự án theo quy trình thực thi trong repo."**
+Prompt review (Codex hay Claude): **"Review thay đổi hiện tại theo CLAUDE.md. Không sửa file."**
 
 ## Việc tiếp theo
 
-1. **Người sáng lập — T-032 (phần còn lại):** GitHub đã xong (24/10/2026); còn tạo tài khoản Cloudflare và cho phép Codex truy cập 2 repo.
-2. **Codex:** sau T-032, làm T-035 (Astro + CI + triển khai) và T-038 (kho thô) song song.
-3. **Người sáng lập — T-034:** gửi thư cho Ca dao Mẹ (bản nháp ở `docs/12` mục 7) trước khi mở công khai.
+1. **Mốc A:** T-035 (Astro + CI + triển khai) và T-038 (kho thô) sẵn sàng; giao cho Codex hoặc Claude đều được.
+2. **Người sáng lập — T-034:** gửi thư cho Ca dao Mẹ (bản nháp ở `docs/12` mục 7) trước khi mở công khai.

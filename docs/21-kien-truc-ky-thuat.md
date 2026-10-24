@@ -227,14 +227,14 @@ Quy trình phát triển là **hạ tầng làm phần mềm**, không phải th
 ```text
 Người sáng lập ── CMS (/admin) ──────────────► main (nội dung)
                 └─ mở link xem trước, bấm gộp ◄┐
-GitHub repo ── Codex Cloud (planner + implementer) → PR → CI (npm run kiem-tra)
+GitHub repo ── Codex hoặc Claude Code (planner + implementer) → PR → CI (npm run kiem-tra)
             └─ Claude Code (reviewer độc lập) ─────────┘
 ```
 
 - `main` là nguồn sự thật. Mỗi task một nhánh/PR; PR luôn có link bản xem trước.
 - Backlog, mốc, trạng thái nằm trong repo (`docs/02`, `docs/22`, `du-an/trang-thai.json`); `npm run kiem-nhat-quan` báo khi chúng lệch nhau.
 - Codex tự chọn task theo `docs/03`, không vượt Human Gate trong `AGENTS.md`.
-- Claude Code mặc định **không sửa mã**; review theo `CLAUDE.md` và kết luận `APPROVE` / `REQUEST CHANGES` / `HUMAN DECISION REQUIRED`. Chỉ triển khai khi người sáng lập yêu cầu rõ.
+- Codex và Claude Code ngang quyền (D-048): bên nào cũng triển khai hoặc review. Khi review, theo `CLAUDE.md` và kết luận `APPROVE` / `REQUEST CHANGES` / `HUMAN DECISION REQUIRED`. Người làm PR không tự review PR của mình.
 - Mọi trạng thái cần để tiếp tục công việc nằm trong Git, không trong bộ nhớ hội thoại của agent.
 
 ## 16. Kho thô và đường ống thu thập (T-038, T-039)
