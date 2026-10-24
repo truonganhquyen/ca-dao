@@ -35,7 +35,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-037 | CMS Sveltia: đăng nhập GitHub, form tiếng Việt, "Thêm nhanh", duyệt nháp AI | A | T-036 | — | DONE |
 | T-038 | Thu thập kho thô từ cadao.me | A | T-032, T-033 | — | BLOCKED |
 | T-039 | Đường ống ứng viên: kho thô → bài nháp trong content/ | A | T-036, T-038 | — | BLOCKED |
-| T-040 | Trang tác phẩm đọc theo lớp, nhãn tự tính, nguồn gốc, sáng/tối, in, thanh điều hướng dưới | A | T-035 | — | BLOCKED |
+| T-040 | Trang tác phẩm đọc theo lớp, nhãn tự tính, nguồn gốc, sáng/tối, in, thanh điều hướng dưới | A | T-035 | — | DONE |
 | T-041 | Tìm kiếm: chỉ mục, chuẩn hóa tiếng Việt, giao diện | A | T-040 | — | BLOCKED |
 | T-042 | Trích dẫn 2 định dạng + chia sẻ | A | T-040 | — | BLOCKED |
 | **Mốc B · Thử nhỏ** ||||||
@@ -140,10 +140,12 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 **Đọc:** `20` mục 4–5, 10–12, 14; `10` mục 5, 10.
 **Việc:** trang `/ca-dao/{slug}`, `/tuc-ngu/{slug}`, `/thanh-ngu/{slug}` cho bài `cong_khai`, đọc theo lớp (`20` mục 4.1); nhãn từ `tinhNhan()`, dị bản từ `diBanHienThi()`, chuỗi qua `chuoiHienThi()` (cùng `scripts/lib/suy-ra.mjs`); vị trí chú giải từ `phanGiaiNeo()`; khối Nguồn gốc ở lớp 1; dòng "có hỗ trợ AI" khi `nhap_ai_da_duyet`; `noindex` khi chưa có giá trị riêng; sáng/tối theo hệ thống; bản in; thanh điều hướng dưới trên điện thoại.
 **Chấp nhận:**
-- [ ] Bài nhãn D hiện nhãn "Lời phổ biến – chưa đối chiếu" và dòng nguồn gốc; không có chữ nào trong danh sách từ cấm.
-- [ ] Không còn chuỗi `CAN_BO_SUNG` hay `NHAP_AI` nào lộ ra trang.
-- [ ] Tắt JavaScript: đọc được lời, chú giải (cuối khối lời), nguồn gốc.
-- [ ] Đạt `20` FR-1.8 trên màn hình 360 px; WCAG 2.2 AA cho phần đã làm.
+- [x] Bài nhãn D hiện nhãn "Lời phổ biến – chưa đối chiếu" và dòng nguồn gốc; không có chữ nào trong danh sách từ cấm. (`kiem-trang`)
+- [x] Không còn chuỗi `CAN_BO_SUNG` hay `NHAP_AI` nào lộ ra trang. (`kiem-trang`, mọi trang)
+- [x] Tắt JavaScript: đọc được lời, chú giải (cuối khối lời), nguồn gốc. (`quet-trang`)
+- [x] Đạt `20` FR-1.8 trên màn hình 360 px; WCAG 2.2 AA cho phần đã làm. (`quet-trang`: axe 0 lỗi ở 360 px sáng/tối và máy tính; ảnh chụp 360 px)
+
+**Tiến độ (24/10/2026):** `VerseBlock`, `GlossSheet`, `EvidenceBadge`, `ProvenanceBlock`, `VariantList`, `BottomNav`, khung `KhungDoc`; dữ liệu qua `src/lib/kho.ts` (gọi lại `suy-ra.mjs`, `phanGiaiNeo()`); bộ mẫu giao diện ở bản xem trước (D-050); `kiem-trang` + `quet-trang` trong `kiem-tra` (D-051). **Chưa làm, chờ task khác:** nút trích dẫn/chia sẻ (T-042); liên kết "Gửi số trang", "Góp ý", "Ở quê bạn…" (T-045 — hiện chữ "sắp có"); "Xem thêm" tới `/tu-dien/` (T-044); liên kết `/phuong-phap` từ nhãn (T-046); thẻ tình huống thành liên kết (T-043); mục Tìm/Tình huống/Đã lưu của thanh dưới (T-041, T-043, Mốc C); JSON-LD (T-050). `dien_giai.noi_dung` hiện thành đoạn văn thường, chưa dựng Markdown.
 
 #### T-041 · Tìm kiếm — A
 **Đọc:** `21` mục 5, `20` mục 8, `23` mục 4.

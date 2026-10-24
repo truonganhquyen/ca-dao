@@ -51,6 +51,8 @@ ca-dao/                      (repo CÔNG KHAI: github.com/truonganhquyen/ca-dao)
 │   ├── lib/suy-ra.mjs             dữ liệu suy ra — dùng chung cho kiểm tra và build
 │   ├── lib/backlog.mjs            đọc trạng thái và backlog
 │   ├── kiem-lien-ket.mjs          kiểm liên kết nội bộ trong dist/ (kiểm thử: tests/lien-ket/)
+│   ├── kiem-trang.mjs             trang đã build: dấu nháp lộ ra, từ cấm, ngân sách JS, nội dung trang mẫu
+│   ├── quet-trang.mjs             Chrome có sẵn: axe (WCAG 2.2 AA), ô chú giải, tắt JavaScript
 │   ├── lib/schema.mjs             mô tả schema một nguồn (hình dạng dữ liệu) — dùng chung cho validator và bộ sinh
 │   ├── sinh-tu-schema.mjs         sinh Zod, kiểu từ vựng, cấu hình CMS (--kiem: báo lệch)
 │   ├── lib/giao-dien-cms.mjs      nhãn, gợi ý, thứ tự ô, mặc định, bộ "Thêm nhanh" của CMS
@@ -58,6 +60,11 @@ ca-dao/                      (repo CÔNG KHAI: github.com/truonganhquyen/ca-dao)
 │   └── tao-chi-muc-tim.mjs        (T-041) chỉ mục tìm kiếm
 ├── tests/fixtures/          bộ dữ liệu kiểm thử (tests/lien-ket/: bản build mẫu cho bộ kiểm liên kết)
 ├── src/                     mã Astro: trang, thành phần, đảo tương tác; src/styles/global.css: token màu + Tailwind
+│   ├── lib/kho.ts           nạp collections + dữ liệu suy ra (gọi lại suy-ra.mjs, neo-chu-giai.mjs)
+│   ├── lib/cau-hinh.ts      cấu hình giao diện (lục bát thụt lề — Q-006, form góp ý, thanh dưới)
+│   ├── lib/moi-truong.ts    bản chính thức hay bản xem trước (D-050)
+│   ├── components/          VerseBlock, GlossSheet, EvidenceBadge, ProvenanceBlock, VariantList, BottomNav
+│   └── pages/[theLoai]/[slug].astro   trang tác phẩm (T-040)
 ├── public/                  tệp tĩnh chép nguyên vào dist/
 ├── public/admin/            Sveltia CMS: index.html (T-037), config.yml sinh tự động
 ├── src/content.config.ts    7 content collections (glob loader, schema từ src/sinh-ra/)
@@ -76,7 +83,7 @@ Ba môi trường: **Cục bộ** · **Xem trước** (mỗi nhánh/PR) · **Ch�
 | Ở đâu | Chạy | Kết quả |
 |---|---|---|
 | Cục bộ | `npm run kiem-tra` → `npm run dev` | Xem trước trên máy |
-| Mỗi PR (CI + bản xem trước) | `npm run kiem-tra` = dữ liệu → fixture → kiểm thử bộ kiểm liên kết → nhất quán → `astro check` → `astro build` → kiểm liên kết nội bộ trong `dist/` | Bản xem trước có đường dẫn riêng; lỗi bất kỳ bước nào → PR không gộp được |
+| Mỗi PR (CI + bản xem trước) | `npm run kiem-tra` = dữ liệu → fixture → kiểm thử bộ kiểm liên kết → nhất quán → tệp sinh → `astro check` → `astro build` → kiểm liên kết nội bộ → kiểm trang (dấu nháp, từ cấm, ngân sách JS) → quét trợ năng bằng Chrome | Bản xem trước có đường dẫn riêng; lỗi bất kỳ bước nào → PR không gộp được |
 | `main` | Như trên | Triển khai chính thức. Lỗi → **không triển khai**, bản cũ vẫn chạy |
 
 - **Triển khai (T-035, D-049):** Cloudflare **Workers Builds** nối với repo `ca-dao` (người sáng lập kết nối một lần: `docs/huong-dan/ket-noi-cloudflare.md`). Lệnh build `npm run build` = `check:data` rồi `astro build` — có LỖI dữ liệu thì dừng trước khi build, không triển khai. Nhánh `main` → `npx wrangler deploy` (chính thức); nhánh khác → `npx wrangler preview` (mặc định của Workers Builds, bản thử nghiệm mở; tạo bản xem trước, link hiện trong bình luận của Cloudflare ở PR). `wrangler.jsonc` chỉ phục vụ `dist/` (`not_found_handling: 404-page`), không có mã máy chủ; khối `previews: {}` bắt buộc cho `wrangler preview`. Đã biết (24/10/2026): bản xem trước không áp dụng `not_found_handling` (đường dẫn lạ trả "Not Found" của Cloudflare); bản chính thức trả đúng trang 404. Phiên bản Node lấy từ `.node-version`, CI dùng cùng tệp.
@@ -91,6 +98,7 @@ Ba môi trường: **Cục bộ** · **Xem trước** (mỗi nhánh/PR) · **Ch�
 - Mô tả schema **một nguồn** (`scripts/lib/schema.mjs`, T-036) — validator dùng trực tiếp; `npm run sinh:schema` sinh ra `src/sinh-ra/schema.ts` (Zod, để có kiểu trong mã), `src/sinh-ra/tu-vung.ts` (mã + nhãn từ vựng, kiểu TypeScript) và `public/admin/config.yml` (cấu hình Sveltia CMS). `npm run kiem-tra` chạy `kiem-sinh`: tệp sinh lệch với nguồn → LỖI. Quy tắc nghiệp vụ R01–R22 chỉ nằm trong `scripts/kiem-tra-du-lieu.mjs` (D-019); Zod chỉ mô tả kiểu, trường không bắt buộc nhận cả `null`.
 - Ngày: validator đọc YAML không bật kiểu ngày, Astro thì có — ngày không đặt trong ngoặc kép thành `Date`. Zod đưa về chuỗi `YYYY-MM-DD` để mã Astro thấy cùng giá trị với validator.
 - id của mục = tên tệp (`generateId`), không phải trường `slug` như mặc định của glob loader.
+- **Bộ mẫu giao diện (D-050):** ngoài bản chính thức, mỗi collection nạp thêm `tests/fixtures/mau-giao-dien/content/<collection>/` (dữ liệu giả, mã `…-91xx`, `src-mau-…`) để có trang tác phẩm mẫu trên bản xem trước; `src/lib/moi-truong.ts` quyết định theo `WORKERS_CI_BRANCH` (ghi đè `KHO_MAU=0/1`).
 - Chỉ tạo trang cho tác phẩm `cong_khai`; tác phẩm khác vẫn được kiểm nhưng không xuất hiện ở đâu trên site, chỉ mục, sitemap.
 - Dữ liệu suy ra (`10` mục 10) lấy từ `scripts/lib/suy-ra.mjs`; vị trí chú giải lấy từ `phanGiaiNeo()` trong `scripts/lib/neo-chu-giai.mjs` (import trực tiếp vào Astro). Không viết bản tính thứ hai.
 
@@ -136,7 +144,7 @@ export function chuanHoaCoDau(s) {
 
 | Đảo | Tải khi | Ghi chú | Mốc |
 |---|---|---|---|
-| Chú giải | Trang tác phẩm hiển thị | `<dialog>` (điện thoại) / `popover` (máy tính); không JS vẫn có chú thích cuối khối lời | A |
+| Chú giải | Trang tác phẩm hiển thị | `GlossSheet`: một `<dialog>` — `showModal()` thành bảng trượt dưới (điện thoại), `show()` thành ô nhỏ dưới từ (máy tính); không JS: liên kết tới chú thích cuối khối lời, hai chiều (T-040) | A |
 | Trích dẫn | Bấm nút | Clipboard API | A |
 | Chia sẻ | Bấm nút | Web Share API; không có thì sao chép link | A |
 | Tìm kiếm | Chạm ô tìm | Tải chỉ mục lúc này | A |

@@ -1,0 +1,39 @@
+---
+// Dị bản (docs/20 mục 4.1 mục 6, 12): "Có N dị bản" + vùng; chạm để mở. Chỉ dị bản diBanHienThi() cho phép:
+// khối chính (A/B) ở lớp 1; khối "Cộng đồng ghi nhận" (C) ở lớp 2 với câu "chưa được đối chiếu".
+import VerseBlock from './VerseBlock.astro';
+import type { DiBan, Nhan } from '../lib/kho';
+import { nhanCua } from '../lib/kho';
+
+interface Props {
+  ds: { diBan: DiBan; nhan: Nhan }[];
+  theTho?: string | null;
+  khoi: 'chinh' | 'cong_dong';
+}
+const { ds, theTho, khoi } = Astro.props;
+const vung = (v: DiBan) => v.vung.map(m => nhanCua('vung', m)).filter(Boolean).join(', ');
+const tatCaVung = [...new Set(ds.flatMap(x => x.diBan.vung.filter(m => m !== 'khong_ro').map(m => nhanCua('vung', m))))];
+---
+
+{ds.length > 0 && (
+  <details class="di-ban mt-4 print:hidden" id={khoi === 'chinh' ? 'di-ban' : 'cong-dong'}>
+    <summary class="min-h-11 cursor-pointer py-2">
+      {khoi === 'chinh'
+        ? <>Có {ds.length} dị bản{tatCaVung.length > 0 && <span class="text-nhat"> · {tatCaVung.join(' · ')}</span>}</>
+        : <>Cộng đồng ghi nhận ({ds.length})</>}
+    </summary>
+    {khoi === 'cong_dong' && (
+      <p class="mb-3 text-[0.9375rem] text-nhat">
+        Những lời dưới đây do cộng đồng gửi, chưa được đối chiếu với tư liệu. Bạn biết nguồn in của chúng? Hãy cho chúng tôi biết.
+      </p>
+    )}
+    <ul class="space-y-5">
+      {ds.map(x => (
+        <li>
+          <p class="mb-1 text-[0.9375rem] text-nhat">{vung(x.diBan)} · {nhanCua('xac_thuc', x.nhan)}</p>
+          <VerseBlock loi={x.diBan.loi} theTho={theTho} ma={`di-ban-${x.diBan.id}`} />
+        </li>
+      ))}
+    </ul>
+  </details>
+)}

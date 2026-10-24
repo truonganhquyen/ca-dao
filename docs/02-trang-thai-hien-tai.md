@@ -19,18 +19,20 @@
 - Validator hai tầng (LỖI/NHẮC), quy tắc R01–R22; nhãn bằng chứng do máy tính (`scripts/lib/suy-ra.mjs`); 26 bộ fixture.
 - Nguồn đầu mối `content/nguon/src-ca-dao-me.yaml`; 3 hồ sơ khung ở trạng thái `nhap` (chưa có nguồn gốc, không công khai được).
 - **Website khung (T-035):** Astro 7 + Tailwind 4, trang "Sắp ra mắt" và trang 404, sáng/tối theo hệ thống; `npm run kiem-tra` gồm `astro check`, build và kiểm liên kết; triển khai bằng Cloudflare Workers Static Assets (D-049): bản chính thức `https://ca-dao.truonganhquyen.workers.dev` (trang "Sắp ra mắt"), bản xem trước cho mỗi PR.
+- **Trang tác phẩm (T-040):** đọc theo lớp, nhãn tự tính, nguồn gốc ở lớp 1, chú giải chạm-là-hiện (tắt JavaScript vẫn đọc được), sáng/tối, bản in, thanh dưới; quét trợ năng tự động. Chưa có bài `cong_khai` thật: bản xem trước có 3 trang mẫu giao diện dữ liệu giả (D-050).
 - **CMS (T-037):** `/admin` — Sveltia, đăng nhập GitHub qua Worker `sveltia-cms-auth`, form tiếng Việt, "Thêm nhanh"; hướng dẫn `docs/huong-dan/bien-soan-cms.md`.
 - **Schema một nguồn (T-036):** `scripts/lib/schema.mjs` dùng chung cho validator và bộ sinh Zod / kiểu từ vựng / cấu hình CMS (`npm run sinh:schema`); 7 content collections trong Astro.
 - GitHub (24/10/2026): repo công khai `truonganhquyen/ca-dao` (`main` = hướng v2; PR #1–#3 đã gộp) và repo riêng tư `truonganhquyen/ca-dao-kho-tho` (trống, chờ T-038). Commit dùng email ẩn của GitHub.
 
 ## Đang chờ người sáng lập
 
+- **Thử CMS** (điều kiện xong T-037, PR #9): đăng nhập `/admin` trên điện thoại, tạo một bài thật tới Công khai — `docs/huong-dan/bien-soan-cms.md`. Đăng nhập GitHub đã tạo xong và đã kiểm (24/10/2026).
 - **T-034** · Gửi thư cho Ca dao Mẹ — không gấp, nhưng phải xong trước khi mở công khai (T-053).
 - **T-049** · Chốt tên miền (Q-005) — trước Mốc C.
 
 ## Công việc kỹ thuật tiếp theo
 
-**T-038** (kho thô) và **T-040** (trang tác phẩm) đang chờ gộp; sau đó **T-039** (đường ống ứng viên, khi kho thô có dữ liệu), **T-041** (tìm kiếm), **T-042** (trích dẫn, chia sẻ).
+**T-037** xong phần mã (CMS ở PR #9 — còn chờ người sáng lập thử tạo một bài tới công khai từ điện thoại); **T-038** (kho thô) chờ gộp; **T-039** (đường ống ứng viên) khi kho thô có dữ liệu; **T-041** (tìm kiếm) và **T-042** (trích dẫn, chia sẻ) sẵn sàng.
 
 ## Quyết định đang mở
 

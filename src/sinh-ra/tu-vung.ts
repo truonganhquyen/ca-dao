@@ -191,6 +191,11 @@ export const MA_TU_VUNG = {
   sgk_bo_sach: ["ket_noi_tri_thuc", "chan_troi_sang_tao", "canh_dieu"],
 } as const;
 
+/** Loại nguồn là nguồn in (sách, tạp chí, luận văn — kể cả bản quét). */
+export const LOAI_NGUON_IN: readonly string[] = ["sach", "tap_chi", "luan_van"];
+/** Loại nguồn là tư liệu điền dã. */
+export const LOAI_NGUON_DIEN_DA: readonly string[] = ["dien_da", "ghi_am"];
+
 export type NhomTuVung = keyof typeof TU_VUNG;
 export type MaTuVung<N extends NhomTuVung> = (typeof MA_TU_VUNG)[N][number];
 

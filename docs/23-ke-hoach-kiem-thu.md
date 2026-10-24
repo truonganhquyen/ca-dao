@@ -8,7 +8,7 @@
 
 Bốn lớp kiểm thử, xếp theo mức tự động: dữ liệu (tự động hoàn toàn) → giao diện (tự động + tay) → tìm kiếm (bộ truy vấn) → người dùng thật (5 người ở Mốc B).
 
-**Cổng lệnh cho agent/CI:** `npm run kiem-tra` (D-034) = `check:data` + `test:fixtures` + `test:lien-ket` + `kiem-nhat-quan` + `kiem-sinh` (từ T-036) + `astro check` + `astro build` + `kiem-lien-ket` (từ T-035); từ T-040 thêm quét trợ năng và ngân sách JS.
+**Cổng lệnh cho agent/CI:** `npm run kiem-tra` (D-034) = `check:data` + `test:fixtures` + `test:lien-ket` + `kiem-nhat-quan` + `kiem-sinh` (từ T-036) + `astro check` + `astro build` + `kiem-lien-ket` (từ T-035) + `kiem-trang` (dấu nháp lộ ra, từ cấm, ngân sách JS, nội dung trang mẫu) + `quet-trang` (axe WCAG 2.2 A/AA ở 360 px sáng/tối và máy tính, ô chú giải, tắt JavaScript) (từ T-040).
 
 ---
 
@@ -46,13 +46,13 @@ Mỗi trang, trên điện thoại 360 px và máy tính:
 - [ ] Bản in: chỉ lời, nghĩa, nguồn gốc, URL.
 - [ ] Không popup, không tự phát âm thanh, không cookie (kiểm tab Storage của trình duyệt).
 
-**Trang tác phẩm mẫu để kiểm:** một bài nhãn A, một bài nhãn D lấy từ Ca dao Mẹ, một bài dài (> 12 dòng), một bài có dị bản, một bài có cảnh báo nội dung, một bài chưa có giá trị riêng (phải có `noindex`), một bài có nháp AI đã duyệt (phải có dòng "có hỗ trợ AI").
+**Trang tác phẩm mẫu để kiểm:** bộ mẫu giao diện (D-050, `tests/fixtures/mau-giao-dien/`) có sẵn trên mọi bản xem trước: `/ca-dao/mau-nhan-d/`, `/ca-dao/mau-nhan-a/`, `/tuc-ngu/mau-tuc-ngu/`. Khi có dữ liệu thật: một bài nhãn A, một bài nhãn D lấy từ Ca dao Mẹ, một bài dài (> 12 dòng), một bài có dị bản, một bài có cảnh báo nội dung, một bài chưa có giá trị riêng (phải có `noindex`), một bài có nháp AI đã duyệt (phải có dòng "có hỗ trợ AI").
 
 ## 3. Trợ năng (WCAG 2.2 AA)
 
 | Kiểm | Cách |
 |---|---|
-| Lỗi tự động | Công cụ quét trợ năng (ví dụ axe) trong CI từ T-040: 0 lỗi mức nghiêm trọng |
+| Lỗi tự động | `npm run quet-trang` (axe-core, mọi trang, mọi <details> mở) trong `kiem-tra` từ T-040: 0 lỗi WCAG A/AA |
 | Bàn phím | Đi qua toàn trang bằng Tab; mở/đóng chú giải bằng Enter/Esc; focus luôn nhìn thấy, **không bị thanh trên/thanh dưới cố định che**; focus quay về đúng chỗ |
 | Cỡ chữ | Phóng to trình duyệt 200% và nút "Aa" mức lớn nhất không vỡ bố cục |
 | Trình đọc màn hình | Đọc được nhãn bằng chứng bằng chữ; nút chú giải có tên; ô chú giải có nhãn |

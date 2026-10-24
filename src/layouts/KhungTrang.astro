@@ -19,6 +19,8 @@ const { tieuDe, moTa, noindex = false } = Astro.props;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
+    {/* Có JavaScript: chú giải mở trong ô thay vì hiện cuối khối lời (VerseBlock, GlossSheet) */}
+    <script is:inline>document.documentElement.classList.add('co-js')</script>
     <title>{tieuDe}</title>
     <meta name="description" content={moTa} />
     {noindex && <meta name="robots" content="noindex" />}

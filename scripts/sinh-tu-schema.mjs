@@ -35,7 +35,13 @@ function sinhTuVung() {
   }
   dong.push('} as const;', '', '/** Mã còn dùng của từng nhóm, dạng bộ (tuple) cho z.enum(). */', 'export const MA_TU_VUNG = {');
   for (const [nhom, ds] of Object.entries(TU_VUNG)) dong.push(`  ${nhom}: [${ds.map(x => q(x.ma)).join(', ')}],`);
-  dong.push('} as const;', '', 'export type NhomTuVung = keyof typeof TU_VUNG;',
+  // Cờ của loại nguồn — tinhNhan() cần biết nguồn in / tư liệu điền dã (docs/10 mục 5)
+  const coNguon = co => (taxRaw.loai_nguon || []).filter(x => x[co] && !x.ngung_dung).map(x => q(x.ma)).join(', ');
+  dong.push('} as const;', '', '/** Loại nguồn là nguồn in (sách, tạp chí, luận văn — kể cả bản quét). */',
+    `export const LOAI_NGUON_IN: readonly string[] = [${coNguon('in_an')}];`,
+    '/** Loại nguồn là tư liệu điền dã. */',
+    `export const LOAI_NGUON_DIEN_DA: readonly string[] = [${coNguon('dien_da')}];`);
+  dong.push('', 'export type NhomTuVung = keyof typeof TU_VUNG;',
     'export type MaTuVung<N extends NhomTuVung> = (typeof MA_TU_VUNG)[N][number];', '');
   for (const nhom of Object.keys(TU_VUNG)) dong.push(`export type ${tenKieu(nhom)} = MaTuVung<${q(nhom)}>;`);
   return dong.join('\n') + '\n';
