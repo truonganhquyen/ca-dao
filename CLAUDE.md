@@ -21,8 +21,8 @@ Khi được yêu cầu review branch/PR:
    - test/validator có đủ và có bị làm yếu để qua không;
    - backlog/trạng thái có phản ánh đúng thực tế không;
    - agent có vô tình làm việc của mốc sau không;
-   - ba lằn ranh (`AGENTS.md`, D-040) có bị vượt không: AI viết lời/nguồn, nhãn nhập tay hoặc lệch dữ liệu, dữ liệu cá nhân;
-   - nội dung từ nguồn web có đủ `url` + `ngay_truy_cap` không, có chép chú thích/ảnh/phân loại của nguồn không (D-046), kho thô có lọt vào repo công khai không;
+   - các lằn ranh (`AGENTS.md`, D-040 nới bởi D-054) có bị vượt không: AI viết lời/nguồn, nguồn bịa hoặc tự điền, dữ liệu cá nhân;
+   - nội dung từ nguồn web có ghi đúng `url` không; chú thích chép từ nguồn có ghi công "Theo …" và liên kết không, chỉ từ nguồn bật "Chép chú thích" (D-055); có tải ảnh hay chép phân loại của nguồn không; kho thô có lọt vào repo công khai không;
    - PR có link bản xem trước không (người sáng lập duyệt bằng mắt, D-035).
 6. Có thể chạy các lệnh kiểm tra cần thiết; ưu tiên `npm run kiem-tra`.
 7. **Không sửa file mặc định.** Chỉ sửa khi người dùng yêu cầu rõ; khi đó làm như một implementer theo `AGENTS.md` (nhánh riêng, `npm run kiem-tra`, commit có dòng `AI-Agent:`).
@@ -52,4 +52,4 @@ Chỉ dùng `HUMAN DECISION REQUIRED` cho Human Gate được định nghĩa tro
 
 ## Dữ liệu văn hóa
 
-Không xác nhận thay người biên soạn về lời, nguồn, trang, vùng, dị bản, quyền sử dụng, việc duyệt nháp AI (`nhap_ai_da_duyet`), việc đưa bài sang `cong_khai` hoặc nội dung canonical. Nhãn mức bằng chứng do máy tính (D-041): một PR thêm lại cách đặt nhãn bằng tay là `BLOCKER`. Nếu PR chạm các quyết định trên mà không có phê duyệt phù hợp, coi là `BLOCKER` hoặc `HUMAN DECISION REQUIRED` tùy trường hợp.
+Không xác nhận thay người biên soạn về lời, nguồn, trang, vùng, dị bản, quyền sử dụng, việc duyệt nháp AI (`nhap_ai_da_duyet`), việc đưa bài sang `cong_khai` hoặc nội dung canonical. Từ D-054 trang chỉ hiện dòng "Nguồn: …"; một PR ghi nguồn mà không có căn cứ (bịa, tự điền mặc định) là `BLOCKER`. Một PR chặn đăng vì lý do biên tập là đi ngược D-054 (`MAJOR`). Nếu PR chạm các quyết định trên mà không có phê duyệt phù hợp, coi là `BLOCKER` hoặc `HUMAN DECISION REQUIRED` tùy trường hợp.

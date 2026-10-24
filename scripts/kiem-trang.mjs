@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Kiểm trang đã build, không cần trình duyệt (T-040; docs/23 mục 1, 5) — một phần của `npm run kiem-tra`:
 //   1. Không lộ dấu nháp: CAN_BO_SUNG, NHAP_AI (docs/10 mục 6).
-//   2. Không dùng từ cấm trong giao diện (AGENTS.md KHÔNG BAO GIỜ mục 10, docs/20 mục 10).
+//   2. Từ cấm trong giao diện (AGENTS.md KHÔNG BAO GIỜ mục 10, docs/20 mục 10) — chỉ NHẮC, không chặn (D-054:
+//      không chặn đăng vì lý do biên tập; từ cấm có thể nằm trong nội dung do người biên soạn viết).
 //   3. Ngân sách JavaScript tải ban đầu < 50 KB mỗi trang (docs/20 mục 12).
 //   4. Trang mẫu giao diện (D-050, khi có): đúng các tiêu chí chấp nhận của T-040.
 // Dùng:  node scripts/kiem-trang.mjs [thư-mục-build, mặc định dist]
@@ -17,6 +18,7 @@ const tatCaTep = dir => fs.readdirSync(dir, { withFileTypes: true })
 const trang = tatCaTep(GOC).filter(f => f.endsWith('.html'));
 const ten = f => '/' + path.relative(GOC, f).split(path.sep).join('/');
 const loi = [];
+const nhacNho = [];
 
 /** Chữ người đọc thấy (và nghe qua trình đọc màn hình): nội dung + title, alt, aria-label, mô tả trang. */
 function chuHienThi(html) {
@@ -30,8 +32,8 @@ for (const f of trang) {
   const html = fs.readFileSync(f, 'utf8');
   const chu = chuHienThi(html);
   for (const dau of ['CAN_BO_SUNG', 'NHAP_AI']) if (chu.includes(dau)) loi.push(`${ten(f)}: lộ dấu nháp "${dau}" ra trang`);
-  for (const tu of TU_CAM) if (chu.toLocaleLowerCase('vi').includes(tu.toLocaleLowerCase('vi'))) loi.push(`${ten(f)}: dùng từ cấm "${tu}"`);
-  if (/\bmức [ABCD]\b/.test(chu)) loi.push(`${ten(f)}: hiện "mức A/B/C/D" — chỉ dùng tên nhãn bằng lời thường`);
+  for (const tu of TU_CAM) if (chu.toLocaleLowerCase('vi').includes(tu.toLocaleLowerCase('vi'))) nhacNho.push(`${ten(f)}: dùng từ cấm "${tu}"`);
+  if (/\bmức [ABCD]\b/.test(chu)) nhacNho.push(`${ten(f)}: hiện "mức A/B/C/D" — chỉ dùng tên nhãn bằng lời thường`);
 
   // JavaScript tải ban đầu: script nội tuyến + tệp script cùng site (không tính phông)
   let js = 0;
@@ -77,6 +79,7 @@ for (const [duong, k] of Object.entries(MAU)) {
   if (n !== k.soChuGiai) loi.push(`${duong}: có ${n} chú giải cuối khối lời, kỳ vọng ${k.soChuGiai}`);
 }
 
+for (const l of nhacNho) console.log(`NHẮC     [trang] ${l}`);
 for (const l of loi) console.log(`LỖI      [trang] ${l}`);
 console.log(`Kiểm trang: ${trang.length} trang${soMau ? `, ${soMau} trang mẫu giao diện` : ''} — ${loi.length} lỗi.`);
 process.exit(loi.length ? 1 : 0);

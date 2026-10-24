@@ -11,6 +11,8 @@ Ngày: 23/10/2026 (v2 — hướng "Trung thực hơn hoàn hảo", D-035..D-047
 
 ## Hướng v2 trong 6 dòng
 
+> **Từ 24/10/2026 (D-054..D-056):** chuyển sang **WordPress** (`docs/24-wordpress.md`); không chặn đăng vì lý do biên tập, nguồn không bắt buộc, chép chú thích có ghi công được phép, bài tự động vào Chờ duyệt. Các dòng dưới mô tả hướng v2 ban đầu.
+
 1. **Xuất bản sớm, nhãn trung thực, cải tiến dần** — không còn cổng đếm hồ sơ; 3 mốc trải nghiệm A/B/C, mở công khai lặng lẽ trước Tết Đinh Mùi 2027.
 2. **Nội dung MVP thu thập có chọn lọc từ internet** — nguồn đầu mối chính là Ca dao Mẹ (cadao.me); lấy toàn bộ lời vào kho thô riêng tư, xuất bản chọn lọc 100–150 bài, ghi công từng bài.
 3. **Nhãn bằng chứng do máy tính** từ nguồn: Đã đối chiếu tư liệu · Ghi từ người kể · Cộng đồng gửi · Lời phổ biến – chưa đối chiếu.

@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 // Kiểm tra dữ liệu — Kho tàng Ca dao Tục ngữ Việt Nam (schema 2.0, hướng v2)
 // Đặc tả: docs/10-dac-ta-du-lieu.md, mục 9 "Quy tắc kiểm tra" (mã R01–R22).
-// Hai tầng (D-043):
-//   LỖI  — chặn build: lỗi kỹ thuật hoặc phạm lằn ranh (D-040). Thoát mã 1, bản cũ trên mạng vẫn chạy.
-//   NHẮC — không chặn: phần nên bổ sung; hiện trong báo cáo sức khỏe / Bàn biên tập.
+// Hai tầng (D-043, nới bởi D-054):
+//   LỖI  — chặn build: CHỈ lỗi kỹ thuật làm hỏng site (YAML, kiểu, mã trùng, tham chiếu hỏng) và hai lằn ranh còn
+//          hiệu lực: AI không viết lời/nguồn (R09 ở lời, ở nguồn) và tư liệu/ghi âm của người thật phải được phép (R12, R18).
+//   NHẮC — không chặn: mọi lý do biên tập (thiếu nguồn R21, nháp AI chưa duyệt R09 — phần đó tự ẩn trên trang, chép
+//          nguyên văn chú thích R20 — D-055, neo chú giải R06, độ dài R07, cờ R13/R14, trùng lời R19, nguồn web R22…).
 //
 // Dùng:  node scripts/kiem-tra-du-lieu.mjs [--content content] [--taxonomy taxonomy/tu-vung-kiem-soat.yaml] [--suc-khoe] [--json]
 //        --suc-khoe: in thêm báo cáo sức khỏe dữ liệu (luôn thoát mã 0). --json: báo cáo dạng JSON.
@@ -88,7 +90,7 @@ function check(v, spec, ctx, where) {
       if (spec.pattern && v !== TODO && !spec.pattern.test(v)) err('R02', ctx.file, `"${where}" = "${v}" sai định dạng`);
       if (spec.maxLen && v.length > spec.maxLen) err('R02', ctx.file, `"${where}" dài quá ${spec.maxLen} ký tự`);
       if (spec.enumOf && !(TAX[spec.enumOf] || new Set()).has(v)) err('R02', ctx.file, `"${where}" = "${v}" không có trong từ vựng "${spec.enumOf}" (hoặc đã ngừng dùng)`);
-      if (spec.maxWords && words(v) > spec.maxWords) err('R07', ctx.file, `"${where}" có ${words(v)} từ, tối đa ${spec.maxWords}`);
+      if (spec.maxWords && words(v) > spec.maxWords) nhac('R07', ctx.file, `"${where}" có ${words(v)} từ, tối đa ${spec.maxWords}`);
       if (spec.ref && v !== TODO) ctx.refs.push({ coll: spec.ref, id: v, where });
       return;
     }
@@ -188,8 +190,8 @@ for (const [coll, items] of Object.entries(DB)) {
     for (const { n, where } of findSourceRefs(data)) {
       const s = DB.nguon.get(n.ref)?.data;
       if (s?.loai !== 'web') continue;
-      if (!n.url) err('R22', file, `"${where}" trỏ tới trang web "${n.ref}" nhưng thiếu "url" của đúng trang đã lấy`);
-      if (!n.ngay_truy_cap) err('R22', file, `"${where}" trỏ tới trang web "${n.ref}" nhưng thiếu "ngay_truy_cap"`);
+      if (!n.url) nhac('R22', file, `"${where}" trỏ tới trang web "${n.ref}" nhưng thiếu "url" của đúng trang đã lấy`);
+      if (!n.ngay_truy_cap) nhac('R22', file, `"${where}" trỏ tới trang web "${n.ref}" nhưng thiếu "ngay_truy_cap"`);
       if (!n.ban_luu_tru && isPublicOwner(coll, data) && where.startsWith('di_ban')) nhac('R22', file, `"${where}" chưa có "ban_luu_tru" (bản lưu Wayback Machine)`);
     }
   }
@@ -199,13 +201,13 @@ for (const [coll, items] of Object.entries(DB)) {
 const trichChuaPhep = refs => (refs || []).some(n => n?.cach_dung === 'trich_nguyen_van' && !QUYEN_DUNG_DUOC.has(DB.nguon.get(n.ref)?.data?.ban_quyen));
 for (const { data: m, file } of DB['muc-tu'].values()) {
   if (!trichChuaPhep(m.nguon)) continue;
-  if (typeof m.giai_nghia === 'string' && words(m.giai_nghia) > SO_TU_TRICH_TOI_DA) err('R20', file, `"giai_nghia" chép nguyên văn từ nguồn chưa cho phép có ${words(m.giai_nghia)} từ (tối đa ${SO_TU_TRICH_TOI_DA}); viết lại bằng lời của dự án (cach_dung: tham_khao) hoặc chờ nguồn cho phép`);
-  if (typeof m.giai_nghia_day_du === 'string' && m.giai_nghia_day_du.trim()) err('R20', file, '"giai_nghia_day_du" không được chép nguyên văn từ nguồn chưa cho phép; viết lại bằng lời của dự án');
+  if (typeof m.giai_nghia === 'string' && words(m.giai_nghia) > SO_TU_TRICH_TOI_DA) nhac('R20', file, `"giai_nghia" chép nguyên văn từ nguồn chưa cho phép có ${words(m.giai_nghia)} từ (tối đa ${SO_TU_TRICH_TOI_DA}); viết lại bằng lời của dự án (cach_dung: tham_khao) hoặc chờ nguồn cho phép`);
+  if (typeof m.giai_nghia_day_du === 'string' && m.giai_nghia_day_du.trim()) nhac('R20', file, '"giai_nghia_day_du" không được chép nguyên văn từ nguồn chưa cho phép; viết lại bằng lời của dự án');
 }
 for (const { data: w, file } of DB['tac-pham'].values()) {
   for (const [i, d] of (w.dien_giai || []).entries()) {
     if (isObj(d) && trichChuaPhep(d.nguon) && typeof d.noi_dung === 'string' && words(d.noi_dung) > SO_TU_TRICH_TOI_DA) {
-      err('R20', file, `dien_giai[${i}].noi_dung chép nguyên văn từ nguồn chưa cho phép có ${words(d.noi_dung)} từ (tối đa ${SO_TU_TRICH_TOI_DA}); viết lại bằng lời của dự án`);
+      nhac('R20', file, `dien_giai[${i}].noi_dung chép nguyên văn từ nguồn chưa cho phép có ${words(d.noi_dung)} từ (tối đa ${SO_TU_TRICH_TOI_DA}); viết lại bằng lời của dự án`);
     }
   }
 }
@@ -244,8 +246,8 @@ for (const { data: w, file } of DB['tac-pham'].values()) {
     if (typeof v.loi === 'string') {
       const ls = linesOf(v.loi);
       ls.forEach((l, i) => {
-        if (l !== l.trim()) err('R01', file, `dị bản ${v.id}, dòng ${i + 1}: có khoảng trắng thừa đầu/cuối dòng`);
-        if (l.includes('\t')) err('R01', file, `dị bản ${v.id}, dòng ${i + 1}: có ký tự tab`);
+        if (l !== l.trim()) nhac('R01', file, `dị bản ${v.id}, dòng ${i + 1}: có khoảng trắng thừa đầu/cuối dòng`);
+        if (l.includes('\t')) nhac('R01', file, `dị bản ${v.id}, dòng ${i + 1}: có ký tự tab`);
         if (!l.trim()) nhac('R01', file, `dị bản ${v.id}, dòng ${i + 1}: dòng trống giữa lời`);
       });
       // Lằn ranh (D-040): lời không bao giờ do AI viết
@@ -264,16 +266,16 @@ for (const { data: w, file } of DB['tac-pham'].values()) {
   const rep = variants.get(w.ban_dai_dien);
   if (w.ban_dai_dien && !rep) err('R05', file, `ban_dai_dien "${w.ban_dai_dien}" không phải dị bản có trong tệp`);
   // R21 — bài công khai: bản tham chiếu phải có nguồn gốc ghi rõ (D-040)
-  if (pub && rep && !coNguonGoc(rep)) err('R21', file, `bản tham chiếu "${rep.id}" chưa có nguồn gốc (cần ít nhất một tham chiếu nguồn hoặc mã đóng góp) — không được công khai`);
+  if (pub && rep && !coNguonGoc(rep)) nhac('R21', file, `bản tham chiếu "${rep.id}" chưa có nguồn gốc (cần ít nhất một tham chiếu nguồn hoặc mã đóng góp) — không được công khai`);
 
   // R06 — neo chú giải
   for (const [i, c] of (w.chu_giai || []).entries()) {
     if (!isObj(c)) continue;
     const v = variants.get(c.di_ban);
-    if (!v) { err('R06', file, `chu_giai[${i}] trỏ dị bản "${c.di_ban}" không tồn tại`); continue; }
+    if (!v) { nhac('R06', file, `chu_giai[${i}] trỏ dị bản "${c.di_ban}" không tồn tại`); continue; }
     if (typeof v.loi !== 'string' || c.cum_tu === undefined) continue;
     const kq = phanGiaiNeo(v.loi, c);
-    if (!kq.ok) { err('R06', file, `chu_giai[${i}] (${c.di_ban}): ${kq.thong_bao}`); continue; }
+    if (!kq.ok) { nhac('R06', file, `chu_giai[${i}] (${c.di_ban}): ${kq.thong_bao}`); continue; }
     const mt = DB['muc-tu'].get(c.muc_tu)?.data;
     if (mt && !khopMucTu(c.cum_tu, mt)) nhac('R06', file, `chu_giai[${i}]: cụm "${c.cum_tu}" không giống mục từ ${c.muc_tu} ("${mt.tu}") — kiểm lại có trỏ nhầm mục từ không`);
   }
@@ -285,7 +287,7 @@ for (const { data: w, file } of DB['tac-pham'].values()) {
   const aiMarks = findMarkers(w, AI_DRAFT);
   const todoMarks = findMarkers(w, TODO);
   if (pub) {
-    if (aiMarks.length && w.nhap_ai_da_duyet !== true) aiMarks.forEach(m => err('R09', file, `còn ${AI_DRAFT} ở "${m}" mà chưa duyệt (đặt nhap_ai_da_duyet: true sau khi đã đọc và đồng ý)`));
+    if (aiMarks.length && w.nhap_ai_da_duyet !== true) aiMarks.forEach(m => nhac('R09', file, `còn ${AI_DRAFT} ở "${m}" mà chưa duyệt (đặt nhap_ai_da_duyet: true sau khi đã đọc và đồng ý)`));
     if (todoMarks.length) nhac('R10', file, `${todoMarks.length} chỗ còn ${TODO} (trường đó sẽ ẩn trên trang): ${todoMarks.join(', ')}`);
     // Tệp được tác phẩm này dùng tới cũng không được để lộ nháp AI chưa duyệt
     // (nguồn còn NHAP_AI đã bị chặn ở phần "Nguồn" bên dưới)
@@ -294,7 +296,7 @@ for (const { data: w, file } of DB['tac-pham'].values()) {
       const target = DB[r.coll].get(r.id);
       if (!target) continue;
       const m = findMarkers(target.data, AI_DRAFT);
-      if (m.length && target.data.nhap_ai_da_duyet !== true) err('R09', file, `dùng ${r.coll}/${r.id} còn ${AI_DRAFT} chưa duyệt ở: ${m.join(', ')}`);
+      if (m.length && target.data.nhap_ai_da_duyet !== true) nhac('R09', file, `dùng ${r.coll}/${r.id} còn ${AI_DRAFT} chưa duyệt ở: ${m.join(', ')}`);
       if (r.coll === 'muc-tu' && !(target.data.nguon || []).length) nhac('R10', file, `dùng mục từ ${r.id} chưa có nguồn`);
     }
   } else if (aiMarks.length || todoMarks.length) {
@@ -307,8 +309,8 @@ for (const { data: w, file } of DB['tac-pham'].values()) {
   if (pub && !coGiaTriRieng(w, soTinhHuong)) nhac('R10', file, 'chưa có "giá trị riêng" (nghĩa ngắn + chú giải hoặc tình huống): trang sẽ mang noindex');
 
   // R13, R14 — cờ cần căn cứ
-  if ((w.xac_thuc_dan_gian ?? 'binh_thuong') !== 'binh_thuong' && !w.can_cu_xac_thuc_dan_gian) err('R13', file, 'cờ xác thực dân gian khác "binh_thuong" cần "can_cu_xac_thuc_dan_gian"');
-  if (w.tranh_luan === true && !w.ghi_chu_tranh_luan) err('R14', file, '"tranh_luan: true" cần "ghi_chu_tranh_luan"');
+  if ((w.xac_thuc_dan_gian ?? 'binh_thuong') !== 'binh_thuong' && !w.can_cu_xac_thuc_dan_gian) nhac('R13', file, 'cờ xác thực dân gian khác "binh_thuong" cần "can_cu_xac_thuc_dan_gian"');
+  if (w.tranh_luan === true && !w.ghi_chu_tranh_luan) nhac('R14', file, '"tranh_luan: true" cần "ghi_chu_tranh_luan"');
 }
 
 // ---------- R19 — nghi trùng tác phẩm ----------
@@ -324,7 +326,7 @@ for (const { data: w, file } of DB['tac-pham'].values()) {
     if (!isObj(v) || typeof v.loi !== 'string') continue;
     const k = boDau(v.loi);
     const truoc = loiDaThay.get(k);
-    if (truoc && !truoc.startsWith(`${w.id}/`)) { err('R19', file, `lời dị bản ${v.id} giống hệt ${truoc}: gộp thành dị bản của một tác phẩm, hoặc ghi rõ khác biệt`); nghiTrung.push([`${w.id}/${v.id}`, truoc]); }
+    if (truoc && !truoc.startsWith(`${w.id}/`)) { nhac('R19', file, `lời dị bản ${v.id} giống hệt ${truoc}: gộp thành dị bản của một tác phẩm, hoặc ghi rõ khác biệt`); nghiTrung.push([`${w.id}/${v.id}`, truoc]); }
     else if (!truoc) loiDaThay.set(k, `${w.id}/${v.id}`);
   }
   const rep = (w.di_ban || []).find(v => v?.id === w.ban_dai_dien);
@@ -337,14 +339,14 @@ for (const { data: w, file } of DB['tac-pham'].values()) {
 
 // ---------- Mục từ ----------
 for (const { data: m, file } of DB['muc-tu'].values()) {
-  if (m.loai === 'phuong_ngu' && !(m.vung || []).length) err('R02', file, 'mục từ phương ngữ cần "vung"');
+  if (m.loai === 'phuong_ngu' && !(m.vung || []).length) nhac('R02', file, 'mục từ phương ngữ cần "vung"');
 }
 
 // ---------- Nguồn ----------
 for (const { data: s, file } of DB.nguon.values()) {
-  if (PRINT_SOURCES.has(s.loai) && (s.nxb === undefined || s.nam === undefined)) err('R02', file, 'nguồn in cần "nxb" và "nam" (chưa biết thì ghi CAN_BO_SUNG)');
-  if (s.loai === 'web' && !s.url) err('R02', file, 'nguồn loại "web" cần "url" của trang chủ');
-  if (s.da_xac_minh_ban_in === true && findMarkers(s, TODO).length) err('R17', file, 'đánh dấu đã xác minh bản in nhưng còn CAN_BO_SUNG');
+  if (PRINT_SOURCES.has(s.loai) && (s.nxb === undefined || s.nam === undefined)) nhac('R02', file, 'nguồn in cần "nxb" và "nam" (chưa biết thì ghi CAN_BO_SUNG)');
+  if (s.loai === 'web' && !s.url) nhac('R02', file, 'nguồn loại "web" cần "url" của trang chủ');
+  if (s.da_xac_minh_ban_in === true && findMarkers(s, TODO).length) nhac('R17', file, 'đánh dấu đã xác minh bản in nhưng còn CAN_BO_SUNG');
   if (findMarkers(s, AI_DRAFT).length) err('R09', file, `thông tin nguồn không được do AI soạn (còn ${AI_DRAFT})`);
 }
 
@@ -352,13 +354,13 @@ for (const { data: s, file } of DB.nguon.values()) {
 for (const { data: s, file } of DB['tinh-huong'].values()) {
   const pub = (s.tac_pham || []).filter(t => published(t.ref));
   const flagged = (s.tac_pham || []).filter(t => (DB['tac-pham'].get(t.ref)?.data.xac_thuc_dan_gian ?? 'binh_thuong') !== 'binh_thuong');
-  for (const t of flagged) err('R11', file, `${t.ref} mang cờ nghi gán nhầm/phỏng tác, không được gắn vào tình huống`);
+  for (const t of flagged) nhac('R11', file, `${t.ref} mang cờ nghi gán nhầm/phỏng tác, không được gắn vào tình huống`);
   const warned = (s.tac_pham || []).filter(t => (DB['tac-pham'].get(t.ref)?.data.canh_bao_noi_dung || '').trim());
-  for (const t of warned) err('R11', file, `${t.ref} có cảnh báo nội dung, không được gắn vào tình huống`);
+  for (const t of warned) nhac('R11', file, `${t.ref} có cảnh báo nội dung, không được gắn vào tình huống`);
   if (pub.length < NGUONG_TRANG_TINH_HUONG) nhac('R11', file, `mới có ${pub.length} tác phẩm công khai; trang tình huống chỉ được tạo khi có ≥ ${NGUONG_TRANG_TINH_HUONG}`);
   else {
     const ai = findMarkers(s, AI_DRAFT);
-    if (ai.length && s.nhap_ai_da_duyet !== true) err('R09', file, `trang sẽ được tạo nhưng còn ${AI_DRAFT} chưa duyệt ở: ${ai.join(', ')}`);
+    if (ai.length && s.nhap_ai_da_duyet !== true) nhac('R09', file, `trang sẽ được tạo nhưng còn ${AI_DRAFT} chưa duyệt ở: ${ai.join(', ')}`);
     const todo = findMarkers(s, TODO);
     if (todo.length) nhac('R10', file, `trang sẽ được tạo nhưng còn ${TODO} (ẩn trên trang) ở: ${todo.join(', ')}`);
   }
