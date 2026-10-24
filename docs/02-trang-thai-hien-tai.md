@@ -25,12 +25,13 @@
 
 ## Đang chờ người sáng lập
 
+- **Thử CMS** (điều kiện xong T-037, PR #9): đăng nhập `/admin` trên điện thoại, tạo một bài thật tới Công khai — `docs/huong-dan/bien-soan-cms.md`. Đăng nhập GitHub đã tạo xong và đã kiểm (24/10/2026).
 - **T-034** · Gửi thư cho Ca dao Mẹ — không gấp, nhưng phải xong trước khi mở công khai (T-053).
 - **T-049** · Chốt tên miền (Q-005) — trước Mốc C.
 
 ## Công việc kỹ thuật tiếp theo
 
-**T-037** (CMS Sveltia), **T-038** (kho thô), **T-041** (tìm kiếm) và **T-042** (trích dẫn, chia sẻ) sẵn sàng, chạy song song được.
+**T-037** đang làm (CMS ở PR #9 — chờ người sáng lập thử tạo một bài tới công khai); **T-038** chờ gộp (PR #8); **T-041** (tìm kiếm) và **T-042** (trích dẫn, chia sẻ) sẵn sàng, chạy song song được.
 
 ## Quyết định đang mở
 

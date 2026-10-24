@@ -59,7 +59,7 @@ npm run viec-tiep-theo # đề xuất task kỹ thuật READY tiếp theo
 │   ├── 21-kien-truc-ky-thuat.md      Astro 7, CMS, Cloudflare, tìm kiếm, kho thô, đường ống thu thập
 │   ├── 22-backlog-trien-khai.md      task T-031..T-069, mốc và điều kiện xong
 │   ├── 23-ke-hoach-kiem-thu.md       fixture, giao diện, trợ năng, tìm kiếm, tiêu chí theo mốc
-│   ├── huong-dan/                    hướng dẫn từng bước cho người sáng lập (kết nối Cloudflare…)
+│   ├── huong-dan/                    hướng dẫn từng bước cho người sáng lập (kết nối Cloudflare, đăng nhập CMS)
 │   └── luu-tru/                      tài liệu v1.2 không còn dùng hằng ngày (xem README trong đó)
 ├── taxonomy/tu-vung-kiem-soat.yaml   từ vựng kiểm soát v2
 ├── templates/                        mẫu YAML + lệnh AI soạn nháp
@@ -94,5 +94,5 @@ Prompt review (Codex hay Claude): **"Review thay đổi hiện tại theo CLAUDE
 
 ## Việc tiếp theo
 
-1. **Mốc A:** T-037 (CMS Sveltia), T-038 (kho thô), T-040 (trang tác phẩm) sẵn sàng; giao cho Codex hoặc Claude đều được.
+1. **Mốc A:** T-037 (CMS, PR #9) và T-038 (kho thô, PR #8) đang chờ gộp; T-041 (tìm kiếm), T-042 (trích dẫn) sẵn sàng. Giao cho Codex hoặc Claude đều được.
 2. **Người sáng lập — T-034:** gửi thư cho Ca dao Mẹ (bản nháp ở `docs/12` mục 7) trước khi mở công khai.
