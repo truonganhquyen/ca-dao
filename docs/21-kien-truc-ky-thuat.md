@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Phiên bản | 2.0 · 23/10/2026 (Astro 6, CMS Sveltia, kho thô, đường ống thu thập: D-036, D-045, D-047) |
+| Phiên bản | 2.1 · 24/10/2026 (Astro 7, Cloudflare Workers Static Assets: D-049; CMS Sveltia, kho thô, đường ống thu thập: D-036, D-045, D-047) |
 | Trạng thái | **Ổn định cho Mốc A–C.** Mục 9 (tìm ngữ nghĩa) chỉ làm khi qua cổng |
 | Đọc khi | Khởi tạo kho mã, thêm thư viện, đổi cách build, triển khai, CMS, thu thập dữ liệu |
 | Nguyên tắc chi phối | Tĩnh trước, động sau · không máy chủ (trừ Worker nhỏ cho đăng nhập CMS) · không cookie · < 10 USD/tháng cho hạ tầng |
@@ -15,7 +15,7 @@
 
 | Thành phần | Chọn | Lý do | Thay thế |
 |---|---|---|---|
-| Khung web | **Astro 6** + TypeScript, xuất trang tĩnh | Content collections có schema Zod; ít JavaScript; Fonts API có sẵn; đội Astro về Cloudflare từ 01/2026 | Eleventy |
+| Khung web | **Astro 7** + TypeScript strict, xuất trang tĩnh (phiên bản ghim: D-049) | Content collections có schema Zod; ít JavaScript; Fonts API có sẵn; đội Astro về Cloudflare từ 01/2026 | Eleventy |
 | CSS | **Tailwind CSS 4**, cấu hình theo token `20` mục 1.1 (biến CSS, `light-dark()`) | Không tốn JS lúc chạy | CSS thuần với biến |
 | Đảo tương tác | **TypeScript thuần** + `<dialog>`, thuộc tính `popover`, `<details>` | Giữ JS < 50 KB; không cần React (D-030) | Preact nếu một đảo vượt quá khả năng xử lý gọn — ghi D-xxx trước |
 | Dữ liệu | YAML trong Git (repo công khai) | Lịch sử sửa đổi, sao lưu, duyệt thay đổi miễn phí | — |
@@ -24,7 +24,7 @@
 | Dữ liệu suy ra | `scripts/lib/suy-ra.mjs` (nhãn, dị bản hiển thị, chuỗi hiển thị, noindex) | Một nơi tính, dùng chung cho kiểm tra và build (D-041) | — |
 | Tìm từ khóa | **MiniSearch** trên trình duyệt, chỉ mục JSON sinh lúc build | Tự kiểm soát chuẩn hóa tiếng Việt, khớp gần đúng, trọng số theo trường | Pagefind — xem lại nếu chỉ mục nén > 300 KB |
 | Ảnh xem trước (OG) | Sinh lúc build (ví dụ Satori + resvg) | Không máy chủ | Ảnh tĩnh chung |
-| Lưu trữ web | **Cloudflare** — Workers Static Assets (Cloudflare khuyến nghị cho dự án mới) hoặc Pages (vẫn được hỗ trợ); chọn theo tài liệu chính thức lúc làm T-035 | Build tự động; lỗi dữ liệu thì không triển khai; bản xem trước mỗi nhánh | Netlify, GitHub Pages |
+| Lưu trữ web | **Cloudflare Workers Static Assets** + Workers Builds (đã chọn ở T-035, D-049; cấu hình `wrangler.jsonc`) | Build tự động; lỗi dữ liệu thì không triển khai; bản xem trước mỗi nhánh | Netlify, GitHub Pages |
 | Kho thô | **Repo GitHub riêng tư `truonganhquyen/ca-dao-kho-tho`** + GitHub Actions theo lịch (mục 16) | Thu thập toàn bộ lời mà không công bố (D-045) | Cloudflare R2 |
 | Form góp ý | Tally (hoặc Google Forms) → bảng tính riêng tư | Không máy chủ, không dữ liệu cá nhân trong Git | — |
 | Đo lường | Công cụ không cookie (Cloudflare Web Analytics cho lượt xem; GoatCounter hoặc tương đương cho 3 sự kiện) | Tôn trọng quyền riêng tư | — |
@@ -38,7 +38,7 @@
 ```text
 ca-dao/                      (repo CÔNG KHAI: github.com/truonganhquyen/ca-dao)
 ├── AGENTS.md  CLAUDE.md  README.md
-├── docs/                    tài liệu (docs/luu-tru/: tài liệu v1.2 không còn dùng hằng ngày)
+├── docs/                    tài liệu (docs/huong-dan/: hướng dẫn từng bước cho người sáng lập; docs/luu-tru/: tài liệu v1.2 không còn dùng hằng ngày)
 ├── content/                 dữ liệu công khai (đặc tả: docs/10) — kể cả bài nháp
 ├── taxonomy/                từ vựng kiểm soát
 ├── templates/               tệp mẫu YAML + lệnh AI
@@ -50,12 +50,15 @@ ca-dao/                      (repo CÔNG KHAI: github.com/truonganhquyen/ca-dao)
 │   ├── lib/neo-chu-giai.mjs       phân giải neo chú giải — dùng chung cho kiểm tra và build
 │   ├── lib/suy-ra.mjs             dữ liệu suy ra — dùng chung cho kiểm tra và build
 │   ├── lib/backlog.mjs            đọc trạng thái và backlog
+│   ├── kiem-lien-ket.mjs          kiểm liên kết nội bộ trong dist/ (kiểm thử: tests/lien-ket/)
 │   ├── lib/schema.mjs             (T-036) mô tả schema một nguồn → Zod + cấu hình CMS
 │   ├── ung-vien/                  (T-039) đường ống kho thô → bài nháp
 │   └── tao-chi-muc-tim.mjs        (T-041) chỉ mục tìm kiếm
-├── tests/fixtures/          bộ dữ liệu kiểm thử
-├── src/                     mã Astro: trang, thành phần, đảo tương tác
+├── tests/fixtures/          bộ dữ liệu kiểm thử (tests/lien-ket/: bản build mẫu cho bộ kiểm liên kết)
+├── src/                     mã Astro: trang, thành phần, đảo tương tác; src/styles/global.css: token màu + Tailwind
+├── public/                  tệp tĩnh chép nguyên vào dist/
 ├── public/admin/            Sveltia CMS (cấu hình sinh tự động ở T-036)
+├── astro.config.mjs  tsconfig.json  wrangler.jsonc  .node-version
 ├── config/lich-tinh-huong.yaml
 └── redirects.yaml
 
@@ -69,9 +72,10 @@ Ba môi trường: **Cục bộ** · **Xem trước** (mỗi nhánh/PR) · **Ch�
 | Ở đâu | Chạy | Kết quả |
 |---|---|---|
 | Cục bộ | `npm run kiem-tra` → `npm run dev` | Xem trước trên máy |
-| Mỗi PR (CI + bản xem trước) | `npm run kiem-tra` (từ T-035: + `astro check` → `astro build` → kiểm liên kết nội bộ trong `dist/`) | Bản xem trước có đường dẫn riêng; lỗi bất kỳ bước nào → PR không gộp được |
+| Mỗi PR (CI + bản xem trước) | `npm run kiem-tra` = dữ liệu → fixture → kiểm thử bộ kiểm liên kết → nhất quán → `astro check` → `astro build` → kiểm liên kết nội bộ trong `dist/` | Bản xem trước có đường dẫn riêng; lỗi bất kỳ bước nào → PR không gộp được |
 | `main` | Như trên | Triển khai chính thức. Lỗi → **không triển khai**, bản cũ vẫn chạy |
 
+- **Triển khai (T-035, D-049):** Cloudflare **Workers Builds** nối với repo `ca-dao` (người sáng lập kết nối một lần: `docs/huong-dan/ket-noi-cloudflare.md`). Lệnh build `npm run build` = `check:data` rồi `astro build` — có LỖI dữ liệu thì dừng trước khi build, không triển khai. Nhánh `main` → `npx wrangler deploy` (chính thức); nhánh khác → `npx wrangler preview` (mặc định của Workers Builds, bản thử nghiệm mở; tạo bản xem trước, link hiện trong bình luận của Cloudflare ở PR). `wrangler.jsonc` chỉ phục vụ `dist/` (`not_found_handling: 404-page`), không có mã máy chủ; khối `previews: {}` bắt buộc cho `wrangler preview`. Phiên bản Node lấy từ `.node-version`, CI dùng cùng tệp.
 - **Mã:** mọi thay đổi qua PR; người sáng lập duyệt bằng cách mở **link bản xem trước** trên điện thoại rồi bấm gộp — không đọc mã (D-035). Claude Code review độc lập trước đó.
 - **Nội dung:** người sáng lập lưu bài trong CMS → commit thẳng vào `main` (D-036) → CI kiểm → tự triển khai; có LỖI thì bản cũ vẫn chạy, GitHub gửi email, Bàn biên tập hiện lý do.
 - **Bảo vệ nhánh `main`:** chặn agent đẩy thẳng (agent luôn làm trên nhánh riêng); cho phép tài khoản người sáng lập/CMS. Repo công khai nên tính năng này miễn phí.

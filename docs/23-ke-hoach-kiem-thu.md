@@ -8,7 +8,7 @@
 
 Bốn lớp kiểm thử, xếp theo mức tự động: dữ liệu (tự động hoàn toàn) → giao diện (tự động + tay) → tìm kiếm (bộ truy vấn) → người dùng thật (5 người ở Mốc B).
 
-**Cổng lệnh cho agent/CI:** `npm run kiem-tra` (D-034) = `check:data` + `test:fixtures` + `kiem-nhat-quan`. Từ T-035 mở rộng thêm `astro check`, build, kiểm liên kết; từ T-040 thêm quét trợ năng và ngân sách JS.
+**Cổng lệnh cho agent/CI:** `npm run kiem-tra` (D-034) = `check:data` + `test:fixtures` + `test:lien-ket` + `kiem-nhat-quan` + `astro check` + `astro build` + `kiem-lien-ket` (từ T-035); từ T-040 thêm quét trợ năng và ngân sách JS.
 
 ---
 
@@ -19,9 +19,9 @@ Bốn lớp kiểm thử, xếp theo mức tự động: dữ liệu (tự độ
 | Quy tắc R01–R22 (LỖI chặn, NHẮC không chặn) | `npm run check:data` | Mỗi lần lưu (CI), mỗi PR, mỗi build |
 | Chính công cụ kiểm tra | `npm run test:fixtures` | Mỗi PR, mỗi build |
 | Nhất quán backlog / trạng thái / câu hỏi mở | `npm run kiem-nhat-quan` | Mỗi PR |
-| Kiểu dữ liệu | `astro check` (từ T-035) | Mỗi PR |
+| Kiểu dữ liệu | `npm run check:astro` (`astro check`) | Mỗi PR |
 | Sức khỏe dữ liệu, nợ dữ liệu | `npm run health` / Bàn biên tập | Hằng tuần |
-| Liên kết nội bộ | Kiểm `dist/` sau build (từ T-035) | Mỗi PR |
+| Liên kết nội bộ | `npm run kiem-lien-ket` sau build; chính bộ kiểm: `npm run test:lien-ket` | Mỗi PR |
 
 **Bộ fixture** (`tests/fixtures/`, 26 bộ):
 - **Hợp lệ (phải qua):** `hop-le` (nguồn in đã xác minh → nhãn A); `hop-le-web-toi-thieu` (chỉ có nguồn web, chưa có nghĩa/chú giải/tình huống → qua, chỉ NHẮC R10); `hop-le-canh-bao-ngoai-tinh-huong` (bài có cảnh báo không thuộc tình huống → qua); `hop-le-nhap-ai-da-duyet`; `hop-le-trich-ngan` (trích nguyên văn ≤ 15 từ).
@@ -95,7 +95,7 @@ Mỗi trang, trên điện thoại 360 px và máy tính:
 Điều kiện xong của từng mốc nằm ở `22` mục 2; phần kiểm thử cụ thể:
 
 **Mốc A — Chạy được:**
-- [ ] `npm run kiem-tra` gồm `astro check` + build; dữ liệu có LỖI làm build thất bại với thông báo đọc được.
+- [x] `npm run kiem-tra` gồm `astro check` + build; dữ liệu có LỖI làm build thất bại với thông báo đọc được (T-035).
 - [ ] Bài thêm qua CMS từ điện thoại hiện trên bản xem trước.
 - [ ] 5–10 bài hiện đủ lớp 1; tìm không dấu và trích dẫn chạy; mục 2 đạt cho trang tác phẩm.
 

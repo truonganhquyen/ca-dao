@@ -1,0 +1,32 @@
+---
+// Khung HTML chung cho mọi trang công khai: ngôn ngữ, phông, token màu (docs/20 mục 1, 11).
+import { Font } from 'astro:assets';
+import '../styles/global.css';
+
+interface Props {
+  tieuDe: string;
+  moTa: string;
+  /** Chưa mở công khai (T-053) thì không cho máy tìm kiếm đánh chỉ mục. */
+  noindex?: boolean;
+}
+
+const { tieuDe, moTa, noindex = false } = Astro.props;
+---
+
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>{tieuDe}</title>
+    <meta name="description" content={moTa} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <Font cssVariable="--phong-giao-dien" preload />
+    <Font cssVariable="--phong-loi" />
+  </head>
+  <body class="min-h-dvh antialiased">
+    <slot />
+  </body>
+</html>
