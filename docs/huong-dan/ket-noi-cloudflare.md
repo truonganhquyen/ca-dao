@@ -30,6 +30,11 @@ Kho mã đã có sẵn mọi cấu hình (`wrangler.jsonc`, `.node-version`). B�
    Không cần thêm biến môi trường hay khóa bí mật nào.
 6. Nếu Cloudflare hỏi chọn **tên miền phụ `workers.dev`** cho tài khoản: chọn một tên trung tính (ví dụ `ca-dao`), không dùng họ tên hay số điện thoại — tên này nằm trong mọi link xem trước.
 7. Bấm **Deploy** (Triển khai).
+8. **Bật đường dẫn xem trước** (một lần): Workers & Pages → `ca-dao` → **Settings** (Cài đặt) → **Domains & Routes**:
+   - dòng **workers.dev**: bấm **Enable** (Bật) nếu đang tắt;
+   - dòng **Preview URLs** (có nơi ghi **Version URLs**): bấm **Enable**.
+
+   Thiếu bước này, PR vẫn có dòng "Build: Success" nhưng ghi **"No Preview URL"**. Sau khi gộp PR T-035, cấu hình trong repo (`wrangler.jsonc`) tự giữ hai công tắc này luôn bật.
 
 ## Sau khi kết nối
 
