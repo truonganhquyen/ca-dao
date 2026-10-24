@@ -1,5 +1,6 @@
 tieu_de: Con vua thì lại làm vua
 the_loai: ca_dao
+the_tho: ''
 di_ban:
   - id: v1
     loi: |-
@@ -9,17 +10,44 @@ di_ban:
       Con vua thất thế, lại ra quét chùa
     vung:
       - toan_quoc
+    dia_danh: ''
     nguon:
       - ref: src-vu-ngoc-phan-tuc-ngu-ca-dao-dan-ca
+        trang: ''
         url: ''
         ngay_truy_cap: 2026-10-24
-        trang: ''
+        ban_luu_tru: ''
+        cach_dung: ''
+        ghi_chu: ''
     nguoi_ke: null
+    dong_gop: ''
     ghi_chu: ''
+ban_dai_dien: v1
+ly_do_chon: ''
+nghia_ngan: ''
+dien_giai: []
+nghia_den: ''
+nghia_bong: ''
+chu_giai: []
+mo_ta_tinh_huong: []
+chu_de: []
+cam_xuc: []
+linh_vuc: []
+mo_tip: []
+lien_quan: []
+sgk: []
+canh_bao_noi_dung: ''
+nhap_ai_da_duyet: false
+trang_thai: cong_khai
+am_luat: null
+dien_xuong: null
+goc_kiem_chung: null
+xac_thuc_dan_gian: binh_thuong
+can_cu_xac_thuc_dan_gian: ''
+tranh_luan: false
+ghi_chu_tranh_luan: ''
 id: cd-0003
 slug: con-vua-thi-lai-lam-vua
 bien_soan:
   nguoi: ctb-0001
   ngay_tao: 2026-10-24
-ban_dai_dien: v1
-trang_thai: nhap
