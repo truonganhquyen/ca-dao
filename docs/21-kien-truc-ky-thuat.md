@@ -268,7 +268,7 @@ ca-dao-kho-tho/
 └── .github/workflows/thu-thap.yml hằng ngày 02:17 giờ Việt Nam, tối đa 50 phút/lần; xong đợt đầu thì 30 ngày cập nhật một lần
 ```
 
-**Trường của `bai.jsonl`:** `ma_goc` (id bài trên nguồn), `url`, `loai_goc` (ca dao / thành ngữ–tục ngữ / đồng dao / vè / câu đố), `tieu_de`, `loi` (nguyên văn, NFC, giữ xuống dòng), `di_ban` (danh sách lời nguyên văn), `chu_de_goc`, `the_goc` (chỉ dùng nội bộ làm gợi ý), `tu_co_chu_thich` (danh sách từ, không kèm lời giải), `ngay_dang_goc`, `ngay_sua_goc`, `ngay_thu_thap`, `bam` (SHA-256 của `loi`), `co` (gắn cờ, mục 16.3). Thêm khi làm T-038: `vi_tri_chu_thich`, `vi_tri_chu_thich_di_ban` (`[{ ma, dong, cot }]` — chỗ đặt dấu chú thích trong lời, để T-039 gợi ý `cum_tu`, kể cả chú thích không ghi từ), `nguon_loi` (`api`/`html`), `loi_html` (chỉ khi lời trên trang khác lời API), `da_doc_html`.
+**Trường của `bai.jsonl`:** `ma_goc` (id bài trên nguồn), `url`, `loai_goc` (ca dao / thành ngữ–tục ngữ / đồng dao / vè / câu đố), `tieu_de`, `loi` (nguyên văn, NFC, giữ xuống dòng), `di_ban` (danh sách lời nguyên văn), `chu_de_goc`, `the_goc` (chỉ dùng nội bộ làm gợi ý), `tu_co_chu_thich` (danh sách từ, không kèm lời giải), `ngay_dang_goc`, `ngay_sua_goc`, `ngay_thu_thap`, `bam` (SHA-256 của `loi`), `co` (gắn cờ, mục 16.3). Thêm khi làm T-038: `vi_tri_chu_thich`, `vi_tri_chu_thich_di_ban` (`[{ ma, dong, cot }]` — chỗ đặt dấu chú thích trong lời, để T-039 gợi ý `cum_tu`, kể cả chú thích không ghi từ), `nguon_loi` (`api`/`html`), `loi_html` (chỉ khi lời trên trang khác lời API), `da_doc_html`. Câu đố: `cau_hoi`, `dap_an` (khối câu hỏi và đáp án trên trang, tách khỏi lời).
 
 **Trường của `chu-thich.jsonl`:** `ma_goc`, `url`, `tu`, `noi_dung`, `ngay_thu_thap`. Không tải ảnh.
 
