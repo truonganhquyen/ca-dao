@@ -1,0 +1,9 @@
+# DỮ LIỆU GIẢ — bộ mẫu giao diện (D-050). Không phải sách thật.
+id: src-mau-sach
+loai: sach
+tac_gia: ["Tác giả Mẫu (chủ biên)"]
+ten: "Sách mẫu để xem giao diện"
+nxb: "NXB Mẫu"
+nam: 2000
+ban_quyen: co_ban_quyen
+da_xac_minh_ban_in: true

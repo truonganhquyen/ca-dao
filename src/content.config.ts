@@ -3,11 +3,17 @@
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { SCHEMA_ZOD, type TenCollection } from './sinh-ra/schema';
+import { CO_BO_MAU, THU_MUC_MAU } from './lib/moi-truong';
 
 // id của mục = tên tệp (cd-0001), không phải trường `slug` như mặc định của glob loader.
+// Bộ mẫu giao diện (D-050) chỉ nạp thêm khi không phải bản chính thức; mã của nó (cd-91xx, src-mau-…) không trùng dữ liệu thật.
 // (Khai từng collection riêng: bọc defineCollection trong hàm chung làm mất kiểu của schema.)
 const tuThuMuc = (ten: TenCollection) =>
-  glob({ pattern: '*.yaml', base: `./content/${ten}`, generateId: ({ entry }) => entry.replace(/\.yaml$/, '') });
+  glob({
+    base: '.',
+    pattern: [`content/${ten}/*.yaml`, ...(CO_BO_MAU ? [`${THU_MUC_MAU}/${ten}/*.yaml`] : [])],
+    generateId: ({ entry }) => entry.replace(/^.*\//, '').replace(/\.yaml$/, ''),
+  });
 
 export const collections = {
   'tac-pham': defineCollection({ loader: tuThuMuc('tac-pham'), schema: SCHEMA_ZOD['tac-pham'] }),

@@ -1,0 +1,120 @@
+---
+// Khối lời (docs/20 mục 4, 5, 14; FR-1.1, 1.2, 1.4): đúng từng dòng của dị bản, lục bát thụt lề câu lục.
+// Từ có chú giải là liên kết tới chú thích cuối khối (đọc được khi tắt JavaScript); khi có JavaScript,
+// GlossSheet đổi chúng thành <button> mở ô chú giải.
+// Vị trí chú giải đến từ phanGiaiNeo() (qua src/lib/kho.ts), tính theo âm tiết như scripts/lib/neo-chu-giai.mjs.
+import { tachDong } from '../../scripts/lib/neo-chu-giai.mjs';
+import type { ChuGiaiDaGiai } from '../lib/kho';
+import { LUC_BAT_THUT_LE, LOI_DAI_TU, LOI_DAI_HIEN_TRUOC } from '../lib/cau-hinh';
+
+interface Props {
+  loi: string;
+  theTho?: string | null;
+  chuGiai?: ChuGiaiDaGiai[];
+  /** Tiền tố id để nhiều khối lời trên một trang không trùng neo. */
+  ma?: string;
+}
+const { loi, theTho, chuGiai = [], ma = 'loi' } = Astro.props;
+const lucBat = LUC_BAT_THUT_LE && (theTho === 'luc_bat' || theTho === 'luc_bat_bien_the');
+
+type Doan = { chu: string; cg?: ChuGiaiDaGiai };
+const dong: Doan[][] = (tachDong(loi) as string[]).map((d, i) => {
+  // Cùng cách tách âm tiết với phanGiaiNeo(): theo khoảng trắng
+  const amTiet = d.split(/\s+/).filter(Boolean);
+  const trenDong = chuGiai.filter(c => c.dong === i + 1);
+  const doan: Doan[] = [];
+  for (let k = 0; k < amTiet.length; ) {
+    const cg = trenDong.find(c => c.amTietDau === k);
+    if (cg) { doan.push({ chu: amTiet.slice(k, k + cg.soAmTiet).join(' '), cg }); k += cg.soAmTiet; }
+    else { doan.push({ chu: amTiet[k]! }); k++; }
+  }
+  return doan;
+});
+const dai = dong.length > LOI_DAI_TU;
+const truoc = dai ? dong.slice(0, LOI_DAI_HIEN_TRUOC) : dong;
+const sau = dai ? dong.slice(LOI_DAI_HIEN_TRUOC) : [];
+const nguonChuGiai = (n: ChuGiaiDaGiai['nguon'][number]) =>
+  n.cachDung === 'trich_nguyen_van' ? `Theo ${n.ten}` : n.cachDung === 'tham_khao' ? `Tham khảo: ${n.ten}` : `Nguồn: ${n.ten}`;
+---
+
+<div class="khoi-loi" data-khoi-loi={ma}>
+  <p class="loi font-loi text-[1.375rem] leading-[1.7]">
+    {truoc.map((d, i) => (
+      <span class:list={['dong-loi', { 'thut-le': lucBat && i % 2 === 0 }]}>
+        {d.map((x, j) => (
+          <>
+            {j > 0 && ' '}
+            {x.cg ? (
+              <a class="tu-chu-giai" href={`#${ma}-cg-${x.cg.so}`} id={`${ma}-tu-${x.cg.so}`} data-chu-giai={`${ma}-cg-${x.cg.so}`}>{x.chu}</a>
+            ) : x.chu}
+          </>
+        ))}
+      </span>
+    ))}
+  </p>
+  {dai && (
+    <details class="loi-tiep">
+      <summary class="min-h-11 cursor-pointer py-2 text-son">Xem tiếp {sau.length} dòng</summary>
+      <p class="loi font-loi text-[1.375rem] leading-[1.7]">
+        {sau.map((d, i) => (
+          <span class:list={['dong-loi', { 'thut-le': lucBat && (i + LOI_DAI_HIEN_TRUOC) % 2 === 0 }]}>
+            {d.map((x, j) => (
+              <>
+                {j > 0 && ' '}
+                {x.cg ? (
+                  <a class="tu-chu-giai" href={`#${ma}-cg-${x.cg.so}`} id={`${ma}-tu-${x.cg.so}`} data-chu-giai={`${ma}-cg-${x.cg.so}`}>{x.chu}</a>
+                ) : x.chu}
+              </>
+            ))}
+          </span>
+        ))}
+      </p>
+    </details>
+  )}
+
+  {chuGiai.length > 0 && (
+    <ol class="chu-giai-cuoi mt-4 space-y-2 border-t border-nhat/30 pt-3 text-[0.9375rem]" aria-label="Chú giải">
+      {chuGiai.map(c => (
+        <li id={`${ma}-cg-${c.so}`} data-tu={c.tu} data-loai={c.loai}>
+          <span class="font-semibold">{c.tu}</span>{c.loai && <span class="text-nhat"> · {c.loai}</span>}
+          <span class="giai-nghia block">{c.giaiNghia}</span>
+          {c.nguon.length > 0 && (
+            <span class="nguon-chu-giai block text-nhat">
+              {c.nguon.map((n, i) => (
+                <>
+                  {i > 0 && ' · '}
+                  {n.url ? <a href={n.url} rel="noopener">{nguonChuGiai(n)} <span aria-hidden="true">↗</span></a> : nguonChuGiai(n)}
+                </>
+              ))}
+            </span>
+          )}
+          <a href={`#${ma}-tu-${c.so}`} class="ve-loi inline-flex min-h-11 items-center text-[0.9375rem]">↩ Về lời</a>
+        </li>
+      ))}
+    </ol>
+  )}
+</div>
+
+<style>
+  .dong-loi {
+    display: block;
+    /* Dòng thơ dài xuống dòng thì phần sau thụt vào, để vẫn thấy ranh giới giữa hai dòng thơ */
+    padding-left: 1.25em;
+    text-indent: -1.25em;
+  }
+  .dong-loi.thut-le {
+    padding-left: 2.5em;
+  }
+  :global(.co-js) .chu-giai-cuoi {
+    display: none;
+  }
+  @media print {
+    .chu-giai-cuoi,
+    .loi-tiep > summary {
+      display: none;
+    }
+    .loi-tiep > p {
+      display: block;
+    }
+  }
+</style>

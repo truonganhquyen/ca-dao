@@ -1,0 +1,29 @@
+---
+// Thanh điều hướng dưới (docs/20 mục 2, FR-1.12): chỉ trên điện thoại, trong tầm ngón cái; ẩn khi in.
+// Không che phần tử đang nhận focus: <html> có scroll-padding-bottom bằng chiều cao thanh (global.css).
+import { MUC_DIEU_HUONG } from '../lib/cau-hinh';
+
+interface Props { hienTai?: string }
+const { hienTai } = Astro.props;
+const muc = MUC_DIEU_HUONG.filter(m => m.daCo);
+---
+
+<nav
+  aria-label="Điều hướng chính"
+  class="thanh-duoi fixed inset-x-0 bottom-0 z-10 border-t border-nhat/30 bg-giay sm:hidden print:hidden"
+>
+  <ul class="mx-auto flex max-w-[38em] justify-around">
+    {muc.map(m => (
+      <li>
+        <a
+          href={m.href}
+          aria-current={hienTai === m.href ? 'page' : undefined}
+          class="flex min-h-14 min-w-16 flex-col items-center justify-center px-3 text-[0.9375rem] text-muc no-underline"
+        >
+          <span aria-hidden="true" class="text-lg leading-none">{m.bieuTuong}</span>
+          <span>{m.nhan}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+</nav>

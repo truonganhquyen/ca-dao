@@ -1,0 +1,9 @@
+# DỮ LIỆU GIẢ — bộ mẫu giao diện (D-050).
+id: sit-mau
+slug: tinh-huong-mau
+tieu_de: "Khi xem thử giao diện"
+nhom: gia_dinh
+mo_dau: "Đoạn mở đầu mẫu của một tình huống."
+tac_pham:
+  - { ref: cd-9101, hop_khi: "Hợp khi bạn muốn xem một bài nhãn D." }
+  - { ref: cd-9102, hop_khi: "Hợp khi bạn muốn xem một bài nhãn A." }

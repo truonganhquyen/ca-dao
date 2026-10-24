@@ -105,7 +105,7 @@ npm run dev            # xem website trên máy
 npm run build          # kiểm dữ liệu rồi astro build (Cloudflare chạy lệnh này)
 npm run trang-thai     # xem giai đoạn, mốc, Human Gate và số bài
 npm run viec-tiep-theo # đề xuất task kỹ thuật READY tiếp theo
-npm run kiem-tra       # cổng kiểm tra bắt buộc: dữ liệu + fixture + nhất quán + tệp sinh + astro check + build + liên kết
+npm run kiem-tra       # cổng kiểm tra bắt buộc: dữ liệu + fixture + nhất quán + tệp sinh + astro check + build + liên kết + trang + trợ năng
 npm run sinh:schema    # sinh lại Zod, kiểu từ vựng, cấu hình CMS sau khi sửa schema.mjs hoặc từ vựng
 npm run check:data     # kiểm tra dữ liệu theo R01–R22 (LỖI chặn, NHẮC không chặn)
 npm run test:fixtures  # kiểm thử chính công cụ kiểm tra

@@ -31,6 +31,16 @@
 }
 
 @layer base {
+  /* Thanh điều hướng dưới (điện thoại) không che phần tử đang nhận focus — WCAG 2.2, 2.4.11 */
+  html {
+    scroll-padding-bottom: 5rem;
+  }
+  @media (min-width: 40rem) {
+    html {
+      scroll-padding-bottom: 0;
+    }
+  }
+
   /* Chữ giao diện ≥ 17 px, giãn dòng ≥ 1,5 (docs/20 mục 1.2); không khóa phóng to. */
   body {
     background-color: var(--giay);
@@ -66,5 +76,41 @@
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
+  }
+}
+
+/* Từ có chú giải (FR-1.2): gạch chân chấm. Đặt ở đây (không scoped) vì GlossSheet đổi <a> thành <button> lúc chạy. */
+.tu-chu-giai {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.25em;
+  text-decoration-color: var(--son);
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  line-height: inherit;
+  cursor: pointer;
+}
+button.tu-chu-giai[aria-expanded="true"] {
+  background: color-mix(in srgb, var(--son) 14%, transparent);
+}
+
+/* Bản in (FR-1.11): chỉ lời, nghĩa ngắn, nguồn gốc, địa chỉ trang; chữ đen trên nền trắng */
+@media print {
+  :root {
+    color-scheme: light;
+  }
+  body {
+    background: #fff;
+    color: #000;
+    font-size: 12pt;
+  }
+  a,
+  .tu-chu-giai {
+    color: inherit;
+    text-decoration: none;
   }
 }
