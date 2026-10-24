@@ -94,5 +94,5 @@ Prompt review (Codex hay Claude): **"Review thay đổi hiện tại theo CLAUDE
 
 ## Việc tiếp theo
 
-1. **Mốc A:** T-037 (CMS Sveltia), T-038 (kho thô), T-040 (trang tác phẩm) sẵn sàng; giao cho Codex hoặc Claude đều được.
+1. **Mốc A:** T-037 (CMS Sveltia), T-040 (trang tác phẩm) sẵn sàng; T-039 (đường ống ứng viên) sau khi kho thô có dữ liệu. Giao cho Codex hoặc Claude đều được.
 2. **Người sáng lập — T-034:** gửi thư cho Ca dao Mẹ (bản nháp ở `docs/12` mục 7) trước khi mở công khai.

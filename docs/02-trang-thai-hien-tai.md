@@ -20,16 +20,17 @@
 - Nguồn đầu mối `content/nguon/src-ca-dao-me.yaml`; 3 hồ sơ khung ở trạng thái `nhap` (chưa có nguồn gốc, không công khai được).
 - **Website khung (T-035):** Astro 7 + Tailwind 4, trang "Sắp ra mắt" và trang 404, sáng/tối theo hệ thống; `npm run kiem-tra` gồm `astro check`, build và kiểm liên kết; triển khai bằng Cloudflare Workers Static Assets (D-049): bản chính thức `https://ca-dao.truonganhquyen.workers.dev` (trang "Sắp ra mắt"), bản xem trước cho mỗi PR.
 - **Schema một nguồn (T-036):** `scripts/lib/schema.mjs` dùng chung cho validator và bộ sinh Zod / kiểu từ vựng / cấu hình CMS (`npm run sinh:schema`); 7 content collections trong Astro.
-- GitHub (24/10/2026): repo công khai `truonganhquyen/ca-dao` (`main` = hướng v2; PR #1–#3 đã gộp) và repo riêng tư `truonganhquyen/ca-dao-kho-tho` (trống, chờ T-038). Commit dùng email ẩn của GitHub.
+- GitHub (24/10/2026): repo công khai `truonganhquyen/ca-dao` (`main` = hướng v2; PR #1–#3 đã gộp) và repo riêng tư `truonganhquyen/ca-dao-kho-tho` (mã thu thập T-038; dữ liệu đổ dần bằng GitHub Actions hằng ngày sau khi PR của repo đó gộp). Commit dùng email ẩn của GitHub.
 
 ## Đang chờ người sáng lập
 
+- **Duyệt danh sách từ gắn cờ thô tục** `tu-tho-tuc.txt` trong repo kho thô (bản khởi đầu do agent soạn; cờ chỉ là gợi ý, không xóa gì).
 - **T-034** · Gửi thư cho Ca dao Mẹ — không gấp, nhưng phải xong trước khi mở công khai (T-053).
 - **T-049** · Chốt tên miền (Q-005) — trước Mốc C.
 
 ## Công việc kỹ thuật tiếp theo
 
-**T-037** (CMS Sveltia), **T-038** (kho thô) và **T-040** (trang tác phẩm) sẵn sàng, chạy song song được.
+**T-037** (CMS Sveltia) và **T-040** (trang tác phẩm) sẵn sàng; **T-039** (đường ống ứng viên) mở khi T-036, T-038 đã gộp và kho thô có dữ liệu.
 
 ## Quyết định đang mở
 

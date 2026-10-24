@@ -33,7 +33,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-035 | Khởi tạo Astro 7 + Tailwind 4 + CI + triển khai Cloudflare (D-049) | A | T-032, T-033 | — | DONE |
 | T-036 | Mô tả schema một nguồn → Zod + cấu hình CMS | A | T-035 | — | DONE |
 | T-037 | CMS Sveltia: đăng nhập GitHub, form tiếng Việt, "Thêm nhanh", duyệt nháp AI | A | T-036 | — | BLOCKED |
-| T-038 | Thu thập kho thô từ cadao.me | A | T-032, T-033 | — | BLOCKED |
+| T-038 | Thu thập kho thô từ cadao.me | A | T-032, T-033 | — | DONE |
 | T-039 | Đường ống ứng viên: kho thô → bài nháp trong content/ | A | T-036, T-038 | — | BLOCKED |
 | T-040 | Trang tác phẩm đọc theo lớp, nhãn tự tính, nguồn gốc, sáng/tối, in, thanh điều hướng dưới | A | T-035 | — | BLOCKED |
 | T-041 | Tìm kiếm: chỉ mục, chuẩn hóa tiếng Việt, giao diện | A | T-040 | — | BLOCKED |
@@ -125,10 +125,12 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 **Đọc:** `21` mục 16; `12` mục 4; D-045, D-046.
 **Việc:** theo đặc tả `21` mục 16: thu thập **toàn bộ lời** (và dị bản), danh sách từ có chú thích, bản tham chiếu chú thích vào **repo riêng tư**; chạy nhỏ giọt bằng GitHub Action có điểm dừng; cập nhật hằng tháng.
 **Chấp nhận:**
-- [ ] Không một byte nào của kho thô vào repo công khai.
-- [ ] Lời lưu nguyên văn (so khớp từng ký tự với trang gốc trên mẫu 20 bài), không qua AI.
-- [ ] Nhịp ≤ 1 yêu cầu/3 giây, dừng khi gặp 429/5xx, User-Agent ghi tên dự án.
-- [ ] Không tải ảnh; báo cáo số mục theo loại.
+- [x] Không một byte nào của kho thô vào repo công khai (mã và dữ liệu ở `truonganhquyen/ca-dao-kho-tho`; repo này chỉ có đặc tả).
+- [x] Lời lưu nguyên văn (so khớp từng ký tự với trang gốc trên mẫu 20 bài), không qua AI — `npm run kiem-mau` trong repo kho thô.
+- [x] Nhịp ≤ 1 yêu cầu/3 giây (API) và ≤ 1/5 giây (HTML), dừng khi gặp 429/5xx hoặc lỗi mạng, User-Agent `KhoTangCaDao-ThuThap/1.0 (+https://github.com/truonganhquyen/ca-dao)`.
+- [x] Không tải ảnh (bỏ cả khối ảnh trong lời và chú thích); báo cáo số mục theo loại (`bao-cao.md`).
+
+**Tiến độ (24/10/2026):** mã thu thập + kiểm thử + workflow ở PR của repo kho thô; chạy thử 16 phút tại máy: nhận diện đủ 16.530 mục, API xong, lời API và lời trang không lệch bài nào. Khi PR đó gộp, GitHub Actions chạy mỗi ngày tới khi đọc hết trang (ước 4–8 lần), rồi 30 ngày cập nhật một lần. Phát hiện khi làm: dị bản/chú thích chỉ có trên trang HTML; bài liên quan chỉ là đoạn trích (`21` mục 16.2). `tu-tho-tuc.txt`: bản khởi đầu, **chờ người sáng lập duyệt**.
 
 #### T-039 · Đường ống ứng viên — A
 **Đọc:** `21` mục 16; `11`; `templates/prompt-soan-nhap.md`.
