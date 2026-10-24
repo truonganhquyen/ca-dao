@@ -53,7 +53,7 @@ CMS (Sveltia) ghi bài thẳng vào repo `ca-dao` trên GitHub bằng tài kho�
    | `GITHUB_CLIENT_SECRET` | Client Secret ở bước 2 | **Secret** (hoặc bấm **Encrypt**) |
    | `ALLOWED_DOMAINS` | `*.truonganhquyen.workers.dev` | Text |
 
-   `ALLOWED_DOMAINS` chỉ cho phép trang chính thức và các bản xem trước của bạn dùng Worker này. Khi có tên miền riêng (T-049), agent sẽ nhắc bạn thêm tên miền đó vào dòng này.
+   `ALLOWED_DOMAINS` là tên miền của **trang có CMS** (trang `ca-dao`), **không phải** địa chỉ của Worker; gõ đúng `*.truonganhquyen.workers.dev`, không có `https://`. Dòng này chỉ cho phép trang chính thức và các bản xem trước của bạn dùng Worker này. Khi có tên miền riêng (T-049), agent sẽ nhắc bạn thêm tên miền đó vào dòng này.
 3. Bấm **Deploy** / **Save and deploy**.
 
 ## Bước 4 · Báo cho agent
@@ -62,9 +62,13 @@ Gửi cho agent đúng một dòng: **địa chỉ Worker** ở bước 1 (ví d
 
 Lần đăng nhập đầu, GitHub hỏi cho phép ứng dụng `Kho tàng Ca dao – CMS` truy cập repo. Bấm **Authorize**. Quyền GitHub cấp theo tài khoản của bạn (về kỹ thuật, đủ để đọc/ghi các repo của bạn, kể cả `ca-dao-kho-tho`), nhưng CMS chỉ được cấu hình để đọc/ghi repo `ca-dao`. Đăng xuất CMS khi dùng máy lạ.
 
+## Kiểm tra (24/10/2026)
+
+Agent đã kiểm Worker `https://sveltia-cms-auth.truonganhquyen.workers.dev` từ bên ngoài: trang chính thức và bản xem trước được chuyển sang GitHub đúng ứng dụng; tên miền lạ bị chặn; Client ID và Client Secret được GitHub chấp nhận. Địa chỉ callback chỉ kiểm được khi bạn đăng nhập thật lần đầu (sau T-037).
+
 ## Khi có lỗi
 
-- **Bấm đăng nhập thì báo lỗi "domain not allowed" / không cho phép tên miền:** kiểm lại dòng `ALLOWED_DOMAINS` ở bước 3 (không có `https://`, không có dấu `/` ở cuối).
+- **Bấm đăng nhập thì báo lỗi "Your domain is not allowed" / không cho phép tên miền:** dòng `ALLOWED_DOMAINS` ở bước 3 phải đúng `*.truonganhquyen.workers.dev` — không có `https://`, không có `/` ở cuối, và không phải địa chỉ của Worker (lỗi hay gặp nhất, gặp ngày 24/10/2026).
 - **GitHub báo "redirect_uri is not associated with this application":** ô **Authorization callback URL** ở bước 2 phải đúng địa chỉ Worker + `/callback`.
 - **Lỡ để lộ Client Secret:** vào lại ứng dụng OAuth trên GitHub, bấm **Generate a new client secret**, xóa khóa cũ, rồi thay giá trị `GITHUB_CLIENT_SECRET` ở bước 3.
 - Không chắc thì chụp màn hình (che Client Secret) gửi cho agent.
