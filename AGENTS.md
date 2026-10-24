@@ -84,7 +84,7 @@ Ngoài các Human Gate này, agent phải tự quyết các chi tiết kỹ thu�
 - Lưu văn bản UTF-8, Unicode dựng sẵn (NFC), xuống dòng LF (`.gitattributes` giữ LF trên Windows).
 - Giữ JavaScript phía trình duyệt tối thiểu; trang đọc được khi tắt JavaScript.
 - Giữ trợ năng: bàn phím, focus rõ, nhãn không chỉ dựa vào màu, vùng chạm ≥ 44 px.
-- Đổi schema thì đổi cùng lúc: `docs/10`, `scripts/kiem-tra-du-lieu.mjs` (và `scripts/lib/schema.mjs` sau T-036), `scripts/lib/suy-ra.mjs` nếu chạm dữ liệu suy ra, `templates/`, fixture trong `tests/fixtures/`, và ghi D-xxx vào `docs/01`.
+- Đổi schema thì đổi cùng lúc: `docs/10`, `scripts/lib/schema.mjs` (hình dạng dữ liệu; chạy `npm run sinh:schema` để sinh lại Zod, kiểu từ vựng, cấu hình CMS), `scripts/kiem-tra-du-lieu.mjs` nếu chạm quy tắc, `scripts/lib/suy-ra.mjs` nếu chạm dữ liệu suy ra, `templates/`, fixture trong `tests/fixtures/`, và ghi D-xxx vào `docs/01`.
 - Dữ liệu suy ra (nhãn, dị bản hiển thị, chuỗi hiển thị, noindex) lấy từ `scripts/lib/suy-ra.mjs`; vị trí chú giải lấy từ `phanGiaiNeo()` ở `scripts/lib/neo-chu-giai.mjs`. Không viết bản tính thứ hai.
 - Ghi nguồn gốc cho mọi lời lấy từ web: `url` của đúng trang, `ngay_truy_cap`, `ban_luu_tru` (R22).
 - Làm một task mỗi nhánh/PR; mô tả PR gồm: đã làm, **không** làm, câu hỏi còn lại, **link bản xem trước**.
@@ -105,7 +105,8 @@ npm run dev            # xem website trên máy
 npm run build          # kiểm dữ liệu rồi astro build (Cloudflare chạy lệnh này)
 npm run trang-thai     # xem giai đoạn, mốc, Human Gate và số bài
 npm run viec-tiep-theo # đề xuất task kỹ thuật READY tiếp theo
-npm run kiem-tra       # cổng kiểm tra bắt buộc: dữ liệu + fixture + nhất quán + astro check + build + liên kết
+npm run kiem-tra       # cổng kiểm tra bắt buộc: dữ liệu + fixture + nhất quán + tệp sinh + astro check + build + liên kết
+npm run sinh:schema    # sinh lại Zod, kiểu từ vựng, cấu hình CMS sau khi sửa schema.mjs hoặc từ vựng
 npm run check:data     # kiểm tra dữ liệu theo R01–R22 (LỖI chặn, NHẮC không chặn)
 npm run test:fixtures  # kiểm thử chính công cụ kiểm tra
 npm run health         # báo cáo sức khỏe dữ liệu, nợ dữ liệu (không chặn build)

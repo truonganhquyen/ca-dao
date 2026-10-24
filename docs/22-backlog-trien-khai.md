@@ -31,7 +31,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-034 | Gửi thư xin phép dùng chú thích cho Ca dao Mẹ | N | — | — | READY |
 | **Mốc A · Chạy được** ||||||
 | T-035 | Khởi tạo Astro 7 + Tailwind 4 + CI + triển khai Cloudflare (D-049) | A | T-032, T-033 | — | DONE |
-| T-036 | Mô tả schema một nguồn → Zod + cấu hình CMS | A | T-035 | — | BLOCKED |
+| T-036 | Mô tả schema một nguồn → Zod + cấu hình CMS | A | T-035 | — | DONE |
 | T-037 | CMS Sveltia: đăng nhập GitHub, form tiếng Việt, "Thêm nhanh", duyệt nháp AI | A | T-036 | — | BLOCKED |
 | T-038 | Thu thập kho thô từ cadao.me | A | T-032, T-033 | — | BLOCKED |
 | T-039 | Đường ống ứng viên: kho thô → bài nháp trong content/ | A | T-036, T-038 | — | BLOCKED |
@@ -111,8 +111,10 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 **Đọc:** `10` mục 4, 9; `21` mục 4.
 **Việc:** chuyển mô tả schema (`SCHEMA` trong `scripts/kiem-tra-du-lieu.mjs`) sang `scripts/lib/schema.mjs` để validator dùng chung; viết script sinh (1) schema Zod cho 7 collection, (2) cấu hình Sveltia CMS, (3) kiểu TypeScript cho từ vựng từ `taxonomy/tu-vung-kiem-soat.yaml`. Quy tắc nghiệp vụ R01–R22 **không** viết lại trong Zod.
 **Chấp nhận:**
-- [ ] `astro check` qua với dữ liệu hiện có; fixture vẫn đạt.
-- [ ] Đổi một giá trị trong tệp từ vựng → chạy lại script → kiểu và cấu hình CMS đổi theo; `kiem-tra` báo lỗi nếu tệp sinh ra lệch với nguồn.
+- [x] `astro check` qua với dữ liệu hiện có; fixture vẫn đạt.
+- [x] Đổi một giá trị trong tệp từ vựng → chạy lại script → kiểu và cấu hình CMS đổi theo; `kiem-tra` báo lỗi nếu tệp sinh ra lệch với nguồn.
+
+**Tiến độ (24/10/2026):** `scripts/lib/schema.mjs` (validator dùng trực tiếp); `npm run sinh:schema` sinh `src/sinh-ra/schema.ts`, `src/sinh-ra/tu-vung.ts`, `public/admin/config.yml`; `npm run kiem-sinh` trong `kiem-tra`; `src/content.config.ts` nạp 7 collection. Cấu hình CMS hợp lệ theo JSON schema của Sveltia 0.233.0. **Để T-037 thử trên CMS thật:** đối tượng không bắt buộc nhưng có trường con bắt buộc (`goc_kiem_chung`, `sgk`) khi để trống; `nguon.nam` = `CAN_BO_SUNG` (ô số không nhập được chữ); thư mục tệp `public/tep` (Sveltia bắt buộc, dự án không đăng ảnh).
 
 #### T-037 · CMS Sveltia — A
 **Đọc:** `21` mục 12; `11`.
