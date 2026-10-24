@@ -59,7 +59,7 @@ const MAU = {
     noindex: true, soChuGiai: 1,
   },
   '/tuc-ngu/mau-tuc-ngu/index.html': {
-    co: ['Nghi không phải dân gian', 'căn cứ mẫu cho cờ nghi gán nhầm', 'Lưu ý về nội dung', 'Nghĩa đen.', 'Bài đang được bổ sung'],
+    co: ['Nghi không phải dân gian', 'căn cứ mẫu cho cờ nghi gán nhầm', 'Lời theo <cite>Sách mẫu để xem giao diện</cite>.', 'Lưu ý về nội dung', 'Nghĩa đen.', 'Bài đang được bổ sung'],
     khong: ['Nghĩa bóng.', 'Hiểu trong 10 giây'], // nghia_bong còn CAN_BO_SUNG → ẩn; không có nghĩa ngắn → ẩn khối
     noindex: true, soChuGiai: 0,
   },

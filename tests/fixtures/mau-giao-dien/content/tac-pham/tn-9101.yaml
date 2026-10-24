@@ -1,6 +1,6 @@
 # DỮ LIỆU GIẢ — bộ mẫu giao diện (D-050): lời là chữ mẫu, KHÔNG phải tục ngữ thật.
 # Mẫu cho: tục ngữ nghĩa đen/bóng, cờ nghi gán nhầm, cảnh báo nội dung, bài còn thiếu phần (noindex),
-# trường còn CAN_BO_SUNG bị ẩn.
+# trường còn CAN_BO_SUNG bị ẩn (kể cả số trang của nguồn in — lỗi đã lộ ra trang thật ngày 24/10/2026).
 id: tn-9101
 slug: mau-tuc-ngu
 the_loai: tuc_ngu
@@ -13,6 +13,7 @@ di_ban:
     vung: [toan_quoc]
     nguon:
       - { ref: src-mau-web, url: "https://example.org/tuc-ngu-mau", ngay_truy_cap: "2026-10-24" }
+      - { ref: src-mau-sach, trang: "CAN_BO_SUNG" }
 nghia_den: "Nghĩa đen mẫu."
 nghia_bong: "CAN_BO_SUNG"
 linh_vuc: [ung_xu]

@@ -20,11 +20,11 @@ const t = await thongTinTacPham(tp);
 const { thamChieu } = t;
 
 const nguonDau = thamChieu.nguon[0];
-const nguonA = thamChieu.nguon.find(n => n.laIn && n.nguon.da_xac_minh_ban_in && n.thamChieu.trang);
+const nguonA = thamChieu.nguon.find(n => n.laIn && n.nguon.da_xac_minh_ban_in && n.trang);
 const vungThamChieu = thamChieu.diBan.vung.filter(v => v !== 'khong_ro').map(v => nhanCua('vung', v)).join(', ');
 // Câu giải thích của nhãn (docs/20 mục 10)
 const giaiThich = {
-  A: `Lời này đã được đối chiếu với ${nguonA?.nguon.ten ?? 'tư liệu in'}${nguonA ? `, trang ${nguonA.thamChieu.trang}` : ''}.`,
+  A: `Lời này đã được đối chiếu với ${nguonA?.nguon.ten ?? 'tư liệu in'}${nguonA?.trang ? `, trang ${nguonA.trang}` : ''}.`,
   B: `Lời này được ghi lại trực tiếp từ người kể${vungThamChieu ? ` ở ${vungThamChieu}` : ''}.`,
   C: 'Lời này do cộng đồng gửi, chưa được đối chiếu với tư liệu.',
   D: `Lời này được lưu truyền rộng rãi và lấy từ ${nguonDau ? tenNguon(nguonDau.nguon) : 'nguồn ghi bên dưới'}. Chúng tôi chưa đối chiếu với sách in. Bạn có sách? Hãy gửi số trang.`,
@@ -156,10 +156,10 @@ const NEO_NGUON = 'nguon-va-lich-su';
             {t.tatCaNguon.map(n => (
               <li>
                 <cite>{n.nguon.ten}</cite>
-                {n.nguon.tac_gia.length > 0 && <> — {n.nguon.tac_gia.join(', ')}</>}
-                {n.nguon.nxb && n.nguon.nxb !== 'CAN_BO_SUNG' && <>, {n.nguon.nxb}</>}
-                {typeof n.nguon.nam === 'number' && <>, {n.nguon.nam}</>}
-                {n.thamChieu.trang && <>, tr. {String(n.thamChieu.trang)}</>}
+                {n.tacGia.length > 0 && <> — {n.tacGia.join(', ')}</>}
+                {n.nxb && <>, {n.nxb}</>}
+                {n.nam !== null && <>, {n.nam}</>}
+                {n.trang && <>, tr. {n.trang}</>}
                 {n.thamChieu.url && <>. <a href={n.thamChieu.url} rel="noopener">{tenMien(n.thamChieu.url)} <span aria-hidden="true">↗</span></a></>}
                 {n.thamChieu.ngay_truy_cap && <>, truy cập {ngayVN(n.thamChieu.ngay_truy_cap)}</>}
                 {n.thamChieu.ban_luu_tru && <> · <a href={n.thamChieu.ban_luu_tru} rel="noopener">bản lưu trữ <span aria-hidden="true">↗</span></a></>}
