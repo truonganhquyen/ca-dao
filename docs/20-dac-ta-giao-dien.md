@@ -60,7 +60,7 @@ Chế độ tối theo cài đặt hệ thống (`prefers-color-scheme`) có t�
 - Tự lưu trữ phông (Fonts API của Astro, cấu hình trong `astro.config.mjs`), chỉ bộ ký tự Latin + tiếng Việt, WOFF2, `font-display: swap`.
 - Kiểm dấu chồng ("ẫ", "ỡ", "ự", "Ngưỡng", "Thuở", "Quyện") ở cỡ nhỏ và lớn.
 - `text-wrap: balance` cho tiêu đề, `text-wrap: pretty` cho đoạn văn; không tự xuống dòng giữa dòng thơ.
-- Lục bát: mặc định thụt lề câu lục so với câu bát, đặt bằng một biến cấu hình (Q-006, hỏi 5 người thử ở Mốc B).
+- Lục bát: mặc định thụt lề câu lục so với câu bát, đặt bằng một biến cấu hình (`LUC_BAT_THUT_LE` trong `src/lib/cau-hinh.ts`; Q-006, hỏi 5 người thử ở Mốc B).
 - **Nút cỡ chữ "Aa"** (Mốc C): ba mức, nhớ trên máy — cho người đọc lớn tuổi.
 
 ## 2. Sơ đồ trang

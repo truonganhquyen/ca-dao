@@ -24,7 +24,7 @@ Ngày: 23/10/2026 (v2 — hướng "Trung thực hơn hoàn hảo", D-035..D-047
 npm install            # Node.js ≥ 22.12 (CI và Cloudflare dùng Node 24, tệp .node-version)
 npm run dev            # xem website trên máy
 npm run build          # kiểm dữ liệu rồi build vào dist/ (Cloudflare chạy lệnh này)
-npm run kiem-tra       # cổng kiểm tra bắt buộc: dữ liệu + fixture + nhất quán + tệp sinh + astro check + build + liên kết
+npm run kiem-tra       # cổng kiểm tra bắt buộc: dữ liệu + fixture + nhất quán + tệp sinh + astro check + build + liên kết + trang + trợ năng (cần Chrome)
 npm run sinh:schema    # sinh lại Zod, kiểu từ vựng, cấu hình CMS từ scripts/lib/schema.mjs + từ vựng
 npm run check:data     # kiểm dữ liệu R01–R22 (LỖI chặn build, NHẮC không chặn)
 npm run test:fixtures  # 26 bộ dữ liệu mẫu: 5 hợp lệ, 21 lỗi phải bị bắt đúng mã
@@ -59,7 +59,7 @@ npm run viec-tiep-theo # đề xuất task kỹ thuật READY tiếp theo
 │   ├── 21-kien-truc-ky-thuat.md      Astro 7, CMS, Cloudflare, tìm kiếm, kho thô, đường ống thu thập
 │   ├── 22-backlog-trien-khai.md      task T-031..T-069, mốc và điều kiện xong
 │   ├── 23-ke-hoach-kiem-thu.md       fixture, giao diện, trợ năng, tìm kiếm, tiêu chí theo mốc
-│   ├── huong-dan/                    hướng dẫn từng bước cho người sáng lập (kết nối Cloudflare…)
+│   ├── huong-dan/                    hướng dẫn từng bước cho người sáng lập (kết nối Cloudflare, đăng nhập CMS)
 │   └── luu-tru/                      tài liệu v1.2 không còn dùng hằng ngày (xem README trong đó)
 ├── taxonomy/tu-vung-kiem-soat.yaml   từ vựng kiểm soát v2
 ├── templates/                        mẫu YAML + lệnh AI soạn nháp
@@ -94,5 +94,5 @@ Prompt review (Codex hay Claude): **"Review thay đổi hiện tại theo CLAUDE
 
 ## Việc tiếp theo
 
-1. **Mốc A:** T-037 (CMS Sveltia), T-040 (trang tác phẩm) sẵn sàng; T-039 (đường ống ứng viên) sau khi kho thô có dữ liệu. Giao cho Codex hoặc Claude đều được.
+1. **Mốc A:** T-037 (CMS, PR #9) đang chờ gộp; T-039 (đường ống ứng viên) sau khi kho thô có dữ liệu; T-041 (tìm kiếm), T-042 (trích dẫn) sẵn sàng. Giao cho Codex hoặc Claude đều được.
 2. **Người sáng lập — T-034:** gửi thư cho Ca dao Mẹ (bản nháp ở `docs/12` mục 7) trước khi mở công khai.
