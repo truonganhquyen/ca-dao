@@ -13,7 +13,6 @@ interface Props {
   neoLop2: string;
 }
 const { nhan, nguon, dongGop, neoLop2 } = Astro.props;
-const coTrang = (n: ThongTinNguon) => n.thamChieu.trang !== undefined && n.thamChieu.trang !== null && String(n.thamChieu.trang).trim() !== '';
 ---
 
 <section aria-labelledby="nguon-goc-tieu-de" class="nguon-goc mt-6 border-l-2 border-nhat/40 pl-3 text-[0.9375rem] text-nhat">
@@ -28,10 +27,10 @@ const coTrang = (n: ThongTinNguon) => n.thamChieu.trang !== undefined && n.thamC
             : <><cite>{tenNguon(n.nguon)}</cite> ({tenMien(n.nguon.url)})</>}
           {n.thamChieu.ngay_truy_cap && <>, truy cập {ngayVN(n.thamChieu.ngay_truy_cap)}</>}.
         </>
-      ) : n.laIn && nhan === 'A' && coTrang(n) ? (
-        <>Đối chiếu theo: <cite>{n.nguon.ten}</cite>, tr. {String(n.thamChieu.trang)}.</>
+      ) : n.laIn && nhan === 'A' && n.trang ? (
+        <>Đối chiếu theo: <cite>{n.nguon.ten}</cite>, tr. {n.trang}.</>
       ) : (
-        <>Lời theo <cite>{n.nguon.ten}</cite>{coTrang(n) && <>, tr. {String(n.thamChieu.trang)}</>}.</>
+        <>Lời theo <cite>{n.nguon.ten}</cite>{n.trang && <>, tr. {n.trang}</>}.</>
       )}
     </p>
   ))}

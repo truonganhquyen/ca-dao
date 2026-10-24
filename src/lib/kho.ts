@@ -83,7 +83,15 @@ export interface ThongTinNguon {
   thamChieu: ThamChieuNguon;
   laWeb: boolean;
   laIn: boolean;
+  // Giá trị đã qua chuoiHienThi(): CAN_BO_SUNG và chuỗi rỗng thành null — chỉ những giá trị này được in ra trang
+  trang: string | null;
+  tacGia: string[];
+  nxb: string | null;
+  nam: number | null;
 }
+
+/** Giá trị của nguồn để hiện: CAN_BO_SUNG, rỗng → null (nguồn không bao giờ do AI soạn nên không có NHAP_AI). */
+const giaTri = (v: unknown) => (v === null || v === undefined ? null : (chuoiHienThi(String(v), false) as string | null));
 
 /** Mọi thứ trang tác phẩm cần, đã tính sẵn. */
 export async function thongTinTacPham(tp: TacPham) {
@@ -104,7 +112,11 @@ export async function thongTinTacPham(tp: TacPham) {
 
   const thongTinNguon = (v: DiBan): ThongTinNguon[] => v.nguon.flatMap(n => {
     const s = kho.nguon.get(n.ref);
-    return s ? [{ nguon: s, thamChieu: n, laWeb: s.loai === 'web', laIn: LOAI_NGUON_IN.includes(s.loai) }] : [];
+    return s ? [{
+      nguon: s, thamChieu: n, laWeb: s.loai === 'web', laIn: LOAI_NGUON_IN.includes(s.loai),
+      trang: giaTri(n.trang), tacGia: s.tac_gia.map(giaTri).filter((x): x is string => Boolean(x)),
+      nxb: giaTri(s.nxb), nam: typeof s.nam === 'number' ? s.nam : null,
+    }] : [];
   });
 
   // Chú giải của bản tham chiếu, theo thứ tự xuất hiện trong lời
