@@ -34,7 +34,14 @@ Kho mã đã có sẵn mọi cấu hình (`wrangler.jsonc`, `.node-version`). B�
 ## Sau khi kết nối
 
 - Cloudflare build nhánh `main` trước. **Lần đầu có thể báo lỗi** vì `main` chưa có trang web (trang nằm trong PR của T-035) — bình thường, không cần làm gì.
-- Mở PR của T-035 trên GitHub. Trong vài phút, Cloudflare thêm một dòng kiểm tra (và thường một bình luận) có **link bản xem trước**. Nếu chưa thấy, bấm **Retry build** trong Cloudflare hoặc nhờ agent đẩy lại một thay đổi nhỏ.
+- Lỗi của lần đầu này trông như sau — **không phải lỗi thật**, bỏ qua:
+
+  ```text
+  npm error Missing script: "build"
+  Failed: error occurred while running build command
+  ```
+
+- Mở PR của T-035 trên GitHub. Trong vài phút, Cloudflare thêm một dòng kiểm tra (và thường một bình luận) có **link bản xem trước**. Cloudflare chỉ build khi có mã mới được đẩy lên **sau** lúc kết nối: PR mở từ trước thì nhờ agent đẩy thêm một thay đổi nhỏ. Nút **Retry build** trong Cloudflare chỉ chạy lại đúng bản build đang xem (lần đầu là nhánh `main`), không tạo bản xem trước cho PR.
 - Mở link trên điện thoại: bạn sẽ thấy trang **"Sắp ra mắt"**. Thử bật chế độ tối của điện thoại — trang đổi màu theo.
 - Thấy đúng thì bấm gộp PR. Vài phút sau, trang chính thức ở `https://ca-dao.<tên-miền-phụ>.workers.dev` hiện trang "Sắp ra mắt". Tên miền riêng làm sau (T-049).
 
