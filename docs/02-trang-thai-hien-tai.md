@@ -33,7 +33,7 @@
 
 ## Công việc kỹ thuật tiếp theo
 
-**T-037** xong phần mã (CMS ở PR #9 — còn chờ người sáng lập thử tạo một bài tới công khai từ điện thoại); **T-038** xong phần mã (gộp PR #8 và kho-tho #1, rồi bấm Run workflow để kho thô có dữ liệu); **T-039** mở khi kho thô có dữ liệu; **T-041** (tìm kiếm) và **T-042** (trích dẫn, chia sẻ) sẵn sàng.
+Chạy `npm run viec-tiep-theo` — máy suy ra từ backlog (`docs/22`), luôn đúng. Mục này **không liệt kê task bằng tay** để các PR không sửa chung một dòng (xem `docs/03` mục 7).
 
 ## Quyết định đang mở
 

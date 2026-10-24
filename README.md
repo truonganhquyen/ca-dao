@@ -94,5 +94,5 @@ Prompt review (Codex hay Claude): **"Review thay đổi hiện tại theo CLAUDE
 
 ## Việc tiếp theo
 
-1. **Mốc A:** T-037 (CMS, PR #9) đang chờ gộp; T-039 (đường ống ứng viên) sau khi kho thô có dữ liệu; T-041 (tìm kiếm), T-042 (trích dẫn) sẵn sàng. Giao cho Codex hoặc Claude đều được.
-2. **Người sáng lập — T-034:** gửi thư cho Ca dao Mẹ (bản nháp ở `docs/12` mục 7) trước khi mở công khai.
+- **Việc kỹ thuật:** `npm run viec-tiep-theo` (máy suy ra từ backlog). Giao cho Codex hoặc Claude đều được.
+- **Việc của người sáng lập:** mục "Đang chờ người sáng lập" ở `docs/02-trang-thai-hien-tai.md`.

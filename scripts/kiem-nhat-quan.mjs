@@ -3,7 +3,7 @@
 // backlog đọc được và hợp lệ; trang-thai.json khớp bảng câu hỏi mở trong docs/01.
 // Lỗi ở đây nghĩa là tài liệu điều phối đang lệch nhau — agent sẽ chọn sai việc.
 import fs from 'node:fs';
-import { docTrangThai, docBacklog, phuThuocCua, cauHoiTrong, TRANG_THAI_TASK, TEN_GIAI_DOAN } from './lib/backlog.mjs';
+import { docTrangThai, docBacklog, phuThuocCua, cauHoiTrong, maQuyetDinhTrung, TRANG_THAI_TASK, TEN_GIAI_DOAN } from './lib/backlog.mjs';
 
 const loi = [];
 const state = docTrangThai();
@@ -22,6 +22,9 @@ for (const t of tasks) {
   }
 }
 if (byId.size !== tasks.length) loi.push('docs/22: có mã task bị lặp');
+
+// Số quyết định không được trùng: hai PR cùng lấy số D kế tiếp rồi gộp sẽ trùng (docs/03 mục 7.1)
+for (const ma of maQuyetDinhTrung(fs.readFileSync('docs/01-nhat-ky-quyet-dinh.md', 'utf8'))) loi.push(`docs/01: số quyết định ${ma} xuất hiện nhiều lần — đánh lại số cho quyết định mới hơn (lớn nhất trên main và các PR đang mở + 1)`);
 
 // Câu hỏi mở: trang-thai.json phải khớp bảng "Câu hỏi còn mở" của docs/01
 const nhatKy = fs.readFileSync('docs/01-nhat-ky-quyet-dinh.md', 'utf8');

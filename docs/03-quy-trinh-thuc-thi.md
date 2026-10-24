@@ -83,11 +83,22 @@ Agent phải xem lại `git diff` trước khi kết thúc.
 Khi task thực sự hoàn tất và kiểm tra đạt:
 
 1. chỉ khi implementation + acceptance criteria + `npm run kiem-tra` đều đạt, chuyển task thành `DONE` trong commit cuối của branch; GitHub PR thể hiện trạng thái đang review;
-2. cập nhật `docs/02-trang-thai-hien-tai.md`;
+2. cập nhật `docs/02-trang-thai-hien-tai.md` — **chỉ** mục "Đã có" và "Đang chờ người sáng lập"; **không** viết tay danh sách "việc tiếp theo" (ở đó chỉ có lệnh `npm run viec-tiep-theo`, README cũng vậy) để các PR đang mở cùng lúc không sửa chung một dòng;
 3. cập nhật `du-an/trang-thai.json` nếu tiến độ/gate/current task thay đổi;
 4. có thể chuyển các task phụ thuộc vừa được gỡ sang `READY`, nhưng không bắt buộc vì `npm run viec-tiep-theo` có thể suy ra trạng thái READY từ dependency.
 
 Không đánh dấu `DONE` chỉ vì code đã viết xong; phải đạt acceptance và cổng kiểm tra. Nếu PR không được gộp, thay đổi `DONE` cũng không đi vào `main`.
+
+### 7.1. Nhiều PR mở cùng lúc: xếp chồng nhánh, không song song từ `main`
+
+PR nào cũng sửa vài tệp điều phối chung (`docs/01` bảng quyết định, `docs/02`, bảng ở `docs/22`). Hai PR cùng tách từ một `main` rồi cùng sửa chỗ đó thì PR gộp sau **chắc chắn** xung đột (24/10/2026: ba PR T-040, T-038, T-037 xung đột, tổng 8 lượt tệp phải giải tay). Quy tắc để không xảy ra:
+
+1. **Trước khi tách nhánh** chạy `git fetch` và xem `gh pr list --state open`.
+2. **Không có PR nào đang chờ gộp:** tách nhánh từ `origin/main`, PR trỏ vào `main`.
+3. **Đang có PR chờ gộp và việc mới phụ thuộc hoặc cùng sửa tệp điều phối với nó:** tách nhánh **từ nhánh của PR đó**; tạo PR với `gh pr create --base <nhánh-PR-trước>` và ghi "Chồng lên PR #n; gộp #n trước" ở đầu mô tả. Khi #n gộp, GitHub tự chuyển PR này về `main`; nếu #n được gộp bằng cách khác thì `git rebase --onto origin/main <nhánh-cũ>` rồi đẩy lại.
+4. **Việc mới độc lập hẳn** (không sửa tệp điều phối chung nào) thì tách từ `main` như thường.
+5. **Số D mới** = số D lớn nhất trên `origin/main` **và trên mọi PR đang mở** cộng 1. `npm run kiem-nhat-quan` báo LỖI nếu hai quyết định trùng số.
+6. Người sáng lập gộp theo thứ tự PR đã mở. Khi báo "PR báo xung đột", agent giải xung đột bằng cách **giữ thông tin của cả hai phía** (không chọn một bên), chạy lại `npm run kiem-tra`, đẩy lên.
 
 ## 8. Điều kiện dừng
 

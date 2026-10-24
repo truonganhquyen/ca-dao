@@ -3,6 +3,7 @@
 - Task: T-xxx
 - Mốc: Chuẩn bị / A / B / C
 - AI-Agent: <!-- Codex / Claude Code / công cụ khác -->
+- Chồng lên PR: <!-- Không / #n — gộp #n trước (docs/03 mục 7.1) -->
 
 ## Mục tiêu
 
