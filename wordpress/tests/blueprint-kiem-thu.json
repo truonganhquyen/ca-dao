@@ -1,0 +1,11 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"preferredVersions": { "php": "8.3", "wp": "latest" },
+	"features": { "networking": true },
+	"steps": [
+		{ "step": "setSiteLanguage", "language": "vi" },
+		{ "step": "runPHP", "code": "<?php require '/wordpress/wp-load.php'; update_option('permalink_structure', '/%postname%/'); ?>" },
+		{ "step": "activatePlugin", "pluginPath": "/wordpress/wp-content/plugins/ca-dao/ca-dao.php" },
+		{ "step": "runPHP", "code": "<?php require '/repo/tests/kiem-thu.php';" }
+	]
+}

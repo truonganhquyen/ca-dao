@@ -8,3 +8,4 @@ dist/
 rieng-tu/
 *.private.*
 .wrangler/
+wordpress/tests/.ket-qua.txt

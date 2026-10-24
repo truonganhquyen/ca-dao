@@ -27,6 +27,7 @@ Ca dao Mẹ · bật · 20 bài/ngày     ──lấy theo lịch──►  lờ
 wordpress/
 ├── plugins/ca-dao/          plugin của dự án — mọi chức năng riêng nằm ở đây
 │   ├── ca-dao.php           khai báo plugin, nạp các phần
+│   ├── inc/trich.php        trích lời tất định — khớp từng ký tự với bộ trích JavaScript của kho thô (100/100 bài mẫu)
 │   ├── inc/loai-bai.php     loại bài, phân loại, hộp Nguồn, dòng "Nguồn: …"
 │   ├── inc/kho.php          bảng kho thu thập, tạo bài Chờ duyệt từ kho
 │   ├── inc/nguon-tu-dong.php trang cấu hình nguồn, lịch chạy
@@ -34,7 +35,7 @@ wordpress/
 │   └── inc/trang-quan-tri.php trang "Kho thu thập"
 ├── themes/ca-dao/           theme con của Twenty Twenty-Five (T-072)
 ├── blueprint.json           dựng WordPress thử tại máy bằng Playground
-└── tests/                   kiểm thử chạy trong Playground
+└── tests/                   kiểm thử chạy trong Playground (kiem-thu.php, blueprint-kiem-thu.json)
 ```
 
 Giữ ít plugin bên thứ ba (mỗi plugin là một nguy cơ bảo mật). Dự kiến chỉ thêm: sao lưu, chống spam form, SEO (T-050).
@@ -43,7 +44,7 @@ Giữ ít plugin bên thứ ba (mỗi plugin là một nguy cơ bảo mật). D�
 
 | WordPress | Nội dung |
 |---|---|
-| Loại bài `cdtn` ("Ca dao – Tục ngữ") | Mỗi câu / bài một mục; đường dẫn `/ca-dao/<ten>/`… theo thể loại |
+| Loại bài `cdtn` ("Ca dao – Tục ngữ") | Mỗi câu / bài một mục; đường dẫn `/ca-dao/<ten>/`, `/tuc-ngu/<ten>/`… theo thể loại đầu tiên (chưa chọn thì `ca-dao`); đường dẫn gốc `/bai/<ten>/` vẫn dẫn tới bài. Quy tắc đường dẫn là `add_rewrite_rule` đứng đầu — không dùng `add_rewrite_tag` trong slug (WordPress sinh quy tắc tệp đính kèm sai, nuốt mọi `/ca-dao/…`) |
 | Tiêu đề | Thường là dòng đầu |
 | Nội dung | **Khối Thơ** (core/verse) chứa lời; phần "Dị bản" (khối Thơ); phần "Chú thích" (danh sách, mỗi mục ghi "Theo …" khi chép từ nguồn) |
 | Đoạn trích (excerpt) | "Hiểu nhanh" — một câu giải nghĩa (tùy chọn) |
@@ -66,18 +67,21 @@ Kiểu bộ đọc: `cadao_me` (API WordPress + trang, đã kiểm ở T-038); s
 - **Nguồn ghi đúng sự thật**: bài tự động ghi đúng địa chỉ trang đã lấy và ngày lấy; không tự điền nguồn cho bài nhập tay.
 - **Chú thích chép luôn kèm ghi công** và liên kết về trang gốc; chỉ khi công tắc của nguồn đang bật (D-055).
 - **Không tải ảnh** của nguồn; không chép cách phân loại, bộ thẻ ra trang.
-- **Google:** bài chỉ có lời chép (chưa có giải nghĩa riêng) mang `noindex` cho tới khi có "Hiểu nhanh" hoặc chú thích (chính sách spam của Google về nội dung sao chép).
+- **Google:** bài chưa có "Hiểu nhanh" (đoạn trích do dự án viết) mang `noindex` — lời và chú thích chép từ nguồn không tính là giá trị riêng (chính sách spam của Google về nội dung sao chép). Người đọc vẫn xem được.
 - Không thông tin cá nhân trong nội dung.
 
 ## 6. Phát triển và kiểm thử tại máy
 
-WordPress Playground (PHP chạy bằng WebAssembly, cơ sở dữ liệu SQLite) — không cần cài PHP/MySQL. Cần Node ≥ 24.18.
+WordPress Playground (PHP 8.3 chạy bằng WebAssembly, cơ sở dữ liệu SQLite, có `intl`) — không cần cài PHP/MySQL. Cần Node ≥ 24.18.
 
 ```bash
-npx @wp-playground/cli@3.1.57 server --blueprint=wordpress/blueprint.json \
-  --mount=wordpress/plugins/ca-dao:/wordpress/wp-content/plugins/ca-dao \
-  --mount=wordpress/themes/ca-dao:/wordpress/wp-content/themes/ca-dao
+npm run test:wordpress            # kiểm thử plugin (CI chạy ở job "wordpress"); thêm -- --mang để thử bộ đọc trên cadao.me thật
+npx @wp-playground/cli@3.1.57 server --port=9411 --blueprint=wordpress/blueprint.json \
+  --mount-dir wordpress/plugins/ca-dao /wordpress/wp-content/plugins/ca-dao
+# mở http://127.0.0.1:9411/wp-login.php — tài khoản admin / password
 ```
+
+Trên Windows (Git Bash) đặt `MSYS_NO_PATHCONV=1` để Git Bash không đổi `/wordpress/…` thành đường dẫn Windows. Bước `runPHP` của Playground không in ra màn hình: kiểm thử ghi kết quả vào `wordpress/tests/.ket-qua.txt`.
 
 ## 7. Chuyển đổi (T-076)
 

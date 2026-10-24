@@ -15,6 +15,7 @@
     "test:fixtures": "node scripts/test-fixtures.mjs",
     "test:lien-ket": "node scripts/test-lien-ket.mjs",
     "test:nhat-quan": "node scripts/test-nhat-quan.mjs",
+    "test:wordpress": "node scripts/test-wordpress.mjs",
     "health": "node scripts/kiem-tra-du-lieu.mjs --suc-khoe",
     "health:json": "node scripts/kiem-tra-du-lieu.mjs --suc-khoe --json",
     "kiem-nhat-quan": "node scripts/kiem-nhat-quan.mjs",

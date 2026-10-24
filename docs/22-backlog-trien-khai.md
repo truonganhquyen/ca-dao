@@ -37,7 +37,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-039 | Đường ống ứng viên: kho thô → bài nháp trong content/ (thay bởi T-071, T-073 — D-056) | A | T-036, T-038 | — | DEFERRED |
 | T-040 | Trang tác phẩm đọc theo lớp, nhãn tự tính, nguồn gốc, sáng/tối, in, thanh điều hướng dưới | A | T-035 | — | DONE |
 | T-070 | Áp dụng D-054..D-056: nới quy tắc, kế hoạch chuyển WordPress | A | T-037 | — | DONE |
-| T-071 | Plugin WordPress `ca-dao`: loại bài, phân loại, dòng Nguồn, Nguồn tự động, kho thu thập, đổ bài Chờ duyệt | A | T-070 | — | BLOCKED |
+| T-071 | Plugin WordPress `ca-dao`: loại bài, phân loại, dòng Nguồn, Nguồn tự động, kho thu thập, đổ bài Chờ duyệt | A | T-070 | — | DONE |
 | T-072 | Theme WordPress `ca-dao` (theme con, giao diện theo docs/20) | A | T-071 | — | BLOCKED |
 | T-073 | Bộ đọc Ca dao Mẹ đầy đủ: dị bản, chú thích có ghi công, tục ngữ, đồng dao, vè, câu đố | A | T-071 | — | BLOCKED |
 | T-074 | Chọn và mua hosting WordPress | N | — | — | READY |
@@ -153,6 +153,7 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 **Đọc:** `24`; D-054..D-056.
 **Việc:** loại bài "Ca dao – Tục ngữ" (lời ở nội dung, "Hiểu nhanh" ở đoạn trích), phân loại Thể loại / Chủ đề / Vùng, hộp "Nguồn" (tên, địa chỉ, ngày) và dòng "Nguồn: …" tự hiện cuối bài; trang **Nguồn tự động** (thêm, bật/tắt, số bài mỗi ngày, công tắc chép chú thích); kho thu thập (bảng riêng trong cơ sở dữ liệu); bộ đọc Ca dao Mẹ cho ca dao qua API; mỗi ngày tự tạo N bài **Chờ duyệt**.
 **Chấp nhận:** trên WordPress chạy tại máy (Playground): cấu hình nguồn → bấm "Lấy ngay" → kho có bài → "Tạo bài chờ duyệt" → bài ở Chờ duyệt có lời đúng nguyên văn và nguồn đúng trang; đăng bài thủ công chỉ cần tiêu đề + lời; không chặn đăng vì lý do biên tập.
+**Tiến độ (24/10/2026):** đạt cả tiêu chí trên WordPress 7.1.3 tại máy — một lượt "Lấy ngay" lấy 400 ca dao (5 yêu cầu), "Tạo bài chờ duyệt ngay" tạo 5 bài, đăng một bài: trang `/ca-dao/<ten>/` có lời, "Nguồn: Ca dao Mẹ ↗" đúng trang gốc, `noindex` khi chưa có Hiểu nhanh. `npm run test:wordpress`: 39/39 (CI job `wordpress`). Bộ trích PHP khớp từng ký tự với bộ trích JavaScript của kho thô trên 100 bài mẫu thật (chạy ngoài repo). Ô "Chờ duyệt" trên Bảng tin. Chưa có: theme riêng (T-072), dị bản/chú thích/loại khác từ trang (T-073).
 
 #### T-072 · Theme WordPress `ca-dao` — A
 **Đọc:** `20` mục 1, 4, 11. **Việc:** theme con của Twenty Twenty-Five: token màu, phông, sáng/tối, trang bài (lời lớn, lục bát thụt lề, chú thích, dòng Nguồn), đọc tốt ở 360 px. **Chấp nhận:** quét trợ năng WCAG 2.2 AA 0 lỗi trên trang bài.
