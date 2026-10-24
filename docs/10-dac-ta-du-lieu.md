@@ -233,7 +233,7 @@ Lưu ở bảng tính riêng tư. Chỉ mã `sub-…` xuất hiện trong kho c�
 
 ### 4.11. Kho thô (repo riêng tư, ngoài kho này)
 
-Dữ liệu thu thập từ nguồn web (lời, danh sách từ có chú thích, bản tham chiếu chú thích) nằm ở **repo riêng tư**, không bao giờ trong `content/` (D-045). Định dạng và cách thu thập: `21` mục 16. Chỉ những bài được đường ống chọn mới thành tệp `content/tac-pham/` ở trạng thái `nhap`.
+Dữ liệu thu thập từ nguồn web (lời, danh sách từ có chú thích, bản tham chiếu chú thích) nằm ở **repo riêng tư `truonganhquyen/ca-dao-kho-tho`**, không bao giờ trong `content/` (D-045). Định dạng và cách thu thập: `21` mục 16. Chỉ những bài được đường ống chọn mới thành tệp `content/tac-pham/` ở trạng thái `nhap`.
 
 ## 5. Bằng chứng, trạng thái và cờ
 

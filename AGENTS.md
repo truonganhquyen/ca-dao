@@ -76,7 +76,7 @@ Ngoài các Human Gate này, agent phải tự quyết các chi tiết kỹ thu�
 11. **Không chép lời ca dao từ các bản ý tưởng gốc hay từ trí nhớ vào `content/`.** Lời chỉ đến từ đường ống thu thập hoặc người biên soạn.
 12. **Không tự chọn phương án cho câu hỏi còn mở** (Q-xxx), kể cả phương án khuyến nghị.
 13. **Không sao chép chú thích, lời bình, ảnh, cách phân loại** của nguồn web hay tuyển tập. Chú thích được đọc để hiểu ý rồi **viết lại** bằng lời của dự án (`cach_dung: tham_khao`). Chép nguyên văn chỉ khi nguồn đã cho phép, hoặc là định nghĩa ≤ 15 từ — và do người biên soạn quyết (D-046, R20).
-14. **Không đưa kho thô** (dữ liệu thu thập từ nguồn web) vào repo công khai. Kho thô chỉ nằm trong repo riêng tư (D-045). `content/` là công khai — kể cả bài nháp.
+14. **Không đưa kho thô** (dữ liệu thu thập từ nguồn web) vào repo công khai. Kho thô chỉ nằm trong repo riêng tư `truonganhquyen/ca-dao-kho-tho` (D-045). `content/` là công khai — kể cả bài nháp.
 
 ## LUÔN LUÔN
 

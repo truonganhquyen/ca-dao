@@ -26,7 +26,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 |---|---|---|---|---|---|
 | **Chuẩn bị · Tài khoản, tài liệu v2, thư cho nguồn** ||||||
 | T-031 | Chốt gói quyết định D-035..D-047 | N | — | — | DONE |
-| T-032 | Tạo tài khoản GitHub (repo công khai + repo riêng tư cho kho thô) và Cloudflare; đẩy kho mã lên | N | — | — | READY |
+| T-032 | Tài khoản GitHub (repo `ca-dao` công khai, `ca-dao-kho-tho` riêng tư — xong 24/10) và Cloudflare; cho Codex truy cập | N | — | — | IN_PROGRESS |
 | T-033 | Cập nhật tài liệu, công cụ kiểm tra, mẫu theo hướng v2 | A | T-031 | — | DONE |
 | T-034 | Gửi thư xin phép dùng chú thích cho Ca dao Mẹ | N | — | — | READY |
 | **Mốc A · Chạy được** ||||||
@@ -83,8 +83,9 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 ### Chuẩn bị
 
 #### T-032 · Tài khoản và đẩy kho mã — N
-**Việc:** tạo tài khoản GitHub; repo **công khai** cho kho mã này (bảo vệ nhánh `main` miễn phí với repo công khai; chặn agent đẩy thẳng, cho phép tài khoản người sáng lập/CMS); repo **riêng tư** cho kho thô (T-038); tài khoản Cloudflare; bật xác thực hai lớp cho cả hai. Đẩy nhánh `main` và nhánh T-033 lên. Agent soạn hướng dẫn từng bước khi người sáng lập cần.
+**Việc:** tạo tài khoản GitHub; repo **công khai** `truonganhquyen/ca-dao` cho kho mã này (bảo vệ nhánh `main` miễn phí với repo công khai; chặn agent đẩy thẳng, cho phép tài khoản người sáng lập/CMS); repo **riêng tư** `truonganhquyen/ca-dao-kho-tho` cho kho thô (T-038); tài khoản Cloudflare; bật xác thực hai lớp cho cả hai. Đẩy nhánh `main` và nhánh T-033 lên. Agent soạn hướng dẫn từng bước khi người sáng lập cần.
 **Chấp nhận:** Codex Cloud truy cập được cả hai repo; CI chạy trên PR đầu tiên.
+**Tiến độ (24/10/2026):** đã có 2 repo, đã đẩy `main` và nhánh T-033 (commit dùng email ẩn `…@users.noreply.github.com`), đã bật bảo vệ nhánh `main`. Còn: tài khoản Cloudflare, cho phép Codex truy cập 2 repo.
 
 #### T-033 · Tài liệu và công cụ kiểm tra v2 — A
 **Đọc:** `01` (D-035..D-047). **Việc:** áp dụng gói quyết định vào `AGENTS.md`, `docs/`, validator, thư viện suy ra, từ vựng, mẫu, fixture; chuyển tài liệu không còn dùng vào `docs/luu-tru/`.

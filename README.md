@@ -68,7 +68,7 @@ npm run viec-tiep-theo # đề xuất task kỹ thuật READY tiếp theo
 └── tests/fixtures/                   26 bộ dữ liệu kiểm thử
 ```
 
-Kho thô (toàn bộ lời thu thập từ nguồn web) nằm ở **một repo riêng tư khác**, không bao giờ trong kho này (D-045).
+Kho thô (toàn bộ lời thu thập từ nguồn web) nằm ở **repo riêng tư [`truonganhquyen/ca-dao-kho-tho`](https://github.com/truonganhquyen/ca-dao-kho-tho)**, không bao giờ trong kho này (D-045). Kho mã công khai: [`truonganhquyen/ca-dao`](https://github.com/truonganhquyen/ca-dao).
 
 ## Lưu ý về dữ liệu mẫu
 
@@ -88,6 +88,6 @@ Prompt Claude thường ngày: **"Review thay đổi hiện tại theo CLAUDE.md
 
 ## Việc tiếp theo
 
-1. **Người sáng lập — T-032:** tạo tài khoản GitHub (repo công khai cho kho này + repo riêng tư cho kho thô) và Cloudflare; đẩy kho mã lên.
+1. **Người sáng lập — T-032 (phần còn lại):** GitHub đã xong (24/10/2026); còn tạo tài khoản Cloudflare và cho phép Codex truy cập 2 repo.
 2. **Codex:** sau T-032, làm T-035 (Astro + CI + triển khai) và T-038 (kho thô) song song.
 3. **Người sáng lập — T-034:** gửi thư cho Ca dao Mẹ (bản nháp ở `docs/12` mục 7) trước khi mở công khai.

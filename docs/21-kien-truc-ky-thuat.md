@@ -25,7 +25,7 @@
 | Tìm từ khóa | **MiniSearch** trên trình duyệt, chỉ mục JSON sinh lúc build | Tự kiểm soát chuẩn hóa tiếng Việt, khớp gần đúng, trọng số theo trường | Pagefind — xem lại nếu chỉ mục nén > 300 KB |
 | Ảnh xem trước (OG) | Sinh lúc build (ví dụ Satori + resvg) | Không máy chủ | Ảnh tĩnh chung |
 | Lưu trữ web | **Cloudflare** — Workers Static Assets (Cloudflare khuyến nghị cho dự án mới) hoặc Pages (vẫn được hỗ trợ); chọn theo tài liệu chính thức lúc làm T-035 | Build tự động; lỗi dữ liệu thì không triển khai; bản xem trước mỗi nhánh | Netlify, GitHub Pages |
-| Kho thô | **Repo GitHub riêng tư** + GitHub Actions theo lịch (mục 16) | Thu thập toàn bộ lời mà không công bố (D-045) | Cloudflare R2 |
+| Kho thô | **Repo GitHub riêng tư `truonganhquyen/ca-dao-kho-tho`** + GitHub Actions theo lịch (mục 16) | Thu thập toàn bộ lời mà không công bố (D-045) | Cloudflare R2 |
 | Form góp ý | Tally (hoặc Google Forms) → bảng tính riêng tư | Không máy chủ, không dữ liệu cá nhân trong Git | — |
 | Đo lường | Công cụ không cookie (Cloudflare Web Analytics cho lượt xem; GoatCounter hoặc tương đương cho 3 sự kiện) | Tôn trọng quyền riêng tư | — |
 | Bàn biên tập | Trang tĩnh `/ban-bien-tap` sinh từ `npm run health:json`, khóa bằng Cloudflare Access (gói miễn phí) | Người sáng lập biết việc cần làm mà không dùng dòng lệnh (D-047) | — |
@@ -36,7 +36,7 @@
 ## 2. Cấu trúc kho mã
 
 ```text
-ca-dao/                      (repo CÔNG KHAI)
+ca-dao/                      (repo CÔNG KHAI: github.com/truonganhquyen/ca-dao)
 ├── AGENTS.md  CLAUDE.md  README.md
 ├── docs/                    tài liệu (docs/luu-tru/: tài liệu v1.2 không còn dùng hằng ngày)
 ├── content/                 dữ liệu công khai (đặc tả: docs/10) — kể cả bài nháp
@@ -59,7 +59,7 @@ ca-dao/                      (repo CÔNG KHAI)
 ├── config/lich-tinh-huong.yaml
 └── redirects.yaml
 
-kho-tho/                     (repo RIÊNG TƯ — mục 16; không bao giờ trộn vào repo công khai)
+ca-dao-kho-tho/              (repo RIÊNG TƯ: github.com/truonganhquyen/ca-dao-kho-tho — mục 16; không bao giờ trộn vào repo công khai)
 ```
 
 ## 3. Môi trường, build và triển khai
@@ -244,7 +244,7 @@ Kích hoạt bởi D-045, D-046. Nguồn đầu mối chính: Ca dao Mẹ (`12` 
 ### 16.1. Kho thô (repo riêng tư)
 
 ```text
-kho-tho/
+ca-dao-kho-tho/
 ├── nguon/cadao-me/
 │   ├── bai.jsonl                  mỗi dòng một mục (lời, dị bản, siêu dữ liệu)
 │   ├── chu-thich.jsonl            bản tham chiếu chú thích — CHỈ để đọc ý, không bao giờ sang repo công khai
