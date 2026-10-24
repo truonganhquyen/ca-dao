@@ -53,7 +53,7 @@ lien_quan: []
 sgk: []
 canh_bao_noi_dung: ''
 nhap_ai_da_duyet: true
-trang_thai: nhap
+trang_thai: cong_khai
 am_luat:
   nhip: ''
   van: []
