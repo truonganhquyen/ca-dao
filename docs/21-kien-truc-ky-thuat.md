@@ -265,14 +265,18 @@ ca-dao-kho-tho/
 ├── nguon/cadao-me/
 │   ├── bai.jsonl                  mỗi dòng một mục (lời, dị bản, siêu dữ liệu)
 │   ├── chu-thich.jsonl            bản tham chiếu chú thích — CHỈ để đọc ý, không bao giờ sang repo công khai
-│   ├── trang-thai-thu-thap.json   điểm dừng để chạy tiếp
-│   └── bao-cao.md                 số mục theo loại, lỗi, lần chạy gần nhất
+│   ├── phan-loai.json             tên chủ đề, thẻ của nguồn (chỉ dùng nội bộ làm gợi ý)
+│   ├── trang-thai-thu-thap.json   điểm dừng để chạy tiếp, 30 lần chạy gần nhất
+│   ├── bao-cao.md                 số mục theo loại, cờ, lỗi, lần chạy gần nhất
+│   └── kiem-mau.md                kết quả so lời đã lưu với trang gốc (npm run kiem-mau)
 ├── tu-tho-tuc.txt                 danh sách từ thô tục để gắn cờ (người sáng lập duyệt)
-├── scripts/thu-thap-cadao-me.mjs
-└── .github/workflows/thu-thap.yml lịch: hằng ngày trong đợt đầu, hằng tháng sau đó
+├── scripts/thu-thap-cadao-me.mjs  điều phối: điểm dừng, nhịp, dừng khi 429/5xx
+├── scripts/lib/trich.mjs          trích tất định (không qua AI); kiểm thử ở tests/ trên trang mẫu đã lưu
+├── scripts/kiem-mau.mjs           so lời của 20 bài với trang gốc, từng ký tự, bằng cách trích độc lập
+└── .github/workflows/thu-thap.yml hằng ngày 02:17 giờ Việt Nam, tối đa 50 phút/lần; xong đợt đầu thì 30 ngày cập nhật một lần
 ```
 
-**Trường của `bai.jsonl`:** `ma_goc` (id bài trên nguồn), `url`, `loai_goc` (ca dao / thành ngữ–tục ngữ / đồng dao / vè / câu đố), `tieu_de`, `loi` (nguyên văn, NFC, giữ xuống dòng), `di_ban` (danh sách lời nguyên văn), `chu_de_goc`, `the_goc` (chỉ dùng nội bộ làm gợi ý), `tu_co_chu_thich` (danh sách từ, không kèm lời giải), `ngay_dang_goc`, `ngay_sua_goc`, `ngay_thu_thap`, `bam` (SHA-256 của `loi`), `co` (gắn cờ, mục 16.3).
+**Trường của `bai.jsonl`:** `ma_goc` (id bài trên nguồn), `url`, `loai_goc` (ca dao / thành ngữ–tục ngữ / đồng dao / vè / câu đố), `tieu_de`, `loi` (nguyên văn, NFC, giữ xuống dòng), `di_ban` (danh sách lời nguyên văn), `chu_de_goc`, `the_goc` (chỉ dùng nội bộ làm gợi ý), `tu_co_chu_thich` (danh sách từ, không kèm lời giải), `ngay_dang_goc`, `ngay_sua_goc`, `ngay_thu_thap`, `bam` (SHA-256 của `loi`), `co` (gắn cờ, mục 16.3). Thêm khi làm T-038: `vi_tri_chu_thich`, `vi_tri_chu_thich_di_ban` (`[{ ma, dong, cot }]` — chỗ đặt dấu chú thích trong lời, để T-039 gợi ý `cum_tu`, kể cả chú thích không ghi từ), `nguon_loi` (`api`/`html`), `loi_html` (chỉ khi lời trên trang khác lời API), `da_doc_html`. Câu đố: `cau_hoi`, `dap_an` (khối câu hỏi và đáp án trên trang, tách khỏi lời).
 
 **Trường của `chu-thich.jsonl`:** `ma_goc`, `url`, `tu`, `noi_dung`, `ngay_thu_thap`. Không tải ảnh.
 
@@ -280,6 +284,8 @@ ca-dao-kho-tho/
 
 - **Ca dao** (~11.800 mục): API WordPress công khai `GET /wp-json/wp/v2/posts?per_page=100&page=N&_fields=id,link,title,content,categories,tags,date,modified` — khoảng 120 lần gọi; tên chủ đề/thẻ lấy từ `/wp-json/wp/v2/categories` và `/tags`.
 - **Thành ngữ–tục ngữ, đồng dao, vè, câu đố** (~4.700 mục): không có trong API → đọc danh sách từ sitemap (`thanh-ngu-tuc-ngu-sitemap*.xml`, `dong-dao-sitemap.xml`, `ve-sitemap.xml`, `cau-do-sitemap.xml`), rồi tải từng trang HTML.
+- **Dị bản và chú thích chỉ có trên trang HTML** (`<section class="variants">`, `<section class="ref">`), không có trong API — ca dao cũng phải đọc trang. Mỗi trang có bài chính và ~20 bài liên quan kèm dị bản, chú thích; nhưng bài liên quan dài chỉ hiện **đoạn trích** (cắt ở thẻ "more", thêm "…"). Vì vậy: lời của các loại ngoài ca dao chỉ lấy từ **bài chính** của chính trang đó; bài ca dao liên quan chỉ được nhận (dị bản, chú thích) khi lời trên trang trùng từng ký tự với lời API. Chú thích còn thiếu: `/chu-thich/chi-tiet/<mã>`.
+- **Quy mô thực tế (24/10/2026):** 16.530 mục — ca dao 11.841, thành ngữ–tục ngữ 3.505, câu đố 749, đồng dao 304, vè 131. Đợt đầu: API ~120 lần gọi (≈ 6 phút), trang HTML vài nghìn lần (nhiều lần chạy 50 phút).
 - **Trích lời tất định, không qua AI:** lấy khối nội dung bài; `<br>` → xuống dòng; bỏ ký hiệu và khối chú thích (HTML của site có các lớp `footnote`, `ref-content`, `ret-note` — xác định bộ chọn chính xác khi làm, kiểm trên mẫu 20 bài); giải mã thực thể HTML; NFC; cắt khoảng trắng đầu/cuối dòng; **không** chuẩn hóa gì khác. Khối "Dị bản" → `di_ban`. Chú thích → `chu-thich.jsonl` + `tu_co_chu_thich`.
 - **Lịch sự với máy chủ:** tuần tự, ≤ 1 yêu cầu/3 giây với API và ≤ 1 yêu cầu/5 giây với HTML; User-Agent `KhoTangCaDao-ThuThap/1.0 (+<URL dự án>)`; gặp 429/5xx thì dừng và để lần chạy sau; lưu điểm dừng; cập nhật hằng tháng chỉ lấy mục mới/sửa (`modified_after` của API, `lastmod` của sitemap).
 
