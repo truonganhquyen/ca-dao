@@ -55,6 +55,7 @@ ca-dao/                      (repo CÔNG KHAI: github.com/truonganhquyen/ca-dao)
 │   ├── quet-trang.mjs             Chrome có sẵn: axe (WCAG 2.2 AA), ô chú giải, tắt JavaScript
 │   ├── lib/schema.mjs             mô tả schema một nguồn (hình dạng dữ liệu) — dùng chung cho validator và bộ sinh
 │   ├── sinh-tu-schema.mjs         sinh Zod, kiểu từ vựng, cấu hình CMS (--kiem: báo lệch)
+│   ├── lib/giao-dien-cms.mjs      nhãn, gợi ý, thứ tự ô, mặc định, bộ "Thêm nhanh" của CMS
 │   ├── ung-vien/                  (T-039) đường ống kho thô → bài nháp
 │   └── tao-chi-muc-tim.mjs        (T-041) chỉ mục tìm kiếm
 ├── tests/fixtures/          bộ dữ liệu kiểm thử (tests/lien-ket/: bản build mẫu cho bộ kiểm liên kết)
@@ -65,7 +66,7 @@ ca-dao/                      (repo CÔNG KHAI: github.com/truonganhquyen/ca-dao)
 │   ├── components/          VerseBlock, GlossSheet, EvidenceBadge, ProvenanceBlock, VariantList, BottomNav
 │   └── pages/[theLoai]/[slug].astro   trang tác phẩm (T-040)
 ├── public/                  tệp tĩnh chép nguyên vào dist/
-├── public/admin/            Sveltia CMS: config.yml sinh tự động (T-036), mã CMS ở T-037
+├── public/admin/            Sveltia CMS: index.html (T-037), config.yml sinh tự động
 ├── src/content.config.ts    7 content collections (glob loader, schema từ src/sinh-ra/)
 ├── src/sinh-ra/             tệp sinh tự động: schema.ts (Zod), tu-vung.ts (mã + nhãn từ vựng) — không sửa tay
 ├── astro.config.mjs  tsconfig.json  wrangler.jsonc  .node-version
@@ -210,6 +211,7 @@ Chỉ khi xảy ra một trong ba điều (D-003): hơn 2 biên tập viên làm
 Người sáng lập không làm việc trực tiếp với Git/YAML (Q-002). Chọn **CMS chạy trên Git** để giữ nguyên kiến trúc tĩnh và công cụ kiểm tra:
 
 - **Sveltia CMS** (tương thích cấu hình Decap; còn ở bản 0.x → **ghim phiên bản**, nâng cấp có chủ đích): một tệp JS ở `/admin`, giao diện dùng được trên điện thoại, đăng nhập GitHub qua Worker OAuth nhỏ trên Cloudflare.
+- **Đã dựng (T-037, D-052):** `public/admin/index.html` nạp Sveltia 0.233.0 (unpkg + SRI, `noindex`); `config.yml` sinh từ `scripts/lib/schema.mjs` + `scripts/lib/giao-dien-cms.mjs` (bộ sinh báo lỗi nếu ô thiếu nhãn hoặc thiếu trong thứ tự); đăng nhập qua Worker `sveltia-cms-auth` (`docs/huong-dan/dang-nhap-cms.md`); giao diện CMS tự hiện tiếng Việt; lời nhắn commit tiếng Việt ("Nội dung: sửa tac-pham cd-0001"). Đã thử bằng chính Sveltia với kho thử (OPFS): tệp do "Thêm nhanh" ghi ra qua validator 0 lỗi và build đạt; sửa bài cũ chỉ đổi ô được sửa (lời giữ nguyên từng ký tự, chỉ bỏ ký tự xuống dòng cuối). CMS ghi `""`/`null` cho ô bỏ trống — validator và Zod đều coi là không có. Hướng dẫn cho người sáng lập: `docs/huong-dan/bien-soan-cms.md`.
 - **Cấu hình sinh tự động** từ mô tả schema (T-036: kiểu ô, bắt buộc, danh sách chọn từ từ vựng, quan hệ chọn từ danh sách; đã kiểm hợp lệ theo JSON schema của Sveltia). T-037 bổ sung: nhãn tiếng Việt, ví dụ trong từng ô, thứ tự Lời → Nguồn → Nghĩa → Chú giải → Tình huống → Nâng cao; quan hệ (mục từ, nguồn, mô-típ) dạng chọn từ danh sách.
 - Bộ **"Thêm nhanh"** tạo bài `nhap` với tối thiểu trường; ô đánh dấu `nhap_ai_da_duyet`.
 - **Dự phòng:** Pages CMS (dịch vụ có sẵn, cấu hình `.pages.yml`, có trường tham chiếu) nếu Sveltia không đáp ứng.

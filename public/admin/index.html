@@ -1,0 +1,22 @@
+<!doctype html>
+<!--
+  Trang biên soạn (T-037, D-036): Sveltia CMS, ghim phiên bản + mã kiểm toàn vẹn (SRI).
+  Cấu hình: config.yml cùng thư mục, SINH TỰ ĐỘNG bởi scripts/sinh-tu-schema.mjs — không sửa tay.
+  Nâng phiên bản Sveltia: đổi số phiên bản ở cả hai chỗ trong src, tính lại integrity
+  (openssl dgst -sha384 -binary sveltia-cms.js | openssl base64 -A), kiểm config.yml theo JSON schema của bản mới.
+  Hướng dẫn cho người sáng lập: docs/huong-dan/bien-soan-cms.md
+-->
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Biên soạn · Kho tàng Ca dao</title>
+    <script
+      src="https://unpkg.com/@sveltia/cms@0.233.0/dist/sveltia-cms.js"
+      integrity="sha384-lq8uMtdOlotHkm4oFSd+o7whev4/k4o8uZwio5iwuW8sJsUxf9K4OewbxVUzGP5m"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body></body>
+</html>
