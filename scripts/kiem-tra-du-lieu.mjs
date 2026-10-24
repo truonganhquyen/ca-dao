@@ -589,4 +589,6 @@ for (const e of errors) console.log(e);
 console.log(`\nĐã kiểm: ${counts}`);
 console.log(`Kết quả: ${errors.length} lỗi, ${reminders.length} nhắc.`);
 if (SUC_KHOE) { inSucKhoe(sucKhoe()); process.exit(0); }
+// `npm run build` chạy tệp này trước `astro build`: có LỖI thì dừng, không build, không triển khai (docs/21 mục 3).
+if (errors.length) console.log('Dữ liệu có lỗi nên dừng ở đây: không build, không triển khai (bản cũ trên mạng vẫn chạy). Sửa các dòng LỖI ở trên rồi lưu lại.');
 process.exit(errors.length ? 1 : 0);

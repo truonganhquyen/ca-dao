@@ -30,7 +30,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-033 | Cập nhật tài liệu, công cụ kiểm tra, mẫu theo hướng v2 | A | T-031 | — | DONE |
 | T-034 | Gửi thư xin phép dùng chú thích cho Ca dao Mẹ | N | — | — | READY |
 | **Mốc A · Chạy được** ||||||
-| T-035 | Khởi tạo Astro 6 + Tailwind 4 + CI + triển khai Cloudflare | A | T-032, T-033 | — | BLOCKED |
+| T-035 | Khởi tạo Astro 7 + Tailwind 4 + CI + triển khai Cloudflare (D-049) | A | T-032, T-033 | — | DONE |
 | T-036 | Mô tả schema một nguồn → Zod + cấu hình CMS | A | T-035 | — | BLOCKED |
 | T-037 | CMS Sveltia: đăng nhập GitHub, form tiếng Việt, "Thêm nhanh", duyệt nháp AI | A | T-036 | — | BLOCKED |
 | T-038 | Thu thập kho thô từ cadao.me | A | T-032, T-033 | — | BLOCKED |
@@ -99,11 +99,13 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 
 #### T-035 · Khởi tạo Astro + CI + triển khai — A
 **Đọc:** `21` mục 1–3, `AGENTS.md`.
-**Việc:** Astro 6 xuất tĩnh, TypeScript strict, Tailwind CSS 4 cấu hình từ token `20` mục 1.1; trang "Sắp ra mắt"; mở rộng `npm run kiem-tra` thêm `astro check`, `astro build`, kiểm liên kết nội bộ trong `dist/`; CI dùng `npm ci`; triển khai Cloudflare với bản xem trước cho mỗi nhánh/PR (người sáng lập bấm kết nối theo hướng dẫn); ghi phiên bản Astro, Tailwind vào `01`.
+**Việc:** Astro xuất tĩnh (phiên bản: D-049 — Astro 7 thay Astro 6 vì lỗ hổng chưa vá), TypeScript strict, Tailwind CSS 4 cấu hình từ token `20` mục 1.1; trang "Sắp ra mắt"; mở rộng `npm run kiem-tra` thêm `astro check`, `astro build`, kiểm liên kết nội bộ trong `dist/`; CI dùng `npm ci`; triển khai Cloudflare với bản xem trước cho mỗi nhánh/PR (người sáng lập bấm kết nối theo hướng dẫn); ghi phiên bản Astro, Tailwind vào `01`.
 **Chấp nhận:**
-- [ ] `npm run kiem-tra` gồm `astro check` + build; dữ liệu có LỖI thì build thất bại với thông báo đọc được.
-- [ ] Mỗi PR có link bản xem trước.
-- [ ] Không thêm thư viện nào ngoài Astro, Tailwind, `yaml` (adapter Cloudflare chỉ khi thật cần).
+- [x] `npm run kiem-tra` gồm `astro check` + build; dữ liệu có LỖI thì build thất bại với thông báo đọc được.
+- [x] Mỗi PR có link bản xem trước — Cloudflare Workers Builds, sau khi người sáng lập kết nối theo `docs/huong-dan/ket-noi-cloudflare.md`; PR của T-035 là PR đầu tiên kiểm điều này và chỉ được gộp khi đã có link.
+- [x] Không thêm thư viện nào ngoài Astro, Tailwind, `yaml` (không adapter). Chỉ thêm công cụ lúc phát triển mà `astro check` bắt buộc (`@astrojs/check`, `typescript`) và plugin Vite chính thức của Tailwind 4 (`@tailwindcss/vite`).
+
+**Tiến độ (24/10/2026):** trang "Sắp ra mắt" + trang 404; token màu `20` mục 1.1 trong `src/styles/global.css` (sáng/tối theo hệ thống); phông Be Vietnam Pro + Literata tự lưu trữ qua Fonts API; `npm run build` dừng trước `astro build` khi dữ liệu có LỖI; bộ kiểm liên kết `scripts/kiem-lien-ket.mjs` có kiểm thử riêng (`tests/lien-ket/`); CI chạy Node theo `.node-version` với `npm ci`.
 
 #### T-036 · Schema một nguồn → Zod + cấu hình CMS — A
 **Đọc:** `10` mục 4, 9; `21` mục 4.

@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+/* Token màu — docs/20 mục 1.1. Đổi giá trị thì tính lại độ tương phản (WCAG ≥ 4,5).
+   Sáng/tối theo cài đặt hệ thống (prefers-color-scheme) qua light-dark(). */
+:root {
+  color-scheme: light dark;
+  --giay: light-dark(#fbf8f1, #1b1a18);
+  --muc: light-dark(#22201c, #ede6d6);
+  --son: light-dark(#9e2a22, #e8776b);
+  --nhat: light-dark(#5f594f, #aba496);
+  --nhan-a: light-dark(#3f5a2c, #9cc07f);
+  --nhan-b: light-dark(#2b5580, #8db6e3);
+  --nhan-c: light-dark(#7a5a12, #d9b56a);
+  --nhan-d: light-dark(#665a48, #b8ab93);
+  --nhan-co: light-dark(#5e5e5e, #b0b0b0);
+}
+
+/* Đưa token vào Tailwind: bg-giay, text-muc, text-son, border-nhan-a, font-loi… */
+@theme inline {
+  --color-giay: var(--giay);
+  --color-muc: var(--muc);
+  --color-son: var(--son);
+  --color-nhat: var(--nhat);
+  --color-nhan-a: var(--nhan-a);
+  --color-nhan-b: var(--nhan-b);
+  --color-nhan-c: var(--nhan-c);
+  --color-nhan-d: var(--nhan-d);
+  --color-nhan-co: var(--nhan-co);
+  --font-giao-dien: var(--phong-giao-dien);
+  --font-loi: var(--phong-loi);
+}
+
+@layer base {
+  /* Chữ giao diện ≥ 17 px, giãn dòng ≥ 1,5 (docs/20 mục 1.2); không khóa phóng to. */
+  body {
+    background-color: var(--giay);
+    color: var(--muc);
+    font-family: var(--phong-giao-dien);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+  }
+
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  a {
+    color: var(--son);
+    text-decoration-line: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  /* Viền focus rõ bằng --son (docs/20 mục 11). */
+  :focus-visible {
+    outline: 3px solid var(--son);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

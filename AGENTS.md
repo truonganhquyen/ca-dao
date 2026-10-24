@@ -100,10 +100,12 @@ Ngoài các Human Gate này, agent phải tự quyết các chi tiết kỹ thu�
 ## Lệnh
 
 ```bash
-npm install            # cài yaml (và Astro, sau T-035)
+npm install            # cài yaml, Astro, Tailwind (Node ≥ 22.12)
+npm run dev            # xem website trên máy
+npm run build          # kiểm dữ liệu rồi astro build (Cloudflare chạy lệnh này)
 npm run trang-thai     # xem giai đoạn, mốc, Human Gate và số bài
 npm run viec-tiep-theo # đề xuất task kỹ thuật READY tiếp theo
-npm run kiem-tra       # cổng kiểm tra bắt buộc: dữ liệu + fixture + nhất quán trạng thái
+npm run kiem-tra       # cổng kiểm tra bắt buộc: dữ liệu + fixture + nhất quán + astro check + build + liên kết
 npm run check:data     # kiểm tra dữ liệu theo R01–R22 (LỖI chặn, NHẮC không chặn)
 npm run test:fixtures  # kiểm thử chính công cụ kiểm tra
 npm run health         # báo cáo sức khỏe dữ liệu, nợ dữ liệu (không chặn build)

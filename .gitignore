@@ -7,3 +7,4 @@ dist/
 # Dữ liệu riêng tư KHÔNG BAO GIỜ vào kho: bảng tính đóng góp, hồ sơ đồng ý, ảnh chụp trang sách
 rieng-tu/
 *.private.*
+.wrangler/

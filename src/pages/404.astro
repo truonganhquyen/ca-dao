@@ -1,0 +1,18 @@
+---
+// Trang 404: Cloudflare trả trang này cho đường dẫn không có (wrangler.jsonc: not_found_handling).
+import KhungTrang from '../layouts/KhungTrang.astro';
+---
+
+<KhungTrang
+  tieuDe="Không tìm thấy trang · Kho tàng Ca dao Tục ngữ Việt Nam"
+  moTa="Trang bạn tìm không có hoặc đã được chuyển đi."
+  noindex
+>
+  <main class="mx-auto flex min-h-dvh max-w-[38em] flex-col justify-center px-5 py-16">
+    <h1 class="text-[1.375rem] font-semibold leading-snug">Không tìm thấy trang</h1>
+    <p class="mt-4 text-nhat">Trang bạn tìm không có hoặc đã được chuyển đi.</p>
+    <p class="mt-8">
+      <a href="/" class="inline-flex min-h-11 items-center">Về trang đầu</a>
+    </p>
+  </main>
+</KhungTrang>

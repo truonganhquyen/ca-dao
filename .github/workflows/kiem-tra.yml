@@ -15,20 +15,15 @@ jobs:
       - name: Lấy mã nguồn
         uses: actions/checkout@v4
 
-      - name: Cài Node.js
+      - name: Cài Node.js (theo .node-version, cùng bản Cloudflare dùng để build)
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version-file: .node-version
+          cache: npm
 
       - name: Cài phụ thuộc
-        shell: bash
-        run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            echo "Chưa có package-lock.json; tạm dùng npm install. Sau khi tạo lockfile, CI sẽ tự chuyển sang npm ci."
-            npm install --no-audit --no-fund
-          fi
+        run: npm ci
 
-      - name: Chạy cổng kiểm tra hiện tại
+      # Dữ liệu + fixture + nhất quán + astro check + build + kiểm liên kết (docs/23 mục 1)
+      - name: Chạy cổng kiểm tra
         run: npm run kiem-tra

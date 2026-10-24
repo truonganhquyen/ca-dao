@@ -1,0 +1,14 @@
+// Triển khai lên Cloudflare Workers Static Assets (docs/21 mục 3, D-049).
+// Chỉ phục vụ tệp tĩnh trong dist/; không có mã chạy phía máy chủ.
+// Cloudflare Workers Builds tự build mỗi lần đẩy mã: nhánh main → bản chính thức,
+// nhánh khác/PR → bản xem trước có đường dẫn riêng (hướng dẫn: docs/huong-dan/ket-noi-cloudflare.md).
+{
+  "name": "ca-dao",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  },
+  "workers_dev": true,
+  "preview_urls": true
+}

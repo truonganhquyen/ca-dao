@@ -57,7 +57,7 @@ Chế độ tối theo cài đặt hệ thống (`prefers-color-scheme`) có t�
 | Lời thơ | Phông có chân hỗ trợ tốt tiếng Việt (ví dụ Literata hoặc Noto Serif) | ≥ 22 px, giãn dòng 1,7 | |
 | Giao diện, chú giải, nghĩa | Be Vietnam Pro | ≥ 17 px (chữ phụ ≥ 15 px), giãn dòng ≥ 1,5 | Có người đọc lớn tuổi; không khóa phóng to trình duyệt |
 
-- Tự lưu trữ phông (Fonts API của Astro 6), chỉ bộ ký tự Latin + tiếng Việt, WOFF2, `font-display: swap`.
+- Tự lưu trữ phông (Fonts API của Astro, cấu hình trong `astro.config.mjs`), chỉ bộ ký tự Latin + tiếng Việt, WOFF2, `font-display: swap`.
 - Kiểm dấu chồng ("ẫ", "ỡ", "ự", "Ngưỡng", "Thuở", "Quyện") ở cỡ nhỏ và lớn.
 - `text-wrap: balance` cho tiêu đề, `text-wrap: pretty` cho đoạn văn; không tự xuống dòng giữa dòng thơ.
 - Lục bát: mặc định thụt lề câu lục so với câu bát, đặt bằng một biến cấu hình (Q-006, hỏi 5 người thử ở Mốc B).

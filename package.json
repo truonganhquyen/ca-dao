@@ -2,22 +2,35 @@
   "name": "kho-tang-ca-dao-tuc-ngu",
   "version": "0.2.0",
   "private": true,
-  "description": "Kho tàng Ca dao Tục ngữ Việt Nam — tài liệu, kiểm tra dữ liệu và quy trình thực thi AI agent (hướng v2)",
+  "description": "Kho tàng Ca dao Tục ngữ Việt Nam — website tĩnh (Astro), dữ liệu YAML, kiểm tra dữ liệu và quy trình thực thi AI agent (hướng v2)",
   "type": "module",
   "scripts": {
+    "dev": "astro dev",
+    "build": "npm run check:data && astro build",
+    "preview": "astro preview",
     "check:data": "node scripts/kiem-tra-du-lieu.mjs",
+    "check:astro": "astro check",
     "test:fixtures": "node scripts/test-fixtures.mjs",
+    "test:lien-ket": "node scripts/test-lien-ket.mjs",
     "health": "node scripts/kiem-tra-du-lieu.mjs --suc-khoe",
     "health:json": "node scripts/kiem-tra-du-lieu.mjs --suc-khoe --json",
     "kiem-nhat-quan": "node scripts/kiem-nhat-quan.mjs",
-    "kiem-tra": "npm run check:data && npm run test:fixtures && npm run kiem-nhat-quan",
+    "kiem-lien-ket": "node scripts/kiem-lien-ket.mjs",
+    "kiem-tra": "npm run check:data && npm run test:fixtures && npm run test:lien-ket && npm run kiem-nhat-quan && npm run check:astro && astro build && npm run kiem-lien-ket",
     "trang-thai": "node scripts/trang-thai.mjs",
     "viec-tiep-theo": "node scripts/viec-tiep-theo.mjs"
   },
   "dependencies": {
+    "astro": "7.3.8",
     "yaml": "^2.9.1"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22.12.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.12",
+    "@tailwindcss/vite": "4.3.3",
+    "tailwindcss": "4.3.3",
+    "typescript": "5.9.3"
   }
 }
