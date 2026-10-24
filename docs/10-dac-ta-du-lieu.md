@@ -306,7 +306,7 @@ Tất cả nằm trong `taxonomy/tu-vung-kiem-soat.yaml`. Mỗi giá trị có `
 
 ## 9. Quy tắc kiểm tra
 
-`npm run check:data`. **Hai tầng (D-043):** **LỖI** → thoát mã 1, build dừng, bản cũ trên mạng vẫn chạy; **NHẮC** → không chặn, hiện ở `npm run health` và Bàn biên tập. "CK" = áp dụng khi tác phẩm `cong_khai`.
+`npm run check:data`. **Hai tầng (D-043; từ D-054 mọi lý do biên tập chỉ NHẮC):** **LỖI** → thoát mã 1, build dừng, bản cũ trên mạng vẫn chạy; **NHẮC** → không chặn, hiện ở `npm run health` và Bàn biên tập. "CK" = áp dụng khi tác phẩm `cong_khai`.
 
 | Mã | Quy tắc | Tầng |
 |---|---|---|
@@ -315,23 +315,23 @@ Tất cả nằm trong `taxonomy/tu-vung-kiem-soat.yaml`. Mỗi giá trị có `
 | R03 | `id` khớp tên tệp, đúng quy ước mã, không trùng; `slug` không trùng; tiền tố mã khớp `the_loai`; id dị bản không trùng | LỖI |
 | R04 | Mọi tham chiếu (`ref`, `muc_tu`, `mo_tip`, `lien_quan`, `nguoi`, `tac_pham`…) trỏ tới tệp có thật | LỖI |
 | R05 | `ban_dai_dien` là dị bản có thật | LỖI |
-| R06 | Neo chú giải phân giải được duy nhất (mục 4.3). Cụm từ không giống mục từ được trỏ tới | LỖI / NHẮC |
-| R07 | `nghia_ngan`, `giai_nghia`, `nghia_tai_cho` ≤ 40 từ. `nghia_ngan` > 25 từ | LỖI / NHẮC |
+| R06 | Neo chú giải phân giải được duy nhất (mục 4.3). Cụm từ không giống mục từ được trỏ tới | NHẮC |
+| R07 | `nghia_ngan`, `giai_nghia`, `nghia_tai_cho` ≤ 40 từ. `nghia_ngan` > 25 từ | NHẮC |
 | R08 | *Ngừng dùng từ 2.0* — điều kiện nhãn nay do máy tính (D-041) | — |
-| R09 | `NHAP_AI` trong `loi` (mọi trạng thái); `NHAP_AI` chưa duyệt ở bài công khai và tệp nó dùng; `NHAP_AI` trong nguồn. Ở nháp: dấu còn lại | LỖI / NHẮC |
+| R09 | `NHAP_AI` trong `loi` (mọi trạng thái); `NHAP_AI` chưa duyệt ở bài công khai và tệp nó dùng; `NHAP_AI` trong nguồn. Ở nháp: dấu còn lại | LỖI ở lời, ở nguồn / NHẮC: nháp AI chưa duyệt (tự ẩn, D-054) |
 | R10 | Phần nên có khi công khai: trường "CK", số mục tối thiểu, thuộc tình huống, mục từ có nguồn, `CAN_BO_SUNG` còn lại, bài chưa có giá trị riêng (sẽ `noindex`) | NHẮC |
-| R11 | Tình huống gắn tác phẩm có cờ nghi gán nhầm/phỏng tác hoặc `canh_bao_noi_dung`. Tình huống chưa đủ bài để tạo trang | LỖI / NHẮC |
+| R11 | Tình huống gắn tác phẩm có cờ nghi gán nhầm/phỏng tác hoặc `canh_bao_noi_dung`. Tình huống chưa đủ bài để tạo trang | NHẮC |
 | R12 | Ghi âm trỏ đúng dị bản có thật; người thể hiện không ẩn danh cần tên hiển thị | LỖI |
-| R13 | Cờ xác thực dân gian khác `binh_thuong` cần căn cứ | LỖI |
-| R14 | `tranh_luan: true` cần `ghi_chu_tranh_luan` | LỖI |
+| R13 | Cờ xác thực dân gian khác `binh_thuong` cần căn cứ | NHẮC |
+| R14 | `tranh_luan: true` cần `ghi_chu_tranh_luan` | NHẮC |
 | R15 | Mã trong từ vựng kiểm soát đúng quy ước, không trùng | LỖI |
 | R16 | Không có trường lạ ngoài đặc tả (kể cả `xac_thuc`, `ngay_kiem_dinh` của v1) | LỖI |
-| R17 | Nguồn đánh dấu `da_xac_minh_ban_in: true` không được còn `CAN_BO_SUNG` | LỖI |
+| R17 | Nguồn đánh dấu `da_xac_minh_ban_in: true` không được còn `CAN_BO_SUNG` | NHẮC |
 | R18 | Bài công khai lấy lời từ tư liệu điền dã (không có tệp ghi âm): nguồn phải `cong_cong` hoặc `duoc_phep` | LỖI |
-| R19 | Lời một dị bản giống hệt (bỏ dấu, bỏ dấu câu) dị bản của tác phẩm khác. Dòng đầu bản tham chiếu trùng tác phẩm khác | LỖI / NHẮC |
-| R20 | Chú thích/diễn giải ghi `cach_dung: trich_nguyen_van` từ nguồn chưa cho phép: `giai_nghia`/`noi_dung` > 15 từ, hoặc có `giai_nghia_day_du`. **Áp dụng ở mọi trạng thái** — `content/` là công khai | LỖI |
-| R21 | Bài công khai: bản tham chiếu phải có ít nhất một tham chiếu nguồn hoặc mã đóng góp | LỖI |
-| R22 | Tham chiếu tới nguồn `web` thiếu `url` hoặc `ngay_truy_cap`. Lời của bài công khai chưa có `ban_luu_tru` | LỖI / NHẮC |
+| R19 | Lời một dị bản giống hệt (bỏ dấu, bỏ dấu câu) dị bản của tác phẩm khác. Dòng đầu bản tham chiếu trùng tác phẩm khác | NHẮC |
+| R20 | Chú thích/diễn giải ghi `cach_dung: trich_nguyen_van` từ nguồn chưa cho phép: `giai_nghia`/`noi_dung` > 15 từ, hoặc có `giai_nghia_day_du`. **Áp dụng ở mọi trạng thái** — `content/` là công khai | NHẮC (D-055) |
+| R21 | Bài công khai: bản tham chiếu phải có ít nhất một tham chiếu nguồn hoặc mã đóng góp | NHẮC (D-054) |
+| R22 | Tham chiếu tới nguồn `web` thiếu `url` hoặc `ngay_truy_cap`. Lời của bài công khai chưa có `ban_luu_tru` | NHẮC |
 
 Kiểm thử chính công cụ: `npm run test:fixtures` — mỗi quy tắc tầng LỖI kiểm được bằng `--content` có một bộ lỗi mẫu; các bộ `hop-le-*` chứng minh phần đã nới (chỉ NHẮC). Trình chạy đòi bộ lỗi báo **đúng và chỉ** mã kỳ vọng.
 

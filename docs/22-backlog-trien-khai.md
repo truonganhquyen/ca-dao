@@ -34,22 +34,29 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-036 | Mô tả schema một nguồn → Zod + cấu hình CMS | A | T-035 | — | DONE |
 | T-037 | CMS Sveltia: đăng nhập GitHub, form tiếng Việt, "Thêm nhanh", duyệt nháp AI | A | T-036 | — | DONE |
 | T-038 | Thu thập kho thô từ cadao.me | A | T-032, T-033 | — | DONE |
-| T-039 | Đường ống ứng viên: kho thô → bài nháp trong content/ | A | T-036, T-038 | — | BLOCKED |
+| T-039 | Đường ống ứng viên: kho thô → bài nháp trong content/ (thay bởi T-071, T-073 — D-056) | A | T-036, T-038 | — | DEFERRED |
 | T-040 | Trang tác phẩm đọc theo lớp, nhãn tự tính, nguồn gốc, sáng/tối, in, thanh điều hướng dưới | A | T-035 | — | DONE |
-| T-041 | Tìm kiếm: chỉ mục, chuẩn hóa tiếng Việt, giao diện | A | T-040 | — | BLOCKED |
-| T-042 | Trích dẫn 2 định dạng + chia sẻ | A | T-040 | — | BLOCKED |
+| T-070 | Áp dụng D-054..D-056: nới quy tắc, kế hoạch chuyển WordPress | A | T-037 | — | DONE |
+| T-071 | Plugin WordPress `ca-dao`: loại bài, phân loại, dòng Nguồn, Nguồn tự động, kho thu thập, đổ bài Chờ duyệt | A | T-070 | — | BLOCKED |
+| T-072 | Theme WordPress `ca-dao` (theme con, giao diện theo docs/20) | A | T-071 | — | BLOCKED |
+| T-073 | Bộ đọc Ca dao Mẹ đầy đủ: dị bản, chú thích có ghi công, tục ngữ, đồng dao, vè, câu đố | A | T-071 | — | BLOCKED |
+| T-074 | Chọn và mua hosting WordPress | N | — | — | READY |
+| T-075 | Cài WordPress lên hosting: plugin, theme, sao lưu, bảo mật cơ bản | N+A | T-071, T-072, T-074 | — | BLOCKED |
+| T-076 | Chuyển nội dung hiện có sang WordPress, ngừng site Astro | A | T-075 | — | BLOCKED |
+| T-041 | Tìm kiếm không dấu trên WordPress | A | T-072 | — | BLOCKED |
+| T-042 | Trích dẫn 2 định dạng + chia sẻ (trên WordPress) | A | T-072 | — | BLOCKED |
 | **Mốc B · Thử nhỏ** ||||||
-| T-043 | Trang tình huống + trang chủ | A | T-040 | — | BLOCKED |
-| T-044 | Từ điển tự sinh | A | T-040 | — | BLOCKED |
-| T-045 | Form góp ý + thông báo quyền riêng tư + "Gửi số trang" | N+A | T-040 | — | BLOCKED |
-| T-046 | Trang Phương pháp, Nguồn, Về dự án | N+A | T-040 | — | BLOCKED |
-| T-047 | Bàn biên tập | A | T-035 | — | BLOCKED |
-| T-048 | Duyệt 30–50 bài, thử với 5 người | N | T-039, T-041..T-046 | — | BLOCKED |
+| T-043 | Trang tình huống + trang chủ (trên WordPress) | A | T-072 | — | BLOCKED |
+| T-044 | Từ điển tự sinh (trên WordPress) | A | T-073 | — | BLOCKED |
+| T-045 | Form góp ý + thông báo quyền riêng tư + "Gửi số trang" | N+A | T-075 | — | BLOCKED |
+| T-046 | Trang Phương pháp, Nguồn, Về dự án | N+A | T-075 | — | BLOCKED |
+| T-047 | Bàn biên tập (bảng tin trong wp-admin) | A | T-071 | — | BLOCKED |
+| T-048 | Duyệt 30–50 bài, thử với 5 người | N | T-073, T-076, T-041..T-046 | — | BLOCKED |
 | **Mốc C · Mở lặng lẽ** ||||||
 | T-049 | Chốt tên miền | N | — | — | READY |
-| T-050 | Ảnh xem trước từng bài, noindex tự động, SEO cơ bản | A | T-040 | Q-005 | BLOCKED |
-| T-051 | Câu hôm nay, Vừa bổ sung, Đã lưu, Trình chiếu, cỡ chữ, nút sáng/tối | A | T-040 | — | BLOCKED |
-| T-052 | Đo lường không cookie, 3 sự kiện | A | T-040 | — | BLOCKED |
+| T-050 | Ảnh xem trước từng bài, noindex tự động, SEO cơ bản | A | T-076 | Q-005 | BLOCKED |
+| T-051 | Câu hôm nay, Vừa bổ sung, Đã lưu, Trình chiếu, cỡ chữ, nút sáng/tối | A | T-072 | — | BLOCKED |
+| T-052 | Đo lường không cookie, 3 sự kiện | A | T-076 | — | BLOCKED |
 | T-053 | Đủ 100–150 bài, mở công khai lặng lẽ | N | T-034, T-048..T-052 | — | BLOCKED |
 | **Sau · Cải tiến liên tục** ||||||
 | T-060 | Thẻ chia sẻ dạng ảnh (2 mẫu × 2 khổ) | A | T-050 | — | DEFERRED |
@@ -72,7 +79,7 @@ Thay cho các cổng đếm hồ sơ của v1 (D-044). Agent được tự chuy�
 | Mốc | Xong khi | Ước tính |
 |---|---|---|
 | **Chuẩn bị** | Gói D-035..D-047 nằm trong repo (T-033); có repo GitHub công khai, repo riêng tư cho kho thô và tài khoản Cloudflare (T-032) | Tuần cuối 10/2026 |
-| **A · Chạy được** | Người sáng lập thêm một câu từ điện thoại qua `/admin` và thấy nó trên bản xem trước sau vài phút; 5–10 bài (mức nhãn bất kỳ) hiện đủ lớp 1, tìm không dấu và trích dẫn chạy được; kho thô có dữ liệu; `npm run kiem-tra` gồm `astro check` + build | Cuối 11/2026 |
+| **A · Chạy được** | (D-056) WordPress chạy trên hosting thật; người sáng lập đăng một bài thủ công từ điện thoại trong vài phút; nguồn tự động Ca dao Mẹ (cấu hình trong trang quản trị) đổ bài vào **Chờ duyệt** mỗi ngày, duyệt là lên trang; trang bài hiện lời, dị bản, chú thích, dòng "Nguồn: …"; nội dung cũ đã chuyển, site Astro ngừng | Cuối 11/2026 |
 | **B · Thử nhỏ** | 30–50 bài trên bản xem trước; trang tình huống, từ điển, form góp ý, trang Phương pháp chạy; 5 người dùng thật đã thử (2 giáo viên, 2 người trẻ, 1 người am hiểu văn hóa dân gian), vướng mắc đã thành task; Q-006 đã chốt | Giữa–cuối 12/2026 |
 | **C · Mở lặng lẽ** | Tên miền; 100–150 bài công khai; ảnh xem trước từng bài; thư đã gửi Ca dao Mẹ; người sáng lập quyết định mở (không thông báo rộng) | Trước Tết Đinh Mùi 2027 (đầu 02/2027) |
 
@@ -137,6 +144,30 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 **Đọc:** `21` mục 16; `11`; `templates/prompt-soan-nhap.md`.
 **Việc:** nhận danh sách mục tiêu (dòng đầu hoặc mã kho thô); với mỗi mục: tìm trong kho thô, gom bản trùng/gần trùng, đề xuất bản phổ biến nhất làm `v1`; tạo `content/tac-pham/<id>.yaml` trạng thái `nhap` với nguồn `src-ca-dao-me` (url, ngày truy cập, bản lưu Wayback nếu lưu được); gợi ý cụm từ cần chú giải từ danh sách từ có chú thích; bước **soạn nháp AI** (nghĩa ngắn, mô tả tình huống, giải nghĩa mục từ viết lại theo ý — `cach_dung: tham_khao`) chạy trong phiên agent theo mẫu lệnh, không cần khóa API riêng; **kiểm chống chép** (độ trùng n-gram giữa nháp và chú thích gốc, vượt ngưỡng thì gắn cờ); kiểm trùng với `content/` (R19).
 **Chấp nhận:** từ 10 dòng đầu mục tiêu sinh 10 bài `nhap` có lời khớp kho thô từng ký tự; `npm run kiem-tra` đạt; không bài nào `cong_khai` hay `nhap_ai_da_duyet: true` do máy đặt; lời không mang `NHAP_AI`.
+
+#### T-070 · Áp dụng D-054..D-056 — A
+**Việc:** ghi quyết định; nới bộ kiểm của site Astro (lỗi biên tập thành NHẮC, kể cả R20, R21; từ cấm trong trang chỉ nhắc); cập nhật AGENTS.md, CLAUDE.md; viết `docs/24-wordpress.md`; lập T-071..T-076.
+**Chấp nhận:** `npm run kiem-tra` đạt; các bộ mẫu `nhac-r*` chứng minh quy tắc đã nới vẫn được phát hiện (NHẮC).
+
+#### T-071 · Plugin WordPress `ca-dao` — A
+**Đọc:** `24`; D-054..D-056.
+**Việc:** loại bài "Ca dao – Tục ngữ" (lời ở nội dung, "Hiểu nhanh" ở đoạn trích), phân loại Thể loại / Chủ đề / Vùng, hộp "Nguồn" (tên, địa chỉ, ngày) và dòng "Nguồn: …" tự hiện cuối bài; trang **Nguồn tự động** (thêm, bật/tắt, số bài mỗi ngày, công tắc chép chú thích); kho thu thập (bảng riêng trong cơ sở dữ liệu); bộ đọc Ca dao Mẹ cho ca dao qua API; mỗi ngày tự tạo N bài **Chờ duyệt**.
+**Chấp nhận:** trên WordPress chạy tại máy (Playground): cấu hình nguồn → bấm "Lấy ngay" → kho có bài → "Tạo bài chờ duyệt" → bài ở Chờ duyệt có lời đúng nguyên văn và nguồn đúng trang; đăng bài thủ công chỉ cần tiêu đề + lời; không chặn đăng vì lý do biên tập.
+
+#### T-072 · Theme WordPress `ca-dao` — A
+**Đọc:** `20` mục 1, 4, 11. **Việc:** theme con của Twenty Twenty-Five: token màu, phông, sáng/tối, trang bài (lời lớn, lục bát thụt lề, chú thích, dòng Nguồn), đọc tốt ở 360 px. **Chấp nhận:** quét trợ năng WCAG 2.2 AA 0 lỗi trên trang bài.
+
+#### T-073 · Bộ đọc Ca dao Mẹ đầy đủ — A
+**Việc:** dị bản và chú thích (chép kèm "Theo Ca dao Mẹ" + liên kết khi công tắc bật — D-055), thành ngữ–tục ngữ, đồng dao, vè, câu đố (câu hỏi + đáp án); dùng lại cách trích đã kiểm ở kho thô (T-038: 20/20 khớp từng ký tự). **Chấp nhận:** kiểm mẫu 20 bài khớp từng ký tự với trang gốc.
+
+#### T-074 · Hosting WordPress — N
+**Việc:** chọn và mua hosting theo yêu cầu ở `24` mục 8 (agent soạn so sánh khi cần). **Chấp nhận:** có tài khoản quản trị hosting, PHP ≥ 8.3, có sao lưu.
+
+#### T-075 · Cài WordPress lên hosting — N+A
+**Việc:** cài WordPress, plugin `ca-dao`, theme; tài khoản quản trị có xác thực hai lớp; sao lưu tự động; cron thật thay WP-Cron nếu hosting cho phép. **Chấp nhận:** người sáng lập đăng một bài từ điện thoại; nguồn tự động chạy theo lịch.
+
+#### T-076 · Chuyển nội dung, ngừng site Astro — A
+**Việc:** chuyển bài, mục từ, nguồn trong `content/` sang WordPress (giữ lời nguyên văn); trỏ địa chỉ tạm; ngừng triển khai Astro. **Chấp nhận:** mọi bài công khai cũ hiện trên WordPress; lời khớp từng ký tự.
 
 #### T-040 · Trang tác phẩm — A
 **Đọc:** `20` mục 4–5, 10–12, 14; `10` mục 5, 10.

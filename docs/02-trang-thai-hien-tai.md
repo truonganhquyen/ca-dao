@@ -10,6 +10,8 @@
 
 ## Giai đoạn hiện tại
 
+**Đang chuyển sang WordPress** (D-056, `docs/24-wordpress.md`): plugin và theme làm trước tại máy (T-071..T-073), chờ hosting (T-074). Từ D-054 không còn chặn đăng vì lý do biên tập, nguồn không bắt buộc; từ D-055 chép chú thích có ghi công được phép.
+
 **Mốc A · Chạy được** — hướng v2 "Trung thực hơn hoàn hảo" (D-039). Mốc Chuẩn bị đã xong (T-032, T-033 DONE, 24/10/2026); điều kiện xong của Mốc A ở `docs/22` mục 2. Mốc tiếp theo: **B · Thử nhỏ**.
 
 ## Đã có
@@ -26,6 +28,7 @@
 
 ## Đang chờ người sáng lập
 
+- **T-074 · Chọn và mua hosting WordPress** — yêu cầu ở `docs/24` mục 8; cần để đưa WordPress lên mạng.
 - **Duyệt danh sách từ gắn cờ thô tục** `tu-tho-tuc.txt` trong repo kho thô (bản khởi đầu do agent soạn; cờ chỉ là gợi ý, không xóa gì).
 - **Thử CMS** (điều kiện xong T-037, PR #9): đăng nhập `/admin` trên điện thoại, tạo một bài thật tới Công khai — `docs/huong-dan/bien-soan-cms.md`. Đăng nhập GitHub đã tạo xong và đã kiểm (24/10/2026).
 - **T-034** · Gửi thư cho Ca dao Mẹ — không gấp, nhưng phải xong trước khi mở công khai (T-053).
