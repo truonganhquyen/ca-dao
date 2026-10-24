@@ -2,6 +2,8 @@
 // Chỉ phục vụ tệp tĩnh trong dist/; không có mã chạy phía máy chủ.
 // Cloudflare Workers Builds tự build mỗi lần đẩy mã: nhánh main → bản chính thức,
 // nhánh khác/PR → bản xem trước có đường dẫn riêng (hướng dẫn: docs/huong-dan/ket-noi-cloudflare.md).
+// `previews`: lệnh mặc định cho nhánh khác main là `npx wrangler preview`, lệnh này bắt buộc có khối này;
+// để trống vì bản xem trước không cần cấu hình riêng (assets vẫn ở cấp trên).
 {
   "name": "ca-dao",
   "compatibility_date": "2026-10-01",
@@ -10,5 +12,6 @@
     "not_found_handling": "404-page"
   },
   "workers_dev": true,
-  "preview_urls": true
+  "preview_urls": true,
+  "previews": {}
 }

@@ -24,7 +24,7 @@ Kho mã đã có sẵn mọi cấu hình (`wrangler.jsonc`, `.node-version`). B�
    | Build command (Lệnh build) | `npm run build` |
    | Deploy command (Lệnh triển khai) | `npx wrangler deploy` |
    | Builds for non-production branches (Build cho nhánh khác `main`) | **Bật** (thường nằm trong **Advanced settings**) |
-   | Non-production branch deploy command | `npx wrangler versions upload` |
+   | Non-production branch deploy command | `npx wrangler preview` (thường đã điền sẵn — giữ nguyên) |
    | Root directory / Path | để trống (hoặc `/`) |
 
    Không cần thêm biến môi trường hay khóa bí mật nào.
