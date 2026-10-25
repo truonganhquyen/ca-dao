@@ -59,7 +59,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-044 | Từ điển chú giải: trang từng từ, "Các bài có từ này", lọc theo vùng | A | T-073 | — | DONE |
 | T-045 | Góp ý, dị bản, cảm nghĩ ngắn của người đọc; chống rác; quyền riêng tư; "Gửi số trang" | N+A | T-075 | — | DONE |
 | T-046 | Trang Phương pháp, Nguồn, Về dự án | N+A | T-075 | — | REVIEW |
-| T-047 | Bàn biên tập: gom các hàng chờ (Chờ duyệt, xác nhận, người đọc gửi) trong wp-admin | A | T-071 | — | READY |
+| T-047 | Bàn biên tập: gom các hàng chờ (Chờ duyệt, xác nhận, người đọc gửi) trong wp-admin | A | T-071 | — | DONE |
 | T-082 | Chạm vào từ khó, nghĩa hiện ngay (lưu vị trí chú thích) | A | T-073 | — | DONE |
 | T-083 | Dị bản đánh số, tô chỗ khác lời chính | A | T-072 | — | DONE |
 | T-084 | Nhận thể thơ, trình bày theo thể | A | T-072 | — | DONE |
@@ -305,6 +305,8 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 #### T-047 · Bàn biên tập — A
 **Việc (viết lại 25/10/2026 cho WordPress):** một trang trong wp-admin gom các hàng chờ: bài Chờ duyệt, xác nhận Wikidata (T-086), vùng (T-089), thể loại tách (T-080), chủ đề (T-091), "Có thể trùng" (T-110, T-111, T-101), bài và góp ý người đọc gửi (T-045, T-097), mỗi hàng có số đếm và nút duyệt hàng loạt. Phần dưới đây là đặc tả cũ cho site Astro, giữ làm tham khảo.
 **Chấp nhận (cũ):** trang `/ban-bien-tap` (noindex, khóa bằng Cloudflare Access) dựng từ `npm run health:json`: nháp AI chờ duyệt, bài công khai đang noindex, mục từ thiếu nguồn, tham chiếu web thiếu bản lưu trữ, chú thích trích nguyên văn chờ phép, tình huống chưa đủ bài, lỗi build gần nhất. Người sáng lập không cần dòng lệnh.
+
+**Tiến độ (25/10/2026):** xong — plugin 0.19.0 (`inc/ban-bien-tap.php`). Trang **Bàn biên tập** (mục đầu tiên của menu Ca dao – Tục ngữ, số đếm = việc của người đọc + bài Chờ duyệt): 13 hàng chờ xếp theo thứ tự nên làm — báo lỗi / báo vi phạm của người đọc (đứng đầu), góp ý khác, cảm nghĩ, bài phân tích, bài Chờ duyệt, lời chưa vào khối Thơ, Có thể trùng, tách thành ngữ – tục ngữ, Wikidata, gợi ý vùng – chủ đề, Bạn có biết?, ba trang dự án, giới thiệu thể loại; mỗi hàng có số, một dòng "làm gì" và nút **Mở** tới đúng trang (duyệt hàng loạt làm ở trang đó: tách loại, gợi ý, khối Thơ; bài Chờ duyệt dùng "Chỉnh sửa" hàng loạt của WordPress — không có nút đăng tất cả). Hàng đã xong gom ở cuối. Bảng tin có ô **"việc chờ bạn"** ở đầu. Sửa kèm: bản đồ chỉ hiện mô tả Wikidata khi là tiếng Việt.
 
 #### T-082 · Chạm vào từ khó — A
 **Đọc:** `25` mục 4.1; `20` FR-1.2–1.4. **Việc:** lưu vị trí dấu chú thích (mã, dòng, cột) và từ được chú thích; nút gạch chân chấm trong lời; ô trượt (điện thoại) / ô cạnh từ (máy tính); bài đã đăng chưa sửa tay tự cập nhật. **Chấp nhận:** mở bằng chạm và Enter, đóng bằng Esc/chạm ra ngoài, trả focus; tắt JavaScript vẫn đọc được danh sách chú thích; quét trợ năng 0 lỗi; kiểm thử plugin đạt.

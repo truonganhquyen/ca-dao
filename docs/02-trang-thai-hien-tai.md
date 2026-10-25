@@ -23,6 +23,7 @@
 - **Site Astro cũ (T-035, T-040) — đã ngừng (T-076, 25/10/2026):** địa chỉ `https://ca-dao.truonganhquyen.workers.dev` chuyển hướng 301 sang cadao.sdigi.net; 2 bài công khai đã chuyển vào WordPress. Mã Astro, `content/`, công cụ kiểm dữ liệu giữ trong repo (`npm run kiem-tra` vẫn chạy).
 - **Plugin WordPress (T-071):** loại bài Ca dao – Tục ngữ (lời không ghi nguồn; "Nguồn: …" chỉ dưới chú thích chép từ nguồn — D-057), trang **Nguồn tự động**, **Kho thu thập**, tự tạo bài **Chờ duyệt**, ô Chờ duyệt trên Bảng tin (`wordpress/`, `docs/24`). Bộ đọc Ca dao Mẹ đầy đủ (T-073): ca dao, thành ngữ–tục ngữ, đồng dao, vè, câu đố, kèm dị bản, chú thích, đáp án; bài chưa sửa tay tự được bổ sung.
 - **Trích dẫn, chia sẻ, lượt đọc (T-042, T-081, 25/10/2026):** hộp Trích dẫn (thông dụng, APA 7; "Sao chép kèm nguồn" / "Chỉ sao chép lời"), nút Chia sẻ; lượt đọc tự đếm không cookie, không lưu IP, "Đọc nhiều tuần này" ở trang chủ, ô lượt đọc 7 ngày trên Bảng tin.
+- **Bàn biên tập (T-047, 25/10/2026):** một trang (mục đầu của menu Ca dao – Tục ngữ) và ô "việc chờ bạn" trên Bảng tin gom mọi việc đang chờ người sáng lập, có số đếm và nút mở đúng chỗ.
 - **Lời vào khối Thơ (T-112, 25/10/2026):** bài dán lời vào khối Đoạn văn được máy nhận ra; trình soạn có nút đưa lời vào khối Thơ, bài cũ có trang riêng để chuyển (không đổi chữ, hoàn tác được).
 - **Đồng dao, bản đồ ca dao (T-103, T-104, 25/10/2026):** bài đồng dao có khối Cách chơi của trò chơi (người sáng lập viết, hoặc bấm nút chép từ Wikipedia kèm nguồn) và chế độ "Đọc cùng bé" (một dòng, chữ rất to, vỗ tay theo chữ, không âm thanh); trang Bản đồ ca dao (`/ban-do/`) chấm các địa danh đã xác nhận, chạm ra bài. Xong phần máy làm được của đợt 5 trong `docs/25` mục 6.
 - **Đã lưu, đo lường (T-051, T-052, 25/10/2026):** người đọc bấm ☆ Lưu để giữ bài trên máy mình (trang Đã lưu, site không biết ai lưu gì); site đếm ba việc để biết nên làm gì tiếp — câu tìm không ra, sao chép trích dẫn, từ được chạm xem nghĩa — không cookie, không IP. Ô "người đọc cần gì" trên Bảng tin.
@@ -42,6 +43,8 @@
 - GitHub (24/10/2026): repo công khai `truonganhquyen/ca-dao` (`main` = hướng v2; PR #1–#3 đã gộp) và repo riêng tư `truonganhquyen/ca-dao-kho-tho` (mã thu thập T-038; dữ liệu đổ dần bằng GitHub Actions hằng ngày sau khi PR của repo đó gộp). Commit dùng email ẩn của GitHub.
 
 ## Đang chờ người sáng lập
+
+Mở **Ca dao – Tục ngữ → Bàn biên tập** (hoặc ô "việc chờ bạn" trên Bảng tin): mọi hàng chờ dưới đây có số đếm và nút mở đúng trang.
 
 - **Sao lưu FlashPanel** — để sau (người sáng lập, 25/10/2026): khi làm, chọn hằng ngày, gồm site và cơ sở dữ liệu cadao, lưu ra ngoài VPS.
 - **Ba trang Phương pháp, Nguồn, Về dự án** (Trang → Bản nháp): máy đã soạn theo đúng cách site đang làm; bạn đọc, sửa câu chữ rồi bấm Đăng — chân trang tự có liên kết.

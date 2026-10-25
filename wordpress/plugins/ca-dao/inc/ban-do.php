@@ -77,7 +77,8 @@ add_shortcode(
 		$ra .= '</div><h2>Các địa danh, từ Bắc vào Nam</h2><ol class="cadao-ban-do-ds">';
 		foreach ( $diem as $d ) {
 			$ra .= '<li id="dd-' . (int) $d['muc']->term_id . '" tabindex="-1"><h3>' . esc_html( $d['muc']->name ) . '</h3>'
-				. ( ! empty( $d['wd']['mo_ta'] ) ? '<p class="cadao-tim-phu">' . esc_html( $d['wd']['mo_ta'] ) . '</p>' : '' ) . '<ul class="cadao-tim-ds">';
+				// Mô tả Wikidata chỉ hiện khi là tiếng Việt (thiếu bản tiếng Việt thì Wikidata trả tiếng Anh, ví dụ "ward in Vietnam")
+				. ( ! empty( $d['wd']['mo_ta'] ) && preg_match( '/[^\x00-\x7F]/', $d['wd']['mo_ta'] ) ? '<p class="cadao-tim-phu">' . esc_html( $d['wd']['mo_ta'] ) . '</p>' : '' ) . '<ul class="cadao-tim-ds">';
 			foreach ( $d['bai'] as $p ) {
 				$ra .= '<li><a href="' . esc_url( get_permalink( $p ) ) . '"><strong>' . esc_html( get_the_title( $p ) ) . '</strong></a> <span class="cadao-tim-phu">· ' . esc_html( cadao_ten_the_loai( $p ) ) . '</span></li>';
 			}
