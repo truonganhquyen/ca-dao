@@ -12,7 +12,7 @@
 
 **Đang chuyển sang WordPress** (D-056, `docs/24-wordpress.md`): WordPress, plugin, theme chạy trên VPS tại cadao.sdigi.net (T-075 xong 25/10/2026; sao lưu người sáng lập để sau), chưa mở cho Google; máy chủ tự cập nhật sau mỗi PR gộp (T-078). **Gói nâng cấp đã duyệt 25/10/2026** (D-059..D-065): 51 mục (gồm 4 ý chống trùng), kế hoạch 5 đợt ở `docs/25-nang-cap-giao-dien-noi-dung.md`, task T-080..T-111. Từ D-054 không còn chặn đăng vì lý do biên tập, nguồn không bắt buộc; từ D-055 chép chú thích có ghi công được phép.
 
-**Mốc A · Chạy được** — hướng v2 "Trung thực hơn hoàn hảo" (D-039). Mốc Chuẩn bị đã xong (T-032, T-033 DONE, 24/10/2026); điều kiện xong của Mốc A ở `docs/22` mục 2. Mốc tiếp theo: **B · Thử nhỏ**.
+**Mốc B · Thử nhỏ** — hướng v2 "Trung thực hơn hoàn hảo" (D-039). Mốc A xong 25/10/2026: WordPress chạy trên VPS, người sáng lập đăng bài từ điện thoại, nguồn tự động đổ bài Chờ duyệt mỗi ngày, trang bài có lời, dị bản, chú thích, trích dẫn, chống trùng; nội dung cũ đã chuyển, site Astro ngừng (T-076). Đang làm đợt 2 của `docs/25` mục 6 (đọc dễ hơn). Điều kiện xong Mốc B ở `docs/22` mục 2. Mốc tiếp theo: **C · Mở lặng lẽ**.
 
 ## Đã có
 
@@ -20,7 +20,7 @@
 - Tài liệu v2: `AGENTS.md`, `docs/00`–`03`, `10`–`12`, `20`–`23`; tài liệu v1.2 không còn dùng ở `docs/luu-tru/`.
 - Validator hai tầng (LỖI/NHẮC), quy tắc R01–R22; nhãn bằng chứng do máy tính (`scripts/lib/suy-ra.mjs`); 26 bộ fixture.
 - Nguồn đầu mối `content/nguon/src-ca-dao-me.yaml`; 3 hồ sơ khung ở trạng thái `nhap` (chưa có nguồn gốc, không công khai được).
-- **Website khung (T-035):** Astro 7 + Tailwind 4, trang "Sắp ra mắt" và trang 404, sáng/tối theo hệ thống; `npm run kiem-tra` gồm `astro check`, build và kiểm liên kết; triển khai bằng Cloudflare Workers Static Assets (D-049): bản chính thức `https://ca-dao.truonganhquyen.workers.dev` (trang "Sắp ra mắt"), bản xem trước cho mỗi PR.
+- **Site Astro cũ (T-035, T-040) — đã ngừng (T-076, 25/10/2026):** địa chỉ `https://ca-dao.truonganhquyen.workers.dev` chuyển hướng 301 sang cadao.sdigi.net; 2 bài công khai đã chuyển vào WordPress. Mã Astro, `content/`, công cụ kiểm dữ liệu giữ trong repo (`npm run kiem-tra` vẫn chạy).
 - **Plugin WordPress (T-071):** loại bài Ca dao – Tục ngữ (lời không ghi nguồn; "Nguồn: …" chỉ dưới chú thích chép từ nguồn — D-057), trang **Nguồn tự động**, **Kho thu thập**, tự tạo bài **Chờ duyệt**, ô Chờ duyệt trên Bảng tin (`wordpress/`, `docs/24`). Bộ đọc Ca dao Mẹ đầy đủ (T-073): ca dao, thành ngữ–tục ngữ, đồng dao, vè, câu đố, kèm dị bản, chú thích, đáp án; bài chưa sửa tay tự được bổ sung.
 - **Trích dẫn, chia sẻ, lượt đọc (T-042, T-081, 25/10/2026):** hộp Trích dẫn (thông dụng, APA 7; "Sao chép kèm nguồn" / "Chỉ sao chép lời"), nút Chia sẻ; lượt đọc tự đếm không cookie, không lưu IP, "Đọc nhiều tuần này" ở trang chủ, ô lượt đọc 7 ngày trên Bảng tin.
 - **Chống trùng (T-109..T-111, 25/10/2026):** máy so cả lời của câu mới lấy từ nguồn và của bài viết tay với các bài, câu đã có: giống hệt, cùng thể loại thì tự gắn vào bài có sẵn (Kho thu thập → Đã gộp, "Tách ra" được); còn lại vào trang **Có thể trùng** chờ người sáng lập quyết; trình soạn có ô "Có thể trùng" (chỉ báo, không chặn đăng).
@@ -33,6 +33,7 @@
 ## Đang chờ người sáng lập
 
 - **Sao lưu FlashPanel** — để sau (người sáng lập, 25/10/2026): khi làm, chọn hằng ngày, gồm site và cơ sở dữ liệu cadao, lưu ra ngoài VPS.
+- **Tách thành ngữ – tục ngữ** (Ca dao – Tục ngữ → Tách thành ngữ – tục ngữ): xem nhóm "Máy đã chắc", kiểm khoảng 50 câu xem máy đoán đúng không (báo agent nếu sai nhiều), rồi chọn hàng loạt và bấm "Đồng ý gợi ý"; nhóm "Nghiêng về", "Chưa rõ" chọn loại từng câu khi rảnh.
 - **Quyết các cặp "Có thể trùng"** (menu Ca dao – Tục ngữ → Có thể trùng; Bảng tin báo số cặp): mỗi cặp chọn "Gộp: là cùng một bài" / "Gộp làm dị bản" / "Là bài khác" / "Để sau". Câu đang chờ thì máy chưa tạo thành bài.
 - **Việc của người sáng lập trong gói nâng cấp** (`docs/25` mục 6): duyệt hàng loạt thể loại tách, xác nhận Wikidata, duyệt bộ chủ đề và vùng; cài Meilisearch và tạo khóa Turnstile khi tới đợt đó; nghe thử 30 bài giọng đọc; tìm *Tục ngữ phong dao* (T-107).
 - **Thử CMS** (điều kiện xong T-037, PR #9): đăng nhập `/admin` trên điện thoại, tạo một bài thật tới Công khai — `docs/huong-dan/bien-soan-cms.md`. Đăng nhập GitHub đã tạo xong và đã kiểm (24/10/2026).

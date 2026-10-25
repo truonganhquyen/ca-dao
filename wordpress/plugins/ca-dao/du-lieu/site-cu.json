@@ -1,0 +1,42 @@
+{
+  "ghi_chu": "Sinh bằng scripts/xuat-site-cu.mjs từ content/ (bài công khai của site Astro cũ, T-076). Không sửa tay.",
+  "bai": [
+    {
+      "ma": "cd-0001",
+      "slug": "cong-cha-nhu-nui-thai-son",
+      "tieu_de": "Công cha như núi Thái Sơn",
+      "the_loai": "ca-dao",
+      "loi": "Công cha như núi Thái Sơn\nNghĩa mẹ như nước trong nguồn chảy ra\nMột lòng thờ mẹ kính cha\nCho tròn chữ hiếu mới là đạo con",
+      "di_ban": [],
+      "nguon": {
+        "ten": "Kho tàng ca dao người Việt",
+        "url": "",
+        "ngay_truy_cap": ""
+      },
+      "hieu_nhanh": "Ví công cha cao lớn như núi, nghĩa mẹ dồi dào như nguồn nước; khuyên con giữ trọn đạo hiếu.",
+      "chu_thich": [
+        {
+          "tu": "Thái Sơn",
+          "noi_dung": "Tên một ngọn núi cao ở Trung Quốc; trong văn chương cổ dùng để chỉ sự cao lớn, vững chãi."
+        }
+      ],
+      "ho_tro_ai": true
+    },
+    {
+      "ma": "cd-0003",
+      "slug": "con-vua-thi-lai-lam-vua",
+      "tieu_de": "Con vua thì lại làm vua",
+      "the_loai": "ca-dao",
+      "loi": "Con vua thì lại làm vua,\nCon sãi ở chùa thì quét lá đa.\nBao giờ dân nổi can qua,\nCon vua thất thế, lại ra quét chùa",
+      "di_ban": [],
+      "nguon": {
+        "ten": "Tục ngữ ca dao dân ca Việt Nam",
+        "url": "",
+        "ngay_truy_cap": "2026-10-24"
+      },
+      "hieu_nhanh": "",
+      "chu_thich": [],
+      "ho_tro_ai": false
+    }
+  ]
+}
