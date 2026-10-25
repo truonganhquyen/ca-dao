@@ -100,7 +100,7 @@ Bài, mục từ, nguồn trong `content/*.yaml` → WordPress bằng script nh�
 | **Cách ly** | Gói miễn phí không có ô "Website Isolation" khi tạo site → *Cài Đặt → Update Owner* `cadao`: FlashPanel tạo tài khoản Linux riêng, pool PHP riêng, thêm vào nhóm `isolated` (ACL chặn vào `/home` của site khác) |
 | Bổ sung cách ly | `cai-dat.sh` gỡ `cadao` khỏi nhóm `www-data` (nhóm đó gửi lệnh được tới pool PHP chung của các site khác), `wp-config.php` quyền 600 |
 | Tiếng Việt, múi giờ, đường dẫn, plugin, cron | `wordpress/may-chu/cai-dat.sh` (chạy bằng root, chạy lại được) |
-| Cập nhật plugin sau khi gộp PR | `sudo -u cadao bash /home/cadao/bin/cap-nhat-plugin.sh` — lấy `wordpress/plugins/ca-dao` từ nhánh `main`, thay thư mục một lần |
+| **Tự cập nhật sau khi gộp PR** (T-078) | Cron mỗi 5 phút chạy `tu-cap-nhat.sh` bằng tài khoản `cadao`: thấy `main` có commit mới thì lấy `wordpress/plugins/ca-dao` của đúng commit đó, kiểm cú pháp PHP, thay thư mục một lần; trang chủ không trả 200 thì trả lại bản cũ và không thử lại commit đó. Nhật ký `/home/cadao/cap-nhat.log`. Chạy tay: `cd /home/cadao && sudo -u cadao bash bin/cap-nhat-plugin.sh` |
 | Lịch chạy | `DISABLE_WP_CRON`; `/etc/cron.d/cadao-wordpress` chạy `wp cron event run --due-now` mỗi phút |
 | WP-CLI | `sudo -u cadao /home/cadao/bin/wp <lệnh>` |
 | Chặn công cụ tìm kiếm | `blog_public = 0` tới khi mở công khai (H5, T-053) — ô "Discourage search engines" của FlashPanel đã không có tác dụng, script đặt lại |
