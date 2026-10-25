@@ -24,6 +24,7 @@ Tệp này dành cho mọi AI agent làm việc trong kho mã (Claude Code, Code
 | Giao diện, câu chữ | `docs/20-dac-ta-giao-dien.md` |
 | Kỹ thuật, build, CMS, kho thô, tìm kiếm | `docs/21-kien-truc-ky-thuat.md` (site Astro hiện tại) |
 | **WordPress** (plugin, theme, nguồn tự động, chuyển đổi) | `docs/24-wordpress.md` |
+| **Gói nâng cấp 25/10/2026** (giao diện, nguồn nội dung, từng thể loại, lượt đọc, người đọc góp phần, giọng đọc) | `docs/25-nang-cap-giao-dien-noi-dung.md` |
 | Kiểm thử | `docs/23-ke-hoach-kiem-thu.md` |
 | Đóng góp, ghi âm, cố vấn, vận hành (sau Mốc C) | `docs/luu-tru/` (đọc README của thư mục) |
 

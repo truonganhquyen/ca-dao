@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Phiên bản | 2.0 · 23/10/2026 (hướng v2, D-035..D-047) |
+| Phiên bản | 2.1 · 25/10/2026 (thêm gói nâng cấp D-059..D-064, `docs/25`) |
 | Trạng thái | **Sống.** Cập nhật cột trạng thái ở mục 1 sau mỗi task/PR; enum: `READY`, `IN_PROGRESS`, `REVIEW`, `BLOCKED`, `DONE`, `DEFERRED` |
 | Đọc khi | Nhận việc. Mỗi task ghi rõ cần đọc tài liệu nào |
 | Ai làm | **N** = người sáng lập · **A** = AI agent hoặc dev · **N+A** = A làm, N duyệt và quyết định |
@@ -41,27 +41,56 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-072 | Theme WordPress `ca-dao` (theme con, giao diện theo docs/20) | A | T-071 | — | DONE |
 | T-073 | Bộ đọc Ca dao Mẹ đầy đủ: dị bản, chú thích có ghi nguồn, tục ngữ, đồng dao, vè, câu đố | A | T-071 | — | DONE |
 | T-074 | Chọn và mua hosting WordPress | N | — | — | DONE |
-| T-075 | Cài WordPress lên hosting: plugin, sao lưu, bảo mật cơ bản (theme cài khi T-072 xong) | N+A | T-071, T-074 | — | IN_PROGRESS |
-| T-076 | Chuyển nội dung hiện có sang WordPress, ngừng site Astro | A | T-075 | — | BLOCKED |
+| T-075 | Cài WordPress lên hosting: plugin, sao lưu, bảo mật cơ bản (theme cài khi T-072 xong) | N+A | T-071, T-074 | — | DONE |
+| T-076 | Chuyển nội dung hiện có sang WordPress, ngừng site Astro | A | T-075 | — | READY |
 | T-078 | Máy chủ tự cập nhật plugin từ `main` sau mỗi PR gộp | A | T-071 | — | DONE |
 | T-077 | Áp dụng D-057: lời không ghi nguồn, "Nguồn: …" chỉ dưới chú thích đã chép (plugin 0.2.0) | A | T-071 | — | DONE |
-| T-041 | Tìm kiếm không dấu trên WordPress | A | T-072 | — | BLOCKED |
+| T-079 | Ghi gói nâng cấp 25/10/2026 vào tài liệu, lập kế hoạch (`docs/25`, D-059..D-064) | A | — | — | DONE |
+| T-080 | Tách thành ngữ và tục ngữ (máy gợi ý, người duyệt) | N+A | T-073 | — | READY |
+| T-081 | Đếm lượt đọc không cookie, "Đọc nhiều", thống kê trên Bảng tin | A | T-071 | — | READY |
 | T-042 | Trích dẫn 2 định dạng + chia sẻ (trên WordPress) | A | T-072 | — | BLOCKED |
 | **Mốc B · Thử nhỏ** ||||||
-| T-043 | Trang tình huống + trang chủ (trên WordPress) | A | T-072 | — | BLOCKED |
-| T-044 | Từ điển tự sinh (trên WordPress) | A | T-073 | — | BLOCKED |
-| T-045 | Form góp ý + thông báo quyền riêng tư + "Gửi số trang" | N+A | T-075 | — | BLOCKED |
-| T-046 | Trang Phương pháp, Nguồn, Về dự án | N+A | T-075 | — | BLOCKED |
-| T-047 | Bàn biên tập (bảng tin trong wp-admin) | A | T-071 | — | BLOCKED |
-| T-048 | Duyệt 30–50 bài, thử với 5 người | N | T-073, T-076, T-041..T-046 | — | BLOCKED |
+| T-041 | Tìm kiếm tức thì, gõ không dấu, tìm cả trong chú thích (WordPress) | N+A | T-072 | — | READY |
+| T-043 | Trang chủ mới (Câu hôm nay, Vừa bổ sung, Đọc nhiều, Bạn có biết?) + trang tình huống | A | T-072, T-081, T-093 | — | BLOCKED |
+| T-044 | Từ điển chú giải: trang từng từ, "Các bài có từ này", lọc theo vùng | A | T-073 | — | READY |
+| T-045 | Góp ý, dị bản, cảm nghĩ ngắn của người đọc; chống rác; quyền riêng tư; "Gửi số trang" | N+A | T-075 | — | READY |
+| T-046 | Trang Phương pháp, Nguồn, Về dự án | N+A | T-075 | — | READY |
+| T-047 | Bàn biên tập: gom các hàng chờ (Chờ duyệt, xác nhận, người đọc gửi) trong wp-admin | A | T-071 | — | READY |
+| T-082 | Chạm vào từ khó, nghĩa hiện ngay (lưu vị trí chú thích) | A | T-073 | — | READY |
+| T-083 | Dị bản đánh số, tô chỗ khác lời chính | A | T-072 | — | READY |
+| T-084 | Nhận thể thơ, trình bày theo thể | A | T-072 | — | READY |
+| T-085 | Công cụ đọc: cỡ chữ, sáng/tối, trình chiếu, nghe bằng giọng có sẵn của điện thoại | A | T-072 | — | READY |
+| T-086 | Gắn Wikidata: hàng chờ xác nhận, ảnh Commons có ghi tác giả | N+A | T-073 | — | READY |
+| T-087 | Chú thích địa danh: bản đồ nhỏ, ảnh, "Bài khác nhắc tới…" | A | T-082, T-086 | — | BLOCKED |
+| T-088 | Câu đố: ảnh đáp án | A | T-086 | — | BLOCKED |
+| T-089 | Tự gợi ý vùng cho bài (phương ngữ, địa danh) | N+A | T-073 | — | READY |
+| T-090 | Vè và bài dài: chia đoạn, mục lục, đọc tiếp | A | T-072 | — | READY |
+| T-091 | Bộ chủ đề riêng của dự án (gồm nhóm tục ngữ kinh nghiệm, lối hát, loại câu đố), máy gợi ý | N+A | T-073 | — | READY |
+| T-092 | "Bài gần gũi" cuối bài và trang mô-típ | A | T-091 | — | BLOCKED |
+| T-093 | "Bạn có biết?" ghép từ chú thích | N+A | T-073 | — | READY |
+| T-094 | Trang riêng cho từng thể loại | N+A | T-072 | — | READY |
+| T-095 | Thành ngữ – tục ngữ: trình bày câu một dòng, chỉ mục A–Z | A | T-080 | — | BLOCKED |
+| T-096 | Câu đố: nhóm theo đáp án và theo loại, trang "Đố vui" | A | T-091 | — | BLOCKED |
+| T-097 | Bài cảm nhận, phân tích của người đọc (cần duyệt); bài có phân tích được duyệt thì lên Google | A | T-045 | — | BLOCKED |
+| T-048 | Duyệt 30–50 bài, thử với 5 người | N | T-073, T-076, T-041..T-046, T-082, T-085 | — | BLOCKED |
 | **Mốc C · Mở lặng lẽ** ||||||
 | T-049 | Chốt tên miền | N | — | — | READY |
-| T-050 | Ảnh xem trước từng bài, noindex tự động, SEO cơ bản | A | T-076 | Q-005 | BLOCKED |
-| T-051 | Câu hôm nay, Vừa bổ sung, Đã lưu, Trình chiếu, cỡ chữ, nút sáng/tối | A | T-072 | — | BLOCKED |
-| T-052 | Đo lường không cookie, 3 sự kiện | A | T-076 | — | BLOCKED |
+| T-050 | Ảnh chia sẻ tự sinh từng bài, noindex theo giá trị riêng, SEO cơ bản | A | T-076 | Q-005 | BLOCKED |
+| T-051 | "Đã lưu": bài yêu thích nhớ trên máy (Câu hôm nay, Vừa bổ sung → T-043; cỡ chữ, sáng/tối, trình chiếu → T-085) | A | T-072 | — | READY |
+| T-052 | Đo lường không cookie: tìm không ra, sao chép trích dẫn, mở chú giải | A | T-076, T-081, T-041 | — | BLOCKED |
+| T-098 | Thành ngữ – tục ngữ: nghĩa đen, nghĩa bóng, "dùng khi", đồng nghĩa (Wiktionary, CC BY-SA) | N+A | T-080 | — | BLOCKED |
+| T-099 | Chú giải từ sách hết bản quyền; chữ Hán Việt, điển tích của thành ngữ | N+A | T-082 | — | BLOCKED |
+| T-100 | Trợ giúp viết "Hiểu nhanh" (gợi ý; nháp máy chờ duyệt) | A | T-098 | — | BLOCKED |
+| T-101 | Gộp bài trùng thành dị bản (người duyệt từng lần) | N+A | T-073 | — | READY |
+| T-102 | Vè: khối "Bối cảnh" (sự kiện, năm, nơi chốn, nhân vật) | N+A | T-086 | — | BLOCKED |
+| T-103 | Đồng dao: cách chơi, chế độ "Đọc cùng bé" | A | T-085 | — | BLOCKED |
+| T-104 | Bản đồ ca dao theo vùng | A | T-086, T-089 | — | BLOCKED |
+| T-105 | Giọng đọc sinh sẵn theo miền (VieNeu-TTS), phiên nghe thử 30 bài | N+A | T-085, T-089 | — | BLOCKED |
+| T-106 | Giọng riêng của dự án, thu từ người đồng ý | N | T-105 | — | BLOCKED |
+| T-107 | Tìm bản quét "Tục ngữ phong dao" (Nguyễn Văn Ngọc, 1928) | N | — | — | READY |
 | T-053 | Đủ 100–150 bài, mở công khai lặng lẽ | N | T-034, T-048..T-052 | — | BLOCKED |
 | **Sau · Cải tiến liên tục** ||||||
-| T-060 | Thẻ chia sẻ dạng ảnh (2 mẫu × 2 khổ) | A | T-050 | — | DEFERRED |
+| T-060 | Thẻ chia sẻ dạng ảnh (2 mẫu × 2 khổ) — gộp vào T-050 (D-059) | A | T-050 | — | DEFERRED |
 | T-061 | Thứ tự tình huống theo dịp | A | T-043 | — | DEFERRED |
 | T-062 | Bộ bài cho tiết học từ "Đã lưu", in cả bộ | A | T-051 | — | DEFERRED |
 | T-063 | So sánh dị bản | A | T-040 | — | DEFERRED |
@@ -71,6 +100,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-067 | Thử nghiệm ghi âm cộng đồng | N | T-053 | — | DEFERRED |
 | T-068 | Tìm theo ý (ngữ nghĩa), khi qua cổng recall@5 | A | T-041 | — | DEFERRED |
 | T-069 | Mời hội đồng cố vấn | N | T-053 | — | DEFERRED |
+| T-108 | Gắn cờ (không chặn) bài có từ tục; bỏ ô lọc thô tục của nguồn tự động (ý 21, để sau — D-060) | A | T-071 | — | DEFERRED |
 
 Không có task cho cơ sở dữ liệu, công cụ quản trị riêng hay monorepo (D-047). Task `DEFERRED` chỉ mở khi người sáng lập chọn ở nhịp hằng tháng sau Mốc C.
 
@@ -82,7 +112,7 @@ Thay cho các cổng đếm hồ sơ của v1 (D-044). Agent được tự chuy�
 |---|---|---|
 | **Chuẩn bị** | Gói D-035..D-047 nằm trong repo (T-033); có repo GitHub công khai, repo riêng tư cho kho thô và tài khoản Cloudflare (T-032) | Tuần cuối 10/2026 |
 | **A · Chạy được** | (D-056) WordPress chạy trên hosting thật; người sáng lập đăng một bài thủ công từ điện thoại trong vài phút; nguồn tự động Ca dao Mẹ (cấu hình trong trang quản trị) đổ bài vào **Chờ duyệt** mỗi ngày, duyệt là lên trang; trang bài hiện lời, dị bản, chú thích (kèm "Nguồn: …" khi chép từ nguồn); nội dung cũ đã chuyển, site Astro ngừng | Cuối 11/2026 |
-| **B · Thử nhỏ** | 30–50 bài trên bản xem trước; trang tình huống, từ điển, form góp ý, trang Phương pháp chạy; 5 người dùng thật đã thử (2 giáo viên, 2 người trẻ, 1 người am hiểu văn hóa dân gian), vướng mắc đã thành task; Q-006 đã chốt | Giữa–cuối 12/2026 |
+| **B · Thử nhỏ** | 30–50 bài trên bản xem trước; trang tình huống, từ điển, form góp ý, trang Phương pháp chạy; đọc dễ hơn (chạm từ khó, dị bản tô chỗ khác, thể thơ, công cụ đọc), tìm kiếm, trang thể loại, bài gần gũi, cảm nghĩ và bài phân tích của người đọc (`docs/25` mục 6, đợt 2–4); 5 người dùng thật đã thử (2 giáo viên, 2 người trẻ, 1 người am hiểu văn hóa dân gian), vướng mắc đã thành task; Q-006 đã chốt | Giữa–cuối 12/2026 |
 | **C · Mở lặng lẽ** | Tên miền; 100–150 bài công khai; ảnh xem trước từng bài; thư đã gửi Ca dao Mẹ; người sáng lập quyết định mở (không thông báo rộng) | Trước Tết Đinh Mùi 2027 (đầu 02/2027) |
 
 Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tầng LỖI, fixture, kiểm nhất quán; từ T-035 thêm `astro check`, build, kiểm liên kết), quét trợ năng và ngân sách JS (từ T-040).
@@ -171,11 +201,22 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 #### T-075 · Cài WordPress lên hosting — N+A
 **Việc:** cài WordPress, plugin `ca-dao` (theme cài khi T-072 xong); sao lưu tự động; cron thật thay WP-Cron nếu hosting cho phép. **Chấp nhận:** người sáng lập đăng một bài từ điện thoại; nguồn tự động chạy theo lịch.
 
+**Tiến độ (25/10/2026):** xong — WordPress, plugin, theme chạy ở cadao.sdigi.net; người sáng lập đã tự đăng bài; nguồn tự động chạy theo lịch. Xác thực hai lớp bỏ (D-057); **sao lưu FlashPanel: người sáng lập để sau**.
+
 #### T-078 · Tự cập nhật từ main — A
 **Việc:** `wordpress/may-chu/tu-cap-nhat.sh` (cron 5 phút): commit mới trên `main` → lấy plugin của commit đó, kiểm cú pháp, thay một lần, trả lại bản cũ nếu trang chủ hỏng. Người sáng lập đồng ý 25/10/2026. **Chấp nhận:** gộp một PR chạm plugin thì site có bản mới trong ≤ 10 phút, không cần agent vào VPS.
 
 #### T-077 · Lời không ghi nguồn (D-057) — A
 **Việc:** bài tự động không ghi nguồn cho lời (địa chỉ gốc ở ô nội bộ `_cadao_url_goc`); dòng "Nguồn: … ↗" dưới chú thích đã chép, theo công tắc "Ghi nguồn cho chú thích" của từng nguồn; nâng cấp 0.2.0 bỏ nguồn máy tự điền ở bài cũ. **Chấp nhận:** kiểm thử plugin đạt; trên site thật, bài tự động không còn "Nguồn: …".
+
+#### T-079 · Ghi gói nâng cấp vào tài liệu — A
+**Việc:** tổng hợp 47 mục người sáng lập duyệt ngày 25/10/2026 vào `25`, D-059..D-064 trong `01`, task T-080..T-108 và các task cũ viết lại ở đây. **Chấp nhận:** `npm run kiem-tra` đạt; người sáng lập xem PR.
+
+#### T-080 · Tách thành ngữ và tục ngữ — N+A
+**Đọc:** `25` mục 4.4. **Việc:** máy gợi ý loại cho từng câu nhóm "thành ngữ – tục ngữ" của nguồn (danh mục Wiktionary, rồi cấu trúc câu), không chắc thì để chờ; hàng duyệt hàng loạt trong trang quản trị; bài đã đăng đổi thể loại và đường dẫn (`/thanh-ngu/…` ↔ `/tuc-ngu/…`, chuyển hướng 301 từ đường dẫn cũ). **Chấp nhận:** mẫu 50 câu do người sáng lập kiểm, gợi ý đúng ≥ 90% với câu máy đã chắc; không câu nào tự đổi loại khi chưa duyệt; kiểm thử plugin đạt.
+
+#### T-081 · Đếm lượt đọc — A
+**Đọc:** `25` mục 4.7, D-064. **Việc:** đếm khi trang hiện ≥ 5 giây, một máy một lần/ngày, không cookie, không lưu IP, gom theo bài theo ngày; "N lượt đọc" trên trang bài khi ≥ 10; danh sách "Đọc nhiều tuần này"; ô Bảng tin (7 ngày, bài đọc nhiều, trang giới thiệu). **Chấp nhận:** kiểm thử: máy dò không chạy JavaScript không được tính, tải lại trong ngày không cộng thêm; không có cookie mới; quét trợ năng đạt.
 
 #### T-076 · Chuyển nội dung, ngừng site Astro — A
 **Việc:** chuyển bài, mục từ, nguồn trong `content/` sang WordPress (giữ lời nguyên văn); trỏ địa chỉ tạm; ngừng triển khai Astro. **Chấp nhận:** mọi bài công khai cũ hiện trên WordPress; lời khớp từng ký tự.
@@ -191,32 +232,85 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 
 **Tiến độ (24/10/2026):** `VerseBlock`, `GlossSheet`, `EvidenceBadge`, `ProvenanceBlock`, `VariantList`, `BottomNav`, khung `KhungDoc`; dữ liệu qua `src/lib/kho.ts` (gọi lại `suy-ra.mjs`, `phanGiaiNeo()`); bộ mẫu giao diện ở bản xem trước (D-050); `kiem-trang` + `quet-trang` trong `kiem-tra` (D-051). **Chưa làm, chờ task khác:** nút trích dẫn/chia sẻ (T-042); liên kết "Gửi số trang", "Góp ý", "Ở quê bạn…" (T-045 — hiện chữ "sắp có"); "Xem thêm" tới `/tu-dien/` (T-044); liên kết `/phuong-phap` từ nhãn (T-046); thẻ tình huống thành liên kết (T-043); mục Tìm/Tình huống/Đã lưu của thanh dưới (T-041, T-043, Mốc C); JSON-LD (T-050). `dien_giai.noi_dung` hiện thành đoạn văn thường, chưa dựng Markdown.
 
-#### T-041 · Tìm kiếm — A
-**Đọc:** `21` mục 5, `20` mục 8, `23` mục 4.
-**Chấp nhận:** chỉ mục sinh lúc build, tải trễ khi chạm ô tìm; `boDau` và `chuanHoaCoDau` có kiểm thử đơn vị với các ca trong `21` mục 5; truy vấn kiểu `khong_dau`, `tu_khoa`, `dau_kieu_cu` trong `data/truy-van-thu.csv` có đáp án trong 5 kết quả đầu (khi đáp án đã công khai); trang không kết quả đúng `20` mục 8.
+#### T-041 · Tìm kiếm — N+A
+**Đọc:** `25` mục 4.3, `21` mục 5, `20` mục 8, `23` mục 4.
+**Việc (viết lại 25/10/2026 cho WordPress):** ô tìm đầu trang, kết quả hiện khi gõ, tìm trong lời, tiêu đề, chú thích; phương án chính Meilisearch (người sáng lập cài ứng dụng trong FlashPanel), chỉ mục cập nhật khi bài đăng/sửa; thử "d" → "đ" trước khi chốt, không đạt thì dùng chỉ mục bỏ dấu tự làm.
+**Chấp nhận:** `boDau` và `chuanHoaCoDau` có kiểm thử đơn vị với các ca trong `21` mục 5; truy vấn kiểu `khong_dau`, `tu_khoa`, `dau_kieu_cu` trong `data/truy-van-thu.csv` có đáp án trong 5 kết quả đầu (khi đáp án đã công khai); trang không kết quả đúng `20` mục 8.
 
 #### T-042 · Trích dẫn và chia sẻ — A
 **Đọc:** `20` mục 6–7.
-**Chấp nhận:** 2 định dạng; nút "Sao chép kèm nguồn" (mặc định) và "Chỉ sao chép lời"; bài nhãn D trích dẫn kèm "(lời lưu truyền, chưa đối chiếu bản in)" và ghi công Ca dao Mẹ; ngày truy cập tự điền; nút Chia sẻ dùng Web Share (văn bản + URL), không hỗ trợ thì sao chép link.
+**Chấp nhận (viết lại 25/10/2026 theo D-054, D-057):** 2 định dạng; nút "Sao chép kèm nguồn" (mặc định: lời, tên bài, thể loại, địa chỉ trang của site, ngày truy cập tự điền) và "Chỉ sao chép lời"; lời không ghi nguồn ngoài, chú thích chép từ nguồn khi được sao chép thì kèm dòng "Nguồn: …" của nó; nút Chia sẻ dùng Web Share (văn bản + URL), không hỗ trợ thì sao chép link; chạy được trên WordPress (theme + plugin).
 
 ### Mốc B · Thử nhỏ
 
 #### T-043 · Tình huống và trang chủ — A
+**Đọc:** `25` mục 4.3. **Việc (thêm 25/10/2026):** trang chủ có "Câu hôm nay" chữ lớn, "Vừa bổ sung", "Đọc nhiều tuần này" (T-081), "Bạn có biết?" (T-093), lối vào theo thể loại và theo vùng, ô tìm; không khung mạng xã hội, không mây thẻ.
 **Chấp nhận:** trang tình huống chỉ tạo khi có ≥ `NGUONG_TRANG_TINH_HUONG` (2) bài công khai; mỗi bài hiện lời rút gọn ≤ 4 dòng + "Hợp khi…"; trang chủ: câu định vị, ô tìm lớn, thẻ tình huống theo `mac_dinh` trong `config/lich-tinh-huong.yaml`.
 
 #### T-044 · Từ điển — A
+**Đọc:** `25` mục 4.3. **Việc (viết lại 25/10/2026 cho WordPress):** mỗi chú thích (gộp theo mã của nguồn) một trang; trang tổng lọc Nam Bộ / Trung Bộ / Bắc Bộ / từ cổ / Hán Việt theo ghi chú trong lời giải; chạm từ trong lời (T-082) dẫn tới đây.
 **Chấp nhận:** `/tu-dien/` liệt kê mục từ đang được dùng; trang mục từ hiện giải nghĩa, nguồn ("Tham khảo: Ca dao Mẹ ↗" khi `cach_dung: tham_khao`, "Theo Ca dao Mẹ ↗" khi `trich_nguyen_van`), mọi bài có từ này.
 
-#### T-045 · Form góp ý — N+A
-**Đọc:** `docs/luu-tru/40-quy-trinh-dong-gop.md` mục 2–3.
-**Chấp nhận:** form trên dịch vụ có sẵn (Tally), tối đa 5 câu bắt buộc; có **thông báo quyền riêng tư ngay trong form** (Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15, hiệu lực 01/01/2026; dịch vụ đặt máy chủ ở nước ngoài); nút "Ở quê bạn câu này nói khác?", "Báo lỗi" và **"Bạn có sách? Gửi số trang"** mở form với mã bài và URL điền sẵn; người ghi hộ điền xong trên điện thoại trong 5 phút.
+#### T-045 · Góp ý và cảm nghĩ của người đọc — N+A
+**Đọc:** `25` mục 4.6, D-062; `docs/luu-tru/40-quy-trinh-dong-gop.md` mục 2–3.
+**Việc (viết lại 25/10/2026):** form chạy ngay trong WordPress (thay Tally): "Ở quê bạn câu này nói khác?", "Góp ý chú thích", "Báo lỗi", "Bạn có sách? Gửi số trang"; ô "Cảm nghĩ của bạn" (bình luận WordPress, luôn chờ duyệt); Cloudflare Turnstile + ô bẫy ẩn + giới hạn theo giờ; khóa Turnstile người sáng lập dán vào trang cấu hình plugin.
+**Chấp nhận:** mọi thứ gửi vào Chờ duyệt, không tự hiện; không bắt email, tên thật, số điện thoại; tối đa 5 câu bắt buộc; có **thông báo quyền riêng tư ngay trong form** (Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15, hiệu lực 01/01/2026; dịch vụ đặt máy chủ ở nước ngoài); nút "Ở quê bạn câu này nói khác?", "Báo lỗi" và **"Bạn có sách? Gửi số trang"** mở form với mã bài và URL điền sẵn; người ghi hộ điền xong trên điện thoại trong 5 phút.
 
 #### T-046 · Trang Phương pháp, Nguồn, Về dự án — N+A
 **Đọc:** `docs/luu-tru/50-ban-nhap-trang-cong-khai.md` mục 1, 5; `12`.
 **Chấp nhận:** Phương pháp giải thích 4 nhãn, lời hứa mới, cách dùng AI, ghi công Ca dao Mẹ; `/nguon` sinh tự động từ `content/nguon/` (chỉ nguồn đang được dùng); N duyệt câu chữ.
 
 #### T-047 · Bàn biên tập — A
-**Chấp nhận:** trang `/ban-bien-tap` (noindex, khóa bằng Cloudflare Access) dựng từ `npm run health:json`: nháp AI chờ duyệt, bài công khai đang noindex, mục từ thiếu nguồn, tham chiếu web thiếu bản lưu trữ, chú thích trích nguyên văn chờ phép, tình huống chưa đủ bài, lỗi build gần nhất. Người sáng lập không cần dòng lệnh.
+**Việc (viết lại 25/10/2026 cho WordPress):** một trang trong wp-admin gom các hàng chờ: bài Chờ duyệt, xác nhận Wikidata (T-086), vùng (T-089), thể loại tách (T-080), chủ đề (T-091), gộp bài trùng (T-101), bài và góp ý người đọc gửi (T-045, T-097), mỗi hàng có số đếm và nút duyệt hàng loạt. Phần dưới đây là đặc tả cũ cho site Astro, giữ làm tham khảo.
+**Chấp nhận (cũ):** trang `/ban-bien-tap` (noindex, khóa bằng Cloudflare Access) dựng từ `npm run health:json`: nháp AI chờ duyệt, bài công khai đang noindex, mục từ thiếu nguồn, tham chiếu web thiếu bản lưu trữ, chú thích trích nguyên văn chờ phép, tình huống chưa đủ bài, lỗi build gần nhất. Người sáng lập không cần dòng lệnh.
+
+#### T-082 · Chạm vào từ khó — A
+**Đọc:** `25` mục 4.1; `20` FR-1.2–1.4. **Việc:** lưu vị trí dấu chú thích (mã, dòng, cột) và từ được chú thích; nút gạch chân chấm trong lời; ô trượt (điện thoại) / ô cạnh từ (máy tính); bài đã đăng chưa sửa tay tự cập nhật. **Chấp nhận:** mở bằng chạm và Enter, đóng bằng Esc/chạm ra ngoài, trả focus; tắt JavaScript vẫn đọc được danh sách chú thích; quét trợ năng 0 lỗi; kiểm thử plugin đạt.
+
+#### T-083 · Dị bản — A
+**Đọc:** `25` mục 4.1. **Chấp nhận:** nhãn "Dị bản 1, 2…"; chữ khác lời chính được tô (so theo âm tiết), đọc được khi không phân biệt màu (gạch chân hoặc chữ đậm kèm theo); quét trợ năng 0 lỗi.
+
+#### T-084 · Thể thơ — A
+**Đọc:** `25` mục 4.1. **Chấp nhận:** nhận đúng lục bát, song thất lục bát, câu 3–4–5 chữ, một dòng trên bộ mẫu kiểm thử (tổng hợp); trình bày theo thể; lọc danh sách theo thể.
+
+#### T-085 · Công cụ đọc — A
+**Đọc:** `25` mục 4.1, 4.8; D-063. **Chấp nhận:** "Aa" 3 mức và sáng/tối nhớ trên máy (try/catch); trình chiếu toàn màn hình, phím mũi tên; nút "▶ Nghe" chỉ hiện khi máy có giọng tiếng Việt, có dòng "Giọng đọc máy", không tự phát; JavaScript thêm vào trang bài ≤ 15 KB.
+
+#### T-086 · Gắn Wikidata — N+A
+**Đọc:** `25` mục 4.2, D-061. **Chấp nhận:** hàng chờ Xác nhận (Đúng / Sai / Bỏ qua) cho từ được chú thích và đáp án câu đố; chỉ thực thể đã xác nhận được dùng; ảnh chỉ giấy phép mở, lưu tác giả và giấy phép; nhịp gọi API lịch sự, có điểm dừng.
+
+#### T-087 · Chú thích địa danh — A
+**Chấp nhận:** ô chú thích có ảnh (ghi tác giả, giấy phép), bản đồ tĩnh nhẹ (bấm mới mở bản đồ ngoài), "Bài khác nhắc tới …"; trang không chậm hơn ngân sách `20` mục 12.
+
+#### T-088 · Ảnh đáp án câu đố — A
+**Chấp nhận:** đáp án đã xác nhận có ảnh nhỏ kèm ghi công; đáp án không có ảnh thì không để chỗ trống.
+
+#### T-089 · Vùng — N+A
+**Đọc:** `25` mục 4.2. **Chấp nhận:** gợi ý vùng từ ghi chú phương ngữ và địa danh đã xác nhận; duyệt hàng loạt; không gắn vùng khi chưa duyệt.
+
+#### T-090 · Bài dài — A
+**Đọc:** `25` mục 4.1. **Chấp nhận:** bài > 40 dòng chia đoạn, mục lục, số dòng, "Đọc toàn bài", nhớ chỗ đọc trên máy; "Vè cậu Hai Miêng" (990 dòng) mở nhanh trên điện thoại.
+
+#### T-091 · Bộ chủ đề riêng — N+A
+**Đọc:** `25` mục 4.4, 4.5; D-061. **Việc:** người sáng lập duyệt danh sách chủ đề (agent soạn đề xuất từ số liệu kho) và bảng ánh xạ từ chủ đề, thẻ của nguồn; gồm nhóm tục ngữ kinh nghiệm, lối hát (hát ru, hò, lý, hát đối), loại câu đố. **Chấp nhận:** gợi ý chủ đề cho mọi bài đã đọc trang; không chép nguyên tên chủ đề, thẻ của nguồn ra trang khi chưa được chọn vào bộ của dự án.
+
+#### T-092 · Bài gần gũi, mô-típ — A
+**Chấp nhận:** 3–5 thẻ cuối bài theo mô-típ, chú thích, địa danh, chủ đề; trang mô-típ do người sáng lập đặt tên/duyệt; không lặp chính bài đang xem.
+
+#### T-093 · Bạn có biết? — N+A
+**Chấp nhận:** khuôn ghép từ chú thích có sẵn, kèm nguồn; người sáng lập duyệt hoặc sửa trước khi lên trang; máy không tự viết sự kiện.
+
+#### T-094 · Trang thể loại — N+A
+**Chấp nhận:** mỗi thể loại một trang (giới thiệu do người sáng lập viết, bài tiêu biểu, lối vào theo chủ đề và vùng).
+
+#### T-095 · Câu một dòng — A
+**Chấp nhận:** trang bài thành ngữ, tục ngữ chữ to, không khung lời thơ; chỉ mục A–Z và theo chủ đề.
+
+#### T-096 · Câu đố — A
+**Chấp nhận:** trang bài vẫn hiện đáp án (D-058); trang "Đố vui" 10 câu một lượt, chọn theo loại, điểm nhớ trên máy; câu đố cùng đáp án hiện cạnh nhau.
+
+#### T-097 · Bài phân tích của người đọc — A
+**Đọc:** `25` mục 4.6, D-062. **Chấp nhận:** loại bài "Cảm nhận – phân tích" gắn với bài ca dao; trang soạn đơn giản cho người đọc, gửi vào Chờ duyệt; cam kết tự viết + đồng ý CC BY 4.0; hiện dưới bài ca dao và có trang riêng; "Bài phân tích của dự án" có nhãn riêng; bài ca dao có ≥ 1 bài phân tích đã duyệt thì bỏ `noindex`.
 
 #### T-048 · Duyệt 30–50 bài, thử với 5 người — N
 **Đọc:** `11`; `docs/luu-tru/24-ke-hoach-beta.md` mục 2 (dùng nhiệm vụ N1–N6, không chấm ngưỡng 80%).
@@ -228,14 +322,45 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 **Chấp nhận:** ghi D-xxx, xóa Q-005 khỏi câu hỏi mở (và khỏi `trang-thai.json`).
 
 #### T-050 · Ảnh xem trước, noindex, SEO cơ bản — A — **chặn bởi Q-005**
-**Đọc:** `21` mục 8.
+**Đọc:** `21` mục 8; `25` mục 4.3 (ảnh chia sẻ, gộp T-060) và 4.6 (quy tắc noindex mới, D-062).
 **Chấp nhận:** mỗi bài công khai có ảnh 1200×630 sinh lúc build (lời, nhãn, tên miền; dấu đúng với "Ngưỡng", "Thuở", "Quyện"); `noindex` theo `coGiaTriRieng()`; sitemap chỉ gồm trang được đánh chỉ mục; JSON-LD, canonical, 301 từ `redirects.yaml`.
 
-#### T-051 · Câu hôm nay, Vừa bổ sung, Đã lưu, Trình chiếu, cỡ chữ, sáng/tối — A
-**Chấp nhận:** câu hôm nay chọn lúc build; "Vừa được bổ sung" từ lịch sử Git; "Đã lưu" lưu trên máy (`localStorage`, bọc try/catch, trang vẫn chạy khi bị chặn); chế độ trình chiếu toàn màn hình, chữ lớn, phím mũi tên sang bài kế; nút cỡ chữ "Aa" (3 mức) và nút sáng/tối, nhớ trên máy (`20` mục 1); không làm tăng JS ban đầu của trang tác phẩm quá ngân sách.
+#### T-051 · Đã lưu — A
+**Ghi chú (25/10/2026):** Câu hôm nay, Vừa bổ sung chuyển sang T-043; cỡ chữ, sáng/tối, trình chiếu chuyển sang T-085. Phần còn lại: "Đã lưu".
+**Chấp nhận (cũ, đọc theo ghi chú trên):** câu hôm nay chọn lúc build; "Vừa được bổ sung" từ lịch sử Git; "Đã lưu" lưu trên máy (`localStorage`, bọc try/catch, trang vẫn chạy khi bị chặn); chế độ trình chiếu toàn màn hình, chữ lớn, phím mũi tên sang bài kế; nút cỡ chữ "Aa" (3 mức) và nút sáng/tối, nhớ trên máy (`20` mục 1); không làm tăng JS ban đầu của trang tác phẩm quá ngân sách.
 
 #### T-052 · Đo lường 3 sự kiện — A
 **Đọc:** `21` mục 7. **Chấp nhận:** không cookie, không lưu IP; đúng 3 sự kiện `tim_khong_ket_qua`, `trich_dan_sao_chep`, `chu_giai_mo`; hướng dẫn đọc số liệu hằng tuần.
+
+#### T-098 · Nghĩa thành ngữ, tục ngữ — N+A
+**Đọc:** `25` mục 4.4, 4.5; D-061 (giấy phép A). **Chấp nhận:** khối nghĩa đen / nghĩa bóng / dùng khi / ví dụ / đồng nghĩa – trái nghĩa; phần từ Wiktionary ghi "Nguồn: Wiktionary ↗ · CC BY-SA" ngay dưới; phần do dự án viết không mang CC BY-SA.
+
+#### T-099 · Chú giải từ sách hết bản quyền, Hán Việt — N+A
+**Đọc:** `25` mục 4.4, 4.5. **Chấp nhận:** trích đoạn ghi tên sách, tác giả, năm, liên kết Wikisource; chỉ khớp chắc chắn; người sáng lập duyệt; chữ Hán kèm âm Hán Việt.
+
+#### T-100 · Trợ giúp viết Hiểu nhanh — A
+**Chấp nhận:** trình soạn hiện chú thích nguồn và nghĩa Wiktionary cạnh ô đoạn trích; nháp máy luôn ghi là nháp, chỉ lên trang khi người sáng lập duyệt.
+
+#### T-101 · Gộp bài trùng — N+A
+**Chấp nhận:** đề nghị gộp khi lời chuẩn hóa trùng hoặc gần trùng; người sáng lập duyệt từng lần; bài phụ thành dị bản, đường dẫn cũ chuyển hướng 301.
+
+#### T-102 · Bối cảnh vè — N+A
+**Chấp nhận:** khối bối cảnh (sự kiện, năm, nơi chốn, nhân vật qua Wikidata đã xác nhận); tóm tắt do người sáng lập viết hoặc duyệt; máy không tự viết sự kiện.
+
+#### T-103 · Đồng dao — A
+**Đọc:** `25` mục 4.4. **Chấp nhận:** khối "Cách chơi" (ghi nguồn Wikipedia CC BY-SA khi lấy từ đó); trang trò chơi; chế độ "Đọc cùng bé" mỗi lần một dòng, chữ to, không tự phát âm thanh.
+
+#### T-104 · Bản đồ ca dao — A
+**Chấp nhận:** bản đồ các địa danh đã xác nhận, chạm ra bài; tải nhẹ trên điện thoại; không gọi dịch vụ bản đồ khi người đọc chưa mở trang bản đồ.
+
+#### T-105 · Giọng đọc sinh sẵn — N+A
+**Đọc:** `25` mục 2.4, 4.8; D-063. **Chấp nhận:** VieNeu-TTS v3 Turbo trong tài khoản `cadao`, chạy ban đêm ưu tiên thấp; người sáng lập nghe 30 bài đủ thể loại và đạt trước khi sinh cả kho; giọng theo vùng; có dòng "Giọng đọc máy"; chỉ tải khi bấm nghe; bài sửa lời tự sinh lại.
+
+#### T-106 · Giọng riêng — N
+**Chấp nhận:** người được thu ký giấy đồng ý ghi phạm vi dùng; không dùng giọng có sẵn mang tên giống người thật nổi tiếng.
+
+#### T-107 · Tìm "Tục ngữ phong dao" — N
+**Việc:** tìm bản quét trên Gallica, Google Sách, thư viện; agent soạn hướng dẫn tìm khi cần. **Chấp nhận:** có đường dẫn bản quét rõ đọc được, hoặc ghi lại nơi đã tìm.
 
 #### T-053 · Mở công khai lặng lẽ — N (Human Gate H5)
 **Chấp nhận:** 100–150 bài `cong_khai`, 0 LỖI; thư đã gửi Ca dao Mẹ (T-034); trang Phương pháp và thông báo quyền riêng tư đã duyệt; người sáng lập quyết định mở, không thông báo rộng.

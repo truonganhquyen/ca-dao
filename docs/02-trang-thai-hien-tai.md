@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Phiên bản | 2.1 · 24/10/2026 |
+| Phiên bản | 2.2 · 25/10/2026 |
 | Mục đích | Trang tổng quan ngắn cho người sáng lập và AI agent |
 | Nguồn máy đọc | `du-an/trang-thai.json` (`npm run trang-thai`) |
 
@@ -10,7 +10,7 @@
 
 ## Giai đoạn hiện tại
 
-**Đang chuyển sang WordPress** (D-056, `docs/24-wordpress.md`): plugin xong (T-071); WordPress đang cài trên VPS tại cadao.sdigi.net (T-075, `docs/24` mục 8), chưa mở cho Google. Từ D-054 không còn chặn đăng vì lý do biên tập, nguồn không bắt buộc; từ D-055 chép chú thích có ghi công được phép.
+**Đang chuyển sang WordPress** (D-056, `docs/24-wordpress.md`): WordPress, plugin, theme chạy trên VPS tại cadao.sdigi.net (T-075 xong 25/10/2026; sao lưu người sáng lập để sau), chưa mở cho Google; máy chủ tự cập nhật sau mỗi PR gộp (T-078). **Gói nâng cấp đã duyệt 25/10/2026** (D-059..D-064): 47 mục, kế hoạch 5 đợt ở `docs/25-nang-cap-giao-dien-noi-dung.md`, task T-080..T-108. Từ D-054 không còn chặn đăng vì lý do biên tập, nguồn không bắt buộc; từ D-055 chép chú thích có ghi công được phép.
 
 **Mốc A · Chạy được** — hướng v2 "Trung thực hơn hoàn hảo" (D-039). Mốc Chuẩn bị đã xong (T-032, T-033 DONE, 24/10/2026); điều kiện xong của Mốc A ở `docs/22` mục 2. Mốc tiếp theo: **B · Thử nhỏ**.
 
@@ -30,8 +30,8 @@
 
 ## Đang chờ người sáng lập
 
-- **T-075 · Sao lưu** — FlashPanel → Sao Lưu: hằng ngày, gồm site và cơ sở dữ liệu cadao, lưu ra ngoài VPS.
-- **Duyệt danh sách từ gắn cờ thô tục** `tu-tho-tuc.txt` trong repo kho thô (bản khởi đầu do agent soạn; cờ chỉ là gợi ý, không xóa gì).
+- **Sao lưu FlashPanel** — để sau (người sáng lập, 25/10/2026): khi làm, chọn hằng ngày, gồm site và cơ sở dữ liệu cadao, lưu ra ngoài VPS.
+- **Việc của người sáng lập trong gói nâng cấp** (`docs/25` mục 6): duyệt hàng loạt thể loại tách, xác nhận Wikidata, duyệt bộ chủ đề và vùng; cài Meilisearch và tạo khóa Turnstile khi tới đợt đó; nghe thử 30 bài giọng đọc; tìm *Tục ngữ phong dao* (T-107).
 - **Thử CMS** (điều kiện xong T-037, PR #9): đăng nhập `/admin` trên điện thoại, tạo một bài thật tới Công khai — `docs/huong-dan/bien-soan-cms.md`. Đăng nhập GitHub đã tạo xong và đã kiểm (24/10/2026).
 - **T-034** · Gửi thư cho Ca dao Mẹ — không gấp, nhưng phải xong trước khi mở công khai (T-053).
 - **T-049** · Chốt tên miền (Q-005) — trước Mốc C.
@@ -42,7 +42,7 @@ Chạy `npm run viec-tiep-theo` — máy suy ra từ backlog (`docs/22`), luôn 
 
 ## Quyết định đang mở
 
-Q-005 (tên miền), Q-006 (trình bày lục bát), Q-007 (đồng dao), Q-008 (tài trợ). Không câu nào chặn task kỹ thuật hiện tại.
+Q-005 (tên miền), Q-006 (trình bày lục bát), Q-008 (tài trợ). Q-007 (đồng dao) đã chốt: làm ngay (D-059). Không câu nào chặn task kỹ thuật hiện tại.
 
 ## Lệnh điều hành
 
