@@ -382,7 +382,7 @@ function cadao_them_cho_chu_thich( string $tu, string $noi_dung ): array {
 		return array();
 	}
 	$wd = cadao_wd_cua_muc_tu( (int) $t->term_id );
-	return array( 'url' => (string) get_term_link( $t ), 'so_bai' => (int) $t->count, 'them' => $wd ? cadao_html_dia_danh( $wd ) : '' );
+	return array( 'id' => (int) $t->term_id, 'url' => (string) get_term_link( $t ), 'so_bai' => (int) $t->count, 'them' => $wd ? cadao_html_dia_danh( $wd ) : '' );
 }
 
 /** Cho theme: ảnh, bản đồ của một đáp án câu đố đã xác nhận (rỗng nếu chưa). */

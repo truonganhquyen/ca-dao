@@ -123,6 +123,9 @@ add_shortcode(
 				$ra[] = '<a href="' . esc_url( get_permalink( $p ) ) . '">' . esc_html( get_the_title( $p ) ) . '</a>';
 			}
 		}
+		if ( function_exists( 'cadao_url_da_luu' ) && cadao_url_da_luu() ) {
+			$ra[] = '<a href="' . esc_url( cadao_url_da_luu() ) . '">Bài đã lưu</a>';
+		}
 		return implode( ' · ', $ra );
 	}
 );

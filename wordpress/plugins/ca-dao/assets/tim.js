@@ -1,6 +1,7 @@
 /**
  * Trang Tìm (T-041): kết quả hiện khi gõ (150 ms), tô phần khớp (không phân biệt dấu), nhớ vài lần tìm gần đây trên
  * máy (bộ nhớ trình duyệt, không cookie). Tắt JavaScript: ô tìm vẫn gửi lên máy chủ như thường.
+ * Đo lường (T-052): câu tìm không ra, đứng yên 2 giây (không tính lúc đang gõ dở), gửi một lần.
  */
 (function () {
 	'use strict';
@@ -9,6 +10,17 @@
 	var ganDay = document.querySelector('.cadao-tim-gan-day');
 	if (!o || !kq || !window.fetch) { return; }
 	var api = (window.cadaoTim || {}).api;
+	var suKien = (window.cadaoTim || {}).suKien;
+	var daBao = {};
+	var henBao = null;
+	var baoKhongRa = function (q) {
+		if (!suKien || daBao[q]) { return; }
+		henBao = setTimeout(function () {
+			if (q !== lanCuoi || daBao[q]) { return; }
+			daBao[q] = 1;
+			fetch(suKien, { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ loai: 'tim_khong_ket_qua', q: q }) }).catch(function () { /* bỏ lần này */ });
+		}, 2000);
+	};
 	var KHOA = 'cadao-tim-gan-day';
 	var boDau = function (s) { return s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase(); };
 	var e = function (s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
@@ -27,6 +39,7 @@
 	var dung = function (d) {
 		if (!d.q.trim()) { kq.innerHTML = ''; return; }
 		if (!d.bai.length && !d.muc_tu.length) {
+			baoKhongRa(d.q);
 			kq.innerHTML = '<div class="cadao-tim-khong"><p><strong>Chưa tìm thấy câu này trong kho.</strong> Bạn thử gõ ít chữ hơn (vài chữ trong câu là đủ), hoặc xem theo <a href="/kho/">kho bài</a>, <a href="/tu-dien/">từ điển</a>.</p></div>';
 			return;
 		}
@@ -65,6 +78,7 @@
 	var tim = function () {
 		var q = o.value.trim();
 		if (q === lanCuoi) { return; }
+		clearTimeout(henBao);
 		lanCuoi = q;
 		hienGanDay();
 		var u = new URL(window.location.href);
@@ -80,6 +94,7 @@
 	o.form.addEventListener('submit', function (x) { x.preventDefault(); clearTimeout(hen); tim(); if (o.value.trim()) { nhoGanDay(o.value.trim()); } });
 	kq.addEventListener('click', function (x) { if (x.target.closest('a') && o.value.trim()) { nhoGanDay(o.value.trim()); } });
 	lanCuoi = o.value.trim();
+	if (lanCuoi && kq.querySelector('.cadao-tim-khong')) { baoKhongRa(lanCuoi); } // mở /tim/?q=… (ô tìm ở trang khác) mà không ra
 	hienGanDay();
 	if (!o.value) { o.focus(); }
 }());

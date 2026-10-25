@@ -64,7 +64,7 @@ function cadao_khoi_hanh_dong( WP_Post $bai ): string {
 		? '<p class="cadao-can-js" hidden><label><input type="checkbox" class="cadao-kem"> Kèm ' . ( $co_dap_an && $co_chu ? 'đáp án và chú thích' : ( $co_dap_an ? 'đáp án' : 'chú thích' ) ) . '</label></p>'
 		: '';
 	$luot = cadao_luot_doc_tong( $bai->ID );
-	return '<div class="cadao-hanh-dong" data-loi="' . esc_attr( $loi ) . '" data-ten="' . esc_attr( cadao_giai_ma( wp_strip_all_tags( get_the_title( $bai ) ) ) ) . '" data-the-loai="' . esc_attr( cadao_ten_the_loai( $bai ) ) . '" data-url="' . esc_url( get_permalink( $bai ) ) . '">'
+	return '<div class="cadao-hanh-dong" data-id="' . (int) $bai->ID . '" data-loi="' . esc_attr( $loi ) . '" data-ten="' . esc_attr( cadao_giai_ma( wp_strip_all_tags( get_the_title( $bai ) ) ) ) . '" data-the-loai="' . esc_attr( cadao_ten_the_loai( $bai ) ) . '" data-url="' . esc_url( get_permalink( $bai ) ) . '">'
 		. '<details class="cadao-trich-dan"><summary><span aria-hidden="true">❝</span> Trích dẫn</summary><div class="cadao-trich-dan-hop">'
 		. '<fieldset class="cadao-can-js" hidden><legend>Kiểu trích dẫn</legend>'
 		. '<label><input type="radio" name="cadao-kieu" value="thong_dung" checked> Thông dụng</label> '
@@ -74,6 +74,9 @@ function cadao_khoi_hanh_dong( WP_Post $bai ): string {
 		. '<button type="button" data-viec="chi_loi">Chỉ sao chép lời</button></p>'
 		. '</div></details>'
 		. '<button type="button" class="cadao-chia-se cadao-can-js" hidden>Chia sẻ</button>'
+		// Đã lưu (T-051): chỉ hiện khi trình duyệt cho dùng bộ nhớ
+		. '<button type="button" class="cadao-luu" aria-pressed="false" hidden><span class="cadao-sao" aria-hidden="true">☆</span> Lưu</button>'
+		. ( cadao_url_da_luu() ? '<a class="cadao-xem-da-luu" href="' . esc_url( cadao_url_da_luu() ) . '" hidden>Bài đã lưu</a>' : '' )
 		// Công cụ đọc (T-085): cỡ chữ, sáng / tối (nhớ trên máy), trình chiếu, nghe bằng giọng có sẵn của máy (D-063)
 		. '<span class="cadao-cong-cu cadao-can-js" role="group" aria-label="Công cụ đọc" hidden>'
 		. '<button type="button" class="cadao-co-chu" aria-label="Cỡ chữ">Aa</button>'
@@ -132,6 +135,7 @@ add_action(
 		// Người biên soạn đang đăng nhập (duyệt bài) không tính lượt đọc (D-064)
 		if ( 'publish' === get_post_status() && ! current_user_can( 'edit_posts' ) ) {
 			$cau_hinh['luotDoc'] = array( 'id' => get_queried_object_id(), 'url' => rest_url( 'cadao/v1/luot-doc/' . get_queried_object_id() ) );
+			$cau_hinh['suKien']  = rest_url( 'cadao/v1/su-kien' ); // đo lường (T-052)
 		}
 		wp_add_inline_script( 'ca-dao', 'window.cadaoCauHinh=' . wp_json_encode( $cau_hinh ) . ';', 'before' );
 	}

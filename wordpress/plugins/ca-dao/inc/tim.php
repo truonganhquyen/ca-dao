@@ -295,6 +295,10 @@ add_action(
 			return;
 		}
 		wp_enqueue_script( 'ca-dao-tim', plugins_url( 'assets/tim.js', CADAO_THU_MUC . '/ca-dao.php' ), array(), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
-		wp_add_inline_script( 'ca-dao-tim', 'window.cadaoTim=' . wp_json_encode( array( 'api' => rest_url( 'cadao/v1/tim' ) ) ) . ';', 'before' );
+		$cau_hinh = array( 'api' => rest_url( 'cadao/v1/tim' ) );
+		if ( ! current_user_can( 'edit_posts' ) ) { // đo "tìm không ra" (T-052); người biên soạn không tính
+			$cau_hinh['suKien'] = rest_url( 'cadao/v1/su-kien' );
+		}
+		wp_add_inline_script( 'ca-dao-tim', 'window.cadaoTim=' . wp_json_encode( $cau_hinh ) . ';', 'before' );
 	}
 );

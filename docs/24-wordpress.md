@@ -38,6 +38,8 @@ wordpress/
 │   ├── inc/trung.php        chống trùng: dấu vân tay, mức giống, chỉ mục, gộp, tách, làm dần (T-109, T-110)
 │   ├── inc/trang-trung.php  trang "Có thể trùng", ô "Có thể trùng" trong trình soạn (T-110, T-111)
 │   ├── inc/gop-bai.php      gộp hai bài đã đăng bị trùng; quét lại bài đã đăng mỗi đêm (T-101)
+│   ├── inc/da-luu.php       nút ☆ Lưu, trang "Đã lưu" (/da-luu/) — danh sách nằm trên máy người đọc (T-051)
+│   ├── inc/do-luong.php     đo 3 sự kiện không cookie, ô "người đọc cần gì" trên Bảng tin (T-052)
 │   ├── inc/tach-loai.php    gợi ý tách thành ngữ / tục ngữ, trang duyệt hàng loạt, chuyển hướng đường dẫn cũ (T-080)
 │   ├── inc/site-cu.php      chuyển bài công khai của site Astro cũ, qua bước chống trùng (T-076)
 │   ├── inc/the-tho.php      nhận thể thơ theo số âm tiết, phân loại "Thể thơ" để lọc (T-084)
@@ -73,8 +75,10 @@ wordpress/
 - **Công cụ đọc (T-085), bài dài (T-090):** "Aa", "◐", "Trình chiếu", "▶ Nghe" (chỉ khi máy có giọng tiếng Việt; "Giọng đọc máy") cạnh Trích dẫn · Chia sẻ; cỡ chữ và sáng / tối nhớ trên máy, áp trong `<head>` (thuộc tính `data-co-chu`, `data-che-do` trên `<html>`). Bài từ 41 dòng: tóm tắt, mục lục, đoạn, số dòng bên lề, "Đọc toàn bài", "Đọc tiếp từ đoạn N".
 - **Trích dẫn, chia sẻ (T-042):** hộp `<details>` "Trích dẫn" — kiểu thông dụng và APA 7 (`20` mục 6), nút "Sao chép kèm nguồn" / "Chỉ sao chép lời", ô "Kèm đáp án / chú thích" khi bài có phần chép từ nguồn; nút "Chia sẻ" (Web Share, không có thì sao chép liên kết). Ngày truy cập theo ngày bấm.
 - **Tách thành ngữ – tục ngữ (T-080):** trang **Ca dao – Tục ngữ → Tách thành ngữ – tục ngữ**, chia bốn nhóm: máy đã chắc / máy nghiêng về / máy chưa rõ / bạn đã quyết; nút "Đồng ý gợi ý", "Là thành ngữ", "Là tục ngữ". Gợi ý: danh mục Wiktionary (tải mỗi tuần, chỉ lưu dấu vân tay) khi độ dài câu cùng hướng; câu nhiều vế, từ 8 âm tiết, hai vế cách dấu phẩy → tục ngữ (chắc); có từ nối "thì, là, mới, hơn…" → nghiêng về tục ngữ; ≤ 4 âm tiết → nghiêng về thành ngữ. Chưa duyệt thì bài vẫn vào Tục ngữ như trước. Đổi thể loại thì đường dẫn cũ (`/tuc-ngu/<tên>/` ↔ `/thanh-ngu/<tên>/`) chuyển hướng 301 (mọi bài, kể cả đổi tay).
+- **Đã lưu (T-051):** nút **☆ Lưu** trong hàng nút dưới lời nhớ bài vào bộ nhớ trình duyệt (không gửi về máy chủ); trang `/da-luu/` liệt kê, bỏ lưu từng bài.
+- **Đo lường (T-052, D-047):** `POST /wp-json/cadao/v1/su-kien` — đúng 3 sự kiện `tim_khong_ket_qua`, `trich_dan_sao_chep`, `chu_giai_mo`, cộng số theo ngày; không cookie, không IP; máy dò, người biên soạn đăng nhập không tính. Ô Bảng tin "người đọc cần gì (30 ngày)"; cách đọc: `docs/huong-dan/doc-so-lieu.md`.
 - **Lượt đọc (T-081, D-064):** trang bài gửi `POST /wp-json/cadao/v1/luot-doc/<id>` khi đã hiện 5 giây trên màn hình, mỗi máy một lần mỗi ngày (đánh dấu trong `localStorage`, không cookie); người đang đăng nhập có quyền sửa bài không tính; máy dò tự khai tên (Googlebot…, trình duyệt không giao diện) không tính. "N lượt đọc" hiện khi từ 10 lượt. Ô "lượt đọc 7 ngày" trên Bảng tin: tổng theo ngày, bài đọc nhiều, người đọc đến từ đâu (chỉ tên miền).
-- Kiểm: `npm run quet:wordpress` (axe WCAG 2.2 A/AA, 360 px sáng/tối và máy tính, không tràn ngang; thử trên trình duyệt: "Sao chép kèm nguồn" ra đúng chữ, lượt đọc gửi một lần sau 5 giây, tải lại không gửi thêm, tắt JavaScript không gửi, không cookie) — CI chạy ở job "wordpress".
+- Kiểm: `npm run quet:wordpress` (axe WCAG 2.2 A/AA, 360 px sáng/tối và máy tính, không tràn ngang; thử trên trình duyệt: "Sao chép kèm nguồn" ra đúng chữ, lượt đọc gửi một lần sau 5 giây, tải lại không gửi thêm, tắt JavaScript không gửi, không cookie; ☆ Lưu → trang Đã lưu → Bỏ lưu; sự kiện sao chép, mở chú giải, tìm không ra gửi đúng một lần) — CI chạy ở job "wordpress".
 
 Giữ ít plugin bên thứ ba (mỗi plugin là một nguy cơ bảo mật). Dự kiến chỉ thêm: chống spam form, SEO (T-050). Sao lưu do FlashPanel làm.
 
@@ -102,6 +106,7 @@ Giữ ít plugin bên thứ ba (mỗi plugin là một nguy cơ bảo mật). D�
 | Loại bài `gop_y` (nội bộ) | Góp ý của người đọc, luôn Chờ duyệt: loại, bài, nơi nghe, người kể, tên hiển thị |
 | Loại bài `phan_tich` (`/phan-tich/<tên>/`) | Bài cảm nhận, phân tích: bài ca dao (`_cadao_bai`), bút danh, vai trò, "của dự án" |
 | Tùy chọn `cadao_turnstile_site`, `cadao_turnstile_bi_mat` | Khóa Turnstile người sáng lập dán (không ghi vào repo) |
+| Bảng `wp_cadao_su_kien` | Đo lường: (ngày, sự kiện, khóa) → số lần. Khóa: chuỗi tìm không ra / `bài:kiểu` / mã mục từ. Không IP, không định danh |
 | Bảng `wp_cadao_luot_doc` | Lượt đọc: (bài, ngày) → số lượt. Không lưu IP, không lưu ai đọc |
 | Bảng `wp_cadao_gioi_thieu` | (ngày, tên miền trang giới thiệu) → số lượt; vào thẳng ghi "(vào thẳng)" |
 

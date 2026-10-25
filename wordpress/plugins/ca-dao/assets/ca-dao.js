@@ -1,5 +1,5 @@
 /**
- * Trang bài Ca dao – Tục ngữ: trích dẫn, chia sẻ (T-042) và đếm lượt đọc (T-081, D-064).
+ * Trang bài Ca dao – Tục ngữ: trích dẫn, chia sẻ (T-042), đếm lượt đọc (T-081, D-064), Đã lưu (T-051), đo lường (T-052).
  * Không thư viện, không cookie. Tắt JavaScript thì trang vẫn đọc được, hộp Trích dẫn vẫn hiện chữ để chọn tay.
  */
 (function () {
@@ -26,6 +26,17 @@
 			if (duoc) { ok(); } else { hong(); }
 		});
 	}
+
+	// Đo lường (T-052): mỗi sự kiện gửi một lần mỗi lần xem trang; không cookie, không định danh
+	var daGui = {};
+	var suKien = function (loai, du) {
+		if (!cauHinh.suKien || !window.fetch) { return; }
+		du.loai = loai;
+		var k = JSON.stringify(du);
+		if (daGui[k]) { return; }
+		daGui[k] = 1;
+		fetch(cauHinh.suKien, { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: k }).catch(function () { /* bỏ lần này */ });
+	};
 
 	// ---------- Trích dẫn, chia sẻ ----------
 	var hop = document.querySelector('.cadao-hanh-dong');
@@ -75,6 +86,8 @@
 				}
 				saoChep(chu).then(function () {
 					noiBao(kemNguon ? 'Đã sao chép. Cảm ơn bạn đã ghi nguồn!' : 'Đã sao chép lời.');
+					var kieu = hop.querySelector('input[name="cadao-kieu"]:checked');
+					suKien('trich_dan_sao_chep', { bai: hop.getAttribute('data-id'), kieu: kemNguon ? (kieu ? kieu.value : 'thong_dung') : 'chi_loi' });
 				}, function () {
 					noiBao('Không sao chép được. Bạn chọn và sao chép chữ ở trên nhé.');
 				});
@@ -128,6 +141,34 @@
 		});
 	}
 	var dongLoi = hop ? (hop.getAttribute('data-loi') || '').split('\n').filter(function (d) { return d.trim(); }) : [];
+
+	// ---------- Đã lưu (T-051): nhớ bài trong bộ nhớ trình duyệt, không gửi đi đâu; bị chặn thì không hiện nút ----------
+	var nutLuu = hop && hop.querySelector('.cadao-luu');
+	var docLuu = function () { var d = JSON.parse(localStorage.getItem('cadao-da-luu') || '[]'); return Array.isArray(d) ? d : []; };
+	var dsLuu = null;
+	try { dsLuu = docLuu(); } catch (e) { /* bị chặn */ }
+	if (nutLuu && dsLuu) {
+		var idBai = Number(hop.getAttribute('data-id'));
+		var xemLuu = hop.querySelector('.cadao-xem-da-luu');
+		var nhanLuu = function (ds) {
+			var co = ds.some(function (x) { return x.id === idBai; });
+			nutLuu.setAttribute('aria-pressed', co ? 'true' : 'false');
+			nutLuu.querySelector('.cadao-sao').textContent = co ? '★' : '☆';
+			if (xemLuu) { xemLuu.hidden = !ds.length; xemLuu.textContent = 'Bài đã lưu (' + ds.length + ')'; }
+		};
+		nhanLuu(dsLuu);
+		nutLuu.hidden = false;
+		nutLuu.addEventListener('click', function () {
+			var ds = [];
+			try { ds = docLuu(); } catch (e) { /* bị chặn giữa chừng */ }
+			var bo = ds.some(function (x) { return x.id === idBai; });
+			ds = ds.filter(function (x) { return x.id !== idBai; });
+			if (!bo) { ds.unshift({ id: idBai, ten: hop.getAttribute('data-ten'), url: hop.getAttribute('data-url'), loai: hop.getAttribute('data-the-loai'), dong: dongLoi[0] || '' }); }
+			try { localStorage.setItem('cadao-da-luu', JSON.stringify(ds.slice(0, 500))); } catch (e) { noiBao('Trình duyệt không cho lưu.'); return; }
+			nhanLuu(ds);
+			noiBao(bo ? 'Đã bỏ lưu bài này.' : 'Đã lưu bài này trên máy của bạn.');
+		});
+	}
 	var nutTc = hop && hop.querySelector('.cadao-trinh-chieu');
 	if (nutTc && dongLoi.length && window.HTMLDialogElement) {
 		// Trình chiếu cho lớp học: mỗi lần hai dòng, chữ thật lớn; mũi tên / nút để chuyển, Esc để thoát
@@ -278,6 +319,7 @@
 				tuMo = a;
 				a.setAttribute('aria-expanded', 'true');
 				o.showModal();
+				if (li.getAttribute('data-muc')) { suKien('chu_giai_mo', { muc: li.getAttribute('data-muc') }); }
 				if (window.matchMedia('(min-width: 640px)').matches) { // máy tính: ô cạnh từ
 					var r = a.getBoundingClientRect();
 					o.style.top = Math.min(r.bottom + 8, window.innerHeight - o.offsetHeight - 8) + 'px';

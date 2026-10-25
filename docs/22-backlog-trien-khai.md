@@ -79,8 +79,8 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | **Mốc C · Mở lặng lẽ** ||||||
 | T-049 | Chốt tên miền | N | — | — | READY |
 | T-050 | Ảnh chia sẻ tự sinh từng bài, noindex theo giá trị riêng, SEO cơ bản | A | T-076 | Q-005 | BLOCKED |
-| T-051 | "Đã lưu": bài yêu thích nhớ trên máy (Câu hôm nay, Vừa bổ sung → T-043; cỡ chữ, sáng/tối, trình chiếu → T-085) | A | T-072 | — | READY |
-| T-052 | Đo lường không cookie: tìm không ra, sao chép trích dẫn, mở chú giải | A | T-076, T-081, T-041 | — | BLOCKED |
+| T-051 | "Đã lưu": bài yêu thích nhớ trên máy (Câu hôm nay, Vừa bổ sung → T-043; cỡ chữ, sáng/tối, trình chiếu → T-085) | A | T-072 | — | DONE |
+| T-052 | Đo lường không cookie: tìm không ra, sao chép trích dẫn, mở chú giải | A | T-076, T-081, T-041 | — | DONE |
 | T-098 | Thành ngữ – tục ngữ: nghĩa đen, nghĩa bóng, "dùng khi", đồng nghĩa (Wiktionary, CC BY-SA) | N+A | T-080 | — | BLOCKED |
 | T-099 | Chú giải từ sách hết bản quyền; chữ Hán Việt, điển tích của thành ngữ | N+A | T-082 | — | BLOCKED |
 | T-100 | Trợ giúp viết "Hiểu nhanh" (gợi ý; nháp máy chờ duyệt) | A | T-098 | — | BLOCKED |
@@ -391,8 +391,12 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 **Ghi chú (25/10/2026):** Câu hôm nay, Vừa bổ sung chuyển sang T-043; cỡ chữ, sáng/tối, trình chiếu chuyển sang T-085. Phần còn lại: "Đã lưu".
 **Chấp nhận (cũ, đọc theo ghi chú trên):** câu hôm nay chọn lúc build; "Vừa được bổ sung" từ lịch sử Git; "Đã lưu" lưu trên máy (`localStorage`, bọc try/catch, trang vẫn chạy khi bị chặn); chế độ trình chiếu toàn màn hình, chữ lớn, phím mũi tên sang bài kế; nút cỡ chữ "Aa" (3 mức) và nút sáng/tối, nhớ trên máy (`20` mục 1); không làm tăng JS ban đầu của trang tác phẩm quá ngân sách.
 
+**Tiến độ (25/10/2026):** xong — plugin 0.16.0 (`inc/da-luu.php`, `assets/da-luu.js`). Hàng nút dưới lời có **☆ Lưu** (nút bật / tắt, `aria-pressed`; chỉ hiện khi trình duyệt cho dùng bộ nhớ) và liên kết **Bài đã lưu (N)**. Danh sách nằm trong `localStorage` (khóa `cadao-da-luu`: mã bài, tên, đường dẫn, thể loại, dòng đầu), không gửi về máy chủ. Trang **Đã lưu** (`/da-luu/`, `noindex`) dựng danh sách trên máy người đọc, có nút **Bỏ lưu** từng bài (focus sang bài kế), lời nhắc khi trống, báo khi trình duyệt chặn bộ nhớ, và lời giải thích quyền riêng tư. Chân trang có "Bài đã lưu". `ca-dao.js` vẫn dưới 21 KB. Sửa kèm: nút cần JavaScript (Chia sẻ) trước đây vẫn hiện khi tắt JavaScript — nay ẩn đúng.
+
 #### T-052 · Đo lường 3 sự kiện — A
 **Đọc:** `21` mục 7. **Chấp nhận:** không cookie, không lưu IP; đúng 3 sự kiện `tim_khong_ket_qua`, `trich_dan_sao_chep`, `chu_giai_mo`; hướng dẫn đọc số liệu hằng tuần.
+
+**Tiến độ (25/10/2026):** xong — `inc/do-luong.php`. `POST /wp-json/cadao/v1/su-kien` nhận đúng 3 sự kiện (sự kiện khác: 400) và kiểm từng loại: **tìm không ra** — trang Tìm gửi khi kết quả trống đứng yên 2 giây (không tính lúc đang gõ dở; mở `/tim/?q=…` từ ô tìm ở trang khác cũng tính), máy chủ tìm lại và chỉ ghi khi thật sự không ra; chuỗi được chuẩn hóa (chữ thường, tối đa 80 ký tự), chuỗi trông như email / số điện thoại bị bỏ, tối đa 300 chuỗi mới mỗi ngày, giữ một năm. **Sao chép trích dẫn** — bài đang đăng + kiểu (thông dụng, APA 7, chỉ lời). **Mở chú giải** — mục từ (`tu_kho`) được chạm. Bảng `wp_cadao_su_kien` chỉ có ngày, loại, khóa, số. Không cookie, không IP; máy dò và người biên soạn đang đăng nhập không tính; mỗi sự kiện gửi một lần mỗi lần xem trang. Ô Bảng tin **"người đọc cần gì (30 ngày)"** kèm cách đọc; hướng dẫn `docs/huong-dan/doc-so-lieu.md`.
 
 #### T-098 · Nghĩa thành ngữ, tục ngữ — N+A
 **Đọc:** `25` mục 4.4, 4.5; D-061 (giấy phép A). **Chấp nhận:** khối nghĩa đen / nghĩa bóng / dùng khi / ví dụ / đồng nghĩa – trái nghĩa; phần từ Wiktionary ghi "Nguồn: Wiktionary ↗ · CC BY-SA" ngay dưới; phần do dự án viết không mang CC BY-SA.

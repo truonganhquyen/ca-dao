@@ -535,6 +535,7 @@ $GLOBALS['cadao_bai_dung'] = cadao_chuan_bi_bai( get_post( $td1 )->post_content 
 $tdu = do_blocks( get_post( $td1 )->post_content );
 $GLOBALS['cadao_bai_dung'] = null;
 kt( 'chú thích trong bài trỏ tới mục từ (ô chạm có "Xem trong từ điển")', str_contains( $tdu, 'data-tu-dien="' . get_term_link( $m_do ) . '"' ) && str_contains( $tdu, 'data-so-bai="2"' ), $tdu );
+kt( 'chú thích mang mã mục từ (đo "mở chú giải", T-052)', str_contains( $tdu, 'data-muc="' . $m_do->term_id . '"' ) );
 
 // ---------- Wikidata (T-086), địa danh (T-087), ảnh đáp án (T-088) — API giả ----------
 $GLOBALS['wd_hoi'] = array();
@@ -748,7 +749,7 @@ $_GET = array();
 // ---------- Trang Phương pháp, Nguồn, Về dự án (T-046) ----------
 $pp = get_page_by_path( 'phuong-phap', OBJECT, 'page' );
 kt( 'ba trang của dự án tạo sẵn ở dạng Bản nháp (người sáng lập sửa rồi đăng)', $pp && 'draft' === $pp->post_status && str_contains( $pp->post_content, 'AI không viết lời' ) && 'draft' === get_post_status( get_page_by_path( 've-du-an', OBJECT, 'page' ) ) && 'draft' === get_post_status( get_page_by_path( 'nguon', OBJECT, 'page' ) ) );
-kt( 'chân trang: chưa đăng thì không có liên kết', '' === do_shortcode( '[cadao_chan_trang]' ) );
+kt( 'chân trang: trang dự án chưa đăng thì không có liên kết tới nó', ! str_contains( do_shortcode( '[cadao_chan_trang]' ), 'Phương pháp' ) && ! str_contains( do_shortcode( '[cadao_chan_trang]' ), 'Về dự án' ) );
 wp_publish_post( $pp->ID );
 kt( 'chân trang: trang đã đăng thì có liên kết', str_contains( do_shortcode( '[cadao_chan_trang]' ), 'Phương pháp' ) );
 wp_publish_post( $P );
@@ -781,6 +782,36 @@ kt( 'gộp: giữ Hiểu nhanh, dấu "có hỗ trợ AI", nguồn đã ghi, ch�
 kt( 'gộp: lượt đọc cộng dồn, cảm nghĩ và bài phân tích chuyển sang bài chính', 3 === cadao_luot_doc_tong( $gx ) && 0 === cadao_luot_doc_tong( $gyy ) && $gx === (int) get_comment( $bl_phu )->comment_post_ID && $gx === (int) get_post_meta( $pt_phu, '_cadao_bai', true ) && 1 === (int) get_comments_number( $gx ) );
 kt( 'gộp: vùng gộp lại; bài phụ vào thùng rác (không xóa hẳn); cặp đã gộp', has_term( 'nam-bo', 'vung', $gx ) && 'trash' === get_post_status( $gyy ) && 'da_gop' === $wpdb->get_var( $wpdb->prepare( 'SELECT trang_thai FROM ' . cadao_trung_bang() . ' WHERE id = %d', $r_gop->id ) ) );
 kt( 'gộp: đường dẫn cũ của bài phụ chuyển về bài chính (tên cũ ghi vào _wp_old_slug)', in_array( 'gop-bai-phu', get_post_meta( $gx, '_wp_old_slug' ), true ) );
+
+// ---------- Đã lưu (T-051), đo lường (T-052) ----------
+$p_luu = get_page_by_path( 'da-luu', OBJECT, 'page' );
+kt( 'trang "Đã lưu" có sẵn ở /da-luu/, danh sách dựng trên máy người đọc, có lời giải thích quyền riêng tư', $p_luu && 'publish' === $p_luu->post_status && str_contains( do_shortcode( $p_luu->post_content ), 'cadao-da-luu-ds' ) && str_contains( do_shortcode( $p_luu->post_content ), 'site không biết bạn lưu gì' ) );
+$hd_luu = cadao_khoi_hanh_dong( get_post( $td ) );
+kt( 'trang bài: nút ☆ Lưu (ẩn tới khi JavaScript thấy bộ nhớ dùng được), liên kết "Bài đã lưu", mã bài', str_contains( $hd_luu, 'class="cadao-luu" aria-pressed="false" hidden' ) && str_contains( $hd_luu, 'cadao-xem-da-luu' ) && str_contains( $hd_luu, 'data-id="' . $td . '"' ) );
+kt( 'chân trang có liên kết "Bài đã lưu"', str_contains( do_shortcode( '[cadao_chan_trang]' ), 'Bài đã lưu' ) );
+kt( 'bảng sự kiện đã tạo', (bool) $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', cadao_su_kien_bang() ) ) );
+kt( 'chuỗi tìm: chữ thường, gọn khoảng trắng; bỏ chuỗi trông như email, số điện thoại', 'con cò bay lả' === cadao_su_kien_chuoi_tim( '  Con Cò   bay LẢ ' ) && '' === cadao_su_kien_chuoi_tim( 'ten@mail.vn' ) && '' === cadao_su_kien_chuoi_tim( '0912 345 678' ) && 'năm 1945' === cadao_su_kien_chuoi_tim( 'năm 1945' ) && '' === cadao_su_kien_chuoi_tim( 'a' ) );
+$sk = static function ( array $du, string $ua = 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Mobile Safari/537.36' ) {
+	$yc = new WP_REST_Request( 'POST', '/cadao/v1/su-kien' );
+	$yc->set_header( 'user-agent', $ua );
+	$yc->set_header( 'content-type', 'application/json' );
+	$yc->set_body( wp_json_encode( $du ) );
+	return rest_do_request( $yc );
+};
+$tinh = static fn( $r ) => 200 === $r->get_status() && true === ( $r->get_data()['tinh'] ?? null );
+kt( 'sự kiện lạ: bị từ chối (chỉ đúng 3 sự kiện)', 400 === $sk( array( 'loai' => 'nhap_chuot' ) )->get_status() );
+kt( 'tìm không ra: được ghi, hai lần thì cộng 2', $tinh( $sk( array( 'loai' => 'tim_khong_ket_qua', 'q' => 'Zzqx Khongcocau' ) ) ) && $tinh( $sk( array( 'loai' => 'tim_khong_ket_qua', 'q' => 'zzqx khongcocau' ) ) ) && array( 'zzqx khongcocau' => 2 ) === cadao_su_kien_nhieu( 'tim_khong_ket_qua' ), cadao_su_kien_nhieu( 'tim_khong_ket_qua' ) );
+kt( 'tìm có kết quả: không ghi là "không ra"', ! $tinh( $sk( array( 'loai' => 'tim_khong_ket_qua', 'q' => 'thuy chung' ) ) ) );
+kt( 'máy dò: không ghi', ! $tinh( $sk( array( 'loai' => 'tim_khong_ket_qua', 'q' => 'zzqx khac' ), 'Mozilla/5.0 (compatible; Googlebot/2.1)' ) ) );
+kt( 'sao chép trích dẫn: ghi theo bài và kiểu; kiểu lạ, bài chưa đăng thì không', $tinh( $sk( array( 'loai' => 'trich_dan_sao_chep', 'bai' => $td, 'kieu' => 'apa' ) ) ) && $tinh( $sk( array( 'loai' => 'trich_dan_sao_chep', 'bai' => $td, 'kieu' => 'chi_loi' ) ) ) && ! $tinh( $sk( array( 'loai' => 'trich_dan_sao_chep', 'bai' => $td, 'kieu' => 'gi_do' ) ) ) && ! $tinh( $sk( array( 'loai' => 'trich_dan_sao_chep', 'bai' => $bai_cd1->ID, 'kieu' => 'apa' ) ) ) && array( $td . ':apa' => 1, $td . ':chi_loi' => 1 ) === cadao_su_kien_nhieu( 'trich_dan_sao_chep' ), cadao_su_kien_nhieu( 'trich_dan_sao_chep' ) );
+kt( 'mở chú giải: ghi theo mục từ; mục từ không có thì không', $tinh( $sk( array( 'loai' => 'chu_giai_mo', 'muc' => $m_do->term_id ) ) ) && ! $tinh( $sk( array( 'loai' => 'chu_giai_mo', 'muc' => 999999 ) ) ) && array( (string) $m_do->term_id => 1 ) === cadao_su_kien_nhieu( 'chu_giai_mo' ) );
+kt( 'bảng sự kiện chỉ có ngày, loại, khóa, số (không IP, không định danh)', array( 'ngay', 'loai', 'khoa', 'so' ) === $wpdb->get_col( 'SHOW COLUMNS FROM ' . cadao_su_kien_bang() ) );
+ob_start();
+cadao_su_kien_o_bang_tin();
+$o_sk = ob_get_clean();
+kt( 'Bảng tin "người đọc cần gì": câu tìm không ra, số lần sao chép theo kiểu, từ được chạm, cách đọc mỗi tuần', str_contains( $o_sk, 'zzqx khongcocau' ) && str_contains( $o_sk, '<strong>2</strong> lần (kèm nguồn, APA 7: 1, chỉ lời: 1)' ) && str_contains( $o_sk, esc_html( $m_do->name ) ) && str_contains( $o_sk, 'Đọc mỗi tuần' ), $o_sk );
+$js_bai = file_get_contents( CADAO_THU_MUC . '/assets/ca-dao.js' );
+kt( 'trang bài gửi sự kiện sao chép, mở chú giải; trang tìm gửi "không ra" sau 2 giây đứng yên', str_contains( $js_bai, "suKien('trich_dan_sao_chep'" ) && str_contains( $js_bai, "suKien('chu_giai_mo'" ) && str_contains( file_get_contents( CADAO_THU_MUC . '/assets/tim.js' ), "loai: 'tim_khong_ket_qua'" ) );
 
 $ngan = do_blocks( cadao_khoi_tho( implode( "\n", array_slice( $khong_kho, 0, 40 ) ) ) );
 kt( 'bài 40 dòng trở xuống: không chia đoạn', ! str_contains( $ngan, 'cadao-bai-dai' ) );

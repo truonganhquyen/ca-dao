@@ -168,6 +168,8 @@ Không cookie, không lưu IP, không công cụ quảng cáo. Chỉ đo thứ d
 
 Thêm sự kiện chỉ khi có tính năng tương ứng và một quyết định cần đến nó (ghi D-xxx).
 
+Đã làm trên WordPress (T-052): `inc/do-luong.php`, bảng `wp_cadao_su_kien` (ngày, sự kiện, khóa, số); "mã mục từ" là mục từ `tu_kho`; định dạng sao chép gồm cả "chỉ lời". Cách đọc: `huong-dan/doc-so-lieu.md`.
+
 ## 8. SEO kỹ thuật
 
 | Hạng mục | Quy định |
