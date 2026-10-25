@@ -1,0 +1,13 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"meta": { "title": "Giao diện ca-dao: bài mẫu tổng hợp", "author": "truonganhquyen" },
+	"preferredVersions": { "php": "8.5", "wp": "latest" },
+	"steps": [
+		{ "step": "setSiteLanguage", "language": "vi" },
+		{ "step": "setSiteOptions", "options": { "blogname": "Kho tàng Ca dao Tục ngữ Việt Nam", "timezone_string": "Asia/Ho_Chi_Minh" } },
+		{ "step": "runPHP", "code": "<?php require '/wordpress/wp-load.php'; update_option('permalink_structure', '/%postname%/'); ?>" },
+		{ "step": "activatePlugin", "pluginPath": "/wordpress/wp-content/plugins/ca-dao/ca-dao.php" },
+		{ "step": "activateTheme", "themeFolderName": "ca-dao" },
+		{ "step": "runPHP", "code": "<?php require '/repo/tests/mau-giao-dien.php'; flush_rewrite_rules(); ?>" }
+	]
+}

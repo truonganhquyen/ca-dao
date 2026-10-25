@@ -212,6 +212,14 @@ kt( 'nguồn sửa bài: đọc lại trang ở lượt sau', '' === $k( "$G/cd-
 remove_all_filters( 'pre_http_request' );
 remove_all_filters( 'cadao_nhip_giay' );
 
+// ---------- Theme: nhận lục bát (T-072) ----------
+require_once '/repo/themes/ca-dao/functions.php';
+kt( 'lục bát: cặp 6–8 âm tiết', cadao_la_luc_bat( array( 'một hai ba bốn năm sáu', 'một hai ba bốn năm sáu bảy tám', 'một hai ba bốn năm sáu', 'một hai ba bốn năm sáu bảy tám' ) ) );
+kt( 'không phải lục bát: dòng 7 âm tiết', ! cadao_la_luc_bat( array( 'một hai ba bốn năm sáu bảy', 'một hai ba bốn năm sáu bảy' ) ) );
+kt( 'không phải lục bát: một dòng', ! cadao_la_luc_bat( array( 'một hai ba bốn năm sáu' ) ) );
+$tho = do_blocks( cadao_khoi_tho( "một hai ba bốn năm sáu\nmột hai ba bốn năm sáu bảy tám" ) );
+kt( 'khối Thơ ngoài trang: mỗi dòng một span, câu lục thụt lề', str_contains( $tho, '<span class="cadao-dong cadao-luc">một hai ba bốn năm sáu</span><span class="cadao-dong">' ), $tho );
+
 // ---------- Lịch ----------
 kt( 'lịch lấy bài mỗi 5 phút đã đặt', (bool) wp_next_scheduled( 'cadao_thu_thap' ) );
 kt( 'lịch tạo bài hằng ngày đã đặt', (bool) wp_next_scheduled( 'cadao_tao_bai_hang_ngay' ) );

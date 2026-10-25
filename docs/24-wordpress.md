@@ -38,6 +38,13 @@ wordpress/
 └── tests/                   kiểm thử chạy trong Playground (kiem-thu.php, blueprint-kiem-thu.json)
 ```
 
+**Theme `ca-dao`** (T-072, theme con của Twenty Twenty-Five, theo `20` mục 1, 4, 11):
+- Màu: biến `--cadao-*` dùng `light-dark()` — sáng/tối theo cài đặt máy; bảng màu của `theme.json` trỏ vào các biến đó (giữ tên `base`, `contrast`, `accent-*` của theme cha).
+- Phông tự lưu trữ trong `assets/fonts`: Be Vietnam Pro 400/600 (giao diện) và Literata 400 (lời), chỉ bộ Latin + tiếng Việt, WOFF2, kèm giấy phép OFL. Bề rộng nội dung 40rem (đơn vị rem: mọi khối thẳng một cột).
+- Trang bài (`templates/single-cdtn.html`): nhãn thể loại → tiêu đề → lời (22 px, giãn dòng 1,7) → **Hiểu nhanh** (đoạn trích, chèn ngay dưới lời) → Dị bản → Chú thích → "Nguồn: …". Mỗi dòng thơ một khối; dòng dài xuống dòng thì phần tràn thụt treo. **Lục bát** (≥ 3/4 cặp dòng 6–8 âm tiết) thụt lề câu lục — `CADAO_LUC_BAT_THUT_LE` trong `functions.php` (Q-006).
+- Trang chủ, kho, thể loại: danh sách tiêu đề bài mới (trang chủ đầy đủ: T-043).
+- Kiểm: `npm run quet:wordpress` (axe WCAG 2.2 A/AA, 360 px sáng/tối và máy tính, không tràn ngang) — CI chạy ở job "wordpress".
+
 Giữ ít plugin bên thứ ba (mỗi plugin là một nguy cơ bảo mật). Dự kiến chỉ thêm: chống spam form, SEO (T-050). Sao lưu do FlashPanel làm.
 
 ## 3. Mô hình dữ liệu
@@ -77,8 +84,10 @@ WordPress Playground (PHP 8.5 — như máy chủ — chạy bằng WebAssembly,
 
 ```bash
 npm run test:wordpress            # kiểm thử plugin (CI chạy ở job "wordpress"); thêm -- --mang để thử bộ đọc trên cadao.me thật
+npm run quet:wordpress           # quét trợ năng theme (WCAG 2.2 AA) trên bài mẫu tổng hợp; -- --anh <thư-mục> lưu ảnh chụp
 npx @wp-playground/cli@3.1.57 server --port=9411 --blueprint=wordpress/blueprint.json \
-  --mount-dir wordpress/plugins/ca-dao /wordpress/wp-content/plugins/ca-dao
+  --mount-dir wordpress/plugins/ca-dao /wordpress/wp-content/plugins/ca-dao \
+  --mount-dir wordpress/themes/ca-dao /wordpress/wp-content/themes/ca-dao
 # mở http://127.0.0.1:9411/wp-login.php — tài khoản admin / password
 ```
 
@@ -100,7 +109,7 @@ Bài, mục từ, nguồn trong `content/*.yaml` → WordPress bằng script nh�
 | **Cách ly** | Gói miễn phí không có ô "Website Isolation" khi tạo site → *Cài Đặt → Update Owner* `cadao`: FlashPanel tạo tài khoản Linux riêng, pool PHP riêng, thêm vào nhóm `isolated` (ACL chặn vào `/home` của site khác) |
 | Bổ sung cách ly | `cai-dat.sh` gỡ `cadao` khỏi nhóm `www-data` (nhóm đó gửi lệnh được tới pool PHP chung của các site khác), `wp-config.php` quyền 600 |
 | Tiếng Việt, múi giờ, đường dẫn, plugin, cron | `wordpress/may-chu/cai-dat.sh` (chạy bằng root, chạy lại được) |
-| **Tự cập nhật sau khi gộp PR** (T-078) | Cron mỗi 5 phút chạy `tu-cap-nhat.sh` bằng tài khoản `cadao`: thấy `main` có commit mới thì lấy `wordpress/plugins/ca-dao` của đúng commit đó, kiểm cú pháp PHP, thay thư mục một lần; trang chủ không trả 200 thì trả lại bản cũ và không thử lại commit đó. Nhật ký `/home/cadao/cap-nhat.log`. Chạy tay: `cd /home/cadao && sudo -u cadao bash bin/cap-nhat-plugin.sh` |
+| **Tự cập nhật sau khi gộp PR** (T-078) | Cron mỗi 5 phút chạy `tu-cap-nhat.sh` bằng tài khoản `cadao`: thấy `main` có commit mới thì lấy `wordpress/plugins/ca-dao` và `wordpress/themes/ca-dao` của đúng commit đó (theme bật một lần; người quản trị đổi theme sau đó thì giữ), kiểm cú pháp PHP, thay thư mục một lần; trang chủ không trả 200 thì trả lại bản cũ và không thử lại commit đó. Nhật ký `/home/cadao/cap-nhat.log`. Chạy tay: `cd /home/cadao && sudo -u cadao bash bin/cap-nhat-plugin.sh` |
 | Lịch chạy | `DISABLE_WP_CRON`; `/etc/cron.d/cadao-wordpress` chạy `wp cron event run --due-now` mỗi phút |
 | WP-CLI | `sudo -u cadao /home/cadao/bin/wp <lệnh>` |
 | Chặn công cụ tìm kiếm | `blog_public = 0` tới khi mở công khai (H5, T-053) — ô "Discourage search engines" của FlashPanel đã không có tác dụng, script đặt lại |

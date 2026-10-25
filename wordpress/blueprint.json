@@ -13,6 +13,7 @@
 		{ "step": "setSiteLanguage", "language": "vi" },
 		{ "step": "setSiteOptions", "options": { "blogname": "Kho tàng Ca dao Tục ngữ Việt Nam", "timezone_string": "Asia/Ho_Chi_Minh" } },
 		{ "step": "runPHP", "code": "<?php require '/wordpress/wp-load.php'; update_option('permalink_structure', '/%postname%/'); flush_rewrite_rules(); ?>" },
-		{ "step": "activatePlugin", "pluginPath": "/wordpress/wp-content/plugins/ca-dao/ca-dao.php" }
+		{ "step": "activatePlugin", "pluginPath": "/wordpress/wp-content/plugins/ca-dao/ca-dao.php" },
+		{ "step": "activateTheme", "themeFolderName": "ca-dao" }
 	]
 }

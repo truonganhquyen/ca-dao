@@ -109,6 +109,7 @@ npm run trang-thai     # xem giai đoạn, mốc, Human Gate và số bài
 npm run viec-tiep-theo # đề xuất task kỹ thuật READY tiếp theo
 npm run kiem-tra       # cổng kiểm tra bắt buộc: dữ liệu + fixture + nhất quán + tệp sinh + astro check + build + liên kết + trang + trợ năng
 npm run test:wordpress # kiểm thử plugin WordPress trong Playground (cần Node ≥ 24.18; CI chạy job riêng)
+npm run quet:wordpress # quét trợ năng theme WordPress (WCAG 2.2 AA) trên bài mẫu tổng hợp; -- --anh <thư-mục> để lưu ảnh chụp
 npm run xem-truoc:wordpress # in link bản xem trước WordPress (Playground trên trình duyệt) cho nhánh đã đẩy — dán vào PR
 npm run sinh:schema    # sinh lại Zod, kiểu từ vựng, cấu hình CMS sau khi sửa schema.mjs hoặc từ vựng
 npm run check:data     # kiểm tra dữ liệu theo R01–R22 (LỖI chặn, NHẮC không chặn)
