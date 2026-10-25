@@ -1,5 +1,7 @@
 # Hướng dẫn · Biên soạn trong CMS (một trang)
 
+> **Đã ngừng (25/10/2026, T-076):** biên soạn trong WordPress tại cadao.sdigi.net (`docs/24`). Địa chỉ CMS cũ chuyển hướng sang site WordPress.
+
 | | |
 |---|---|
 | Cho ai | Người sáng lập — không cần Git, YAML hay dòng lệnh |

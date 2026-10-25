@@ -9,10 +9,10 @@
     "MOC_C",
     "SAU"
   ],
-  "giai_doan": "MOC_A",
-  "ten_giai_doan": "Chạy được",
+  "giai_doan": "MOC_B",
+  "ten_giai_doan": "Thử nhỏ",
   "trang_thai_giai_doan": "DANG_THUC_HIEN",
-  "moc_tiep_theo": "MOC_B",
+  "moc_tiep_theo": "MOC_C",
   "cong_viec_hien_tai": null,
   "human_gate_dang_chan": [],
   "quyet_dinh_dang_mo": [

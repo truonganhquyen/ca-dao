@@ -7,6 +7,8 @@
 | Đọc khi | Khởi tạo kho mã, thêm thư viện, đổi cách build, triển khai, CMS, thu thập dữ liệu |
 | Nguyên tắc chi phối | Tĩnh trước, động sau · không máy chủ (trừ Worker nhỏ cho đăng nhập CMS) · không cookie · < 10 USD/tháng cho hạ tầng |
 
+> **Từ 25/10/2026 (T-076, D-056) site Astro đã ngừng; site chạy trên WordPress (`24`).** Tài liệu này giữ cho mã Astro, `content/` và các công cụ kiểm dữ liệu còn trong repo.
+
 > Phiên bản cụ thể của Astro, Tailwind, Sveltia CMS, MiniSearch và giới hạn gói miễn phí của từng dịch vụ có thể đã thay đổi. **Kiểm tra tài liệu chính thức hiện hành trước khi cài đặt**; ghi phiên bản đã chọn vào `01`. Chi phí công cụ AI (Codex, Claude) không nằm trong ngân sách hạ tầng.
 
 ---

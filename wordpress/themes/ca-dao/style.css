@@ -120,7 +120,8 @@ a {
 	margin-block-start: 0.5rem;
 }
 .cadao-chu-thich-nguon,
-.cadao-nguon {
+.cadao-nguon,
+.cadao-ho-tro-ai {
 	color: var(--cadao-nhat);
 	font-size: var(--wp--preset--font-size--small);
 }

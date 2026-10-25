@@ -392,8 +392,9 @@ function cadao_kho_tao_bai( int $kho_id ) {
 	if ( is_wp_error( $id ) ) {
 		return $id;
 	}
-	if ( array_key_exists( $muc->loai, CADAO_THE_LOAI_TU_LOAI_GOC ) ) {
-		wp_set_object_terms( $id, CADAO_THE_LOAI_TU_LOAI_GOC[ $muc->loai ], 'the_loai' );
+	$the_loai = cadao_the_loai_tu_kho( $muc ); // thành ngữ – tục ngữ đã duyệt tách thì theo quyết định (T-080)
+	if ( $the_loai ) {
+		wp_set_object_terms( $id, $the_loai, 'the_loai' );
 	}
 	update_post_meta( $id, '_cadao_bam', md5( get_post( $id )->post_content ) ); // nhận ra bài chưa ai sửa tay
 	$wpdb->update( $bang, array( 'trang_thai' => 'da_tao_bai', 'post_id' => $id ), array( 'id' => $muc->id ) );

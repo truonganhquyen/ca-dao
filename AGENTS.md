@@ -6,7 +6,7 @@ Tệp này dành cho mọi AI agent làm việc trong kho mã (Claude Code, Code
 
 **Kho tàng Ca dao Tục ngữ Việt Nam**: một website tĩnh, phi lợi nhuận, không quảng cáo, đọc tốt trên điện thoại; mỗi câu ca dao tục ngữ có giải nghĩa từ khó, tình huống dùng, và **ghi rõ lời lấy từ đâu, đã được kiểm đến mức nào**. Một người vận hành, **dưới 10 giờ/tuần** (lập kế hoạch theo ~5 giờ), không làm việc trực tiếp với Git/YAML — người sáng lập biên soạn qua CMS và duyệt thay đổi bằng cách xem bản xem trước, **không đọc mã** (D-035, D-036).
 
-**Hướng v2 — "Trung thực hơn hoàn hảo"** (D-039): xuất bản sớm, nội dung cải tiến dần. **Từ 24/10/2026 (D-054..D-056):** làm dày nội dung là ưu tiên — không chặn đăng vì lý do biên tập, nguồn không bắt buộc (bài tự động tự ghi "Nguồn: …"), chép chú thích có ghi công được phép; và **chuyển sang WordPress** (`docs/24-wordpress.md`): người sáng lập đăng và duyệt bài trong `wp-admin`, nguồn tự động cấu hình trong trang quản trị, bài tự động vào **Chờ duyệt**. Site Astro hiện tại chạy tới khi WordPress lên (T-076). Vẫn giữ các lằn ranh dưới đây.
+**Hướng v2 — "Trung thực hơn hoàn hảo"** (D-039): xuất bản sớm, nội dung cải tiến dần. **Từ 24/10/2026 (D-054..D-056):** làm dày nội dung là ưu tiên — không chặn đăng vì lý do biên tập, nguồn không bắt buộc (bài tự động tự ghi "Nguồn: …"), chép chú thích có ghi công được phép; và **chuyển sang WordPress** (`docs/24-wordpress.md`): người sáng lập đăng và duyệt bài trong `wp-admin`, nguồn tự động cấu hình trong trang quản trị, bài tự động vào **Chờ duyệt**. Site Astro đã ngừng (T-076): địa chỉ cũ chuyển hướng sang WordPress; mã Astro và `content/` giữ làm lưu trữ. Vẫn giữ các lằn ranh dưới đây.
 
 ## Đọc trước khi làm
 

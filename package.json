@@ -24,9 +24,10 @@
     "kiem-lien-ket": "node scripts/kiem-lien-ket.mjs",
     "kiem-trang": "node scripts/kiem-trang.mjs",
     "quet-trang": "node scripts/quet-trang.mjs",
-    "kiem-tra": "npm run check:data && npm run test:fixtures && npm run test:lien-ket && npm run test:nhat-quan && npm run kiem-nhat-quan && npm run kiem-sinh && npm run check:astro && astro build && npm run kiem-lien-ket && npm run kiem-trang && npm run quet-trang",
+    "kiem-tra": "npm run check:data && npm run test:fixtures && npm run test:lien-ket && npm run test:nhat-quan && npm run kiem-nhat-quan && npm run kiem-sinh && node scripts/xuat-site-cu.mjs --kiem && npm run check:astro && astro build && npm run kiem-lien-ket && npm run kiem-trang && npm run quet-trang",
     "trang-thai": "node scripts/trang-thai.mjs",
-    "viec-tiep-theo": "node scripts/viec-tiep-theo.mjs"
+    "viec-tiep-theo": "node scripts/viec-tiep-theo.mjs",
+    "xuat:site-cu": "node scripts/xuat-site-cu.mjs"
   },
   "dependencies": {
     "astro": "7.3.8",

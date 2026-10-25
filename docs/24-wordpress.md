@@ -37,6 +37,9 @@ wordpress/
 │   ├── inc/luot-doc.php     lượt đọc không cookie, "Đọc nhiều tuần này", ô Bảng tin (T-081, D-064)
 │   ├── inc/trung.php        chống trùng: dấu vân tay, mức giống, chỉ mục, gộp, tách, làm dần (T-109, T-110)
 │   ├── inc/trang-trung.php  trang "Có thể trùng", ô "Có thể trùng" trong trình soạn (T-110, T-111)
+│   ├── inc/tach-loai.php    gợi ý tách thành ngữ / tục ngữ, trang duyệt hàng loạt, chuyển hướng đường dẫn cũ (T-080)
+│   ├── inc/site-cu.php      chuyển bài công khai của site Astro cũ, qua bước chống trùng (T-076)
+│   ├── du-lieu/site-cu.json bài công khai của site cũ (sinh bằng `npm run xuat:site-cu` từ `content/`)
 │   ├── assets/ca-dao.js     JavaScript duy nhất của trang bài (sao chép, chia sẻ, gửi lượt đọc; ~6 KB)
 │   └── assets/soan-trung.js ô "Có thể trùng" trong trình soạn khối (chỉ trong trang quản trị)
 ├── themes/ca-dao/           theme con của Twenty Twenty-Five (T-072)
@@ -50,6 +53,7 @@ wordpress/
 - Trang bài (`templates/single-cdtn.html`): nhãn thể loại → tiêu đề → lời (22 px, giãn dòng 1,7) → **Hiểu nhanh** (đoạn trích, chèn ngay dưới lời) → (câu đố: câu hỏi, đáp án hiện sẵn — D-058) → **Trích dẫn · Chia sẻ · N lượt đọc** (plugin chèn trước tiêu đề Dị bản đầu tiên) → Dị bản → Chú thích → "Nguồn: …". Mỗi dòng thơ một khối; dòng dài xuống dòng thì phần tràn thụt treo. **Lục bát** (≥ 3/4 cặp dòng 6–8 âm tiết) thụt lề câu lục — `CADAO_LUC_BAT_THUT_LE` trong `functions.php` (Q-006).
 - Trang chủ, kho, thể loại: danh sách tiêu đề bài mới; trang chủ thêm "Đọc nhiều tuần này" (mã ngắn `[cadao_doc_nhieu]`, chỉ hiện khi đã có từ 3 bài được đọc trong 7 ngày). Trang chủ đầy đủ: T-043.
 - **Trích dẫn, chia sẻ (T-042):** hộp `<details>` "Trích dẫn" — kiểu thông dụng và APA 7 (`20` mục 6), nút "Sao chép kèm nguồn" / "Chỉ sao chép lời", ô "Kèm đáp án / chú thích" khi bài có phần chép từ nguồn; nút "Chia sẻ" (Web Share, không có thì sao chép liên kết). Ngày truy cập theo ngày bấm.
+- **Tách thành ngữ – tục ngữ (T-080):** trang **Ca dao – Tục ngữ → Tách thành ngữ – tục ngữ**, chia bốn nhóm: máy đã chắc / máy nghiêng về / máy chưa rõ / bạn đã quyết; nút "Đồng ý gợi ý", "Là thành ngữ", "Là tục ngữ". Gợi ý: danh mục Wiktionary (tải mỗi tuần, chỉ lưu dấu vân tay) khi độ dài câu cùng hướng; câu nhiều vế, từ 8 âm tiết, hai vế cách dấu phẩy → tục ngữ (chắc); có từ nối "thì, là, mới, hơn…" → nghiêng về tục ngữ; ≤ 4 âm tiết → nghiêng về thành ngữ. Chưa duyệt thì bài vẫn vào Tục ngữ như trước. Đổi thể loại thì đường dẫn cũ (`/tuc-ngu/<tên>/` ↔ `/thanh-ngu/<tên>/`) chuyển hướng 301 (mọi bài, kể cả đổi tay).
 - **Lượt đọc (T-081, D-064):** trang bài gửi `POST /wp-json/cadao/v1/luot-doc/<id>` khi đã hiện 5 giây trên màn hình, mỗi máy một lần mỗi ngày (đánh dấu trong `localStorage`, không cookie); người đang đăng nhập có quyền sửa bài không tính; máy dò tự khai tên (Googlebot…, trình duyệt không giao diện) không tính. "N lượt đọc" hiện khi từ 10 lượt. Ô "lượt đọc 7 ngày" trên Bảng tin: tổng theo ngày, bài đọc nhiều, người đọc đến từ đâu (chỉ tên miền).
 - Kiểm: `npm run quet:wordpress` (axe WCAG 2.2 A/AA, 360 px sáng/tối và máy tính, không tràn ngang; thử trên trình duyệt: "Sao chép kèm nguồn" ra đúng chữ, lượt đọc gửi một lần sau 5 giây, tải lại không gửi thêm, tắt JavaScript không gửi, không cookie) — CI chạy ở job "wordpress".
 
@@ -113,9 +117,10 @@ Trên Windows (Git Bash) đặt `MSYS_NO_PATHCONV=1` để Git Bash không đổ
 
 **Bản xem trước cho PR (D-035):** `npm run xem-truoc:wordpress` in một link playground.wordpress.net dựng WordPress ngay trên trình duyệt (máy tính hoặc điện thoại) và cài plugin từ nhánh hiện tại trên GitHub — nhánh phải đã đẩy lên. Mỗi lần mở là một site mới, trống; đóng tab là mất. API của Ca dao Mẹ cho phép playground.wordpress.net gọi tới (CORS), nên "Lấy ngay" có thể chạy ở đó; chạy chắc chắn là ở `npm run test:wordpress -- --mang`.
 
-## 7. Chuyển đổi (T-076)
+## 7. Chuyển đổi (T-076 — xong 25/10/2026)
 
-Bài, mục từ, nguồn trong `content/*.yaml` → WordPress bằng script nhập (qua REST API hoặc WP-CLI), giữ lời nguyên văn và dòng nguồn. Sau đó ngừng triển khai site Astro; repo vẫn giữ mã plugin, theme, tài liệu.
+- **Bài:** `npm run xuat:site-cu` chép các bài **công khai** của `content/tac-pham/` sang `wordpress/plugins/ca-dao/du-lieu/site-cu.json` (`kiem-tra` báo lỗi nếu tệp lệch `content/`). Chỉ chép những gì người biên soạn đã nhập: lời bản tham chiếu (nguyên văn), dị bản có nguồn, tên nguồn / địa chỉ / ngày truy cập đã điền, nghĩa ngắn → Hiểu nhanh, chú giải từ mục từ; nháp AI chỉ khi đã được duyệt (bỏ tiền tố, bài ghi "Phần giải nghĩa có hỗ trợ của AI, đã được người biên soạn duyệt."); bỏ mọi chuỗi `CAN_BO_SUNG`. Hai hồ sơ khung ở trạng thái nháp (`cd-0002`, `tn-0001`) không chuyển. Plugin nhập **một lần** sau khi chỉ mục chống trùng làm xong: bài trùng / gần trùng bài đã có vào WordPress ở dạng **Bản nháp** và hiện ở "Có thể trùng"; bài không trùng đăng như trên site cũ, giữ đường dẫn `/ca-dao/<tên>/`. Mục từ, tình huống, mô-típ chưa chuyển: dùng lại khi làm từ điển (T-044), trang tình huống (T-043).
+- **Site Astro ngừng:** `wrangler.jsonc` không còn phục vụ `dist/`; Worker `cloudflare/chuyen-huong.js` chuyển hướng 301 mọi đường dẫn ở địa chỉ cũ (`ca-dao.truonganhquyen.workers.dev`) sang `https://cadao.sdigi.net` cùng đường dẫn. CMS Sveltia (`/admin`) không còn dùng — biên soạn trong WordPress. Mã Astro, `content/` và các công cụ kiểm dữ liệu vẫn ở repo (lưu trữ; `kiem-tra` vẫn chạy).
 
 ## 8. Máy chủ (T-074, T-075)
 

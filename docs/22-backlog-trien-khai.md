@@ -42,11 +42,11 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-073 | Bộ đọc Ca dao Mẹ đầy đủ: dị bản, chú thích có ghi nguồn, tục ngữ, đồng dao, vè, câu đố | A | T-071 | — | DONE |
 | T-074 | Chọn và mua hosting WordPress | N | — | — | DONE |
 | T-075 | Cài WordPress lên hosting: plugin, sao lưu, bảo mật cơ bản (theme cài khi T-072 xong) | N+A | T-071, T-074 | — | DONE |
-| T-076 | Chuyển nội dung hiện có sang WordPress, ngừng site Astro | A | T-075, T-109 | — | BLOCKED |
+| T-076 | Chuyển nội dung hiện có sang WordPress, ngừng site Astro | A | T-075, T-109 | — | DONE |
 | T-078 | Máy chủ tự cập nhật plugin từ `main` sau mỗi PR gộp | A | T-071 | — | DONE |
 | T-077 | Áp dụng D-057: lời không ghi nguồn, "Nguồn: …" chỉ dưới chú thích đã chép (plugin 0.2.0) | A | T-071 | — | DONE |
 | T-079 | Ghi gói nâng cấp 25/10/2026 vào tài liệu, lập kế hoạch (`docs/25`, D-059..D-065) | A | — | — | DONE |
-| T-080 | Tách thành ngữ và tục ngữ (máy gợi ý, người duyệt) | N+A | T-073 | — | READY |
+| T-080 | Tách thành ngữ và tục ngữ (máy gợi ý, người duyệt) | N+A | T-073 | — | REVIEW |
 | T-081 | Đếm lượt đọc không cookie, "Đọc nhiều", thống kê trên Bảng tin | A | T-071 | — | DONE |
 | T-109 | Nhận ra bài trùng: "dấu vân tay" của lời, các mức giống (D-065) | A | T-073 | — | DONE |
 | T-110 | Chống trùng khi lấy từ nguồn: gắn vào bài có sẵn, hàng "Có thể trùng" | N+A | T-109 | — | DONE |
@@ -218,6 +218,8 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 #### T-080 · Tách thành ngữ và tục ngữ — N+A
 **Đọc:** `25` mục 4.4. **Việc:** máy gợi ý loại cho từng câu nhóm "thành ngữ – tục ngữ" của nguồn (danh mục Wiktionary, rồi cấu trúc câu), không chắc thì để chờ; hàng duyệt hàng loạt trong trang quản trị; bài đã đăng đổi thể loại và đường dẫn (`/thanh-ngu/…` ↔ `/tuc-ngu/…`, chuyển hướng 301 từ đường dẫn cũ). **Chấp nhận:** mẫu 50 câu do người sáng lập kiểm, gợi ý đúng ≥ 90% với câu máy đã chắc; không câu nào tự đổi loại khi chưa duyệt; kiểm thử plugin đạt.
 
+**Tiến độ (25/10/2026):** phần máy xong — plugin 0.6.0 (`inc/tach-loai.php`, `24` mục 2), kiểm thử: các quy tắc gợi ý, không tự đổi khi chưa duyệt, duyệt thì bài đổi thể loại và đường dẫn cũ chuyển hướng 301, câu duyệt trước khi thành bài vào đúng Thành ngữ. **Còn chờ người sáng lập:** kiểm 50 câu ở nhóm "Máy đã chắc" (đúng ≥ 90% thì chuyển DONE; dưới thì agent chỉnh quy tắc).
+
 #### T-081 · Đếm lượt đọc — A
 **Đọc:** `25` mục 4.7, D-064. **Việc:** đếm khi trang hiện ≥ 5 giây, một máy một lần/ngày, không cookie, không lưu IP, gom theo bài theo ngày; "N lượt đọc" trên trang bài khi ≥ 10; danh sách "Đọc nhiều tuần này"; ô Bảng tin (7 ngày, bài đọc nhiều, trang giới thiệu). **Chấp nhận:** kiểm thử: máy dò không chạy JavaScript không được tính, tải lại trong ngày không cộng thêm; không có cookie mới; quét trợ năng đạt.
 
@@ -240,6 +242,8 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 
 #### T-076 · Chuyển nội dung, ngừng site Astro — A
 **Việc:** chuyển bài, mục từ, nguồn trong `content/` sang WordPress (giữ lời nguyên văn), **qua bước chống trùng** (T-109: bài cũ trùng câu đã có thì thành dị bản hoặc gộp, người sáng lập quyết); trỏ địa chỉ tạm; ngừng triển khai Astro. **Chấp nhận:** mọi bài công khai cũ hiện trên WordPress; lời khớp từng ký tự.
+
+**Tiến độ (25/10/2026):** xong — 2 bài công khai (`cd-0001`, `cd-0003`) chuyển bằng `du-lieu/site-cu.json`, qua bước chống trùng (bài trùng bài đã có thì vào ở dạng Bản nháp và hiện ở "Có thể trùng"); kiểm thử: lời nguyên văn, Hiểu nhanh, chú giải, nguồn đã nhập, đường dẫn cũ, chạy lại không tạo trùng. Địa chỉ cũ chuyển hướng 301 sang cadao.sdigi.net (`24` mục 7).
 
 #### T-040 · Trang tác phẩm — A
 **Đọc:** `20` mục 4–5, 10–12, 14; `10` mục 5, 10.

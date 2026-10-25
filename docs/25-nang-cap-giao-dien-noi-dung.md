@@ -148,6 +148,7 @@ Mẫu VieNeu đọc "Bao giờ cạn lạch Đồng Nai" (giọng Hải Đăng, 
 ### 4.4. Theo thể loại
 
 - **Tách thành ngữ và tục ngữ (ý 24).** Máy gợi ý loại cho mỗi câu trong nhóm "thành ngữ – tục ngữ" của nguồn: có trong danh mục Wiktionary thì theo đó; còn lại theo cấu trúc (cụm từ cố định, chưa thành câu, thường 4 chữ đối → thành ngữ; câu trọn ý, có chủ – vị, đúc kết kinh nghiệm → tục ngữ); không chắc thì để chờ. Người sáng lập duyệt hàng loạt trong Kho thu thập và trong danh sách bài; bài đã đăng đổi thể loại theo.
+  *Đã làm (T-080, 25/10/2026):* danh mục Wiktionary lẫn cả từ đơn ("a la hỉ" nằm trong "Tục ngữ tiếng Việt") và xếp vài câu sách giáo khoa gọi là tục ngữ vào thành ngữ, nên chỉ theo danh mục khi độ dài câu cùng hướng. Thử trên 200 câu đã đọc của kho: ~55% máy chắc, ~25% nghiêng, ~20% chưa rõ.
 - **Nghĩa (ý 25).** Bài thành ngữ, tục ngữ có khối nghĩa: nghĩa đen, nghĩa bóng, "Dùng khi…", một câu ví dụ, câu đồng nghĩa / trái nghĩa (liên kết sang nhau). Nghĩa từ Wiktionary ghi "Nguồn: Wiktionary ↗ · CC BY-SA" ngay dưới; phần còn lại người sáng lập viết, hoặc máy soạn nháp chờ duyệt (T-100).
 - **Câu một dòng (ý 26).** Trang bài: câu chữ to, không khung lời thơ. Danh sách: chỉ mục A–Z và theo chủ đề, mỗi dòng một câu kèm nghĩa ngắn.
 - **Hán Việt, điển tích (ý 27).** Thành ngữ gốc Hán: giải từng chữ theo *Hán Việt tự điển* (Thiều Chửu), kèm chuyện điển tích nếu có (liên kết Wikipedia). Chỉ giải chữ khi chắc chắn.

@@ -1,16 +1,11 @@
-// Triển khai lên Cloudflare Workers Static Assets (docs/21 mục 3, D-049).
-// Chỉ phục vụ tệp tĩnh trong dist/; không có mã chạy phía máy chủ.
-// Cloudflare Workers Builds tự build mỗi lần đẩy mã: nhánh main → bản chính thức,
-// nhánh khác/PR → bản xem trước có đường dẫn riêng (hướng dẫn: docs/huong-dan/ket-noi-cloudflare.md).
-// `previews`: lệnh mặc định cho nhánh khác main là `npx wrangler preview`, lệnh này bắt buộc có khối này;
-// để trống vì bản xem trước không cần cấu hình riêng (assets vẫn ở cấp trên).
+// Địa chỉ cũ của site Astro trên Cloudflare Workers (D-049). Từ T-076 site Astro ngừng: Worker này chỉ chuyển hướng
+// 301 mọi đường dẫn sang site WordPress (cadao.sdigi.net); không còn phục vụ tệp tĩnh của dist/.
+// Cloudflare Workers Builds vẫn chạy lệnh build (kiểm dữ liệu content/, build Astro) rồi triển khai Worker này.
+// `previews`: lệnh mặc định cho nhánh khác main là `npx wrangler preview`, lệnh này bắt buộc có khối này.
 {
   "name": "ca-dao",
+  "main": "cloudflare/chuyen-huong.js",
   "compatibility_date": "2026-10-01",
-  "assets": {
-    "directory": "./dist",
-    "not_found_handling": "404-page"
-  },
   "workers_dev": true,
   "preview_urls": true,
   "previews": {}
