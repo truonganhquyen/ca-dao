@@ -53,7 +53,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-111 | Báo trùng khi viết bài tay (chỉ báo, không chặn) | A | T-109 | — | DONE |
 | T-042 | Trích dẫn 2 định dạng + chia sẻ (trên WordPress) | A | T-072 | — | DONE |
 | **Mốc B · Thử nhỏ** ||||||
-| T-041 | Tìm kiếm tức thì, gõ không dấu, tìm cả trong chú thích (WordPress) | N+A | T-072 | — | READY |
+| T-041 | Tìm kiếm tức thì, gõ không dấu, tìm cả trong chú thích (WordPress) | N+A | T-072 | — | DONE |
 | T-043 | Trang chủ mới (Câu hôm nay, Vừa bổ sung, Đọc nhiều, Bạn có biết?) + trang tình huống | A | T-072, T-081, T-093 | — | BLOCKED |
 | T-044 | Từ điển chú giải: trang từng từ, "Các bài có từ này", lọc theo vùng | A | T-073 | — | DONE |
 | T-045 | Góp ý, dị bản, cảm nghĩ ngắn của người đọc; chống rác; quyền riêng tư; "Gửi số trang" | N+A | T-075 | — | READY |
@@ -260,6 +260,8 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 **Đọc:** `25` mục 4.3, `21` mục 5, `20` mục 8, `23` mục 4.
 **Việc (viết lại 25/10/2026 cho WordPress):** ô tìm đầu trang, kết quả hiện khi gõ, tìm trong lời, tiêu đề, chú thích; phương án chính Meilisearch (người sáng lập cài ứng dụng trong FlashPanel), chỉ mục cập nhật khi bài đăng/sửa; thử "d" → "đ" trước khi chốt, không đạt thì dùng chỉ mục bỏ dấu tự làm.
 **Chấp nhận:** `boDau` và `chuanHoaCoDau` có kiểm thử đơn vị với các ca trong `21` mục 5; truy vấn kiểu `khong_dau`, `tu_khoa`, `dau_kieu_cu` trong `data/truy-van-thu.csv` có đáp án trong 5 kết quả đầu (khi đáp án đã công khai); trang không kết quả đúng `20` mục 8.
+
+**Tiến độ (25/10/2026):** xong theo D-067 (chỉ mục bỏ dấu tự làm, không cần Meilisearch) — plugin 0.11.0 (`inc/tim.php`, `assets/tim.js`). Trang **Tìm** (`/tim/?q=…`, có ở thanh đầu trang; ô tìm của WordPress chuyển về đây): kết quả hiện khi gõ (150 ms), tô phần khớp, dòng giữa bài có chứa phần khớp, thể loại, Hiểu nhanh; nhóm "Từ điển" phía trên khi khớp tên mục từ; nhớ 5 lần tìm gần đây trên máy; tắt JavaScript vẫn tìm được. Trọng số: tiêu đề, lời ×3; Hiểu nhanh, chú thích ×1; gõ có dấu thì bài đúng dấu đứng trước. Kiểm thử: các ca của `21` mục 5 (boDau, chuanHoaCoDau), `q03` "thuy chung", `q04` "hoà thuận", gõ dở chữ cuối, trọn âm tiết, tìm trong chú thích, bài chưa đăng không ra. Câu trong `data/truy-van-thu.csv` chưa có đáp án công khai nên chưa chấm được 5 kết quả đầu. Trang không kết quả: báo "Chưa tìm thấy câu này trong kho" kèm gợi ý; 6 tình huống phổ biến và form gửi câu thêm khi có T-043, T-045. Chưa có: khớp gần đúng (sai một ký tự), đo "tìm không ra" (T-052).
 
 #### T-042 · Trích dẫn và chia sẻ — A
 **Đọc:** `20` mục 6–7.

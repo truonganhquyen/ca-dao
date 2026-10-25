@@ -64,7 +64,7 @@ try {
   await san;
   const bai = await (await fetch(`${G}/wp-json/wp/v2/cdtn?per_page=50&_fields=link`)).json();
   const tuDien = await (await fetch(`${G}/wp-json/wp/v2/tu_kho?per_page=1&_fields=link`)).json(); // từ điển (T-044)
-  const dsTrang = ['/', '/kho/', '/the-loai/ca-dao/', '/tu-dien/', ...tuDien.map(t => new URL(t.link).pathname), ...bai.map(b => new URL(b.link).pathname)];
+  const dsTrang = ['/', '/kho/', '/the-loai/ca-dao/', '/tu-dien/', '/tim/?q=dong mau', ...tuDien.map(t => new URL(t.link).pathname), ...bai.map(b => new URL(b.link).pathname)];
   if (bai.length < 5) loi.push(`chỉ có ${bai.length} bài mẫu (cần 5) — bài mẫu không dựng được`);
   trinhDuyet = await puppeteer.launch({ executablePath: chrome, headless: true, args: ['--no-sandbox', '--font-render-hinting=none'] });
   const CHE_DO = [
@@ -177,6 +177,11 @@ try {
   kiem('bài dài: phần sau thu gọn, có nút "Đọc toàn bài"', await tuTab.evaluate(() => !!document.querySelector('.cadao-doc-toan-bai') && getComputedStyle(document.querySelector('.cadao-doan[data-sau]')).display === 'none'));
   await tuTab.click('.cadao-doc-toan-bai');
   kiem('bài dài: bấm "Đọc toàn bài" thì hiện đủ', await tuTab.evaluate(() => getComputedStyle(document.querySelector('.cadao-doan[data-sau]')).display !== 'none'));
+  // Tìm (T-041): gõ không dấu, kết quả hiện khi gõ, phần khớp được tô
+  await tuTab.goto(G + '/tim/', { waitUntil: 'load' });
+  await tuTab.type('#cadao-tim-o', 'dong mau mot');
+  await tuTab.waitForFunction(() => document.querySelectorAll('.cadao-tim-ds li').length > 0, { timeout: 15000 }).catch(() => {});
+  kiem('tìm: gõ không dấu, kết quả hiện khi gõ, có tô phần khớp', await tuTab.evaluate(() => document.querySelectorAll('.cadao-tim-ds li').length > 0 && !!document.querySelector('.cadao-tim-ds mark') && /q=dong/.test(location.search)));
   await ngCanh.close();
   console.log(`Thử trích dẫn, lượt đọc trên trình duyệt: ${kiemThem} phép thử.`);
 } catch (e) {

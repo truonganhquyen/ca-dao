@@ -43,6 +43,8 @@ wordpress/
 │   ├── inc/tu-dien.php      từ điển: mục từ theo chú thích, trang /tu-dien/ (T-044)
 │   ├── inc/wikidata.php     hàng chờ "Xác nhận Wikidata", ảnh Commons giấy phép mở, bản đồ nhỏ (T-086..T-088)
 │   ├── inc/goi-y.php        gợi ý vùng, chủ đề; bộ chủ đề của dự án; bảng ánh xạ chủ đề của nguồn (T-089, T-091)
+│   ├── inc/tim.php          tìm kiếm: chỉ mục bỏ dấu tự làm, trang /tim/, REST (T-041, D-067)
+│   ├── assets/tim.js        kết quả hiện khi gõ trên trang Tìm
 │   ├── assets/ban-do-vn.svg bản đồ nhỏ Việt Nam có Hoàng Sa, Trường Sa (sinh bằng `scripts/sinh-ban-do.mjs`)
 │   ├── du-lieu/site-cu.json bài công khai của site cũ (sinh bằng `npm run xuat:site-cu` từ `content/`)
 │   ├── assets/ca-dao.js     JavaScript duy nhất của trang bài (sao chép, chia sẻ, gửi lượt đọc; ~6 KB)
@@ -58,6 +60,7 @@ wordpress/
 - Trang bài (`templates/single-cdtn.html`): nhãn thể loại → tiêu đề → lời (22 px, giãn dòng 1,7) → **Hiểu nhanh** (đoạn trích, chèn ngay dưới lời) → (câu đố: câu hỏi, đáp án hiện sẵn — D-058) → **Trích dẫn · Chia sẻ · N lượt đọc** (plugin chèn trước tiêu đề Dị bản đầu tiên) → Dị bản → Chú thích → "Nguồn: …". Mỗi dòng thơ một khối; dòng dài xuống dòng thì phần tràn thụt treo. **Lục bát** (≥ 3/4 cặp dòng 6–8 âm tiết) thụt lề câu lục — `CADAO_LUC_BAT_THUT_LE` trong `functions.php` (Q-006).
 - Trang chủ, kho, thể loại: danh sách tiêu đề bài mới; trang chủ thêm "Đọc nhiều tuần này" (mã ngắn `[cadao_doc_nhieu]`, chỉ hiện khi đã có từ 3 bài được đọc trong 7 ngày). Trang chủ đầy đủ: T-043.
 - **Đọc dễ hơn (T-082..T-084):** nhãn thể thơ cạnh nhãn thể loại; lục bát, song thất lục bát thụt câu lục; từ có chú thích trong lời chính là liên kết gạch chân chấm (chạm mở ô chú thích, tắt JavaScript thì nhảy tới mục chú thích); dị bản có nhãn "Dị bản N", chữ khác lời chính tô nền và gạch chân. Tất cả làm lúc dựng trang (`functions.php`), nội dung bài không đổi.
+- **Tìm (T-041):** trang `/tim/` (thanh đầu trang có "Tìm"): ô tìm, kết quả hiện khi gõ, gõ không dấu vẫn ra, tìm cả trong chú thích; nhóm "Từ điển" khi khớp tên mục từ (D-067).
 - **Vùng, chủ đề (T-089, T-091):** trang **Gợi ý vùng, chủ đề** (bảng ánh xạ chủ đề của nguồn → chủ đề của dự án; danh sách bài với gợi ý và lý do); cuối bài có "Chủ đề: …", "Vùng: …" (chỉ những gì đã duyệt).
 - **Từ điển, địa danh (T-044, T-086..T-088):** trang `/tu-dien/` và trang mục từ (theme dùng `taxonomy.html`; plugin thêm nguồn, ảnh, bản đồ vào mô tả); ô chạm từ có ảnh, bản đồ nhỏ, "Xem trong từ điển"; khối Đáp án có ảnh. Chỉ thực thể Wikidata người sáng lập đã xác nhận mới hiện.
 - **Công cụ đọc (T-085), bài dài (T-090):** "Aa", "◐", "Trình chiếu", "▶ Nghe" (chỉ khi máy có giọng tiếng Việt; "Giọng đọc máy") cạnh Trích dẫn · Chia sẻ; cỡ chữ và sáng / tối nhớ trên máy, áp trong `<head>` (thuộc tính `data-co-chu`, `data-che-do` trên `<html>`). Bài từ 41 dòng: tóm tắt, mục lục, đoạn, số dòng bên lề, "Đọc toàn bài", "Đọc tiếp từ đoạn N".
@@ -88,6 +91,7 @@ Giữ ít plugin bên thứ ba (mỗi plugin là một nguy cơ bảo mật). D�
 | Phân loại `tu_kho` ("Từ điển", `/tu-dien/<từ>/`) | Mục từ = một chú thích (cùng từ, cùng lời giải); mô tả = lời giải; trường `_cadao_khoa`, `_cadao_nguon_ten`, `_cadao_nguon_url` (dòng Nguồn của chú thích), `_cadao_wd` (Wikidata đã xác nhận) |
 | Bảng `wp_cadao_xac_nhan` | Hàng chờ "Xác nhận Wikidata": `tu:<mục từ>` hoặc `dap:<đáp án>`, mã thực thể, tọa độ, ảnh, bài Wikipedia; chờ / đúng / sai / bỏ qua |
 | Phân loại `the_tho` | Thể thơ máy nhận (T-084) |
+| Bảng `wp_cadao_tim` | Chỉ mục tìm (bài đang đăng): tiêu đề + lời, Hiểu nhanh + chú thích; mỗi phần có dấu (chuẩn hóa) và không dấu |
 | Bảng `wp_cadao_luot_doc` | Lượt đọc: (bài, ngày) → số lượt. Không lưu IP, không lưu ai đọc |
 | Bảng `wp_cadao_gioi_thieu` | (ngày, tên miền trang giới thiệu) → số lượt; vào thẳng ghi "(vào thẳng)" |
 

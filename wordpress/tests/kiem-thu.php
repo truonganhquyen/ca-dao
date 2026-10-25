@@ -630,6 +630,42 @@ cadao_trang_goi_y();
 $tgy = ob_get_clean();
 kt( 'trang "Gợi ý vùng, chủ đề": bảng ánh xạ, gợi ý có lý do, nút đồng ý', str_contains( $tgy, 'Bảng ánh xạ chủ đề của nguồn' ) && str_contains( $tgy, 'Tình yêu đôi lứa' ) && str_contains( $tgy, 'Đồng ý các gợi ý' ) && str_contains( $tgy, 'nguồn xếp vào' ), $tgy );
 
+// ---------- Tìm kiếm (T-041) — các ca của docs/21 mục 5 ----------
+kt( 'boDau: "Công cha" → "cong cha", "Đình" → "dinh"', 'cong cha' === cadao_bo_dau_tim( 'Công cha' ) && 'dinh' === cadao_bo_dau_tim( 'Đình' ) );
+kt( 'chuanHoaCoDau: hoà→hòa, thuỷ→thủy, khoẻ→khỏe, huỷ→hủy', 'hòa thủy khỏe hủy' === cadao_chuan_hoa_co_dau( 'hoà thuỷ khoẻ huỷ' ) );
+kt( 'chuanHoaCoDau giữ nguyên: toàn, hoàng, quý, quả, loẹt, thuyền', 'toàn hoàng quý quả loẹt thuyền' === cadao_chuan_hoa_co_dau( 'toàn hoàng quý quả loẹt thuyền' ) );
+$tim_bai = static fn( string $tieu, string $loi, string $tt = 'publish', string $ct = '' ) => wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => $tt, 'post_title' => $tieu, 'post_content' => cadao_khoi_tho( $loi ) . $ct ) );
+$t1 = $tim_bai( 'Tìm thử hoà thuận', "Tìm thử hoà thuận chữ9901\nchữ9902 cao chữ9903" );
+$t2 = $tim_bai( 'Tìm thử thủy chung', "Tìm thử thủy chung chữ9904\nchữ9905 chữ9906" );
+$t3 = $tim_bai( 'Tìm thử chú thích', "chữ9907 chữ9908\nchữ9909", 'publish', "\n\n" . $ds_ct( 'chữ9907', 'Từ khóa riêng zênhthử trong chú thích.' ) );
+$t4 = $tim_bai( 'Tìm thử nháp', 'Tìm thử hoà thuận bản nháp', 'draft' );
+$ids = static fn( string $q ) => array_column( cadao_tim( $q ), 'id' );
+kt( 'tìm: kiểu bỏ dấu cũ khớp kiểu mới (q04 "hoà thuận"), có dấu mới, không dấu', in_array( $t1, $ids( 'hoà thuận' ), true ) && in_array( $t1, $ids( 'hòa thuận' ), true ) && in_array( $t1, $ids( 'hoa thuan' ), true ) );
+kt( 'tìm: gõ không dấu (q03 "thuy chung")', in_array( $t2, $ids( 'thuy chung' ), true ) );
+kt( 'tìm: đang gõ dở chữ cuối vẫn ra', in_array( $t2, $ids( 'tim thu thuy ch' ), true ) );
+kt( 'tìm: so trọn âm tiết ("ca" không khớp "cao")', ! in_array( $t1, $ids( 'ca chữ9903' ), true ) && in_array( $t1, $ids( 'cao chữ9903' ), true ) );
+kt( 'tìm: tìm cả trong chú thích', in_array( $t3, $ids( 'zênhthử' ), true ) && in_array( $t3, $ids( 'zenhthu' ), true ) );
+kt( 'tìm: bài chưa đăng không có trong kết quả; đăng rồi mới có', ! in_array( $t4, $ids( 'ban nhap' ), true ) && ( wp_publish_post( $t4 ) || true ) && in_array( $t4, $ids( 'ban nhap' ), true ) );
+wp_update_post( array( 'ID' => $t4, 'post_status' => 'draft' ) );
+kt( 'tìm: bài thôi đăng ra khỏi kết quả', ! in_array( $t4, $ids( 'ban nhap' ), true ) );
+$a_dau = $tim_bai( 'Tìm dấu một', 'chữ9911 mà chữ9912' );
+$a_ko  = $tim_bai( 'Tìm dấu hai', 'chữ9911 ma chữ9912' );
+$thu   = $ids( 'chữ9911 mà' );
+kt( 'tìm: gõ có dấu thì bài đúng dấu đứng trước', array_search( $a_dau, $thu, true ) < array_search( $a_ko, $thu, true ), $thu );
+$r = rest_do_request( new WP_REST_Request( 'GET', '/cadao/v1/tim' ) );
+$yc_tim = new WP_REST_Request( 'GET', '/cadao/v1/tim' );
+$yc_tim->set_param( 'q', 'thuy chung' );
+$kt_tim = rest_do_request( $yc_tim )->get_data();
+kt( 'REST tìm: dòng đầu, thể loại, đường dẫn', 'Tìm thử thủy chung chữ9904' === ( $kt_tim['bai'][0]['dong_dau'] ?? '' ) && ! empty( $kt_tim['bai'][0]['url'] ), $kt_tim );
+$_GET = array( 'q' => 'do thu' );
+$trang_tim = do_shortcode( '[cadao_tim]' );
+$_GET = array( 'q' => 'khongcocaunaydau' );
+$trang_khong = do_shortcode( '[cadao_tim]' );
+$_GET = array();
+kt( 'trang /tim/: ô tìm có nhãn, nhóm "Từ điển" khi khớp tên mục từ', str_contains( $trang_tim, '<label for="cadao-tim-o"' ) && str_contains( $trang_tim, 'Từ điển' ) && str_contains( $trang_tim, 'Đò Thử' ), $trang_tim );
+kt( 'trang /tim/: không có kết quả thì báo trung thực, gợi ý cách tìm', str_contains( $trang_khong, 'Chưa tìm thấy câu này trong kho.' ) );
+kt( 'trang "Tìm" có sẵn ở /tim/', ( $p_tim = get_page_by_path( 'tim' ) ) && str_contains( $p_tim->post_content, '[cadao_tim]' ) );
+
 $ngan = do_blocks( cadao_khoi_tho( implode( "\n", array_slice( $khong_kho, 0, 40 ) ) ) );
 kt( 'bài 40 dòng trở xuống: không chia đoạn', ! str_contains( $ngan, 'cadao-bai-dai' ) );
 
