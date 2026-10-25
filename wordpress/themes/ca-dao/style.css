@@ -129,7 +129,7 @@ a {
 	color: inherit;
 }
 
-/* Câu đố: câu hỏi, đáp án mở ra */
+/* Câu đố: đáp án hiện sẵn (D-058), bấm "Đáp án" để ẩn */
 .wp-block-details summary {
 	cursor: pointer;
 	min-height: 44px;
