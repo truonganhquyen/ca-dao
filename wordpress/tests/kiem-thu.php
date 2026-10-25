@@ -232,6 +232,58 @@ kt( 'trang Kho có cột "Đã có dị bản, chú thích"', str_contains( $tat
 kt( 'bộ lọc "chỉ hiện câu đã đọc xong": ẩn câu chưa đọc', str_contains( $loc, 'Câu đã đọc trang' ) && ! str_contains( $loc, 'Câu chưa đọc trang' ) );
 $_GET = array();
 
+// ---------- Trích dẫn, chia sẻ (T-042) ----------
+$td = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'post_title' => 'Dòng trích mẫu', 'post_content' => cadao_khoi_tho( "Dòng trích mẫu & <một>\nDòng trích mẫu hai" ) ) );
+wp_set_object_terms( $td, 'tuc-ngu', 'the_loai' );
+clean_post_cache( $td );
+kt( 'lời của bài: khối Thơ đầu tiên, đúng từng dòng, giải mã HTML', "Dòng trích mẫu & <một>\nDòng trích mẫu hai" === cadao_loi_cua_bai( get_post( $td ) ), cadao_loi_cua_bai( get_post( $td ) ) );
+$mau = cadao_mau_trich_dan( get_post( $td ) );
+kt( 'trích dẫn thông dụng: tên bài, thể loại, tên dự án, địa chỉ trang, ngày truy cập', '"Dòng trích mẫu" (Tục ngữ). Kho tàng Ca dao Tục ngữ Việt Nam. Truy cập tại: ' . get_permalink( $td ) . ', ngày {ngay}.' === $mau['thong_dung'], $mau );
+kt( 'trích dẫn APA 7', 'Kho tàng Ca dao Tục ngữ Việt Nam. (' . get_the_date( 'Y', $td ) . '). Dòng trích mẫu [Tục ngữ]. ' . get_permalink( $td ) === $mau['apa'], $mau );
+$hd = cadao_khoi_hanh_dong( get_post( $td ) );
+kt( 'khối Trích dẫn · Chia sẻ: hai kiểu, hai nút sao chép, nút Chia sẻ', str_contains( $hd, '<summary><span aria-hidden="true">❝</span> Trích dẫn</summary>' ) && str_contains( $hd, 'APA 7' ) && str_contains( $hd, 'Sao chép kèm nguồn' ) && str_contains( $hd, 'Chỉ sao chép lời' ) && str_contains( $hd, '>Chia sẻ</button>' ), $hd );
+kt( 'lời mang sẵn trong khối (đã thoát HTML)', str_contains( $hd, 'data-loi="Dòng trích mẫu &amp; &lt;một&gt;' ) );
+kt( 'tắt JavaScript: các nút ẩn, chữ trích dẫn vẫn hiện', str_contains( $hd, '<p class="cadao-nut cadao-can-js" hidden>' ) && str_contains( $hd, 'class="cadao-chia-se cadao-can-js" hidden' ) && str_contains( $hd, '<span class="cadao-mau-chu">&quot;Dòng trích mẫu&quot; (Tục ngữ)' ) );
+kt( 'lời không ghi nguồn ngoài (D-057); bài không có phần chép thì không có ô "Kèm…"', ! str_contains( $hd, 'Nguồn:' ) && ! str_contains( $hd, 'cadao-kem' ) );
+kt( 'bài có chú thích chép từ nguồn: có ô "Kèm chú thích"', str_contains( cadao_khoi_hanh_dong( get_post( $bai_cd1->ID ) ), 'Kèm chú thích' ) );
+kt( 'câu đố có đáp án, không chú thích: ô "Kèm đáp án"', str_contains( cadao_khoi_hanh_dong( get_post( $bai_do->ID ) ), 'Kèm đáp án</label>' ) );
+kt( 'bài không có khối Thơ: không có khối Trích dẫn', '' === cadao_khoi_hanh_dong( get_post( wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'post_title' => 'Không thơ', 'post_content' => '<p>Chỉ đoạn văn.</p>' ) ) ) ) );
+kt( 'chèn khối trước Dị bản / Chú thích', '<pre>l</pre>[K]<h2 class="wp-block-heading">Dị bản</h2>' === cadao_chen_hanh_dong( '<pre>l</pre><h2 class="wp-block-heading">Dị bản</h2>', '[K]' ) );
+kt( 'chèn khối trước dòng Nguồn cuối bài, hoặc ở cuối', '<pre>l</pre>[K]<p class="cadao-nguon">Nguồn</p>' === cadao_chen_hanh_dong( '<pre>l</pre><p class="cadao-nguon">Nguồn</p>', '[K]' ) && '<pre>l</pre>[K]' === cadao_chen_hanh_dong( '<pre>l</pre>', '[K]' ) );
+
+// ---------- Lượt đọc (T-081) ----------
+kt( 'bảng lượt đọc đã tạo', (bool) $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', cadao_luot_doc_bang() ) ) );
+$gui = static function ( int $id, string $ua = 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Mobile Safari/537.36', string $tu = '' ) {
+	$yc = new WP_REST_Request( 'POST', '/cadao/v1/luot-doc/' . $id );
+	$yc->set_header( 'user-agent', $ua );
+	$yc->set_header( 'content-type', 'application/json' );
+	$yc->set_body( wp_json_encode( array( 'tu' => $tu ) ) );
+	return rest_do_request( $yc );
+};
+$r = $gui( $td, 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Mobile Safari/537.36', 'www.zalo.me' );
+kt( 'gửi một lượt đọc: được tính', 200 === $r->get_status() && true === ( $r->get_data()['tinh'] ?? null ) && 1 === cadao_luot_doc_tong( $td ), array( $r->get_status(), $r->get_data() ) );
+kt( 'trang giới thiệu: chỉ tên miền', array( 'zalo.me' => 1 ) === cadao_gioi_thieu_nhieu(), cadao_gioi_thieu_nhieu() );
+$r = $gui( $td, 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)' );
+kt( 'máy dò tự khai tên (Googlebot) không được tính', true !== ( $r->get_data()['tinh'] ?? null ) && 1 === cadao_luot_doc_tong( $td ) );
+kt( 'trình duyệt không giao diện không được tính', cadao_la_may_do( 'Mozilla/5.0 (X11; Linux x86_64) HeadlessChrome/120.0' ) && cadao_la_may_do( '' ) );
+kt( 'bài chưa đăng không nhận lượt đọc', 404 === $gui( $bai_cd1->ID )->get_status() && 0 === cadao_luot_doc_tong( $bai_cd1->ID ) );
+kt( 'bài không phải Ca dao – Tục ngữ không nhận lượt đọc', 404 === $gui( wp_insert_post( array( 'post_title' => 'Bài viết thường', 'post_status' => 'publish' ) ) )->get_status() );
+kt( 'trang giới thiệu: bỏ chuỗi không phải tên miền và chính site', '' === cadao_ten_mien_gioi_thieu( 'https://x.y/z' ) && '' === cadao_ten_mien_gioi_thieu( wp_parse_url( home_url(), PHP_URL_HOST ) ) && 'google.com' === cadao_ten_mien_gioi_thieu( 'WWW.Google.com' ) );
+kt( 'không đặt cookie (không có lệnh setcookie nào trong plugin)', ! preg_match( '/setcookie|setrawcookie|document\.cookie/', implode( '', array_map( 'file_get_contents', array_merge( glob( CADAO_THU_MUC . '/inc/*.php' ), glob( CADAO_THU_MUC . '/assets/*.js' ) ) ) ) ) );
+kt( 'chưa tới 10 lượt: không hiện số lượt đọc', ! str_contains( cadao_khoi_hanh_dong( get_post( $td ) ), 'lượt đọc' ) );
+for ( $i = 0; $i < 9; $i++ ) {
+	cadao_luot_doc_cong( $td );
+}
+kt( 'từ 10 lượt: hiện "10 lượt đọc"', str_contains( cadao_khoi_hanh_dong( get_post( $td ) ), '>10 lượt đọc<' ) );
+kt( '"Đọc nhiều tuần này" ẩn khi chưa đủ 3 bài được đọc', '' === do_shortcode( '[cadao_doc_nhieu]' ) );
+cadao_luot_doc_cong( $tay );
+cadao_luot_doc_cong( $sua );
+cadao_luot_doc_cong( $sua );
+kt( 'bài đọc nhiều: xếp theo số lượt, chỉ bài đang đăng', array( $td => 10, $sua => 2, $tay => 1 ) === cadao_luot_doc_nhieu( 7, 5 ), cadao_luot_doc_nhieu( 7, 5 ) );
+$dn = do_shortcode( '[cadao_doc_nhieu]' );
+kt( '"Đọc nhiều tuần này" hiện khi có từ 3 bài', str_contains( $dn, 'Đọc nhiều tuần này' ) && strpos( $dn, 'Dòng trích mẫu' ) < strpos( $dn, 'Bài cũ đã sửa nguồn' ), $dn );
+kt( 'lượt đọc theo ngày: đủ 7 ngày, hôm nay có 13 lượt', 7 === count( cadao_luot_doc_theo_ngay( 7 ) ) && 13 === cadao_luot_doc_theo_ngay( 7 )[ wp_date( 'Y-m-d' ) ] );
+
 // ---------- Theme: nhận lục bát (T-072) ----------
 require_once '/repo/themes/ca-dao/functions.php';
 kt( 'lục bát: cặp 6–8 âm tiết', cadao_la_luc_bat( array( 'một hai ba bốn năm sáu', 'một hai ba bốn năm sáu bảy tám', 'một hai ba bốn năm sáu', 'một hai ba bốn năm sáu bảy tám' ) ) );

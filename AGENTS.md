@@ -90,7 +90,7 @@ Ngoài các Human Gate này, agent phải tự quyết các chi tiết kỹ thu�
 - Dữ liệu suy ra (nhãn, dị bản hiển thị, chuỗi hiển thị, noindex) lấy từ `scripts/lib/suy-ra.mjs`; vị trí chú giải lấy từ `phanGiaiNeo()` ở `scripts/lib/neo-chu-giai.mjs`. Không viết bản tính thứ hai.
 - Ghi nguồn gốc cho mọi lời lấy từ web: `url` của đúng trang, `ngay_truy_cap`, `ban_luu_tru` (R22).
 - Nhiều PR mở cùng lúc: xếp chồng nhánh theo `docs/03` mục 7.1 (không tách song song từ `main`); số D mới = lớn nhất trên `main` và mọi PR đang mở + 1.
-- Làm một task mỗi nhánh/PR; mô tả PR gồm: đã làm, **không** làm, câu hỏi còn lại, **link bản xem trước**.
+- Một nhánh/PR gom các task liên quan của cùng một đợt; agent tự gộp khi kiểm tra và CI đạt (D-066). Mô tả PR gồm: đã làm, **không** làm, câu hỏi còn lại, **link bản xem trước**.
 - Commit của bạn có dòng `AI-Agent: <công cụ/mô hình>` ở cuối nội dung commit (D-032).
 - Khai chú giải bằng `cum_tu` (gõ đúng như trong lời); chỉ thêm `dong`/`lan` khi công cụ báo mơ hồ.
 

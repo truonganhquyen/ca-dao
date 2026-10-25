@@ -90,6 +90,50 @@ try {
     }
   }
   console.log(`Quét WordPress: ${dsTrang.length} trang × ${CHE_DO.length} chế độ (axe ${THE_WCAG.join(', ')}) — ${loi.length} lỗi.`);
+
+  // Trích dẫn (T-042) và lượt đọc (T-081) trên trình duyệt thật: bấm "Sao chép kèm nguồn" rồi đọc bộ nhớ tạm;
+  // lượt đọc gửi đúng một lần sau 5 giây, tải lại trong ngày không gửi nữa, tắt JavaScript thì không gửi; không cookie.
+  const baiThu = new URL(bai.find(b => /\/ca-dao\//.test(b.link))?.link ?? bai[0].link).pathname;
+  const UA = 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Mobile Safari/537.36';
+  // Ngữ cảnh riêng: bộ nhớ trình duyệt (đánh dấu đã đọc) không lẫn với các tab quét ở trên
+  const ngCanh = await trinhDuyet.createBrowserContext();
+  await ngCanh.overridePermissions(G, ['clipboard-read', 'clipboard-write', 'clipboard-sanitized-write']);
+  const moTab = async (js = true) => {
+    const tab = await ngCanh.newPage();
+    await tab.setUserAgent(UA);
+    await tab.setJavaScriptEnabled(js);
+    const gui = [];
+    tab.on('response', r => { if (r.request().method() === 'POST' && r.url().includes('/cadao/v1/luot-doc/')) gui.push(r); });
+    return { tab, gui };
+  };
+  const cho = ms => new Promise(ok => setTimeout(ok, ms));
+  let kiemThem = 0;
+  const kiem = (ten, dk) => { kiemThem++; if (!dk) loi.push(`${baiThu}: ${ten}`); };
+
+  const tatJs = await moTab(false);
+  await tatJs.tab.goto(G + baiThu, { waitUntil: 'load' });
+  kiem('tắt JavaScript: chữ trích dẫn vẫn có trên trang', (await tatJs.tab.$eval('.cadao-mau-chu', e => e.textContent)).includes('Truy cập tại:'));
+  await cho(6000);
+  kiem('tắt JavaScript: không gửi lượt đọc', tatJs.gui.length === 0);
+  await tatJs.tab.close();
+
+  const { tab, gui } = await moTab();
+  await tab.goto(G + baiThu, { waitUntil: 'load' });
+  await tab.click('.cadao-trich-dan summary');
+  await tab.click('.cadao-nut button[data-viec="kem_nguon"]');
+  await cho(500);
+  const bao = await tab.$eval('.cadao-bao', e => e.textContent);
+  const tam = await tab.evaluate(() => navigator.clipboard.readText().catch(() => ''));
+  kiem(`"Sao chép kèm nguồn": báo "${bao}"`, bao === 'Đã sao chép. Cảm ơn bạn đã ghi nguồn!');
+  kiem('"Sao chép kèm nguồn": bộ nhớ tạm có lời và trích dẫn', tam.length > 40 && tam.includes('Kho tàng Ca dao Tục ngữ Việt Nam. Truy cập tại:') && !tam.includes('{ngay}'));
+  await cho(6000);
+  kiem(`lượt đọc gửi một lần sau 5 giây (đã gửi ${gui.length})`, gui.length === 1 && gui[0].status() === 200 && (await gui[0].json()).tinh === true);
+  await tab.reload({ waitUntil: 'load' });
+  await cho(6000);
+  kiem(`tải lại trong ngày không gửi thêm (đã gửi ${gui.length})`, gui.length === 1);
+  kiem('không có cookie', (await tab.cookies()).length === 0);
+  await ngCanh.close();
+  console.log(`Thử trích dẫn, lượt đọc trên trình duyệt: ${kiemThem} phép thử.`);
 } catch (e) {
   loi.push(String(e.message ?? e));
 } finally {
