@@ -497,6 +497,8 @@ $khong_kho = array_map( static fn( $i ) => "dòng $i", range( 1, 50 ) );
 $cd        = cadao_chia_doan( $khong_kho );
 kt( 'bài dài không chia khổ: mỗi đoạn ~20 dòng', array( 1 => 1, 2 => 21, 3 => 41 ) === $cd['dong_dau'] && 50 === $cd['dong_cuoi'][3], $cd );
 $co_kho = array_merge( array_fill( 0, 12, 'a b' ), array( '' ), array_fill( 0, 30, 'c d' ), array( '' ), array_fill( 0, 5, 'e f' ) );
+$kho_dai = array_merge( array_fill( 0, 5, 'a b' ), array( '' ), array_fill( 0, 60, 'c d' ) );
+kt( 'khổ dài quá 40 dòng: chia tiếp ~20 dòng một đoạn', array( 1 => 1, 2 => 6, 3 => 26, 4 => 46 ) === cadao_chia_doan( $kho_dai )['dong_dau'], cadao_chia_doan( $kho_dai ) );
 kt( 'bài dài có khổ: chia theo khổ', array( 1 => 1, 2 => 13, 3 => 43 ) === cadao_chia_doan( $co_kho )['dong_dau'], cadao_chia_doan( $co_kho ) );
 $dai = array();
 for ( $k = 1; $k <= 3; $k++ ) {
@@ -508,6 +510,98 @@ $ra_dai = do_blocks( $nd_dai );
 $GLOBALS['cadao_bai_dung'] = null;
 kt( 'bài dài: số dòng, thời gian đọc, mục lục 3 đoạn, số dòng bên lề mỗi 5 dòng', str_contains( $ra_dai, '60 dòng · 3 đoạn · khoảng' ) && 3 === substr_count( $ra_dai, '<li><a href="#cadao-doan-' ) && str_contains( $ra_dai, 'data-so="5"' ) && str_contains( $ra_dai, 'data-so="60"' ), $ra_dai );
 kt( 'bài dài: đoạn sau dòng 30 được đánh dấu để thu gọn (tắt JavaScript vẫn hiện đủ)', str_contains( $ra_dai, 'id="cadao-doan-3" data-so-doan="3" data-sau' ) && ! str_contains( $ra_dai, 'id="cadao-doan-2" data-so-doan="2" data-sau' ) && str_contains( $ra_dai, 'Khổ 3 dòng thử 20' ) );
+// ---------- Từ điển (T-044) ----------
+$ds_ct = static fn( string $tu, string $nd, string $nguon = '' ) => "<!-- wp:list {\"className\":\"cadao-chu-thich\"} -->\n<ul class=\"wp-block-list cadao-chu-thich\">\n<!-- wp:list-item -->\n<li><strong>" . esc_html( $tu ) . '</strong>: ' . esc_html( $nd ) . "</li>\n<!-- /wp:list-item -->\n</ul>\n<!-- /wp:list -->"
+	. ( $nguon ? "\n\n" . cadao_khoi_doan( 'Nguồn: <a href="' . $nguon . '" rel="noopener">Nguồn từ điển thử <span aria-hidden="true">↗</span></a>', 'cadao-chu-thich-nguon' ) : '' );
+$td1 = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'post_title' => 'Từ điển thử một', 'post_content' => cadao_khoi_tho( 'Đi qua bến Đò Thử' ) . "\n\n" . $ds_ct( 'Đò Thử', 'Bến đò mẫu ở Nam Bộ.', 'https://example.org/td1/' ) ) );
+$td2 = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'post_title' => 'Từ điển thử hai', 'post_content' => cadao_khoi_tho( 'Lại qua Đò Thử' ) . "\n\n" . $ds_ct( 'Đò Thử', 'Bến đò mẫu ở Nam Bộ.', 'https://example.org/td2/' ) ) );
+$td3 = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'post_title' => 'Từ điển thử ba', 'post_content' => cadao_khoi_tho( 'Chữ cổ thử' ) . "\n\n" . $ds_ct( 'Đò Thử', 'Một nghĩa khác, từ cổ.' ) ) );
+$m_do = cadao_muc_tu( array( 'tu' => 'Đò Thử', 'noi_dung' => 'Bến đò mẫu ở Nam Bộ.' ), false );
+kt( 'từ điển: cùng từ, cùng lời giải ở hai bài → một mục từ, có cả hai bài', $m_do && 2 === (int) get_term( $m_do->term_id, 'tu_kho' )->count && has_term( $m_do->term_id, 'tu_kho', $td1 ) && has_term( $m_do->term_id, 'tu_kho', $td2 ) );
+$m_co = cadao_muc_tu( array( 'tu' => 'Đò Thử', 'noi_dung' => 'Một nghĩa khác, từ cổ.' ), false );
+kt( 'từ điển: cùng từ, lời giải khác → mục từ khác (đường dẫn riêng)', $m_co && $m_co->term_id !== $m_do->term_id && str_contains( (string) get_term_link( $m_co ), '/tu-dien/do-thu-2/' ), get_term_link( $m_co ) );
+kt( 'từ điển: nguồn là dòng "Nguồn" của danh sách chú thích; tự viết thì không có nguồn', 'https://example.org/td1/' === get_term_meta( $m_do->term_id, '_cadao_nguon_url', true ) && '' === get_term_meta( $m_co->term_id, '_cadao_nguon_ten', true ) );
+$mo_ta = apply_filters( 'term_description', 'Bến đò mẫu ở Nam Bộ.', $m_do->term_id, 'tu_kho', 'tu_kho' );
+kt( 'trang mục từ: lời giải, "Nguồn: …", số bài có từ này', str_contains( $mo_ta, 'Nguồn: <a href="https://example.org/td1/"' ) && str_contains( $mo_ta, '2 bài có từ này' ), $mo_ta );
+$_GET = array( 'loc' => 'nam-bo' );
+$tdien = do_shortcode( '[cadao_tu_dien]' );
+$_GET = array( 'loc' => 'tu-co' );
+$tdien_co = do_shortcode( '[cadao_tu_dien]' );
+$_GET = array();
+kt( 'trang /tu-dien/: lọc Nam Bộ, từ cổ theo lời giải; nhóm theo chữ cái (Đ riêng)', str_contains( $tdien, 'Bến đò mẫu' ) && ! str_contains( $tdien, 'Một nghĩa khác' ) && str_contains( $tdien_co, 'Một nghĩa khác' ) && str_contains( $tdien, '<h2>Đ</h2>' ), $tdien );
+kt( 'trang "Từ điển" có sẵn ở /tu-dien/', ( $p_td = get_page_by_path( 'tu-dien' ) ) && str_contains( $p_td->post_content, '[cadao_tu_dien]' ) );
+$tdu = do_blocks( get_post( $td1 )->post_content );
+$GLOBALS['cadao_bai_dung'] = cadao_chuan_bi_bai( get_post( $td1 )->post_content ) + array( 'tho' => -1, 'ct' => 0 );
+$tdu = do_blocks( get_post( $td1 )->post_content );
+$GLOBALS['cadao_bai_dung'] = null;
+kt( 'chú thích trong bài trỏ tới mục từ (ô chạm có "Xem trong từ điển")', str_contains( $tdu, 'data-tu-dien="' . get_term_link( $m_do ) . '"' ) && str_contains( $tdu, 'data-so-bai="2"' ), $tdu );
+
+// ---------- Wikidata (T-086), địa danh (T-087), ảnh đáp án (T-088) — API giả ----------
+$GLOBALS['wd_hoi'] = array();
+add_filter( 'cadao_nhip_giay', '__return_zero' );
+add_filter(
+	'pre_http_request',
+	static function ( $tra, $tham, $url ) {
+		$GLOBALS['wd_hoi'][] = $url;
+		$q = array();
+		parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $q );
+		$tl = static fn( $body ) => array( 'headers' => array(), 'body' => wp_json_encode( $body ), 'response' => array( 'code' => 200, 'message' => '' ), 'cookies' => array(), 'filename' => null );
+		if ( 'wbsearchentities' === ( $q['action'] ?? '' ) ) {
+			$s = $q['search'];
+			return $tl( array( 'search' => 'Đò Thử' === $s ? array(
+				array( 'id' => 'Q901', 'label' => 'Đò Thử', 'description' => 'trang định hướng Wikimedia', 'match' => array( 'type' => 'label', 'language' => 'vi', 'text' => 'Đò Thử' ) ),
+				array( 'id' => 'Q902', 'label' => 'Đò Thử', 'description' => 'bến đò mẫu', 'match' => array( 'type' => 'label', 'language' => 'vi', 'text' => 'Đò Thử' ) ),
+			) : ( 'Cái mẫu' === $s ? array( array( 'id' => 'Q903', 'label' => 'cái mẫu', 'description' => 'đồ vật mẫu', 'match' => array( 'type' => 'alias', 'language' => 'vi', 'text' => 'cái mẫu' ) ) ) : array() ) ) );
+		}
+		if ( 'wbgetentities' === ( $q['action'] ?? '' ) ) {
+			$e = array(
+				'Q902' => array( 'labels' => array( 'vi' => array( 'value' => 'Đò Thử' ) ), 'descriptions' => array( 'vi' => array( 'value' => 'bến đò mẫu' ) ), 'claims' => array( 'P625' => array( array( 'mainsnak' => array( 'datavalue' => array( 'value' => array( 'latitude' => 10.03, 'longitude' => 105.78 ) ) ) ) ), 'P18' => array( array( 'mainsnak' => array( 'datavalue' => array( 'value' => 'Anh do thu.jpg' ) ) ) ) ), 'sitelinks' => array( 'viwiki' => array( 'title' => 'Đò Thử' ) ) ),
+				'Q903' => array( 'labels' => array( 'vi' => array( 'value' => 'cái mẫu' ) ), 'claims' => array( 'P18' => array( array( 'mainsnak' => array( 'datavalue' => array( 'value' => 'Anh khong mo.jpg' ) ) ) ) ) ),
+			);
+			return $tl( array( 'entities' => array( $q['ids'] => $e[ $q['ids'] ] ?? array() ) ) );
+		}
+		if ( 'query' === ( $q['action'] ?? '' ) ) { // Commons: giấy phép của ảnh
+			$mo = str_contains( $q['titles'], 'do thu' );
+			return $tl( array( 'query' => array( 'pages' => array( '1' => array( 'imageinfo' => array( array( 'thumburl' => 'https://upload.wikimedia.org/thu/480px-anh.png', 'descriptionurl' => 'https://commons.wikimedia.org/wiki/File:Anh', 'extmetadata' => array( 'LicenseShortName' => array( 'value' => $mo ? 'CC BY-SA 4.0' : 'All rights reserved' ), 'Artist' => array( 'value' => '<a href="#">Người Chụp Thử</a>' ), 'LicenseUrl' => array( 'value' => 'https://creativecommons.org/licenses/by-sa/4.0' ) ) ) ) ) ) ) ) );
+		}
+		if ( str_starts_with( $url, 'https://upload.wikimedia.org/' ) ) { // tải ảnh: ghi một PNG 1×1
+			file_put_contents( $tham['filename'], base64_decode( 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==' ) );
+			return array( 'headers' => array( 'content-type' => 'image/png' ), 'body' => '', 'response' => array( 'code' => 200, 'message' => '' ), 'cookies' => array(), 'filename' => $tham['filename'] );
+		}
+		return $tra;
+	},
+	10,
+	3
+);
+cadao_wd_lam_dan( 120 );
+$hang_wd = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . cadao_wd_bang() . ' WHERE khoa = %s', 'tu:' . $m_do->term_id ) );
+kt( 'Wikidata: bỏ trang định hướng, lấy thực thể trùng nhãn; vào hàng chờ "Xác nhận"', $hang_wd && 'Q902' === $hang_wd->wd && 'cho' === $hang_wd->trang_thai, $hang_wd );
+kt( 'Wikidata: chưa xác nhận thì chưa dùng (không ảnh, không bản đồ)', null === cadao_wd_cua_muc_tu( $m_do->term_id ) && '' === cadao_them_cho_chu_thich( 'Đò Thử', 'Bến đò mẫu ở Nam Bộ.' )['them'] );
+kt( 'Wikidata: đáp án câu đố cũng vào hàng chờ', (bool) $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM ' . cadao_wd_bang() . " WHERE khoa = %s AND trang_thai = 'cho'", cadao_khoa_dap_an( 'Cái mẫu' ) ) ) );
+cadao_wd_xac_nhan( (int) $hang_wd->id, 'dung' );
+$wd = cadao_wd_cua_muc_tu( $m_do->term_id );
+kt( 'xác nhận "Đúng": ảnh giấy phép mở tải về thư viện, ghi tác giả và giấy phép', $wd && ! empty( $wd['anh_da_tai']['id'] ) && 'Người Chụp Thử' === $wd['anh_da_tai']['tac_gia'] && 'CC BY-SA 4.0' === $wd['anh_da_tai']['giay_phep'] && array( 10.03, 105.78 ) === $wd['toa_do'], $wd );
+$dd = cadao_html_dia_danh( $wd );
+kt( 'địa danh: ảnh có dòng ghi công, bản đồ nhỏ có chấm đúng chỗ, mở bản đồ lớn, Wikipedia', str_contains( $dd, 'Ảnh: Người Chụp Thử · <a href="https://creativecommons.org/licenses/by-sa/4.0"' ) && str_contains( $dd, 'class="cadao-cham" style="left:24.23%;top:86.99%"' ) && str_contains( $dd, 'openstreetmap.org/?mlat=10.03&#038;mlon=105.78' ) && str_contains( $dd, 'vi.wikipedia.org/wiki/' ), $dd );
+kt( 'trang mục từ có ảnh và bản đồ sau khi xác nhận', str_contains( apply_filters( 'term_description', '', $m_do->term_id, 'tu_kho', 'tu_kho' ), 'cadao-ban-do-nho' ) );
+$hang_dap = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . cadao_wd_bang() . ' WHERE khoa = %s', cadao_khoa_dap_an( 'Cái mẫu' ) ) );
+cadao_wd_xac_nhan( (int) $hang_dap->id, 'dung' );
+kt( 'ảnh giấy phép không mở: không dùng; đáp án không có ảnh thì không để chỗ trống', '' === cadao_them_cho_dap_an( 'Cái mẫu' ) && false === ( json_decode( $wpdb->get_var( $wpdb->prepare( 'SELECT du_lieu FROM ' . cadao_wd_bang() . ' WHERE id = %d', $hang_dap->id ) ), true )['anh_da_tai'] ?? null ) );
+cadao_wd_xac_nhan( (int) $hang_wd->id, 'sai' );
+kt( 'đổi thành "Sai": thôi dùng', null === cadao_wd_cua_muc_tu( $m_do->term_id ) );
+cadao_wd_xac_nhan( (int) $hang_wd->id, 'dung' );
+$so_hoi = count( $GLOBALS['wd_hoi'] );
+cadao_wd_lam_dan( 60 );
+kt( 'chạy lại: không hỏi lại mục đã xét (lịch sự với API)', count( $GLOBALS['wd_hoi'] ) === $so_hoi );
+remove_all_filters( 'pre_http_request' );
+remove_all_filters( 'cadao_nhip_giay' );
+$_GET = array( 'tab' => 'dung' );
+ob_start();
+cadao_trang_wikidata();
+$twd = ob_get_clean();
+$_GET = array();
+kt( 'trang "Xác nhận Wikidata": thực thể, mô tả, nút quyết', str_contains( $twd, 'Q902' ) && str_contains( $twd, 'bến đò mẫu' ) && str_contains( $twd, 'Sai' ) );
+
 $ngan = do_blocks( cadao_khoi_tho( implode( "\n", array_slice( $khong_kho, 0, 40 ) ) ) );
 kt( 'bài 40 dòng trở xuống: không chia đoạn', ! str_contains( $ngan, 'cadao-bai-dai' ) );
 

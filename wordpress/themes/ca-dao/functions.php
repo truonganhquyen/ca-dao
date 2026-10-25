@@ -208,18 +208,29 @@ const CADAO_BAI_DAI_DOAN = 20; // bài không chia khổ: mỗi đoạn khoảng
  */
 function cadao_chia_doan( array $chu ): array {
 	$ra   = array( 'bat_dau' => array(), 'dong_dau' => array(), 'dong_cuoi' => array() );
-	$co   = in_array( '', array_map( 'trim', array_slice( $chu, 1, -1 ) ), true );
-	$so   = 0;
-	$thu  = 0; // dòng có chữ thứ mấy
-	$moi  = true;
-	$trong = 0;
+	// Độ dài từng khổ (khổ cách nhau dòng trống); khổ dài quá 40 dòng thì chia tiếp ~20 dòng một đoạn
+	$dai_kho = array();
+	$kho     = 0;
 	foreach ( $chu as $k => $d ) {
 		if ( '' === trim( $d ) ) {
-			$moi = $co;
+			$kho = $k + 1;
+			continue;
+		}
+		$dai_kho[ $kho ] = ( $dai_kho[ $kho ] ?? 0 ) + 1;
+	}
+	$so    = 0;
+	$thu   = 0; // dòng có chữ thứ mấy
+	$moi   = true;
+	$trong = 0;
+	$kho   = 0;
+	foreach ( $chu as $k => $d ) {
+		if ( '' === trim( $d ) ) {
+			$moi = true;
+			$kho = $k + 1;
 			continue;
 		}
 		++$thu;
-		if ( $moi || ( ! $co && $trong >= CADAO_BAI_DAI_DOAN ) ) {
+		if ( $moi || ( $dai_kho[ $kho ] > CADAO_BAI_DAI && $trong >= CADAO_BAI_DAI_DOAN ) ) {
 			++$so;
 			$ra['bat_dau'][ $k ]   = $so;
 			$ra['dong_dau'][ $so ] = $thu;
@@ -304,10 +315,40 @@ add_filter(
 		if ( ! cadao_bai_dang_dung() || ! str_contains( (string) ( $khoi['attrs']['className'] ?? '' ), 'cadao-chu-thich' ) ) {
 			return $html;
 		}
-		return preg_replace_callback( '~<li\b~', static fn() => '<li id="cadao-ct-' . ( ++$GLOBALS['cadao_bai_dung']['ct'] ) . '"', $html );
+		return preg_replace_callback(
+			'~<li\b([^>]*)>(.*?)</li>~s',
+			static function ( $m ) {
+				$id  = ++$GLOBALS['cadao_bai_dung']['ct'];
+				$dl  = '';
+				$tem = '';
+				// Mục từ trong từ điển (T-044), ảnh / bản đồ của địa danh đã xác nhận (T-087): ô chú thích dùng khi chạm từ
+				if ( function_exists( 'cadao_them_cho_chu_thich' ) && preg_match( '~^\s*<strong>(.*?)</strong>\s*:\s*(.*)$~s', $m[2], $p ) ) {
+					$giai  = static fn( $s ) => trim( html_entity_decode( wp_strip_all_tags( $s ), ENT_QUOTES | ENT_HTML5, 'UTF-8' ) );
+					$them  = cadao_them_cho_chu_thich( $giai( $p[1] ), $giai( $p[2] ) );
+					if ( $them ) {
+						$dl  = ' data-tu-dien="' . esc_url( $them['url'] ) . '" data-so-bai="' . (int) $them['so_bai'] . '"';
+						$tem = $them['them'] ? '<template class="cadao-ct-them">' . $them['them'] . '</template>' : '';
+					}
+				}
+				return '<li id="cadao-ct-' . $id . '"' . $m[1] . $dl . '>' . $m[2] . $tem . '</li>';
+			},
+			$html
+		);
 	},
 	10,
 	2
+);
+
+/** Câu đố: đáp án đã xác nhận trên Wikidata có ảnh nhỏ kèm ghi công (T-088); không có ảnh thì không để chỗ trống. */
+add_filter(
+	'render_block_core/details',
+	static function ( $html ) {
+		if ( ! cadao_bai_dang_dung() || ! function_exists( 'cadao_them_cho_dap_an' ) || ! preg_match( '~<summary>Đáp án</summary>(.*)</details>~s', $html, $m ) ) {
+			return $html;
+		}
+		$them = cadao_them_cho_dap_an( trim( html_entity_decode( wp_strip_all_tags( $m[1] ), ENT_QUOTES | ENT_HTML5, 'UTF-8' ) ) );
+		return '' === $them ? $html : str_replace( '</details>', '<div class="cadao-dap-an-them">' . $them . '</div></details>', $html );
+	}
 );
 
 /** "Hiểu nhanh" (đoạn trích do dự án viết) ngay dưới lời, trước dị bản và chú thích (docs/20 mục 4.1, lớp 1). */

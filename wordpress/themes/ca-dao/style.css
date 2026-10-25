@@ -2,7 +2,7 @@
 Theme Name:        Kho tàng Ca dao
 Description:       Theme con của Twenty Twenty-Five cho dự án Kho tàng Ca dao Tục ngữ Việt Nam: chữ và khoảng trắng trước, lời thơ lớn, sáng/tối theo máy (docs/20 trong repo ca-dao).
 Template:          twentytwentyfive
-Version:           0.4.0
+Version:           0.5.0
 Requires at least: 6.8
 Requires PHP:      8.1
 Author:            Dự án Kho tàng Ca dao Tục ngữ Việt Nam
@@ -452,6 +452,100 @@ html[data-co-chu="3"] .wp-block-verse {
 }
 .cadao-doc-tiep {
 	margin-block-end: 0.5rem;
+}
+
+/* Địa danh đã xác nhận (T-087, T-088): ảnh Commons có ghi công, bản đồ nhỏ */
+.cadao-anh-wd {
+	margin: 0.5rem 0;
+}
+.cadao-anh-wd img {
+	display: block;
+	max-width: 100%;
+	max-height: 14rem;
+	width: auto;
+	height: auto;
+	border-radius: 6px;
+}
+.cadao-anh-wd figcaption {
+	margin-top: 0.25rem;
+	color: var(--cadao-nhat);
+	font-size: var(--wp--preset--font-size--small);
+}
+.cadao-anh-wd figcaption a,
+.cadao-lien-ket-wd a {
+	color: inherit;
+}
+.cadao-ban-do-nho {
+	position: relative;
+	width: 9rem;
+	margin: 0.5rem 0 0;
+}
+.cadao-ban-do-nho img {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+.cadao-cham {
+	position: absolute;
+	width: 12px;
+	height: 12px;
+	margin: -6px 0 0 -6px;
+	border: 2px solid var(--cadao-giay);
+	border-radius: 50%;
+	background: var(--cadao-son);
+}
+.cadao-lien-ket-wd {
+	margin: 0.25rem 0;
+	font-size: var(--wp--preset--font-size--small);
+}
+.cadao-lien-ket-wd a {
+	display: inline-flex;
+	align-items: center;
+	min-height: 32px;
+}
+.cadao-dap-an-them {
+	margin-top: 0.5rem;
+}
+
+/* Từ điển (T-044): bộ lọc, chữ cái, danh sách mục từ */
+.cadao-tu-dien-loc,
+.cadao-tu-dien-chu {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem 0.5rem;
+	margin-block: 0.75rem;
+}
+.cadao-tu-dien-loc a,
+.cadao-tu-dien-chu a {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 44px;
+	min-height: 44px;
+	padding: 0 0.5rem;
+	border: 1px solid var(--cadao-ke);
+	border-radius: 8px;
+	color: inherit;
+	text-decoration: none;
+}
+.cadao-tu-dien-loc a[aria-current],
+.cadao-tu-dien-chu a[aria-current] {
+	border-color: var(--cadao-son);
+	color: var(--cadao-son);
+	font-weight: 600;
+}
+.cadao-tu-dien-ds {
+	padding-inline-start: 0;
+	list-style: none;
+}
+.cadao-tu-dien-ds li {
+	padding-block: 0.5rem;
+	border-block-end: 1px solid var(--cadao-ke);
+}
+.cadao-tu-dien-so,
+.cadao-tu-dien-tom {
+	color: var(--cadao-nhat);
+	font-size: var(--wp--preset--font-size--small);
 }
 
 /* "Đọc nhiều tuần này" (trang chủ) */

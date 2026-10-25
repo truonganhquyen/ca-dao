@@ -262,6 +262,19 @@
 				var ds = li.closest('ul, ol');
 				var sau = ds && ds.nextElementSibling;
 				if (sau && sau.classList.contains('cadao-chu-thich-nguon')) { noi.appendChild(sau.cloneNode(true)); }
+				// Ảnh, bản đồ nhỏ của địa danh đã xác nhận (T-087); "Xem trong từ điển" (T-044)
+				var tem = li.querySelector('template.cadao-ct-them');
+				if (tem) { noi.appendChild(tem.content.cloneNode(true)); }
+				if (li.getAttribute('data-tu-dien')) {
+					var lk = document.createElement('a');
+					lk.href = li.getAttribute('data-tu-dien');
+					var soBai = Number(li.getAttribute('data-so-bai')) || 0;
+					lk.textContent = 'Xem trong từ điển' + (soBai > 1 ? ' (' + soBai + ' bài có từ này)' : '');
+					var pl = document.createElement('p');
+					pl.className = 'cadao-lien-ket-wd';
+					pl.appendChild(lk);
+					noi.appendChild(pl);
+				}
 				tuMo = a;
 				a.setAttribute('aria-expanded', 'true');
 				o.showModal();

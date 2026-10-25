@@ -132,6 +132,7 @@ Mẫu VieNeu đọc "Bao giờ cạn lạch Đồng Nai" (giọng Hải Đăng, 
 - **Gắn Wikidata (ý 13, C).** Với mỗi từ được chú thích (và đáp án câu đố), máy tìm thực thể Wikidata trùng nhãn tiếng Việt, bỏ trang định hướng, đưa vào hàng chờ **Xác nhận** trong trang quản trị (Đúng / Sai / Bỏ qua). Chỉ thực thể đã xác nhận mới dùng: tọa độ, ảnh Commons (chỉ giấy phép mở; dưới ảnh ghi tác giả và giấy phép), mô tả, bài Wikipedia. Lưu theo mã chú thích để mọi bài dùng chung.
 - **Chú thích địa danh (ý 3).** Ô chú thích có ảnh nhỏ, bản đồ tĩnh nhẹ (bấm mới mở bản đồ lớn bên ngoài), dòng "Bài khác nhắc tới …".
 - **Ảnh đáp án câu đố (ý 33).** Như trên, cho đáp án đã xác nhận.
+  *Đã làm (T-086..T-088, 25/10/2026):* bản đồ nhỏ là ảnh SVG tự lưu (không gọi dịch vụ bản đồ ngoài khi đọc), đường biên Natural Earth, thể hiện quần đảo Hoàng Sa và Trường Sa; ảnh Commons tải bản nhỏ về site (không lấy trực tiếp từ Wikimedia khi người đọc mở trang).
 - **Vùng (ý 16).** Máy gợi ý vùng của bài từ chú thích ghi phương ngữ (Nam Bộ, Trung Bộ, Nghệ, Huế…) và từ địa danh đã xác nhận; người sáng lập duyệt hàng loạt; một bài có thể nhiều vùng. Phân loại `vung` đã có sẵn trong plugin.
 - **Bản đồ ca dao (ý 6).** Trang bản đồ Việt Nam với điểm các địa danh đã xác nhận; chạm điểm ra các bài. Làm khi đủ địa danh.
 

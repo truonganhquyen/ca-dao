@@ -40,6 +40,9 @@ wordpress/
 │   ├── inc/tach-loai.php    gợi ý tách thành ngữ / tục ngữ, trang duyệt hàng loạt, chuyển hướng đường dẫn cũ (T-080)
 │   ├── inc/site-cu.php      chuyển bài công khai của site Astro cũ, qua bước chống trùng (T-076)
 │   ├── inc/the-tho.php      nhận thể thơ theo số âm tiết, phân loại "Thể thơ" để lọc (T-084)
+│   ├── inc/tu-dien.php      từ điển: mục từ theo chú thích, trang /tu-dien/ (T-044)
+│   ├── inc/wikidata.php     hàng chờ "Xác nhận Wikidata", ảnh Commons giấy phép mở, bản đồ nhỏ (T-086..T-088)
+│   ├── assets/ban-do-vn.svg bản đồ nhỏ Việt Nam có Hoàng Sa, Trường Sa (sinh bằng `scripts/sinh-ban-do.mjs`)
 │   ├── du-lieu/site-cu.json bài công khai của site cũ (sinh bằng `npm run xuat:site-cu` từ `content/`)
 │   ├── assets/ca-dao.js     JavaScript duy nhất của trang bài (sao chép, chia sẻ, gửi lượt đọc; ~6 KB)
 │   └── assets/soan-trung.js ô "Có thể trùng" trong trình soạn khối (chỉ trong trang quản trị)
@@ -54,6 +57,7 @@ wordpress/
 - Trang bài (`templates/single-cdtn.html`): nhãn thể loại → tiêu đề → lời (22 px, giãn dòng 1,7) → **Hiểu nhanh** (đoạn trích, chèn ngay dưới lời) → (câu đố: câu hỏi, đáp án hiện sẵn — D-058) → **Trích dẫn · Chia sẻ · N lượt đọc** (plugin chèn trước tiêu đề Dị bản đầu tiên) → Dị bản → Chú thích → "Nguồn: …". Mỗi dòng thơ một khối; dòng dài xuống dòng thì phần tràn thụt treo. **Lục bát** (≥ 3/4 cặp dòng 6–8 âm tiết) thụt lề câu lục — `CADAO_LUC_BAT_THUT_LE` trong `functions.php` (Q-006).
 - Trang chủ, kho, thể loại: danh sách tiêu đề bài mới; trang chủ thêm "Đọc nhiều tuần này" (mã ngắn `[cadao_doc_nhieu]`, chỉ hiện khi đã có từ 3 bài được đọc trong 7 ngày). Trang chủ đầy đủ: T-043.
 - **Đọc dễ hơn (T-082..T-084):** nhãn thể thơ cạnh nhãn thể loại; lục bát, song thất lục bát thụt câu lục; từ có chú thích trong lời chính là liên kết gạch chân chấm (chạm mở ô chú thích, tắt JavaScript thì nhảy tới mục chú thích); dị bản có nhãn "Dị bản N", chữ khác lời chính tô nền và gạch chân. Tất cả làm lúc dựng trang (`functions.php`), nội dung bài không đổi.
+- **Từ điển, địa danh (T-044, T-086..T-088):** trang `/tu-dien/` và trang mục từ (theme dùng `taxonomy.html`; plugin thêm nguồn, ảnh, bản đồ vào mô tả); ô chạm từ có ảnh, bản đồ nhỏ, "Xem trong từ điển"; khối Đáp án có ảnh. Chỉ thực thể Wikidata người sáng lập đã xác nhận mới hiện.
 - **Công cụ đọc (T-085), bài dài (T-090):** "Aa", "◐", "Trình chiếu", "▶ Nghe" (chỉ khi máy có giọng tiếng Việt; "Giọng đọc máy") cạnh Trích dẫn · Chia sẻ; cỡ chữ và sáng / tối nhớ trên máy, áp trong `<head>` (thuộc tính `data-co-chu`, `data-che-do` trên `<html>`). Bài từ 41 dòng: tóm tắt, mục lục, đoạn, số dòng bên lề, "Đọc toàn bài", "Đọc tiếp từ đoạn N".
 - **Trích dẫn, chia sẻ (T-042):** hộp `<details>` "Trích dẫn" — kiểu thông dụng và APA 7 (`20` mục 6), nút "Sao chép kèm nguồn" / "Chỉ sao chép lời", ô "Kèm đáp án / chú thích" khi bài có phần chép từ nguồn; nút "Chia sẻ" (Web Share, không có thì sao chép liên kết). Ngày truy cập theo ngày bấm.
 - **Tách thành ngữ – tục ngữ (T-080):** trang **Ca dao – Tục ngữ → Tách thành ngữ – tục ngữ**, chia bốn nhóm: máy đã chắc / máy nghiêng về / máy chưa rõ / bạn đã quyết; nút "Đồng ý gợi ý", "Là thành ngữ", "Là tục ngữ". Gợi ý: danh mục Wiktionary (tải mỗi tuần, chỉ lưu dấu vân tay) khi độ dài câu cùng hướng; câu nhiều vế, từ 8 âm tiết, hai vế cách dấu phẩy → tục ngữ (chắc); có từ nối "thì, là, mới, hơn…" → nghiêng về tục ngữ; ≤ 4 âm tiết → nghiêng về thành ngữ. Chưa duyệt thì bài vẫn vào Tục ngữ như trước. Đổi thể loại thì đường dẫn cũ (`/tuc-ngu/<tên>/` ↔ `/thanh-ngu/<tên>/`) chuyển hướng 301 (mọi bài, kể cả đổi tay).
@@ -79,6 +83,9 @@ Giữ ít plugin bên thứ ba (mỗi plugin là một nguy cơ bảo mật). D�
 | Bảng `wp_cadao_van_tay`, `wp_cadao_cap_am` | Chỉ mục chống trùng: dấu vân tay (1), (2) của lời chính và từng dị bản; cặp âm tiết liền nhau của lời chính (từ 6 âm tiết) |
 | Bảng `wp_cadao_trung` | Hàng "Có thể trùng" và quyết định của người sáng lập (chờ, để sau, là bài khác, đã gộp) |
 | Trường `_cadao_di_ban_them` | Dị bản thêm bằng tay hoặc qua "Thêm làm dị bản" (giữ khi bài được làm lại từ kho) |
+| Phân loại `tu_kho` ("Từ điển", `/tu-dien/<từ>/`) | Mục từ = một chú thích (cùng từ, cùng lời giải); mô tả = lời giải; trường `_cadao_khoa`, `_cadao_nguon_ten`, `_cadao_nguon_url` (dòng Nguồn của chú thích), `_cadao_wd` (Wikidata đã xác nhận) |
+| Bảng `wp_cadao_xac_nhan` | Hàng chờ "Xác nhận Wikidata": `tu:<mục từ>` hoặc `dap:<đáp án>`, mã thực thể, tọa độ, ảnh, bài Wikipedia; chờ / đúng / sai / bỏ qua |
+| Phân loại `the_tho` | Thể thơ máy nhận (T-084) |
 | Bảng `wp_cadao_luot_doc` | Lượt đọc: (bài, ngày) → số lượt. Không lưu IP, không lưu ai đọc |
 | Bảng `wp_cadao_gioi_thieu` | (ngày, tên miền trang giới thiệu) → số lượt; vào thẳng ghi "(vào thẳng)" |
 
