@@ -64,7 +64,7 @@ try {
   await san;
   const bai = await (await fetch(`${G}/wp-json/wp/v2/cdtn?per_page=50&_fields=link`)).json();
   const tuDien = await (await fetch(`${G}/wp-json/wp/v2/tu_kho?per_page=1&_fields=link`)).json(); // từ điển (T-044)
-  const dsTrang = ['/', '/kho/', '/the-loai/ca-dao/', '/tu-dien/', '/tim/?q=dong mau', ...tuDien.map(t => new URL(t.link).pathname), ...bai.map(b => new URL(b.link).pathname)];
+  const dsTrang = ['/', '/kho/', '/the-loai/ca-dao/', '/tu-dien/', '/tim/?q=dong mau', '/da-luu/', ...tuDien.map(t => new URL(t.link).pathname), ...bai.map(b => new URL(b.link).pathname)];
   if (bai.length < 5) loi.push(`chỉ có ${bai.length} bài mẫu (cần 5) — bài mẫu không dựng được`);
   trinhDuyet = await puppeteer.launch({ executablePath: chrome, headless: true, args: ['--no-sandbox', '--font-render-hinting=none'] });
   const CHE_DO = [
@@ -109,21 +109,25 @@ try {
     await tab.setUserAgent(UA);
     await tab.setJavaScriptEnabled(js);
     const gui = [];
+    const suKien = [];
     tab.on('response', r => { if (r.request().method() === 'POST' && r.url().includes('/cadao/v1/luot-doc/')) gui.push(r); });
-    return { tab, gui };
+    tab.on('request', r => { if (r.method() === 'POST' && r.url().includes('/cadao/v1/su-kien')) suKien.push(r); }); // đo lường: bắt lúc gửi
+    return { tab, gui, suKien };
   };
   const cho = ms => new Promise(ok => setTimeout(ok, ms));
+  const choDk = async (dk, ms = 15000) => { const het = Date.now() + ms; while (!dk() && Date.now() < het) await cho(200); }; // Playground chạy PHP chậm
   let kiemThem = 0;
   const kiem = (ten, dk) => { kiemThem++; if (!dk) loi.push(`${baiThu}: ${ten}`); };
 
   const tatJs = await moTab(false);
   await tatJs.tab.goto(G + baiThu, { waitUntil: 'load' });
   kiem('tắt JavaScript: chữ trích dẫn vẫn có trên trang', (await tatJs.tab.$eval('.cadao-mau-chu', e => e.textContent)).includes('Truy cập tại:'));
+  kiem('tắt JavaScript: nút Lưu, Chia sẻ (cần JavaScript) không hiện', await tatJs.tab.evaluate(() => ['.cadao-luu', '.cadao-chia-se'].every(c => getComputedStyle(document.querySelector(c)).display === 'none')));
   await cho(6000);
   kiem('tắt JavaScript: không gửi lượt đọc', tatJs.gui.length === 0);
   await tatJs.tab.close();
 
-  const { tab, gui } = await moTab();
+  const { tab, gui, suKien } = await moTab();
   await tab.goto(G + baiThu, { waitUntil: 'load' });
   await tab.click('.cadao-trich-dan summary');
   await tab.click('.cadao-nut button[data-viec="kem_nguon"]');
@@ -132,6 +136,10 @@ try {
   const tam = await tab.evaluate(() => navigator.clipboard.readText().catch(() => ''));
   kiem(`"Sao chép kèm nguồn": báo "${bao}"`, bao === 'Đã sao chép. Cảm ơn bạn đã ghi nguồn!');
   kiem('"Sao chép kèm nguồn": bộ nhớ tạm có lời và trích dẫn', tam.length > 40 && tam.includes('Kho tàng Ca dao Tục ngữ Việt Nam. Truy cập tại:') && !tam.includes('{ngay}'));
+  // Đo lường (T-052): sao chép gửi đúng một sự kiện, được tính
+  await choDk(() => suKien[0]?.response());
+  const sk0 = suKien[0];
+  kiem(`đo lường: sao chép gửi sự kiện "trich_dan_sao_chep", được tính (đã gửi ${suKien.length})`, suKien.length === 1 && JSON.parse(sk0.postData() || '{}').loai === 'trich_dan_sao_chep' && !!sk0.response() && (await sk0.response().json()).tinh === true);
   await cho(6000);
   kiem(`lượt đọc gửi một lần sau 5 giây (đã gửi ${gui.length})`, gui.length === 1 && gui[0].status() === 200 && (await gui[0].json()).tinh === true);
   await tab.reload({ waitUntil: 'load' });
@@ -139,7 +147,7 @@ try {
   kiem(`tải lại trong ngày không gửi thêm (đã gửi ${gui.length})`, gui.length === 1);
   kiem('không có cookie', (await tab.cookies()).length === 0);
   // Chạm vào từ khó (T-082): mở bằng Enter, đóng bằng Esc, trả focus về từ; dị bản tô chỗ khác (T-083)
-  const tuTab = await ngCanh.newPage();
+  const { tab: tuTab, suKien: skTu } = await moTab();
   await tuTab.setViewport({ width: 360, height: 800, isMobile: true, hasTouch: true });
   const baiDiBan = new URL(bai.find(b => /dong-mau-mot/.test(b.link))?.link ?? bai[0].link).pathname; // bài mẫu có dị bản, chú thích
   await tuTab.goto(G + baiDiBan, { waitUntil: 'load' });
@@ -150,6 +158,8 @@ try {
     await cho(300);
     const mo = await tuTab.evaluate(() => { const d = document.querySelector('dialog.cadao-o-ct'); return d && d.open ? d.innerText : ''; });
     kiem('chạm từ: Enter mở ô chú thích có lời giải và "Xem trong từ điển"', /Chú thích tổng hợp/.test(mo) && /Xem trong từ điển/.test(mo));
+    await choDk(() => skTu.length > 0, 5000);
+    kiem(`đo lường: mở chú giải gửi sự kiện "chu_giai_mo" (đã gửi ${skTu.length})`, skTu.some(r => JSON.parse(r.postData() || '{}').loai === 'chu_giai_mo'));
     await tuTab.keyboard.press('Escape');
     await cho(300);
     kiem('chạm từ: Esc đóng ô, focus trở về từ', await tuTab.evaluate(() => !document.querySelector('dialog.cadao-o-ct').open && document.activeElement.classList.contains('cadao-tu')));
@@ -177,6 +187,20 @@ try {
   kiem('bài dài: phần sau thu gọn, có nút "Đọc toàn bài"', await tuTab.evaluate(() => !!document.querySelector('.cadao-doc-toan-bai') && getComputedStyle(document.querySelector('.cadao-doan[data-sau]')).display === 'none'));
   await tuTab.click('.cadao-doc-toan-bai');
   kiem('bài dài: bấm "Đọc toàn bài" thì hiện đủ', await tuTab.evaluate(() => getComputedStyle(document.querySelector('.cadao-doan[data-sau]')).display !== 'none'));
+  // Đã lưu (T-051): bấm ☆ Lưu → trang /da-luu/ có bài; Bỏ lưu → trống, focus về dòng thông báo
+  await tuTab.goto(G + baiDiBan, { waitUntil: 'load' });
+  await tuTab.click('.cadao-luu');
+  kiem('Lưu: nút chuyển "đã bấm", hiện "Bài đã lưu (1)"', await tuTab.evaluate(() => document.querySelector('.cadao-luu').getAttribute('aria-pressed') === 'true' && document.querySelector('.cadao-xem-da-luu').textContent === 'Bài đã lưu (1)' && !document.querySelector('.cadao-xem-da-luu').hidden));
+  await tuTab.reload({ waitUntil: 'load' });
+  kiem('Lưu: tải lại vẫn nhớ', await tuTab.evaluate(() => document.querySelector('.cadao-luu').getAttribute('aria-pressed') === 'true'));
+  await tuTab.goto(G + '/da-luu/', { waitUntil: 'load' });
+  const dsLuu = await tuTab.evaluate(() => Array.from(document.querySelectorAll('.cadao-da-luu-ds li a')).map(a => a.pathname));
+  kiem(`trang Đã lưu: có đúng bài vừa lưu (${dsLuu.join(', ')})`, dsLuu.length === 1 && dsLuu[0] === baiDiBan);
+  await tuTab.addScriptTag({ content: axeNguon });
+  const axeLuu = await tuTab.evaluate(the => window.axe.run(document, { runOnly: { type: 'tag', values: the } }), THE_WCAG);
+  kiem(`trang Đã lưu có bài: không lỗi trợ năng (${axeLuu.violations.map(v => v.id).join(', ')})`, axeLuu.violations.length === 0);
+  await tuTab.click('.cadao-bo-luu');
+  kiem('Bỏ lưu: danh sách trống, hiện lời nhắc, focus về lời nhắc', await tuTab.evaluate(() => !document.querySelector('.cadao-da-luu-ds li') && !document.querySelector('.cadao-da-luu-trong').hidden && document.activeElement === document.querySelector('.cadao-da-luu-trong')));
   // Góp ý (T-045): nút mở form, loại chọn sẵn
   await tuTab.goto(G + baiDiBan, { waitUntil: 'load' });
   await tuTab.click('a.cadao-gop-y-mo[data-loai="bao_loi"]');
@@ -186,8 +210,17 @@ try {
   await tuTab.type('#cadao-tim-o', 'dong mau mot');
   await tuTab.waitForFunction(() => document.querySelectorAll('.cadao-tim-ds li').length > 0, { timeout: 15000 }).catch(() => {});
   kiem('tìm: gõ không dấu, kết quả hiện khi gõ, có tô phần khớp', await tuTab.evaluate(() => document.querySelectorAll('.cadao-tim-ds li').length > 0 && !!document.querySelector('.cadao-tim-ds mark') && /q=dong/.test(location.search)));
+  // Đo lường: tìm không ra, đứng yên 2 giây → gửi một lần; lúc đang gõ dở không gửi
+  const skTruoc = skTu.length;
+  await tuTab.$eval('#cadao-tim-o', o => { o.value = ''; o.dispatchEvent(new Event('input')); o.focus(); });
+  await cho(500);
+  await tuTab.type('#cadao-tim-o', 'zzqx khong co cau nay', { delay: 60 });
+  await choDk(() => skTu.length > skTruoc, 20000);
+  await cho(2500); // không gửi thêm lần nào
+  const skTim = skTu.slice(skTruoc).map(r => JSON.parse(r.postData() || '{}'));
+  kiem(`đo lường: tìm không ra gửi một lần, đúng câu đã gõ xong (${skTim.map(x => x.q).join(' | ')})`, skTim.length === 1 && skTim[0].loai === 'tim_khong_ket_qua' && skTim[0].q === 'zzqx khong co cau nay');
   await ngCanh.close();
-  console.log(`Thử trích dẫn, lượt đọc trên trình duyệt: ${kiemThem} phép thử.`);
+  console.log(`Thử trên trình duyệt (trích dẫn, lượt đọc, đã lưu, đo lường…): ${kiemThem} phép thử.`);
 } catch (e) {
   loi.push(String(e.message ?? e));
 } finally {

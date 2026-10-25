@@ -326,7 +326,7 @@ add_filter(
 					$giai  = static fn( $s ) => trim( html_entity_decode( wp_strip_all_tags( $s ), ENT_QUOTES | ENT_HTML5, 'UTF-8' ) );
 					$them  = cadao_them_cho_chu_thich( $giai( $p[1] ), $giai( $p[2] ) );
 					if ( $them ) {
-						$dl  = ' data-tu-dien="' . esc_url( $them['url'] ) . '" data-so-bai="' . (int) $them['so_bai'] . '"';
+						$dl  = ' data-tu-dien="' . esc_url( $them['url'] ) . '" data-so-bai="' . (int) $them['so_bai'] . '"' . ( isset( $them['id'] ) ? ' data-muc="' . (int) $them['id'] . '"' : '' );
 						$tem = $them['them'] ? '<template class="cadao-ct-them">' . $them['them'] . '</template>' : '';
 					}
 				}
