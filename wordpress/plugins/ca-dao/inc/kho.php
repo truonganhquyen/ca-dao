@@ -221,7 +221,8 @@ function cadao_noi_dung_tu_kho( object $muc, array $nguon ): string {
 	}
 	$chep = ! empty( $nguon['chep_chu_thich'] );
 	if ( $chep && ! empty( $d['dap_an'] ) ) {
-		$khoi[] = "<!-- wp:details -->\n<details class=\"wp-block-details\"><summary>Đáp án</summary>"
+		// Đáp án hiện sẵn, không thu gọn (D-058); vẫn bấm "Đáp án" để ẩn được
+		$khoi[] = "<!-- wp:details {\"showContent\":true} -->\n<details class=\"wp-block-details\" open><summary>Đáp án</summary>"
 			. cadao_khoi_doan( esc_html( $d['dap_an'] ) ) . "</details>\n<!-- /wp:details -->";
 	}
 	if ( ! empty( $d['di_ban'] ) ) {

@@ -197,7 +197,7 @@ kt( 'bài ca dao có Dị bản, Chú thích và một dòng "Nguồn: …" dư�
 $bai_cd2 = get_post( (int) $k( "$G/cd-2/" )->post_id );
 kt( 'bài chỉ có dị bản (không chép gì của nguồn): không có "Nguồn"', str_contains( $bai_cd2->post_content, 'Bài hai dị bản' ) && ! str_contains( $bai_cd2->post_content, 'Nguồn:' ) );
 $bai_do = get_post( (int) $k( "$G/cau-do/do-mau/" )->post_id );
-kt( 'câu đố: đáp án (lời giải) trong khối mở ra, kèm "Nguồn: …"', str_contains( $bai_do->post_content, '<summary>Đáp án</summary>' ) && str_contains( $bai_do->post_content, 'Cái mẫu' ) && str_contains( $bai_do->post_content, 'Nguồn:' ) && has_term( 'cau-do', 'the_loai', $bai_do ) );
+kt( 'câu đố: đáp án (lời giải) hiện sẵn, kèm "Nguồn: …" (D-058)', str_contains( $bai_do->post_content, '<details class="wp-block-details" open><summary>Đáp án</summary>' ) && str_contains( $bai_do->post_content, 'Cái mẫu' ) && str_contains( $bai_do->post_content, 'Nguồn:' ) && has_term( 'cau-do', 'the_loai', $bai_do ) );
 kt( 'vè vào thể loại Vè', has_term( 've', 'the_loai', (int) $k( "$G/ve/ve-mau/" )->post_id ) );
 
 // Bài chưa ai sửa: kho đổi thì bài tự cập nhật; bài đã sửa tay giữ nguyên

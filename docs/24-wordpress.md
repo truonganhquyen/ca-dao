@@ -41,7 +41,7 @@ wordpress/
 **Theme `ca-dao`** (T-072, theme con của Twenty Twenty-Five, theo `20` mục 1, 4, 11):
 - Màu: biến `--cadao-*` dùng `light-dark()` — sáng/tối theo cài đặt máy; bảng màu của `theme.json` trỏ vào các biến đó (giữ tên `base`, `contrast`, `accent-*` của theme cha).
 - Phông tự lưu trữ trong `assets/fonts`: Be Vietnam Pro 400/600 (giao diện) và Literata 400 (lời), chỉ bộ Latin + tiếng Việt, WOFF2, kèm giấy phép OFL. Bề rộng nội dung 40rem (đơn vị rem: mọi khối thẳng một cột).
-- Trang bài (`templates/single-cdtn.html`): nhãn thể loại → tiêu đề → lời (22 px, giãn dòng 1,7) → **Hiểu nhanh** (đoạn trích, chèn ngay dưới lời) → Dị bản → Chú thích → "Nguồn: …". Mỗi dòng thơ một khối; dòng dài xuống dòng thì phần tràn thụt treo. **Lục bát** (≥ 3/4 cặp dòng 6–8 âm tiết) thụt lề câu lục — `CADAO_LUC_BAT_THUT_LE` trong `functions.php` (Q-006).
+- Trang bài (`templates/single-cdtn.html`): nhãn thể loại → tiêu đề → lời (22 px, giãn dòng 1,7) → **Hiểu nhanh** (đoạn trích, chèn ngay dưới lời) → Dị bản → Chú thích (câu đố: câu hỏi, đáp án hiện sẵn — D-058) → "Nguồn: …". Mỗi dòng thơ một khối; dòng dài xuống dòng thì phần tràn thụt treo. **Lục bát** (≥ 3/4 cặp dòng 6–8 âm tiết) thụt lề câu lục — `CADAO_LUC_BAT_THUT_LE` trong `functions.php` (Q-006).
 - Trang chủ, kho, thể loại: danh sách tiêu đề bài mới (trang chủ đầy đủ: T-043).
 - Kiểm: `npm run quet:wordpress` (axe WCAG 2.2 A/AA, 360 px sáng/tối và máy tính, không tràn ngang) — CI chạy ở job "wordpress".
 
