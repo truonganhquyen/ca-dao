@@ -37,6 +37,7 @@ wordpress/
 │   ├── inc/luot-doc.php     lượt đọc không cookie, "Đọc nhiều tuần này", ô Bảng tin (T-081, D-064)
 │   ├── inc/trung.php        chống trùng: dấu vân tay, mức giống, chỉ mục, gộp, tách, làm dần (T-109, T-110)
 │   ├── inc/trang-trung.php  trang "Có thể trùng", ô "Có thể trùng" trong trình soạn (T-110, T-111)
+│   ├── inc/gop-bai.php      gộp hai bài đã đăng bị trùng; quét lại bài đã đăng mỗi đêm (T-101)
 │   ├── inc/tach-loai.php    gợi ý tách thành ngữ / tục ngữ, trang duyệt hàng loạt, chuyển hướng đường dẫn cũ (T-080)
 │   ├── inc/site-cu.php      chuyển bài công khai của site Astro cũ, qua bước chống trùng (T-076)
 │   ├── inc/the-tho.php      nhận thể thơ theo số âm tiết, phân loại "Thể thơ" để lọc (T-084)
@@ -115,6 +116,8 @@ Kiểu bộ đọc: `cadao_me` (T-073) — (1) tên chủ đề, (2) ca dao qua 
 **Chống trùng giữa các nguồn** (D-065, `25` mục 4.9; T-109, T-110 — plugin 0.5.0): `_cadao_ma_goc` chỉ chống lấy lại cùng một bài của cùng nguồn. Mỗi câu đọc xong trang gốc được so cả lời với bài đã có và các câu khác trong kho: **lời giống hệt** (kể cả chỉ khác dấu câu, chữ hoa, cách bỏ dấu) **và cùng thể loại** → tự gắn vào bài / câu có sẵn (Kho thu thập → tab "Đã gộp", bấm "Tách ra" nếu sai); bài đích chưa sửa tay được làm lại, có thêm dị bản, chú thích của nguồn kia và dòng "Nguồn" riêng. Mọi trường hợp khác — khác thể loại, khác vài chữ (≥ 90%), có thể là dị bản (50–90%), trùng một dị bản đã ghi — vào trang **Có thể trùng** (menu Ca dao – Tục ngữ, có số đếm; Bảng tin cũng báo) với "Gộp: là cùng một bài" / "Gộp làm dị bản" / "Là bài khác" / "Để sau"; máy tạo bài hằng ngày bỏ qua câu đang chờ. Khi nâng cấp, plugin làm dần chỉ mục cho bài và kho đã có rồi so từng câu (mỗi lượt 5 phút) — dọn luôn trùng sẵn có. `wp cadao trung-thong-ke` chạy lại phép đo 25/10/2026 (chỉ đọc).
 
 **Khi viết tay (T-111):** trình soạn có ô **Có thể trùng** ở cột bên (tab Bài) và trong bước xác nhận khi bấm Đăng: sau khi dán / gõ lời (ngừng gõ 1,2 giây) máy liệt kê bài có lời giống kèm mức giống, nút **Mở bài này**, **Thêm làm dị bản** (lời vừa gõ thành dị bản của bài cũ, đúng từng ký tự; bản nháp vào thùng rác), **Vẫn đăng bài mới** (máy ghi là bài khác, không báo nữa). Không chặn đăng. Bài trùng bài khác có nhãn "Có thể trùng" trong danh sách bài.
+
+**Gộp hai bài đã đăng (T-101 — plugin 0.15.0):** cặp bài–bài trong trang Có thể trùng có nút **Gộp: giữ "<tên bài>"** cho từng bên. Bài phụ thành dị bản của bài chính; chú thích tự viết, Hiểu nhanh, nguồn đã ghi được giữ nếu bài chính chưa có; chủ đề, vùng, tình huống gộp lại; lượt đọc cộng dồn; cảm nghĩ, bài phân tích chuyển sang bài chính; đường dẫn cũ chuyển hướng 301 (`_wp_old_slug`); bài phụ vào thùng rác. Mỗi đêm máy so lại các bài đã đăng.
 
 ## 5. Những điều vẫn giữ
 

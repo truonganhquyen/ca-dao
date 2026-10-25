@@ -755,6 +755,33 @@ wp_publish_post( $P );
 $ng = do_shortcode( '[cadao_nguon]' );
 kt( 'trang Nguồn tự sinh: nguồn tự động có chú thích chép, nguồn ghi trong bài, dữ liệu mở đang dùng', str_contains( $ng, 'Nguồn A' ) && str_contains( $ng, 'Sách thử' ) && str_contains( $ng, 'Wikidata' ) && str_contains( $ng, 'Natural Earth' ), $ng );
 
+// ---------- Gộp hai bài đã có (T-101) ----------
+$LX = $dong( 9950, 6 ) . "\n" . $dong( 9956, 8 );
+$LY = $dong( 9950, 6 ) . "\n" . $dong( 9956, 4 ) . ' ' . $dong( 9990, 4 );
+$gx = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'post_title' => 'Gộp bài chính', 'post_name' => 'gop-bai-chinh', 'post_content' => cadao_khoi_tho( $LX ) ) );
+$gyy = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'post_title' => 'Gộp bài phụ', 'post_name' => 'gop-bai-phu', 'post_excerpt' => 'Hiểu nhanh của bài phụ.', 'post_content' => cadao_khoi_tho( $LY ) . "\n\n" . $ds_ct( 'chữ9990', 'Chú giải tự viết của bài phụ.' ), 'meta_input' => array( '_cadao_ho_tro_ai' => 1, 'nguon_ten' => 'Sách bài phụ' ) ) );
+wp_set_object_terms( $gyy, 'nam-bo', 'vung' );
+$r_gop = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . cadao_trung_bang() . ' WHERE (a = %s AND b = %s)', "bai:$gyy", "bai:$gx" ) );
+kt( 'hai bài đã đăng nghi trùng: vào hàng "Có thể trùng" (bài–bài)', $r_gop && 'cho' === $r_gop->trang_thai, $r_gop );
+cadao_luot_doc_cong( $gx );
+cadao_luot_doc_cong( $gyy );
+cadao_luot_doc_cong( $gyy );
+$bl_phu = wp_insert_comment( array( 'comment_post_ID' => $gyy, 'comment_content' => 'Cảm nghĩ ở bài phụ.', 'comment_approved' => 1 ) );
+$pt_phu = wp_insert_post( array( 'post_type' => CADAO_LOAI_PHAN_TICH, 'post_status' => 'publish', 'post_title' => 'Phân tích bài phụ', 'post_content' => 'x', 'meta_input' => array( '_cadao_bai' => $gyy ) ) );
+$_GET = array( 'tab' => 'cho' );
+ob_start();
+cadao_trang_trung();
+$tr_gop = ob_get_clean();
+$_GET = array();
+kt( 'trang "Có thể trùng": cặp bài–bài có nút chọn bài giữ lại', str_contains( $tr_gop, 'Gộp: giữ &quot;Gộp bài chính&quot;' ) || str_contains( $tr_gop, 'Gộp: giữ "Gộp bài chính"' ), substr( $tr_gop, 0, 300 ) );
+kt( 'gộp: thực hiện được', cadao_gop_hai_bai( $gx, $gyy ) );
+$nd_gx = get_post( $gx );
+kt( 'gộp: lời bài phụ thành dị bản của bài chính (đúng từng ký tự), lời chính giữ nguyên', $LX === cadao_loi_cac_khoi_tho( $nd_gx->post_content )[0] && in_array( $LY, cadao_loi_cac_khoi_tho( $nd_gx->post_content ), true ) );
+kt( 'gộp: giữ Hiểu nhanh, dấu "có hỗ trợ AI", nguồn đã ghi, chú giải tự viết của bài phụ', 'Hiểu nhanh của bài phụ.' === $nd_gx->post_excerpt && get_post_meta( $gx, '_cadao_ho_tro_ai', true ) && 'Sách bài phụ' === get_post_meta( $gx, 'nguon_ten', true ) && str_contains( $nd_gx->post_content, 'Chú giải tự viết của bài phụ.' ) );
+kt( 'gộp: lượt đọc cộng dồn, cảm nghĩ và bài phân tích chuyển sang bài chính', 3 === cadao_luot_doc_tong( $gx ) && 0 === cadao_luot_doc_tong( $gyy ) && $gx === (int) get_comment( $bl_phu )->comment_post_ID && $gx === (int) get_post_meta( $pt_phu, '_cadao_bai', true ) && 1 === (int) get_comments_number( $gx ) );
+kt( 'gộp: vùng gộp lại; bài phụ vào thùng rác (không xóa hẳn); cặp đã gộp', has_term( 'nam-bo', 'vung', $gx ) && 'trash' === get_post_status( $gyy ) && 'da_gop' === $wpdb->get_var( $wpdb->prepare( 'SELECT trang_thai FROM ' . cadao_trung_bang() . ' WHERE id = %d', $r_gop->id ) ) );
+kt( 'gộp: đường dẫn cũ của bài phụ chuyển về bài chính (tên cũ ghi vào _wp_old_slug)', in_array( 'gop-bai-phu', get_post_meta( $gx, '_wp_old_slug' ), true ) );
+
 $ngan = do_blocks( cadao_khoi_tho( implode( "\n", array_slice( $khong_kho, 0, 40 ) ) ) );
 kt( 'bài 40 dòng trở xuống: không chia đoạn', ! str_contains( $ngan, 'cadao-bai-dai' ) );
 

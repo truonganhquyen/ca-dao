@@ -84,7 +84,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-098 | Thành ngữ – tục ngữ: nghĩa đen, nghĩa bóng, "dùng khi", đồng nghĩa (Wiktionary, CC BY-SA) | N+A | T-080 | — | BLOCKED |
 | T-099 | Chú giải từ sách hết bản quyền; chữ Hán Việt, điển tích của thành ngữ | N+A | T-082 | — | BLOCKED |
 | T-100 | Trợ giúp viết "Hiểu nhanh" (gợi ý; nháp máy chờ duyệt) | A | T-098 | — | BLOCKED |
-| T-101 | Gộp bài đã đăng bị trùng: bài chính + dị bản, chuyển hướng, dồn lượt đọc và bài người đọc | N+A | T-109 | — | BLOCKED |
+| T-101 | Gộp bài đã đăng bị trùng: bài chính + dị bản, chuyển hướng, dồn lượt đọc và bài người đọc | N+A | T-109 | — | DONE |
 | T-102 | Vè: khối "Bối cảnh" (sự kiện, năm, nơi chốn, nhân vật) | N+A | T-086 | — | BLOCKED |
 | T-103 | Đồng dao: cách chơi, chế độ "Đọc cùng bé" | A | T-085 | — | BLOCKED |
 | T-104 | Bản đồ ca dao theo vùng | A | T-086, T-089 | — | BLOCKED |
@@ -405,6 +405,8 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 
 #### T-101 · Gộp bài đã đăng bị trùng — N+A
 **Đọc:** `25` mục 4.9 (ý 49, thay ý 17). **Việc:** mỗi đêm quét các bài đã đăng, đưa cặp nghi trùng vào hàng "Có thể trùng"; khi người sáng lập gộp: chọn bài chính, bài kia thành dị bản của bài chính, đường dẫn cũ chuyển hướng 301 về bài chính, lượt đọc cộng dồn, cảm nghĩ và bài phân tích chuyển sang bài chính, bài phụ vào thùng rác (không xóa hẳn). **Chấp nhận:** người sáng lập duyệt từng lần; sau khi gộp, link cũ mở đúng bài chính; không mất cảm nghĩ, bài phân tích, lượt đọc nào.
+
+**Tiến độ (25/10/2026):** xong — plugin 0.15.0 (`inc/gop-bai.php`). Cặp bài–bài trong trang **Có thể trùng** có hai nút **Gộp: giữ "<tên bài>"** (người sáng lập chọn bài nào giữ lại). Khi gộp: lời và dị bản của bài phụ thành dị bản của bài chính (đúng từng ký tự, lời giống hệt thì bỏ); chú thích tự viết (không có dòng Nguồn) giữ ở bài chính (ô `_cadao_chu_thich_them`, hoặc nối vào cuối nếu bài chính đã sửa tay); Hiểu nhanh (kèm dấu "có hỗ trợ AI"), nguồn đã ghi, "hợp khi" lấy từ bài phụ nếu bài chính chưa có; chủ đề, vùng, tình huống, mục từ gộp lại; lượt đọc cộng dồn theo ngày; cảm nghĩ và bài phân tích chuyển sang bài chính; câu trong kho của bài phụ thành "Đã gộp" vào bài chính (bài chính chưa sửa tay thì nhận cả chú thích có nguồn); tên cũ ghi vào `_wp_old_slug` nên đường dẫn cũ chuyển 301 về bài chính; bài phụ vào thùng rác (khôi phục được). Mỗi đêm máy so lại các bài đã đăng (tối đa 60 giây mỗi đêm) để đưa cặp mới vào hàng chờ.
 
 #### T-102 · Bối cảnh vè — N+A
 **Chấp nhận:** khối bối cảnh (sự kiện, năm, nơi chốn, nhân vật qua Wikidata đã xác nhận); tóm tắt do người sáng lập viết hoặc duyệt; máy không tự viết sự kiện.

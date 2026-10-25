@@ -283,6 +283,22 @@ function cadao_noi_dung_tu_kho( object $muc, array $nguon ): string {
 			$khoi[] = cadao_khoi_doan( sprintf( 'Nguồn: <a href="%s" rel="noopener">%s <span aria-hidden="true">↗</span></a>', esc_url( $p['m']->url ), esc_html( $p['n']['dong_ghi_nguon'] ?: $p['n']['ten'] ) ), 'cadao-chu-thich-nguon' );
 		}
 	}
+	// Chú thích người biên soạn viết (ô _cadao_chu_thich_them, ví dụ chuyển từ bài đã gộp — T-101): không có dòng Nguồn
+	$them = ! empty( $muc->post_id ) ? (array) ( get_post_meta( (int) $muc->post_id, '_cadao_chu_thich_them', true ) ?: array() ) : array();
+	$muc_li = '';
+	foreach ( $them as $c ) {
+		$khoa = mb_strtolower( trim( (string) $c['tu'] ) ) . '|' . trim( (string) $c['noi_dung'] );
+		if ( ! isset( $da_co[ $khoa ] ) ) {
+			$da_co[ $khoa ] = true;
+			$muc_li        .= "<!-- wp:list-item -->\n<li><strong>" . esc_html( (string) $c['tu'] ) . '</strong>: ' . esc_html( (string) $c['noi_dung'] ) . "</li>\n<!-- /wp:list-item -->\n";
+		}
+	}
+	if ( '' !== $muc_li ) {
+		if ( ! $tieu_de ) {
+			$khoi[] = cadao_khoi_tieu_de( 'Chú thích' );
+		}
+		$khoi[] = "<!-- wp:list {\"className\":\"cadao-chu-thich\"} -->\n<ul class=\"wp-block-list cadao-chu-thich\">\n$muc_li</ul>\n<!-- /wp:list -->";
+	}
 	return implode( "\n\n", $khoi );
 }
 
