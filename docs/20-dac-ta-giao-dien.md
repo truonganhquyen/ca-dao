@@ -5,7 +5,7 @@
 | Phiên bản | 2.0 · 23/10/2026 (UX v2: nhãn trung thực, nguồn gốc ở lớp 1, thanh điều hướng dưới, công cụ cho giáo viên) |
 | Trạng thái | **Ổn định cho Mốc A–C.** Ảnh xem trước (mục 7) chờ Q-005 (tên miền) |
 | Đọc khi | Làm bất kỳ trang, thành phần, câu chữ giao diện nào |
-| Liên quan | `10` (dữ liệu hiển thị, mục 5 và 10) · `21` (cách dựng) · `23` (tiêu chí kiểm thử) |
+| Liên quan | `10` (dữ liệu hiển thị, mục 5 và 10) · `21` (cách dựng) · `23` (tiêu chí kiểm thử) · `25` (gói nâng cấp 25/10/2026 trên WordPress: chạm từ khó, dị bản, thể thơ, công cụ đọc, trang chủ, thể loại, người đọc góp phần, giọng đọc) |
 
 Tinh thần: **"Một trang sách cổ được chăm chút, đặt trong một chiếc điện thoại hiện đại"**. Lời thơ là nhân vật chính. Mọi màn hình thiết kế cho màn hình hẹp trước.
 

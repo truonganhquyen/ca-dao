@@ -4,7 +4,7 @@
 |---|---|
 | Phiên bản | 1.0 · 24/10/2026 (D-054, D-055, D-056) |
 | Trạng thái | **Đang làm.** Site Astro (`docs/21`) vẫn chạy tới khi T-076 xong |
-| Đọc khi | Làm T-071..T-076, hoặc bất kỳ việc gì trên WordPress |
+| Đọc khi | Làm T-071..T-076, hoặc bất kỳ việc gì trên WordPress. Gói nâng cấp 25/10/2026 (giao diện, nguồn nội dung, từng thể loại, lượt đọc, người đọc góp phần, giọng đọc): `25` |
 | Mục tiêu | Người sáng lập đăng bài như WordPress quen thuộc; phần lớn nội dung tự lấy từ các nguồn cấu hình trong trang quản trị, vào **Chờ duyệt**, xem rồi bấm **Đăng** |
 
 ## 1. Luồng nội dung
@@ -63,11 +63,13 @@ Giữ ít plugin bên thứ ba (mỗi plugin là một nguy cơ bảo mật). D�
 
 ## 4. Nguồn tự động
 
-Trang **Ca dao – Tục ngữ → Nguồn tự động**. Mỗi nguồn: tên · kiểu bộ đọc · địa chỉ · loại lấy · bật/tắt · **số bài Chờ duyệt mỗi ngày** · tên ghi nguồn · **chép chú thích, lời giải** (bật/tắt, D-055) · **ghi nguồn cho chú thích** (bật/tắt, D-057) · bỏ qua bài gắn cờ (thô tục, trào phúng hiện đại) · nút **Lấy ngay**.
+Trang **Ca dao – Tục ngữ → Nguồn tự động**. Mỗi nguồn: tên · kiểu bộ đọc · địa chỉ · loại lấy · bật/tắt · **số bài Chờ duyệt mỗi ngày** · tên ghi nguồn · **chép chú thích, lời giải** (bật/tắt, D-055) · **ghi nguồn cho chú thích** (bật/tắt, D-057) · bỏ qua bài gắn cờ (thô tục, trào phúng hiện đại — D-060: không lọc từ tục, ô "Thô tục" sẽ bỏ ở T-108; hiện để trống) · nút **Lấy ngay**.
 
 Kiểu bộ đọc: `cadao_me` (T-073) — (1) tên chủ đề, (2) ca dao qua API, (3) thành ngữ–tục ngữ, đồng dao, vè, câu đố qua sitemap, (4) đọc trang HTML: dị bản, chú thích, câu hỏi và đáp án câu đố, lời của các loại ngoài ca dao. Mỗi trang có bài chính và ~20 bài liên quan; bài liên quan chỉ nhận khi là ca dao và lời trùng từng ký tự với lời API (bài dài chỉ hiện đoạn trích). Mục đã thành bài được đọc trước; còn lại xen kẽ các loại. **Chỉ tạo bài Chờ duyệt từ mục đã đọc trang** (bài có sẵn dị bản, chú thích). **Bài tạo từ kho mà chưa ai sửa tay** (nội dung còn đúng như máy tạo, nhận ra bằng dấu băm `_cadao_bam`) tự cập nhật khi kho có dị bản, chú thích mới; bài đã sửa tay giữ nguyên. Kiểm mẫu: 23/23 bài (đủ 5 loại) khớp từng ký tự với trang gốc; bộ trích trang khớp bộ trích JavaScript của kho thô trên 53 bài, 120 chú thích. Sau đó: `wordpress_api` (site WordPress bất kỳ). Site có cấu trúc riêng cần một bộ đọc mới — việc của agent; trang cấu hình chỉ chọn và chỉnh bộ đọc đã có.
 
 **Lịch sự với máy chủ nguồn** (như `21` mục 16.2): tuần tự, ≥ 3 giây giữa hai yêu cầu API và ≥ 5 giây giữa hai trang HTML, User-Agent ghi tên dự án, gặp 429/5xx thì dừng tới lượt sau, lưu điểm dừng. Lịch: mỗi 5 phút một lượt — tối đa ~20 giây khi chạy trong yêu cầu web (WP-Cron, nút "Lấy ngay"), 120 giây khi chạy bằng cron thật của máy chủ (~20 trang mỗi lượt); tạo bài Chờ duyệt mỗi ngày một lần. Cuối lượt chỉ ghi điểm dừng và nhật ký lên cấu hình mới nhất (không đè thay đổi người quản trị vừa lưu).
+
+**Chống trùng giữa các nguồn** (D-065, `25` mục 4.9): `_cadao_ma_goc` chỉ chống lấy lại cùng một bài của cùng nguồn. Trước khi thêm nguồn thứ hai (và trước T-076), mỗi câu mới được so cả lời với bài đã có và kho: trùng thì gắn vào bài có sẵn, nghi là dị bản thì vào hàng "Có thể trùng" chờ người sáng lập quyết (T-109, T-110).
 
 ## 5. Những điều vẫn giữ
 
@@ -75,7 +77,7 @@ Kiểu bộ đọc: `cadao_me` (T-073) — (1) tên chủ đề, (2) ca dao qua 
 - **Lời không ghi nguồn** (D-057); không tự điền nguồn cho bài nhập tay.
 - **Chú thích, lời giải** chỉ chép khi công tắc của nguồn đang bật (D-055); dòng "Nguồn: … ↗" dưới đó trỏ đúng trang đã lấy, tắt được bằng công tắc "Ghi nguồn cho chú thích" (D-057).
 - **Không tải ảnh** của nguồn; không chép cách phân loại, bộ thẻ ra trang.
-- **Google:** bài chưa có "Hiểu nhanh" (đoạn trích do dự án viết) mang `noindex` — lời và chú thích chép từ nguồn không tính là giá trị riêng (chính sách spam của Google về nội dung sao chép). Người đọc vẫn xem được.
+- **Google:** bài chưa có "Hiểu nhanh" (đoạn trích do dự án viết) mang `noindex` — lời và chú thích chép từ nguồn không tính là giá trị riêng (chính sách spam của Google về nội dung sao chép). Người đọc vẫn xem được. Từ D-062: bài có ít nhất một bài phân tích của người đọc đã duyệt cũng được tính là có giá trị riêng (T-097).
 - Không thông tin cá nhân trong nội dung.
 
 ## 6. Phát triển và kiểm thử tại máy
