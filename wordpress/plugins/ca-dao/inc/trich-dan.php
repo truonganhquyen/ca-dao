@@ -74,6 +74,13 @@ function cadao_khoi_hanh_dong( WP_Post $bai ): string {
 		. '<button type="button" data-viec="chi_loi">Chỉ sao chép lời</button></p>'
 		. '</div></details>'
 		. '<button type="button" class="cadao-chia-se cadao-can-js" hidden>Chia sẻ</button>'
+		// Công cụ đọc (T-085): cỡ chữ, sáng / tối (nhớ trên máy), trình chiếu, nghe bằng giọng có sẵn của máy (D-063)
+		. '<span class="cadao-cong-cu cadao-can-js" role="group" aria-label="Công cụ đọc" hidden>'
+		. '<button type="button" class="cadao-co-chu" aria-label="Cỡ chữ">Aa</button>'
+		. '<button type="button" class="cadao-sang-toi" aria-label="Đổi sáng / tối"><span aria-hidden="true">◐</span></button>'
+		. '<button type="button" class="cadao-trinh-chieu">Trình chiếu</button>'
+		. '<button type="button" class="cadao-nghe" hidden>▶ Nghe</button><span class="cadao-giong-may" hidden>Giọng đọc máy</span>'
+		. '</span>'
 		. ( $luot >= 10 ? '<span class="cadao-luot-doc">' . esc_html( number_format_i18n( $luot ) ) . ' lượt đọc</span>' : '' )
 		. '<p class="cadao-bao" role="status" aria-live="polite"></p>'
 		. '</div>';
@@ -103,6 +110,15 @@ add_filter(
 		return '' === $khoi ? $noi_dung : cadao_chen_hanh_dong( $noi_dung, $khoi );
 	},
 	30
+);
+
+/** Cỡ chữ, sáng / tối người đọc đã chọn: áp ngay trong <head> để trang không nháy (T-085; bộ nhớ trình duyệt, không cookie). */
+add_action(
+	'wp_head',
+	static function () {
+		wp_print_inline_script_tag( "try{var h=document.documentElement,c=localStorage.getItem('cadao-co-chu'),d=localStorage.getItem('cadao-che-do');if(c)h.setAttribute('data-co-chu',c);if(d)h.setAttribute('data-che-do',d);}catch(e){}" );
+	},
+	1
 );
 
 add_action(

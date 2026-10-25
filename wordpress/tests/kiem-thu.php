@@ -485,6 +485,32 @@ kt( 'trang bài: dị bản có nhãn "Dị bản 1", chữ khác được tô',
 kt( 'trang bài: từ chú thích trong lời chính trỏ tới đúng mục chú thích có id', str_contains( $ra, 'href="#cadao-ct-1"' ) && str_contains( $ra, '<li id="cadao-ct-1">' ) && 1 === substr_count( $ra, 'class="cadao-tu"' ), $ra );
 kt( 'trang bài: tắt JavaScript vẫn đọc được danh sách chú thích', str_contains( $ra, 'Núi mẫu.' ) );
 
+// ---------- Công cụ đọc (T-085), bài dài (T-090) ----------
+$hd2 = cadao_khoi_hanh_dong( get_post( $tt_id ) );
+kt( 'công cụ đọc: cỡ chữ, sáng / tối, trình chiếu; nút Nghe ẩn cho tới khi máy có giọng tiếng Việt, có dòng "Giọng đọc máy"', str_contains( $hd2, 'aria-label="Công cụ đọc"' ) && str_contains( $hd2, '>Aa</button>' ) && str_contains( $hd2, 'Trình chiếu' ) && str_contains( $hd2, '<button type="button" class="cadao-nghe" hidden>' ) && str_contains( $hd2, 'Giọng đọc máy' ) );
+ob_start();
+do_action( 'wp_head' );
+kt( 'cỡ chữ, sáng / tối áp ngay trong <head> (không nháy), không cookie', str_contains( (string) ob_get_clean(), "localStorage.getItem('cadao-co-chu')" ) );
+$js = (string) file_get_contents( CADAO_THU_MUC . '/assets/ca-dao.js' );
+kt( 'JavaScript trang bài ≤ 15 KB cho phần thêm (cả tệp ≤ 21 KB), không tự phát giọng', strlen( $js ) <= 21 * 1024 && ! preg_match( '/speak\([^)]*\)\s*;\s*}\s*\(\)/', $js ), strlen( $js ) );
+$khong_kho = array_map( static fn( $i ) => "dòng $i", range( 1, 50 ) );
+$cd        = cadao_chia_doan( $khong_kho );
+kt( 'bài dài không chia khổ: mỗi đoạn ~20 dòng', array( 1 => 1, 2 => 21, 3 => 41 ) === $cd['dong_dau'] && 50 === $cd['dong_cuoi'][3], $cd );
+$co_kho = array_merge( array_fill( 0, 12, 'a b' ), array( '' ), array_fill( 0, 30, 'c d' ), array( '' ), array_fill( 0, 5, 'e f' ) );
+kt( 'bài dài có khổ: chia theo khổ', array( 1 => 1, 2 => 13, 3 => 43 ) === cadao_chia_doan( $co_kho )['dong_dau'], cadao_chia_doan( $co_kho ) );
+$dai = array();
+for ( $k = 1; $k <= 3; $k++ ) {
+	$dai = array_merge( $dai, array_map( static fn( $d ) => "Khổ $k dòng thử $d", range( 1, 20 ) ), array( '' ) );
+}
+$nd_dai = cadao_khoi_tho( rtrim( implode( "\n", $dai ) ) );
+$GLOBALS['cadao_bai_dung'] = cadao_chuan_bi_bai( $nd_dai ) + array( 'tho' => -1, 'ct' => 0 );
+$ra_dai = do_blocks( $nd_dai );
+$GLOBALS['cadao_bai_dung'] = null;
+kt( 'bài dài: số dòng, thời gian đọc, mục lục 3 đoạn, số dòng bên lề mỗi 5 dòng', str_contains( $ra_dai, '60 dòng · 3 đoạn · khoảng' ) && 3 === substr_count( $ra_dai, '<li><a href="#cadao-doan-' ) && str_contains( $ra_dai, 'data-so="5"' ) && str_contains( $ra_dai, 'data-so="60"' ), $ra_dai );
+kt( 'bài dài: đoạn sau dòng 30 được đánh dấu để thu gọn (tắt JavaScript vẫn hiện đủ)', str_contains( $ra_dai, 'id="cadao-doan-3" data-so-doan="3" data-sau' ) && ! str_contains( $ra_dai, 'id="cadao-doan-2" data-so-doan="2" data-sau' ) && str_contains( $ra_dai, 'Khổ 3 dòng thử 20' ) );
+$ngan = do_blocks( cadao_khoi_tho( implode( "\n", array_slice( $khong_kho, 0, 40 ) ) ) );
+kt( 'bài 40 dòng trở xuống: không chia đoạn', ! str_contains( $ngan, 'cadao-bai-dai' ) );
+
 // ---------- Lịch ----------
 kt( 'lịch lấy bài mỗi 5 phút đã đặt', (bool) wp_next_scheduled( 'cadao_thu_thap' ) );
 kt( 'lịch tạo bài hằng ngày đã đặt', (bool) wp_next_scheduled( 'cadao_tao_bai_hang_ngay' ) );

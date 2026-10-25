@@ -2,7 +2,7 @@
 Theme Name:        Kho tàng Ca dao
 Description:       Theme con của Twenty Twenty-Five cho dự án Kho tàng Ca dao Tục ngữ Việt Nam: chữ và khoảng trắng trước, lời thơ lớn, sáng/tối theo máy (docs/20 trong repo ca-dao).
 Template:          twentytwentyfive
-Version:           0.3.0
+Version:           0.4.0
 Requires at least: 6.8
 Requires PHP:      8.1
 Author:            Dự án Kho tàng Ca dao Tục ngữ Việt Nam
@@ -310,6 +310,148 @@ a {
 }
 .cadao-bao:empty {
 	display: none;
+}
+
+/* Công cụ đọc (T-085): cỡ chữ, sáng / tối người đọc chọn (nhớ trên máy) */
+html[data-che-do="toi"] {
+	color-scheme: dark;
+}
+html[data-che-do="sang"] {
+	color-scheme: light;
+}
+html[data-co-chu="2"] main {
+	font-size: 112.5%;
+}
+html[data-co-chu="3"] main {
+	font-size: 125%;
+}
+html[data-co-chu="2"] .wp-block-verse {
+	font-size: calc(var(--wp--preset--font-size--loi) * 1.2);
+}
+html[data-co-chu="3"] .wp-block-verse {
+	font-size: calc(var(--wp--preset--font-size--loi) * 1.45);
+}
+.cadao-cong-cu {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem;
+}
+.cadao-cong-cu[hidden],
+.cadao-cong-cu [hidden] {
+	display: none;
+}
+.cadao-giong-may {
+	color: var(--cadao-nhat);
+	font-size: var(--wp--preset--font-size--small);
+}
+/* Trình chiếu: toàn màn hình, chữ thật lớn */
+.cadao-tc {
+	width: 100vw;
+	height: 100vh;
+	max-width: none;
+	max-height: none;
+	margin: 0;
+	border: 0;
+	padding: 2rem 1rem;
+	background: var(--cadao-giay);
+	color: var(--cadao-muc);
+}
+.cadao-tc[open] {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 1.5rem;
+}
+.cadao-tc-loi {
+	margin: 0;
+	font-family: var(--wp--preset--font-family--literata);
+	font-size: clamp(1.75rem, 6vw, 4.5rem);
+	line-height: 1.5;
+	text-align: center;
+	text-wrap: balance;
+}
+.cadao-tc-so {
+	margin: 0;
+	color: var(--cadao-nhat);
+}
+.cadao-tc-nut {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.75rem;
+}
+.cadao-tc-nut button,
+.cadao-doc-toan-bai,
+.cadao-doc-tiep {
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
+	padding: 0 1rem;
+	border: 1px solid var(--cadao-son);
+	border-radius: 999px;
+	background: none;
+	color: var(--cadao-son);
+	font: inherit;
+	cursor: pointer;
+	text-decoration: none;
+}
+
+/* Bài dài (T-090): đoạn, số dòng bên lề, mục lục, "Đọc toàn bài" */
+.cadao-bai-dai-tom {
+	color: var(--cadao-nhat);
+	font-size: var(--wp--preset--font-size--small);
+	margin-block: 1rem 0.25rem;
+}
+.cadao-muc-luc summary {
+	display: flex;
+	align-items: center;
+	min-height: 44px;
+	color: var(--cadao-son);
+	cursor: pointer;
+}
+.cadao-muc-luc ol {
+	columns: 2 10rem;
+	margin-block: 0.25rem 1rem;
+}
+.cadao-muc-luc li {
+	min-height: 32px;
+}
+.cadao-muc-luc-dong {
+	color: var(--cadao-nhat);
+	font-size: var(--wp--preset--font-size--small);
+}
+.cadao-bai-dai .wp-block-verse {
+	padding-inline-start: 2.25em; /* chỗ cho số dòng */
+}
+.cadao-doan {
+	display: block;
+	scroll-margin-top: 1rem;
+}
+.cadao-doan + .cadao-doan {
+	margin-block-start: 0.75em;
+}
+.cadao-bai-dai .cadao-dong {
+	position: relative;
+}
+.cadao-bai-dai .cadao-dong[data-so]::before {
+	content: attr(data-so);
+	position: absolute;
+	inset-inline-start: -2.25em;
+	width: 1.75em;
+	text-align: end;
+	text-indent: 0;
+	color: var(--cadao-nhat);
+	font-family: var(--wp--preset--font-family--be-vietnam-pro);
+	font-size: 0.55em;
+	line-height: 3.1;
+}
+.cadao-thu-gon .cadao-doan[data-sau] {
+	display: none;
+}
+.cadao-doc-tiep {
+	margin-block-end: 0.5rem;
 }
 
 /* "Đọc nhiều tuần này" (trang chủ) */
