@@ -58,17 +58,20 @@ echo "== Bỏ plugin mẫu không dùng"
 for p in akismet hello; do wp plugin is-installed "$p" && wp plugin delete "$p"; done
 
 echo "== Plugin ca-dao từ nhánh $NHANH"
-curl -fsSL -o "/home/$TK/bin/cap-nhat-plugin.sh" "https://raw.githubusercontent.com/truonganhquyen/ca-dao/$NHANH/wordpress/may-chu/cap-nhat-plugin.sh"
-chown "$TK:$TK" "/home/$TK/bin/cap-nhat-plugin.sh"
+for f in cap-nhat-plugin.sh tu-cap-nhat.sh; do
+	curl -fsSL -o "/home/$TK/bin/$f" "https://raw.githubusercontent.com/truonganhquyen/ca-dao/$NHANH/wordpress/may-chu/$f"
+	chown "$TK:$TK" "/home/$TK/bin/$f"
+done
 sudo -u "$TK" env NHANH="$NHANH" bash "/home/$TK/bin/cap-nhat-plugin.sh"
 wp plugin is-active ca-dao || wp plugin activate ca-dao
 
 wp rewrite flush
 
-echo "== Cron thật: chạy lịch WordPress mỗi phút (Nguồn tự động cần 5 phút một lượt)"
+echo "== Cron thật: lịch WordPress mỗi phút (Nguồn tự động cần 5 phút một lượt); tự cập nhật từ main mỗi 5 phút (T-078)"
 cat > /etc/cron.d/cadao-wordpress <<CRON
 # T-075: lịch WordPress của cadao.sdigi.net (wp-config: DISABLE_WP_CRON)
 * * * * * $TK flock -n /home/$TK/.wp-cron.lock $PHP -d error_reporting=0 /home/$TK/bin/wp-cli.phar --path=$D cron event run --due-now --quiet
+*/5 * * * * $TK flock -n /home/$TK/.cap-nhat.lock bash /home/$TK/bin/tu-cap-nhat.sh >> /home/$TK/cap-nhat.log 2>&1
 CRON
 chmod 644 /etc/cron.d/cadao-wordpress
 

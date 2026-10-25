@@ -43,6 +43,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-074 | Chọn và mua hosting WordPress | N | — | — | DONE |
 | T-075 | Cài WordPress lên hosting: plugin, sao lưu, bảo mật cơ bản (theme cài khi T-072 xong) | N+A | T-071, T-074 | — | IN_PROGRESS |
 | T-076 | Chuyển nội dung hiện có sang WordPress, ngừng site Astro | A | T-075 | — | BLOCKED |
+| T-078 | Máy chủ tự cập nhật plugin từ `main` sau mỗi PR gộp | A | T-075 | — | DONE |
 | T-077 | Áp dụng D-057: lời không ghi nguồn, "Nguồn: …" chỉ dưới chú thích đã chép (plugin 0.2.0) | A | T-071 | — | DONE |
 | T-041 | Tìm kiếm không dấu trên WordPress | A | T-072 | — | BLOCKED |
 | T-042 | Trích dẫn 2 định dạng + chia sẻ (trên WordPress) | A | T-072 | — | BLOCKED |
@@ -167,6 +168,9 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 
 #### T-075 · Cài WordPress lên hosting — N+A
 **Việc:** cài WordPress, plugin `ca-dao` (theme cài khi T-072 xong); sao lưu tự động; cron thật thay WP-Cron nếu hosting cho phép. **Chấp nhận:** người sáng lập đăng một bài từ điện thoại; nguồn tự động chạy theo lịch.
+
+#### T-078 · Tự cập nhật từ main — A
+**Việc:** `wordpress/may-chu/tu-cap-nhat.sh` (cron 5 phút): commit mới trên `main` → lấy plugin của commit đó, kiểm cú pháp, thay một lần, trả lại bản cũ nếu trang chủ hỏng. Người sáng lập đồng ý 25/10/2026. **Chấp nhận:** gộp một PR chạm plugin thì site có bản mới trong ≤ 10 phút, không cần agent vào VPS.
 
 #### T-077 · Lời không ghi nguồn (D-057) — A
 **Việc:** bài tự động không ghi nguồn cho lời (địa chỉ gốc ở ô nội bộ `_cadao_url_goc`); dòng "Nguồn: … ↗" dưới chú thích đã chép, theo công tắc "Ghi nguồn cho chú thích" của từng nguồn; nâng cấp 0.2.0 bỏ nguồn máy tự điền ở bài cũ. **Chấp nhận:** kiểm thử plugin đạt; trên site thật, bài tự động không còn "Nguồn: …".
