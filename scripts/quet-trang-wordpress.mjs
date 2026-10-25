@@ -177,6 +177,10 @@ try {
   kiem('bài dài: phần sau thu gọn, có nút "Đọc toàn bài"', await tuTab.evaluate(() => !!document.querySelector('.cadao-doc-toan-bai') && getComputedStyle(document.querySelector('.cadao-doan[data-sau]')).display === 'none'));
   await tuTab.click('.cadao-doc-toan-bai');
   kiem('bài dài: bấm "Đọc toàn bài" thì hiện đủ', await tuTab.evaluate(() => getComputedStyle(document.querySelector('.cadao-doan[data-sau]')).display !== 'none'));
+  // Góp ý (T-045): nút mở form, loại chọn sẵn
+  await tuTab.goto(G + baiDiBan, { waitUntil: 'load' });
+  await tuTab.click('a.cadao-gop-y-mo[data-loai="bao_loi"]');
+  kiem('góp ý: bấm "Báo lỗi" mở form, loại chọn sẵn', await tuTab.evaluate(() => document.querySelector('.cadao-gop-y-hop').open && document.querySelector('input[name="loai"][value="bao_loi"]').checked));
   // Tìm (T-041): gõ không dấu, kết quả hiện khi gõ, phần khớp được tô
   await tuTab.goto(G + '/tim/', { waitUntil: 'load' });
   await tuTab.type('#cadao-tim-o', 'dong mau mot');

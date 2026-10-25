@@ -32,7 +32,7 @@
 	if (hop) {
 		var bao = hop.querySelector('.cadao-bao');
 		var noiBao = function (chu) { bao.textContent = ''; setTimeout(function () { bao.textContent = chu; }, 50); };
-		hop.querySelectorAll('.cadao-can-js').forEach(function (o) { o.hidden = false; });
+		document.querySelectorAll('.cadao-can-js').forEach(function (o) { o.hidden = false; }); // nút chỉ dùng được khi có JavaScript (khối trích dẫn, góp ý)
 
 		// Ngày truy cập theo ngày bấm (trang có thể được lưu đệm từ hôm trước)
 		var ngay = hai(homNay.getDate()) + '/' + hai(homNay.getMonth() + 1) + '/' + homNay.getFullYear();
@@ -288,6 +288,32 @@
 				}
 				o.querySelector('.cadao-o-ct-dong').focus();
 			});
+		});
+	}
+
+	// ---------- Góp ý (T-045): nút mở form, chọn sẵn loại; Turnstile chỉ tải khi bắt đầu điền form ----------
+	document.querySelectorAll('a.cadao-gop-y-mo').forEach(function (a) {
+		a.addEventListener('click', function (e) {
+			var hopGy = document.querySelector('.cadao-gop-y-hop');
+			var r = hopGy && hopGy.querySelector('input[name="loai"][value="' + a.getAttribute('data-loai') + '"]');
+			if (!hopGy || !r) { return; }
+			e.preventDefault();
+			hopGy.open = true;
+			r.checked = true;
+			hopGy.scrollIntoView({ block: 'start' });
+			var nd = hopGy.querySelector('textarea');
+			if (nd) { nd.focus(); }
+		});
+	});
+	if (cauHinh.turnstile) {
+		var daTai = false;
+		document.addEventListener('focusin', function (e) {
+			if (daTai || !e.target.closest || !e.target.closest('form.cadao-form, #commentform')) { return; }
+			daTai = true;
+			var s = document.createElement('script');
+			s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+			s.async = true;
+			document.head.appendChild(s);
 		});
 	}
 

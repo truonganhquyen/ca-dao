@@ -193,7 +193,8 @@ add_filter(
  * chép lại (docs/24 mục 5). Lời và chú thích chép từ nguồn không tính là giá trị riêng. Người đọc vẫn xem được.
  */
 function cadao_co_gia_tri_rieng( WP_Post $bai ): bool {
-	return '' !== trim( $bai->post_excerpt );
+	// Bài có bài phân tích của người đọc đã duyệt cũng có giá trị riêng (D-062, phan-tich.php)
+	return (bool) apply_filters( 'cadao_co_gia_tri_rieng', '' !== trim( $bai->post_excerpt ), $bai );
 }
 
 add_filter(

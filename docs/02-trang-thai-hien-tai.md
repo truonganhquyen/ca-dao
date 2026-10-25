@@ -23,6 +23,7 @@
 - **Site Astro cũ (T-035, T-040) — đã ngừng (T-076, 25/10/2026):** địa chỉ `https://ca-dao.truonganhquyen.workers.dev` chuyển hướng 301 sang cadao.sdigi.net; 2 bài công khai đã chuyển vào WordPress. Mã Astro, `content/`, công cụ kiểm dữ liệu giữ trong repo (`npm run kiem-tra` vẫn chạy).
 - **Plugin WordPress (T-071):** loại bài Ca dao – Tục ngữ (lời không ghi nguồn; "Nguồn: …" chỉ dưới chú thích chép từ nguồn — D-057), trang **Nguồn tự động**, **Kho thu thập**, tự tạo bài **Chờ duyệt**, ô Chờ duyệt trên Bảng tin (`wordpress/`, `docs/24`). Bộ đọc Ca dao Mẹ đầy đủ (T-073): ca dao, thành ngữ–tục ngữ, đồng dao, vè, câu đố, kèm dị bản, chú thích, đáp án; bài chưa sửa tay tự được bổ sung.
 - **Trích dẫn, chia sẻ, lượt đọc (T-042, T-081, 25/10/2026):** hộp Trích dẫn (thông dụng, APA 7; "Sao chép kèm nguồn" / "Chỉ sao chép lời"), nút Chia sẻ; lượt đọc tự đếm không cookie, không lưu IP, "Đọc nhiều tuần này" ở trang chủ, ô lượt đọc 7 ngày trên Bảng tin.
+- **Người đọc góp phần (T-045, T-097, 25/10/2026):** cuối mỗi bài có Góp ý (ở quê nói khác, góp ý chú thích, báo lỗi, gửi số trang), Cảm nghĩ, và "Viết cảm nhận" (bài phân tích); tất cả vào Chờ duyệt, không bắt email hay tên thật, không cookie; chống rác bằng ô bẫy và giới hạn mỗi giờ (Turnstile khi có khóa). Xong đợt 4 của `docs/25` mục 6, trừ các việc chờ người sáng lập.
 - **Trang chủ, Bạn có biết?, trang thể loại, tình huống (T-043, T-093, T-094, 25/10/2026):** trang chủ mới (Câu hôm nay, Bạn có biết?, Hôm nay bạn đang…, Đọc nhiều, Vừa bổ sung, theo thể loại, vùng); "Bạn có biết?" máy ghép từ chú thích có sẵn, người sáng lập duyệt; trang thể loại có giới thiệu do người sáng lập viết và bài tiêu biểu; trang tình huống khi đủ 2 bài.
 - **Tìm kiếm (T-041, 25/10/2026):** trang Tìm (`/tim/`): kết quả hiện khi gõ, gõ không dấu vẫn ra, tìm cả trong chú thích và từ điển; chỉ mục tự làm trong WordPress (D-067), không phải cài thêm gì.
 - **Vùng, chủ đề (T-089, T-091, 25/10/2026):** máy gợi ý vùng (từ chú thích nhắc miền, tỉnh và địa danh đã xác nhận) và chủ đề của dự án (qua bảng ánh xạ chủ đề của nguồn, lời ru, hò, lý, nhóm kinh nghiệm của tục ngữ); người sáng lập duyệt hàng loạt. Xong đợt 3 của `docs/25` mục 6.
@@ -39,6 +40,8 @@
 ## Đang chờ người sáng lập
 
 - **Sao lưu FlashPanel** — để sau (người sáng lập, 25/10/2026): khi làm, chọn hằng ngày, gồm site và cơ sở dữ liệu cadao, lưu ra ngoài VPS.
+- **Duyệt đóng góp của người đọc:** Ca dao – Tục ngữ → Góp ý của người đọc; Cảm nhận – phân tích (bài Chờ duyệt → Đăng); Bình luận (cảm nghĩ chờ duyệt → Chấp thuận).
+- **Khóa Turnstile** (tùy chọn, chặn tin rác chắc hơn): Cloudflare → Turnstile → Add widget cho cadao.sdigi.net, dán hai khóa vào Ca dao – Tục ngữ → Chống rác. Không gửi khóa cho ai, kể cả agent.
 - **Bạn có biết?** (Ca dao – Tục ngữ → Bạn có biết?): máy ghép câu từ chú thích, bạn sửa cho tự nhiên rồi chọn "Duyệt"; trang chủ hiện 4 câu đã duyệt mỗi tuần.
 - **Giới thiệu thể loại** (Ca dao – Tục ngữ → Thể loại → Sửa từng thể loại, ô "Mô tả"): vài dòng giới thiệu, cách đọc — hiện ở đầu trang thể loại.
 - **Tình huống** (khi rảnh): trong trình soạn, gắn bài vào tình huống (ô "Tình huống") và viết một câu "Hợp khi…"; tình huống có từ 2 bài thì có trang và thẻ trên trang chủ.
