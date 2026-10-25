@@ -1,0 +1,179 @@
+/*
+Theme Name:        Kho tàng Ca dao
+Description:       Theme con của Twenty Twenty-Five cho dự án Kho tàng Ca dao Tục ngữ Việt Nam: chữ và khoảng trắng trước, lời thơ lớn, sáng/tối theo máy (docs/20 trong repo ca-dao).
+Template:          twentytwentyfive
+Version:           0.1.0
+Requires at least: 6.8
+Requires PHP:      8.1
+Author:            Dự án Kho tàng Ca dao Tục ngữ Việt Nam
+Author URI:        https://github.com/truonganhquyen/ca-dao
+License:           MIT
+Text Domain:       ca-dao
+*/
+
+/* Màu (docs/20 mục 1.1): sáng/tối theo cài đặt máy qua light-dark(); theme.json trỏ bảng màu vào các biến này. */
+:root {
+	color-scheme: light dark;
+	--cadao-giay: light-dark(#fbf8f1, #1b1a18);
+	--cadao-muc: light-dark(#22201c, #ede6d6);
+	--cadao-son: light-dark(#9e2a22, #e8776b);
+	--cadao-nhat: light-dark(#5f594f, #aba496);
+	--cadao-ke: light-dark(#ddd6c8, #3a3733); /* đường kẻ mảnh, không mang chữ */
+}
+
+/* Chữ (docs/20 mục 1.2) */
+h1, h2, h3 {
+	text-wrap: balance;
+}
+p {
+	text-wrap: pretty;
+}
+
+/* Liên kết và viền focus rõ bằng màu son (mục 11) */
+a {
+	text-underline-offset: 0.2em;
+}
+:where(a, button, input, summary, [tabindex]):focus-visible {
+	outline: 3px solid var(--cadao-son);
+	outline-offset: 3px;
+}
+
+/* ---------- Trang bài ---------- */
+
+/* Nhãn thể loại: chữ in hoa nhỏ màu son, vùng chạm 44 px (mục 4.2, 11) */
+.cadao-nhan-the-loai {
+	margin-block-end: 0;
+}
+.cadao-nhan-the-loai a {
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
+	color: var(--cadao-son);
+	text-decoration: none;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	font-weight: 600;
+}
+.cadao-nhan-the-loai a:hover {
+	text-decoration: underline;
+}
+.wp-block-post-title {
+	margin-block-start: 0.25rem;
+}
+
+/* Lời thơ: lớn, giãn dòng 1,7, không tự xuống dòng giữa dòng thơ khi còn chỗ (FR-1.1) */
+.wp-block-verse {
+	font-family: var(--wp--preset--font-family--literata);
+	font-size: var(--wp--preset--font-size--loi);
+	line-height: 1.7;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+	background: none;
+	border: 0;
+	padding: 0;
+	margin-block: 1.5rem;
+}
+/* Lục bát: câu lục thụt lề so với câu bát (mục 1.2; Q-006 sẽ hỏi người thử ở Mốc B) */
+/* Mỗi dòng thơ một khối; dòng dài phải xuống dòng ở màn hình hẹp thì phần tràn thụt thêm (thụt treo),
+   để không lẫn với một dòng thơ mới */
+.wp-block-verse .cadao-dong {
+	display: block;
+	padding-inline-start: 1.25em;
+	text-indent: -1.25em;
+}
+.wp-block-verse .cadao-dong.cadao-luc {
+	padding-inline-start: 2.75em; /* câu lục bắt đầu thụt 1,5em */
+}
+
+/* Dị bản: lời nhỏ hơn lời chính một bậc */
+.wp-block-post-content .wp-block-verse ~ .wp-block-verse {
+	font-size: var(--wp--preset--font-size--large);
+}
+
+/* Hiểu nhanh (mục 4.1, lớp 1) */
+.cadao-hieu-nhanh {
+	border-inline-start: 3px solid var(--cadao-son);
+	padding-inline-start: 1rem;
+	margin-block: 1.5rem;
+}
+.cadao-hieu-nhanh h2 {
+	font-size: var(--wp--preset--font-size--medium);
+	margin: 0 0 0.25rem;
+}
+.cadao-hieu-nhanh p {
+	margin: 0;
+}
+
+/* Tiêu đề phần (Dị bản, Chú thích) */
+.wp-block-post-content h2.wp-block-heading {
+	font-size: var(--wp--preset--font-size--medium);
+	margin-block: 2rem 0.5rem;
+	padding-block-start: 1rem;
+	border-block-start: 1px solid var(--cadao-ke);
+}
+
+/* Chú thích và dòng "Nguồn: …" dưới chú thích */
+.cadao-chu-thich {
+	padding-inline-start: 1.25rem;
+}
+.cadao-chu-thich li + li {
+	margin-block-start: 0.5rem;
+}
+.cadao-chu-thich-nguon,
+.cadao-nguon {
+	color: var(--cadao-nhat);
+	font-size: var(--wp--preset--font-size--small);
+}
+.cadao-chu-thich-nguon a,
+.cadao-nguon a {
+	color: inherit;
+}
+
+/* Câu đố: câu hỏi, đáp án mở ra */
+.wp-block-details summary {
+	cursor: pointer;
+	min-height: 44px;
+	display: flex;
+	align-items: center;
+	color: var(--cadao-son);
+}
+
+/* Danh sách bài (trang chủ, kho, thể loại) */
+.cadao-ds-bai {
+	list-style: none;
+	padding: 0;
+}
+.cadao-ds-bai .wp-block-post {
+	padding-block: 0.75rem;
+	border-block-end: 1px solid var(--cadao-ke);
+}
+.cadao-ds-bai .wp-block-post-title a {
+	text-decoration: none;
+	display: inline-block;
+	min-height: 44px;
+}
+.cadao-ds-bai .wp-block-post-title a:hover {
+	text-decoration: underline;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*, *::before, *::after {
+		animation-duration: 0.01ms !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+
+/* Bản in (FR-1.11): chỉ lời và nội dung, chữ đen trên nền trắng */
+@media print {
+	:root {
+		color-scheme: light;
+	}
+	body {
+		background: #fff;
+		color: #000;
+	}
+	header, footer, .wp-block-navigation {
+		display: none !important;
+	}
+}

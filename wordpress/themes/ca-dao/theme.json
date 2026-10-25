@@ -1,0 +1,290 @@
+{
+	"$schema": "https://schemas.wp.org/wp/6.8/theme.json",
+	"version": 3,
+	"settings": {
+		"appearanceTools": true,
+		"color": {
+			"defaultPalette": false,
+			"defaultGradients": false,
+			"gradients": [],
+			"custom": false,
+			"palette": [
+				{
+					"slug": "base",
+					"name": "Giấy (nền)",
+					"color": "var(--cadao-giay)"
+				},
+				{
+					"slug": "contrast",
+					"name": "Mực (chữ)",
+					"color": "var(--cadao-muc)"
+				},
+				{
+					"slug": "accent-1",
+					"name": "Son (liên kết, điểm nhấn)",
+					"color": "var(--cadao-son)"
+				},
+				{
+					"slug": "accent-4",
+					"name": "Nhạt (chữ phụ)",
+					"color": "var(--cadao-nhat)"
+				},
+				{
+					"slug": "accent-6",
+					"name": "Kẻ (đường kẻ mảnh)",
+					"color": "var(--cadao-ke)"
+				}
+			]
+		},
+		"layout": {
+			"contentSize": "40rem",
+			"wideSize": "56rem"
+		},
+		"typography": {
+			"fluid": false,
+			"defaultFontSizes": false,
+			"fontFamilies": [
+				{
+					"name": "Be Vietnam Pro",
+					"slug": "be-vietnam-pro",
+					"fontFamily": "\"Be Vietnam Pro\", system-ui, sans-serif",
+					"fontFace": [
+						{
+							"fontFamily": "Be Vietnam Pro",
+							"fontWeight": "400",
+							"fontStyle": "normal",
+							"fontDisplay": "swap",
+							"src": [
+								"file:./assets/fonts/be-vietnam-pro-400-vietnamese.woff2"
+							],
+							"unicodeRange": "U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB"
+						},
+						{
+							"fontFamily": "Be Vietnam Pro",
+							"fontWeight": "400",
+							"fontStyle": "normal",
+							"fontDisplay": "swap",
+							"src": [
+								"file:./assets/fonts/be-vietnam-pro-400-latin.woff2"
+							],
+							"unicodeRange": "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"
+						},
+						{
+							"fontFamily": "Be Vietnam Pro",
+							"fontWeight": "600",
+							"fontStyle": "normal",
+							"fontDisplay": "swap",
+							"src": [
+								"file:./assets/fonts/be-vietnam-pro-600-vietnamese.woff2"
+							],
+							"unicodeRange": "U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB"
+						},
+						{
+							"fontFamily": "Be Vietnam Pro",
+							"fontWeight": "600",
+							"fontStyle": "normal",
+							"fontDisplay": "swap",
+							"src": [
+								"file:./assets/fonts/be-vietnam-pro-600-latin.woff2"
+							],
+							"unicodeRange": "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"
+						}
+					]
+				},
+				{
+					"name": "Literata",
+					"slug": "literata",
+					"fontFamily": "Literata, Georgia, serif",
+					"fontFace": [
+						{
+							"fontFamily": "Literata",
+							"fontWeight": "400",
+							"fontStyle": "normal",
+							"fontDisplay": "swap",
+							"src": [
+								"file:./assets/fonts/literata-400-vietnamese.woff2"
+							],
+							"unicodeRange": "U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB"
+						},
+						{
+							"fontFamily": "Literata",
+							"fontWeight": "400",
+							"fontStyle": "normal",
+							"fontDisplay": "swap",
+							"src": [
+								"file:./assets/fonts/literata-400-latin.woff2"
+							],
+							"unicodeRange": "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"
+						}
+					]
+				}
+			],
+			"fontSizes": [
+				{
+					"name": "Nhỏ",
+					"slug": "small",
+					"size": "0.9375rem"
+				},
+				{
+					"name": "Thường",
+					"slug": "medium",
+					"size": "1.0625rem"
+				},
+				{
+					"name": "Lớn",
+					"slug": "large",
+					"size": "1.25rem"
+				},
+				{
+					"name": "Lời thơ",
+					"slug": "loi",
+					"size": "1.375rem"
+				},
+				{
+					"name": "Tiêu đề",
+					"slug": "x-large",
+					"size": "1.75rem"
+				},
+				{
+					"name": "Tiêu đề lớn",
+					"slug": "xx-large",
+					"size": "2.125rem"
+				}
+			]
+		},
+		"spacing": {
+			"units": [
+				"px",
+				"em",
+				"rem",
+				"%",
+				"vw"
+			]
+		}
+	},
+	"styles": {
+		"color": {
+			"background": "var:preset|color|base",
+			"text": "var:preset|color|contrast"
+		},
+		"typography": {
+			"fontFamily": "var:preset|font-family|be-vietnam-pro",
+			"fontSize": "var:preset|font-size|medium",
+			"lineHeight": "1.6",
+			"fontWeight": "400"
+		},
+		"spacing": {
+			"padding": {
+				"left": "16px",
+				"right": "16px"
+			}
+		},
+		"elements": {
+			"link": {
+				"color": {
+					"text": "var:preset|color|accent-1"
+				},
+				"typography": {
+					"textDecoration": "underline"
+				},
+				":hover": {
+					"typography": {
+						"textDecoration": "none"
+					}
+				}
+			},
+			"heading": {
+				"typography": {
+					"fontFamily": "var:preset|font-family|be-vietnam-pro",
+					"fontWeight": "600",
+					"lineHeight": "1.3",
+					"letterSpacing": "0"
+				},
+				"color": {
+					"text": "var:preset|color|contrast"
+				}
+			},
+			"h1": {
+				"typography": {
+					"fontSize": "var:preset|font-size|xx-large"
+				}
+			},
+			"h2": {
+				"typography": {
+					"fontSize": "var:preset|font-size|x-large"
+				}
+			},
+			"h3": {
+				"typography": {
+					"fontSize": "var:preset|font-size|large"
+				}
+			},
+			"button": {
+				"color": {
+					"background": "var:preset|color|accent-1",
+					"text": "var:preset|color|base"
+				},
+				"border": {
+					"radius": "2px"
+				}
+			}
+		},
+		"blocks": {
+			"core/verse": {
+				"typography": {
+					"fontFamily": "var:preset|font-family|literata",
+					"fontSize": "var:preset|font-size|loi",
+					"lineHeight": "1.7"
+				},
+				"color": {
+					"background": "transparent"
+				}
+			},
+			"core/post-title": {
+				"typography": {
+					"fontSize": "var:preset|font-size|xx-large",
+					"fontWeight": "600"
+				}
+			},
+			"core/site-title": {
+				"typography": {
+					"fontSize": "var:preset|font-size|large",
+					"fontWeight": "600"
+				},
+				"elements": {
+					"link": {
+						"color": {
+							"text": "var:preset|color|contrast"
+						},
+						"typography": {
+							"textDecoration": "none"
+						}
+					}
+				}
+			},
+			"core/post-terms": {
+				"typography": {
+					"fontSize": "var:preset|font-size|small"
+				}
+			},
+			"core/separator": {
+				"color": {
+					"text": "var:preset|color|accent-6"
+				}
+			}
+		}
+	},
+	"templateParts": [
+		{
+			"name": "header",
+			"title": "Đầu trang",
+			"area": "header"
+		},
+		{
+			"name": "footer",
+			"title": "Chân trang",
+			"area": "footer"
+		}
+	],
+	"customTemplates": []
+}

@@ -42,3 +42,9 @@ jobs:
 
       - name: Kiểm thử plugin WordPress
         run: node scripts/test-wordpress.mjs
+
+      - name: Cài gói (axe-core, puppeteer-core cho bước quét)
+        run: npm ci
+
+      - name: Quét trợ năng giao diện WordPress (WCAG 2.2 AA)
+        run: node scripts/quet-trang-wordpress.mjs

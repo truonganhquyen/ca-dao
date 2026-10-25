@@ -38,7 +38,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-040 | Trang tác phẩm đọc theo lớp, nhãn tự tính, nguồn gốc, sáng/tối, in, thanh điều hướng dưới | A | T-035 | — | DONE |
 | T-070 | Áp dụng D-054..D-056: nới quy tắc, kế hoạch chuyển WordPress | A | T-037 | — | DONE |
 | T-071 | Plugin WordPress `ca-dao`: loại bài, phân loại, dòng Nguồn, Nguồn tự động, kho thu thập, đổ bài Chờ duyệt | A | T-070 | — | DONE |
-| T-072 | Theme WordPress `ca-dao` (theme con, giao diện theo docs/20) | A | T-071 | — | READY |
+| T-072 | Theme WordPress `ca-dao` (theme con, giao diện theo docs/20) | A | T-071 | — | DONE |
 | T-073 | Bộ đọc Ca dao Mẹ đầy đủ: dị bản, chú thích có ghi nguồn, tục ngữ, đồng dao, vè, câu đố | A | T-071 | — | DONE |
 | T-074 | Chọn và mua hosting WordPress | N | — | — | DONE |
 | T-075 | Cài WordPress lên hosting: plugin, sao lưu, bảo mật cơ bản (theme cài khi T-072 xong) | N+A | T-071, T-074 | — | IN_PROGRESS |
@@ -159,6 +159,7 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 
 #### T-072 · Theme WordPress `ca-dao` — A
 **Đọc:** `20` mục 1, 4, 11. **Việc:** theme con của Twenty Twenty-Five: token màu, phông, sáng/tối, trang bài (lời lớn, lục bát thụt lề, chú thích và dòng "Nguồn: …" dưới chú thích), đọc tốt ở 360 px. **Chấp nhận:** quét trợ năng WCAG 2.2 AA 0 lỗi trên trang bài.
+**Tiến độ (25/10/2026):** `wordpress/themes/ca-dao` (`24` mục 2). `npm run quet:wordpress`: 7 trang (trang chủ, kho, thể loại, 4 bài mẫu tổng hợp: lục bát có dị bản và chú thích, câu đố, tục ngữ, bài nhập tay có Hiểu nhanh) × 3 chế độ — 0 lỗi, không tràn ngang ở 360 px; đã xem ảnh chụp bằng mắt. Máy chủ tự lấy theme và bật một lần sau khi gộp (T-078).
 
 #### T-073 · Bộ đọc Ca dao Mẹ đầy đủ — A
 **Việc:** dị bản và chú thích (chú thích, lời giải chép kèm "Nguồn: Ca dao Mẹ ↗" khi công tắc bật — D-055, D-057), thành ngữ–tục ngữ, đồng dao, vè, câu đố (câu hỏi + đáp án); dùng lại cách trích đã kiểm ở kho thô (T-038: 20/20 khớp từng ký tự). **Chấp nhận:** kiểm mẫu 20 bài khớp từng ký tự với trang gốc.

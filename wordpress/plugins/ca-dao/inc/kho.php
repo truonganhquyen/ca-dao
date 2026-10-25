@@ -198,7 +198,8 @@ function cadao_khoi_tho( string $loi ): string {
 }
 
 function cadao_khoi_tieu_de( string $chu ): string {
-	return "<!-- wp:heading {\"level\":3} -->\n<h3 class=\"wp-block-heading\">" . esc_html( $chu ) . "</h3>\n<!-- /wp:heading -->";
+	// Cấp 2: ngay dưới tiêu đề bài (h1) — thứ bậc tiêu đề đúng (docs/20 mục 11)
+	return "<!-- wp:heading -->\n<h2 class=\"wp-block-heading\">" . esc_html( $chu ) . "</h2>\n<!-- /wp:heading -->";
 }
 
 function cadao_khoi_doan( string $html, string $lop = '' ): string {
