@@ -886,6 +886,42 @@ kt( 'trang "Bản đồ ca dao" có sẵn ở /ban-do/', ( $p_bd = get_page_by_p
 kt( 'trang mục từ có tọa độ: "Xem trên bản đồ ca dao"', str_contains( apply_filters( 'term_description', '', $m_nam->term_id, 'tu_kho', 'tu_kho' ), '#dd-' . $m_nam->term_id . '">Xem trên bản đồ ca dao' ) );
 kt( 'trang chủ, chân trang: liên kết tới bản đồ', str_contains( do_shortcode( '[cadao_trang_chu]' ), 'Xem ca dao trên bản đồ' ) && str_contains( do_shortcode( '[cadao_chan_trang]' ), 'Bản đồ ca dao' ) );
 
+// ---------- Lời vào khối Thơ (T-112): bài dán vào khối Đoạn văn ----------
+$p_ = static fn( string $h ) => "<!-- wp:paragraph -->\n<p>$h</p>\n<!-- /wp:paragraph -->";
+$loi_kt = static fn( string $nd ) => cadao_loi_cac_khoi_tho( cadao_de_xuat_khoi_tho( $nd )['noi_dung'] ?? '' );
+// Dạng 1: đoạn trống, rồi một đoạn có dòng chú in nghiêng và lời chung một đoạn
+$nd1 = $p_( '' ) . "\n\n" . $p_( '<em>(Chú thích thử về bài vè, năm 1886.)</em><br>Dòng kt một,<br>Dòng kt hai &amp; ba,<br>Dòng kt bốn.' );
+$dx1 = cadao_de_xuat_khoi_tho( $nd1 );
+kt( 'khối Thơ: dòng chú in nghiêng giữ là đoạn văn, lời vào khối Thơ đúng từng ký tự, bỏ đoạn trống', $dx1 && array( "Dòng kt một,\nDòng kt hai & ba,\nDòng kt bốn." ) === $loi_kt( $nd1 ) && array( '(Chú thích thử về bài vè, năm 1886.)' ) === $dx1['ghi_chu'] && str_starts_with( $dx1['noi_dung'], "<!-- wp:paragraph -->\n<p><em>(Chú thích" ), $dx1 );
+// Dạng 2: mỗi dòng một đoạn văn → một khối Thơ, không chèn dòng trống
+$nd2 = implode( "\n\n", array_map( $p_, array( '', 'Dòng lẻ một,', 'Dòng lẻ hai.', 'Dòng lẻ ba,', 'Dòng lẻ bốn.' ) ) );
+kt( 'khối Thơ: mỗi dòng một đoạn văn → các dòng liền nhau trong một khối Thơ', array( "Dòng lẻ một,\nDòng lẻ hai.\nDòng lẻ ba,\nDòng lẻ bốn." ) === $loi_kt( $nd2 ), $loi_kt( $nd2 ) );
+// Dạng 3: đoạn chú trong ngoặc riêng; hai đoạn nhiều dòng → hai khổ
+$nd3 = $p_( '<em>(Bài thử tả một trận đánh)</em>' ) . "\n\n" . $p_( 'Khổ một dòng một<br>Khổ một dòng hai' ) . "\n\n" . $p_( '<br>Khổ hai dòng một<br>Khổ hai dòng hai' );
+kt( 'khối Thơ: hai đoạn nhiều dòng → hai khổ cách một dòng trống; dòng trống đầu đoạn bỏ qua', array( "Khổ một dòng một\nKhổ một dòng hai\n\nKhổ hai dòng một\nKhổ hai dòng hai" ) === $loi_kt( $nd3 ) && 1 === count( cadao_de_xuat_khoi_tho( $nd3 )['ghi_chu'] ), $loi_kt( $nd3 ) );
+// Dạng 4: nhiều phần dưới tiêu đề h3 → tiêu đề giữ, mỗi phần một khối Thơ
+$nd4 = "<!-- wp:heading {\"level\":3} -->\n<h3 class=\"wp-block-heading\">Phần thử một</h3>\n<!-- /wp:heading -->\n\n" . $p_( 'Phần một dòng a,<br>Phần một dòng b.' ) . "\n\n<!-- wp:heading {\"level\":3} -->\n<h3 class=\"wp-block-heading\">Phần thử hai</h3>\n<!-- /wp:heading -->\n\n" . $p_( 'Phần hai dòng a,<br>Phần hai dòng b.' );
+$dx4 = cadao_de_xuat_khoi_tho( $nd4 );
+kt( 'khối Thơ: phần dưới tiêu đề → tiêu đề giữ nguyên, mỗi phần một khối Thơ', $dx4 && 2 === $dx4['so_tho'] && 4 === $dx4['so_dong'] && 2 === substr_count( $dx4['noi_dung'], '<h3 class="wp-block-heading">' ) && array( "Phần một dòng a,\nPhần một dòng b.", "Phần hai dòng a,\nPhần hai dòng b." ) === $loi_kt( $nd4 ) );
+kt( 'khối Thơ: chữ trước và sau khi chuyển giống hệt (kể cả &nbsp;, chữ in nghiêng trong lời)', cadao_chu_de_so( $nd1 ) === cadao_chu_de_so( $dx1['noi_dung'] ) && null !== cadao_de_xuat_khoi_tho( $p_( 'Lời có&nbsp;cách cứng<br>Lời có <strong>chữ đậm</strong> thử' ) ) );
+kt( 'khối Thơ: bài đã có khối Thơ, bài chỉ có lời chú: không đề xuất', null === cadao_de_xuat_khoi_tho( cadao_khoi_tho( "Đã có\nkhối Thơ" ) . "\n\n" . $p_( 'Đoạn thêm' ) ) && null === cadao_de_xuat_khoi_tho( $p_( '<em>(Chỉ có lời chú)</em>' ) ) );
+$kt_bai = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'post_title' => 'Vè thử dán đoạn văn', 'post_content' => wp_slash( $nd1 ) ) );
+kt( 'trang "Lời chưa vào khối Thơ" có bài này; trang bài chưa có hàng nút', isset( cadao_bai_chua_khoi_tho()[ $kt_bai ] ) && '' === cadao_khoi_hanh_dong( get_post( $kt_bai ) ) && ! in_array( $kt_bai, array_column( cadao_tim( 'dong kt hai' ), 'id' ), true ) );
+wp_set_current_user( cadao_quan_tri_dau_tien() );
+ob_start();
+cadao_trang_khoi_tho();
+$tr_kt = ob_get_clean();
+kt( 'trang "Lời chưa vào khối Thơ": xem trước lời, dòng chú giữ lại, nút Chuyển', str_contains( $tr_kt, 'Vè thử dán đoạn văn' ) && str_contains( $tr_kt, 'Lời: 3 dòng trong 1 khối Thơ.' ) && str_contains( $tr_kt, 'Giữ là đoạn văn: (Chú thích thử' ) && str_contains( $tr_kt, 'value="' . $kt_bai . '">Chuyển bài này' ), substr( $tr_kt, 0, 600 ) );
+$so_sua = count( wp_get_post_revisions( $kt_bai ) );
+kt( 'Chuyển: bài có khối Thơ, lời đúng từng ký tự; có hàng nút; tìm theo lời ra bài; có bản sửa đổi để hoàn tác', cadao_dua_vao_khoi_tho( $kt_bai ) && array( "Dòng kt một,\nDòng kt hai & ba,\nDòng kt bốn." ) === cadao_loi_cac_khoi_tho( get_post( $kt_bai )->post_content ) && '' !== cadao_khoi_hanh_dong( get_post( $kt_bai ) ) && in_array( $kt_bai, array_column( cadao_tim( 'dong kt hai' ), 'id' ), true ) && count( wp_get_post_revisions( $kt_bai ) ) > $so_sua && ! isset( cadao_bai_chua_khoi_tho()[ $kt_bai ] ) );
+$yc_kt = new WP_REST_Request( 'POST', '/cadao/v1/khoi-tho' );
+$yc_kt->set_param( 'noi_dung', $nd2 );
+$r_kt = rest_do_request( $yc_kt )->get_data();
+kt( 'REST cho trình soạn: trả nội dung đã chuyển (người biên soạn)', str_contains( (string) ( $r_kt['noi_dung'] ?? '' ), '<!-- wp:verse -->' ) && 4 === ( $r_kt['so_dong'] ?? 0 ), $r_kt );
+wp_set_current_user( 0 );
+kt( 'REST cho trình soạn: người lạ không dùng được', 401 === rest_do_request( $yc_kt )->get_status() );
+kt( 'trình soạn: ô báo "Lời đang nằm trong khối Đoạn văn" và nút "Đưa lời vào khối Thơ"', str_contains( file_get_contents( CADAO_THU_MUC . '/assets/soan-trung.js' ), "'Đưa lời vào khối Thơ'" ) );
+
 $ngan = do_blocks( cadao_khoi_tho( implode( "\n", array_slice( $khong_kho, 0, 40 ) ) ) );
 kt( 'bài 40 dòng trở xuống: không chia đoạn', ! str_contains( $ngan, 'cadao-bai-dai' ) );
 

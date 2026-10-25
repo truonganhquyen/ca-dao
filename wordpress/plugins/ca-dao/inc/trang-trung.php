@@ -150,7 +150,7 @@ add_action(
 		if ( ! $man || CADAO_LOAI_BAI !== $man->post_type ) {
 			return;
 		}
-		wp_enqueue_script( 'ca-dao-soan-trung', plugins_url( 'assets/soan-trung.js', CADAO_THU_MUC . '/ca-dao.php' ), array( 'wp-plugins', 'wp-element', 'wp-data', 'wp-api-fetch', 'wp-components', 'wp-editor', 'wp-edit-post' ), CADAO_PHIEN_BAN, true );
+		wp_enqueue_script( 'ca-dao-soan-trung', plugins_url( 'assets/soan-trung.js', CADAO_THU_MUC . '/ca-dao.php' ), array( 'wp-plugins', 'wp-element', 'wp-data', 'wp-api-fetch', 'wp-components', 'wp-editor', 'wp-edit-post', 'wp-blocks' ), CADAO_PHIEN_BAN, true );
 	}
 );
 

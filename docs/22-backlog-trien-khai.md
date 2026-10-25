@@ -51,6 +51,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-109 | Nhận ra bài trùng: "dấu vân tay" của lời, các mức giống (D-065) | A | T-073 | — | DONE |
 | T-110 | Chống trùng khi lấy từ nguồn: gắn vào bài có sẵn, hàng "Có thể trùng" | N+A | T-109 | — | DONE |
 | T-111 | Báo trùng khi viết bài tay (chỉ báo, không chặn) | A | T-109 | — | DONE |
+| T-112 | Lời dán vào khối Đoạn văn: máy đề xuất đưa vào khối Thơ, người biên soạn bấm chuyển | A | T-072 | — | DONE |
 | T-042 | Trích dẫn 2 định dạng + chia sẻ (trên WordPress) | A | T-072 | — | DONE |
 | **Mốc B · Thử nhỏ** ||||||
 | T-041 | Tìm kiếm tức thì, gõ không dấu, tìm cả trong chú thích (WordPress) | N+A | T-072 | — | DONE |
@@ -239,6 +240,11 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 **Đọc:** `25` mục 4.9. **Việc:** trong trình soạn, sau khi dán/gõ lời (ngừng gõ một chút) và khi bấm Đăng, ô bên cạnh hiện các bài có thể trùng và mức giống, với nút Mở bài này / Thêm làm dị bản (lời vừa gõ thành dị bản của bài cũ; bản nháp mới vào thùng rác, khôi phục được 30 ngày) / Vẫn đăng bài mới; danh sách bài có nhãn "Có thể trùng". **Chấp nhận:** không chặn đăng (D-054); trên điện thoại dùng được; kiểm thử "Thêm làm dị bản" giữ đúng lời từng ký tự.
 
 **Tiến độ (25/10/2026):** xong — `assets/soan-trung.js`, REST `cadao/v1/trung`, `them-di-ban`, `khong-trung`. Kiểm thử: dán lời bài đã có → "Trùng y hệt"; "Thêm làm dị bản" giữ đúng từng ký tự (cả ngoặc kép, &, <), bản nháp vào thùng rác; "Vẫn đăng bài mới" thì không báo nữa; bài trùng có nhãn "Có thể trùng" mà vẫn đăng được. Thử bằng trình duyệt trên máy tính và màn hình điện thoại 390 px: ô hiện và tự mở khi có bài giống, không lỗi JavaScript.
+
+#### T-112 · Lời vào khối Thơ — A
+**Ghi chú (25/10/2026):** phát hiện khi kiểm site thật — 16 bài vè người sáng lập nhập tay tối 25/10 có lời trong khối Đoạn văn (dán từ trang web khác), nên trang bài thiếu hộp Trích dẫn, ☆ Lưu, Trình chiếu, Nghe; tìm theo lời và so trùng không thấy bài (mọi thứ đọc lời từ khối Thơ). **Chấp nhận:** máy đề xuất, người biên soạn quyết; không đổi chữ nào; dòng chú giữ là đoạn văn; hoàn tác được.
+
+**Tiến độ (25/10/2026):** xong — plugin 0.18.0 (`inc/khoi-tho.php`). Đề xuất: đoạn văn chứa lời → khối Thơ (mỗi dòng một dòng; mỗi dòng một đoạn văn thì nối liền; hai đoạn nhiều dòng thì cách một dòng trống), dòng chú in nghiêng trọn dòng hoặc nằm trong ngoặc giữ là đoạn văn, tiêu đề và khối khác giữ nguyên, đoạn trống bỏ; chữ sau khi chuyển khác chữ trước thì không đề xuất. Trang **Lời chưa vào khối Thơ** (menu Ca dao – Tục ngữ, có số đếm, chỉ hiện khi còn bài): mỗi bài xem trước số dòng, 4 dòng đầu, dòng chú giữ lại; nút **Chuyển bài này** hoặc chọn nhiều rồi **Chuyển các bài đã chọn**; WordPress lưu bản sửa đổi để hoàn tác. Trình soạn: ô bên cạnh (và bước xác nhận khi bấm Đăng) báo "Lời đang nằm trong khối Đoạn văn" với nút **Đưa lời vào khối Thơ**. Đã chạy thử (chỉ đọc) trên bản sao 16 bài vè: cả 16 đề xuất được, lời chú và dòng nguồn người sáng lập tự ghi giữ là đoạn văn.
 
 #### T-076 · Chuyển nội dung, ngừng site Astro — A
 **Việc:** chuyển bài, mục từ, nguồn trong `content/` sang WordPress (giữ lời nguyên văn), **qua bước chống trùng** (T-109: bài cũ trùng câu đã có thì thành dị bản hoặc gộp, người sáng lập quyết); trỏ địa chỉ tạm; ngừng triển khai Astro. **Chấp nhận:** mọi bài công khai cũ hiện trên WordPress; lời khớp từng ký tự.
