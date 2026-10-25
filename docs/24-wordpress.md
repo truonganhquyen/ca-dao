@@ -45,6 +45,8 @@ wordpress/
 │   ├── inc/goi-y.php        gợi ý vùng, chủ đề; bộ chủ đề của dự án; bảng ánh xạ chủ đề của nguồn (T-089, T-091)
 │   ├── inc/tim.php          tìm kiếm: chỉ mục bỏ dấu tự làm, trang /tim/, REST (T-041, D-067)
 │   ├── inc/trang-chu.php    trang chủ, "Bạn có biết?", tình huống, trang thể loại (T-043, T-093, T-094)
+│   ├── inc/nguoi-doc.php    góp ý, cảm nghĩ (bình luận), chống rác, trang "Chống rác" (Turnstile) (T-045)
+│   ├── inc/phan-tich.php    bài cảm nhận, phân tích của người đọc; trang "Viết cảm nhận" (T-097)
 │   ├── du-lieu/tinh-huong.json tình huống và lịch dịp của site cũ (sinh bằng `npm run xuat:site-cu`)
 │   ├── assets/tim.js        kết quả hiện khi gõ trên trang Tìm
 │   ├── assets/ban-do-vn.svg bản đồ nhỏ Việt Nam có Hoàng Sa, Trường Sa (sinh bằng `scripts/sinh-ban-do.mjs`)
@@ -62,6 +64,7 @@ wordpress/
 - Trang bài (`templates/single-cdtn.html`): nhãn thể loại → tiêu đề → lời (22 px, giãn dòng 1,7) → **Hiểu nhanh** (đoạn trích, chèn ngay dưới lời) → (câu đố: câu hỏi, đáp án hiện sẵn — D-058) → **Trích dẫn · Chia sẻ · N lượt đọc** (plugin chèn trước tiêu đề Dị bản đầu tiên) → Dị bản → Chú thích → "Nguồn: …". Mỗi dòng thơ một khối; dòng dài xuống dòng thì phần tràn thụt treo. **Lục bát** (≥ 3/4 cặp dòng 6–8 âm tiết) thụt lề câu lục — `CADAO_LUC_BAT_THUT_LE` trong `functions.php` (Q-006).
 - **Trang chủ (T-043):** mã ngắn `[cadao_trang_chu]` trong `front-page.html`: câu định vị, ô tìm lớn, Câu hôm nay, Bạn có biết?, Hôm nay bạn đang… (tình huống đủ 2 bài), Đọc nhiều tuần này (`[cadao_doc_nhieu]`, khi có từ 3 bài được đọc trong 7 ngày), Vừa bổ sung, theo thể loại, theo vùng. **Trang thể loại (T-094):** giới thiệu (mô tả của thể loại), bài tiêu biểu, chủ đề, vùng, rồi danh sách. **Tình huống:** `/tinh-huong/<tên>/` (mẫu `taxonomy-tinh_huong.html`), trường `hop_khi`.
 - **Đọc dễ hơn (T-082..T-084):** nhãn thể thơ cạnh nhãn thể loại; lục bát, song thất lục bát thụt câu lục; từ có chú thích trong lời chính là liên kết gạch chân chấm (chạm mở ô chú thích, tắt JavaScript thì nhảy tới mục chú thích); dị bản có nhãn "Dị bản N", chữ khác lời chính tô nền và gạch chân. Tất cả làm lúc dựng trang (`functions.php`), nội dung bài không đổi.
+- **Người đọc góp phần (T-045, T-097):** cuối bài: "Cảm nhận, phân tích (N)", "Góp ý cho bài này" (4 nút, một form), "Cảm nghĩ của bạn" (bình luận luôn chờ duyệt, không email, không cookie). Mọi thứ vào Chờ duyệt. Chống rác: ô bẫy, 5 lần / giờ, Turnstile khi có khóa.
 - **Tìm (T-041):** trang `/tim/` (thanh đầu trang có "Tìm"): ô tìm, kết quả hiện khi gõ, gõ không dấu vẫn ra, tìm cả trong chú thích; nhóm "Từ điển" khi khớp tên mục từ (D-067).
 - **Vùng, chủ đề (T-089, T-091):** trang **Gợi ý vùng, chủ đề** (bảng ánh xạ chủ đề của nguồn → chủ đề của dự án; danh sách bài với gợi ý và lý do); cuối bài có "Chủ đề: …", "Vùng: …" (chỉ những gì đã duyệt).
 - **Từ điển, địa danh (T-044, T-086..T-088):** trang `/tu-dien/` và trang mục từ (theme dùng `taxonomy.html`; plugin thêm nguồn, ảnh, bản đồ vào mô tả); ô chạm từ có ảnh, bản đồ nhỏ, "Xem trong từ điển"; khối Đáp án có ảnh. Chỉ thực thể Wikidata người sáng lập đã xác nhận mới hiện.
@@ -94,6 +97,9 @@ Giữ ít plugin bên thứ ba (mỗi plugin là một nguy cơ bảo mật). D�
 | Bảng `wp_cadao_xac_nhan` | Hàng chờ "Xác nhận Wikidata": `tu:<mục từ>` hoặc `dap:<đáp án>`, mã thực thể, tọa độ, ảnh, bài Wikipedia; chờ / đúng / sai / bỏ qua |
 | Phân loại `the_tho` | Thể thơ máy nhận (T-084) |
 | Bảng `wp_cadao_tim` | Chỉ mục tìm (bài đang đăng): tiêu đề + lời, Hiểu nhanh + chú thích; mỗi phần có dấu (chuẩn hóa) và không dấu |
+| Loại bài `gop_y` (nội bộ) | Góp ý của người đọc, luôn Chờ duyệt: loại, bài, nơi nghe, người kể, tên hiển thị |
+| Loại bài `phan_tich` (`/phan-tich/<tên>/`) | Bài cảm nhận, phân tích: bài ca dao (`_cadao_bai`), bút danh, vai trò, "của dự án" |
+| Tùy chọn `cadao_turnstile_site`, `cadao_turnstile_bi_mat` | Khóa Turnstile người sáng lập dán (không ghi vào repo) |
 | Bảng `wp_cadao_luot_doc` | Lượt đọc: (bài, ngày) → số lượt. Không lưu IP, không lưu ai đọc |
 | Bảng `wp_cadao_gioi_thieu` | (ngày, tên miền trang giới thiệu) → số lượt; vào thẳng ghi "(vào thẳng)" |
 

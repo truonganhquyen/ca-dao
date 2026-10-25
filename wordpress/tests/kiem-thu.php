@@ -698,6 +698,53 @@ wp_set_object_terms( $p1, 'nam-bo', 'vung', true ); // bài ca dao đang đăng
 $tl_mo = apply_filters( 'term_description', '<p>Giới thiệu người sáng lập viết.</p>', get_term_by( 'slug', 'ca-dao', 'the_loai' )->term_id, 'the_loai', 'the_loai' );
 kt( 'trang thể loại: giới thiệu (người sáng lập viết), bài tiêu biểu, lối vào theo chủ đề / vùng, tổng số bài', str_contains( $tl_mo, 'Giới thiệu người sáng lập viết.' ) && str_contains( $tl_mo, 'Bài tiêu biểu' ) && str_contains( $tl_mo, 'Theo vùng' ) && preg_match( '/Tất cả ca dao \(\d+ bài\)/u', $tl_mo ), $tl_mo );
 
+// ---------- Người đọc góp phần (T-045), bài phân tích (T-097) ----------
+wp_set_current_user( 0 );
+$fgy = cadao_form_gop_y( get_post( $td1 ) );
+preg_match_all( '/name="([a-z_]+)"[^>]*required/', $fgy, $bat_buoc );
+kt( 'form góp ý: tối đa 5 câu bắt buộc, không hỏi email / số điện thoại / tên thật', count( array_unique( $bat_buoc[1] ) ) <= 5 && ! preg_match( '/type="(email|tel)"/', $fgy ) && str_contains( $fgy, 'Tên hiển thị' ), array_unique( $bat_buoc[1] ) );
+kt( 'form góp ý: thông báo quyền riêng tư ngay trong form, ô bẫy ẩn, nút mở có loại điền sẵn', str_contains( $fgy, '91/2025/QH15' ) && str_contains( $fgy, 'name="cadao_web"' ) && str_contains( $fgy, 'Ở quê bạn câu này nói khác?' ) && str_contains( $fgy, 'Bạn có sách? Gửi số trang' ) && str_contains( $fgy, 'name="bai" value="' . $td1 . '"' ) );
+$_SERVER['REMOTE_ADDR'] = '203.0.113.7';
+$gy = cadao_luu_gop_y( array( 'bai' => $td1, 'loai' => 'di_ban', 'noi_dung' => "Đi qua bến Đò Thử khác\nDòng hai", 'noi_nghe' => 'Làng mẫu', 'nguoi_ke' => 'bà tôi', 'dong_y' => '1' ) );
+kt( 'gửi góp ý: vào Chờ duyệt (không tự hiện), giữ loại, bài, nơi nghe', is_int( $gy ) && 'pending' === get_post_status( $gy ) && 'di_ban' === get_post_meta( $gy, '_cadao_loai', true ) && $td1 === (int) get_post_meta( $gy, '_cadao_bai', true ) && 'Làng mẫu' === get_post_meta( $gy, '_cadao_noi_nghe', true ), $gy );
+kt( 'gửi góp ý: ô bẫy có chữ thì không nhận; thiếu đồng ý thì báo', is_string( cadao_luu_gop_y( array( 'bai' => $td1, 'loai' => 'bao_loi', 'noi_dung' => 'x', 'dong_y' => '1', 'cadao_web' => 'spam' ) ) ) && is_string( cadao_luu_gop_y( array( 'bai' => $td1, 'loai' => 'bao_loi', 'noi_dung' => 'x' ) ) ) );
+for ( $i = 0; $i < 4; $i++ ) {
+	cadao_luu_gop_y( array( 'bai' => $td1, 'loai' => 'bao_loi', 'noi_dung' => "lần $i", 'dong_y' => '1' ) );
+}
+kt( 'giới hạn 5 lần gửi mỗi giờ (không lưu địa chỉ IP, chỉ dấu băm tạm)', is_string( cadao_luu_gop_y( array( 'bai' => $td1, 'loai' => 'bao_loi', 'noi_dung' => 'lần 6', 'dong_y' => '1' ) ) ) && ! $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->options} WHERE option_value LIKE %s", '%203.0.113.7%' ) ) );
+$_SERVER['REMOTE_ADDR'] = '203.0.113.8';
+update_option( 'cadao_turnstile_site', 'khoa-site-thu' );
+update_option( 'cadao_turnstile_bi_mat', 'khoa-bi-mat-thu' );
+add_filter( 'pre_http_request', static fn( $tra, $tham, $url ) => str_contains( $url, 'turnstile' ) ? array( 'headers' => array(), 'body' => wp_json_encode( array( 'success' => 'ok' === ( $tham['body']['response'] ?? '' ) ) ), 'response' => array( 'code' => 200, 'message' => '' ), 'cookies' => array(), 'filename' => null ) : $tra, 10, 3 );
+kt( 'Turnstile (khi có khóa): sai thì không nhận, đúng thì nhận; form có ô Turnstile', is_string( cadao_luu_gop_y( array( 'bai' => $td1, 'loai' => 'bao_loi', 'noi_dung' => 'x', 'dong_y' => '1', 'cf-turnstile-response' => 'sai' ) ) ) && is_int( cadao_luu_gop_y( array( 'bai' => $td1, 'loai' => 'bao_loi', 'noi_dung' => 'x', 'dong_y' => '1', 'cf-turnstile-response' => 'ok' ) ) ) && str_contains( cadao_form_gop_y( get_post( $td1 ) ), 'data-sitekey="khoa-site-thu"' ) );
+remove_all_filters( 'pre_http_request' );
+delete_option( 'cadao_turnstile_site' );
+delete_option( 'cadao_turnstile_bi_mat' );
+$_SERVER['REMOTE_ADDR'] = '203.0.113.9';
+kt( 'cảm nghĩ: bài đang đăng mở bình luận; không bắt tên, email; không cookie bình luận', comments_open( $td1 ) && 0 === (int) get_option( 'require_name_email' ) && false === has_action( 'set_comment_cookies', 'wp_set_comment_cookies' ) );
+$bl = wp_new_comment( array( 'comment_post_ID' => $td1, 'comment_content' => 'Cảm nghĩ thử của bạn đọc.', 'comment_author' => '', 'comment_author_email' => '', 'comment_type' => 'comment' ), true );
+kt( 'cảm nghĩ: luôn vào Chờ duyệt, không tên thì ghi "Một bạn đọc"', ! is_wp_error( $bl ) && '0' === get_comment( $bl )->comment_approved && 'Một bạn đọc' === get_comment( $bl )->comment_author, $bl );
+wp_set_comment_status( $bl, 'approve' );
+kt( 'cảm nghĩ đã duyệt: có "Báo vi phạm"', str_contains( apply_filters( 'comment_text', 'x', get_comment( $bl ) ), 'bao_vi_pham=' . $bl ) );
+$ob = '';
+$GLOBALS['post'] = get_post( $td1 );
+ob_start();
+comment_form( array(), $td1 );
+$ob = ob_get_clean();
+kt( 'form cảm nghĩ: không ô email / trang web, có thông báo quyền riêng tư', ! str_contains( $ob, 'name="email"' ) && ! str_contains( $ob, 'name="url"' ) && str_contains( $ob, '91/2025/QH15' ) && str_contains( $ob, 'Cảm nghĩ của bạn' ), $ob );
+$vb = cadao_van_ban_phan_tich( "Đoạn một có **chữ đậm** và <script>x</script>.\n\n> Dòng trích một\n> Dòng trích hai\n\nĐoạn ba." );
+kt( 'bài phân tích: đoạn, chữ đậm, trích lời; chữ HTML được thoát', str_contains( $vb, '<strong>chữ đậm</strong>' ) && str_contains( $vb, '&lt;script&gt;' ) && str_contains( $vb, '<blockquote class="wp-block-quote"><!-- wp:paragraph -->' . "\n" . '<p>Dòng trích một<br>Dòng trích hai</p>' ) && 3 === substr_count( $vb, '<!-- wp:paragraph -->' ), $vb );
+$dai_pt = str_repeat( 'Câu này hay vì hình ảnh gần gũi. ', 8 );
+kt( 'bài phân tích: quá ngắn, thiếu cam kết thì báo', is_string( cadao_luu_phan_tich( array( 'bai' => $td1, 'tieu_de' => 'T', 'noi_dung' => 'ngắn', 'tu_viet' => '1', 'dong_y' => '1' ) ) ) && is_string( cadao_luu_phan_tich( array( 'bai' => $td1, 'tieu_de' => 'T', 'noi_dung' => $dai_pt, 'dong_y' => '1' ) ) ) );
+$pt = cadao_luu_phan_tich( array( 'bai' => $td2, 'tieu_de' => 'Cảm nhận thử', 'noi_dung' => $dai_pt, 'but_danh' => 'Bút danh thử', 'vai_tro' => 'hoc_sinh', 'tu_viet' => '1', 'dong_y' => '1' ) );
+kt( 'bài phân tích: vào Chờ duyệt; chưa duyệt thì chưa hiện, bài ca dao vẫn noindex', is_int( $pt ) && 'pending' === get_post_status( $pt ) && ! cadao_phan_tich_cua_bai( $td2 ) && ! cadao_co_gia_tri_rieng( get_post( $td2 ) ), $pt );
+wp_publish_post( $pt );
+kt( 'bài phân tích đã duyệt: hiện dưới bài ca dao (bút danh · vai trò); bài ca dao có giá trị riêng (bỏ noindex)', 1 === count( cadao_phan_tich_cua_bai( $td2 ) ) && 'Bút danh thử · Học sinh' === cadao_dong_tac_gia( get_post( $pt ) ) && cadao_co_gia_tri_rieng( get_post( $td2 ) ) && str_contains( (string) get_permalink( $pt ), '/phan-tich/' ) );
+update_post_meta( $pt, '_cadao_du_an', true );
+kt( '"Bài phân tích của dự án" có nhãn riêng', str_contains( cadao_dong_tac_gia( get_post( $pt ) ), 'Bài phân tích của dự án' ) );
+kt( 'trang "Viết cảm nhận" có sẵn; form có cam kết tự viết, CC BY 4.0, quyền riêng tư', ( $p_vt = get_page_by_path( 'viet-cam-nhan' ) ) && ( $_GET = array( 'bai' => $td2 ) ) && str_contains( $f_pt = do_shortcode( '[cadao_viet_phan_tich]' ), 'Bài do tôi tự viết' ) && str_contains( $f_pt, 'CC BY 4.0' ) && str_contains( $f_pt, '91/2025/QH15' ) );
+$_GET = array();
+
 $ngan = do_blocks( cadao_khoi_tho( implode( "\n", array_slice( $khong_kho, 0, 40 ) ) ) );
 kt( 'bài 40 dòng trở xuống: không chia đoạn', ! str_contains( $ngan, 'cadao-bai-dai' ) );
 

@@ -2,7 +2,7 @@
 Theme Name:        Kho tàng Ca dao
 Description:       Theme con của Twenty Twenty-Five cho dự án Kho tàng Ca dao Tục ngữ Việt Nam: chữ và khoảng trắng trước, lời thơ lớn, sáng/tối theo máy (docs/20 trong repo ca-dao).
 Template:          twentytwentyfive
-Version:           0.8.0
+Version:           0.9.0
 Requires at least: 6.8
 Requires PHP:      8.1
 Author:            Dự án Kho tàng Ca dao Tục ngữ Việt Nam
@@ -760,4 +760,127 @@ html[data-co-chu="3"] .wp-block-verse {
 }
 .cadao-th-loi a:hover {
 	text-decoration: underline;
+}
+
+/* Form người đọc (T-045, T-097): góp ý, cảm nghĩ, bài phân tích — ô lớn, nhãn rõ, vùng chạm 44 px */
+.cadao-gop-y,
+.cadao-phan-tich,
+.cadao-cam-nghi {
+	margin-block-start: 2.5rem;
+	padding-block-start: 1rem;
+	border-block-start: 1px solid var(--cadao-ke);
+}
+.cadao-gop-y h2,
+.cadao-phan-tich h2,
+.cadao-cam-nghi h2,
+.cadao-cam-nghi .comment-reply-title {
+	font-size: var(--wp--preset--font-size--medium);
+}
+.cadao-gop-y-nut {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+.cadao-gop-y-nut[hidden] {
+	display: none;
+}
+.cadao-gop-y-mo,
+.cadao-viet-cam-nhan {
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
+	padding: 0 1rem;
+	border: 1px solid var(--cadao-ke);
+	border-radius: 999px;
+	color: inherit;
+	text-decoration: none;
+}
+.cadao-gop-y-hop summary {
+	display: flex;
+	align-items: center;
+	min-height: 44px;
+	color: var(--cadao-son);
+	cursor: pointer;
+}
+.cadao-form label,
+.cadao-cam-nghi label {
+	display: block;
+	font-weight: 600;
+}
+.cadao-form fieldset {
+	border: 0;
+	padding: 0;
+	margin: 0 0 0.75rem;
+}
+.cadao-form fieldset label,
+.cadao-form label:has(input[type="checkbox"]) {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	min-height: 44px;
+	font-weight: 400;
+}
+.cadao-goi-y-o {
+	display: block;
+	font-weight: 400;
+	color: var(--cadao-nhat);
+	font-size: var(--wp--preset--font-size--small);
+}
+.cadao-form input:not([type="checkbox"]):not([type="radio"]),
+.cadao-form textarea,
+.cadao-form select,
+.cadao-cam-nghi input[type="text"],
+.cadao-cam-nghi textarea {
+	box-sizing: border-box;
+	width: 100%;
+	min-height: 44px;
+	padding: 0.5rem 0.75rem;
+	border: 1px solid var(--cadao-nhat);
+	border-radius: 8px;
+	background: var(--cadao-giay);
+	color: var(--cadao-muc);
+	font: inherit;
+}
+.cadao-form button,
+.cadao-cam-nghi input[type="submit"] {
+	min-height: 44px;
+	padding: 0 1.25rem;
+	border: 0;
+	border-radius: 999px;
+	background: var(--cadao-son);
+	color: var(--cadao-giay);
+	font: inherit;
+	cursor: pointer;
+}
+.cadao-rieng-tu {
+	color: var(--cadao-nhat);
+	font-size: var(--wp--preset--font-size--small);
+}
+.cadao-bay {
+	position: absolute !important;
+	left: -9999px;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+}
+.cadao-bao-gui {
+	padding: 0.75rem 1rem;
+	border-inline-start: 3px solid var(--cadao-son);
+	background: light-dark(#f6efe0, #2a2722);
+}
+.cadao-bao-vi-pham {
+	font-size: var(--wp--preset--font-size--small);
+}
+.cadao-bao-vi-pham a {
+	color: var(--cadao-nhat);
+}
+.cadao-nhan-du-an {
+	color: var(--cadao-son);
+	font-weight: 600;
+}
+.cadao-pt-bai {
+	font-family: var(--wp--preset--font-family--literata);
+	border-inline-start: 3px solid var(--cadao-ke);
+	padding-inline-start: 1rem;
+	margin-inline: 0;
 }

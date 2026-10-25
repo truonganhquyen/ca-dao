@@ -56,7 +56,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-041 | Tìm kiếm tức thì, gõ không dấu, tìm cả trong chú thích (WordPress) | N+A | T-072 | — | DONE |
 | T-043 | Trang chủ mới (Câu hôm nay, Vừa bổ sung, Đọc nhiều, Bạn có biết?) + trang tình huống | A | T-072, T-081, T-093 | — | DONE |
 | T-044 | Từ điển chú giải: trang từng từ, "Các bài có từ này", lọc theo vùng | A | T-073 | — | DONE |
-| T-045 | Góp ý, dị bản, cảm nghĩ ngắn của người đọc; chống rác; quyền riêng tư; "Gửi số trang" | N+A | T-075 | — | READY |
+| T-045 | Góp ý, dị bản, cảm nghĩ ngắn của người đọc; chống rác; quyền riêng tư; "Gửi số trang" | N+A | T-075 | — | DONE |
 | T-046 | Trang Phương pháp, Nguồn, Về dự án | N+A | T-075 | — | READY |
 | T-047 | Bàn biên tập: gom các hàng chờ (Chờ duyệt, xác nhận, người đọc gửi) trong wp-admin | A | T-071 | — | READY |
 | T-082 | Chạm vào từ khó, nghĩa hiện ngay (lưu vị trí chú thích) | A | T-073 | — | DONE |
@@ -74,7 +74,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-094 | Trang riêng cho từng thể loại | N+A | T-072 | — | DONE |
 | T-095 | Thành ngữ – tục ngữ: trình bày câu một dòng, chỉ mục A–Z | A | T-080 | — | BLOCKED |
 | T-096 | Câu đố: nhóm theo đáp án và theo loại, trang "Đố vui" | A | T-091 | — | BLOCKED |
-| T-097 | Bài cảm nhận, phân tích của người đọc (cần duyệt); bài có phân tích được duyệt thì lên Google | A | T-045 | — | BLOCKED |
+| T-097 | Bài cảm nhận, phân tích của người đọc (cần duyệt); bài có phân tích được duyệt thì lên Google | A | T-045 | — | DONE |
 | T-048 | Duyệt 30–50 bài, thử với 5 người | N | T-073, T-076, T-041..T-046, T-082, T-085 | — | BLOCKED |
 | **Mốc C · Mở lặng lẽ** ||||||
 | T-049 | Chốt tên miền | N | — | — | READY |
@@ -288,6 +288,8 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 **Việc (viết lại 25/10/2026):** form chạy ngay trong WordPress (thay Tally): "Ở quê bạn câu này nói khác?", "Góp ý chú thích", "Báo lỗi", "Bạn có sách? Gửi số trang"; ô "Cảm nghĩ của bạn" (bình luận WordPress, luôn chờ duyệt); Cloudflare Turnstile + ô bẫy ẩn + giới hạn theo giờ; khóa Turnstile người sáng lập dán vào trang cấu hình plugin.
 **Chấp nhận:** mọi thứ gửi vào Chờ duyệt, không tự hiện; không bắt email, tên thật, số điện thoại; tối đa 5 câu bắt buộc; có **thông báo quyền riêng tư ngay trong form** (Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15, hiệu lực 01/01/2026; dịch vụ đặt máy chủ ở nước ngoài); nút "Ở quê bạn câu này nói khác?", "Báo lỗi" và **"Bạn có sách? Gửi số trang"** mở form với mã bài và URL điền sẵn; người ghi hộ điền xong trên điện thoại trong 5 phút.
 
+**Tiến độ (25/10/2026):** xong — plugin 0.13.0 (`inc/nguoi-doc.php`). Cuối mỗi bài: **Góp ý cho bài này** với 4 nút ("Ở quê bạn câu này nói khác?", "Góp ý chú thích", "Báo lỗi", "Bạn có sách? Gửi số trang") mở cùng một form, loại chọn sẵn, mã bài điền sẵn; 3 câu bắt buộc (loại, nội dung, đồng ý CC BY 4.0), còn lại tùy chọn (nơi nghe, người kể, tên hiển thị); không ô email, điện thoại; thông báo quyền riêng tư ngay trong form (Luật 91/2025/QH15, máy chủ ở nước ngoài, cách xin gỡ). Góp ý lưu thành mục **Góp ý của người đọc** (Chờ duyệt, chỉ trong trang quản trị). **Cảm nghĩ của bạn** = bình luận WordPress: luôn chờ duyệt, không bắt tên / email (không tên thì "Một bạn đọc"), bỏ cookie bình luận của WordPress; cảm nghĩ đã duyệt có "Báo vi phạm". Chống rác: ô bẫy ẩn, 5 lần gửi mỗi giờ (dấu băm tạm một giờ, không lưu IP), **Cloudflare Turnstile** khi người sáng lập dán khóa ở trang **Chống rác** (chưa có khóa thì vẫn chạy, chỉ thiếu lớp này); Turnstile chỉ tải khi người đọc bắt đầu điền form. Việc của người sáng lập (khi muốn): tạo khóa Turnstile, dán vào trang Chống rác.
+
 #### T-046 · Trang Phương pháp, Nguồn, Về dự án — N+A
 **Đọc:** `docs/luu-tru/50-ban-nhap-trang-cong-khai.md` mục 1, 5; `12`.
 **Chấp nhận:** Phương pháp giải thích 4 nhãn, lời hứa mới, cách dùng AI, ghi công Ca dao Mẹ; `/nguon` sinh tự động từ `content/nguon/` (chỉ nguồn đang được dùng); N duyệt câu chữ.
@@ -367,6 +369,8 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 
 #### T-097 · Bài phân tích của người đọc — A
 **Đọc:** `25` mục 4.6, D-062. **Chấp nhận:** loại bài "Cảm nhận – phân tích" gắn với bài ca dao; trang soạn đơn giản cho người đọc, gửi vào Chờ duyệt; cam kết tự viết + đồng ý CC BY 4.0; hiện dưới bài ca dao và có trang riêng; "Bài phân tích của dự án" có nhãn riêng; bài ca dao có ≥ 1 bài phân tích đã duyệt thì bỏ `noindex`.
+
+**Tiến độ (25/10/2026):** xong — `inc/phan-tich.php`: loại bài **Cảm nhận – phân tích** (`/phan-tich/<tên>/`); trang **Viết cảm nhận** (`/viet-cam-nhan/?bai=<id>`, `noindex`): tiêu đề, bài viết (dòng trống tách đoạn, `**đậm**`, dòng bắt đầu bằng `>` là trích lời; mọi chữ được thoát HTML), bút danh, "Bạn là" (học sinh / giáo viên / người yêu ca dao), cam kết tự viết, đồng ý CC BY 4.0 → Chờ duyệt. Dưới bài ca dao: "Cảm nhận, phân tích (N)" và "Viết cảm nhận của bạn về câu này". Trang bài phân tích: tác giả, 4 dòng đầu của bài ca dao kèm liên kết, nội dung, "Báo vi phạm". Người sáng lập viết trong trang quản trị, đánh dấu "Bài phân tích của dự án". Bài ca dao có ≥ 1 bài phân tích đã đăng: bỏ `noindex` (bộ lọc `cadao_co_gia_tri_rieng`).
 
 #### T-048 · Duyệt 30–50 bài, thử với 5 người — N
 **Đọc:** `11`; `docs/luu-tru/24-ke-hoach-beta.md` mục 2 (dùng nhiệm vụ N1–N6, không chấm ngưỡng 80%).
