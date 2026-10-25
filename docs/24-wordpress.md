@@ -44,6 +44,8 @@ wordpress/
 │   ├── inc/wikidata.php     hàng chờ "Xác nhận Wikidata", ảnh Commons giấy phép mở, bản đồ nhỏ (T-086..T-088)
 │   ├── inc/goi-y.php        gợi ý vùng, chủ đề; bộ chủ đề của dự án; bảng ánh xạ chủ đề của nguồn (T-089, T-091)
 │   ├── inc/tim.php          tìm kiếm: chỉ mục bỏ dấu tự làm, trang /tim/, REST (T-041, D-067)
+│   ├── inc/trang-chu.php    trang chủ, "Bạn có biết?", tình huống, trang thể loại (T-043, T-093, T-094)
+│   ├── du-lieu/tinh-huong.json tình huống và lịch dịp của site cũ (sinh bằng `npm run xuat:site-cu`)
 │   ├── assets/tim.js        kết quả hiện khi gõ trên trang Tìm
 │   ├── assets/ban-do-vn.svg bản đồ nhỏ Việt Nam có Hoàng Sa, Trường Sa (sinh bằng `scripts/sinh-ban-do.mjs`)
 │   ├── du-lieu/site-cu.json bài công khai của site cũ (sinh bằng `npm run xuat:site-cu` từ `content/`)
@@ -58,7 +60,7 @@ wordpress/
 - Màu: biến `--cadao-*` dùng `light-dark()` — sáng/tối theo cài đặt máy; bảng màu của `theme.json` trỏ vào các biến đó (giữ tên `base`, `contrast`, `accent-*` của theme cha).
 - Phông tự lưu trữ trong `assets/fonts`: Be Vietnam Pro 400/600 (giao diện) và Literata 400 (lời), chỉ bộ Latin + tiếng Việt, WOFF2, kèm giấy phép OFL. Bề rộng nội dung 40rem (đơn vị rem: mọi khối thẳng một cột).
 - Trang bài (`templates/single-cdtn.html`): nhãn thể loại → tiêu đề → lời (22 px, giãn dòng 1,7) → **Hiểu nhanh** (đoạn trích, chèn ngay dưới lời) → (câu đố: câu hỏi, đáp án hiện sẵn — D-058) → **Trích dẫn · Chia sẻ · N lượt đọc** (plugin chèn trước tiêu đề Dị bản đầu tiên) → Dị bản → Chú thích → "Nguồn: …". Mỗi dòng thơ một khối; dòng dài xuống dòng thì phần tràn thụt treo. **Lục bát** (≥ 3/4 cặp dòng 6–8 âm tiết) thụt lề câu lục — `CADAO_LUC_BAT_THUT_LE` trong `functions.php` (Q-006).
-- Trang chủ, kho, thể loại: danh sách tiêu đề bài mới; trang chủ thêm "Đọc nhiều tuần này" (mã ngắn `[cadao_doc_nhieu]`, chỉ hiện khi đã có từ 3 bài được đọc trong 7 ngày). Trang chủ đầy đủ: T-043.
+- **Trang chủ (T-043):** mã ngắn `[cadao_trang_chu]` trong `front-page.html`: câu định vị, ô tìm lớn, Câu hôm nay, Bạn có biết?, Hôm nay bạn đang… (tình huống đủ 2 bài), Đọc nhiều tuần này (`[cadao_doc_nhieu]`, khi có từ 3 bài được đọc trong 7 ngày), Vừa bổ sung, theo thể loại, theo vùng. **Trang thể loại (T-094):** giới thiệu (mô tả của thể loại), bài tiêu biểu, chủ đề, vùng, rồi danh sách. **Tình huống:** `/tinh-huong/<tên>/` (mẫu `taxonomy-tinh_huong.html`), trường `hop_khi`.
 - **Đọc dễ hơn (T-082..T-084):** nhãn thể thơ cạnh nhãn thể loại; lục bát, song thất lục bát thụt câu lục; từ có chú thích trong lời chính là liên kết gạch chân chấm (chạm mở ô chú thích, tắt JavaScript thì nhảy tới mục chú thích); dị bản có nhãn "Dị bản N", chữ khác lời chính tô nền và gạch chân. Tất cả làm lúc dựng trang (`functions.php`), nội dung bài không đổi.
 - **Tìm (T-041):** trang `/tim/` (thanh đầu trang có "Tìm"): ô tìm, kết quả hiện khi gõ, gõ không dấu vẫn ra, tìm cả trong chú thích; nhóm "Từ điển" khi khớp tên mục từ (D-067).
 - **Vùng, chủ đề (T-089, T-091):** trang **Gợi ý vùng, chủ đề** (bảng ánh xạ chủ đề của nguồn → chủ đề của dự án; danh sách bài với gợi ý và lý do); cuối bài có "Chủ đề: …", "Vùng: …" (chỉ những gì đã duyệt).

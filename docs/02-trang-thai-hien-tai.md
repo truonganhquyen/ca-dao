@@ -23,6 +23,7 @@
 - **Site Astro cũ (T-035, T-040) — đã ngừng (T-076, 25/10/2026):** địa chỉ `https://ca-dao.truonganhquyen.workers.dev` chuyển hướng 301 sang cadao.sdigi.net; 2 bài công khai đã chuyển vào WordPress. Mã Astro, `content/`, công cụ kiểm dữ liệu giữ trong repo (`npm run kiem-tra` vẫn chạy).
 - **Plugin WordPress (T-071):** loại bài Ca dao – Tục ngữ (lời không ghi nguồn; "Nguồn: …" chỉ dưới chú thích chép từ nguồn — D-057), trang **Nguồn tự động**, **Kho thu thập**, tự tạo bài **Chờ duyệt**, ô Chờ duyệt trên Bảng tin (`wordpress/`, `docs/24`). Bộ đọc Ca dao Mẹ đầy đủ (T-073): ca dao, thành ngữ–tục ngữ, đồng dao, vè, câu đố, kèm dị bản, chú thích, đáp án; bài chưa sửa tay tự được bổ sung.
 - **Trích dẫn, chia sẻ, lượt đọc (T-042, T-081, 25/10/2026):** hộp Trích dẫn (thông dụng, APA 7; "Sao chép kèm nguồn" / "Chỉ sao chép lời"), nút Chia sẻ; lượt đọc tự đếm không cookie, không lưu IP, "Đọc nhiều tuần này" ở trang chủ, ô lượt đọc 7 ngày trên Bảng tin.
+- **Trang chủ, Bạn có biết?, trang thể loại, tình huống (T-043, T-093, T-094, 25/10/2026):** trang chủ mới (Câu hôm nay, Bạn có biết?, Hôm nay bạn đang…, Đọc nhiều, Vừa bổ sung, theo thể loại, vùng); "Bạn có biết?" máy ghép từ chú thích có sẵn, người sáng lập duyệt; trang thể loại có giới thiệu do người sáng lập viết và bài tiêu biểu; trang tình huống khi đủ 2 bài.
 - **Tìm kiếm (T-041, 25/10/2026):** trang Tìm (`/tim/`): kết quả hiện khi gõ, gõ không dấu vẫn ra, tìm cả trong chú thích và từ điển; chỉ mục tự làm trong WordPress (D-067), không phải cài thêm gì.
 - **Vùng, chủ đề (T-089, T-091, 25/10/2026):** máy gợi ý vùng (từ chú thích nhắc miền, tỉnh và địa danh đã xác nhận) và chủ đề của dự án (qua bảng ánh xạ chủ đề của nguồn, lời ru, hò, lý, nhóm kinh nghiệm của tục ngữ); người sáng lập duyệt hàng loạt. Xong đợt 3 của `docs/25` mục 6.
 - **Từ điển và địa danh (T-044, T-086..T-088, 25/10/2026):** trang Từ điển (`/tu-dien/`) gom chú thích thành mục từ, mỗi mục liệt kê các bài có từ đó, lọc theo vùng, từ cổ, Hán Việt; máy tìm thực thể Wikidata cho từ được chú thích và đáp án câu đố, người sáng lập xác nhận; thực thể đã xác nhận có ảnh Commons (ghi tác giả, giấy phép) và bản đồ nhỏ (có Hoàng Sa, Trường Sa).
@@ -38,6 +39,9 @@
 ## Đang chờ người sáng lập
 
 - **Sao lưu FlashPanel** — để sau (người sáng lập, 25/10/2026): khi làm, chọn hằng ngày, gồm site và cơ sở dữ liệu cadao, lưu ra ngoài VPS.
+- **Bạn có biết?** (Ca dao – Tục ngữ → Bạn có biết?): máy ghép câu từ chú thích, bạn sửa cho tự nhiên rồi chọn "Duyệt"; trang chủ hiện 4 câu đã duyệt mỗi tuần.
+- **Giới thiệu thể loại** (Ca dao – Tục ngữ → Thể loại → Sửa từng thể loại, ô "Mô tả"): vài dòng giới thiệu, cách đọc — hiện ở đầu trang thể loại.
+- **Tình huống** (khi rảnh): trong trình soạn, gắn bài vào tình huống (ô "Tình huống") và viết một câu "Hợp khi…"; tình huống có từ 2 bài thì có trang và thẻ trên trang chủ.
 - **Gợi ý vùng, chủ đề** (Ca dao – Tục ngữ → Gợi ý vùng, chủ đề): trước hết xem **bảng ánh xạ** ở đầu trang (chủ đề của Ca dao Mẹ → chủ đề của dự án; máy đã đề xuất), sửa nếu cần rồi bấm "Lưu"; sau đó duyệt gợi ý từng trang (bỏ dấu cái sai, bấm "Đồng ý").
 - **Xác nhận Wikidata** (Ca dao – Tục ngữ → Xác nhận Wikidata; máy thêm dần): mỗi mục bấm Đúng / Sai / Bỏ qua. Chỉ mục "Đúng" mới hiện ảnh, bản đồ trên trang.
 - **Tách thành ngữ – tục ngữ** (Ca dao – Tục ngữ → Tách thành ngữ – tục ngữ): xem nhóm "Máy đã chắc", kiểm khoảng 50 câu xem máy đoán đúng không (báo agent nếu sai nhiều), rồi chọn hàng loạt và bấm "Đồng ý gợi ý"; nhóm "Nghiêng về", "Chưa rõ" chọn loại từng câu khi rảnh.

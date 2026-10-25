@@ -1,0 +1,56 @@
+{
+  "ghi_chu": "Sinh bằng scripts/xuat-site-cu.mjs từ content/tinh-huong và config/lich-tinh-huong.yaml (T-043). Không sửa tay.",
+  "tinh_huong": [
+    {
+      "slug": "biet-on-cha-me",
+      "ten": "Biết ơn cha mẹ",
+      "mo_dau": ""
+    },
+    {
+      "slug": "doan-mua-nang",
+      "ten": "Đoán mưa nắng",
+      "mo_dau": ""
+    }
+  ],
+  "lich": {
+    "mac_dinh": [
+      "biet-on-cha-me",
+      "khi-nho-me",
+      "xa-que",
+      "tham-thuong-trom-nho",
+      "kien-tri",
+      "doan-ket",
+      "loi-an-tieng-noi",
+      "doan-mua-nang"
+    ],
+    "dip": [
+      {
+        "ten": "Ngày Quốc tế Phụ nữ",
+        "tu": "2027-03-01",
+        "den": "2027-03-08",
+        "dua_len_dau": [
+          "ngay-phu-nu",
+          "biet-on-cha-me"
+        ]
+      },
+      {
+        "ten": "Ngày Phụ nữ Việt Nam",
+        "tu": "2026-10-13",
+        "den": "2026-10-20",
+        "dua_len_dau": [
+          "ngay-phu-nu",
+          "biet-on-cha-me"
+        ]
+      },
+      {
+        "ten": "Ngày Nhà giáo Việt Nam",
+        "tu": "2026-11-10",
+        "den": "2026-11-20",
+        "dua_len_dau": [
+          "biet-on-thay-co",
+          "dong-vien-ky-thi"
+        ]
+      }
+    ]
+  }
+}
