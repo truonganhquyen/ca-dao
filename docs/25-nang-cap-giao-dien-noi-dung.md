@@ -136,6 +136,8 @@ Mẫu VieNeu đọc "Bao giờ cạn lạch Đồng Nai" (giọng Hải Đăng, 
 - **Vùng (ý 16).** Máy gợi ý vùng của bài từ chú thích ghi phương ngữ (Nam Bộ, Trung Bộ, Nghệ, Huế…) và từ địa danh đã xác nhận; người sáng lập duyệt hàng loạt; một bài có thể nhiều vùng. Phân loại `vung` đã có sẵn trong plugin.
 - **Bản đồ ca dao (ý 6).** Trang bản đồ Việt Nam với điểm các địa danh đã xác nhận; chạm điểm ra các bài. Làm khi đủ địa danh.
 
+  *Đã làm (T-104, 25/10/2026):* `/ban-do/` dùng lại ảnh SVG của bản đồ nhỏ, điểm là liên kết tới danh sách địa danh dưới bản đồ; không JavaScript, không dịch vụ bản đồ ngoài; đầy dần khi xác nhận thêm Wikidata.
+
 ### 4.3. Tìm, khám phá, trang chủ
 
 - **Tìm kiếm (ý 8).** Ô tìm đầu trang, kết quả hiện khi gõ, gõ không dấu vẫn ra, tìm cả trong chú thích. Phương án chính: Meilisearch (FlashPanel có sẵn ứng dụng; người sáng lập bấm cài), chỉ mục cập nhật khi bài đăng/sửa. Cần thử "d" ra "đ" trước khi chốt; không đạt thì dùng chỉ mục bỏ dấu tự làm. *Đã làm (T-041, D-067):* chỉ mục bỏ dấu tự làm trước, không cần cài Meilisearch.
@@ -155,6 +157,8 @@ Mẫu VieNeu đọc "Bao giờ cạn lạch Đồng Nai" (giọng Hải Đăng, 
 - **Hán Việt, điển tích (ý 27).** Thành ngữ gốc Hán: giải từng chữ theo *Hán Việt tự điển* (Thiều Chửu), kèm chuyện điển tích nếu có (liên kết Wikipedia). Chỉ giải chữ khi chắc chắn.
 - **Nhóm kinh nghiệm (ý 28), lối hát (ý 36), loại câu đố (ý 35).** Đều là nhóm trong **bộ chủ đề riêng** (mục 4.5): tục ngữ thời tiết, mùa vụ, chăn nuôi, ăn uống – sức khỏe, đối nhân xử thế; hát ru, hò, lý, hát đối; câu đố đồ vật, con vật, cây cối – hoa quả, thiên nhiên, con người – sinh hoạt. Tùy chọn "Góc nhìn ngày nay" do người sáng lập viết cho vài tục ngữ.
 - **Đồng dao (ý 29, 30).** Khối "Cách chơi" (số người, độ tuổi, đồ dùng, các bước) từ bài Wikipedia tương ứng (ghi nguồn, CC BY-SA) hoặc do người sáng lập, người đọc viết; trang trò chơi liệt kê các bài. Chế độ "Đọc cùng bé": mỗi lần một dòng, chữ thật to, chạm sang dòng, nhịp vỗ tay theo chữ; không tự phát âm thanh.
+
+  *Đã làm (T-103, 25/10/2026):* phân loại Trò chơi với khối Cách chơi; nút chép mục Cách chơi / Luật chơi từ Wikipedia tiếng Việt (nguồn đúng bài, CC BY-SA 4.0); người đọc góp cách chơi qua nút Góp ý dưới bài, người sáng lập chép vào trò chơi; Đọc cùng bé một dòng, vỗ tay tô chữ, không âm thanh.
 - **Vè: bối cảnh (ý 32).** Vè kể chuyện thật có khối bối cảnh: sự kiện, năm, nơi chốn, nhân vật (qua Wikidata đã xác nhận), tóm tắt do người sáng lập viết hoặc duyệt. **Máy không tự viết sự kiện lịch sử.**
 - **Câu đố (ý 34, 35).** Trang bài vẫn hiện đáp án sẵn (D-058). Trang "Đố vui" riêng: mỗi lần một câu, "Xem đáp án", 10 câu một lượt, chọn theo loại; điểm nhớ trên máy. Các câu đố cùng đáp án hiện cạnh nhau.
 

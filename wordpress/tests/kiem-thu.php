@@ -813,6 +813,79 @@ kt( 'Bảng tin "người đọc cần gì": câu tìm không ra, số lần sao
 $js_bai = file_get_contents( CADAO_THU_MUC . '/assets/ca-dao.js' );
 kt( 'trang bài gửi sự kiện sao chép, mở chú giải; trang tìm gửi "không ra" sau 2 giây đứng yên', str_contains( $js_bai, "suKien('trich_dan_sao_chep'" ) && str_contains( $js_bai, "suKien('chu_giai_mo'" ) && str_contains( file_get_contents( CADAO_THU_MUC . '/assets/tim.js' ), "loai: 'tim_khong_ket_qua'" ) );
 
+// ---------- Đồng dao: trò chơi, Cách chơi, Đọc cùng bé (T-103) ----------
+kt( 'phân loại "Trò chơi" có đường dẫn /tro-choi/', taxonomy_exists( 'tro_choi' ) && 'tro-choi' === get_taxonomy( 'tro_choi' )->rewrite['slug'] );
+$dd1 = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'post_title' => 'Đồng dao thử', 'post_content' => cadao_khoi_tho( "Đồng dao thử một\nĐồng dao thử hai" ) ) );
+wp_set_object_terms( $dd1, 'dong-dao', 'the_loai' );
+$tc  = wp_insert_term( 'Trò chơi thử', 'tro_choi' );
+$tc1 = get_term( $tc['term_id'], 'tro_choi' );
+kt( 'trò chơi chưa có cách chơi: trên bài chỉ hiện liên kết tới trang trò chơi, không có khối trống', str_contains( cadao_khoi_cach_choi( $tc1 ), 'Trò chơi: <a' ) && ! str_contains( cadao_khoi_cach_choi( $tc1 ), '<ol' ) && '' === cadao_khoi_cach_choi( $tc1, false ) );
+wp_set_current_user( cadao_quan_tri_dau_tien() );
+$_POST = array( 'cadao_cc' => array( 'so_nguoi' => '6–10 bạn', 'do_tuoi' => '5–10 tuổi', 'do_dung' => 'Không cần', 'buoc' => "Bước một <b>thử</b>\n\nBước hai thử", 'nguon_ten' => '', 'nguon_url' => '', 'giay_phep' => '' ), 'cadao_cc_wiki' => '' );
+wp_update_term( $tc1->term_id, 'tro_choi', array( 'name' => 'Trò chơi thử' ) );
+wp_set_object_terms( $dd1, $tc1->term_id, 'tro_choi' );
+$tc1 = get_term( $tc1->term_id, 'tro_choi' );
+$cc1 = cadao_khoi_cach_choi( $tc1 );
+kt( 'Cách chơi do dự án viết: số người, độ tuổi, đồ dùng, các bước (mỗi dòng một bước, chữ được thoát); không có dòng Nguồn', str_contains( $cc1, '<dt>Số người</dt><dd>6–10 bạn</dd>' ) && str_contains( $cc1, '<li>Bước một thử</li><li>Bước hai thử</li>' ) && ! str_contains( $cc1, 'Nguồn:' ) && str_contains( $cc1, 'Cách chơi: Trò chơi thử' ), $cc1 );
+kt( 'trang trò chơi: Cách chơi rồi danh sách bài', str_contains( apply_filters( 'term_description', '', $tc1->term_id, 'tro_choi', 'tro_choi' ), 'Bài đồng dao của trò chơi này (1)' ) );
+kt( 'Đọc cùng bé: nút chỉ có ở bài đồng dao (ẩn tới khi JavaScript sẵn sàng)', str_contains( cadao_khoi_hanh_dong( get_post( $dd1 ) ), '<button type="button" class="cadao-doc-cung-be" hidden>Đọc cùng bé</button>' ) && ! str_contains( cadao_khoi_hanh_dong( get_post( $td ) ), 'cadao-doc-cung-be' ) );
+$js_be = file_get_contents( CADAO_THU_MUC . '/assets/dong-dao.js' );
+kt( 'Đọc cùng bé: không phát âm thanh', ! preg_match( '/speechSynthesis|new Audio|<audio|\.play\(/', $js_be ) );
+$tl_dd = apply_filters( 'term_description', '', get_term_by( 'slug', 'dong-dao', 'the_loai' )->term_id, 'the_loai', 'the_loai' );
+kt( 'trang thể loại Đồng dao: lối vào "Theo trò chơi"', str_contains( $tl_dd, 'Theo trò chơi' ) && str_contains( $tl_dd, 'Trò chơi thử' ), $tl_dd );
+// Lấy từ Wikipedia: giả lập API (không cần mạng)
+kt( 'Wikipedia: nhận tên bài hoặc đường dẫn vi.wikipedia.org; đường dẫn nơi khác thì không', 'Rồng rắn lên mây' === cadao_wiki_ten_bai( 'https://vi.wikipedia.org/wiki/R%E1%BB%93ng_r%E1%BA%AFn_l%C3%AAn_m%C3%A2y' ) && 'Ô ăn quan' === cadao_wiki_ten_bai( ' Ô ăn quan ' ) && '' === cadao_wiki_ten_bai( 'https://example.org/wiki/X' ) );
+kt( 'Wikipedia: tìm đúng mục "Cách chơi" / "Luật chơi"', '3' === cadao_wiki_tim_muc( array( array( 'index' => '1', 'line' => 'Lịch sử' ), array( 'index' => '3', 'line' => 'Cách chơi' ) ) ) && '2' === cadao_wiki_tim_muc( array( array( 'index' => '2', 'line' => 'Luật chơi' ) ) ) && null === cadao_wiki_tim_muc( array( array( 'index' => '1', 'line' => 'Chơi chữ' ) ) ) );
+$html_wiki = '<div class="mw-parser-output"><div class="mw-heading mw-heading2"><h2 id="C">Cách chơi</h2></div><p>Đoạn một thử<sup class="reference"><a href="#c1">[1]</a></sup>.</p><ul><li>Ý một</li><li>Ý hai&nbsp;thử</li></ul><table><tr><td>Bảng</td></tr></table></div>';
+kt( 'Wikipedia: chép chữ của mục — bỏ tiêu đề, chỉ số chú thích, bảng; mỗi đoạn, mỗi ý một dòng', array( 'Đoạn một thử.', 'Ý một', 'Ý hai thử' ) === cadao_wiki_van_ban( $html_wiki ), cadao_wiki_van_ban( $html_wiki ) );
+add_filter( 'cadao_nhip_giay', '__return_zero' );
+$gia_wiki = static function ( $pre, $tham, $url ) use ( $html_wiki ) {
+	if ( ! str_starts_with( $url, 'https://vi.wikipedia.org/w/api.php' ) ) {
+		return $pre;
+	}
+	$than = str_contains( $url, 'prop=sections' )
+		? array( 'parse' => array( 'title' => 'Trò chơi thử Wiki', 'sections' => array( array( 'index' => '2', 'line' => 'Cách chơi' ) ) ) )
+		: array( 'parse' => array( 'title' => 'Trò chơi thử Wiki', 'text' => array( '*' => $html_wiki ) ) );
+	return array( 'headers' => array(), 'body' => wp_json_encode( $than ), 'response' => array( 'code' => 200, 'message' => 'OK' ), 'cookies' => array(), 'filename' => null );
+};
+add_filter( 'pre_http_request', $gia_wiki, 10, 3 );
+$_POST = array( 'cadao_cc' => array( 'so_nguoi' => '6–10 bạn', 'buoc' => 'sẽ bị thay' ), 'cadao_cc_wiki' => 'Trò chơi thử Wiki', 'cadao_cc_lay_wiki' => '1' );
+wp_update_term( $tc1->term_id, 'tro_choi', array( 'name' => 'Trò chơi thử' ) );
+remove_filter( 'pre_http_request', $gia_wiki, 10 );
+$cc2 = cadao_khoi_cach_choi( get_term( $tc1->term_id, 'tro_choi' ) );
+kt( 'Lấy từ Wikipedia: chép nguyên văn mục Cách chơi; dòng "Nguồn: Wikipedia — <bài> ↗ · CC BY-SA 4.0" trỏ đúng bài đã lấy', str_contains( $cc2, '<li>Đoạn một thử.</li><li>Ý một</li><li>Ý hai thử</li>' ) && str_contains( $cc2, 'Nguồn: <a href="https://vi.wikipedia.org/wiki/Tr%C3%B2_ch%C6%A1i_th%E1%BB%AD_Wiki" rel="noopener">Wikipedia — Trò chơi thử Wiki' ) && str_contains( $cc2, 'CC BY-SA 4.0</a>' ), $cc2 );
+kt( 'Lấy từ Wikipedia: báo cho người sáng lập số dòng đã chép', str_contains( (string) ( get_transient( 'cadao_cc_bao_' . get_current_user_id() )[1] ?? '' ), 'Đã chép 3 dòng' ) );
+kt( 'trang Nguồn: có nguồn của cách chơi', str_contains( do_shortcode( '[cadao_nguon]' ), 'Wikipedia — Trò chơi thử Wiki' ) );
+$_POST = array( 'cadao_cc' => array( 'buoc' => 'giữ nguyên' ), 'cadao_cc_wiki' => 'https://example.org/x', 'cadao_cc_lay_wiki' => '1' );
+wp_update_term( $tc1->term_id, 'tro_choi', array( 'name' => 'Trò chơi thử' ) );
+kt( 'Lấy từ Wikipedia: đường dẫn không phải Wikipedia tiếng Việt thì báo lỗi, không ghi nguồn', str_contains( (string) ( get_transient( 'cadao_cc_bao_' . get_current_user_id() )[1] ?? '' ), 'Wikipedia tiếng Việt' ) && 'giữ nguyên' === cadao_tro_choi_o( $tc1->term_id, 'buoc' ) );
+$_POST = array();
+remove_filter( 'cadao_nhip_giay', '__return_zero' );
+wp_set_current_user( 0 );
+
+// ---------- Bản đồ ca dao (T-104) ----------
+$bd = static function ( string $tieu, string $tu, string $nd, ?array $toa ) {
+	wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'post_title' => $tieu, 'post_content' => cadao_khoi_tho( $tieu . ' dòng một' ) . "\n\n<!-- wp:list {\"className\":\"cadao-chu-thich\"} -->\n<ul class=\"wp-block-list cadao-chu-thich\">\n<!-- wp:list-item -->\n<li><strong>" . $tu . '</strong>: ' . $nd . "</li>\n<!-- /wp:list-item -->\n</ul>\n<!-- /wp:list -->" ) );
+	$muc = cadao_muc_tu( array( 'tu' => $tu, 'noi_dung' => $nd ), false );
+	update_term_meta( $muc->term_id, '_cadao_wd', array( 'nhan_wd' => $tu, 'mo_ta' => 'mô tả thử', 'toa_do' => $toa, 'wiki' => '' ) );
+	return $muc;
+};
+$m_bac   = $bd( 'Bản đồ thử bắc', 'Làng Bắc Thử', 'Làng thử phía bắc.', array( 21.0, 105.8 ) );
+$m_gan   = $bd( 'Bản đồ thử gần', 'Làng Gần Thử', 'Làng thử gần làng bắc.', array( 21.2, 105.9 ) );
+$m_nam   = $bd( 'Bản đồ thử nam', 'Làng Nam Thử', 'Làng thử phía nam.', array( 8.6, 104.8 ) ); // xa Đò Thử (10.03, 105.78) ở phần Wikidata
+$m_xa    = $bd( 'Bản đồ thử ngoài khung', 'Nơi Xa Thử', 'Nơi thử ngoài khung bản đồ.', array( 48.8, 2.3 ) );
+$m_khong = $bd( 'Bản đồ thử không tọa độ', 'Nơi Không Thử', 'Nơi thử không có tọa độ.', null );
+$diem    = cadao_ban_do_diem();
+$ten_d   = array_map( static fn( $d ) => $d['muc']->name, $diem );
+kt( 'bản đồ: chỉ địa danh có tọa độ trong khung và có bài đang đăng, xếp từ Bắc vào Nam', array_search( 'Làng Gần Thử', $ten_d, true ) < array_search( 'Làng Nam Thử', $ten_d, true ) && in_array( 'Làng Bắc Thử', $ten_d, true ) && ! in_array( 'Nơi Xa Thử', $ten_d, true ) && ! in_array( 'Nơi Không Thử', $ten_d, true ), $ten_d );
+$nhom = cadao_ban_do_gom( array_values( array_filter( $diem, static fn( $d ) => str_starts_with( $d['muc']->name, 'Làng' ) ) ) );
+kt( 'bản đồ: điểm gần nhau gộp thành một (vùng chạm đủ lớn), điểm xa đứng riêng', 2 === count( $nhom ) && 2 === count( $nhom[0]['ds'] ), array_map( static fn( $n ) => count( $n['ds'] ), $nhom ) );
+$tr_bd = do_shortcode( '[cadao_ban_do]' );
+kt( 'trang bản đồ: điểm là liên kết có tên đọc được, tới danh sách bài dưới bản đồ; không gọi dịch vụ bản đồ ngoài', str_contains( $tr_bd, 'href="#dd-' . $m_nam->term_id . '"' ) && str_contains( $tr_bd, 'Làng Nam Thử — 1 bài' ) && str_contains( $tr_bd, 'id="dd-' . $m_nam->term_id . '"' ) && str_contains( $tr_bd, 'Bản đồ thử nam' ) && ! preg_match( '~openstreetmap|googleapis|tile|leaflet~i', $tr_bd ) );
+kt( 'trang "Bản đồ ca dao" có sẵn ở /ban-do/', ( $p_bd = get_page_by_path( 'ban-do', OBJECT, 'page' ) ) && 'publish' === $p_bd->post_status );
+kt( 'trang mục từ có tọa độ: "Xem trên bản đồ ca dao"', str_contains( apply_filters( 'term_description', '', $m_nam->term_id, 'tu_kho', 'tu_kho' ), '#dd-' . $m_nam->term_id . '">Xem trên bản đồ ca dao' ) );
+kt( 'trang chủ, chân trang: liên kết tới bản đồ', str_contains( do_shortcode( '[cadao_trang_chu]' ), 'Xem ca dao trên bản đồ' ) && str_contains( do_shortcode( '[cadao_chan_trang]' ), 'Bản đồ ca dao' ) );
+
 $ngan = do_blocks( cadao_khoi_tho( implode( "\n", array_slice( $khong_kho, 0, 40 ) ) ) );
 kt( 'bài 40 dòng trở xuống: không chia đoạn', ! str_contains( $ngan, 'cadao-bai-dai' ) );
 

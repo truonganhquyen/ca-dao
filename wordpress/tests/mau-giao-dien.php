@@ -45,3 +45,29 @@ for ( $k = 1; $k <= 3; $k++ ) {
 }
 $ve = wp_insert_post( array( 'post_type' => 'cdtn', 'post_status' => 'publish', 'post_title' => 'Vè mẫu dài', 'post_content' => cadao_khoi_tho( rtrim( implode( "\n", $dai ) ) ) ) );
 wp_set_object_terms( $ve, 've', 'the_loai' );
+// Đồng dao mẫu (T-103): trò chơi mẫu có Cách chơi do dự án viết; hai địa danh mẫu đã "xác nhận" để có điểm trên
+// bản đồ ca dao (T-104). Lời, cách chơi, địa danh đều tổng hợp.
+$ct_dd = static fn( array $ds ) => "<!-- wp:list {\"className\":\"cadao-chu-thich\"} -->\n<ul class=\"wp-block-list cadao-chu-thich\">\n"
+	. implode( '', array_map( static fn( $tu, $nd ) => "<!-- wp:list-item -->\n<li><strong>" . esc_html( $tu ) . '</strong>: ' . esc_html( $nd ) . "</li>\n<!-- /wp:list-item -->\n", array_keys( $ds ), $ds ) )
+	. "</ul>\n<!-- /wp:list -->";
+$dd_mau = wp_insert_post(
+	array(
+		'post_type' => 'cdtn', 'post_status' => 'publish', 'post_title' => 'Đồng dao mẫu',
+		'post_content' => cadao_khoi_tho( "Mẫu đồng dao một\nBé qua bến Mẫu Bắc\nBé về chợ Mẫu Nam\nMẫu đồng dao bốn" ) . "\n\n" . cadao_khoi_tieu_de( 'Chú thích' ) . "\n\n"
+			. $ct_dd( array( 'bến Mẫu Bắc' => 'Địa danh tổng hợp ở phía bắc để xem bản đồ.', 'chợ Mẫu Nam' => 'Địa danh tổng hợp ở phía nam để xem bản đồ.' ) ),
+	)
+);
+wp_set_object_terms( $dd_mau, 'dong-dao', 'the_loai' );
+$tc_mau = wp_insert_term( 'Trò chơi mẫu', 'tro_choi' );
+if ( ! is_wp_error( $tc_mau ) ) {
+	foreach ( array( 'so_nguoi' => '4–8 bạn', 'do_tuoi' => '4–10 tuổi', 'do_dung' => 'Không cần', 'buoc' => "Bước mẫu thứ nhất của trò chơi.\nBước mẫu thứ hai: vừa đọc đồng dao vừa chơi." ) as $k => $v ) {
+		update_term_meta( $tc_mau['term_id'], '_cadao_cc_' . $k, $v );
+	}
+	wp_set_object_terms( $dd_mau, (int) $tc_mau['term_id'], 'tro_choi' );
+}
+foreach ( array( 'bến Mẫu Bắc' => array( 'Địa danh tổng hợp ở phía bắc để xem bản đồ.', 21.03, 105.85 ), 'chợ Mẫu Nam' => array( 'Địa danh tổng hợp ở phía nam để xem bản đồ.', 10.03, 105.78 ) ) as $tu => [ $nd, $lat, $lon ] ) {
+	$muc = cadao_muc_tu( array( 'tu' => $tu, 'noi_dung' => $nd ), false );
+	if ( $muc ) {
+		update_term_meta( $muc->term_id, '_cadao_wd', array( 'nhan_wd' => $tu, 'mo_ta' => 'địa danh tổng hợp', 'toa_do' => array( $lat, $lon ), 'wiki' => '' ) );
+	}
+}
