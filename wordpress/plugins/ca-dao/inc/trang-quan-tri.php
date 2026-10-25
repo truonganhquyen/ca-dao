@@ -44,7 +44,7 @@ function cadao_mo_ta_kq( array $kq ): string {
 	if ( isset( $kq['bai'] ) ) {
 		return sprintf( 'tạo %d bài chờ duyệt', $kq['bai'] );
 	}
-	return sprintf( '%d yêu cầu · %d mục mới · %d cập nhật · %s', $kq['yeu_cau'] ?? 0, $kq['moi'] ?? 0, $kq['cap_nhat'] ?? 0, $kq['ly_do'] ?? '' );
+	return sprintf( '%d yêu cầu · %d trang đã đọc · %d mục mới · %d cập nhật · %s', $kq['yeu_cau'] ?? 0, $kq['trang'] ?? 0, $kq['moi'] ?? 0, $kq['cap_nhat'] ?? 0, $kq['ly_do'] ?? '' );
 }
 
 // ---------- Trang "Nguồn tự động" ----------
@@ -113,8 +113,8 @@ function cadao_form_nguon( ?array $n ): void {
 	$hang( 'Lấy loại', $loai );
 	$hang( 'Số bài Chờ duyệt mỗi ngày', '<input class="small-text" type="number" min="0" max="500" name="so_bai_moi_ngay" value="' . (int) $n['so_bai_moi_ngay'] . '">', 'Mỗi ngày máy tạo chừng này bài Chờ duyệt từ kho. 0 = không tự tạo.' );
 	$hang( 'Dòng ghi nguồn', '<input class="regular-text" name="dong_ghi_nguon" value="' . $o( 'dong_ghi_nguon' ) . '">', 'Tên hiện trong dòng "Nguồn: …" dưới chú thích đã chép. Để trống thì dùng tên nguồn.' );
-	$hang( 'Chép chú thích', '<label><input type="checkbox" name="chep_chu_thich" value="1" ' . checked( $n['chep_chu_thich'], true, false ) . '> Chép chú thích, lời giải của nguồn</label>', 'Tắt nếu nguồn yêu cầu. Thư xin phép Ca dao Mẹ: T-034.' );
-	$hang( 'Ghi nguồn cho chú thích', '<label><input type="checkbox" name="ghi_cong" value="1" ' . checked( $n['ghi_cong'] ?? true, true, false ) . '> Dưới chú thích đã chép, hiện "Nguồn: … ↗" về trang gốc</label>', 'Lời ca dao, tục ngữ không ghi nguồn.' );
+	$hang( 'Chép chú thích', '<label><input type="checkbox" name="chep_chu_thich" value="1" ' . checked( $n['chep_chu_thich'], true, false ) . '> Chép chú thích và lời giải (đáp án câu đố) của nguồn</label>', 'Tắt nếu nguồn yêu cầu. Thư xin phép Ca dao Mẹ: T-034.' );
+	$hang( 'Ghi nguồn cho chú thích', '<label><input type="checkbox" name="ghi_cong" value="1" ' . checked( $n['ghi_cong'] ?? true, true, false ) . '> Dưới chú thích, lời giải đã chép, hiện "Nguồn: … ↗" về trang gốc</label>', 'Lời ca dao, tục ngữ và dị bản không ghi nguồn.' );
 	$co = '';
 	foreach ( array( 'tho_tuc' => 'Thô tục', 'can_xem' => 'Trào phúng, đấu tranh, lịch sử (cần xem)', 'hien_dai' => 'Có năm 19xx/20xx (có thể hiện đại)' ) as $k => $nhan ) {
 		$co .= '<label style="display:block"><input type="checkbox" name="bo_qua_co[]" value="' . esc_attr( $k ) . '" ' . checked( in_array( $k, $n['bo_qua_co'], true ), true, false ) . '> ' . esc_html( $nhan ) . '</label>';

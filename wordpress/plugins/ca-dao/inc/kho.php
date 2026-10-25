@@ -6,7 +6,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-const CADAO_KHO_PHIEN_BAN = 1;
+const CADAO_KHO_PHIEN_BAN = 2; // 2: cột doc_trang (T-073)
 
 function cadao_kho_bang(): string {
 	global $wpdb;
@@ -30,10 +30,13 @@ function cadao_kho_tao_bang() {
 		ngay_sua_goc varchar(32) NOT NULL DEFAULT '',
 		ngay_lay datetime NOT NULL,
 		trang_thai varchar(16) NOT NULL DEFAULT 'moi',
+		doc_trang varchar(16) NOT NULL DEFAULT '',
 		post_id bigint(20) unsigned NOT NULL DEFAULT 0,
 		PRIMARY KEY  (id),
 		UNIQUE KEY nguon_ma (nguon_id, ma_goc),
-		KEY trang_thai (trang_thai)
+		KEY trang_thai (trang_thai),
+		KEY doc_trang (nguon_id, doc_trang),
+		KEY url (url(191))
 		) {$wpdb->get_charset_collate()};"
 	);
 	update_option( 'cadao_kho_phien_ban', CADAO_KHO_PHIEN_BAN );
@@ -53,9 +56,19 @@ add_action(
 add_action(
 	'init',
 	static function () {
-		if ( (int) get_option( 'cadao_du_lieu_phien_ban' ) < 2 ) {
+		$phien = (int) get_option( 'cadao_du_lieu_phien_ban' );
+		if ( $phien < 2 ) {
 			cadao_bo_nguon_tu_dien();
-			update_option( 'cadao_du_lieu_phien_ban', 2 );
+		}
+		if ( $phien < 3 ) {
+			// T-073: nguồn Ca dao Mẹ lấy thêm thành ngữ–tục ngữ, đồng dao, vè, câu đố (người sáng lập yêu cầu 25/10/2026)
+			foreach ( cadao_nguon_tat_ca() as $n ) {
+				if ( 'cadao_me' === ( $n['kieu'] ?? '' ) ) {
+					$n['loai_lay'] = array_values( array_unique( array_merge( (array) $n['loai_lay'], array_keys( cadao_bo_doc()['cadao_me']['loai'] ) ) ) );
+					cadao_nguon_luu( $n );
+				}
+			}
+			update_option( 'cadao_du_lieu_phien_ban', 3 );
 		}
 	},
 	20
@@ -87,44 +100,83 @@ function cadao_bo_nguon_tu_dien(): int {
 }
 
 /**
- * Lưu (hoặc cập nhật) một mục vào kho. Mục đã thành bài thì không ghi đè bài — chỉ cập nhật kho.
+ * Lưu (hoặc cập nhật) một mục vào kho. Chỉ các trường có trong $muc được ghi; dị bản, chú thích đã đọc từ trang
+ * HTML giữ nguyên khi API lấy lại. Nguồn sửa bài (ngay_sua_goc đổi) thì đánh dấu đọc lại trang (doc_trang = '').
+ * Bài đã tạo từ mục này được cập nhật theo kho nếu chưa ai sửa tay (cadao_kho_cap_nhat_bai).
+ *
+ * doc_trang: '' = chưa đọc trang HTML, 'YYYY-MM-DD' = đã đọc, 'loi' / 'khong_thay' = không đọc được.
  *
  * @param array{ma_goc: string|int, url: string, loai: string, tieu_de: string, loi: string, di_ban?: array, chu_thich?: array, chu_de_goc?: array, co?: array, ngay_sua_goc?: string} $muc
  * @return string 'moi' | 'cap_nhat' | 'giu_nguyen'
  */
 function cadao_kho_luu( string $nguon_id, array $muc ): string {
 	global $wpdb;
-	$bang    = cadao_kho_bang();
-	$ma_goc  = (string) $muc['ma_goc'];
-	$du_lieu = wp_json_encode(
-		array(
-			'di_ban'     => array_values( $muc['di_ban'] ?? array() ),
-			'chu_thich'  => array_values( $muc['chu_thich'] ?? array() ),
-			'chu_de_goc' => array_values( $muc['chu_de_goc'] ?? array() ),
-			'co'         => array_values( $muc['co'] ?? array() ),
-			'cau_hoi'    => $muc['cau_hoi'] ?? null,
-			'dap_an'     => $muc['dap_an'] ?? null,
-		),
-		JSON_UNESCAPED_UNICODE
-	);
+	$bang   = cadao_kho_bang();
+	$ma_goc = (string) $muc['ma_goc'];
+	$cu     = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $bang WHERE nguon_id = %s AND ma_goc = %s", $nguon_id, $ma_goc ) );
+	$d      = $cu ? ( json_decode( $cu->du_lieu, true ) ?: array() ) : array();
+	foreach ( array( 'di_ban', 'chu_thich', 'chu_de_goc', 'co' ) as $k ) {
+		$d[ $k ] = array_key_exists( $k, $muc ) ? array_values( (array) $muc[ $k ] ) : ( $d[ $k ] ?? array() );
+	}
+	foreach ( array( 'cau_hoi', 'dap_an' ) as $k ) {
+		$d[ $k ] = array_key_exists( $k, $muc ) ? $muc[ $k ] : ( $d[ $k ] ?? null );
+	}
 	$hang = array(
-		'url'          => (string) $muc['url'],
-		'loai'         => (string) $muc['loai'],
-		'tieu_de'      => (string) $muc['tieu_de'],
-		'loi'          => (string) $muc['loi'],
-		'du_lieu'      => $du_lieu,
-		'ngay_sua_goc' => (string) ( $muc['ngay_sua_goc'] ?? '' ),
+		'url'          => (string) ( $muc['url'] ?? $cu->url ?? '' ),
+		'loai'         => (string) ( $muc['loai'] ?? $cu->loai ?? '' ),
+		'tieu_de'      => (string) ( $muc['tieu_de'] ?? $cu->tieu_de ?? '' ),
+		'loi'          => (string) ( $muc['loi'] ?? $cu->loi ?? '' ),
+		'du_lieu'      => wp_json_encode( $d, JSON_UNESCAPED_UNICODE ),
+		'ngay_sua_goc' => (string) ( $muc['ngay_sua_goc'] ?? $cu->ngay_sua_goc ?? '' ),
 	);
-	$cu = $wpdb->get_row( $wpdb->prepare( "SELECT id, loi, du_lieu, ngay_sua_goc FROM $bang WHERE nguon_id = %s AND ma_goc = %s", $nguon_id, $ma_goc ) );
+	if ( array_key_exists( 'doc_trang', $muc ) ) {
+		$hang['doc_trang'] = (string) $muc['doc_trang'];
+	} elseif ( $cu && $cu->ngay_sua_goc !== $hang['ngay_sua_goc'] ) {
+		$hang['doc_trang'] = ''; // nguồn đã sửa bài: đọc lại trang để lấy dị bản, chú thích mới
+	}
 	if ( ! $cu ) {
 		$wpdb->insert( $bang, $hang + array( 'nguon_id' => $nguon_id, 'ma_goc' => $ma_goc, 'ngay_lay' => current_time( 'mysql' ), 'trang_thai' => 'moi' ) );
 		return 'moi';
 	}
-	if ( $cu->loi === $hang['loi'] && $cu->du_lieu === $hang['du_lieu'] && $cu->ngay_sua_goc === $hang['ngay_sua_goc'] ) {
+	$giong = true;
+	foreach ( $hang as $k => $v ) {
+		$giong = $giong && (string) $cu->$k === $v;
+	}
+	if ( $giong ) {
 		return 'giu_nguyen';
 	}
 	$wpdb->update( $bang, $hang + array( 'ngay_lay' => current_time( 'mysql' ) ), array( 'id' => $cu->id ) );
+	if ( $cu->post_id ) {
+		cadao_kho_cap_nhat_bai( (int) $cu->id, $cu );
+	}
 	return 'cap_nhat';
+}
+
+/**
+ * Bài tạo từ kho: cập nhật nội dung theo kho mới (thêm dị bản, chú thích…) nếu chưa ai sửa tay — tức nội dung bài
+ * còn đúng như máy đã tạo. Bài đã sửa tay giữ nguyên.
+ *
+ * @param object $cu hàng kho trước khi cập nhật (để nhận ra bài tạo trước khi có dấu băm)
+ */
+function cadao_kho_cap_nhat_bai( int $kho_id, object $cu ): bool {
+	global $wpdb;
+	$muc   = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . cadao_kho_bang() . ' WHERE id = %d', $kho_id ) );
+	$bai   = $muc && $muc->post_id ? get_post( (int) $muc->post_id ) : null;
+	$nguon = $muc ? cadao_nguon_lay( $muc->nguon_id ) : null;
+	if ( ! $bai || ! $nguon || 'trash' === $bai->post_status ) {
+		return false;
+	}
+	$bam        = (string) get_post_meta( $bai->ID, '_cadao_bam', true );
+	$con_nguyen = '' !== $bam ? md5( $bai->post_content ) === $bam : $bai->post_content === cadao_noi_dung_tu_kho( $cu, $nguon );
+	if ( ! $con_nguyen ) {
+		return false;
+	}
+	$moi = cadao_noi_dung_tu_kho( $muc, $nguon );
+	if ( $moi !== $bai->post_content ) {
+		wp_update_post( array( 'ID' => $bai->ID, 'post_content' => $moi ) );
+	}
+	update_post_meta( $bai->ID, '_cadao_bam', md5( get_post( $bai->ID )->post_content ) );
+	return true;
 }
 
 /** Số mục trong kho theo trạng thái (cho trang quản trị). */
@@ -157,8 +209,8 @@ function cadao_khoi_doan( string $html, string $lop = '' ): string {
 
 /**
  * Nội dung bài từ một mục kho: lời (khối Thơ) → câu hỏi/đáp án (câu đố) → dị bản → chú thích.
- * Chú thích, lời giải chỉ chép khi nguồn bật "Chép chú thích" (D-055); dưới đó là dòng "Nguồn: …" về trang gốc khi
- * nguồn bật "Ghi nguồn cho chú thích" (D-057). Lời ca dao, tục ngữ không ghi nguồn.
+ * Chú thích và lời giải (đáp án câu đố) chỉ chép khi nguồn bật "Chép chú thích" (D-055); dưới phần chép là một dòng
+ * "Nguồn: …" về trang gốc khi nguồn bật "Ghi nguồn cho chú thích" (D-057). Lời, dị bản không ghi nguồn.
  */
 function cadao_noi_dung_tu_kho( object $muc, array $nguon ): string {
 	$d     = json_decode( $muc->du_lieu, true ) ?: array();
@@ -166,7 +218,8 @@ function cadao_noi_dung_tu_kho( object $muc, array $nguon ): string {
 	if ( ! empty( $d['cau_hoi'] ) ) {
 		$khoi[] = cadao_khoi_doan( '<strong>' . esc_html( $d['cau_hoi'] ) . '</strong>' );
 	}
-	if ( ! empty( $d['dap_an'] ) ) {
+	$chep = ! empty( $nguon['chep_chu_thich'] );
+	if ( $chep && ! empty( $d['dap_an'] ) ) {
 		$khoi[] = "<!-- wp:details -->\n<details class=\"wp-block-details\"><summary>Đáp án</summary>"
 			. cadao_khoi_doan( esc_html( $d['dap_an'] ) ) . "</details>\n<!-- /wp:details -->";
 	}
@@ -176,7 +229,7 @@ function cadao_noi_dung_tu_kho( object $muc, array $nguon ): string {
 			$khoi[] = cadao_khoi_tho( (string) $loi );
 		}
 	}
-	if ( ! empty( $nguon['chep_chu_thich'] ) && ! empty( $d['chu_thich'] ) ) {
+	if ( $chep && ! empty( $d['chu_thich'] ) ) {
 		$muc_li = '';
 		foreach ( $d['chu_thich'] as $c ) {
 			$tu      = trim( (string) ( $c['tu'] ?? '' ) );
@@ -185,9 +238,9 @@ function cadao_noi_dung_tu_kho( object $muc, array $nguon ): string {
 		}
 		$khoi[] = cadao_khoi_tieu_de( 'Chú thích' );
 		$khoi[] = "<!-- wp:list {\"className\":\"cadao-chu-thich\"} -->\n<ul class=\"wp-block-list cadao-chu-thich\">\n$muc_li</ul>\n<!-- /wp:list -->";
-		if ( ! empty( $nguon['ghi_cong'] ) ) {
-			$khoi[] = cadao_khoi_doan( sprintf( 'Nguồn: <a href="%s" rel="noopener">%s <span aria-hidden="true">↗</span></a>', esc_url( $muc->url ), esc_html( $nguon['dong_ghi_nguon'] ?: $nguon['ten'] ) ), 'cadao-chu-thich-nguon' );
-		}
+	}
+	if ( $chep && ! empty( $nguon['ghi_cong'] ) && ( ! empty( $d['chu_thich'] ) || ! empty( $d['dap_an'] ) ) ) {
+		$khoi[] = cadao_khoi_doan( sprintf( 'Nguồn: <a href="%s" rel="noopener">%s <span aria-hidden="true">↗</span></a>', esc_url( $muc->url ), esc_html( $nguon['dong_ghi_nguon'] ?: $nguon['ten'] ) ), 'cadao-chu-thich-nguon' );
 	}
 	return implode( "\n\n", $khoi );
 }
@@ -203,6 +256,9 @@ function cadao_kho_tao_bai( int $kho_id ) {
 	$muc  = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $bang WHERE id = %d", $kho_id ) );
 	if ( ! $muc ) {
 		return new WP_Error( 'cadao_khong_co', 'Không có mục kho này.' );
+	}
+	if ( '' === $muc->loi ) {
+		return new WP_Error( 'cadao_chua_doc', 'Mục này chưa đọc trang nên chưa có lời; máy sẽ đọc ở lượt sau.' );
 	}
 	$nguon = cadao_nguon_lay( $muc->nguon_id );
 	if ( ! $nguon ) {
@@ -248,6 +304,7 @@ function cadao_kho_tao_bai( int $kho_id ) {
 	if ( array_key_exists( $muc->loai, CADAO_THE_LOAI_TU_LOAI_GOC ) ) {
 		wp_set_object_terms( $id, CADAO_THE_LOAI_TU_LOAI_GOC[ $muc->loai ], 'the_loai' );
 	}
+	update_post_meta( $id, '_cadao_bam', md5( get_post( $id )->post_content ) ); // nhận ra bài chưa ai sửa tay
 	$wpdb->update( $bang, array( 'trang_thai' => 'da_tao_bai', 'post_id' => $id ), array( 'id' => $muc->id ) );
 	return $id;
 }
@@ -267,7 +324,7 @@ function cadao_quan_tri_dau_tien(): int {
 }
 
 /**
- * Tạo tối đa $so bài Chờ duyệt từ kho của một nguồn: mục mới, bỏ qua mục mang cờ nguồn đã chọn bỏ qua.
+ * Tạo tối đa $so bài Chờ duyệt từ kho của một nguồn: mục mới đã đọc trang, bỏ qua mục mang cờ nguồn đã chọn bỏ qua.
  *
  * @return int số bài đã tạo
  */
@@ -279,7 +336,8 @@ function cadao_kho_tao_bai_cho_duyet( array $nguon, int $so ): int {
 	$loai  = $nguon['loai_lay'] ?? array();
 	$sau   = 0; // lật trang theo id: mục vừa tạo bài rời khỏi danh sách "mới" nên OFFSET sẽ bỏ sót
 	while ( $tao < $so ) {
-		$ds = $wpdb->get_results( $wpdb->prepare( "SELECT id, loai, du_lieu FROM $bang WHERE nguon_id = %s AND trang_thai = 'moi' AND id > %d ORDER BY id ASC LIMIT 50", $nguon['id'], $sau ) );
+		// Chỉ mục đã đọc trang (có dị bản, chú thích) và có lời
+		$ds = $wpdb->get_results( $wpdb->prepare( "SELECT id, loai, du_lieu FROM $bang WHERE nguon_id = %s AND trang_thai = 'moi' AND doc_trang LIKE '2%%' AND loi <> '' AND id > %d ORDER BY id ASC LIMIT 50", $nguon['id'], $sau ) );
 		if ( ! $ds ) {
 			break;
 		}
