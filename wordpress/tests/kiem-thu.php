@@ -882,6 +882,8 @@ $nhom = cadao_ban_do_gom( array_values( array_filter( $diem, static fn( $d ) => 
 kt( 'bản đồ: điểm gần nhau gộp thành một (vùng chạm đủ lớn), điểm xa đứng riêng', 2 === count( $nhom ) && 2 === count( $nhom[0]['ds'] ), array_map( static fn( $n ) => count( $n['ds'] ), $nhom ) );
 $tr_bd = do_shortcode( '[cadao_ban_do]' );
 kt( 'trang bản đồ: điểm là liên kết có tên đọc được, tới danh sách bài dưới bản đồ; không gọi dịch vụ bản đồ ngoài', str_contains( $tr_bd, 'href="#dd-' . $m_nam->term_id . '"' ) && str_contains( $tr_bd, 'Làng Nam Thử — 1 bài' ) && str_contains( $tr_bd, 'id="dd-' . $m_nam->term_id . '"' ) && str_contains( $tr_bd, 'Bản đồ thử nam' ) && ! preg_match( '~openstreetmap|googleapis|tile|leaflet~i', $tr_bd ) );
+update_term_meta( $m_bac->term_id, '_cadao_wd', array( 'nhan_wd' => 'Làng Bắc Thử', 'mo_ta' => 'ward in Vietnam', 'toa_do' => array( 21.0, 105.8 ), 'wiki' => '' ) );
+kt( 'trang bản đồ: mô tả Wikidata chỉ hiện khi là tiếng Việt', ! str_contains( do_shortcode( '[cadao_ban_do]' ), 'ward in Vietnam' ) && str_contains( do_shortcode( '[cadao_ban_do]' ), 'mô tả thử' ) );
 kt( 'trang "Bản đồ ca dao" có sẵn ở /ban-do/', ( $p_bd = get_page_by_path( 'ban-do', OBJECT, 'page' ) ) && 'publish' === $p_bd->post_status );
 kt( 'trang mục từ có tọa độ: "Xem trên bản đồ ca dao"', str_contains( apply_filters( 'term_description', '', $m_nam->term_id, 'tu_kho', 'tu_kho' ), '#dd-' . $m_nam->term_id . '">Xem trên bản đồ ca dao' ) );
 kt( 'trang chủ, chân trang: liên kết tới bản đồ', str_contains( do_shortcode( '[cadao_trang_chu]' ), 'Xem ca dao trên bản đồ' ) && str_contains( do_shortcode( '[cadao_chan_trang]' ), 'Bản đồ ca dao' ) );
@@ -921,6 +923,27 @@ kt( 'REST cho trình soạn: trả nội dung đã chuyển (người biên so�
 wp_set_current_user( 0 );
 kt( 'REST cho trình soạn: người lạ không dùng được', 401 === rest_do_request( $yc_kt )->get_status() );
 kt( 'trình soạn: ô báo "Lời đang nằm trong khối Đoạn văn" và nút "Đưa lời vào khối Thơ"', str_contains( file_get_contents( CADAO_THU_MUC . '/assets/soan-trung.js' ), "'Đưa lời vào khối Thơ'" ) );
+
+// ---------- Bàn biên tập (T-047) ----------
+$hc_truoc = array_column( cadao_hang_cho(), 'so', 'khoa' );
+$gy_loi   = wp_insert_post( array( 'post_type' => CADAO_LOAI_GOP_Y, 'post_status' => 'pending', 'post_title' => 'Báo lỗi thử', 'post_content' => 'Sai chữ', 'meta_input' => array( '_cadao_loai' => 'bao_loi' ) ) );
+$gy_khac  = wp_insert_post( array( 'post_type' => CADAO_LOAI_GOP_Y, 'post_status' => 'pending', 'post_title' => 'Dị bản thử', 'post_content' => 'Ở quê nói khác', 'meta_input' => array( '_cadao_loai' => 'di_ban' ) ) );
+$cd_bbt   = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'pending', 'post_title' => 'Chờ duyệt thử bàn', 'post_content' => cadao_khoi_tho( 'Chờ duyệt thử bàn biên tập' ) ) );
+$hc       = cadao_hang_cho();
+$hc_so    = array_column( $hc, 'so', 'khoa' );
+kt( 'bàn biên tập: báo lỗi của người đọc đứng đầu', 'bao_loi' === $hc[0]['khoa'] );
+kt( 'bàn biên tập: đếm đúng báo lỗi, góp ý khác, bài Chờ duyệt', $hc_so['bao_loi'] === $hc_truoc['bao_loi'] + 1 && $hc_so['gop_y'] === $hc_truoc['gop_y'] + 1 && $hc_so['cho_duyet'] === $hc_truoc['cho_duyet'] + 1, array( $hc_truoc, $hc_so ) );
+kt( 'bàn biên tập: gom đủ các hàng chờ (đóng góp người đọc, Chờ duyệt, khối Thơ, trùng, tách loại, Wikidata, gợi ý, Bạn có biết?, trang dự án, thể loại)', array() === array_diff( array( 'bao_loi', 'gop_y', 'binh_luan', 'phan_tich', 'cho_duyet', 'khoi_tho', 'trung', 'tach_loai', 'wikidata', 'goi_y', 'bcb', 'du_an', 'the_loai' ), array_keys( $hc_so ) ), array_keys( $hc_so ) );
+kt( 'bàn biên tập: mỗi hàng có đường dẫn trong trang quản trị và một dòng "làm gì"', array() === array_filter( $hc, static fn( $h ) => ! str_starts_with( $h['url'], admin_url() ) || '' === $h['viec'] ) );
+wp_set_current_user( cadao_quan_tri_dau_tien() );
+ob_start();
+cadao_trang_ban_bien_tap();
+$tr_bbt = ob_get_clean();
+wp_set_current_user( 0 );
+kt( 'trang Bàn biên tập: hàng còn việc có số và nút Mở; hàng đã xong gom ở cuối', str_contains( $tr_bbt, 'Báo lỗi, báo vi phạm của người đọc' ) && str_contains( $tr_bbt, '>Mở</a>' ) && ( ! array_filter( $hc, static fn( $h ) => $h['so'] <= 0 ) || str_contains( $tr_bbt, '<h2>Đã xong</h2>' ) ), substr( $tr_bbt, 0, 400 ) );
+wp_delete_post( $gy_loi, true );
+wp_delete_post( $gy_khac, true );
+wp_delete_post( $cd_bbt, true );
 
 $ngan = do_blocks( cadao_khoi_tho( implode( "\n", array_slice( $khong_kho, 0, 40 ) ) ) );
 kt( 'bài 40 dòng trở xuống: không chia đoạn', ! str_contains( $ngan, 'cadao-bai-dai' ) );
