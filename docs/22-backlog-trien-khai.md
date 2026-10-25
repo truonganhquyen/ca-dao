@@ -86,8 +86,8 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-100 | Trợ giúp viết "Hiểu nhanh" (gợi ý; nháp máy chờ duyệt) | A | T-098 | — | BLOCKED |
 | T-101 | Gộp bài đã đăng bị trùng: bài chính + dị bản, chuyển hướng, dồn lượt đọc và bài người đọc | N+A | T-109 | — | DONE |
 | T-102 | Vè: khối "Bối cảnh" (sự kiện, năm, nơi chốn, nhân vật) | N+A | T-086 | — | BLOCKED |
-| T-103 | Đồng dao: cách chơi, chế độ "Đọc cùng bé" | A | T-085 | — | BLOCKED |
-| T-104 | Bản đồ ca dao theo vùng | A | T-086, T-089 | — | BLOCKED |
+| T-103 | Đồng dao: cách chơi, chế độ "Đọc cùng bé" | A | T-085 | — | DONE |
+| T-104 | Bản đồ ca dao theo vùng | A | T-086, T-089 | — | DONE |
 | T-105 | Giọng đọc sinh sẵn theo miền (VieNeu-TTS), phiên nghe thử 30 bài | N+A | T-085, T-089 | — | BLOCKED |
 | T-106 | Giọng riêng của dự án, thu từ người đồng ý | N | T-105 | — | BLOCKED |
 | T-107 | Tìm bản quét "Tục ngữ phong dao" (Nguyễn Văn Ngọc, 1928) | N | — | — | READY |
@@ -418,8 +418,12 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 #### T-103 · Đồng dao — A
 **Đọc:** `25` mục 4.4. **Chấp nhận:** khối "Cách chơi" (ghi nguồn Wikipedia CC BY-SA khi lấy từ đó); trang trò chơi; chế độ "Đọc cùng bé" mỗi lần một dòng, chữ to, không tự phát âm thanh.
 
+**Tiến độ (25/10/2026):** xong — plugin 0.17.0 (`inc/dong-dao.php`, `assets/dong-dao.js`). Phân loại **Trò chơi** (`tro_choi`, `/tro-choi/<tên>/`): mỗi trò chơi có số người, độ tuổi, đồ dùng, các bước (mỗi dòng một bước), nguồn và giấy phép khi chép từ nơi khác. Nút **Lấy mục "Cách chơi" từ Wikipedia** (trang sửa trò chơi): máy chép nguyên văn mục "Cách chơi" / "Luật chơi" của bài Wikipedia tiếng Việt người sáng lập gõ tên, ghi nguồn đúng bài đó và CC BY-SA 4.0; chỉ nhận vi.wikipedia.org; máy không tự viết cách chơi. Bài đồng dao gắn trò chơi có khối **Cách chơi: <tên>** sau hàng nút (dòng "Nguồn: Wikipedia — <bài> ↗ · CC BY-SA 4.0" khi chép); trang trò chơi có Cách chơi rồi các bài; trang thể loại Đồng dao có lối vào "Theo trò chơi"; trang Nguồn liệt kê nguồn của cách chơi. **Đọc cùng bé** (chỉ bài đồng dao): mỗi lần một dòng, chữ rất to, chạm vào chữ / mũi tên / nút sang dòng, nút "Vỗ tay theo chữ" tô từng chữ theo nhịp (0,7 giây), không âm thanh, Esc thoát; tệp JavaScript riêng chỉ tải ở bài đồng dao. Việc của người sáng lập: tạo trò chơi (Ca dao – Tục ngữ → Trò chơi), lấy cách chơi từ Wikipedia hoặc tự viết, gắn bài đồng dao vào trò chơi.
+
 #### T-104 · Bản đồ ca dao — A
 **Chấp nhận:** bản đồ các địa danh đã xác nhận, chạm ra bài; tải nhẹ trên điện thoại; không gọi dịch vụ bản đồ khi người đọc chưa mở trang bản đồ.
+
+**Tiến độ (25/10/2026):** xong — `inc/ban-do.php`. Trang **Bản đồ ca dao** (`/ban-do/`): ảnh SVG tự lưu (7 KB, có Hoàng Sa, Trường Sa) với điểm các địa danh đã xác nhận trên Wikidata có tọa độ và có bài đang đăng; điểm là liên kết (≥ 24 px, tên đọc được) tới mục của địa danh trong danh sách dưới bản đồ (từ Bắc vào Nam, mỗi nơi các bài nhắc tới, "Xem trong từ điển"); điểm gần nhau (< 7% bề rộng) gộp thành một điểm có số. Không JavaScript, không gọi dịch vụ bản đồ nào kể cả khi mở trang (đi xa hơn tiêu chí). Liên kết tới bản đồ: trang chủ ("Xem ca dao trên bản đồ"), chân trang, trang mục từ có tọa độ ("Xem trên bản đồ ca dao"). Bản đồ đầy dần khi người sáng lập xác nhận thêm Wikidata (25/10/2026: 24 địa danh).
 
 #### T-105 · Giọng đọc sinh sẵn — N+A
 **Đọc:** `25` mục 2.4, 4.8; D-063. **Chấp nhận:** VieNeu-TTS v3 Turbo trong tài khoản `cadao`, chạy ban đêm ưu tiên thấp; người sáng lập nghe 30 bài đủ thể loại và đạt trước khi sinh cả kho; giọng theo vùng; có dòng "Giọng đọc máy"; chỉ tải khi bấm nghe; bài sửa lời tự sinh lại.

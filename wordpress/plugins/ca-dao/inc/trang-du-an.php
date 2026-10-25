@@ -105,6 +105,15 @@ add_shortcode(
 			$mo[] = '<a href="https://commons.wikimedia.org">Wikimedia Commons</a> — ảnh minh hoạ với giấy phép mở; tác giả và giấy phép ghi dưới từng ảnh.';
 			$mo[] = '<a href="https://www.naturalearthdata.com">Natural Earth</a> (phạm vi công cộng) — đường biên của bản đồ nhỏ.';
 		}
+		// Cách chơi trò chơi chép từ nguồn (T-103)
+		$cc = $wpdb->get_results( "SELECT m.meta_value AS ten, COUNT(*) AS so FROM {$wpdb->termmeta} m JOIN {$wpdb->term_taxonomy} tt ON tt.term_id = m.term_id AND tt.taxonomy = 'tro_choi' WHERE m.meta_key = '_cadao_cc_nguon_ten' AND m.meta_value <> '' GROUP BY m.meta_value ORDER BY so DESC" );
+		if ( $cc ) {
+			$ra .= '<h2>Nguồn của cách chơi trò chơi</h2><ul>';
+			foreach ( $cc as $r ) {
+				$ra .= '<li>' . esc_html( $r->ten ) . '</li>';
+			}
+			$ra .= '</ul>';
+		}
 		if ( $mo ) {
 			$ra .= '<h2>Dữ liệu mở</h2><ul><li>' . implode( '</li><li>', $mo ) . '</li></ul>';
 		}
@@ -122,6 +131,9 @@ add_shortcode(
 			if ( $p && 'publish' === $p->post_status ) {
 				$ra[] = '<a href="' . esc_url( get_permalink( $p ) ) . '">' . esc_html( get_the_title( $p ) ) . '</a>';
 			}
+		}
+		if ( function_exists( 'cadao_url_ban_do' ) && cadao_url_ban_do() ) {
+			$ra[] = '<a href="' . esc_url( cadao_url_ban_do() ) . '">Bản đồ ca dao</a>';
 		}
 		if ( function_exists( 'cadao_url_da_luu' ) && cadao_url_da_luu() ) {
 			$ra[] = '<a href="' . esc_url( cadao_url_da_luu() ) . '">Bài đã lưu</a>';

@@ -348,7 +348,11 @@ add_shortcode(
 			}
 			return '<section aria-label="' . esc_attr( $tieu ) . '"><h2>' . esc_html( $tieu ) . '</h2><ul class="cadao-the">' . $li . '</ul></section>';
 		};
-		return $ra . $loi_vao( 'the_loai', 'Theo thể loại' ) . $loi_vao( 'vung', 'Theo vùng' );
+		// Bản đồ ca dao (T-104): khi đã có địa danh được xác nhận
+		global $wpdb;
+		$ban_do = function_exists( 'cadao_url_ban_do' ) && cadao_url_ban_do() && $wpdb->get_var( "SELECT 1 FROM {$wpdb->termmeta} WHERE meta_key = '_cadao_wd' AND meta_value LIKE '%\"toa_do\";a:%' LIMIT 1" )
+			? '<p><a href="' . esc_url( cadao_url_ban_do() ) . '">Xem ca dao trên bản đồ <span aria-hidden="true">→</span></a></p>' : '';
+		return $ra . $loi_vao( 'the_loai', 'Theo thể loại' ) . $loi_vao( 'vung', 'Theo vùng' ) . $ban_do;
 	}
 );
 
@@ -376,7 +380,7 @@ add_filter(
 			$ra .= '<li><a href="' . esc_url( get_permalink( $p ) ) . '"><strong>' . esc_html( get_the_title( $p ) ) . '</strong></a><br><span class="cadao-tim-phu">' . esc_html( str_replace( "\n", ' / ', cadao_loi_rut_gon( $p, 2 ) ) ) . '</span></li>';
 		}
 		$ra .= '</ul>';
-		foreach ( array( 'chu_de' => 'Theo chủ đề', 'vung' => 'Theo vùng' ) as $tax => $ten ) {
+		foreach ( array( 'tro_choi' => 'Theo trò chơi', 'chu_de' => 'Theo chủ đề', 'vung' => 'Theo vùng' ) as $tax => $ten ) {
 			$dem = array();
 			foreach ( wp_get_object_terms( $ids, $tax ) as $t ) {
 				$dem[ $t->term_id ] = ( $dem[ $t->term_id ] ?? array( $t, 0 ) );

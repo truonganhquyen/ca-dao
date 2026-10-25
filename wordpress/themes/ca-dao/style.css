@@ -2,7 +2,7 @@
 Theme Name:        Kho tàng Ca dao
 Description:       Theme con của Twenty Twenty-Five cho dự án Kho tàng Ca dao Tục ngữ Việt Nam: chữ và khoảng trắng trước, lời thơ lớn, sáng/tối theo máy (docs/20 trong repo ca-dao).
 Template:          twentytwentyfive
-Version:           0.11.0
+Version:           0.12.0
 Requires at least: 6.8
 Requires PHP:      8.1
 Author:            Dự án Kho tàng Ca dao Tục ngữ Việt Nam
@@ -349,7 +349,8 @@ html[data-co-chu="3"] .wp-block-verse {
 	font-size: var(--wp--preset--font-size--small);
 }
 /* Trình chiếu: toàn màn hình, chữ thật lớn */
-.cadao-tc {
+.cadao-tc,
+.cadao-be {
 	width: 100vw;
 	height: 100vh;
 	max-width: none;
@@ -360,7 +361,8 @@ html[data-co-chu="3"] .wp-block-verse {
 	background: var(--cadao-giay);
 	color: var(--cadao-muc);
 }
-.cadao-tc[open] {
+.cadao-tc[open],
+.cadao-be[open] {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -375,17 +377,20 @@ html[data-co-chu="3"] .wp-block-verse {
 	text-align: center;
 	text-wrap: balance;
 }
-.cadao-tc-so {
+.cadao-tc-so,
+.cadao-be-so {
 	margin: 0;
 	color: var(--cadao-nhat);
 }
-.cadao-tc-nut {
+.cadao-tc-nut,
+.cadao-be-nut {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
 	gap: 0.75rem;
 }
 .cadao-tc-nut button,
+.cadao-be-nut button,
 .cadao-doc-toan-bai,
 .cadao-doc-tiep {
 	display: inline-flex;
@@ -399,6 +404,116 @@ html[data-co-chu="3"] .wp-block-verse {
 	font: inherit;
 	cursor: pointer;
 	text-decoration: none;
+}
+
+/* Đọc cùng bé (T-103): một dòng, chữ thật to; chữ đang tới nhịp vỗ tay được tô */
+.cadao-be-dong {
+	margin: 0;
+	font-family: var(--wp--preset--font-family--literata);
+	font-size: clamp(2.25rem, 11vw, 5.5rem);
+	line-height: 1.35;
+	text-align: center;
+	text-wrap: balance;
+	cursor: pointer;
+}
+.cadao-be-dong span {
+	display: inline-block;
+	padding: 0 0.1em;
+	border-radius: 0.2em;
+}
+.cadao-be-dong .cadao-be-nhip {
+	background: var(--cadao-son);
+	color: var(--cadao-giay);
+}
+.cadao-be-nut .cadao-be-vo[aria-pressed="true"] {
+	background: var(--cadao-son);
+	color: var(--cadao-giay);
+}
+
+/* Cách chơi (T-103): khối trên trang bài đồng dao và trang trò chơi */
+.cadao-cach-choi {
+	margin-block: 1.5rem;
+	padding: 1rem;
+	border: 1px solid var(--cadao-ke);
+	border-radius: 8px;
+}
+.cadao-cc-tieu-de {
+	margin-block: 0 0.75rem;
+	font-size: var(--wp--preset--font-size--medium);
+}
+.cadao-cc-thong-tin {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+	gap: 0.5rem 1rem;
+	margin: 0 0 0.75rem;
+}
+.cadao-cc-thong-tin dt {
+	color: var(--cadao-nhat);
+	font-size: var(--wp--preset--font-size--small);
+}
+.cadao-cc-thong-tin dd {
+	margin: 0;
+	font-weight: 600;
+}
+.cadao-cc-buoc li {
+	margin-block: 0.35rem;
+}
+.cadao-nguon-cach-choi {
+	color: var(--cadao-nhat);
+	font-size: var(--wp--preset--font-size--small);
+}
+
+/* Bản đồ ca dao (T-104): điểm là liên kết, vùng chạm ≥ 24 px; danh sách dưới bản đồ */
+.cadao-ban-do-lon {
+	position: relative;
+	max-width: 32rem;
+	margin: 1rem auto;
+}
+.cadao-ban-do-lon img {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+.cadao-ban-do-diem {
+	position: absolute;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	margin: -12px 0 0 -12px;
+	border: 2px solid var(--cadao-giay);
+	border-radius: 50%;
+	background: var(--cadao-son);
+	color: var(--cadao-giay);
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-decoration: none;
+}
+.cadao-ban-do-nhom {
+	width: 28px;
+	height: 28px;
+	margin: -14px 0 0 -14px;
+}
+.cadao-ban-do-diem:focus-visible {
+	outline: 3px solid var(--cadao-muc);
+	outline-offset: 2px;
+}
+.cadao-ban-do-ds {
+	padding-inline-start: 1.5rem;
+}
+.cadao-ban-do-ds > li {
+	margin-block: 1rem;
+	scroll-margin-top: 1rem;
+}
+.cadao-ban-do-ds > li:target {
+	outline: 2px solid var(--cadao-son);
+	outline-offset: 0.5rem;
+	border-radius: 4px;
+}
+.cadao-ban-do-ds h3 {
+	margin-block: 0 0.25rem;
+	font-size: var(--wp--preset--font-size--medium);
 }
 
 /* Bài dài (T-090): đoạn, số dòng bên lề, mục lục, "Đọc toàn bài" */

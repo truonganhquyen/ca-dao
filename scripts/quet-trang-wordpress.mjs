@@ -64,7 +64,7 @@ try {
   await san;
   const bai = await (await fetch(`${G}/wp-json/wp/v2/cdtn?per_page=50&_fields=link`)).json();
   const tuDien = await (await fetch(`${G}/wp-json/wp/v2/tu_kho?per_page=1&_fields=link`)).json(); // từ điển (T-044)
-  const dsTrang = ['/', '/kho/', '/the-loai/ca-dao/', '/tu-dien/', '/tim/?q=dong mau', '/da-luu/', ...tuDien.map(t => new URL(t.link).pathname), ...bai.map(b => new URL(b.link).pathname)];
+  const dsTrang = ['/', '/kho/', '/the-loai/ca-dao/', '/tu-dien/', '/tim/?q=dong mau', '/da-luu/', '/ban-do/', '/tro-choi/tro-choi-mau/', ...tuDien.map(t => new URL(t.link).pathname), ...bai.map(b => new URL(b.link).pathname)];
   if (bai.length < 5) loi.push(`chỉ có ${bai.length} bài mẫu (cần 5) — bài mẫu không dựng được`);
   trinhDuyet = await puppeteer.launch({ executablePath: chrome, headless: true, args: ['--no-sandbox', '--font-render-hinting=none'] });
   const CHE_DO = [
@@ -201,6 +201,48 @@ try {
   kiem(`trang Đã lưu có bài: không lỗi trợ năng (${axeLuu.violations.map(v => v.id).join(', ')})`, axeLuu.violations.length === 0);
   await tuTab.click('.cadao-bo-luu');
   kiem('Bỏ lưu: danh sách trống, hiện lời nhắc, focus về lời nhắc', await tuTab.evaluate(() => !document.querySelector('.cadao-da-luu-ds li') && !document.querySelector('.cadao-da-luu-trong').hidden && document.activeElement === document.querySelector('.cadao-da-luu-trong')));
+  // Đồng dao (T-103): khối Cách chơi; "Đọc cùng bé" — một dòng, chạm sang dòng, vỗ tay tô từng chữ, Esc thoát
+  const baiDd = new URL(bai.find(b => /dong-dao-mau/.test(b.link))?.link ?? bai[0].link).pathname;
+  await tuTab.goto(G + baiDd, { waitUntil: 'load' });
+  kiem('đồng dao: có khối Cách chơi của trò chơi', /Cách chơi: Trò chơi mẫu/.test(await tuTab.$eval('main', m => m.innerText)));
+  if (await tuTab.$('.cadao-doc-cung-be:not([hidden])')) {
+    await tuTab.click('.cadao-doc-cung-be');
+    await cho(300);
+    const be = () => tuTab.evaluate(() => { const d = document.querySelector('dialog.cadao-be'); return d && d.open ? { loi: d.querySelector('.cadao-be-dong').textContent, so: d.querySelector('.cadao-be-so').textContent, nhip: Array.from(d.querySelectorAll('.cadao-be-dong span')).findIndex(s => s.classList.contains('cadao-be-nhip')) } : null; });
+    const b1 = await be();
+    kiem(`Đọc cùng bé: mở ở dòng đầu (${b1?.so})`, b1 && b1.loi === 'Mẫu đồng dao một' && b1.so === 'Dòng 1 / 4');
+    await tuTab.addScriptTag({ content: axeNguon });
+    const axeBe = await tuTab.evaluate(the => window.axe.run(document, { runOnly: { type: 'tag', values: the } }), THE_WCAG);
+    kiem(`Đọc cùng bé đang mở: không lỗi trợ năng (${axeBe.violations.map(v => v.id).join(', ')})`, axeBe.violations.length === 0);
+    await tuTab.click('.cadao-be-dong');
+    await cho(200);
+    kiem('Đọc cùng bé: chạm vào chữ sang dòng sau', (await be())?.so === 'Dòng 2 / 4');
+    await tuTab.click('.cadao-be-vo');
+    const n0 = (await be())?.nhip;
+    await cho(800);
+    const n1 = (await be())?.nhip;
+    kiem(`Đọc cùng bé: vỗ tay tô từng chữ theo nhịp (${n0} → ${n1})`, n0 === 0 && n1 === 1);
+    await tuTab.keyboard.press('Escape');
+    await cho(300);
+    if (await be()) { await tuTab.keyboard.press('Escape'); await cho(300); }
+    kiem('Đọc cùng bé: Esc thoát, focus về nút', await tuTab.evaluate(() => !document.querySelector('dialog.cadao-be').open && document.activeElement.classList.contains('cadao-doc-cung-be')));
+  } else {
+    kiem('đồng dao: có nút Đọc cùng bé', false);
+  }
+  // Bản đồ (T-104): điểm đủ lớn để chạm, chạm tới đúng địa danh trong danh sách; không tải gì từ nơi khác
+  const ngoai = [];
+  const ngheNgoai = r => { if (!r.url().startsWith(G) && !r.url().startsWith('data:')) ngoai.push(r.url()); };
+  tuTab.on('request', ngheNgoai);
+  await tuTab.goto(G + '/ban-do/', { waitUntil: 'load' });
+  const diemBd = await tuTab.$$eval('.cadao-ban-do-diem', ds => ds.map(d => { const r = d.getBoundingClientRect(); return { w: r.width, h: r.height, href: d.getAttribute('href') }; }));
+  kiem(`bản đồ: có điểm, mỗi điểm ≥ 24 px (${diemBd.map(d => d.w + '×' + d.h).join(', ')})`, diemBd.length >= 2 && diemBd.every(d => d.w >= 24 && d.h >= 24));
+  if (diemBd.length) {
+    await tuTab.click('.cadao-ban-do-diem');
+    await cho(300);
+    kiem('bản đồ: chạm điểm tới địa danh trong danh sách, có bài', await tuTab.evaluate(h => location.hash === h && !!document.querySelector(h + ' .cadao-tim-ds a'), diemBd[0].href));
+  }
+  tuTab.off('request', ngheNgoai);
+  kiem(`bản đồ: không tải gì từ dịch vụ ngoài (${ngoai.slice(0, 3).join(', ')})`, ngoai.length === 0);
   // Góp ý (T-045): nút mở form, loại chọn sẵn
   await tuTab.goto(G + baiDiBan, { waitUntil: 'load' });
   await tuTab.click('a.cadao-gop-y-mo[data-loai="bao_loi"]');

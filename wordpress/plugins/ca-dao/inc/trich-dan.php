@@ -82,6 +82,7 @@ function cadao_khoi_hanh_dong( WP_Post $bai ): string {
 		. '<button type="button" class="cadao-co-chu" aria-label="Cỡ chữ">Aa</button>'
 		. '<button type="button" class="cadao-sang-toi" aria-label="Đổi sáng / tối"><span aria-hidden="true">◐</span></button>'
 		. '<button type="button" class="cadao-trinh-chieu">Trình chiếu</button>'
+		. ( function_exists( 'cadao_la_dong_dao' ) && cadao_la_dong_dao( $bai ) ? '<button type="button" class="cadao-doc-cung-be" hidden>Đọc cùng bé</button>' : '' ) // T-103, assets/dong-dao.js
 		. '<button type="button" class="cadao-nghe" hidden>▶ Nghe</button><span class="cadao-giong-may" hidden>Giọng đọc máy</span>'
 		. '</span>'
 		. ( $luot >= 10 ? '<span class="cadao-luot-doc">' . esc_html( number_format_i18n( $luot ) ) . ' lượt đọc</span>' : '' )
