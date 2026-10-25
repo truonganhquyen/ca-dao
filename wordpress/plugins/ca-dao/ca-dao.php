@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Kho tàng Ca dao – Tục ngữ
  * Description:       Loại bài Ca dao – Tục ngữ, nguồn tự động có cấu hình trong trang quản trị, kho thu thập, tự tạo bài Chờ duyệt, trích dẫn và chia sẻ, lượt đọc không cookie, chống trùng (máy báo, người quyết).
- * Version:           0.8.0
+ * Version:           0.9.0
  * Requires at least: 6.8
  * Requires PHP:      8.1
  * Author:            Dự án Kho tàng Ca dao Tục ngữ Việt Nam
@@ -16,7 +16,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-const CADAO_PHIEN_BAN = '0.8.0';
+const CADAO_PHIEN_BAN = '0.9.0';
 define( 'CADAO_THU_MUC', __DIR__ );
 
 require_once CADAO_THU_MUC . '/inc/trich.php';
@@ -32,6 +32,8 @@ require_once CADAO_THU_MUC . '/inc/trang-trung.php';
 require_once CADAO_THU_MUC . '/inc/tach-loai.php';
 require_once CADAO_THU_MUC . '/inc/site-cu.php';
 require_once CADAO_THU_MUC . '/inc/the-tho.php';
+require_once CADAO_THU_MUC . '/inc/tu-dien.php';
+require_once CADAO_THU_MUC . '/inc/wikidata.php';
 
 register_activation_hook( __FILE__, 'cadao_kich_hoat' );
 register_deactivation_hook( __FILE__, 'cadao_tat' );
@@ -43,6 +45,7 @@ function cadao_kich_hoat() {
 	cadao_kho_tao_bang();
 	cadao_luot_doc_tao_bang();
 	cadao_trung_tao_bang();
+	cadao_wd_tao_bang();
 	cadao_nguon_tao_mac_dinh();
 	cadao_lich_dat();
 	flush_rewrite_rules();

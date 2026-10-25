@@ -55,7 +55,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | **Mốc B · Thử nhỏ** ||||||
 | T-041 | Tìm kiếm tức thì, gõ không dấu, tìm cả trong chú thích (WordPress) | N+A | T-072 | — | READY |
 | T-043 | Trang chủ mới (Câu hôm nay, Vừa bổ sung, Đọc nhiều, Bạn có biết?) + trang tình huống | A | T-072, T-081, T-093 | — | BLOCKED |
-| T-044 | Từ điển chú giải: trang từng từ, "Các bài có từ này", lọc theo vùng | A | T-073 | — | READY |
+| T-044 | Từ điển chú giải: trang từng từ, "Các bài có từ này", lọc theo vùng | A | T-073 | — | DONE |
 | T-045 | Góp ý, dị bản, cảm nghĩ ngắn của người đọc; chống rác; quyền riêng tư; "Gửi số trang" | N+A | T-075 | — | READY |
 | T-046 | Trang Phương pháp, Nguồn, Về dự án | N+A | T-075 | — | READY |
 | T-047 | Bàn biên tập: gom các hàng chờ (Chờ duyệt, xác nhận, người đọc gửi) trong wp-admin | A | T-071 | — | READY |
@@ -63,9 +63,9 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-083 | Dị bản đánh số, tô chỗ khác lời chính | A | T-072 | — | DONE |
 | T-084 | Nhận thể thơ, trình bày theo thể | A | T-072 | — | DONE |
 | T-085 | Công cụ đọc: cỡ chữ, sáng/tối, trình chiếu, nghe bằng giọng có sẵn của điện thoại | A | T-072 | — | DONE |
-| T-086 | Gắn Wikidata: hàng chờ xác nhận, ảnh Commons có ghi tác giả | N+A | T-073 | — | READY |
-| T-087 | Chú thích địa danh: bản đồ nhỏ, ảnh, "Bài khác nhắc tới…" | A | T-082, T-086 | — | BLOCKED |
-| T-088 | Câu đố: ảnh đáp án | A | T-086 | — | BLOCKED |
+| T-086 | Gắn Wikidata: hàng chờ xác nhận, ảnh Commons có ghi tác giả | N+A | T-073 | — | DONE |
+| T-087 | Chú thích địa danh: bản đồ nhỏ, ảnh, "Bài khác nhắc tới…" | A | T-082, T-086 | — | DONE |
+| T-088 | Câu đố: ảnh đáp án | A | T-086 | — | DONE |
 | T-089 | Tự gợi ý vùng cho bài (phương ngữ, địa danh) | N+A | T-073 | — | READY |
 | T-090 | Vè và bài dài: chia đoạn, mục lục, đọc tiếp | A | T-072 | — | DONE |
 | T-091 | Bộ chủ đề riêng của dự án (gồm nhóm tục ngữ kinh nghiệm, lối hát, loại câu đố), máy gợi ý | N+A | T-073 | — | READY |
@@ -277,6 +277,8 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 **Đọc:** `25` mục 4.3. **Việc (viết lại 25/10/2026 cho WordPress):** mỗi chú thích (gộp theo mã của nguồn) một trang; trang tổng lọc Nam Bộ / Trung Bộ / Bắc Bộ / từ cổ / Hán Việt theo ghi chú trong lời giải; chạm từ trong lời (T-082) dẫn tới đây.
 **Chấp nhận:** `/tu-dien/` liệt kê mục từ đang được dùng; trang mục từ hiện giải nghĩa, nguồn ("Tham khảo: Ca dao Mẹ ↗" khi `cach_dung: tham_khao`, "Theo Ca dao Mẹ ↗" khi `trich_nguyen_van`), mọi bài có từ này.
 
+**Tiến độ (25/10/2026):** xong — plugin 0.9.0 (`inc/tu-dien.php`). Phân loại "Từ điển" (`tu_kho`, `/tu-dien/<từ>/`): mỗi chú thích (cùng từ, cùng lời giải — một chú thích của nguồn dùng ở nhiều bài) là một mục từ, máy gắn khi lưu bài (bài đã có gắn dần); trang mục từ có lời giải, dòng "Nguồn: …" đúng như dưới chú thích trong bài (D-057 thay cho "Tham khảo / Theo" của bản Astro), số bài, danh sách bài; mục từ chép từ nguồn mang `noindex`. Trang "Từ điển" (`/tu-dien/`, tạo một lần, sửa được lời giới thiệu): theo chữ cái (Đ riêng), lọc Nam Bộ / Trung Bộ / Bắc Bộ / từ cổ / Hán Việt theo lời giải. Ô chạm từ (T-082) có "Xem trong từ điển (N bài có từ này)". Thêm "Từ điển" vào thanh đầu trang.
+
 #### T-045 · Góp ý và cảm nghĩ của người đọc — N+A
 **Đọc:** `25` mục 4.6, D-062; `docs/luu-tru/40-quy-trinh-dong-gop.md` mục 2–3.
 **Việc (viết lại 25/10/2026):** form chạy ngay trong WordPress (thay Tally): "Ở quê bạn câu này nói khác?", "Góp ý chú thích", "Báo lỗi", "Bạn có sách? Gửi số trang"; ô "Cảm nghĩ của bạn" (bình luận WordPress, luôn chờ duyệt); Cloudflare Turnstile + ô bẫy ẩn + giới hạn theo giờ; khóa Turnstile người sáng lập dán vào trang cấu hình plugin.
@@ -313,11 +315,17 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 #### T-086 · Gắn Wikidata — N+A
 **Đọc:** `25` mục 4.2, D-061. **Chấp nhận:** hàng chờ Xác nhận (Đúng / Sai / Bỏ qua) cho từ được chú thích và đáp án câu đố; chỉ thực thể đã xác nhận được dùng; ảnh chỉ giấy phép mở, lưu tác giả và giấy phép; nhịp gọi API lịch sự, có điểm dừng.
 
+**Tiến độ (25/10/2026):** xong phần máy — `inc/wikidata.php`: mỗi lượt 5 phút xét dần mục từ và đáp án câu đố (cả bài chưa đăng), tìm thực thể có nhãn / tên khác tiếng Việt trùng đúng, bỏ trang định hướng, lấy tọa độ, ảnh, bài Wikipedia tiếng Việt; 1 giây một yêu cầu, User-Agent của dự án, lỗi mạng thì dừng tới lượt sau, không hỏi lại mục đã xét. Trang **Xác nhận Wikidata** (Đúng / Sai / Bỏ qua, có ảnh xem trước). "Đúng" thì ảnh Commons giấy phép mở (CC0, phạm vi công cộng, CC BY, CC BY-SA) được tải bản 480 px về thư viện ảnh, ghi tác giả và giấy phép; giấy phép khác thì không dùng ảnh. Kiểm thử bằng API giả. Việc của người sáng lập: xác nhận dần trong trang đó.
+
 #### T-087 · Chú thích địa danh — A
 **Chấp nhận:** ô chú thích có ảnh (ghi tác giả, giấy phép), bản đồ tĩnh nhẹ (bấm mới mở bản đồ ngoài), "Bài khác nhắc tới …"; trang không chậm hơn ngân sách `20` mục 12.
 
+**Tiến độ (25/10/2026):** xong — với từ có thực thể đã xác nhận, ô chạm và trang mục từ có ảnh kèm dòng "Ảnh: <tác giả> · <giấy phép> · Wikimedia Commons", bản đồ nhỏ Việt Nam (`assets/ban-do-vn.svg`, 7 KB, đường biên Natural Earth 1:50m — phạm vi công cộng — **có quần đảo Hoàng Sa, Trường Sa**; sinh bằng `scripts/sinh-ban-do.mjs`) với chấm đúng tọa độ, "Mở bản đồ lớn ↗" (OpenStreetMap), "Đọc thêm trên Wikipedia ↗", và "Xem trong từ điển (N bài có từ này)". Ảnh, bản đồ chỉ tải khi mở ô / trang mục từ (`loading="lazy"`, nằm trong `<template>`), nên trang bài không nặng thêm.
+
 #### T-088 · Ảnh đáp án câu đố — A
 **Chấp nhận:** đáp án đã xác nhận có ảnh nhỏ kèm ghi công; đáp án không có ảnh thì không để chỗ trống.
+
+**Tiến độ (25/10/2026):** xong — khối "Đáp án" có ảnh kèm ghi công và liên kết Wikipedia khi đáp án đã xác nhận; không có thì không thêm gì.
 
 #### T-089 · Vùng — N+A
 **Đọc:** `25` mục 4.2. **Chấp nhận:** gợi ý vùng từ ghi chú phương ngữ và địa danh đã xác nhận; duyệt hàng loạt; không gắn vùng khi chưa duyệt.

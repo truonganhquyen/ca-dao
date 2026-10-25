@@ -5,6 +5,7 @@
 // Cần Node ≥ 24.18 (Playground) và Chrome/Chromium (CHROME_PATH hoặc đường dẫn thường gặp).
 // Dùng:  npm run quet:wordpress [-- --anh <thư-mục>]   (--anh: lưu ảnh chụp từng trang để xem bằng mắt)
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
@@ -30,6 +31,10 @@ const iAnh = process.argv.indexOf('--anh');
 const thuMucAnh = iAnh > 0 ? path.resolve(process.argv[iAnh + 1]) : null;
 if (thuMucAnh) fs.mkdirSync(thuMucAnh, { recursive: true });
 
+// Playground để lại thư mục site tạm (~175 MB) khi bị tắt: dọn thư mục do chính lần chạy này tạo
+const SITE_TAM = /^node-playground-cli-site-/;
+const tamTruoc = new Set(fs.readdirSync(os.tmpdir()).filter(t => SITE_TAM.test(t)));
+const donTam = () => { for (const t of fs.readdirSync(os.tmpdir())) if (SITE_TAM.test(t) && !tamTruoc.has(t)) fs.rmSync(path.join(os.tmpdir(), t), { recursive: true, force: true }); };
 const goc = path.resolve('wordpress');
 const CONG = 9431;
 const G = `http://127.0.0.1:${CONG}`;
@@ -58,7 +63,8 @@ let trinhDuyet;
 try {
   await san;
   const bai = await (await fetch(`${G}/wp-json/wp/v2/cdtn?per_page=50&_fields=link`)).json();
-  const dsTrang = ['/', '/kho/', '/the-loai/ca-dao/', ...bai.map(b => new URL(b.link).pathname)];
+  const tuDien = await (await fetch(`${G}/wp-json/wp/v2/tu_kho?per_page=1&_fields=link`)).json(); // từ điển (T-044)
+  const dsTrang = ['/', '/kho/', '/the-loai/ca-dao/', '/tu-dien/', ...tuDien.map(t => new URL(t.link).pathname), ...bai.map(b => new URL(b.link).pathname)];
   if (bai.length < 5) loi.push(`chỉ có ${bai.length} bài mẫu (cần 5) — bài mẫu không dựng được`);
   trinhDuyet = await puppeteer.launch({ executablePath: chrome, headless: true, args: ['--no-sandbox', '--font-render-hinting=none'] });
   const CHE_DO = [
@@ -143,7 +149,7 @@ try {
     await tuTab.keyboard.press('Enter');
     await cho(300);
     const mo = await tuTab.evaluate(() => { const d = document.querySelector('dialog.cadao-o-ct'); return d && d.open ? d.innerText : ''; });
-    kiem('chạm từ: Enter mở ô chú thích có lời giải', /Chú thích tổng hợp/.test(mo));
+    kiem('chạm từ: Enter mở ô chú thích có lời giải và "Xem trong từ điển"', /Chú thích tổng hợp/.test(mo) && /Xem trong từ điển/.test(mo));
     await tuTab.keyboard.press('Escape');
     await cho(300);
     kiem('chạm từ: Esc đóng ô, focus trở về từ', await tuTab.evaluate(() => !document.querySelector('dialog.cadao-o-ct').open && document.activeElement.classList.contains('cadao-tu')));
@@ -178,6 +184,8 @@ try {
 } finally {
   await trinhDuyet?.close();
   tat();
+  await new Promise(ok => setTimeout(ok, 1000)); // chờ tiến trình nhả tệp
+  try { donTam(); } catch { /* tệp còn bị giữ: lần sau dọn */ }
 }
 for (const l of loi) console.log(`LỖI      [quét wordpress] ${l}`);
 process.exit(loi.length ? 1 : 0);
