@@ -100,8 +100,10 @@ function cadao_trang_trung(): void {
 		}
 		echo '<button class="button" name="viec" value="khac">Là bài khác</button>';
 		echo 'de_sau' === $tab ? '<button class="button" name="viec" value="cho">Đưa lại vào hàng chờ</button>' : '<button class="button" name="viec" value="de_sau">Để sau</button>';
-		if ( 'bai' === $a['loai'] ) {
-			echo '<span class="description" style="align-self:center">Gộp hai bài đã có: làm ở đợt sau (giữ đường dẫn, lượt đọc).</span>';
+		if ( 'bai' === $a['loai'] && 'bai' === $b['loai'] ) { // hai bài đã có (T-101): chọn bài chính
+			echo '<button class="button button-primary" name="viec" value="gop_giu_b">' . esc_html( 'Gộp: giữ "' . wp_trim_words( $b['tieu_de'], 8 ) . '"' ) . '</button>';
+			echo '<button class="button" name="viec" value="gop_giu_a">' . esc_html( 'Gộp: giữ "' . wp_trim_words( $a['tieu_de'], 8 ) . '"' ) . '</button>';
+			echo '<span class="description" style="flex-basis:100%">Bài kia thành dị bản của bài được giữ; lượt đọc, cảm nghĩ, bài phân tích chuyển sang; đường dẫn cũ tự chuyển về; bài kia vào thùng rác.</span>';
 		}
 		echo '</form></div>';
 	}
@@ -119,7 +121,11 @@ add_action(
 			cadao_ve( CADAO_TRANG_TRUNG, 'Không thấy cặp này.' );
 		}
 		$bao = 'Đã ghi.';
-		if ( in_array( $viec, array( 'trung', 'di_ban' ), true ) ) {
+		if ( in_array( $viec, array( 'gop_giu_a', 'gop_giu_b' ), true ) ) {
+			$ia  = cadao_tach_muc( $r->a )[1];
+			$ib  = cadao_tach_muc( $r->b )[1];
+			$bao = ( 'gop_giu_b' === $viec ? cadao_gop_hai_bai( $ib, $ia ) : cadao_gop_hai_bai( $ia, $ib ) ) ? 'Đã gộp hai bài.' : 'Không gộp được hai bài này.';
+		} elseif ( in_array( $viec, array( 'trung', 'di_ban' ), true ) ) {
 			$bao = cadao_trung_gop( $r->a, $r->b, $viec ) ? ( 'di_ban' === $viec ? 'Đã gộp làm dị bản.' : 'Đã gộp vào bài có sẵn.' ) : 'Không gộp được cặp này.';
 		} elseif ( 'khac' === $viec ) {
 			cadao_trung_dat( $r->a, $r->b, 'khac' );
