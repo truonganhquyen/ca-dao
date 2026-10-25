@@ -6,7 +6,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-const CADAO_KHO_PHIEN_BAN = 2; // 2: cột doc_trang (T-073)
+const CADAO_KHO_PHIEN_BAN = 3; // 2: cột doc_trang (T-073); 3: gop_vao, gop_lam (T-110)
 
 function cadao_kho_bang(): string {
 	global $wpdb;
@@ -32,11 +32,14 @@ function cadao_kho_tao_bang() {
 		trang_thai varchar(16) NOT NULL DEFAULT 'moi',
 		doc_trang varchar(16) NOT NULL DEFAULT '',
 		post_id bigint(20) unsigned NOT NULL DEFAULT 0,
+		gop_vao varchar(32) NOT NULL DEFAULT '',
+		gop_lam varchar(16) NOT NULL DEFAULT '',
 		PRIMARY KEY  (id),
 		UNIQUE KEY nguon_ma (nguon_id, ma_goc),
 		KEY trang_thai (trang_thai),
 		KEY doc_trang (nguon_id, doc_trang),
-		KEY url (url(191))
+		KEY url (url(191)),
+		KEY gop_vao (gop_vao)
 		) {$wpdb->get_charset_collate()};"
 	);
 	update_option( 'cadao_kho_phien_ban', CADAO_KHO_PHIEN_BAN );
@@ -136,6 +139,7 @@ function cadao_kho_luu( string $nguon_id, array $muc ): string {
 	}
 	if ( ! $cu ) {
 		$wpdb->insert( $bang, $hang + array( 'nguon_id' => $nguon_id, 'ma_goc' => $ma_goc, 'ngay_lay' => current_time( 'mysql' ), 'trang_thai' => 'moi' ) );
+		cadao_trung_sau_khi_luu( (int) $wpdb->insert_id );
 		return 'moi';
 	}
 	$giong = true;
@@ -148,7 +152,14 @@ function cadao_kho_luu( string $nguon_id, array $muc ): string {
 	$wpdb->update( $bang, $hang + array( 'ngay_lay' => current_time( 'mysql' ) ), array( 'id' => $cu->id ) );
 	if ( $cu->post_id ) {
 		cadao_kho_cap_nhat_bai( (int) $cu->id, $cu );
+	} elseif ( 'da_gop' === $cu->trang_thai && $cu->gop_vao ) {
+		// Câu đã gộp vào bài khác: bài đó (chưa sửa tay) nhận dị bản, chú thích mới của câu này
+		$bai = cadao_bai_cua_muc( $cu->gop_vao );
+		if ( $bai ) {
+			cadao_bai_lam_moi_tu_kho( $bai );
+		}
 	}
+	cadao_trung_sau_khi_luu( (int) $cu->id );
 	return 'cap_nhat';
 }
 
@@ -184,7 +195,7 @@ function cadao_kho_dem( ?string $nguon_id = null ): array {
 	global $wpdb;
 	$bang = cadao_kho_bang();
 	$sql  = "SELECT trang_thai, COUNT(*) AS so FROM $bang WHERE loi <> ''" . ( $nguon_id ? $wpdb->prepare( ' AND nguon_id = %s', $nguon_id ) : '' ) . ' GROUP BY trang_thai';
-	$dem  = array( 'moi' => 0, 'da_tao_bai' => 0, 'bo_qua' => 0 );
+	$dem  = array( 'moi' => 0, 'da_tao_bai' => 0, 'da_gop' => 0, 'bo_qua' => 0 );
 	foreach ( $wpdb->get_results( $sql ) as $r ) {
 		$dem[ $r->trang_thai ] = (int) $r->so;
 	}
@@ -214,37 +225,113 @@ function cadao_khoi_doan( string $html, string $lop = '' ): string {
  * "Nguồn: …" về trang gốc khi nguồn bật "Ghi nguồn cho chú thích" (D-057). Lời, dị bản không ghi nguồn.
  */
 function cadao_noi_dung_tu_kho( object $muc, array $nguon ): string {
-	$d     = json_decode( $muc->du_lieu, true ) ?: array();
-	$khoi  = array( cadao_khoi_tho( $muc->loi ) );
-	if ( ! empty( $d['cau_hoi'] ) ) {
-		$khoi[] = cadao_khoi_doan( '<strong>' . esc_html( $d['cau_hoi'] ) . '</strong>' );
+	$d    = json_decode( $muc->du_lieu, true ) ?: array();
+	$gop  = cadao_kho_cac_cau_gop( $muc ); // câu cùng lời, dị bản đã gộp vào câu này (T-110)
+	$khoi = array( cadao_khoi_tho( $muc->loi ) );
+	// Phần chép từ nguồn của từng câu: câu chính trước, rồi các câu đã gộp (mỗi phần một dòng "Nguồn: …" riêng)
+	$phan = array();
+	foreach ( array_merge( array( array( $muc, $nguon ) ), $gop ) as $i => [ $m, $n ] ) {
+		$dm     = 0 === $i ? $d : ( json_decode( $m->du_lieu, true ) ?: array() );
+		$chep   = ! empty( $n['chep_chu_thich'] );
+		$phan[] = array( 'm' => $m, 'n' => $n, 'cau_hoi' => $dm['cau_hoi'] ?? null, 'dap_an' => $chep ? ( $dm['dap_an'] ?? null ) : null, 'chu_thich' => $chep ? ( $dm['chu_thich'] ?? array() ) : array() );
 	}
-	$chep = ! empty( $nguon['chep_chu_thich'] );
-	if ( $chep && ! empty( $d['dap_an'] ) ) {
+	$cau_hoi = null;
+	$dap     = null; // phần có đáp án được dùng
+	foreach ( $phan as $i => $p ) {
+		$cau_hoi ??= $p['cau_hoi'] ?: null;
+		if ( null === $dap && ! empty( $p['dap_an'] ) ) {
+			$dap = $i;
+		}
+	}
+	if ( $cau_hoi ) {
+		$khoi[] = cadao_khoi_doan( '<strong>' . esc_html( $cau_hoi ) . '</strong>' );
+	}
+	if ( null !== $dap ) {
 		// Đáp án hiện sẵn, không thu gọn (D-058); vẫn bấm "Đáp án" để ẩn được
 		$khoi[] = "<!-- wp:details {\"showContent\":true} -->\n<details class=\"wp-block-details\" open><summary>Đáp án</summary>"
-			. cadao_khoi_doan( esc_html( $d['dap_an'] ) ) . "</details>\n<!-- /wp:details -->";
+			. cadao_khoi_doan( esc_html( $phan[ $dap ]['dap_an'] ) ) . "</details>\n<!-- /wp:details -->";
 	}
-	if ( ! empty( $d['di_ban'] ) ) {
+	$di_ban = cadao_kho_di_ban_hop( $muc, $d, $gop );
+	if ( $di_ban ) {
 		$khoi[] = cadao_khoi_tieu_de( 'Dị bản' );
-		foreach ( $d['di_ban'] as $loi ) {
+		foreach ( $di_ban as $loi ) {
 			$khoi[] = cadao_khoi_tho( (string) $loi );
 		}
 	}
-	if ( $chep && ! empty( $d['chu_thich'] ) ) {
+	$da_co   = array(); // chú thích của câu đã gộp trùng hệt chú thích đã có thì bỏ
+	$tieu_de = false;
+	foreach ( $phan as $i => $p ) {
 		$muc_li = '';
-		foreach ( $d['chu_thich'] as $c ) {
-			$tu      = trim( (string) ( $c['tu'] ?? '' ) );
-			$muc_li .= "<!-- wp:list-item -->\n<li>" . ( '' !== $tu ? '<strong>' . esc_html( $tu ) . '</strong>: ' : '' )
+		foreach ( $p['chu_thich'] as $c ) {
+			$tu   = trim( (string) ( $c['tu'] ?? '' ) );
+			$khoa = mb_strtolower( $tu ) . '|' . trim( (string) $c['noi_dung'] );
+			if ( $i > 0 && isset( $da_co[ $khoa ] ) ) {
+				continue;
+			}
+			$da_co[ $khoa ] = true;
+			$muc_li        .= "<!-- wp:list-item -->\n<li>" . ( '' !== $tu ? '<strong>' . esc_html( $tu ) . '</strong>: ' : '' )
 				. esc_html( (string) $c['noi_dung'] ) . "</li>\n<!-- /wp:list-item -->\n";
 		}
-		$khoi[] = cadao_khoi_tieu_de( 'Chú thích' );
-		$khoi[] = "<!-- wp:list {\"className\":\"cadao-chu-thich\"} -->\n<ul class=\"wp-block-list cadao-chu-thich\">\n$muc_li</ul>\n<!-- /wp:list -->";
-	}
-	if ( $chep && ! empty( $nguon['ghi_cong'] ) && ( ! empty( $d['chu_thich'] ) || ! empty( $d['dap_an'] ) ) ) {
-		$khoi[] = cadao_khoi_doan( sprintf( 'Nguồn: <a href="%s" rel="noopener">%s <span aria-hidden="true">↗</span></a>', esc_url( $muc->url ), esc_html( $nguon['dong_ghi_nguon'] ?: $nguon['ten'] ) ), 'cadao-chu-thich-nguon' );
+		if ( '' !== $muc_li ) {
+			if ( ! $tieu_de ) {
+				$khoi[]  = cadao_khoi_tieu_de( 'Chú thích' );
+				$tieu_de = true;
+			}
+			$khoi[] = "<!-- wp:list {\"className\":\"cadao-chu-thich\"} -->\n<ul class=\"wp-block-list cadao-chu-thich\">\n$muc_li</ul>\n<!-- /wp:list -->";
+		}
+		if ( ! empty( $p['n']['ghi_cong'] ) && ( '' !== $muc_li || $i === $dap ) ) {
+			$khoi[] = cadao_khoi_doan( sprintf( 'Nguồn: <a href="%s" rel="noopener">%s <span aria-hidden="true">↗</span></a>', esc_url( $p['m']->url ), esc_html( $p['n']['dong_ghi_nguon'] ?: $p['n']['ten'] ) ), 'cadao-chu-thich-nguon' );
+		}
 	}
 	return implode( "\n\n", $khoi );
+}
+
+/**
+ * Câu trong kho đã gộp vào câu $muc (hoặc vào bài tạo từ câu đó), kèm cấu hình nguồn của từng câu.
+ *
+ * @return array<int, array{0: object, 1: array}>
+ */
+function cadao_kho_cac_cau_gop( object $muc ): array {
+	global $wpdb;
+	if ( empty( $muc->id ) ) {
+		return array();
+	}
+	$khoa = array( 'kho:' . $muc->id );
+	if ( ! empty( $muc->post_id ) ) {
+		$khoa[] = 'bai:' . $muc->post_id;
+	}
+	$ds = $wpdb->get_results( 'SELECT * FROM ' . cadao_kho_bang() . " WHERE trang_thai = 'da_gop' AND gop_vao IN (" . implode( ',', array_map( static fn( $k ) => $wpdb->prepare( '%s', $k ), $khoa ) ) . ') ORDER BY id' );
+	return array_map( static fn( $m ) => array( $m, cadao_nguon_lay( $m->nguon_id ) ?? array( 'chep_chu_thich' => false, 'ghi_cong' => false ) ), $ds );
+}
+
+/**
+ * Dị bản của bài: dị bản của câu chính giữ nguyên thứ tự; thêm lời của câu gộp làm dị bản, dị bản của các câu đã gộp,
+ * dị bản người biên soạn thêm (ô _cadao_di_ban_them) — bỏ cái đã có.
+ */
+function cadao_kho_di_ban_hop( object $muc, array $d, array $gop ): array {
+	$ra = array_values( array_map( 'strval', (array) ( $d['di_ban'] ?? array() ) ) );
+	$da = array_flip( array_map( 'cadao_chuan_loi', array_merge( array( $muc->loi ), $ra ) ) );
+	$them = static function ( string $l ) use ( &$ra, &$da ) {
+		$k = cadao_chuan_loi( $l );
+		if ( '' !== $k && ! isset( $da[ $k ] ) ) {
+			$da[ $k ] = true;
+			$ra[]     = $l;
+		}
+	};
+	foreach ( $gop as [ $m ] ) {
+		if ( 'di_ban' === $m->gop_lam ) {
+			$them( $m->loi );
+		}
+		foreach ( (array) ( json_decode( $m->du_lieu, true )['di_ban'] ?? array() ) as $l ) {
+			$them( (string) $l );
+		}
+	}
+	if ( ! empty( $muc->post_id ) ) {
+		foreach ( (array) ( get_post_meta( (int) $muc->post_id, '_cadao_di_ban_them', true ) ?: array() ) as $l ) {
+			$them( (string) $l );
+		}
+	}
+	return $ra;
 }
 
 /**
@@ -280,9 +367,11 @@ function cadao_kho_tao_bai( int $kho_id ) {
 	);
 	if ( $da_co ) {
 		$wpdb->update( $bang, array( 'trang_thai' => 'da_tao_bai', 'post_id' => $da_co[0] ), array( 'id' => $muc->id ) );
+		cadao_van_tay_xoa( 'kho:' . $muc->id );
 		return (int) $da_co[0];
 	}
 
+	cadao_van_tay_xoa( 'kho:' . $muc->id ); // từ đây lời của câu nằm trong chỉ mục của bài
 	$id = wp_insert_post(
 		array(
 			'post_type'    => CADAO_LOAI_BAI,
@@ -348,6 +437,10 @@ function cadao_kho_tao_bai_cho_duyet( array $nguon, int $so ): int {
 			$co = ( json_decode( $muc->du_lieu, true ) ?: array() )['co'] ?? array();
 			if ( ( $loai && ! in_array( $muc->loai, $loai, true ) ) || array_intersect( $co, $bo_co ) ) {
 				continue; // để nguyên trong kho, người quản trị tự chọn nếu muốn
+			}
+			// Chống trùng (T-110): câu trùng thì đã gắn vào bài có sẵn; câu nghi trùng chờ người sáng lập quyết
+			if ( cadao_trung_dang_cho( (int) $muc->id ) || 'khong' !== cadao_trung_kiem_kho( (int) $muc->id ) ) {
+				continue;
 			}
 			if ( ! is_wp_error( cadao_kho_tao_bai( (int) $muc->id ) ) ) {
 				++$tao;

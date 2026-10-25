@@ -284,6 +284,108 @@ $dn = do_shortcode( '[cadao_doc_nhieu]' );
 kt( '"Đọc nhiều tuần này" hiện khi có từ 3 bài', str_contains( $dn, 'Đọc nhiều tuần này' ) && strpos( $dn, 'Dòng trích mẫu' ) < strpos( $dn, 'Bài cũ đã sửa nguồn' ), $dn );
 kt( 'lượt đọc theo ngày: đủ 7 ngày, hôm nay có 13 lượt', 7 === count( cadao_luot_doc_theo_ngay( 7 ) ) && 13 === cadao_luot_doc_theo_ngay( 7 )[ wp_date( 'Y-m-d' ) ] );
 
+// ---------- Chống trùng (T-109, T-110, T-111) — lời tổng hợp "chữ<số>", không phải lời thật ----------
+$dong = static fn( int $tu, int $so ) => implode( ' ', array_map( static fn( $i ) => "chữ$i", range( $tu, $tu + $so - 1 ) ) );
+// T-109: mức giống
+$L = $dong( 1000, 6 ) . "\n" . $dong( 1006, 8 );
+kt( 'y hệt: chỉ khác dấu câu, chữ hoa, khoảng trắng', 'y_het' === cadao_do_giong( $L, mb_strtoupper( str_replace( ' chữ1003', ',  chữ1003', $L ) ) . '!' )[0] );
+kt( 'gần như y hệt: chỉ khác cách bỏ dấu / gõ thiếu dấu (hoà / hòa)', array( 'gan_y_het', 100 ) === array_slice( cadao_do_giong( 'Hoà ' . $L, 'Hòa ' . str_replace( 'chữ', 'chư', $L ) ), 0, 2 ) );
+$L40 = implode( "\n", array( $dong( 2000, 10 ), $dong( 2010, 10 ), $dong( 2020, 10 ), $dong( 2030, 10 ) ) );
+$g   = cadao_do_giong( $L40, substr( $L40, 0, strrpos( $L40, ' ' ) ) . ' chữ9999' );
+kt( 'gần như y hệt: khác một chữ trong bài dài (≥ 90%)', 'gan_y_het' === $g[0] && $g[1] >= 90 && $g[1] < 100, $g );
+$g = cadao_do_giong( $L, $dong( 1000, 6 ) . "\n" . $dong( 1006, 4 ) . ' ' . $dong( 5000, 4 ) );
+kt( 'có thể là dị bản: giống 50–90%', 'di_ban' === $g[0] && $g[1] >= 50 && $g[1] < 90, $g );
+kt( 'câu ngắn nằm trong bài dài: chỉ là "liên quan"', 'lien_quan' === cadao_do_giong( $dong( 2000, 8 ), $L40 )[0] );
+kt( 'hai bài khác nhau chung dòng đầu: khác', 'khac' === cadao_do_giong( $dong( 4000, 4 ) . "\n" . $dong( 4004, 8 ), $dong( 4000, 4 ) . "\n" . $dong( 4100, 8 ) )[0] );
+kt( 'câu một dòng giống 64%: không tính là dị bản', 'khac' === cadao_do_giong( $dong( 3000, 10 ), $dong( 3000, 8 ) . ' ' . $dong( 3100, 2 ) )[0] );
+kt( 'câu ngắn (dưới 6 âm tiết) khác một chữ: khác', 'khac' === cadao_do_giong( $dong( 6000, 4 ), $dong( 6000, 3 ) . ' chữ6999' )[0] );
+kt( 'trùng một dị bản đã ghi: có thể là dị bản', 'di_ban' === cadao_do_giong( $L, $L, true )[0] );
+
+// T-110: hai nguồn giả cùng một câu
+wp_set_current_user( cadao_quan_tri_dau_tien() );
+foreach ( array( 'nguon-a' => 'Nguồn A', 'nguon-b' => 'Nguồn B' ) as $id_n => $ten_n ) {
+	cadao_nguon_luu( array( 'id' => $id_n, 'ten' => $ten_n, 'url' => "https://$id_n.example", 'dong_ghi_nguon' => $ten_n, 'loai_lay' => array( 'ca_dao', 'cau_do' ), 'bo_qua_co' => array() ) + cadao_nguon_mac_dinh() );
+}
+$kho = static function ( string $n, string $ma, string $loi, array $them = array() ): int {
+	global $wpdb;
+	cadao_kho_luu( $n, array_merge( array( 'ma_goc' => $ma, 'doc_trang' => '2026-10-25', 'url' => "https://$n.example/$ma/", 'loai' => 'ca_dao', 'tieu_de' => 'Câu thử ' . $ma, 'loi' => $loi ), $them ) );
+	return (int) $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM ' . cadao_kho_bang() . ' WHERE nguon_id = %s AND ma_goc = %s', $n, $ma ) );
+};
+$hang = static fn( int $id ) => $GLOBALS['wpdb']->get_row( $GLOBALS['wpdb']->prepare( 'SELECT * FROM ' . cadao_kho_bang() . ' WHERE id = %d', $id ) );
+$V  = $dong( 1000, 6 ) . "\n" . $dong( 7000, 8 );
+$a1 = $kho( 'nguon-a', 'a1', $L, array( 'di_ban' => array( $V ), 'chu_thich' => array( array( 'tu' => 'chữ1000', 'noi_dung' => 'Chú thích của nguồn A.' ) ) ) );
+cadao_kho_tao_bai_cho_duyet( cadao_nguon_lay( 'nguon-a' ), 5 );
+$P = (int) $hang( $a1 )->post_id;
+kt( 'câu đầu tiên thành bài như thường', $P > 0 );
+$b1 = $kho( 'nguon-b', 'b1', mb_strtoupper( $L ) . '.', array( 'di_ban' => array( $dong( 1000, 6 ) . "\n" . $dong( 7100, 8 ) ), 'chu_thich' => array( array( 'tu' => '', 'noi_dung' => 'Chú thích của nguồn B.' ) ) ) );
+kt( 'nguồn khác, lời y hệt, cùng thể loại: gắn vào bài có sẵn ("Đã gộp")', 'da_gop' === $hang( $b1 )->trang_thai && "bai:$P" === $hang( $b1 )->gop_vao, $hang( $b1 ) );
+$nd = get_post( $P )->post_content;
+kt( 'bài (chưa sửa tay) nhận dị bản, chú thích của nguồn kia, mỗi nguồn một dòng "Nguồn"', str_contains( $nd, 'Chú thích của nguồn B.' ) && str_contains( $nd, 'chữ7100' ) && str_contains( $nd, 'Nguồn: <a href="https://nguon-a.example/a1/"' ) && str_contains( $nd, 'Nguồn: <a href="https://nguon-b.example/b1/"' ), $nd );
+kt( 'lời chính của bài giữ nguyên (lời của nguồn đầu)', $L === cadao_loi_cac_khoi_tho( $nd )[0] );
+$b2 = $kho( 'nguon-b', 'b2', str_replace( 'chữ', 'chư', $L ) );
+kt( 'chỉ khác cách bỏ dấu: cũng gắn vào bài có sẵn', 'da_gop' === $hang( $b2 )->trang_thai );
+$b3 = $kho( 'nguon-b', 'b3', $dong( 1000, 6 ) . "\n" . $dong( 1006, 4 ) . ' ' . $dong( 5000, 4 ) );
+kt( 'có thể là dị bản: vào hàng "Có thể trùng", không tự gộp', 'moi' === $hang( $b3 )->trang_thai && cadao_trung_dang_cho( $b3 ) );
+$b4 = $kho( 'nguon-b', 'b4', $L, array( 'loai' => 'cau_do' ) );
+$r4 = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . cadao_trung_bang() . ' WHERE a = %s', "kho:$b4" ) );
+kt( 'cùng lời, khác thể loại: vào hàng chờ để chọn', 'moi' === $hang( $b4 )->trang_thai && $r4 && 'y_het' === $r4->muc && str_contains( $r4->ly_do, 'khác thể loại' ), $r4 );
+$b5 = $kho( 'nguon-b', 'b5', $V );
+$r5 = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . cadao_trung_bang() . ' WHERE a = %s', "kho:$b5" ) );
+kt( 'trùng một dị bản đã ghi: vào hàng chờ', $r5 && 'di_ban' === $r5->muc && "bai:$P" === $r5->b, $r5 );
+kt( 'máy tạo bài hằng ngày bỏ qua câu đang chờ quyết', 0 === cadao_kho_tao_bai_cho_duyet( cadao_nguon_lay( 'nguon-b' ), 10 ) );
+$_GET = array( 'tab' => 'cho' );
+ob_start();
+cadao_trang_trung();
+$tr = ob_get_clean();
+kt( 'trang "Có thể trùng": cặp, mức giống, các nút quyết', str_contains( $tr, 'Có thể là dị bản' ) && str_contains( $tr, 'Gộp làm dị bản' ) && str_contains( $tr, 'Là bài khác' ) && str_contains( $tr, 'Để sau' ) && str_contains( $tr, 'khác thể loại' ), $tr );
+$_GET = array();
+kt( '"Gộp làm dị bản": lời câu mới thành dị bản của bài, đúng từng ký tự', cadao_trung_gop( "kho:$b3", "bai:$P", 'di_ban' ) && in_array( $hang( $b3 )->loi, cadao_loi_cac_khoi_tho( get_post( $P )->post_content ), true ) );
+cadao_trung_dat( "kho:$b4", "bai:$P", 'khac' );
+kt( '"Là bài khác": so lại không báo nữa', 'khong' === cadao_trung_kiem_kho( $b4 ) && ! cadao_trung_dang_cho( $b4 ) );
+kt( '"Tách ra": câu đã gộp thành câu mới, bài bỏ phần của nguồn đó', cadao_trung_tach( $b1 ) && 'moi' === $hang( $b1 )->trang_thai && ! str_contains( get_post( $P )->post_content, 'Chú thích của nguồn B.' ) );
+kt( 'tách ra rồi so lại không tự gộp nữa (đã ghi là bài khác)', 'da_gop' !== ( cadao_trung_kiem_kho( $b1 ) ) && 'moi' === $hang( $b1 )->trang_thai );
+cadao_trung_kiem_kho( $b4 );
+kt( 'một cặp chỉ ghi một lần (không ghi thêm chiều ngược lại); câu bên kia không bị giữ lại', ! $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM ' . cadao_trung_bang() . ' WHERE a = %s AND b = %s', "kho:$b4", "kho:$b1" ) ) && ! cadao_trung_dang_cho( $b4 ) );
+
+// Bài viết tay: câu kho y hệt gắn vào, bài không bị sửa; "Gộp làm dị bản" chèn khối Thơ vào bài đã sửa tay
+$Q = $dong( 8000, 6 ) . "\n" . $dong( 8006, 8 );
+$M = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'post_title' => 'Bài viết tay thử', 'post_content' => cadao_khoi_tho( $Q ) . "\n\n" . cadao_khoi_doan( 'Người biên soạn viết.' ) ) );
+$nd_m = get_post( $M )->post_content;
+$c1   = $kho( 'nguon-b', 'c1', mb_strtoupper( $Q ) );
+kt( 'câu kho y hệt bài viết tay: gắn vào, bài không đổi', 'da_gop' === $hang( $c1 )->trang_thai && $nd_m === get_post( $M )->post_content );
+$c2 = $kho( 'nguon-b', 'c2', $dong( 8000, 6 ) . "\n" . $dong( 8006, 4 ) . ' ' . $dong( 8500, 4 ) );
+cadao_trung_gop( "kho:$c2", "bai:$M", 'di_ban' );
+$cac = cadao_loi_cac_khoi_tho( get_post( $M )->post_content );
+kt( 'bài đã sửa tay: dị bản chèn thêm, đúng từng ký tự, phần người viết giữ nguyên', $Q === $cac[0] && $hang( $c2 )->loi === ( $cac[1] ?? null ) && str_contains( get_post( $M )->post_content, 'Người biên soạn viết.' ) && str_contains( get_post( $M )->post_content, '<h2 class="wp-block-heading">Dị bản</h2>' ) );
+
+// T-111: trình soạn
+$yc = static function ( string $duong, array $du_lieu ) {
+	$r = new WP_REST_Request( 'POST', $duong );
+	$r->set_header( 'content-type', 'application/json' );
+	$r->set_body( wp_json_encode( $du_lieu ) );
+	return rest_do_request( $r );
+};
+$r = $yc( '/cadao/v1/trung', array( 'loi_html' => esc_html( $dong( 8000, 6 ) ) . '<br>' . esc_html( $dong( 8006, 8 ) ), 'bai' => 0 ) );
+kt( 'trình soạn: dán lời của bài đã có → báo "Trùng y hệt" bài đó', 200 === $r->get_status() && ( $r->get_data()['ket_qua'][0]['id'] ?? 0 ) === $M && 'Trùng y hệt' === ( $r->get_data()['ket_qua'][0]['nhan'] ?? '' ), $r->get_data() );
+kt( 'trình soạn: lời trống thì không so', false === $yc( '/cadao/v1/trung', array( 'loi_html' => '<br>' ) )->get_data()['co_loi'] );
+$W  = "Lời thêm “ngoặc kép” & <nhỏ hơn>\nDòng hai — gạch dài, chữ9";
+$D  = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'draft', 'post_title' => 'Bản nháp thử', 'post_content' => cadao_khoi_tho( $W ) ) );
+$r  = $yc( '/cadao/v1/them-di-ban', array( 'bai' => $D, 'dich' => $M, 'loi_html' => esc_html( "Lời thêm “ngoặc kép” & <nhỏ hơn>" ) . '<br>' . esc_html( 'Dòng hai — gạch dài, chữ9' ) ) );
+kt( '"Thêm làm dị bản": lời vừa gõ vào bài cũ đúng từng ký tự, bản nháp vào thùng rác', 200 === $r->get_status() && in_array( $W, cadao_loi_cac_khoi_tho( get_post( $M )->post_content ), true ) && 'trash' === get_post_status( $D ), $r->get_data() );
+$E = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'draft', 'post_title' => 'Bài trùng viết tay', 'post_content' => cadao_khoi_tho( $Q ) ) );
+kt( 'bài trùng bài khác: đăng được (không chặn), danh sách có nhãn "Có thể trùng"', ! is_wp_error( $E ) && isset( apply_filters( 'display_post_states', array(), get_post( $E ) )['cadao_trung'] ) );
+$yc( '/cadao/v1/khong-trung', array( 'bai' => $E, 'cac' => array( "bai:$M" ) ) );
+kt( '"Vẫn đăng bài mới": máy không báo nữa', ! isset( apply_filters( 'display_post_states', array(), get_post( $E ) )['cadao_trung'] ) && array() === array_filter( cadao_trung_cho_soan( $Q, $E ), static fn( $x ) => $x['id'] === $M ) );
+wp_trash_post( $E );
+kt( 'bài vào thùng rác: ra khỏi chỉ mục', ! $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM ' . cadao_van_tay_bang() . ' WHERE muc = %s', "bai:$E" ) ) );
+
+// Làm dần (dọn trùng sẵn có khi nâng cấp) và thống kê
+update_option( 'cadao_trung_lam_dan', array( 'buoc' => 'bai', 'sau' => 0 ), false );
+kt( 'làm dần: chỉ mục cho bài, kho rồi so từng câu — xong', 'xong' === cadao_trung_lam_dan( 120 )['buoc'] );
+$tk = cadao_trung_thong_ke();
+kt( 'thống kê (chỉ đọc): đếm được câu y hệt, chỉ khác dấu, là dị bản đã ghi', $tk['y_het'] >= 2 && $tk['chi_khac_dau'] >= 1 && $tk['la_di_ban'] >= 1, $tk );
+wp_set_current_user( 0 );
+
 // ---------- Theme: nhận lục bát (T-072) ----------
 require_once '/repo/themes/ca-dao/functions.php';
 kt( 'lục bát: cặp 6–8 âm tiết', cadao_la_luc_bat( array( 'một hai ba bốn năm sáu', 'một hai ba bốn năm sáu bảy tám', 'một hai ba bốn năm sáu', 'một hai ba bốn năm sáu bảy tám' ) ) );

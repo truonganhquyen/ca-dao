@@ -35,7 +35,10 @@ wordpress/
 │   ├── inc/trang-quan-tri.php trang "Kho thu thập" (cột "Đã có dị bản, chú thích", bộ lọc "chỉ hiện câu đã đọc xong")
 │   ├── inc/trich-dan.php    hộp Trích dẫn (2 kiểu), nút Chia sẻ trên trang bài (T-042)
 │   ├── inc/luot-doc.php     lượt đọc không cookie, "Đọc nhiều tuần này", ô Bảng tin (T-081, D-064)
-│   └── assets/ca-dao.js     JavaScript duy nhất của trang bài (sao chép, chia sẻ, gửi lượt đọc; ~6 KB)
+│   ├── inc/trung.php        chống trùng: dấu vân tay, mức giống, chỉ mục, gộp, tách, làm dần (T-109, T-110)
+│   ├── inc/trang-trung.php  trang "Có thể trùng", ô "Có thể trùng" trong trình soạn (T-110, T-111)
+│   ├── assets/ca-dao.js     JavaScript duy nhất của trang bài (sao chép, chia sẻ, gửi lượt đọc; ~6 KB)
+│   └── assets/soan-trung.js ô "Có thể trùng" trong trình soạn khối (chỉ trong trang quản trị)
 ├── themes/ca-dao/           theme con của Twenty Twenty-Five (T-072)
 ├── blueprint.json           dựng WordPress thử tại máy bằng Playground
 └── tests/                   kiểm thử chạy trong Playground (kiem-thu.php, blueprint-kiem-thu.json)
@@ -65,6 +68,10 @@ Giữ ít plugin bên thứ ba (mỗi plugin là một nguy cơ bảo mật). D�
 | Trường `nguon_ten`, `nguon_url`, `ngay_truy_cap` | Hộp Nguồn của bài nhập tay (tùy chọn) → dòng "Nguồn: …" cuối bài |
 | Trường `_cadao_url_goc`, `_cadao_ngay_lay` | Trang gốc và ngày lấy của bài tự động — nội bộ, không hiện ra trang |
 | Trường `_cadao_ma_goc`, `_cadao_nguon_id` | Mã bài trên nguồn và nguồn tự động đã lấy — để không lấy trùng |
+| Cột kho `gop_vao`, `gop_lam`; trạng thái kho `da_gop` | Câu đã gắn vào bài / câu khác (`bai:<id>` hoặc `kho:<id>`): `trung` = cùng lời (bổ sung dị bản, chú thích của nguồn đó), `di_ban` = lời thành một dị bản. "Tách ra" trả lại thành câu mới |
+| Bảng `wp_cadao_van_tay`, `wp_cadao_cap_am` | Chỉ mục chống trùng: dấu vân tay (1), (2) của lời chính và từng dị bản; cặp âm tiết liền nhau của lời chính (từ 6 âm tiết) |
+| Bảng `wp_cadao_trung` | Hàng "Có thể trùng" và quyết định của người sáng lập (chờ, để sau, là bài khác, đã gộp) |
+| Trường `_cadao_di_ban_them` | Dị bản thêm bằng tay hoặc qua "Thêm làm dị bản" (giữ khi bài được làm lại từ kho) |
 | Bảng `wp_cadao_luot_doc` | Lượt đọc: (bài, ngày) → số lượt. Không lưu IP, không lưu ai đọc |
 | Bảng `wp_cadao_gioi_thieu` | (ngày, tên miền trang giới thiệu) → số lượt; vào thẳng ghi "(vào thẳng)" |
 
@@ -76,7 +83,9 @@ Kiểu bộ đọc: `cadao_me` (T-073) — (1) tên chủ đề, (2) ca dao qua 
 
 **Lịch sự với máy chủ nguồn** (như `21` mục 16.2): tuần tự, ≥ 3 giây giữa hai yêu cầu API và ≥ 5 giây giữa hai trang HTML, User-Agent ghi tên dự án, gặp 429/5xx thì dừng tới lượt sau, lưu điểm dừng. Lịch: mỗi 5 phút một lượt — tối đa ~20 giây khi chạy trong yêu cầu web (WP-Cron, nút "Lấy ngay"), 120 giây khi chạy bằng cron thật của máy chủ (~20 trang mỗi lượt); tạo bài Chờ duyệt mỗi ngày một lần. Cuối lượt chỉ ghi điểm dừng và nhật ký lên cấu hình mới nhất (không đè thay đổi người quản trị vừa lưu).
 
-**Chống trùng giữa các nguồn** (D-065, `25` mục 4.9): `_cadao_ma_goc` chỉ chống lấy lại cùng một bài của cùng nguồn. Trước khi thêm nguồn thứ hai (và trước T-076), mỗi câu mới được so cả lời với bài đã có và kho: trùng thì gắn vào bài có sẵn, nghi là dị bản thì vào hàng "Có thể trùng" chờ người sáng lập quyết (T-109, T-110).
+**Chống trùng giữa các nguồn** (D-065, `25` mục 4.9; T-109, T-110 — plugin 0.5.0): `_cadao_ma_goc` chỉ chống lấy lại cùng một bài của cùng nguồn. Mỗi câu đọc xong trang gốc được so cả lời với bài đã có và các câu khác trong kho: **lời giống hệt** (kể cả chỉ khác dấu câu, chữ hoa, cách bỏ dấu) **và cùng thể loại** → tự gắn vào bài / câu có sẵn (Kho thu thập → tab "Đã gộp", bấm "Tách ra" nếu sai); bài đích chưa sửa tay được làm lại, có thêm dị bản, chú thích của nguồn kia và dòng "Nguồn" riêng. Mọi trường hợp khác — khác thể loại, khác vài chữ (≥ 90%), có thể là dị bản (50–90%), trùng một dị bản đã ghi — vào trang **Có thể trùng** (menu Ca dao – Tục ngữ, có số đếm; Bảng tin cũng báo) với "Gộp: là cùng một bài" / "Gộp làm dị bản" / "Là bài khác" / "Để sau"; máy tạo bài hằng ngày bỏ qua câu đang chờ. Khi nâng cấp, plugin làm dần chỉ mục cho bài và kho đã có rồi so từng câu (mỗi lượt 5 phút) — dọn luôn trùng sẵn có. `wp cadao trung-thong-ke` chạy lại phép đo 25/10/2026 (chỉ đọc).
+
+**Khi viết tay (T-111):** trình soạn có ô **Có thể trùng** ở cột bên (tab Bài) và trong bước xác nhận khi bấm Đăng: sau khi dán / gõ lời (ngừng gõ 1,2 giây) máy liệt kê bài có lời giống kèm mức giống, nút **Mở bài này**, **Thêm làm dị bản** (lời vừa gõ thành dị bản của bài cũ, đúng từng ký tự; bản nháp vào thùng rác), **Vẫn đăng bài mới** (máy ghi là bài khác, không báo nữa). Không chặn đăng. Bài trùng bài khác có nhãn "Có thể trùng" trong danh sách bài.
 
 ## 5. Những điều vẫn giữ
 

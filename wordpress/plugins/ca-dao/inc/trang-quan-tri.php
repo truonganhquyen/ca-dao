@@ -59,7 +59,7 @@ function cadao_trang_nguon(): void {
 		return;
 	}
 	echo '<p>Máy tự lấy bài từ các nguồn đang <strong>bật</strong> (mỗi 5 phút một lượt ngắn) vào <a href="' . esc_url( cadao_url_trang( CADAO_TRANG_KHO ) ) . '">Kho thu thập</a>, rồi mỗi ngày tạo một số bài <strong>Chờ duyệt</strong>. Bạn xem bài ở <a href="' . esc_url( admin_url( 'edit.php?post_status=pending&post_type=' . CADAO_LOAI_BAI ) ) . '">Chờ duyệt</a> và bấm <strong>Đăng</strong>.</p>';
-	echo '<table class="widefat striped"><thead><tr><th>Nguồn</th><th>Bộ đọc</th><th>Trạng thái</th><th>Bài/ngày</th><th>Kho: mới · đã thành bài · bỏ qua</th><th>Lần gần nhất</th><th></th></tr></thead><tbody>';
+	echo '<table class="widefat striped"><thead><tr><th>Nguồn</th><th>Bộ đọc</th><th>Trạng thái</th><th>Bài/ngày</th><th>Kho: mới · đã thành bài · đã gộp · bỏ qua</th><th>Lần gần nhất</th><th></th></tr></thead><tbody>';
 	$bo = cadao_bo_doc();
 	foreach ( cadao_nguon_tat_ca() as $id => $n ) {
 		$n   = $n + cadao_nguon_mac_dinh();
@@ -69,7 +69,7 @@ function cadao_trang_nguon(): void {
 		echo '<td>' . esc_html( $bo[ $n['kieu'] ]['ten'] ?? $n['kieu'] ) . '</td>';
 		echo '<td>' . ( $n['bat'] ? '<span style="color:#0a7d2c">● Đang bật</span>' : '<span class="description">○ Tắt</span>' ) . '</td>';
 		echo '<td>' . (int) $n['so_bai_moi_ngay'] . '</td>';
-		printf( '<td>%d · %d · %d</td>', $dem['moi'], $dem['da_tao_bai'], $dem['bo_qua'] );
+		printf( '<td>%d · %d · %d · %d</td>', $dem['moi'], $dem['da_tao_bai'], $dem['da_gop'], $dem['bo_qua'] );
 		echo '<td>' . ( $gan ? esc_html( $gan['luc'] . ' — ' . cadao_mo_ta_kq( $gan ) ) : '<span class="description">chưa chạy</span>' ) . '</td><td>';
 		echo '<a class="button" href="' . esc_url( cadao_url_trang( CADAO_TRANG_NGUON, array( 'sua' => $id ) ) ) . '">Sửa</a> ';
 		foreach ( array( 'cadao_lay_ngay' => 'Lấy ngay', 'cadao_tao_ngay' => 'Tạo bài chờ duyệt ngay' ) as $viec => $nhan ) {
@@ -232,7 +232,7 @@ function cadao_trang_kho(): void {
 	$tim  = sanitize_text_field( wp_unslash( $_GET['tim'] ?? '' ) );
 	$xong = ! empty( $_GET['da_doc'] ); // bộ lọc "chỉ hiện câu đã đọc xong"
 	$dem  = cadao_kho_dem();
-	$nhan = array( 'moi' => 'Mới', 'da_tao_bai' => 'Đã thành bài', 'bo_qua' => 'Bỏ qua' );
+	$nhan = array( 'moi' => 'Mới', 'da_tao_bai' => 'Đã thành bài', 'da_gop' => 'Đã gộp', 'bo_qua' => 'Bỏ qua' );
 	echo '<div class="wrap"><h1>Kho thu thập</h1>';
 	cadao_hien_bao();
 	echo '<p>Mọi bài máy đã lấy về. Kho không hiện ra trang; chọn mục rồi bấm <strong>Tạo bài chờ duyệt</strong>, hoặc để máy tự tạo mỗi ngày.</p><ul class="subsubsub">';
@@ -261,14 +261,19 @@ function cadao_trang_kho(): void {
 		$giong = '%' . $wpdb->esc_like( $tim ) . '%';
 		$dk   .= $wpdb->prepare( ' AND (tieu_de LIKE %s OR loi LIKE %s)', $giong, $giong );
 	}
-	$ds = $wpdb->get_results( "SELECT id, nguon_id, url, loai, tieu_de, loi, du_lieu, doc_trang, post_id FROM $bang WHERE $dk ORDER BY id ASC LIMIT 100" );
+	$ds = $wpdb->get_results( "SELECT id, nguon_id, url, loai, tieu_de, loi, du_lieu, doc_trang, post_id, gop_vao, gop_lam FROM $bang WHERE $dk ORDER BY id ASC LIMIT 100" );
 
 	echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 	wp_nonce_field( 'cadao_kho_hang_loat' );
 	echo '<input type="hidden" name="action" value="cadao_kho_hang_loat"><p>';
-	submit_button( 'Tạo bài chờ duyệt từ mục đã chọn', 'primary', 'viec_tao', false );
-	echo ' ';
-	submit_button( 'Bỏ qua mục đã chọn', 'secondary', 'viec_bo', false );
+	if ( 'da_gop' === $tt ) {
+		echo '<span class="description">Câu có lời giống hệt một bài / câu khác, cùng thể loại: máy đã gắn vào đó (dị bản, chú thích của câu này hiện ở bài kia). Gắn sai thì chọn rồi bấm Tách ra.</span><br>';
+		submit_button( 'Tách ra mục đã chọn', 'secondary', 'viec_tach', false );
+	} else {
+		submit_button( 'Tạo bài chờ duyệt từ mục đã chọn', 'primary', 'viec_tao', false );
+		echo ' ';
+		submit_button( 'Bỏ qua mục đã chọn', 'secondary', 'viec_bo', false );
+	}
 	echo '</p><table class="widefat striped"><thead><tr><td class="check-column"><input type="checkbox" onclick="document.querySelectorAll(\'.cadao-chon\').forEach(c=>c.checked=this.checked)"></td><th>Lời</th><th>Đã có dị bản, chú thích</th><th>Loại</th><th>Cờ</th><th>Nguồn</th></tr></thead><tbody>';
 	$ten_loai = array_merge( ...array_values( array_map( static fn( $x ) => $x['loai'] ?? array(), cadao_bo_doc() ) ) );
 	foreach ( $ds as $m ) {
@@ -278,6 +283,11 @@ function cadao_trang_kho(): void {
 		echo '<td><strong>' . esc_html( $m->tieu_de ) . '</strong><br><span style="white-space:pre-line">' . esc_html( wp_trim_words( $m->loi, 40 ) ) . '</span>';
 		if ( $m->post_id ) {
 			echo '<br><a href="' . esc_url( get_edit_post_link( (int) $m->post_id ) ) . '">Mở bài</a>';
+		} elseif ( $m->gop_vao ) {
+			$dich = cadao_mo_ta_muc( $m->gop_vao );
+			echo '<br>' . ( 'di_ban' === $m->gop_lam ? 'Là dị bản của: ' : 'Đã gộp vào: ' ) . ( $dich['co'] ? '<a href="' . esc_url( $dich['sua'] ) . '">' . esc_html( $dich['tieu_de'] ) . '</a>' : '—' );
+		} elseif ( cadao_trung_dang_cho( (int) $m->id ) ) {
+			echo '<br><a href="' . esc_url( cadao_url_trang( CADAO_TRANG_TRUNG ) ) . '">Có thể trùng — chờ bạn quyết</a>';
 		}
 		echo '</td><td>' . esc_html( cadao_mo_ta_doc_trang( $m->doc_trang, $d ) ) . '</td><td>' . esc_html( $ten_loai[ $m->loai ] ?? $m->loai ) . '</td><td>' . esc_html( $co ?: '—' ) . '</td>';
 		echo '<td><a href="' . esc_url( $m->url ) . '" target="_blank" rel="noopener">' . esc_html( $m->nguon_id ) . ' ↗</a></td></tr>';
@@ -296,13 +306,16 @@ add_action(
 		$chon = array_map( 'intval', (array) wp_unslash( $_POST['chon'] ?? array() ) );
 		$so   = 0;
 		foreach ( $chon as $id ) {
-			if ( isset( $_POST['viec_bo'] ) ) {
+			if ( isset( $_POST['viec_tach'] ) ) {
+				$so += (int) cadao_trung_tach( $id );
+			} elseif ( isset( $_POST['viec_bo'] ) ) {
 				$so += (int) $wpdb->update( cadao_kho_bang(), array( 'trang_thai' => 'bo_qua' ), array( 'id' => $id ) );
+				cadao_van_tay_kho( $id ); // câu bỏ qua ra khỏi chỉ mục
 			} elseif ( ! is_wp_error( cadao_kho_tao_bai( $id ) ) ) {
 				++$so;
 			}
 		}
-		cadao_ve( CADAO_TRANG_KHO, isset( $_POST['viec_bo'] ) ? "Đã bỏ qua $so mục." : "Đã tạo $so bài Chờ duyệt." );
+		cadao_ve( CADAO_TRANG_KHO, isset( $_POST['viec_tach'] ) ? "Đã tách $so mục." : ( isset( $_POST['viec_bo'] ) ? "Đã bỏ qua $so mục." : "Đã tạo $so bài Chờ duyệt." ) );
 	}
 );
 
@@ -317,6 +330,10 @@ add_action(
 				$so  = (int) ( wp_count_posts( CADAO_LOAI_BAI )->pending ?? 0 );
 				$url = admin_url( 'edit.php?post_status=pending&post_type=' . CADAO_LOAI_BAI );
 				echo '<p style="font-size:1.3em"><strong>' . $so . '</strong> bài đang chờ duyệt.</p>';
+				$trung = cadao_trung_dem_cho();
+				if ( $trung ) {
+					echo '<p><a href="' . esc_url( cadao_url_trang( CADAO_TRANG_TRUNG ) ) . '">' . (int) $trung . ' cặp "Có thể trùng"</a> chờ bạn quyết.</p>';
+				}
 				echo '<p><a class="button button-primary" href="' . esc_url( $url ) . '">Duyệt ngay</a> <a class="button" href="' . esc_url( admin_url( 'post-new.php?post_type=' . CADAO_LOAI_BAI ) ) . '">Thêm bài</a></p>';
 				foreach ( cadao_nguon_tat_ca() as $n ) {
 					$gan = $n['nhat_ky'][0] ?? null;

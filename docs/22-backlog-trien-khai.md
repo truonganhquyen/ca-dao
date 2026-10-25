@@ -48,9 +48,9 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-079 | Ghi gói nâng cấp 25/10/2026 vào tài liệu, lập kế hoạch (`docs/25`, D-059..D-065) | A | — | — | DONE |
 | T-080 | Tách thành ngữ và tục ngữ (máy gợi ý, người duyệt) | N+A | T-073 | — | READY |
 | T-081 | Đếm lượt đọc không cookie, "Đọc nhiều", thống kê trên Bảng tin | A | T-071 | — | DONE |
-| T-109 | Nhận ra bài trùng: "dấu vân tay" của lời, các mức giống (D-065) | A | T-073 | — | READY |
-| T-110 | Chống trùng khi lấy từ nguồn: gắn vào bài có sẵn, hàng "Có thể trùng" | N+A | T-109 | — | BLOCKED |
-| T-111 | Báo trùng khi viết bài tay (chỉ báo, không chặn) | A | T-109 | — | BLOCKED |
+| T-109 | Nhận ra bài trùng: "dấu vân tay" của lời, các mức giống (D-065) | A | T-073 | — | DONE |
+| T-110 | Chống trùng khi lấy từ nguồn: gắn vào bài có sẵn, hàng "Có thể trùng" | N+A | T-109 | — | DONE |
+| T-111 | Báo trùng khi viết bài tay (chỉ báo, không chặn) | A | T-109 | — | DONE |
 | T-042 | Trích dẫn 2 định dạng + chia sẻ (trên WordPress) | A | T-072 | — | DONE |
 | **Mốc B · Thử nhỏ** ||||||
 | T-041 | Tìm kiếm tức thì, gõ không dấu, tìm cả trong chú thích (WordPress) | N+A | T-072 | — | READY |
@@ -226,11 +226,17 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 #### T-109 · Nhận ra bài trùng — A
 **Đọc:** `25` mục 4.9, D-065. **Việc:** mỗi bài, mỗi dị bản, mỗi câu trong kho có hai dấu vân tay của lời (bỏ dấu câu, chữ hoa, khoảng trắng thừa; và bỏ cả dấu thanh), lưu có chỉ mục; hàm so trả mức: trùng y hệt / gần như y hệt (≥ 90%, so cặp âm tiết liền nhau) / có thể là dị bản (50–90%, hoặc trùng một dị bản đã ghi) / khác. Câu một dòng chỉ xét y hệt và gần như y hệt; câu ngắn nằm trong bài dài chỉ là "liên quan". **Không so tiêu đề hay dòng đầu.** **Chấp nhận:** kiểm thử trên dữ liệu tổng hợp đủ các mức (kể cả hai bài khác nhau chung dòng đầu, "hoà/hòa", câu ngắn trong bài dài, cùng lời khác thể loại); chạy lại trên kho thật ra số liệu khớp phép đo 25/10/2026 (`25` mục 4.9); không tự gộp, không tự xóa gì.
 
+**Tiến độ (25/10/2026):** xong — plugin 0.5.0 (`inc/trung.php`, `24` mục 3–4). Kiểm thử trên lời tổng hợp đủ các mức (y hệt; chỉ khác dấu, "hoà/hòa"; khác một chữ trong bài dài; 50–90%; câu ngắn trong bài dài; chung dòng đầu; câu một dòng; dưới 6 âm tiết; trùng dị bản đã ghi). Chạy trên bản sao kho thật (12.606 câu có lời, chỉ trên máy): 10 câu y hệt, 1 chỉ khác dấu, 9 là dị bản đã ghi của câu khác, 3 cặp ≥ 80%, 99 cặp 50–80%, 278 dòng đầu dùng chung — khớp phép đo 25/10/2026 (9 / 1 / 8 / 3 / 96 / 274 trên 12.328 câu). `wp cadao trung-thong-ke` chạy lại phép đo (chỉ đọc).
+
 #### T-110 · Chống trùng khi lấy từ nguồn — N+A
 **Đọc:** `25` mục 4.9. **Việc:** câu mới vào kho (mọi nguồn) được so với bài đã có và các câu trong kho; trùng y hệt / gần như y hệt → không tạo bài mới, gắn vào bài có sẵn (trạng thái kho "Đã gộp"), chú thích và dị bản mới của nguồn khác được bổ sung (bài chưa sửa tay tự bổ sung, kèm dòng "Nguồn" riêng của nguồn đó); có thể là dị bản → hàng "Có thể trùng" (Gộp làm dị bản / Là bài khác / Để sau) trong Bàn biên tập; máy tạo bài hằng ngày bỏ qua câu đang chờ quyết. Dọn luôn các trùng sẵn có trong kho (9 câu y hệt, 8 câu là dị bản đã ghi của câu khác). **Chấp nhận:** kiểm thử với hai nguồn giả cùng một câu (y hệt, khác dấu, dị bản) ra đúng kết quả; không câu nào bị gộp khi chưa duyệt ở mức "có thể là dị bản".
 
+**Tiến độ (25/10/2026):** xong — trang **Có thể trùng**, tab "Đã gộp" + "Tách ra" ở Kho thu thập, làm dần khi nâng cấp (dọn trùng sẵn có). Chặt hơn đặc tả: chỉ tự gắn khi lời giống hệt và cùng thể loại; khác vài chữ (≥ 90%) cũng chờ người sáng lập quyết (`25` mục 4.9). Thử trên bản sao kho thật: ~40 cặp vào hàng chờ, toàn dị bản thật hoặc cùng lời khác thể loại; chưa câu nào tự gộp (các câu trùng y hệt cùng thể loại phần lớn chưa đọc trang gốc — sẽ gộp khi máy đọc tới). Việc của người sáng lập: quyết các cặp trong trang "Có thể trùng".
+
 #### T-111 · Báo trùng khi viết tay — A
 **Đọc:** `25` mục 4.9. **Việc:** trong trình soạn, sau khi dán/gõ lời (ngừng gõ một chút) và khi bấm Đăng, ô bên cạnh hiện các bài có thể trùng và mức giống, với nút Mở bài này / Thêm làm dị bản (lời vừa gõ thành dị bản của bài cũ; bản nháp mới vào thùng rác, khôi phục được 30 ngày) / Vẫn đăng bài mới; danh sách bài có nhãn "Có thể trùng". **Chấp nhận:** không chặn đăng (D-054); trên điện thoại dùng được; kiểm thử "Thêm làm dị bản" giữ đúng lời từng ký tự.
+
+**Tiến độ (25/10/2026):** xong — `assets/soan-trung.js`, REST `cadao/v1/trung`, `them-di-ban`, `khong-trung`. Kiểm thử: dán lời bài đã có → "Trùng y hệt"; "Thêm làm dị bản" giữ đúng từng ký tự (cả ngoặc kép, &, <), bản nháp vào thùng rác; "Vẫn đăng bài mới" thì không báo nữa; bài trùng có nhãn "Có thể trùng" mà vẫn đăng được. Thử bằng trình duyệt trên máy tính và màn hình điện thoại 390 px: ô hiện và tự mở khi có bài giống, không lỗi JavaScript.
 
 #### T-076 · Chuyển nội dung, ngừng site Astro — A
 **Việc:** chuyển bài, mục từ, nguồn trong `content/` sang WordPress (giữ lời nguyên văn), **qua bước chống trùng** (T-109: bài cũ trùng câu đã có thì thành dị bản hoặc gộp, người sáng lập quyết); trỏ địa chỉ tạm; ngừng triển khai Astro. **Chấp nhận:** mọi bài công khai cũ hiện trên WordPress; lời khớp từng ký tự.
