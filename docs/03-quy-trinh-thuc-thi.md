@@ -98,7 +98,7 @@ PR nào cũng sửa vài tệp điều phối chung (`docs/01` bảng quyết đ
 3. **Đang có PR chờ gộp và việc mới phụ thuộc hoặc cùng sửa tệp điều phối với nó:** tách nhánh **từ nhánh của PR đó**; tạo PR với `gh pr create --base <nhánh-PR-trước>` và ghi "Chồng lên PR #n; gộp #n trước" ở đầu mô tả. GitHub chỉ tự chuyển PR này về `main` khi nhánh của #n **bị xóa** sau khi gộp, nên repo phải bật "Automatically delete head branches" (Settings → General). Chưa bật thì PR chồng được gộp vào nhánh trung gian, không vào `main`: ngày 24/10/2026, #12 và #13 đã bị gộp như vậy, phải mở thêm một PR đưa vào `main`. Nếu đã lỡ gộp vào nhánh trung gian: mở PR từ nhánh cuối chuỗi vào `main`.
 4. **Việc mới độc lập hẳn** (không sửa tệp điều phối chung nào) thì tách từ `main` như thường.
 5. **Số D mới** = số D lớn nhất trên `origin/main` **và trên mọi PR đang mở** cộng 1. `npm run kiem-nhat-quan` báo LỖI nếu hai quyết định trùng số.
-6. Người sáng lập gộp theo thứ tự PR đã mở, và chỉ bấm gộp khi dòng đầu PR ghi "into `main`". Sau khi người sáng lập báo đã gộp, agent kiểm `git log origin/main` có đủ commit của cả chuỗi. Khi báo "PR báo xung đột", agent giải xung đột bằng cách **giữ thông tin của cả hai phía** (không chọn một bên), chạy lại `npm run kiem-tra`, đẩy lên.
+6. Từ D-066 **agent tự gộp** theo thứ tự PR đã mở, khi `npm run kiem-tra`, kiểm thử WordPress và CI đều đạt, và chỉ gộp khi đích của PR là `main` (`gh pr merge --merge`). Sau khi gộp, agent kiểm `git log origin/main` có đủ commit của cả chuỗi. Khi báo "PR báo xung đột", agent giải xung đột bằng cách **giữ thông tin của cả hai phía** (không chọn một bên), chạy lại `npm run kiem-tra`, đẩy lên.
 
 ## 8. Điều kiện dừng
 

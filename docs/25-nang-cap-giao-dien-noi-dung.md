@@ -206,7 +206,7 @@ Nguyên tắc: **máy chỉ báo và đề nghị, người sáng lập quyết;
 
 ## 6. Kế hoạch triển khai
 
-Mỗi task một PR (`03` mục 7.1: nhiều PR mở cùng lúc thì xếp chồng). Máy chủ tự cập nhật sau mỗi lần gộp (T-078). Mức công: **nhỏ** vài giờ, **vừa** 1–2 ngày, **lớn** vài ngày.
+Mỗi PR gom các task liên quan của một đợt; agent tự gộp khi kiểm tra đạt (D-066; `03` mục 7.1: nhiều PR mở cùng lúc thì xếp chồng). Máy chủ tự cập nhật sau mỗi lần gộp (T-078). Mức công: **nhỏ** vài giờ, **vừa** 1–2 ngày, **lớn** vài ngày.
 
 | Đợt | Mục tiêu | Task (mức công) | Việc của người sáng lập |
 |---|---|---|---|

@@ -185,19 +185,19 @@ Khối không có dữ liệu thì ẩn hẳn, không hiện tiêu đề rỗng.
 
 Nút Trích dẫn mở hộp chọn 2 định dạng và **hai nút**: **"Sao chép kèm nguồn"** (mặc định, dán vào giáo án) và **"Chỉ sao chép lời"**; thông báo "Đã sao chép. Cảm ơn bạn đã ghi nguồn!". Ngày truy cập tự điền theo ngày bấm.
 
-**Kiểu thông dụng** — bài nhãn A:
+**Trên WordPress (T-042, viết lại theo D-054, D-057):** không còn nhãn bằng chứng; lời không ghi nguồn ngoài, "nguồn" của trích dẫn là trang của site. "Sao chép kèm nguồn" chép lời (khối Thơ đầu tiên) rồi trích dẫn theo kiểu đã chọn; "Chỉ sao chép lời" chép lời. Bài có đáp án, chú thích chép từ nguồn thì có ô "Kèm đáp án / chú thích": chép thêm phần đó và dòng "Nguồn: …" của nó.
+
+**Kiểu thông dụng:**
 ```text
-"<dòng đầu>…" (<thể loại>). Bản tham chiếu, đối chiếu theo: <tác giả>, <tên sách>, <NXB>, <năm>, tr. <trang>. Truy cập tại: <URL>, ngày <dd/mm/yyyy>.
+"<tiêu đề>" (<thể loại>). Kho tàng Ca dao Tục ngữ Việt Nam. Truy cập tại: <URL>, ngày <dd/mm/yyyy>.
 ```
-Bài nhãn D:
+**Kiểu APA 7 (điều chỉnh cho tư liệu dân gian; năm = năm đăng bài):**
 ```text
-"<dòng đầu>…" (<thể loại>), lời lưu truyền, chưa đối chiếu bản in; tham khảo từ Ca dao Mẹ (cadao.me). Truy cập tại: <URL>, ngày <dd/mm/yyyy>.
+Kho tàng Ca dao Tục ngữ Việt Nam. (<năm>). <Tiêu đề> [<Thể loại>]. <URL>
 ```
-**Kiểu APA 7 (điều chỉnh cho tư liệu dân gian):**
-```text
-Kho tàng Ca dao Tục ngữ Việt Nam. (<năm>). <Tiêu đề> [<Thể loại>, <id>]. <URL>
-```
-Không trích dẫn từ dị bản C. BibTeX ở "Sau".
+Hộp Trích dẫn là `<details>`: tắt JavaScript vẫn mở được và chọn chữ tay; các nút cần JavaScript thì ẩn. BibTeX ở "Sau".
+
+*Bản cho site Astro cũ (nhãn A/D, đối chiếu sách in) thay bởi phần trên khi chuyển WordPress (D-056).*
 
 ## 7. Chia sẻ và ảnh xem trước
 
@@ -205,7 +205,7 @@ Mục tiêu: mỗi lần chia sẻ đưa một trích dẫn **có ghi nguồn g�
 
 | ID | Yêu cầu | Mốc |
 |---|---|---|
-| FR-4.1 | Nút **Chia sẻ** dùng Web Share API (văn bản = lời + dòng nguồn gốc, kèm URL) — hiện Zalo, Messenger… có sẵn trên máy; không hỗ trợ thì sao chép link | A |
+| FR-4.1 | Nút **Chia sẻ** dùng Web Share API (văn bản = lời + "— <tiêu đề> (<thể loại>) · Kho tàng Ca dao Tục ngữ Việt Nam", kèm URL; D-057: không ghi nguồn ngoài cho lời) — hiện Zalo, Messenger… có sẵn trên máy; không hỗ trợ thì sao chép link | A |
 | FR-4.2 | **Ảnh xem trước riêng từng bài** 1200×630 sinh lúc build: lời (trích tối đa 4 dòng), thể loại, **nhãn bằng chứng**, tên miền + đường dẫn bài. Dán link vào Zalo/Facebook là thấy | C (chờ Q-005) |
 | FR-4.3 | Không có ảnh xem trước dạng bài riêng cho bài mang cờ nghi gán nhầm/phỏng tác hoặc có `canh_bao_noi_dung` (dùng ảnh chung toàn site) | C |
 | FR-4.4 | (Sau) Trình tạo thẻ ảnh 2 mẫu ("Giấy dó", "Mực tàu") × 2 khổ (1080×1350, 1080×1920); **nhãn và dòng nguồn gốc không tắt được**; không cho dị bản C, bài có cờ hoặc cảnh báo; tạo trên trình duyệt bằng Canvas, phông nạp trước bằng `FontFace` | Sau |

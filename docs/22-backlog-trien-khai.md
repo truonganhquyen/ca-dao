@@ -12,7 +12,7 @@
 1. Nếu không được giao task cụ thể, đọc `docs/02-trang-thai-hien-tai.md`, `docs/03-quy-trinh-thuc-thi.md` và chạy `npm run viec-tiep-theo`.
 2. Nhận task `READY` **hoặc task được `npm run viec-tiep-theo` suy ra là READY** vì mọi phụ thuộc đã `DONE` và Q-xxx trong cột "Chặn" đã được giải quyết.
 3. Đọc các tài liệu trong "Đọc".
-4. Làm trên một nhánh riêng `task/T-xxx-<mo-ta-ngan>`; mỗi task một PR.
+4. Làm trên một nhánh riêng `task/T-xxx-<mo-ta-ngan>`; một PR gom các task liên quan của cùng một đợt, agent tự gộp khi kiểm tra đạt (D-066).
 5. Khi bắt đầu đổi trạng thái thành `IN_PROGRESS`. Khi implementation + tiêu chí chấp nhận + `npm run kiem-tra` đã đạt, đổi task thành `DONE` trong commit cuối của nhánh rồi mở PR.
 6. Mô tả PR theo `.github/pull_request_template.md`; luôn kèm **link bản xem trước** — người sáng lập duyệt bằng mắt trên điện thoại, không đọc mã (D-035).
 
@@ -47,11 +47,11 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-077 | Áp dụng D-057: lời không ghi nguồn, "Nguồn: …" chỉ dưới chú thích đã chép (plugin 0.2.0) | A | T-071 | — | DONE |
 | T-079 | Ghi gói nâng cấp 25/10/2026 vào tài liệu, lập kế hoạch (`docs/25`, D-059..D-065) | A | — | — | DONE |
 | T-080 | Tách thành ngữ và tục ngữ (máy gợi ý, người duyệt) | N+A | T-073 | — | READY |
-| T-081 | Đếm lượt đọc không cookie, "Đọc nhiều", thống kê trên Bảng tin | A | T-071 | — | READY |
+| T-081 | Đếm lượt đọc không cookie, "Đọc nhiều", thống kê trên Bảng tin | A | T-071 | — | DONE |
 | T-109 | Nhận ra bài trùng: "dấu vân tay" của lời, các mức giống (D-065) | A | T-073 | — | READY |
 | T-110 | Chống trùng khi lấy từ nguồn: gắn vào bài có sẵn, hàng "Có thể trùng" | N+A | T-109 | — | BLOCKED |
 | T-111 | Báo trùng khi viết bài tay (chỉ báo, không chặn) | A | T-109 | — | BLOCKED |
-| T-042 | Trích dẫn 2 định dạng + chia sẻ (trên WordPress) | A | T-072 | — | BLOCKED |
+| T-042 | Trích dẫn 2 định dạng + chia sẻ (trên WordPress) | A | T-072 | — | DONE |
 | **Mốc B · Thử nhỏ** ||||||
 | T-041 | Tìm kiếm tức thì, gõ không dấu, tìm cả trong chú thích (WordPress) | N+A | T-072 | — | READY |
 | T-043 | Trang chủ mới (Câu hôm nay, Vừa bổ sung, Đọc nhiều, Bạn có biết?) + trang tình huống | A | T-072, T-081, T-093 | — | BLOCKED |
@@ -221,6 +221,8 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 #### T-081 · Đếm lượt đọc — A
 **Đọc:** `25` mục 4.7, D-064. **Việc:** đếm khi trang hiện ≥ 5 giây, một máy một lần/ngày, không cookie, không lưu IP, gom theo bài theo ngày; "N lượt đọc" trên trang bài khi ≥ 10; danh sách "Đọc nhiều tuần này"; ô Bảng tin (7 ngày, bài đọc nhiều, trang giới thiệu). **Chấp nhận:** kiểm thử: máy dò không chạy JavaScript không được tính, tải lại trong ngày không cộng thêm; không có cookie mới; quét trợ năng đạt.
 
+**Tiến độ (25/10/2026):** xong — plugin 0.4.0 (`inc/luot-doc.php`, `assets/ca-dao.js`, `24` mục 2). Kiểm thử plugin: đếm, bỏ máy dò tự khai tên, bài chưa đăng / không phải Ca dao – Tục ngữ không nhận, chỉ lưu tên miền giới thiệu, "N lượt đọc" từ 10, "Đọc nhiều tuần này" từ 3 bài. Thử trên trình duyệt (`quet:wordpress`): gửi đúng một lần sau 5 giây, tải lại không gửi, tắt JavaScript không gửi, không cookie. Danh sách "Đọc nhiều tuần này" ở cuối trang chủ; trang chủ mới: T-043.
+
 #### T-109 · Nhận ra bài trùng — A
 **Đọc:** `25` mục 4.9, D-065. **Việc:** mỗi bài, mỗi dị bản, mỗi câu trong kho có hai dấu vân tay của lời (bỏ dấu câu, chữ hoa, khoảng trắng thừa; và bỏ cả dấu thanh), lưu có chỉ mục; hàm so trả mức: trùng y hệt / gần như y hệt (≥ 90%, so cặp âm tiết liền nhau) / có thể là dị bản (50–90%, hoặc trùng một dị bản đã ghi) / khác. Câu một dòng chỉ xét y hệt và gần như y hệt; câu ngắn nằm trong bài dài chỉ là "liên quan". **Không so tiêu đề hay dòng đầu.** **Chấp nhận:** kiểm thử trên dữ liệu tổng hợp đủ các mức (kể cả hai bài khác nhau chung dòng đầu, "hoà/hòa", câu ngắn trong bài dài, cùng lời khác thể loại); chạy lại trên kho thật ra số liệu khớp phép đo 25/10/2026 (`25` mục 4.9); không tự gộp, không tự xóa gì.
 
@@ -252,6 +254,8 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 #### T-042 · Trích dẫn và chia sẻ — A
 **Đọc:** `20` mục 6–7.
 **Chấp nhận (viết lại 25/10/2026 theo D-054, D-057):** 2 định dạng; nút "Sao chép kèm nguồn" (mặc định: lời, tên bài, thể loại, địa chỉ trang của site, ngày truy cập tự điền) và "Chỉ sao chép lời"; lời không ghi nguồn ngoài, chú thích chép từ nguồn khi được sao chép thì kèm dòng "Nguồn: …" của nó; nút Chia sẻ dùng Web Share (văn bản + URL), không hỗ trợ thì sao chép link; chạy được trên WordPress (theme + plugin).
+
+**Tiến độ (25/10/2026):** xong — plugin 0.4.0 (`inc/trich-dan.php`), theme 0.2.0; kiểu trích dẫn mới ở `20` mục 6. Hộp Trích dẫn nằm ngay dưới lời và Hiểu nhanh; tắt JavaScript vẫn hiện chữ trích dẫn. Thử trên trình duyệt: "Sao chép kèm nguồn" ra lời + trích dẫn, báo "Đã sao chép. Cảm ơn bạn đã ghi nguồn!". Đo lường lượt sao chép: T-052.
 
 ### Mốc B · Thử nhỏ
 
