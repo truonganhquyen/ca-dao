@@ -212,6 +212,26 @@ kt( 'nguồn sửa bài: đọc lại trang ở lượt sau', '' === $k( "$G/cd-
 remove_all_filters( 'pre_http_request' );
 remove_all_filters( 'cadao_nhip_giay' );
 
+// ---------- Trang Kho thu thập: cột "Đã có dị bản, chú thích", bộ lọc "chỉ hiện câu đã đọc xong" ----------
+kt( 'mô tả cột: chưa đọc', 'Chưa — máy sẽ đọc trang gốc' === cadao_mo_ta_doc_trang( '', array() ) );
+kt( 'mô tả cột: đã đọc, có dị bản và chú thích', 'Rồi · 1 dị bản, 2 chú thích' === cadao_mo_ta_doc_trang( '2026-10-25', array( 'di_ban' => array( 'a' ), 'chu_thich' => array( 1, 2 ) ) ) );
+kt( 'mô tả cột: đã đọc, nguồn không có gì thêm', 'Rồi · nguồn không có dị bản, chú thích' === cadao_mo_ta_doc_trang( '2026-10-25', array() ) );
+kt( 'mô tả cột: không đọc được', 'Không đọc được trang gốc' === cadao_mo_ta_doc_trang( 'loi', array() ) );
+cadao_kho_luu( 'nguon-thu', array( 'ma_goc' => 301, 'url' => 'https://example.org/chua-doc/', 'loai' => 'ca_dao', 'tieu_de' => 'Câu chưa đọc trang', 'loi' => 'Câu chưa đọc trang' ) );
+cadao_kho_luu( 'nguon-thu', array( 'ma_goc' => 302, 'doc_trang' => '2026-10-25', 'url' => 'https://example.org/da-doc/', 'loai' => 'ca_dao', 'tieu_de' => 'Câu đã đọc trang', 'loi' => 'Câu đã đọc trang', 'di_ban' => array( 'x' ) ) );
+require_once ABSPATH . 'wp-admin/includes/template.php'; // submit_button() của trang quản trị
+$trang_kho = static function ( array $get ) {
+	$_GET = $get;
+	ob_start();
+	cadao_trang_kho();
+	return ob_get_clean();
+};
+$tat_ca = $trang_kho( array() );
+$loc    = $trang_kho( array( 'da_doc' => '1' ) );
+kt( 'trang Kho có cột "Đã có dị bản, chú thích"', str_contains( $tat_ca, 'Đã có dị bản, chú thích' ) && str_contains( $tat_ca, 'Rồi · 1 dị bản' ) && str_contains( $tat_ca, 'Chưa — máy sẽ đọc trang gốc' ) );
+kt( 'bộ lọc "chỉ hiện câu đã đọc xong": ẩn câu chưa đọc', str_contains( $loc, 'Câu đã đọc trang' ) && ! str_contains( $loc, 'Câu chưa đọc trang' ) );
+$_GET = array();
+
 // ---------- Theme: nhận lục bát (T-072) ----------
 require_once '/repo/themes/ca-dao/functions.php';
 kt( 'lục bát: cặp 6–8 âm tiết', cadao_la_luc_bat( array( 'một hai ba bốn năm sáu', 'một hai ba bốn năm sáu bảy tám', 'một hai ba bốn năm sáu', 'một hai ba bốn năm sáu bảy tám' ) ) );
