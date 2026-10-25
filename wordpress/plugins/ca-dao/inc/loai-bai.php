@@ -144,7 +144,7 @@ function cadao_hop_nguon( WP_Post $bai ) {
 		<input class="widefat" id="cadao_nguon_url" name="nguon_url" type="url" value="<?php echo $o( 'nguon_url' ); ?>" placeholder="https://"></p>
 	<p><label for="cadao_ngay_truy_cap">Ngày truy cập</label><br>
 		<input class="widefat" id="cadao_ngay_truy_cap" name="ngay_truy_cap" type="date" value="<?php echo $o( 'ngay_truy_cap' ); ?>"></p>
-	<p class="description">Để trống nếu không có. Trang sẽ hiện "Nguồn: …" khi có tên hoặc địa chỉ.</p>
+	<p class="description">Thường để trống: lời ca dao, tục ngữ không cần ghi nguồn. Điền khi bài có chú thích, lời giải chép từ nơi khác — trang sẽ hiện "Nguồn: …".</p>
 	<?php
 }
 

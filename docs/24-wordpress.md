@@ -19,7 +19,7 @@ Ca dao Mẹ · bật · 20 bài/ngày     ──lấy theo lịch──►  lờ
 
 - **Nhập tay:** "Ca dao – Tục ngữ → Thêm mới": gõ tiêu đề, dán lời vào khối thơ, chọn thể loại → **Đăng**. Mọi ô khác tùy chọn.
 - **Tự động:** bài vào trạng thái **Chờ duyệt** (Pending Review có sẵn của WordPress). Duyệt từng bài hoặc chọn nhiều bài → Sửa hàng loạt → Đã xuất bản.
-- **Không chặn đăng vì lý do biên tập** (D-054). Không có "nhãn mức kiểm"; trang hiện một dòng **"Nguồn: …"** khi bài có nguồn.
+- **Không chặn đăng vì lý do biên tập** (D-054). Không có "nhãn mức kiểm"; **lời ca dao, tục ngữ không ghi nguồn**; dòng **"Nguồn: … ↗"** chỉ hiện dưới chú thích, lời giải chép từ nguồn (tùy chọn) hoặc khi người viết tự điền hộp Nguồn (D-057).
 
 ## 2. Thành phần (mã trong repo này)
 
@@ -38,7 +38,7 @@ wordpress/
 └── tests/                   kiểm thử chạy trong Playground (kiem-thu.php, blueprint-kiem-thu.json)
 ```
 
-Giữ ít plugin bên thứ ba (mỗi plugin là một nguy cơ bảo mật). Đang dùng: Two Factor (xác thực hai lớp, của WordPress.org). Dự kiến chỉ thêm: chống spam form, SEO (T-050). Sao lưu do FlashPanel làm.
+Giữ ít plugin bên thứ ba (mỗi plugin là một nguy cơ bảo mật). Dự kiến chỉ thêm: chống spam form, SEO (T-050). Sao lưu do FlashPanel làm.
 
 ## 3. Mô hình dữ liệu
 
@@ -50,12 +50,13 @@ Giữ ít plugin bên thứ ba (mỗi plugin là một nguy cơ bảo mật). Đ
 | Đoạn trích (excerpt) | "Hiểu nhanh" — một câu giải nghĩa (tùy chọn) |
 | Phân loại `the_loai` | Ca dao · Tục ngữ · Thành ngữ · Đồng dao · Vè · Câu đố |
 | Phân loại `chu_de`, `vung` | Chủ đề, vùng (tùy chọn) |
-| Trường `_cadao_nguon_ten`, `_cadao_nguon_url`, `_cadao_ngay_truy_cap` | Dòng "Nguồn: …" |
+| Trường `nguon_ten`, `nguon_url`, `ngay_truy_cap` | Hộp Nguồn của bài nhập tay (tùy chọn) → dòng "Nguồn: …" cuối bài |
+| Trường `_cadao_url_goc`, `_cadao_ngay_lay` | Trang gốc và ngày lấy của bài tự động — nội bộ, không hiện ra trang |
 | Trường `_cadao_ma_goc`, `_cadao_nguon_id` | Mã bài trên nguồn và nguồn tự động đã lấy — để không lấy trùng |
 
 ## 4. Nguồn tự động
 
-Trang **Ca dao – Tục ngữ → Nguồn tự động**. Mỗi nguồn: tên · kiểu bộ đọc · địa chỉ · loại lấy · bật/tắt · **số bài Chờ duyệt mỗi ngày** · dòng ghi nguồn ("Lời tham khảo từ Ca dao Mẹ") · **chép chú thích** (bật/tắt, D-055) · bỏ qua bài gắn cờ (thô tục, trào phúng hiện đại) · nút **Lấy ngay**.
+Trang **Ca dao – Tục ngữ → Nguồn tự động**. Mỗi nguồn: tên · kiểu bộ đọc · địa chỉ · loại lấy · bật/tắt · **số bài Chờ duyệt mỗi ngày** · tên ghi nguồn · **chép chú thích, lời giải** (bật/tắt, D-055) · **ghi nguồn cho chú thích** (bật/tắt, D-057) · bỏ qua bài gắn cờ (thô tục, trào phúng hiện đại) · nút **Lấy ngay**.
 
 Kiểu bộ đọc: `cadao_me` (API WordPress + trang, đã kiểm ở T-038); sau đó `wordpress_api` (site WordPress bất kỳ). Site có cấu trúc riêng cần một bộ đọc mới — việc của agent; trang cấu hình chỉ chọn và chỉnh bộ đọc đã có.
 
@@ -64,8 +65,8 @@ Kiểu bộ đọc: `cadao_me` (API WordPress + trang, đã kiểm ở T-038); s
 ## 5. Những điều vẫn giữ
 
 - **Lời chép nguyên văn bằng máy, không qua AI**; AI không viết lời, dị bản, nguồn.
-- **Nguồn ghi đúng sự thật**: bài tự động ghi đúng địa chỉ trang đã lấy và ngày lấy; không tự điền nguồn cho bài nhập tay.
-- **Chú thích chép luôn kèm ghi công** và liên kết về trang gốc; chỉ khi công tắc của nguồn đang bật (D-055).
+- **Lời không ghi nguồn** (D-057); không tự điền nguồn cho bài nhập tay.
+- **Chú thích, lời giải** chỉ chép khi công tắc của nguồn đang bật (D-055); dòng "Nguồn: … ↗" dưới đó trỏ đúng trang đã lấy, tắt được bằng công tắc "Ghi nguồn cho chú thích" (D-057).
 - **Không tải ảnh** của nguồn; không chép cách phân loại, bộ thẻ ra trang.
 - **Google:** bài chưa có "Hiểu nhanh" (đoạn trích do dự án viết) mang `noindex` — lời và chú thích chép từ nguồn không tính là giá trị riêng (chính sách spam của Google về nội dung sao chép). Người đọc vẫn xem được.
 - Không thông tin cá nhân trong nội dung.

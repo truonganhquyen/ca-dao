@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name:       Kho tàng Ca dao – Tục ngữ
- * Description:       Loại bài Ca dao – Tục ngữ, dòng "Nguồn: …", nguồn tự động có cấu hình trong trang quản trị, kho thu thập, tự tạo bài Chờ duyệt.
- * Version:           0.1.0
+ * Description:       Loại bài Ca dao – Tục ngữ, nguồn tự động có cấu hình trong trang quản trị, kho thu thập, tự tạo bài Chờ duyệt.
+ * Version:           0.2.0
  * Requires at least: 6.8
  * Requires PHP:      8.1
  * Author:            Dự án Kho tàng Ca dao Tục ngữ Việt Nam
@@ -11,12 +11,12 @@
  * Text Domain:       ca-dao
  *
  * Thiết kế: docs/24-wordpress.md trong repo ca-dao (D-054, D-055, D-056).
- * Lời chép nguyên văn bằng máy, không qua AI; nguồn ghi đúng trang đã lấy.
+ * Lời chép nguyên văn bằng máy, không qua AI; lời không ghi nguồn, chú thích chép từ nguồn có dòng "Nguồn: …" (D-057).
  */
 
 defined( 'ABSPATH' ) || exit;
 
-const CADAO_PHIEN_BAN = '0.1.0';
+const CADAO_PHIEN_BAN = '0.2.0';
 define( 'CADAO_THU_MUC', __DIR__ );
 
 require_once CADAO_THU_MUC . '/inc/trich.php';

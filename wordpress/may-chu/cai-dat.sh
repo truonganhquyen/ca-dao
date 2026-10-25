@@ -63,10 +63,6 @@ chown "$TK:$TK" "/home/$TK/bin/cap-nhat-plugin.sh"
 sudo -u "$TK" env NHANH="$NHANH" bash "/home/$TK/bin/cap-nhat-plugin.sh"
 wp plugin is-active ca-dao || wp plugin activate ca-dao
 
-echo "== Xác thực hai lớp (plugin Two Factor của WordPress.org; mỗi người tự bật trong Hồ sơ)"
-wp plugin is-installed two-factor || wp plugin install two-factor
-wp plugin is-active two-factor || wp plugin activate two-factor
-wp plugin auto-updates enable two-factor >/dev/null 2>&1 || true   # báo lỗi nếu đã bật sẵn
 wp rewrite flush
 
 echo "== Cron thật: chạy lịch WordPress mỗi phút (Nguồn tự động cần 5 phút một lượt)"

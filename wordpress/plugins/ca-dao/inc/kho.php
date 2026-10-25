@@ -49,6 +49,43 @@ add_action(
 	}
 );
 
+// Nâng cấp dữ liệu bài một lần (sau khi loại bài đã đăng ký)
+add_action(
+	'init',
+	static function () {
+		if ( (int) get_option( 'cadao_du_lieu_phien_ban' ) < 2 ) {
+			cadao_bo_nguon_tu_dien();
+			update_option( 'cadao_du_lieu_phien_ban', 2 );
+		}
+	},
+	20
+);
+
+/**
+ * D-057: bài tạo từ kho trước 0.2.0 có ô nguồn máy tự điền cho lời. Bỏ các ô đó (địa chỉ gốc chuyển sang ô nội bộ);
+ * bài mà người duyệt đã sửa tên nguồn thì để nguyên.
+ *
+ * @return int số bài đã bỏ nguồn
+ */
+function cadao_bo_nguon_tu_dien(): int {
+	$so = 0;
+	$ds = get_posts( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'any', 'numberposts' => -1, 'fields' => 'ids', 'meta_key' => '_cadao_nguon_id' ) );
+	foreach ( $ds as $id ) {
+		$nguon = cadao_nguon_lay( (string) get_post_meta( $id, '_cadao_nguon_id', true ) );
+		$url   = (string) get_post_meta( $id, 'nguon_url', true );
+		if ( '' === $url || ! $nguon || get_post_meta( $id, 'nguon_ten', true ) !== ( $nguon['dong_ghi_nguon'] ?: $nguon['ten'] ) ) {
+			continue;
+		}
+		update_post_meta( $id, '_cadao_url_goc', $url );
+		update_post_meta( $id, '_cadao_ngay_lay', get_post_meta( $id, 'ngay_truy_cap', true ) );
+		foreach ( array( 'nguon_ten', 'nguon_url', 'ngay_truy_cap' ) as $k ) {
+			delete_post_meta( $id, $k );
+		}
+		++$so;
+	}
+	return $so;
+}
+
 /**
  * Lưu (hoặc cập nhật) một mục vào kho. Mục đã thành bài thì không ghi đè bài — chỉ cập nhật kho.
  *
@@ -120,7 +157,8 @@ function cadao_khoi_doan( string $html, string $lop = '' ): string {
 
 /**
  * Nội dung bài từ một mục kho: lời (khối Thơ) → câu hỏi/đáp án (câu đố) → dị bản → chú thích.
- * Chú thích chỉ chép khi nguồn bật "Chép chú thích" (D-055), luôn kèm "Theo …" và liên kết về trang gốc.
+ * Chú thích, lời giải chỉ chép khi nguồn bật "Chép chú thích" (D-055); dưới đó là dòng "Nguồn: …" về trang gốc khi
+ * nguồn bật "Ghi nguồn cho chú thích" (D-057). Lời ca dao, tục ngữ không ghi nguồn.
  */
 function cadao_noi_dung_tu_kho( object $muc, array $nguon ): string {
 	$d     = json_decode( $muc->du_lieu, true ) ?: array();
@@ -139,7 +177,6 @@ function cadao_noi_dung_tu_kho( object $muc, array $nguon ): string {
 		}
 	}
 	if ( ! empty( $nguon['chep_chu_thich'] ) && ! empty( $d['chu_thich'] ) ) {
-		$theo   = sprintf( 'Theo <a href="%s" rel="noopener">%s</a>', esc_url( $muc->url ), esc_html( $nguon['ten'] ) );
 		$muc_li = '';
 		foreach ( $d['chu_thich'] as $c ) {
 			$tu      = trim( (string) ( $c['tu'] ?? '' ) );
@@ -148,7 +185,9 @@ function cadao_noi_dung_tu_kho( object $muc, array $nguon ): string {
 		}
 		$khoi[] = cadao_khoi_tieu_de( 'Chú thích' );
 		$khoi[] = "<!-- wp:list {\"className\":\"cadao-chu-thich\"} -->\n<ul class=\"wp-block-list cadao-chu-thich\">\n$muc_li</ul>\n<!-- /wp:list -->";
-		$khoi[] = cadao_khoi_doan( $theo, 'cadao-chu-thich-nguon' );
+		if ( ! empty( $nguon['ghi_cong'] ) ) {
+			$khoi[] = cadao_khoi_doan( sprintf( 'Nguồn: <a href="%s" rel="noopener">%s <span aria-hidden="true">↗</span></a>', esc_url( $muc->url ), esc_html( $nguon['dong_ghi_nguon'] ?: $nguon['ten'] ) ), 'cadao-chu-thich-nguon' );
+		}
 	}
 	return implode( "\n\n", $khoi );
 }
@@ -194,9 +233,9 @@ function cadao_kho_tao_bai( int $kho_id ) {
 			'post_content' => cadao_noi_dung_tu_kho( $muc, $nguon ),
 			'post_author'  => (int) ( $nguon['nguoi_duyet'] ?? 0 ) ?: cadao_quan_tri_dau_tien(),
 			'meta_input'   => array(
-				'nguon_ten'       => $nguon['dong_ghi_nguon'] ?: $nguon['ten'],
-				'nguon_url'       => $muc->url,
-				'ngay_truy_cap'   => substr( $muc->ngay_lay, 0, 10 ),
+				// Lời không ghi nguồn (D-057); địa chỉ gốc giữ nội bộ để cập nhật bài từ nguồn sau này
+				'_cadao_url_goc'  => $muc->url,
+				'_cadao_ngay_lay' => substr( $muc->ngay_lay, 0, 10 ),
 				'_cadao_nguon_id' => $muc->nguon_id,
 				'_cadao_ma_goc'   => $muc->ma_goc,
 			),
