@@ -15,7 +15,7 @@ cadao_kho_luu(
 		'ma_goc' => 1, 'doc_trang' => $ngay, 'url' => 'https://example.org/luc-bat-mau/', 'loai' => 'ca_dao', 'tieu_de' => 'Dòng mẫu một của bài',
 		'loi' => "Dòng mẫu một của bài này\nDòng mẫu hai dài hơn chút cho vừa\nDòng mẫu ba của bài này\nDòng mẫu bốn dài hơn chút cho xong",
 		'di_ban' => array( "Dòng mẫu khác của bài này\nDòng mẫu hai khác dài hơn cho vừa" ),
-		'chu_thich' => array( array( 'ma' => 1, 'tu' => 'Từ mẫu', 'noi_dung' => 'Chú thích tổng hợp để xem giao diện.' ), array( 'ma' => 2, 'tu' => '', 'noi_dung' => 'Chú thích không ghi từ.' ) ),
+		'chu_thich' => array( array( 'ma' => 1, 'tu' => 'chút', 'noi_dung' => 'Chú thích tổng hợp để xem giao diện (từ có trong lời: chạm để xem).' ), array( 'ma' => 2, 'tu' => '', 'noi_dung' => 'Chú thích không ghi từ.' ) ),
 	)
 );
 // Câu đố mẫu

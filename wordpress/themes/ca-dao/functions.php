@@ -24,6 +24,7 @@ add_action(
 
 /**
  * Bài lục bát? Đa số cặp dòng (lẻ, chẵn) có 6 rồi 8 âm tiết. Âm tiết đếm theo khoảng trắng, như site cũ.
+ * (Plugin có cadao_the_tho() nhận đủ các thể; hàm này giữ cho theme chạy được khi chưa có plugin.)
  *
  * @param string[] $dong các dòng (chữ thường, không thẻ)
  */
@@ -42,23 +43,204 @@ function cadao_la_luc_bat( array $dong ): bool {
 }
 
 /**
- * Khối Thơ ngoài trang: mỗi dòng một <span class="cadao-dong">; bài lục bát thì câu lục mang thêm "cadao-luc".
+ * Trước khi dựng nội dung bài: biết khối Thơ nào là dị bản (đứng sau tiêu đề "Dị bản"), lời chính, và các chú thích
+ * (từ → số thứ tự) để từ có chú thích trong lời thành nút chạm (T-082, T-083).
+ */
+function cadao_chuan_bi_bai( string $noi_dung ): array {
+	$ra    = array( 'loi' => '', 'di_ban' => array(), 'chu_thich' => array() );
+	$sau_di_ban = false;
+	$so_tho     = 0;
+	$so_ct      = 0;
+	foreach ( parse_blocks( $noi_dung ) as $khoi ) {
+		if ( 'core/heading' === $khoi['blockName'] ) {
+			$sau_di_ban = 'Dị bản' === trim( wp_strip_all_tags( $khoi['innerHTML'] ) );
+		} elseif ( 'core/verse' === $khoi['blockName'] ) {
+			if ( 0 === $so_tho && function_exists( 'cadao_loi_tu_html_tho' ) ) {
+				$ra['loi'] = cadao_loi_tu_html_tho( $khoi['innerHTML'] );
+			}
+			if ( $sau_di_ban && $so_tho > 0 ) {
+				$ra['di_ban'][ $so_tho ] = count( $ra['di_ban'] ) + 1;
+			}
+			++$so_tho;
+		} elseif ( 'core/list' === $khoi['blockName'] && str_contains( (string) ( $khoi['attrs']['className'] ?? '' ), 'cadao-chu-thich' ) ) {
+			preg_match_all( '~<li\b[^>]*>(.*?)</li>~s', $khoi['innerHTML'] . implode( '', array_column( $khoi['innerBlocks'], 'innerHTML' ) ), $li );
+			foreach ( $li[1] as $o ) {
+				++$so_ct;
+				if ( preg_match( '~^\s*<strong>(.*?)</strong>~s', $o, $tu ) ) {
+					$chu = trim( html_entity_decode( wp_strip_all_tags( $tu[1] ), ENT_QUOTES | ENT_HTML5, 'UTF-8' ) );
+					if ( '' !== $chu && ! isset( $ra['chu_thich'][ $chu ] ) ) {
+						$ra['chu_thich'][ $chu ] = $so_ct;
+					}
+				}
+			}
+		}
+	}
+	return $ra;
+}
+
+/** Trạng thái của bài đang dựng (một bài mỗi lần the_content): đếm khối Thơ, mục chú thích lại từ đầu mỗi lần. */
+function cadao_bai_dang_dung(): ?array {
+	return $GLOBALS['cadao_bai_dung'] ?? null;
+}
+
+add_filter(
+	'the_content',
+	static function ( $noi_dung ) {
+		$dung = is_singular( 'cdtn' ) && get_the_ID() === get_queried_object_id() && ! doing_filter( 'get_the_excerpt' );
+		$GLOBALS['cadao_bai_dung'] = $dung ? cadao_chuan_bi_bai( $noi_dung ) + array( 'tho' => -1, 'ct' => 0 ) : null;
+		return $noi_dung;
+	},
+	8 // trước do_blocks (9)
+);
+
+/**
+ * Dị bản: chữ khác lời chính được tô (so theo âm tiết; bỏ qua chữ hoa, dấu câu). Một dòng HTML đã thoát → dòng có
+ * <mark>. Dòng có thẻ HTML giữ nguyên. Bài quá dài (so quá tốn) thì không tô.
+ *
+ * @param string[] $dong_html các dòng của dị bản (đã thoát HTML)
+ * @return string[]
+ */
+function cadao_to_cho_khac( string $loi_chinh, array $dong_html ): array {
+	$khoa = static fn( string $t ) => function_exists( 'cadao_chuan_loi' ) ? cadao_chuan_loi( $t ) : mb_strtolower( preg_replace( '/[^\p{L}\p{N}]/u', '', $t ) );
+	$am   = static fn( string $d ) => array_values( array_filter( array_map( $khoa, preg_split( '/\s+/u', $d, -1, PREG_SPLIT_NO_EMPTY ) ), 'strlen' ) );
+	$chinh = array_values( array_filter( array_map( $am, explode( "\n", $loi_chinh ) ) ) ); // các dòng có chữ
+	$tu    = array(); // theo dòng có chữ của dị bản: [[dòng, vị trí trong dòng, khóa], …]
+	$phan  = array();
+	foreach ( $dong_html as $i => $d ) {
+		$phan[ $i ] = str_contains( $d, '<' ) ? null : preg_split( '/(\s+)/u', html_entity_decode( $d, ENT_QUOTES | ENT_HTML5, 'UTF-8' ), -1, PREG_SPLIT_DELIM_CAPTURE );
+		$dong       = array();
+		foreach ( (array) $phan[ $i ] as $j => $t ) {
+			if ( 0 === $j % 2 && '' !== $khoa( $t ) ) {
+				$dong[] = array( $i, $j, $khoa( $t ) );
+			}
+		}
+		if ( $dong ) {
+			$tu[] = $dong;
+		}
+	}
+	// Cùng số dòng: so từng dòng với dòng tương ứng (dễ hiểu hơn); khác số dòng: so cả bài
+	$cap = count( $tu ) === count( $chinh ) ? array_map( null, $tu, $chinh ) : array( array( array_merge( ...( $tu ?: array( array() ) ) ), array_merge( ...( $chinh ?: array( array() ) ) ) ) );
+	$khac = array();
+	foreach ( $cap as [ $x, $y ] ) {
+		$n = count( $x );
+		$m = count( $y );
+		if ( ! $n || $n * $m > 400000 ) {
+			continue;
+		}
+		// Dãy con chung dài nhất (LCS) theo âm tiết; chữ của dị bản không nằm trong dãy chung là chữ khác
+		$L = array_fill( 0, $n + 1, array_fill( 0, $m + 1, 0 ) );
+		for ( $a = $n - 1; $a >= 0; $a-- ) {
+			for ( $b = $m - 1; $b >= 0; $b-- ) {
+				$L[ $a ][ $b ] = $x[ $a ][2] === $y[ $b ] ? $L[ $a + 1 ][ $b + 1 ] + 1 : max( $L[ $a + 1 ][ $b ], $L[ $a ][ $b + 1 ] );
+			}
+		}
+		for ( $a = 0, $b = 0; $a < $n; ) {
+			if ( $b < $m && $x[ $a ][2] === $y[ $b ] ) {
+				++$a;
+				++$b;
+			} elseif ( $b < $m && $L[ $a ][ $b + 1 ] >= $L[ $a + 1 ][ $b ] ) {
+				++$b;
+			} else {
+				$khac[ $x[ $a ][0] ][ $x[ $a ][1] ] = true;
+				++$a;
+			}
+		}
+	}
+	$ra = array();
+	foreach ( $dong_html as $i => $d ) {
+		if ( null === $phan[ $i ] || empty( $khac[ $i ] ) ) {
+			$ra[ $i ] = $d;
+			continue;
+		}
+		$s = '';
+		foreach ( $phan[ $i ] as $j => $t ) {
+			$s .= isset( $khac[ $i ][ $j ] ) ? '<mark class="cadao-khac">' . esc_html( $t ) . '</mark>' : esc_html( $t );
+		}
+		$ra[ $i ] = $s;
+	}
+	return $ra;
+}
+
+/**
+ * Lời chính: từ có chú thích thành liên kết tới chú thích dưới lời (tắt JavaScript vẫn dùng được); JavaScript mở ô
+ * chú thích khi chạm (T-082). Mỗi từ chỉ gắn ở lần xuất hiện đầu tiên, từ dài trước.
+ *
+ * @param string[]           $dong_html các dòng (đã thoát HTML)
+ * @param array<string, int> $chu_thich từ → số thứ tự chú thích
+ * @return string[]
+ */
+function cadao_gan_tu_chu_thich( array $dong_html, array $chu_thich ): array {
+	uksort( $chu_thich, static fn( $a, $b ) => mb_strlen( $b ) <=> mb_strlen( $a ) );
+	foreach ( $chu_thich as $tu => $so ) {
+		$mau = '/(?<![\p{L}\p{M}\p{N}])(' . preg_quote( esc_html( $tu ), '/' ) . ')(?![\p{L}\p{M}\p{N}])/iu';
+		foreach ( $dong_html as $i => $d ) {
+			// Không gắn vào chỗ đã nằm trong một liên kết khác
+			$phan = preg_split( '~(<a\b.*?</a>)~s', $d, -1, PREG_SPLIT_DELIM_CAPTURE );
+			$xong = false;
+			foreach ( $phan as $k => $p ) {
+				if ( 0 === $k % 2 && ! $xong ) {
+					$moi = preg_replace( $mau, '<a class="cadao-tu" href="#cadao-ct-' . (int) $so . '" data-ct="' . (int) $so . '">$1<span class="screen-reader-text"> (xem chú thích)</span></a>', $p, 1, $dem );
+					if ( $dem ) {
+						$phan[ $k ] = $moi;
+						$xong       = true;
+					}
+				}
+			}
+			if ( $xong ) {
+				$dong_html[ $i ] = implode( '', $phan );
+				continue 2;
+			}
+		}
+	}
+	return $dong_html;
+}
+
+/**
+ * Khối Thơ ngoài trang: mỗi dòng một <span class="cadao-dong">; trình bày theo thể (lục bát, song thất lục bát: câu lục
+ * thụt lề); dị bản có nhãn "Dị bản N" và chữ khác lời chính được tô; lời chính có từ chú thích bấm được.
  * Chỉ đổi cách trình bày; chữ giữ nguyên (đã thoát HTML khi lưu).
  */
 add_filter(
 	'render_block_core/verse',
 	static function ( $html ) {
-		if ( ! preg_match( '~^(\s*<pre\b[^>]*>)(.*)(</pre>\s*)$~s', $html, $m ) ) {
+		if ( ! preg_match( '~^(\s*<pre\b)([^>]*>)(.*)(</pre>\s*)$~s', $html, $m ) ) {
 			return $html;
 		}
-		$dong = preg_split( '~<br\s*/?>|\n~i', $m[2] );
-		$luc  = CADAO_LUC_BAT_THUT_LE && cadao_la_luc_bat( array_map( static fn( $d ) => wp_strip_all_tags( html_entity_decode( $d ) ), $dong ) );
-		$ra   = '';
-		foreach ( $dong as $i => $d ) {
-			$ra .= '<span class="cadao-dong' . ( $luc && 0 === $i % 2 ? ' cadao-luc' : '' ) . '">' . ( '' === trim( $d ) ? '&nbsp;' : $d ) . '</span>';
+		$bai = cadao_bai_dang_dung();
+		$i   = $bai ? ++$GLOBALS['cadao_bai_dung']['tho'] : -1;
+		$dong = preg_split( '~<br\s*/?>|\n~i', $m[3] );
+		$chu  = array_map( static fn( $d ) => wp_strip_all_tags( html_entity_decode( $d ) ), $dong );
+		$the  = function_exists( 'cadao_the_tho' ) ? cadao_the_tho( implode( "\n", $chu ) ) : ( cadao_la_luc_bat( $chu ) ? 'luc-bat' : 'tu-do' );
+		$so_dong = array_values( array_filter( array_keys( $chu ), static fn( $k ) => '' !== trim( $chu[ $k ] ) ) );
+		$la_di_ban = $bai && isset( $bai['di_ban'][ $i ] );
+		if ( $la_di_ban && '' !== $bai['loi'] ) {
+			$dong = cadao_to_cho_khac( $bai['loi'], $dong );
+		} elseif ( $bai && 0 === $i && $bai['chu_thich'] ) {
+			$dong = cadao_gan_tu_chu_thich( $dong, $bai['chu_thich'] );
 		}
-		return $m[1] . $ra . $m[3];
+		$ra = '';
+		foreach ( $dong as $k => $d ) {
+			$thu = array_search( $k, $so_dong, true ); // thứ tự trong các dòng có chữ
+			$luc = CADAO_LUC_BAT_THUT_LE && false !== $thu && ( ( 'luc-bat' === $the && 0 === $thu % 2 ) || ( 'song-that-luc-bat' === $the && 2 === $thu % 4 ) );
+			$ra .= '<span class="cadao-dong' . ( $luc ? ' cadao-luc' : '' ) . '">' . ( '' === trim( $d ) ? '&nbsp;' : $d ) . '</span>';
+		}
+		$lop = preg_replace( '~class="([^"]*)"~', 'class="$1 cadao-the-' . esc_attr( $the ) . '"', $m[2], 1, $co );
+		$tho = $m[1] . ( $co ? $lop : ' class="cadao-the-' . esc_attr( $the ) . '"' . $m[2] ) . $ra . $m[4];
+		return $la_di_ban ? '<div class="cadao-di-ban"><p class="cadao-nhan-di-ban">Dị bản ' . (int) $bai['di_ban'][ $i ] . '</p>' . $tho . '</div>' : $tho;
 	}
+);
+
+/** Danh sách chú thích: mỗi mục có id để từ trong lời trỏ tới (T-082). */
+add_filter(
+	'render_block_core/list',
+	static function ( $html, $khoi ) {
+		if ( ! cadao_bai_dang_dung() || ! str_contains( (string) ( $khoi['attrs']['className'] ?? '' ), 'cadao-chu-thich' ) ) {
+			return $html;
+		}
+		return preg_replace_callback( '~<li\b~', static fn() => '<li id="cadao-ct-' . ( ++$GLOBALS['cadao_bai_dung']['ct'] ) . '"', $html );
+	},
+	10,
+	2
 );
 
 /** "Hiểu nhanh" (đoạn trích do dự án viết) ngay dưới lời, trước dị bản và chú thích (docs/20 mục 4.1, lớp 1). */

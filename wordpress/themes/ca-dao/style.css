@@ -2,7 +2,7 @@
 Theme Name:        Kho tàng Ca dao
 Description:       Theme con của Twenty Twenty-Five cho dự án Kho tàng Ca dao Tục ngữ Việt Nam: chữ và khoảng trắng trước, lời thơ lớn, sáng/tối theo máy (docs/20 trong repo ca-dao).
 Template:          twentytwentyfive
-Version:           0.2.0
+Version:           0.3.0
 Requires at least: 6.8
 Requires PHP:      8.1
 Author:            Dự án Kho tàng Ca dao Tục ngữ Việt Nam
@@ -57,6 +57,12 @@ a {
 .cadao-nhan-the-loai a:hover {
 	text-decoration: underline;
 }
+.cadao-nhan-dau {
+	gap: 0 1rem;
+}
+.cadao-nhan-the-tho a {
+	color: var(--cadao-nhat); /* thể thơ: máy nhận theo số âm tiết, lọc danh sách theo thể */
+}
 .wp-block-post-title {
 	margin-block-start: 0.25rem;
 }
@@ -85,9 +91,94 @@ a {
 	padding-inline-start: 2.75em; /* câu lục bắt đầu thụt 1,5em */
 }
 
-/* Dị bản: lời nhỏ hơn lời chính một bậc */
-.wp-block-post-content .wp-block-verse ~ .wp-block-verse {
+/* Dị bản (T-083): nhãn "Dị bản N", lời nhỏ hơn lời chính một bậc, ngăn cách rõ; chữ khác lời chính tô nền và
+   gạch chân (không chỉ dựa vào màu) */
+.cadao-di-ban {
+	margin-block: 1rem 1.5rem;
+	padding-inline-start: 1rem;
+	border-inline-start: 2px solid var(--cadao-ke);
+}
+.cadao-nhan-di-ban {
+	margin: 0;
+	color: var(--cadao-nhat);
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 600;
+}
+.cadao-di-ban .wp-block-verse {
 	font-size: var(--wp--preset--font-size--large);
+	margin-block: 0.25rem 0;
+}
+.cadao-khac {
+	background: light-dark(#f6e3b4, #4a3b16);
+	color: inherit;
+	text-decoration: underline;
+	text-decoration-thickness: 2px;
+	text-underline-offset: 0.2em;
+	border-radius: 2px;
+}
+
+/* Từ có chú thích (T-082): gạch chân chấm; chạm mở ô chú thích */
+.cadao-tu {
+	color: inherit;
+	text-decoration: underline dotted;
+	text-decoration-thickness: 2px;
+	text-underline-offset: 0.25em;
+	cursor: pointer;
+}
+.cadao-tu:hover {
+	text-decoration-style: solid;
+}
+.cadao-chu-thich li:target {
+	background: light-dark(#f6e3b4, #4a3b16);
+}
+.cadao-o-ct {
+	max-width: min(28rem, calc(100vw - 16px));
+	padding: 0;
+	border: 1px solid var(--cadao-ke);
+	border-radius: 12px;
+	background: var(--cadao-giay);
+	color: var(--cadao-muc);
+	box-shadow: 0 8px 32px rgb(0 0 0 / 0.25);
+}
+.cadao-o-ct::backdrop {
+	background: rgb(0 0 0 / 0.3);
+}
+.cadao-o-ct-than {
+	padding: 1rem 1.25rem;
+}
+.cadao-o-ct-tu {
+	margin: 0 0 0.5rem;
+	font-weight: 600;
+	font-size: var(--wp--preset--font-size--medium);
+}
+.cadao-o-ct-nd p {
+	margin: 0 0 0.5rem;
+}
+.cadao-o-ct-dong {
+	min-height: 44px;
+	padding: 0 1rem;
+	border: 1px solid var(--cadao-son);
+	border-radius: 999px;
+	background: none;
+	color: var(--cadao-son);
+	font: inherit;
+	cursor: pointer;
+}
+/* Máy tính: ô cạnh từ (JavaScript đặt vị trí) */
+@media (min-width: 640px) {
+	.cadao-o-ct {
+		position: fixed;
+		margin: 0;
+	}
+}
+/* Điện thoại: ô trượt từ dưới lên */
+@media (max-width: 639px) {
+	.cadao-o-ct {
+		width: 100%;
+		max-width: none;
+		margin: auto 0 0;
+		border-radius: 16px 16px 0 0;
+	}
 }
 
 /* Hiểu nhanh (mục 4.1, lớp 1) */

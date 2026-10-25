@@ -1,7 +1,11 @@
 <!-- wp:template-part {"slug":"header","area":"header"} /-->
 
 <!-- wp:group {"tagName":"main","style":{"spacing":{"padding":{"top":"2rem","bottom":"3rem"}}},"layout":{"type":"constrained"}} -->
-<main class="wp-block-group" style="padding-top:2rem;padding-bottom:3rem"><!-- wp:post-terms {"term":"the_loai","className":"cadao-nhan-the-loai"} /-->
+<main class="wp-block-group" style="padding-top:2rem;padding-bottom:3rem"><!-- wp:group {"className":"cadao-nhan-dau","layout":{"type":"flex","flexWrap":"wrap"}} -->
+<div class="wp-block-group cadao-nhan-dau"><!-- wp:post-terms {"term":"the_loai","className":"cadao-nhan-the-loai"} /-->
+
+<!-- wp:post-terms {"term":"the_tho","className":"cadao-nhan-the-loai cadao-nhan-the-tho"} /--></div>
+<!-- /wp:group -->
 
 <!-- wp:post-title {"level":1} /-->
 
