@@ -8,15 +8,26 @@
 defined( 'ABSPATH' ) || exit;
 
 const CADAO_TUY_CHON_NGUON = 'cadao_nguon_tu_dong';
-const CADAO_GIAY_MOI_LUOT  = 20;
+const CADAO_GIAY_MOI_LUOT  = 20;  // chạy trong yêu cầu web (WP-Cron, nút "Lấy ngay"): hợp giới hạn của hosting phổ thông
+const CADAO_GIAY_MOI_LUOT_CLI = 120; // chạy bằng cron thật của máy chủ (WP-CLI): đọc được ~20 trang mỗi lượt
+
+function cadao_giay_moi_luot(): int {
+	return defined( 'WP_CLI' ) && WP_CLI ? CADAO_GIAY_MOI_LUOT_CLI : CADAO_GIAY_MOI_LUOT;
+}
 
 /** Các bộ đọc có sẵn. Site có cấu trúc riêng cần một bộ đọc mới — việc của agent (docs/24 mục 4). */
 function cadao_bo_doc(): array {
 	return array(
 		'cadao_me' => array(
-			'ten'   => 'Ca dao Mẹ (API + trang)',
+			'ten'   => 'Ca dao Mẹ (API + sitemap + trang)',
 			'chay'  => 'cadao_doc_cadao_me',
-			'loai'  => array( 'ca_dao' => 'Ca dao' ), // T-073 thêm: thành ngữ–tục ngữ, đồng dao, vè, câu đố
+			'loai'  => array(
+				'ca_dao'            => 'Ca dao',
+				'thanh_ngu_tuc_ngu' => 'Thành ngữ – tục ngữ',
+				'dong_dao'          => 'Đồng dao',
+				've'                => 'Vè',
+				'cau_do'            => 'Câu đố',
+			),
 		),
 	);
 }
@@ -29,11 +40,11 @@ function cadao_nguon_mac_dinh(): array {
 		'kieu'            => 'cadao_me',
 		'url'             => '',
 		'bat'             => false,
-		'loai_lay'        => array( 'ca_dao' ),
+		'loai_lay'        => array( 'ca_dao', 'thanh_ngu_tuc_ngu', 'dong_dao', 've', 'cau_do' ),
 		'so_bai_moi_ngay' => 20,
 		'dong_ghi_nguon'  => '',
-		'chep_chu_thich'  => true,  // D-055: chép chú thích, lời giải được phép; tắt được bất cứ lúc nào
-		'ghi_cong'        => true,  // D-057: dòng "Nguồn: …" dưới chú thích đã chép — tùy chọn
+		'chep_chu_thich'  => true,  // D-055: chép chú thích, lời giải (đáp án câu đố) được phép; tắt được bất cứ lúc nào
+		'ghi_cong'        => true,  // D-057: dòng "Nguồn: …" dưới chú thích, lời giải đã chép — tùy chọn
 		'bo_qua_co'       => array( 'tho_tuc' ),
 		'tu_tho_tuc'      => array( 'đụ', 'địt', 'lồn', 'buồi', 'cặc', 'đéo' ),
 		'nguoi_duyet'     => 0,
@@ -86,7 +97,8 @@ function cadao_nguon_ghi( array &$nguon, string $viec, array $kq ): void {
 }
 
 /** Chạy bộ đọc của một nguồn một lượt. */
-function cadao_nguon_chay( string $id, int $giay = CADAO_GIAY_MOI_LUOT ): array {
+function cadao_nguon_chay( string $id, ?int $giay = null ): array {
+	$giay ??= cadao_giay_moi_luot();
 	$nguon = cadao_nguon_lay( $id );
 	$bo    = $nguon ? ( cadao_bo_doc()[ $nguon['kieu'] ] ?? null ) : null;
 	if ( ! $nguon || ! $bo ) {
@@ -102,8 +114,15 @@ function cadao_nguon_chay( string $id, int $giay = CADAO_GIAY_MOI_LUOT ): array 
 	} finally {
 		delete_transient( 'cadao_dang_chay_' . $id );
 	}
-	cadao_nguon_ghi( $nguon, 'lấy bài', $kq );
-	cadao_nguon_luu( $nguon );
+	// Chỉ ghi điểm dừng và nhật ký lên cấu hình MỚI NHẤT: người quản trị có thể đã sửa nguồn trong lúc lượt chạy
+	wp_cache_delete( CADAO_TUY_CHON_NGUON, 'options' ); // đọc lại từ cơ sở dữ liệu, không dùng bản nhớ đệm đầu lượt
+	wp_cache_delete( 'alloptions', 'options' );
+	$moi = cadao_nguon_lay( $id );
+	if ( $moi ) {
+		$moi['trang_thai_doc'] = $nguon['trang_thai_doc'];
+		cadao_nguon_ghi( $moi, 'lấy bài', $kq );
+		cadao_nguon_luu( $moi );
+	}
 	return $kq;
 }
 

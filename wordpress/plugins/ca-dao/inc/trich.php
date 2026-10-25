@@ -114,3 +114,82 @@ function cadao_van_ban( string $html ): string {
 	$h  = cadao_nfc( cadao_giai_ma( $h ) );
 	return implode( "\n", array_filter( array_map( 'cadao_cat', explode( $br, $h ) ), 'strlen' ) );
 }
+
+/**
+ * Đọc một trang HTML của Ca dao Mẹ (T-073; như docTrang của kho thô): mọi bài (<article>) trên trang — bài chính
+ * và các bài liên quan — kèm dị bản, chủ đề; câu đố tách câu hỏi, đáp án khỏi lời; và mọi chú thích của trang.
+ *
+ * @return array{bai: array<int, array>, chu_thich: array<int, array{ma: int, tu: string, noi_dung: string}>}
+ */
+function cadao_doc_trang( string $html ): array {
+	$bai = array();
+	preg_match_all( '~<article id="post-(\d+)"[^>]*>(.*?)</article>~s', $html, $ds, PREG_SET_ORDER );
+	foreach ( $ds as $m ) {
+		$a = $m[2];
+		if ( ! preg_match( '~<h1 class="post-title[^"]*">\s*<a href="([^"]+)"[^>]*>(.*?)</a>~s', $a, $td ) ) {
+			continue;
+		}
+		$mo = '<div class="entry-content">';
+		$bd = strpos( $a, $mo );
+		if ( false === $bd ) {
+			continue;
+		}
+		$sau      = substr( $a, $bd + strlen( $mo ) );
+		$noi_dung = preg_match( '~<section class="variants">|<aside class="post-data~', $sau, $kt, PREG_OFFSET_CAPTURE ) ? substr( $sau, 0, $kt[0][1] ) : $sau;
+		$noi_dung = preg_replace( '~</div>\s*$~', '', $noi_dung );
+		// Câu đố: sau lời có khối câu hỏi (<div class="q">) và đáp án (<div class="a">) — tách riêng, không gộp vào lời
+		$cau_hoi = null;
+		$dap_an  = null;
+		$vt      = strpos( $noi_dung, '<div class="q">' );
+		if ( false !== $vt ) {
+			$duoi     = substr( $noi_dung, $vt );
+			$cau_hoi  = preg_match( '~<div class="q">(.*?)</div>~s', $duoi, $x ) ? ( cadao_van_ban( $x[1] ) ?: null ) : null;
+			$dap_an   = preg_match( '~<div class="a">(.*?)</div>~s', $duoi, $x ) ? ( cadao_van_ban( $x[1] ) ?: null ) : null;
+			$noi_dung = substr( $noi_dung, 0, $vt );
+		}
+		$di_ban = array();
+		if ( preg_match( '~<section class="variants">(.*?)</section>~s', $a, $kdb ) ) {
+			preg_match_all( '~<li class="variant"[^>]*>(.*?)</li>~s', $kdb[1], $dsdb );
+			$di_ban = array_map( 'cadao_trich_loi', $dsdb[1] );
+		}
+		$chu_de = array();
+		if ( preg_match( '~<ul class="post-categories">(.*?)</ul>~s', $a, $kcd ) ) {
+			preg_match_all( '~<a [^>]*>(.*?)</a>~s', $kcd[1], $dscd );
+			$chu_de = array_values( array_filter( array_map( 'cadao_van_ban', $dscd[1] ), 'strlen' ) );
+		}
+		$chinh = cadao_trich_loi( $noi_dung );
+		$bai[] = array(
+			'ma_goc'                  => (int) $m[1],
+			'url'                     => $td[1],
+			'tieu_de'                 => cadao_van_ban( $td[2] ),
+			'loi'                     => $chinh['loi'],
+			'vi_tri_chu_thich'        => $chinh['chu_thich'],
+			'di_ban'                  => array_column( $di_ban, 'loi' ),
+			'vi_tri_chu_thich_di_ban' => array_column( $di_ban, 'chu_thich' ),
+			'chu_de_goc'              => $chu_de,
+			'cau_hoi'                 => $cau_hoi,
+			'dap_an'                  => $dap_an,
+		);
+	}
+	return array( 'bai' => $bai, 'chu_thich' => cadao_doc_chu_thich( $html ) );
+}
+
+/** Chú thích trong <section class="ref"> (hoặc trang /chu-thich/chi-tiet/<mã>): mã → { ma, tu (có thể rỗng), noi_dung }. */
+function cadao_doc_chu_thich( string $html ): array {
+	$ra = array();
+	preg_match_all( '~<li data-ref-id="(\d+)" id="note-\d+">(.*?)</dl>~s', $html, $ds, PREG_SET_ORDER );
+	foreach ( $ds as $m ) {
+		if ( ! preg_match( '~<dd>(.*)</dd>~s', $m[2], $dd ) ) {
+			continue;
+		}
+		$dt                  = preg_match( '~<dt>(.*?)</dt>~s', $m[2], $x ) ? $x[1] : '';
+		$ra[ (int) $m[1] ] = array( 'ma' => (int) $m[1], 'tu' => cadao_van_ban( $dt ), 'noi_dung' => cadao_van_ban( $dd[1] ) );
+	}
+	return $ra;
+}
+
+/** Sitemap: [{ url, lastmod }]. */
+function cadao_doc_sitemap( string $xml ): array {
+	preg_match_all( '~<url>\s*<loc>([^<]+)</loc>(?:\s*<lastmod>([^<]+)</lastmod>)?~', $xml, $ds, PREG_SET_ORDER );
+	return array_map( static fn( $m ) => array( 'url' => cadao_giai_ma( cadao_cat( $m[1] ) ), 'lastmod' => isset( $m[2] ) ? cadao_cat( $m[2] ) : null ), $ds );
+}

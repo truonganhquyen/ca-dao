@@ -39,7 +39,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-070 | Áp dụng D-054..D-056: nới quy tắc, kế hoạch chuyển WordPress | A | T-037 | — | DONE |
 | T-071 | Plugin WordPress `ca-dao`: loại bài, phân loại, dòng Nguồn, Nguồn tự động, kho thu thập, đổ bài Chờ duyệt | A | T-070 | — | DONE |
 | T-072 | Theme WordPress `ca-dao` (theme con, giao diện theo docs/20) | A | T-071 | — | READY |
-| T-073 | Bộ đọc Ca dao Mẹ đầy đủ: dị bản, chú thích có ghi nguồn, tục ngữ, đồng dao, vè, câu đố | A | T-071 | — | READY |
+| T-073 | Bộ đọc Ca dao Mẹ đầy đủ: dị bản, chú thích có ghi nguồn, tục ngữ, đồng dao, vè, câu đố | A | T-071 | — | DONE |
 | T-074 | Chọn và mua hosting WordPress | N | — | — | DONE |
 | T-075 | Cài WordPress lên hosting: plugin, sao lưu, bảo mật cơ bản (theme cài khi T-072 xong) | N+A | T-071, T-074 | — | IN_PROGRESS |
 | T-076 | Chuyển nội dung hiện có sang WordPress, ngừng site Astro | A | T-075 | — | BLOCKED |
@@ -161,7 +161,8 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 **Đọc:** `20` mục 1, 4, 11. **Việc:** theme con của Twenty Twenty-Five: token màu, phông, sáng/tối, trang bài (lời lớn, lục bát thụt lề, chú thích và dòng "Nguồn: …" dưới chú thích), đọc tốt ở 360 px. **Chấp nhận:** quét trợ năng WCAG 2.2 AA 0 lỗi trên trang bài.
 
 #### T-073 · Bộ đọc Ca dao Mẹ đầy đủ — A
-**Việc:** dị bản và chú thích (chép kèm "Theo Ca dao Mẹ" + liên kết khi công tắc bật — D-055), thành ngữ–tục ngữ, đồng dao, vè, câu đố (câu hỏi + đáp án); dùng lại cách trích đã kiểm ở kho thô (T-038: 20/20 khớp từng ký tự). **Chấp nhận:** kiểm mẫu 20 bài khớp từng ký tự với trang gốc.
+**Việc:** dị bản và chú thích (chú thích, lời giải chép kèm "Nguồn: Ca dao Mẹ ↗" khi công tắc bật — D-055, D-057), thành ngữ–tục ngữ, đồng dao, vè, câu đố (câu hỏi + đáp án); dùng lại cách trích đã kiểm ở kho thô (T-038: 20/20 khớp từng ký tự). **Chấp nhận:** kiểm mẫu 20 bài khớp từng ký tự với trang gốc.
+**Tiến độ (25/10/2026):** plugin 0.3.0. Kiểm mẫu trên cadao.me thật: 23/23 bài (5 ca dao, 5 thành ngữ–tục ngữ, 5 đồng dao, 4 vè, 4 câu đố) khớp từng ký tự với trang gốc, trích bằng cách làm độc lập; bộ trích trang PHP khớp bộ trích JavaScript của kho thô trên 53 bài, 120 chú thích (so ở thư mục tạm, không đưa dữ liệu thật vào repo). Kiểm thử plugin: 59 phép thử, 62 khi thêm `--mang` (có nguồn giả dựng bằng `pre_http_request`).
 
 #### T-074 · Hosting WordPress — N
 **Việc:** chọn và mua hosting theo yêu cầu ở `24` mục 8 (agent soạn so sánh khi cần). **Chấp nhận:** có tài khoản quản trị hosting, PHP ≥ 8.3, có sao lưu. **Đã có (24/10/2026):** VPS + FlashPanel, cadao.sdigi.net, PHP 8.5 (`24` mục 8).
