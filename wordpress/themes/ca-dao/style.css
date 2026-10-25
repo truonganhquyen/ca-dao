@@ -2,7 +2,7 @@
 Theme Name:        Kho tàng Ca dao
 Description:       Theme con của Twenty Twenty-Five cho dự án Kho tàng Ca dao Tục ngữ Việt Nam: chữ và khoảng trắng trước, lời thơ lớn, sáng/tối theo máy (docs/20 trong repo ca-dao).
 Template:          twentytwentyfive
-Version:           0.6.0
+Version:           0.7.0
 Requires at least: 6.8
 Requires PHP:      8.1
 Author:            Dự án Kho tàng Ca dao Tục ngữ Việt Nam
@@ -559,6 +559,66 @@ html[data-co-chu="3"] .wp-block-verse {
 	align-items: center;
 	min-height: 44px;
 	color: inherit;
+}
+
+/* Tìm (T-041) */
+.cadao-tim {
+	display: flex;
+	gap: 0.5rem;
+	margin-block: 1rem;
+}
+.cadao-tim input[type="search"] {
+	flex: 1 1 auto;
+	min-width: 0;
+	min-height: 48px;
+	padding: 0 0.75rem;
+	border: 1px solid var(--cadao-nhat);
+	border-radius: 8px;
+	background: var(--cadao-giay);
+	color: var(--cadao-muc);
+	font: inherit;
+	font-size: 1.125rem;
+}
+.cadao-tim button,
+.cadao-tim-gan-day button {
+	min-height: 44px;
+	padding: 0 1rem;
+	border: 1px solid var(--cadao-son);
+	border-radius: 999px;
+	background: var(--cadao-son);
+	color: var(--cadao-giay);
+	font: inherit;
+	cursor: pointer;
+}
+.cadao-tim-gan-day button {
+	background: none;
+	color: var(--cadao-son);
+	margin: 0.25rem 0.25rem 0 0;
+}
+.cadao-tim-nhom {
+	font-size: var(--wp--preset--font-size--medium);
+	margin-block: 1.5rem 0.5rem;
+}
+.cadao-tim-ds {
+	list-style: none;
+	padding: 0;
+}
+.cadao-tim-ds li {
+	padding-block: 0.6rem;
+	border-block-end: 1px solid var(--cadao-ke);
+}
+.cadao-tim-ds a {
+	display: inline-block;
+	min-height: 32px;
+}
+.cadao-tim-ds mark {
+	background: light-dark(#f6e3b4, #4a3b16);
+	color: inherit;
+}
+.cadao-tim-phu,
+.cadao-tim-khop {
+	color: var(--cadao-nhat);
+	font-size: var(--wp--preset--font-size--small);
 }
 
 /* "Đọc nhiều tuần này" (trang chủ) */
