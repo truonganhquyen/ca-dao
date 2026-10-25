@@ -602,6 +602,34 @@ $twd = ob_get_clean();
 $_GET = array();
 kt( 'trang "Xác nhận Wikidata": thực thể, mô tả, nút quyết', str_contains( $twd, 'Q902' ) && str_contains( $twd, 'bến đò mẫu' ) && str_contains( $twd, 'Sai' ) );
 
+// ---------- Gợi ý vùng (T-089), chủ đề (T-091) ----------
+kt( 'bộ chủ đề, vùng của dự án có sẵn (nhóm kinh nghiệm, lối hát, loại câu đố)', term_exists( 'tinh-yeu-hon-nhan', 'chu_de' ) && term_exists( 'kn-thoi-tiet', 'chu_de' ) && (int) get_term_by( 'slug', 'kn-thoi-tiet', 'chu_de' )->parent === (int) get_term_by( 'slug', 'kinh-nghiem', 'chu_de' )->term_id && term_exists( 'hat-ru', 'chu_de' ) && term_exists( 'nam-bo', 'vung' ) );
+kt( 'vùng theo tọa độ (gần đúng, chỉ để gợi ý)', array( 'bac-bo', 'bac-trung-bo', 'trung-trung-bo', 'nam-trung-bo', 'tay-nguyen', 'nam-bo', 'nam-trung-bo' ) === array_map( static fn( $p ) => cadao_vung_theo_toa_do( $p[0], $p[1] ), array( array( 21.03, 105.85 ), array( 18.67, 105.68 ), array( 16.46, 107.6 ), array( 13.78, 109.22 ), array( 12.67, 108.04 ), array( 10.03, 105.78 ), array( 10.93, 108.1 ) ) ) );
+$g1 = cadao_goi_y_bai( $td1 );
+kt( 'gợi ý vùng từ chú thích nhắc miền và từ địa danh đã xác nhận', isset( $g1['vung']['nam-bo'] ), $g1 );
+$gv = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'post_title' => 'Gợi ý thử', 'post_content' => cadao_khoi_tho( "À ơi chữ8800 chữ8801\nchữ8802 chữ8803" ) . "\n\n" . $ds_ct( 'Mô', 'Đâu (tiếng Nghệ, Huế).' ) ) );
+$g2 = get_post_meta( $gv, '_cadao_goi_y', true );
+kt( 'gợi ý khi lưu bài: lời ru → Hát ru; chú thích nhắc Nghệ, Huế → hai vùng', isset( $g2['chu_de']['hat-ru'], $g2['vung']['bac-trung-bo'], $g2['vung']['trung-trung-bo'] ), $g2 );
+kt( 'chưa duyệt: không gắn vùng, chủ đề nào', ! has_term( '', 'vung', $gv ) && ! has_term( '', 'chu_de', $gv ) );
+cadao_duyet_goi_y( $gv, array( 'trung-trung-bo' ), array( 'hat-ru' ) );
+kt( 'duyệt: chỉ gắn mục đã chọn; bài rời hàng chờ', has_term( 'trung-trung-bo', 'vung', $gv ) && ! has_term( 'bac-trung-bo', 'vung', $gv ) && has_term( 'hat-ru', 'chu_de', $gv ) && '' === get_post_meta( $gv, '_cadao_goi_y', true ) );
+wp_update_post( array( 'ID' => $gv, 'post_title' => 'Gợi ý thử sửa' ) );
+kt( 'bài đã duyệt: sửa bài không hiện lại gợi ý', '' === get_post_meta( $gv, '_cadao_goi_y', true ) );
+$kng = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'post_title' => 'Kinh nghiệm thử', 'post_content' => cadao_khoi_tho( 'chữ1 gà chữ2 mưa' ) ) );
+wp_set_object_terms( $kng, 'tuc-ngu', 'the_loai' );
+kt( 'tục ngữ: gợi ý nhóm kinh nghiệm theo từ (chữ có dấu nhận đúng)', ( $gk = cadao_goi_y_bai( $kng ) ) && isset( $gk['chu_de']['kn-chan-nuoi'], $gk['chu_de']['kn-thoi-tiet'] ), $gk ?? null );
+$kcd = $kho( 'nguon-a', 'cd-goi-y', $dong( 9800, 6 ) . "\n" . $dong( 9806, 8 ), array( 'chu_de_goc' => array( 'Tình yêu đôi lứa', 'Khác' ) ) );
+$pcd = (int) cadao_kho_tao_bai( $kcd );
+$gc  = cadao_goi_y_bai( $pcd );
+kt( 'chủ đề của nguồn → chủ đề của dự án qua bảng ánh xạ ("Khác" không dùng); tên chủ đề của nguồn không ra trang', isset( $gc['chu_de']['tinh-yeu-hon-nhan'] ) && 1 === count( $gc['chu_de'] ) && ! term_exists( 'Tình yêu đôi lứa', 'chu_de' ), $gc );
+update_option( 'cadao_anh_xa_chu_de', array( 'Tình yêu đôi lứa' => 'gia-dinh' ) + CADAO_ANH_XA_DE_XUAT, false );
+kt( 'bảng ánh xạ người sáng lập sửa thì gợi ý theo bảng mới', isset( cadao_goi_y_bai( $pcd )['chu_de']['gia-dinh'] ) );
+delete_option( 'cadao_anh_xa_chu_de' );
+ob_start();
+cadao_trang_goi_y();
+$tgy = ob_get_clean();
+kt( 'trang "Gợi ý vùng, chủ đề": bảng ánh xạ, gợi ý có lý do, nút đồng ý', str_contains( $tgy, 'Bảng ánh xạ chủ đề của nguồn' ) && str_contains( $tgy, 'Tình yêu đôi lứa' ) && str_contains( $tgy, 'Đồng ý các gợi ý' ) && str_contains( $tgy, 'nguồn xếp vào' ), $tgy );
+
 $ngan = do_blocks( cadao_khoi_tho( implode( "\n", array_slice( $khong_kho, 0, 40 ) ) ) );
 kt( 'bài 40 dòng trở xuống: không chia đoạn', ! str_contains( $ngan, 'cadao-bai-dai' ) );
 

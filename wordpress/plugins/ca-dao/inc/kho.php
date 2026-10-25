@@ -398,6 +398,7 @@ function cadao_kho_tao_bai( int $kho_id ) {
 	}
 	update_post_meta( $id, '_cadao_bam', md5( get_post( $id )->post_content ) ); // nhận ra bài chưa ai sửa tay
 	$wpdb->update( $bang, array( 'trang_thai' => 'da_tao_bai', 'post_id' => $id ), array( 'id' => $muc->id ) );
+	cadao_ghi_goi_y( (int) $id ); // gợi ý chủ đề cần chủ đề của nguồn, có sau khi kho trỏ tới bài (T-091)
 	return $id;
 }
 
