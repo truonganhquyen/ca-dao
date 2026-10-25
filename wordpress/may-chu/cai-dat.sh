@@ -58,8 +58,12 @@ echo "== Bỏ plugin mẫu không dùng"
 for p in akismet hello; do wp plugin is-installed "$p" && wp plugin delete "$p"; done
 
 echo "== Plugin ca-dao từ nhánh $NHANH"
+# Tải theo mã commit: địa chỉ theo tên nhánh có thể bị bộ đệm của GitHub trả bản cũ vài phút
+sha=$(git ls-remote https://github.com/truonganhquyen/ca-dao "refs/heads/$NHANH" | cut -f1)
+[[ $sha =~ ^[0-9a-f]{40}$ ]] || { echo "Không thấy nhánh $NHANH trên GitHub" >&2; exit 1; }
+NHANH=$sha
 for f in cap-nhat-plugin.sh tu-cap-nhat.sh; do
-	curl -fsSL -o "/home/$TK/bin/$f" "https://raw.githubusercontent.com/truonganhquyen/ca-dao/$NHANH/wordpress/may-chu/$f"
+	curl -fsSL -o "/home/$TK/bin/$f" "https://raw.githubusercontent.com/truonganhquyen/ca-dao/$sha/wordpress/may-chu/$f"
 	chown "$TK:$TK" "/home/$TK/bin/$f"
 done
 sudo -u "$TK" env NHANH="$NHANH" bash "/home/$TK/bin/cap-nhat-plugin.sh"
