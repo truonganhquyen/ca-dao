@@ -666,6 +666,38 @@ kt( 'trang /tim/: ô tìm có nhãn, nhóm "Từ điển" khi khớp tên mục 
 kt( 'trang /tim/: không có kết quả thì báo trung thực, gợi ý cách tìm', str_contains( $trang_khong, 'Chưa tìm thấy câu này trong kho.' ) );
 kt( 'trang "Tìm" có sẵn ở /tim/', ( $p_tim = get_page_by_path( 'tim' ) ) && str_contains( $p_tim->post_content, '[cadao_tim]' ) );
 
+// ---------- Trang chủ (T-043), Bạn có biết? (T-093), trang thể loại (T-094), tình huống ----------
+kt( 'Bạn có biết?: mệnh đề đầu của lời giải (tới dấu chấm phẩy, bỏ hoa đầu câu)', 'bến đò mẫu ở Nam Bộ' === cadao_menh_de_dau( 'Bến đò mẫu ở Nam Bộ. Còn nữa.' ) && '' === cadao_menh_de_dau( 'Ngắn' ) );
+delete_option( 'cadao_ban_co_biet' );
+$so_bcb = cadao_bcb_ghep( 8 );
+$bcb    = cadao_bcb_ds();
+$bcb_do = array_values( array_filter( $bcb, static fn( $x ) => $x['tu_kho'] === (int) $m_do->term_id ) )[0] ?? null;
+kt( 'Bạn có biết?: máy ghép theo khuôn từ chú thích có sẵn, kèm nguồn, chờ duyệt', $so_bcb > 0 && $bcb_do && str_starts_with( $bcb_do['chu'], '… "Đò Thử" là bến đò mẫu ở Nam Bộ, và có trong câu "' ) && 'cho' === $bcb_do['trang_thai'] && 'https://example.org/td1/' === $bcb_do['nguon_url'], $bcb_do );
+kt( 'Bạn có biết?: chưa duyệt thì chưa lên trang chủ', ! str_contains( do_shortcode( '[cadao_trang_chu]' ), 'Bạn có biết?' ) );
+foreach ( $bcb as &$x ) {
+	$x['trang_thai'] = $x === $bcb_do ? 'duyet' : $x['trang_thai'];
+	if ( $x['tu_kho'] === (int) $m_do->term_id ) {
+		$x['trang_thai'] = 'duyet';
+		$x['chu']        = '… "Đò Thử" là một bến đò mẫu, có trong một câu ca dao?';
+	}
+}
+unset( $x );
+cadao_bcb_luu( $bcb );
+$tc = do_shortcode( '[cadao_trang_chu]' );
+kt( 'trang chủ: câu định vị, ô tìm lớn có nhãn, Câu hôm nay, Bạn có biết? (câu đã duyệt, kèm nguồn), Vừa bổ sung, lối vào thể loại', str_contains( $tc, 'class="cadao-dinh-vi"' ) && str_contains( $tc, '<label for="cadao-tim-chu"' ) && str_contains( $tc, 'Câu hôm nay' ) && str_contains( $tc, 'là một bến đò mẫu' ) && str_contains( $tc, '(Nguồn: <a href="https://example.org/td1/"' ) && str_contains( $tc, 'Vừa bổ sung' ) && str_contains( $tc, 'Theo thể loại' ), $tc );
+$chn = cadao_cau_hom_nay();
+kt( 'Câu hôm nay: bài ngắn (≤ 4 dòng) đang đăng, cả ngày một câu', $chn && 'publish' === $chn->post_status && count( array_filter( explode( "\n", cadao_loi_cac_khoi_tho( $chn->post_content )[0] ) ) ) <= 4 && cadao_cau_hom_nay()->ID === $chn->ID );
+kt( 'tình huống của site cũ có sẵn (chưa đủ bài thì chưa có thẻ)', term_exists( 'biet-on-cha-me', 'tinh_huong' ) && ! in_array( 'biet-on-cha-me', array_column( cadao_tinh_huong_hom_nay(), 'slug' ), true ) );
+wp_set_object_terms( $td1, 'biet-on-cha-me', 'tinh_huong' );
+wp_set_object_terms( $td2, 'biet-on-cha-me', 'tinh_huong' );
+update_post_meta( $td1, 'hop_khi', 'bạn muốn nói lời biết ơn' );
+kt( 'tình huống đủ 2 bài: có thẻ "Hôm nay bạn đang…" trên trang chủ', in_array( 'biet-on-cha-me', array_column( cadao_tinh_huong_hom_nay(), 'slug' ), true ) && str_contains( do_shortcode( '[cadao_trang_chu]' ), 'Hôm nay bạn đang…' ) );
+$th_mo = apply_filters( 'term_description', '', get_term_by( 'slug', 'biet-on-cha-me', 'tinh_huong' )->term_id, 'tinh_huong', 'tinh_huong' );
+kt( 'trang tình huống: lời rút gọn ≤ 4 dòng và "Hợp khi…"', str_contains( $th_mo, 'Đi qua bến Đò Thử' ) && str_contains( $th_mo, 'Hợp khi bạn muốn nói lời biết ơn' ), $th_mo );
+wp_set_object_terms( $p1, 'nam-bo', 'vung', true ); // bài ca dao đang đăng
+$tl_mo = apply_filters( 'term_description', '<p>Giới thiệu người sáng lập viết.</p>', get_term_by( 'slug', 'ca-dao', 'the_loai' )->term_id, 'the_loai', 'the_loai' );
+kt( 'trang thể loại: giới thiệu (người sáng lập viết), bài tiêu biểu, lối vào theo chủ đề / vùng, tổng số bài', str_contains( $tl_mo, 'Giới thiệu người sáng lập viết.' ) && str_contains( $tl_mo, 'Bài tiêu biểu' ) && str_contains( $tl_mo, 'Theo vùng' ) && preg_match( '/Tất cả ca dao \(\d+ bài\)/u', $tl_mo ), $tl_mo );
+
 $ngan = do_blocks( cadao_khoi_tho( implode( "\n", array_slice( $khong_kho, 0, 40 ) ) ) );
 kt( 'bài 40 dòng trở xuống: không chia đoạn', ! str_contains( $ngan, 'cadao-bai-dai' ) );
 

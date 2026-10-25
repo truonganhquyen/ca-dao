@@ -58,14 +58,30 @@ for (const [id, tp] of Object.entries(doc('tac-pham')).sort()) {
   });
 }
 
-const ra = path.join('wordpress', 'plugins', 'ca-dao', 'du-lieu', 'site-cu.json');
-const chu = JSON.stringify({ ghi_chu: 'Sinh bằng scripts/xuat-site-cu.mjs từ content/ (bài công khai của site Astro cũ, T-076). Không sửa tay.', bai }, null, 2) + '\n';
+// Tình huống (content/tinh-huong: tên, đường dẫn, lời mở đầu đã viết) và lịch dịp (config/lich-tinh-huong.yaml; bỏ dịp
+// chưa có ngày) cho trang chủ (T-043)
+const tinhHuong = Object.values(doc('tinh-huong')).map(t => ({ slug: t.slug, ten: t.tieu_de, mo_dau: daDuyet(t.mo_dau, t.nhap_ai_da_duyet)?.[0] ?? '' }));
+const lich = YAML.parse(fs.readFileSync(path.join('config', 'lich-tinh-huong.yaml'), 'utf8'));
+const coNgay = d => /^\d{4}-\d{2}-\d{2}$/.test(String(d));
+const slugTH = id => String(id).replace(/^sit-/, '');
+const lichRa = {
+  mac_dinh: (lich.mac_dinh ?? []).map(slugTH),
+  dip: (lich.dip ?? []).filter(d => coNgay(d.tu) && coNgay(d.den)).map(d => ({ ten: d.ten, tu: String(d.tu), den: String(d.den), dua_len_dau: (d.dua_len_dau ?? []).map(slugTH) })),
+};
+
+const goc = path.join('wordpress', 'plugins', 'ca-dao', 'du-lieu');
+const tep = {
+  'site-cu.json': JSON.stringify({ ghi_chu: 'Sinh bằng scripts/xuat-site-cu.mjs từ content/ (bài công khai của site Astro cũ, T-076). Không sửa tay.', bai }, null, 2) + '\n',
+  'tinh-huong.json': JSON.stringify({ ghi_chu: 'Sinh bằng scripts/xuat-site-cu.mjs từ content/tinh-huong và config/lich-tinh-huong.yaml (T-043). Không sửa tay.', tinh_huong: tinhHuong, lich: lichRa }, null, 2) + '\n',
+};
 if (process.argv.includes('--kiem')) {
-  const cu = fs.existsSync(ra) ? fs.readFileSync(ra, 'utf8') : '';
-  if (cu !== chu) { console.log(`LỖI      [site cũ] ${ra} chưa khớp content/ — chạy npm run xuat:site-cu`); process.exit(1); }
-  console.log(`Site cũ: ${bai.length} bài công khai — tệp chuyển khớp content/.`);
+  for (const [ten, chu] of Object.entries(tep)) {
+    const cu = fs.existsSync(path.join(goc, ten)) ? fs.readFileSync(path.join(goc, ten), 'utf8') : '';
+    if (cu !== chu) { console.log(`LỖI      [site cũ] ${ten} chưa khớp content/, config/ — chạy npm run xuat:site-cu`); process.exit(1); }
+  }
+  console.log(`Site cũ: ${bai.length} bài công khai, ${tinhHuong.length} tình huống — tệp chuyển khớp content/.`);
 } else {
-  fs.mkdirSync(path.dirname(ra), { recursive: true });
-  fs.writeFileSync(ra, chu);
-  console.log(`Đã xuất ${bai.length} bài công khai → ${ra}`);
+  fs.mkdirSync(goc, { recursive: true });
+  for (const [ten, chu] of Object.entries(tep)) fs.writeFileSync(path.join(goc, ten), chu);
+  console.log(`Đã xuất ${bai.length} bài công khai, ${tinhHuong.length} tình huống, lịch ${lichRa.dip.length} dịp → ${goc}`);
 }

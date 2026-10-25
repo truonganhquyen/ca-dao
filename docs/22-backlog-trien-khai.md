@@ -54,7 +54,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-042 | Trích dẫn 2 định dạng + chia sẻ (trên WordPress) | A | T-072 | — | DONE |
 | **Mốc B · Thử nhỏ** ||||||
 | T-041 | Tìm kiếm tức thì, gõ không dấu, tìm cả trong chú thích (WordPress) | N+A | T-072 | — | DONE |
-| T-043 | Trang chủ mới (Câu hôm nay, Vừa bổ sung, Đọc nhiều, Bạn có biết?) + trang tình huống | A | T-072, T-081, T-093 | — | BLOCKED |
+| T-043 | Trang chủ mới (Câu hôm nay, Vừa bổ sung, Đọc nhiều, Bạn có biết?) + trang tình huống | A | T-072, T-081, T-093 | — | DONE |
 | T-044 | Từ điển chú giải: trang từng từ, "Các bài có từ này", lọc theo vùng | A | T-073 | — | DONE |
 | T-045 | Góp ý, dị bản, cảm nghĩ ngắn của người đọc; chống rác; quyền riêng tư; "Gửi số trang" | N+A | T-075 | — | READY |
 | T-046 | Trang Phương pháp, Nguồn, Về dự án | N+A | T-075 | — | READY |
@@ -70,8 +70,8 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-090 | Vè và bài dài: chia đoạn, mục lục, đọc tiếp | A | T-072 | — | DONE |
 | T-091 | Bộ chủ đề riêng của dự án (gồm nhóm tục ngữ kinh nghiệm, lối hát, loại câu đố), máy gợi ý | N+A | T-073 | — | REVIEW |
 | T-092 | "Bài gần gũi" cuối bài và trang mô-típ | A | T-091 | — | BLOCKED |
-| T-093 | "Bạn có biết?" ghép từ chú thích | N+A | T-073 | — | READY |
-| T-094 | Trang riêng cho từng thể loại | N+A | T-072 | — | READY |
+| T-093 | "Bạn có biết?" ghép từ chú thích | N+A | T-073 | — | DONE |
+| T-094 | Trang riêng cho từng thể loại | N+A | T-072 | — | DONE |
 | T-095 | Thành ngữ – tục ngữ: trình bày câu một dòng, chỉ mục A–Z | A | T-080 | — | BLOCKED |
 | T-096 | Câu đố: nhóm theo đáp án và theo loại, trang "Đố vui" | A | T-091 | — | BLOCKED |
 | T-097 | Bài cảm nhận, phân tích của người đọc (cần duyệt); bài có phân tích được duyệt thì lên Google | A | T-045 | — | BLOCKED |
@@ -275,6 +275,8 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 **Đọc:** `25` mục 4.3. **Việc (thêm 25/10/2026):** trang chủ có "Câu hôm nay" chữ lớn, "Vừa bổ sung", "Đọc nhiều tuần này" (T-081), "Bạn có biết?" (T-093), lối vào theo thể loại và theo vùng, ô tìm; không khung mạng xã hội, không mây thẻ.
 **Chấp nhận:** trang tình huống chỉ tạo khi có ≥ `NGUONG_TRANG_TINH_HUONG` (2) bài công khai; mỗi bài hiện lời rút gọn ≤ 4 dòng + "Hợp khi…"; trang chủ: câu định vị, ô tìm lớn, thẻ tình huống theo `mac_dinh` trong `config/lich-tinh-huong.yaml`.
 
+**Tiến độ (25/10/2026):** xong — plugin 0.12.0 (`inc/trang-chu.php`), theme 0.8.0. Trang chủ: câu định vị, ô tìm lớn (tới `/tim/`), **Câu hôm nay** chữ lớn (mỗi ngày một bài ≤ 4 dòng, ai mở cũng thấy cùng câu), **Bạn có biết?** (câu đã duyệt của tuần), **Hôm nay bạn đang…** (thẻ tình huống đủ 2 bài đang đăng, xếp theo dịp trong lịch rồi thứ tự `mac_dinh`), Đọc nhiều tuần này, **Vừa bổ sung**, lối vào theo thể loại và theo vùng; không khung mạng xã hội, không mây thẻ. Tình huống: phân loại "Tình huống" (`/tinh-huong/<tên>/`) người biên soạn gắn bài, ô **"Hợp khi…"** trong trình soạn; trang tình huống chỉ có khi đủ 2 bài (chưa đủ thì 404), mỗi bài lời rút gọn ≤ 4 dòng + "Hợp khi…". Hai tình huống của site cũ tạo sẵn (lời mở đầu, lịch dịp từ `content/`, `config/` qua `npm run xuat:site-cu` → `du-lieu/tinh-huong.json`; dịp chưa có ngày bỏ qua).
+
 #### T-044 · Từ điển — A
 **Đọc:** `25` mục 4.3. **Việc (viết lại 25/10/2026 cho WordPress):** mỗi chú thích (gộp theo mã của nguồn) một trang; trang tổng lọc Nam Bộ / Trung Bộ / Bắc Bộ / từ cổ / Hán Việt theo ghi chú trong lời giải; chạm từ trong lời (T-082) dẫn tới đây.
 **Chấp nhận:** `/tu-dien/` liệt kê mục từ đang được dùng; trang mục từ hiện giải nghĩa, nguồn ("Tham khảo: Ca dao Mẹ ↗" khi `cach_dung: tham_khao`, "Theo Ca dao Mẹ ↗" khi `trich_nguyen_van`), mọi bài có từ này.
@@ -350,8 +352,12 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 #### T-093 · Bạn có biết? — N+A
 **Chấp nhận:** khuôn ghép từ chú thích có sẵn, kèm nguồn; người sáng lập duyệt hoặc sửa trước khi lên trang; máy không tự viết sự kiện.
 
+**Tiến độ (25/10/2026):** xong — mỗi ngày máy ghép thêm tới 8 câu chờ duyệt theo khuôn "… "[từ]" là [mệnh đề đầu của lời giải], và có trong câu "[tên bài]"?" từ mục từ đang được dùng (chỉ dùng chữ có sẵn), kèm nguồn của chú thích; trang **Bạn có biết?** sửa lời, chọn Duyệt / Bỏ, tự viết câu mới; trang chủ hiện 4 câu đã duyệt, xoay theo tuần. Việc của người sáng lập: duyệt, sửa câu cho tự nhiên.
+
 #### T-094 · Trang thể loại — N+A
 **Chấp nhận:** mỗi thể loại một trang (giới thiệu do người sáng lập viết, bài tiêu biểu, lối vào theo chủ đề và vùng).
+
+**Tiến độ (25/10/2026):** xong — trang `/the-loai/<tên>/`: lời giới thiệu (mô tả của thể loại — người sáng lập viết ở Ca dao – Tục ngữ → Thể loại → Sửa; máy không viết), **bài tiêu biểu** (đọc nhiều nhất 30 ngày, chưa có lượt đọc thì bài mới), lối vào theo chủ đề và vùng đã duyệt, tổng số bài, rồi danh sách bài. Việc của người sáng lập: viết vài dòng giới thiệu cho từng thể loại.
 
 #### T-095 · Câu một dòng — A
 **Chấp nhận:** trang bài thành ngữ, tục ngữ chữ to, không khung lời thơ; chỉ mục A–Z và theo chủ đề.

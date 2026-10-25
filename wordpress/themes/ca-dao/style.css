@@ -2,7 +2,7 @@
 Theme Name:        Kho tàng Ca dao
 Description:       Theme con của Twenty Twenty-Five cho dự án Kho tàng Ca dao Tục ngữ Việt Nam: chữ và khoảng trắng trước, lời thơ lớn, sáng/tối theo máy (docs/20 trong repo ca-dao).
 Template:          twentytwentyfive
-Version:           0.7.0
+Version:           0.8.0
 Requires at least: 6.8
 Requires PHP:      8.1
 Author:            Dự án Kho tàng Ca dao Tục ngữ Việt Nam
@@ -621,6 +621,62 @@ html[data-co-chu="3"] .wp-block-verse {
 	font-size: var(--wp--preset--font-size--small);
 }
 
+/* Trang chủ (T-043): câu định vị, ô tìm lớn, Câu hôm nay chữ lớn, Bạn có biết?, thẻ tình huống / thể loại / vùng */
+.cadao-dinh-vi {
+	font-size: var(--wp--preset--font-size--medium);
+	color: var(--cadao-nhat);
+	margin-block: 0.25rem 0;
+}
+.cadao-tim-lon input[type="search"] {
+	min-height: 56px;
+	font-size: 1.25rem;
+}
+.cadao-cau-hom-nay {
+	margin-block: 2rem;
+	padding: 1.25rem;
+	border: 1px solid var(--cadao-ke);
+	border-radius: 12px;
+}
+.cadao-cau-hom-nay h2,
+.cadao-bcb h2 {
+	font-size: var(--wp--preset--font-size--medium);
+	margin: 0 0 0.75rem;
+	color: var(--cadao-son);
+}
+.cadao-chn-loi {
+	font-family: var(--wp--preset--font-family--literata);
+	font-size: clamp(1.35rem, 4.5vw, 2rem);
+	line-height: 1.5;
+	margin: 0 0 0.75rem;
+}
+.cadao-bcb ul {
+	padding-inline-start: 1.25rem;
+}
+.cadao-bcb li + li {
+	margin-block-start: 0.5rem;
+}
+.cadao-the {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	padding: 0;
+	list-style: none;
+}
+.cadao-the a {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	min-height: 44px;
+	padding: 0 0.9rem;
+	border: 1px solid var(--cadao-ke);
+	border-radius: 999px;
+	color: inherit;
+	text-decoration: none;
+}
+.cadao-the a:hover {
+	border-color: var(--cadao-son);
+}
+
 /* "Đọc nhiều tuần này" (trang chủ) */
 .cadao-doc-nhieu {
 	margin-block-start: 2.5rem;
@@ -681,4 +737,27 @@ html[data-co-chu="3"] .wp-block-verse {
 	header, footer, .wp-block-navigation, .cadao-hanh-dong {
 		display: none !important;
 	}
+}
+
+/* Trang tình huống (T-043) */
+.cadao-tinh-huong-ds {
+	list-style: none;
+	padding: 0;
+}
+.cadao-tinh-huong-ds li {
+	padding-block: 1rem;
+	border-block-end: 1px solid var(--cadao-ke);
+}
+.cadao-th-loi {
+	margin: 0;
+	font-family: var(--wp--preset--font-family--literata);
+	font-size: var(--wp--preset--font-size--large);
+	line-height: 1.6;
+}
+.cadao-th-loi a {
+	color: inherit;
+	text-decoration: none;
+}
+.cadao-th-loi a:hover {
+	text-decoration: underline;
 }
