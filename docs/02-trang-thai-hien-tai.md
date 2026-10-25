@@ -23,6 +23,7 @@
 - **Website khung (T-035):** Astro 7 + Tailwind 4, trang "Sắp ra mắt" và trang 404, sáng/tối theo hệ thống; `npm run kiem-tra` gồm `astro check`, build và kiểm liên kết; triển khai bằng Cloudflare Workers Static Assets (D-049): bản chính thức `https://ca-dao.truonganhquyen.workers.dev` (trang "Sắp ra mắt"), bản xem trước cho mỗi PR.
 - **Plugin WordPress (T-071):** loại bài Ca dao – Tục ngữ (lời không ghi nguồn; "Nguồn: …" chỉ dưới chú thích chép từ nguồn — D-057), trang **Nguồn tự động**, **Kho thu thập**, tự tạo bài **Chờ duyệt**, ô Chờ duyệt trên Bảng tin (`wordpress/`, `docs/24`). Bộ đọc Ca dao Mẹ đầy đủ (T-073): ca dao, thành ngữ–tục ngữ, đồng dao, vè, câu đố, kèm dị bản, chú thích, đáp án; bài chưa sửa tay tự được bổ sung.
 - **Trích dẫn, chia sẻ, lượt đọc (T-042, T-081, 25/10/2026):** hộp Trích dẫn (thông dụng, APA 7; "Sao chép kèm nguồn" / "Chỉ sao chép lời"), nút Chia sẻ; lượt đọc tự đếm không cookie, không lưu IP, "Đọc nhiều tuần này" ở trang chủ, ô lượt đọc 7 ngày trên Bảng tin.
+- **Chống trùng (T-109..T-111, 25/10/2026):** máy so cả lời của câu mới lấy từ nguồn và của bài viết tay với các bài, câu đã có: giống hệt, cùng thể loại thì tự gắn vào bài có sẵn (Kho thu thập → Đã gộp, "Tách ra" được); còn lại vào trang **Có thể trùng** chờ người sáng lập quyết; trình soạn có ô "Có thể trùng" (chỉ báo, không chặn đăng).
 - **Theme WordPress (T-072):** theme con của Twenty Twenty-Five theo `docs/20`: màu, phông Literata / Be Vietnam Pro tự lưu trữ, sáng/tối theo máy, trang bài (lời lớn, lục bát thụt lề câu lục, Hiểu nhanh dưới lời, dị bản, chú thích); quét trợ năng 0 lỗi.
 - **Trang tác phẩm (T-040):** đọc theo lớp, nhãn tự tính, nguồn gốc ở lớp 1, chú giải chạm-là-hiện (tắt JavaScript vẫn đọc được), sáng/tối, bản in, thanh dưới; quét trợ năng tự động. Chưa có bài `cong_khai` thật: bản xem trước có 3 trang mẫu giao diện dữ liệu giả (D-050).
 - **CMS (T-037):** `/admin` — Sveltia, đăng nhập GitHub qua Worker `sveltia-cms-auth`, form tiếng Việt, "Thêm nhanh"; hướng dẫn `docs/huong-dan/bien-soan-cms.md`.
@@ -32,6 +33,7 @@
 ## Đang chờ người sáng lập
 
 - **Sao lưu FlashPanel** — để sau (người sáng lập, 25/10/2026): khi làm, chọn hằng ngày, gồm site và cơ sở dữ liệu cadao, lưu ra ngoài VPS.
+- **Quyết các cặp "Có thể trùng"** (menu Ca dao – Tục ngữ → Có thể trùng; Bảng tin báo số cặp): mỗi cặp chọn "Gộp: là cùng một bài" / "Gộp làm dị bản" / "Là bài khác" / "Để sau". Câu đang chờ thì máy chưa tạo thành bài.
 - **Việc của người sáng lập trong gói nâng cấp** (`docs/25` mục 6): duyệt hàng loạt thể loại tách, xác nhận Wikidata, duyệt bộ chủ đề và vùng; cài Meilisearch và tạo khóa Turnstile khi tới đợt đó; nghe thử 30 bài giọng đọc; tìm *Tục ngữ phong dao* (T-107).
 - **Thử CMS** (điều kiện xong T-037, PR #9): đăng nhập `/admin` trên điện thoại, tạo một bài thật tới Công khai — `docs/huong-dan/bien-soan-cms.md`. Đăng nhập GitHub đã tạo xong và đã kiểm (24/10/2026).
 - **T-034** · Gửi thư cho Ca dao Mẹ — không gấp, nhưng phải xong trước khi mở công khai (T-053).
