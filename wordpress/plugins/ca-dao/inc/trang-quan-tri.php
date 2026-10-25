@@ -204,11 +204,33 @@ add_action(
 );
 
 // ---------- Trang "Kho thu thập" ----------
+
+/** Cột "Đã có dị bản, chú thích": máy đã đọc trang gốc của câu chưa, và lấy được gì. */
+function cadao_mo_ta_doc_trang( string $doc_trang, array $d ): string {
+	if ( '' === $doc_trang ) {
+		return 'Chưa — máy sẽ đọc trang gốc';
+	}
+	if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $doc_trang ) ) {
+		return 'Không đọc được trang gốc';
+	}
+	$phan = array();
+	if ( $so = count( $d['di_ban'] ?? array() ) ) {
+		$phan[] = "$so dị bản";
+	}
+	if ( $so = count( $d['chu_thich'] ?? array() ) ) {
+		$phan[] = "$so chú thích";
+	}
+	if ( ! empty( $d['dap_an'] ) ) {
+		$phan[] = 'có đáp án';
+	}
+	return 'Rồi · ' . ( $phan ? implode( ', ', $phan ) : 'nguồn không có dị bản, chú thích' );
+}
 function cadao_trang_kho(): void {
 	global $wpdb;
 	$bang = cadao_kho_bang();
 	$tt   = sanitize_key( wp_unslash( $_GET['tt'] ?? 'moi' ) );
 	$tim  = sanitize_text_field( wp_unslash( $_GET['tim'] ?? '' ) );
+	$xong = ! empty( $_GET['da_doc'] ); // bộ lọc "chỉ hiện câu đã đọc xong"
 	$dem  = cadao_kho_dem();
 	$nhan = array( 'moi' => 'Mới', 'da_tao_bai' => 'Đã thành bài', 'bo_qua' => 'Bỏ qua' );
 	echo '<div class="wrap"><h1>Kho thu thập</h1>';
@@ -216,11 +238,12 @@ function cadao_trang_kho(): void {
 	echo '<p>Mọi bài máy đã lấy về. Kho không hiện ra trang; chọn mục rồi bấm <strong>Tạo bài chờ duyệt</strong>, hoặc để máy tự tạo mỗi ngày.</p><ul class="subsubsub">';
 	$i = 0;
 	foreach ( $nhan as $k => $ten ) {
-		echo ( $i++ ? ' | ' : '' ) . '<li><a ' . ( $tt === $k ? 'class="current" ' : '' ) . 'href="' . esc_url( cadao_url_trang( CADAO_TRANG_KHO, array( 'tt' => $k ) ) ) . '">' . esc_html( $ten ) . ' <span class="count">(' . (int) $dem[ $k ] . ')</span></a></li>';
+		echo ( $i++ ? ' | ' : '' ) . '<li><a ' . ( $tt === $k ? 'class="current" ' : '' ) . 'href="' . esc_url( cadao_url_trang( CADAO_TRANG_KHO, array( 'tt' => $k ) + ( $xong ? array( 'da_doc' => 1 ) : array() ) ) ) . '">' . esc_html( $ten ) . ' <span class="count">(' . (int) $dem[ $k ] . ')</span></a></li>';
 	}
 	echo '</ul><form method="get" style="clear:both;padding-top:8px"><input type="hidden" name="post_type" value="' . esc_attr( CADAO_LOAI_BAI ) . '"><input type="hidden" name="page" value="' . esc_attr( CADAO_TRANG_KHO ) . '"><input type="hidden" name="tt" value="' . esc_attr( $tt ) . '">';
-	echo '<input type="search" name="tim" value="' . esc_attr( $tim ) . '" placeholder="Tìm trong lời, tiêu đề"> ';
-	submit_button( 'Tìm', 'secondary', '', false );
+	echo '<label for="cadao-tim" class="screen-reader-text">Tìm trong kho</label><input id="cadao-tim" type="search" name="tim" value="' . esc_attr( $tim ) . '" placeholder="Tìm trong lời, tiêu đề"> ';
+	echo '<label style="margin:0 8px"><input type="checkbox" name="da_doc" value="1" ' . checked( $xong, true, false ) . ' onchange="this.form.submit()"> Chỉ hiện câu đã đọc xong (có dị bản, chú thích nếu nguồn có)</label> ';
+	submit_button( 'Lọc', 'secondary', '', false );
 	echo '</form>';
 
 	// Mục lấy từ sitemap chưa đọc trang thì chưa có lời: không liệt kê, chỉ đếm
@@ -229,11 +252,16 @@ function cadao_trang_kho(): void {
 		echo '<p class="description">' . esc_html( number_format_i18n( $cho ) ) . ' mục đang chờ máy đọc trang (chưa có lời) — không hiện ở đây.</p>';
 	}
 	$dk = $wpdb->prepare( "trang_thai = %s AND loi <> ''", isset( $nhan[ $tt ] ) ? $tt : 'moi' );
+	if ( $xong ) {
+		$dk .= " AND doc_trang LIKE '2%'";
+	}
+	$so_xong = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $bang WHERE trang_thai = %s AND loi <> '' AND doc_trang LIKE '2%%'", isset( $nhan[ $tt ] ) ? $tt : 'moi' ) );
+	echo '<p class="description">' . esc_html( sprintf( '%s câu ở mục này đã đọc trang gốc xong.', number_format_i18n( $so_xong ) ) ) . '</p>';
 	if ( '' !== $tim ) {
 		$giong = '%' . $wpdb->esc_like( $tim ) . '%';
 		$dk   .= $wpdb->prepare( ' AND (tieu_de LIKE %s OR loi LIKE %s)', $giong, $giong );
 	}
-	$ds = $wpdb->get_results( "SELECT id, nguon_id, url, loai, tieu_de, loi, du_lieu, post_id FROM $bang WHERE $dk ORDER BY id ASC LIMIT 100" );
+	$ds = $wpdb->get_results( "SELECT id, nguon_id, url, loai, tieu_de, loi, du_lieu, doc_trang, post_id FROM $bang WHERE $dk ORDER BY id ASC LIMIT 100" );
 
 	echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 	wp_nonce_field( 'cadao_kho_hang_loat' );
@@ -241,7 +269,8 @@ function cadao_trang_kho(): void {
 	submit_button( 'Tạo bài chờ duyệt từ mục đã chọn', 'primary', 'viec_tao', false );
 	echo ' ';
 	submit_button( 'Bỏ qua mục đã chọn', 'secondary', 'viec_bo', false );
-	echo '</p><table class="widefat striped"><thead><tr><td class="check-column"><input type="checkbox" onclick="document.querySelectorAll(\'.cadao-chon\').forEach(c=>c.checked=this.checked)"></td><th>Lời</th><th>Loại</th><th>Cờ</th><th>Nguồn</th></tr></thead><tbody>';
+	echo '</p><table class="widefat striped"><thead><tr><td class="check-column"><input type="checkbox" onclick="document.querySelectorAll(\'.cadao-chon\').forEach(c=>c.checked=this.checked)"></td><th>Lời</th><th>Đã có dị bản, chú thích</th><th>Loại</th><th>Cờ</th><th>Nguồn</th></tr></thead><tbody>';
+	$ten_loai = array_merge( ...array_values( array_map( static fn( $x ) => $x['loai'] ?? array(), cadao_bo_doc() ) ) );
 	foreach ( $ds as $m ) {
 		$d  = json_decode( $m->du_lieu, true ) ?: array();
 		$co = implode( ', ', $d['co'] ?? array() );
@@ -250,11 +279,11 @@ function cadao_trang_kho(): void {
 		if ( $m->post_id ) {
 			echo '<br><a href="' . esc_url( get_edit_post_link( (int) $m->post_id ) ) . '">Mở bài</a>';
 		}
-		echo '</td><td>' . esc_html( $m->loai ) . '</td><td>' . esc_html( $co ?: '—' ) . '</td>';
+		echo '</td><td>' . esc_html( cadao_mo_ta_doc_trang( $m->doc_trang, $d ) ) . '</td><td>' . esc_html( $ten_loai[ $m->loai ] ?? $m->loai ) . '</td><td>' . esc_html( $co ?: '—' ) . '</td>';
 		echo '<td><a href="' . esc_url( $m->url ) . '" target="_blank" rel="noopener">' . esc_html( $m->nguon_id ) . ' ↗</a></td></tr>';
 	}
 	if ( ! $ds ) {
-		echo '<tr><td colspan="5">Không có mục nào.</td></tr>';
+		echo '<tr><td colspan="6">' . ( $xong ? 'Chưa có câu nào ở mục này được đọc trang gốc xong.' : 'Không có mục nào.' ) . '</td></tr>';
 	}
 	echo '</tbody></table></form></div>';
 }

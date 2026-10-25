@@ -32,7 +32,7 @@ wordpress/
 │   ├── inc/kho.php          bảng kho thu thập, tạo bài Chờ duyệt từ kho
 │   ├── inc/nguon-tu-dong.php trang cấu hình nguồn, lịch chạy
 │   ├── inc/doc-cadao-me.php bộ đọc Ca dao Mẹ (trích tất định, không qua AI)
-│   └── inc/trang-quan-tri.php trang "Kho thu thập"
+│   └── inc/trang-quan-tri.php trang "Kho thu thập" (cột "Đã có dị bản, chú thích", bộ lọc "chỉ hiện câu đã đọc xong")
 ├── themes/ca-dao/           theme con của Twenty Twenty-Five (T-072)
 ├── blueprint.json           dựng WordPress thử tại máy bằng Playground
 └── tests/                   kiểm thử chạy trong Playground (kiem-thu.php, blueprint-kiem-thu.json)
