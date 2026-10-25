@@ -195,6 +195,62 @@ function cadao_gan_tu_chu_thich( array $dong_html, array $chu_thich ): array {
 	return $dong_html;
 }
 
+/** Bài dài (T-090): từ 41 dòng; hiện sẵn các đoạn bắt đầu trong 30 dòng đầu, còn lại sau nút "Đọc toàn bài". */
+const CADAO_BAI_DAI      = 40;
+const CADAO_BAI_DAI_HIEN = 30;
+const CADAO_BAI_DAI_DOAN = 20; // bài không chia khổ: mỗi đoạn khoảng 20 dòng
+
+/**
+ * Chia bài dài thành đoạn: theo khổ (dòng trống); không có khổ thì mỗi đoạn ~20 dòng.
+ *
+ * @param string[] $chu các dòng (chữ thường, không thẻ)
+ * @return array{bat_dau: array<int, int>, dong_dau: array<int, int>, dong_cuoi: array<int, int>} chỉ số dòng → số đoạn; số đoạn → dòng có chữ đầu / cuối (đếm từ 1)
+ */
+function cadao_chia_doan( array $chu ): array {
+	$ra   = array( 'bat_dau' => array(), 'dong_dau' => array(), 'dong_cuoi' => array() );
+	$co   = in_array( '', array_map( 'trim', array_slice( $chu, 1, -1 ) ), true );
+	$so   = 0;
+	$thu  = 0; // dòng có chữ thứ mấy
+	$moi  = true;
+	$trong = 0;
+	foreach ( $chu as $k => $d ) {
+		if ( '' === trim( $d ) ) {
+			$moi = $co;
+			continue;
+		}
+		++$thu;
+		if ( $moi || ( ! $co && $trong >= CADAO_BAI_DAI_DOAN ) ) {
+			++$so;
+			$ra['bat_dau'][ $k ]   = $so;
+			$ra['dong_dau'][ $so ] = $thu;
+			$trong                 = 0;
+			$moi                   = false;
+		}
+		++$trong;
+		$ra['dong_cuoi'][ $so ] = $thu;
+	}
+	return $ra;
+}
+
+/** Khung bài dài: số dòng, thời gian đọc, mục lục đoạn; JavaScript thu gọn phần sau và nhớ chỗ đang đọc. */
+function cadao_khung_bai_dai( string $tho, array $doan, int $so_dong, int $so_am ): string {
+	$hien = 0;
+	foreach ( $doan['dong_dau'] as $so => $dau ) {
+		if ( $dau <= CADAO_BAI_DAI_HIEN ) {
+			$hien = $doan['dong_cuoi'][ $so ];
+		}
+	}
+	$muc = '';
+	foreach ( $doan['dong_dau'] as $so => $dau ) {
+		$muc .= '<li><a href="#cadao-doan-' . $so . '">Đoạn ' . $so . '</a> <span class="cadao-muc-luc-dong">· dòng ' . $dau . '–' . $doan['dong_cuoi'][ $so ] . '</span></li>';
+	}
+	$phut = max( 1, (int) ceil( $so_am / 200 ) ); // ~200 âm tiết mỗi phút
+	return '<div class="cadao-bai-dai" data-bai="' . (int) get_the_ID() . '" data-con-lai="' . max( 0, $so_dong - $hien ) . '">'
+		. '<p class="cadao-bai-dai-tom">' . number_format_i18n( $so_dong ) . ' dòng · ' . count( $doan['dong_dau'] ) . ' đoạn · khoảng ' . $phut . ' phút đọc</p>'
+		. '<details class="cadao-muc-luc"><summary>Mục lục</summary><ol>' . $muc . '</ol></details>'
+		. $tho . '</div>';
+}
+
 /**
  * Khối Thơ ngoài trang: mỗi dòng một <span class="cadao-dong">; trình bày theo thể (lục bát, song thất lục bát: câu lục
  * thụt lề); dị bản có nhãn "Dị bản N" và chữ khác lời chính được tô; lời chính có từ chú thích bấm được.
@@ -218,14 +274,25 @@ add_filter(
 		} elseif ( $bai && 0 === $i && $bai['chu_thich'] ) {
 			$dong = cadao_gan_tu_chu_thich( $dong, $bai['chu_thich'] );
 		}
-		$ra = '';
+		$dai = $bai && 0 === $i && count( $so_dong ) > CADAO_BAI_DAI; // bài dài (T-090): chia đoạn
+		$doan = $dai ? cadao_chia_doan( $chu ) : array();
+		$ra   = '';
 		foreach ( $dong as $k => $d ) {
 			$thu = array_search( $k, $so_dong, true ); // thứ tự trong các dòng có chữ
 			$luc = CADAO_LUC_BAT_THUT_LE && false !== $thu && ( ( 'luc-bat' === $the && 0 === $thu % 2 ) || ( 'song-that-luc-bat' === $the && 2 === $thu % 4 ) );
-			$ra .= '<span class="cadao-dong' . ( $luc ? ' cadao-luc' : '' ) . '">' . ( '' === trim( $d ) ? '&nbsp;' : $d ) . '</span>';
+			if ( $dai && isset( $doan['bat_dau'][ $k ] ) ) {
+				$so  = $doan['bat_dau'][ $k ];
+				$ra .= ( $so > 1 ? '</span>' : '' ) . '<span class="cadao-doan" id="cadao-doan-' . $so . '" data-so-doan="' . $so . '"' . ( $doan['dong_dau'][ $so ] > CADAO_BAI_DAI_HIEN ? ' data-sau' : '' ) . '>';
+			}
+			$so_le = $dai && false !== $thu && 0 === ( $thu + 1 ) % 5 ? ' data-so="' . ( $thu + 1 ) . '"' : ''; // số dòng bên lề, mỗi 5 dòng
+			$ra   .= '<span class="cadao-dong' . ( $luc ? ' cadao-luc' : '' ) . '"' . $so_le . '>' . ( '' === trim( $d ) ? '&nbsp;' : $d ) . '</span>';
 		}
+		$ra .= $dai && $doan['bat_dau'] ? '</span>' : '';
 		$lop = preg_replace( '~class="([^"]*)"~', 'class="$1 cadao-the-' . esc_attr( $the ) . '"', $m[2], 1, $co );
 		$tho = $m[1] . ( $co ? $lop : ' class="cadao-the-' . esc_attr( $the ) . '"' . $m[2] ) . $ra . $m[4];
+		if ( $dai ) {
+			return cadao_khung_bai_dai( $tho, $doan, count( $so_dong ), array_sum( array_map( static fn( $d ) => count( preg_split( '/\s+/u', trim( $d ), -1, PREG_SPLIT_NO_EMPTY ) ), $chu ) ) );
+		}
 		return $la_di_ban ? '<div class="cadao-di-ban"><p class="cadao-nhan-di-ban">Dị bản ' . (int) $bai['di_ban'][ $i ] . '</p>' . $tho . '</div>' : $tho;
 	}
 );

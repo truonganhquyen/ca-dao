@@ -101,6 +101,132 @@
 		});
 	}
 
+	// ---------- Công cụ đọc (T-085): cỡ chữ, sáng / tối, trình chiếu, nghe ----------
+	var goc = document.documentElement;
+	var luu = function (k, v) { try { if (v) { localStorage.setItem(k, v); } else { localStorage.removeItem(k); } } catch (e) { /* chế độ riêng tư */ } };
+	var nutCo = hop && hop.querySelector('.cadao-co-chu');
+	if (nutCo) {
+		var TEN_CO = ['vừa', 'lớn', 'rất lớn'];
+		var datCo = function (c) { goc.setAttribute('data-co-chu', String(c)); nutCo.setAttribute('aria-label', 'Cỡ chữ: ' + TEN_CO[c - 1] + '. Bấm để đổi'); };
+		datCo(Number(goc.getAttribute('data-co-chu')) || 1);
+		nutCo.addEventListener('click', function () {
+			var c = (Number(goc.getAttribute('data-co-chu')) || 1) % 3 + 1;
+			datCo(c);
+			luu('cadao-co-chu', c > 1 ? String(c) : '');
+		});
+	}
+	var nutSt = hop && hop.querySelector('.cadao-sang-toi');
+	if (nutSt) {
+		var dangToi = function () { var d = goc.getAttribute('data-che-do'); return d ? d === 'toi' : window.matchMedia('(prefers-color-scheme: dark)').matches; };
+		var nhanSt = function () { nutSt.setAttribute('aria-label', dangToi() ? 'Đang tối. Bấm để chuyển sang sáng' : 'Đang sáng. Bấm để chuyển sang tối'); };
+		nhanSt();
+		nutSt.addEventListener('click', function () {
+			var d = dangToi() ? 'sang' : 'toi';
+			goc.setAttribute('data-che-do', d);
+			luu('cadao-che-do', d);
+			nhanSt();
+		});
+	}
+	var dongLoi = hop ? (hop.getAttribute('data-loi') || '').split('\n').filter(function (d) { return d.trim(); }) : [];
+	var nutTc = hop && hop.querySelector('.cadao-trinh-chieu');
+	if (nutTc && dongLoi.length && window.HTMLDialogElement) {
+		// Trình chiếu cho lớp học: mỗi lần hai dòng, chữ thật lớn; mũi tên / nút để chuyển, Esc để thoát
+		var cap = [];
+		for (var k = 0; k < dongLoi.length; k += 2) { cap.push(dongLoi.slice(k, k + 2)); }
+		var tc = document.createElement('dialog');
+		tc.className = 'cadao-tc';
+		tc.setAttribute('aria-label', 'Trình chiếu');
+		tc.innerHTML = '<p class="cadao-tc-loi"></p><p class="cadao-tc-so"></p><div class="cadao-tc-nut"><button type="button" data-di="-1">← Trước</button><button type="button" data-di="1">Sau →</button><button type="button" class="cadao-tc-thoat">Thoát</button></div>';
+		document.body.appendChild(tc);
+		var vt = 0;
+		var hien = function () {
+			var p = tc.querySelector('.cadao-tc-loi');
+			p.textContent = '';
+			cap[vt].forEach(function (d, i) { if (i) { p.appendChild(document.createElement('br')); } p.appendChild(document.createTextNode(d)); });
+			tc.querySelector('.cadao-tc-so').textContent = (vt + 1) + ' / ' + cap.length;
+		};
+		var di = function (b) { vt = Math.max(0, Math.min(cap.length - 1, vt + b)); hien(); };
+		tc.querySelectorAll('[data-di]').forEach(function (n) { n.addEventListener('click', function () { di(Number(n.getAttribute('data-di'))); }); });
+		tc.querySelector('.cadao-tc-thoat').addEventListener('click', function () { tc.close(); });
+		tc.addEventListener('keydown', function (e) {
+			if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'PageDown') { di(1); e.preventDefault(); }
+			if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') { di(-1); e.preventDefault(); }
+		});
+		tc.addEventListener('close', function () {
+			if (document.fullscreenElement && document.exitFullscreen) { document.exitFullscreen().catch(function () { /* đã thoát */ }); }
+			nutTc.focus();
+		});
+		nutTc.addEventListener('click', function () {
+			vt = 0;
+			hien();
+			tc.showModal();
+			if (tc.requestFullscreen) { tc.requestFullscreen().catch(function () { /* máy không cho toàn màn hình: vẫn trình chiếu */ }); }
+		});
+	}
+	var nutNghe = hop && hop.querySelector('.cadao-nghe');
+	if (nutNghe && dongLoi.length && 'speechSynthesis' in window && window.SpeechSynthesisUtterance) {
+		// Giọng tiếng Việt có sẵn trên máy (Web Speech); không có thì không hiện nút. Không tự phát.
+		var giong = null;
+		var timGiong = function () {
+			var ds = window.speechSynthesis.getVoices();
+			for (var i = 0; i < ds.length && !giong; i++) { if (/^vi([-_]|$)/i.test(ds[i].lang)) { giong = ds[i]; } }
+			if (giong) { nutNghe.hidden = false; hop.querySelector('.cadao-giong-may').hidden = false; }
+		};
+		timGiong();
+		if (!giong) { window.speechSynthesis.addEventListener('voiceschanged', timGiong); }
+		var dangDoc = false;
+		var xong = function () { dangDoc = false; nutNghe.textContent = '▶ Nghe'; };
+		nutNghe.addEventListener('click', function () {
+			if (dangDoc) { window.speechSynthesis.cancel(); xong(); return; }
+			dangDoc = true;
+			nutNghe.textContent = '■ Dừng';
+			dongLoi.forEach(function (d, i) { // mỗi dòng một câu: ngắt nghỉ cuối dòng
+				var u = new SpeechSynthesisUtterance(d);
+				u.voice = giong;
+				u.lang = giong.lang;
+				u.rate = 0.9;
+				if (i === dongLoi.length - 1) { u.onend = xong; }
+				u.onerror = xong;
+				window.speechSynthesis.speak(u);
+			});
+		});
+	}
+
+	// ---------- Bài dài (T-090): hiện phần đầu, "Đọc toàn bài", nhớ chỗ đang đọc ----------
+	var dai = document.querySelector('.cadao-bai-dai');
+	if (dai) {
+		var doan = dai.querySelectorAll('.cadao-doan');
+		var mo = function () { dai.classList.remove('cadao-thu-gon'); };
+		if (dai.querySelector('.cadao-doan[data-sau]')) {
+			dai.classList.add('cadao-thu-gon');
+			var conLai = dai.getAttribute('data-con-lai');
+			var nutDoc = document.createElement('button');
+			nutDoc.type = 'button';
+			nutDoc.className = 'cadao-doc-toan-bai';
+			nutDoc.textContent = 'Đọc toàn bài' + (conLai ? ' (còn ' + conLai + ' dòng)' : '');
+			nutDoc.addEventListener('click', function () { mo(); nutDoc.remove(); });
+			dai.appendChild(nutDoc);
+			dai.querySelectorAll('.cadao-muc-luc a').forEach(function (a) { a.addEventListener('click', function () { mo(); if (nutDoc.parentNode) { nutDoc.remove(); } }); });
+		}
+		var khoaDoc = 'cadao-doc-den-' + (dai.getAttribute('data-bai') || '');
+		var den = 0;
+		try { den = Number(localStorage.getItem(khoaDoc)) || 0; } catch (e) { /* không nhớ được */ }
+		if (den > 1 && doan[den - 1]) {
+			var tiep = document.createElement('a');
+			tiep.href = '#' + doan[den - 1].id;
+			tiep.className = 'cadao-doc-tiep';
+			tiep.textContent = 'Đọc tiếp từ đoạn ' + den;
+			tiep.addEventListener('click', function () { mo(); });
+			dai.insertBefore(tiep, dai.firstChild);
+		}
+		if (window.IntersectionObserver) {
+			var thay = new IntersectionObserver(function (ds) {
+				ds.forEach(function (x) { if (x.isIntersecting) { luu(khoaDoc, x.target.getAttribute('data-so-doan')); } });
+			}, { rootMargin: '0px 0px -60% 0px' });
+			doan.forEach(function (x) { thay.observe(x); });
+		}
+	}
+
 	// ---------- Chạm vào từ khó (T-082): ô chú thích; tắt JavaScript thì liên kết nhảy tới chú thích dưới lời ----------
 	var tuCt = document.querySelectorAll('a.cadao-tu');
 	if (tuCt.length && window.HTMLDialogElement) {

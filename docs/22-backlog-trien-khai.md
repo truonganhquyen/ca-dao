@@ -62,12 +62,12 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-082 | Chạm vào từ khó, nghĩa hiện ngay (lưu vị trí chú thích) | A | T-073 | — | DONE |
 | T-083 | Dị bản đánh số, tô chỗ khác lời chính | A | T-072 | — | DONE |
 | T-084 | Nhận thể thơ, trình bày theo thể | A | T-072 | — | DONE |
-| T-085 | Công cụ đọc: cỡ chữ, sáng/tối, trình chiếu, nghe bằng giọng có sẵn của điện thoại | A | T-072 | — | READY |
+| T-085 | Công cụ đọc: cỡ chữ, sáng/tối, trình chiếu, nghe bằng giọng có sẵn của điện thoại | A | T-072 | — | DONE |
 | T-086 | Gắn Wikidata: hàng chờ xác nhận, ảnh Commons có ghi tác giả | N+A | T-073 | — | READY |
 | T-087 | Chú thích địa danh: bản đồ nhỏ, ảnh, "Bài khác nhắc tới…" | A | T-082, T-086 | — | BLOCKED |
 | T-088 | Câu đố: ảnh đáp án | A | T-086 | — | BLOCKED |
 | T-089 | Tự gợi ý vùng cho bài (phương ngữ, địa danh) | N+A | T-073 | — | READY |
-| T-090 | Vè và bài dài: chia đoạn, mục lục, đọc tiếp | A | T-072 | — | READY |
+| T-090 | Vè và bài dài: chia đoạn, mục lục, đọc tiếp | A | T-072 | — | DONE |
 | T-091 | Bộ chủ đề riêng của dự án (gồm nhóm tục ngữ kinh nghiệm, lối hát, loại câu đố), máy gợi ý | N+A | T-073 | — | READY |
 | T-092 | "Bài gần gũi" cuối bài và trang mô-típ | A | T-091 | — | BLOCKED |
 | T-093 | "Bạn có biết?" ghép từ chú thích | N+A | T-073 | — | READY |
@@ -308,6 +308,8 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 #### T-085 · Công cụ đọc — A
 **Đọc:** `25` mục 4.1, 4.8; D-063. **Chấp nhận:** "Aa" 3 mức và sáng/tối nhớ trên máy (try/catch); trình chiếu toàn màn hình, phím mũi tên; nút "▶ Nghe" chỉ hiện khi máy có giọng tiếng Việt, có dòng "Giọng đọc máy", không tự phát; JavaScript thêm vào trang bài ≤ 15 KB.
 
+**Tiến độ (25/10/2026):** xong — hàng nút "Aa" (vừa / lớn / rất lớn), "◐" sáng / tối, "Trình chiếu", "▶ Nghe" trong khối Trích dẫn · Chia sẻ; lựa chọn nhớ trong bộ nhớ trình duyệt (try/catch, không cookie), áp ngay trong `<head>` nên không nháy. Trình chiếu: `<dialog>` toàn màn hình, hai dòng một lần, mũi tên / nút để chuyển, Esc thoát. Nghe: Web Speech, chỉ hiện khi máy có giọng tiếng Việt, mỗi dòng một câu (ngắt cuối dòng), có dòng "Giọng đọc máy", bấm lần nữa để dừng. Cả tệp JavaScript trang bài ~15 KB (phần T-085 ~5 KB). Thử trên trình duyệt: cỡ chữ, sáng / tối còn sau khi tải lại; trình chiếu mở, mũi tên sang đoạn sau, Esc thoát; máy không có giọng Việt thì không có nút Nghe.
+
 #### T-086 · Gắn Wikidata — N+A
 **Đọc:** `25` mục 4.2, D-061. **Chấp nhận:** hàng chờ Xác nhận (Đúng / Sai / Bỏ qua) cho từ được chú thích và đáp án câu đố; chỉ thực thể đã xác nhận được dùng; ảnh chỉ giấy phép mở, lưu tác giả và giấy phép; nhịp gọi API lịch sự, có điểm dừng.
 
@@ -322,6 +324,8 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 
 #### T-090 · Bài dài — A
 **Đọc:** `25` mục 4.1. **Chấp nhận:** bài > 40 dòng chia đoạn, mục lục, số dòng, "Đọc toàn bài", nhớ chỗ đọc trên máy; "Vè cậu Hai Miêng" (990 dòng) mở nhanh trên điện thoại.
+
+**Tiến độ (25/10/2026):** xong — bài từ 41 dòng: dòng tóm tắt (số dòng, số đoạn, phút đọc ~200 âm tiết/phút), mục lục đoạn (thu gọn), chia đoạn theo khổ (không có khổ thì ~20 dòng), số dòng bên lề mỗi 5 dòng; JavaScript thu gọn các đoạn bắt đầu sau dòng 30 và thêm nút "Đọc toàn bài (còn N dòng)" (tắt JavaScript thì hiện đủ), nhớ đoạn đang đọc, lần sau có "Đọc tiếp từ đoạn N". Dựng trang ở máy chủ, không tải thêm gì. Kiểm "Vè cậu Hai Miêng" trên site thật sau khi gộp.
 
 #### T-091 · Bộ chủ đề riêng — N+A
 **Đọc:** `25` mục 4.4, 4.5; D-061. **Việc:** người sáng lập duyệt danh sách chủ đề (agent soạn đề xuất từ số liệu kho) và bảng ánh xạ từ chủ đề, thẻ của nguồn; gồm nhóm tục ngữ kinh nghiệm, lối hát (hát ru, hò, lý, hát đối), loại câu đố. **Chấp nhận:** gợi ý chủ đề cho mọi bài đã đọc trang; không chép nguyên tên chủ đề, thẻ của nguồn ra trang khi chưa được chọn vào bộ của dự án.

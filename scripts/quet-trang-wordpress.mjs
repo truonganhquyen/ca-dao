@@ -59,7 +59,7 @@ try {
   await san;
   const bai = await (await fetch(`${G}/wp-json/wp/v2/cdtn?per_page=50&_fields=link`)).json();
   const dsTrang = ['/', '/kho/', '/the-loai/ca-dao/', ...bai.map(b => new URL(b.link).pathname)];
-  if (bai.length < 4) loi.push(`chỉ có ${bai.length} bài mẫu (cần 4) — bài mẫu không dựng được`);
+  if (bai.length < 5) loi.push(`chỉ có ${bai.length} bài mẫu (cần 5) — bài mẫu không dựng được`);
   trinhDuyet = await puppeteer.launch({ executablePath: chrome, headless: true, args: ['--no-sandbox', '--font-render-hinting=none'] });
   const CHE_DO = [
     { ten: 'điện thoại · sáng', w: 360, h: 800, toi: false },
@@ -150,6 +150,27 @@ try {
   } else {
     kiem('bài mẫu có từ chú thích bấm được', false);
   }
+  // Công cụ đọc (T-085): cỡ chữ, sáng / tối nhớ trên máy; trình chiếu; không có giọng Việt thì không hiện nút Nghe
+  await tuTab.click('.cadao-co-chu');
+  await tuTab.click('.cadao-sang-toi');
+  await tuTab.reload({ waitUntil: 'load' });
+  kiem('cỡ chữ, sáng / tối nhớ sau khi tải lại', await tuTab.evaluate(() => document.documentElement.getAttribute('data-co-chu') === '2' && !!document.documentElement.getAttribute('data-che-do')));
+  kiem('máy không có giọng tiếng Việt: không hiện nút Nghe', await tuTab.$eval('.cadao-nghe', n => n.hidden));
+  await tuTab.click('.cadao-trinh-chieu');
+  await cho(300);
+  await tuTab.keyboard.press('ArrowRight');
+  const tcSo = await tuTab.evaluate(() => { const d = document.querySelector('dialog.cadao-tc'); return d && d.open ? d.querySelector('.cadao-tc-so').textContent : ''; });
+  kiem(`trình chiếu: mở, mũi tên sang đoạn sau (${tcSo})`, /^2 \/ \d+$/.test(tcSo));
+  await tuTab.keyboard.press('Escape');
+  await cho(300);
+  if (await tuTab.evaluate(() => document.querySelector('dialog.cadao-tc').open)) { await tuTab.keyboard.press('Escape'); await cho(300); }
+  kiem('trình chiếu: Esc thoát', await tuTab.evaluate(() => !document.querySelector('dialog.cadao-tc').open));
+  // Bài dài (T-090): hiện phần đầu, "Đọc toàn bài" mở phần còn lại
+  const baiDai = new URL(bai.find(b => /ve-mau-dai/.test(b.link))?.link ?? bai[0].link).pathname;
+  await tuTab.goto(G + baiDai, { waitUntil: 'load' });
+  kiem('bài dài: phần sau thu gọn, có nút "Đọc toàn bài"', await tuTab.evaluate(() => !!document.querySelector('.cadao-doc-toan-bai') && getComputedStyle(document.querySelector('.cadao-doan[data-sau]')).display === 'none'));
+  await tuTab.click('.cadao-doc-toan-bai');
+  kiem('bài dài: bấm "Đọc toàn bài" thì hiện đủ', await tuTab.evaluate(() => getComputedStyle(document.querySelector('.cadao-doan[data-sau]')).display !== 'none'));
   await ngCanh.close();
   console.log(`Thử trích dẫn, lượt đọc trên trình duyệt: ${kiemThem} phép thử.`);
 } catch (e) {

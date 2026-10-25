@@ -35,3 +35,13 @@ $tay = wp_insert_post(
 	)
 );
 wp_set_object_terms( $tay, 'ca-dao', 'the_loai' );
+// Bài dài mẫu (vè, 60 dòng, 3 khổ) để xem chia đoạn, mục lục, "Đọc toàn bài" (T-090) — lời tổng hợp
+$dai = array();
+for ( $k = 1; $k <= 3; $k++ ) {
+	for ( $d = 1; $d <= 20; $d++ ) {
+		$dai[] = sprintf( 'Khổ %d dòng mẫu số %d', $k, $d );
+	}
+	$dai[] = '';
+}
+$ve = wp_insert_post( array( 'post_type' => 'cdtn', 'post_status' => 'publish', 'post_title' => 'Vè mẫu dài', 'post_content' => cadao_khoi_tho( rtrim( implode( "\n", $dai ) ) ) ) );
+wp_set_object_terms( $ve, 've', 'the_loai' );
