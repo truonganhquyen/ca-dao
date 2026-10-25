@@ -22,4 +22,4 @@ else
 	echo "$sha" > "$H/.cap-nhat-loi"
 fi
 # Giữ nhật ký gọn
-tail -n 500 "$H/cap-nhat.log" > "$H/.cap-nhat.log.moi" 2>/dev/null && mv "$H/.cap-nhat.log.moi" "$H/cap-nhat.log" || true
+if [ -f "$H/cap-nhat.log" ]; then tail -n 500 "$H/cap-nhat.log" > "$H/.cap-nhat.log.moi" && mv "$H/.cap-nhat.log.moi" "$H/cap-nhat.log"; fi
