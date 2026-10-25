@@ -40,8 +40,8 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-071 | Plugin WordPress `ca-dao`: loại bài, phân loại, dòng Nguồn, Nguồn tự động, kho thu thập, đổ bài Chờ duyệt | A | T-070 | — | DONE |
 | T-072 | Theme WordPress `ca-dao` (theme con, giao diện theo docs/20) | A | T-071 | — | BLOCKED |
 | T-073 | Bộ đọc Ca dao Mẹ đầy đủ: dị bản, chú thích có ghi công, tục ngữ, đồng dao, vè, câu đố | A | T-071 | — | BLOCKED |
-| T-074 | Chọn và mua hosting WordPress | N | — | — | READY |
-| T-075 | Cài WordPress lên hosting: plugin, theme, sao lưu, bảo mật cơ bản | N+A | T-071, T-072, T-074 | — | BLOCKED |
+| T-074 | Chọn và mua hosting WordPress | N | — | — | DONE |
+| T-075 | Cài WordPress lên hosting: plugin, sao lưu, bảo mật cơ bản (theme cài khi T-072 xong) | N+A | T-071, T-074 | — | IN_PROGRESS |
 | T-076 | Chuyển nội dung hiện có sang WordPress, ngừng site Astro | A | T-075 | — | BLOCKED |
 | T-041 | Tìm kiếm không dấu trên WordPress | A | T-072 | — | BLOCKED |
 | T-042 | Trích dẫn 2 định dạng + chia sẻ (trên WordPress) | A | T-072 | — | BLOCKED |
@@ -162,10 +162,10 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 **Việc:** dị bản và chú thích (chép kèm "Theo Ca dao Mẹ" + liên kết khi công tắc bật — D-055), thành ngữ–tục ngữ, đồng dao, vè, câu đố (câu hỏi + đáp án); dùng lại cách trích đã kiểm ở kho thô (T-038: 20/20 khớp từng ký tự). **Chấp nhận:** kiểm mẫu 20 bài khớp từng ký tự với trang gốc.
 
 #### T-074 · Hosting WordPress — N
-**Việc:** chọn và mua hosting theo yêu cầu ở `24` mục 8 (agent soạn so sánh khi cần). **Chấp nhận:** có tài khoản quản trị hosting, PHP ≥ 8.3, có sao lưu.
+**Việc:** chọn và mua hosting theo yêu cầu ở `24` mục 8 (agent soạn so sánh khi cần). **Chấp nhận:** có tài khoản quản trị hosting, PHP ≥ 8.3, có sao lưu. **Đã có (24/10/2026):** VPS + FlashPanel, cadao.sdigi.net, PHP 8.5 (`24` mục 8).
 
 #### T-075 · Cài WordPress lên hosting — N+A
-**Việc:** cài WordPress, plugin `ca-dao`, theme; tài khoản quản trị có xác thực hai lớp; sao lưu tự động; cron thật thay WP-Cron nếu hosting cho phép. **Chấp nhận:** người sáng lập đăng một bài từ điện thoại; nguồn tự động chạy theo lịch.
+**Việc:** cài WordPress, plugin `ca-dao` (theme cài khi T-072 xong); tài khoản quản trị có xác thực hai lớp; sao lưu tự động; cron thật thay WP-Cron nếu hosting cho phép. **Chấp nhận:** người sáng lập đăng một bài từ điện thoại; nguồn tự động chạy theo lịch.
 
 #### T-076 · Chuyển nội dung, ngừng site Astro — A
 **Việc:** chuyển bài, mục từ, nguồn trong `content/` sang WordPress (giữ lời nguyên văn); trỏ địa chỉ tạm; ngừng triển khai Astro. **Chấp nhận:** mọi bài công khai cũ hiện trên WordPress; lời khớp từng ký tự.
