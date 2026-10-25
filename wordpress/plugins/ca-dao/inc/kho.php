@@ -179,11 +179,11 @@ function cadao_kho_cap_nhat_bai( int $kho_id, object $cu ): bool {
 	return true;
 }
 
-/** Số mục trong kho theo trạng thái (cho trang quản trị). */
+/** Số mục trong kho theo trạng thái (cho trang quản trị); không tính mục chưa có lời (chờ đọc trang). */
 function cadao_kho_dem( ?string $nguon_id = null ): array {
 	global $wpdb;
 	$bang = cadao_kho_bang();
-	$sql  = "SELECT trang_thai, COUNT(*) AS so FROM $bang" . ( $nguon_id ? $wpdb->prepare( ' WHERE nguon_id = %s', $nguon_id ) : '' ) . ' GROUP BY trang_thai';
+	$sql  = "SELECT trang_thai, COUNT(*) AS so FROM $bang WHERE loi <> ''" . ( $nguon_id ? $wpdb->prepare( ' AND nguon_id = %s', $nguon_id ) : '' ) . ' GROUP BY trang_thai';
 	$dem  = array( 'moi' => 0, 'da_tao_bai' => 0, 'bo_qua' => 0 );
 	foreach ( $wpdb->get_results( $sql ) as $r ) {
 		$dem[ $r->trang_thai ] = (int) $r->so;

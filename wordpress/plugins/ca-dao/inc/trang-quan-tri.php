@@ -223,7 +223,12 @@ function cadao_trang_kho(): void {
 	submit_button( 'Tìm', 'secondary', '', false );
 	echo '</form>';
 
-	$dk = $wpdb->prepare( 'trang_thai = %s', isset( $nhan[ $tt ] ) ? $tt : 'moi' );
+	// Mục lấy từ sitemap chưa đọc trang thì chưa có lời: không liệt kê, chỉ đếm
+	$cho = (int) $wpdb->get_var( "SELECT COUNT(*) FROM $bang WHERE loi = '' AND doc_trang = ''" );
+	if ( $cho ) {
+		echo '<p class="description">' . esc_html( number_format_i18n( $cho ) ) . ' mục đang chờ máy đọc trang (chưa có lời) — không hiện ở đây.</p>';
+	}
+	$dk = $wpdb->prepare( "trang_thai = %s AND loi <> ''", isset( $nhan[ $tt ] ) ? $tt : 'moi' );
 	if ( '' !== $tim ) {
 		$giong = '%' . $wpdb->esc_like( $tim ) . '%';
 		$dk   .= $wpdb->prepare( ' AND (tieu_de LIKE %s OR loi LIKE %s)', $giong, $giong );
