@@ -2,16 +2,16 @@
 
 | | |
 |---|---|
-| Phiên bản | 1.0 · 25/10/2026 (D-059..D-064) |
-| Trạng thái | **Đã duyệt, đang triển khai.** Người sáng lập duyệt 47 mục (44 ý + 3 quyết định A–C), để sau 1 ý |
-| Đọc khi | Làm T-080..T-108, hoặc T-041, T-043..T-045, T-047, T-050..T-052 (các task cũ đã được viết lại theo gói này) |
+| Phiên bản | 1.1 · 25/10/2026 (D-059..D-065) — 1.1 thêm chống trùng (ý 46–49, mục 4.9) |
+| Trạng thái | **Đã duyệt, đang triển khai.** Người sáng lập duyệt 51 mục (48 ý + 3 quyết định A–C), để sau 1 ý |
+| Đọc khi | Làm T-080..T-111, hoặc T-041, T-043..T-045, T-047, T-050..T-052, T-076 (các task cũ đã được viết lại theo gói này) |
 | Nguồn | Phiên nghiên cứu 25/10/2026: mổ xẻ trang Ca dao Mẹ, đo trên kho của site, xem các nguồn mở và các bộ chuyển văn bản thành giọng nói tiếng Việt. Người sáng lập duyệt từng ý trên trang đề xuất (riêng tư, <https://claude.ai/artifact/QhtBLmtuVoFBAHkWJAbmWq>) |
 
 Số trong ngoặc như (ý 7) là số của ý trên trang đề xuất; cột "Task" ở mục 3 cho biết ý nằm ở task nào trong `22`.
 
 ## 1. Phạm vi
 
-Ba hướng nâng cấp site WordPress (`24`): **cách đọc một bài** (chạm từ khó, dị bản, thể thơ, công cụ đọc, giọng đọc), **nguồn nội dung** (Wikidata, Commons, Wiktionary, sách hết bản quyền, bộ chủ đề riêng, bài trùng), và **những gì riêng cho từng thể loại** (thành ngữ – tục ngữ, đồng dao, vè, câu đố, hát ru – hò – lý). Thêm: đếm lượt đọc, cảm nghĩ và bài phân tích của người đọc (luôn qua Chờ duyệt).
+Ba hướng nâng cấp site WordPress (`24`): **cách đọc một bài** (chạm từ khó, dị bản, thể thơ, công cụ đọc, giọng đọc), **nguồn nội dung** (Wikidata, Commons, Wiktionary, sách hết bản quyền, bộ chủ đề riêng, bài trùng), và **những gì riêng cho từng thể loại** (thành ngữ – tục ngữ, đồng dao, vè, câu đố, hát ru – hò – lý). Thêm: đếm lượt đọc, cảm nghĩ và bài phân tích của người đọc (luôn qua Chờ duyệt), và **chống trùng** khi lấy từ nhiều nguồn và khi viết bài tay (mục 4.9).
 
 Không đổi các lằn ranh cũ: AI không viết lời, dị bản, nguồn (`AGENTS.md`); lời và dị bản không ghi nguồn, phần chép từ nguồn có dòng "Nguồn: …" tùy chọn (D-057, D-058).
 
@@ -80,7 +80,7 @@ Mẫu VieNeu đọc "Bao giờ cạn lạch Đồng Nai" (giọng Hải Đăng, 
 | 14 | Giải nghĩa thành ngữ, tục ngữ từ Wiktionary | T-098 |
 | 15 | Chú giải từ sách hết bản quyền | T-099 |
 | 16 | Tự gợi ý vùng | T-089 |
-| 17 | Gộp bài trùng thành dị bản | T-101 |
+| 17 | Gộp bài trùng thành dị bản — thay bởi ý 49 | T-101 |
 | 18 | Trợ giúp viết "Hiểu nhanh" | T-100 |
 | 19 | Tìm bản quét *Tục ngữ phong dao* | T-107 |
 | 20 | Dị bản và ghi âm từ người đọc | T-045 (dị bản), T-067 (ghi âm, để sau) |
@@ -109,6 +109,10 @@ Mẫu VieNeu đọc "Bao giờ cạn lạch Đồng Nai" (giọng Hải Đăng, 
 | 43 | Nghe bằng giọng có sẵn trên điện thoại | T-085 |
 | 44 | Giọng đọc sinh sẵn theo miền | T-105 |
 | 45 | Giọng riêng của dự án, thu từ người đồng ý | T-106 |
+| 46 | Nhận ra bài trùng | T-109 |
+| 47 | Chống trùng khi lấy từ nguồn | T-110 |
+| 48 | Báo trùng khi viết bài tay | T-111 |
+| 49 | Gộp bài đã đăng bị trùng | T-101 |
 | A | Ghi giấy phép riêng cho phần chép từ Wiktionary | D-061 |
 | B | Bộ chủ đề riêng của dự án | D-061, T-091 |
 | C | Dùng ảnh Wikimedia Commons | D-061 |
@@ -157,7 +161,7 @@ Mẫu VieNeu đọc "Bao giờ cạn lạch Đồng Nai" (giọng Hải Đăng, 
 - **Bộ chủ đề riêng (B).** Bộ chủ đề của dự án (vài chục chủ đề, chia nhóm), không chép nguyên phân loại của Ca dao Mẹ; máy gợi ý chủ đề cho từng bài từ chủ đề, thẻ của nguồn (lưu nội bộ trong kho) qua một bảng ánh xạ; người sáng lập duyệt bảng và duyệt hàng loạt. Phân loại `chu_de` đã có trong plugin.
 - **Wiktionary (ý 14, A).** Khớp tên bài với mục thành ngữ / tục ngữ của Wiktionary; lấy nghĩa, đồng nghĩa; ghi giấy phép CC BY-SA ngay dưới đoạn chép; phần còn lại của site giữ CC BY.
 - **Sách hết bản quyền (ý 15).** Chú giải từ cổ, từ Nam Bộ, từ Hán Việt, phong tục bằng trích đoạn trên Wikisource; ghi tên sách, tác giả, năm, liên kết trang Wikisource; giữ chính tả xưa, có thể kèm cách viết nay. Chỉ dùng khi khớp chắc chắn; người sáng lập duyệt.
-- **Gộp bài trùng (ý 17).** So lời đã chuẩn hóa (bỏ dấu câu, khoảng trắng, hoa thường); trùng hoặc gần trùng thì đề nghị gộp: một bài chính, bản kia thành dị bản. Người sáng lập duyệt từng lần gộp. Cần trước khi thêm nguồn thứ hai.
+- **Gộp bài trùng (ý 17).** Thay bởi ý 46–49, xem mục 4.9.
 - **"Hiểu nhanh" (ý 18).** Trình soạn hiện cạnh ô đoạn trích: chú thích của nguồn, nghĩa Wiktionary (nếu có). Tùy chọn máy soạn nháp: luôn ghi là nháp, chỉ lên trang khi người sáng lập duyệt (như quy tắc nháp AI cũ).
 - ***Tục ngữ phong dao* (ý 19).** Việc của người: tìm bản quét trên Gallica, Google Sách, thư viện; agent soạn hướng dẫn tìm nếu cần.
 
@@ -179,12 +183,24 @@ Mẫu VieNeu đọc "Bao giờ cạn lạch Đồng Nai" (giọng Hải Đăng, 
 - **Giọng sinh sẵn (ý 44).** VieNeu-TTS v3 Turbo cài trong tài khoản `cadao` trên VPS (môi trường Python riêng), sinh file nén (Opus hoặc MP3) cho từng bài, chạy ban đêm, ưu tiên thấp (không ảnh hưởng các site khác trên VPS). Ước tính cả kho (~16.400 mục, ~30 giờ đọc): 15–30 giờ máy; 400–450 MB; mỗi câu ca dao ~15 KB; chỉ tải khi bấm nghe. Giọng theo vùng của bài: Nam Bộ giọng Nam, Huế – Nghệ giọng Trung, còn lại giọng Bắc. Ngắt nghỉ cuối dòng; lục bát ngắt nhịp chẵn; đồng dao chậm theo nhịp. **Trước khi sinh cả kho:** người sáng lập nghe 30 bài đủ thể loại trong trang quản trị (Đạt / Sai); bài sai thì sửa cách ngắt hoặc tắt giọng cho bài đó. Bài mới, bài sửa lời tự sinh lại.
 - **Giọng riêng (ý 45).** Một người đồng ý (người sáng lập hoặc người kể chuyện quê) thu 5–10 giây mỗi giọng; có giấy đồng ý ghi phạm vi dùng; VieNeu nhân bản thành giọng của dự án. Không dùng các giọng có sẵn mang tên giống người thật nổi tiếng (ví dụ "Phạm Tuyên").
 
+### 4.9. Chống trùng (ý 46–49, D-065)
+
+Nguyên tắc: **máy chỉ báo và đề nghị, người sáng lập quyết; không chặn đăng (D-054); không tự gộp, không xóa bài nào** (bài phụ chỉ vào thùng rác).
+
+Đo trên kho ngày 25/10/2026 (12.328 câu có lời, một nguồn): 9 câu trùng y hệt (có câu ở hai thể loại: "Rộng đồng thì gió thổi luôn" vừa là ca dao vừa là câu đố); 1 câu chỉ khác cách bỏ dấu; 8 câu chính là dị bản đã ghi của câu khác; 3 cặp giống ≥ 80%; 96 cặp giống 50–80% ("Yêu nhau cau bảy bổ ba…" ↔ "Thương nhau cau sáu bổ ba…", 69%); 274 dòng đầu dùng chung cho nhiều bài khác nhau ("Nghe vẻ nghe ve" mở đầu 14 bài vè, "Làm trai cho đáng nên trai" 10 bài); 2 bài nhập tay không trùng y hệt câu nào. Khi thêm nguồn thứ hai, phần lớn câu nổi tiếng sẽ có ở cả hai.
+
+- **Nhận ra bài trùng (ý 46).** Mỗi bài, dị bản, câu trong kho có hai dấu vân tay của lời: (1) chuẩn hóa — NFC, chữ thường, bỏ dấu câu, gộp khoảng trắng; (2) bỏ thêm dấu thanh và đổi đ → d (bắt "hoà / hòa", gõ thiếu dấu). Mức giống đo bằng tỉ lệ cặp âm tiết liền nhau chung nhau trên bản (2). Bốn mức: **trùng y hệt** (dấu 1 bằng nhau); **gần như y hệt** (dấu 2 bằng nhau, hoặc ≥ 90%); **có thể là dị bản** (50–90%, hoặc trùng một dị bản đã ghi của bài khác); **khác**. Câu một dòng chỉ xét hai mức đầu (câu ngắn dễ giống tình cờ); câu ngắn nằm trọn trong bài dài là "liên quan", không phải trùng. Cùng lời khác thể loại vẫn là trùng (để chọn thể loại). **Không bao giờ so tiêu đề hay dòng đầu.**
+- **Khi lấy từ nguồn (ý 47).** Câu mới vào kho (mọi nguồn) được so với bài đã có và các câu trong kho. Trùng y hệt / gần như y hệt: không tạo bài mới, gắn vào bài có sẵn ("Đã gộp"); chú thích, dị bản mới của nguồn kia được bổ sung (bài chưa sửa tay tự bổ sung; dòng "Nguồn" riêng cho phần chép từ nguồn đó). Có thể là dị bản: hàng **"Có thể trùng"** trong Bàn biên tập với Gộp làm dị bản / Là bài khác / Để sau; máy tạo bài hằng ngày bỏ qua câu đang chờ quyết. Làm trước khi thêm nguồn thứ hai và trước khi chuyển bài cũ từ site Astro.
+- **Khi viết tay (ý 48).** Trong trình soạn, sau khi dán/gõ lời (ngừng gõ một chút) và khi bấm Đăng: ô bên cạnh liệt kê bài có thể trùng kèm mức giống, nút **Mở bài này** · **Thêm làm dị bản** (lời vừa gõ thành dị bản của bài cũ; bản nháp mới vào thùng rác, khôi phục được 30 ngày) · **Vẫn đăng bài mới** (đăng bình thường). Danh sách bài có nhãn "Có thể trùng".
+- **Gộp bài đã đăng (ý 49, thay ý 17).** Mỗi đêm quét bài đã đăng, cặp nghi trùng vào hàng "Có thể trùng". Gộp: chọn bài chính; bài kia thành dị bản; đường dẫn cũ chuyển hướng 301; lượt đọc cộng dồn; cảm nghĩ, bài phân tích chuyển sang bài chính; bài phụ vào thùng rác.
+
 ## 5. Lằn ranh
 
 - **AI:** không viết lời, dị bản, nguồn; không tự viết sự kiện (Bạn có biết?, bối cảnh vè); nháp giải nghĩa chỉ lên trang khi người sáng lập duyệt.
 - **Máy gợi ý, người xác nhận:** thực thể Wikidata, vùng, thể loại tách, chủ đề, gộp bài trùng, chú giải từ sách cũ — không có gì tự hiện ra trang khi chưa được xác nhận (trừ khi người sáng lập bật duyệt hàng loạt cho một nhóm).
 - **Quyền:** ảnh chỉ từ Commons với giấy phép mở, ghi tác giả và giấy phép; không tải ảnh, không chép phân loại của Ca dao Mẹ; Wiktionary và Wikipedia ghi CC BY-SA tại chỗ.
 - **Không lọc từ tục** (D-060): không chặn, không ẩn; gắn cờ trong quản trị để sau (T-108).
+- **Chống trùng** (D-065): máy báo, người quyết; không chặn đăng, không tự gộp, không xóa; không so tiêu đề hay dòng đầu.
 - **Dữ liệu cá nhân:** không cookie theo dõi, không lưu IP; người đọc gửi bài không phải khai tên thật, email, số điện thoại.
 - **Giọng:** luôn ghi "Giọng đọc máy"; không nhân bản giọng người không đồng ý; giọng máy không thay hát ru, hò, lý thật (ghi âm thật: T-067).
 
@@ -194,13 +210,13 @@ Mỗi task một PR (`03` mục 7.1: nhiều PR mở cùng lúc thì xếp chồ
 
 | Đợt | Mục tiêu | Task (mức công) | Việc của người sáng lập |
 |---|---|---|---|
-| **1 · Nền dữ liệu** (Mốc A) | Xong Mốc A; tách loại trước khi hàng nghìn câu thành bài; bắt đầu có số liệu | Theo thứ tự: T-042 trích dẫn và chia sẻ (nhỏ, đã có), T-076 chuyển bài cũ và ngừng site Astro (vừa, đã có), T-080 tách thành ngữ – tục ngữ (vừa), T-081 lượt đọc (nhỏ) | Duyệt hàng loạt thể loại tách |
+| **1 · Nền dữ liệu** (Mốc A) | Xong Mốc A; tách loại trước khi hàng nghìn câu thành bài; chống trùng trước khi chuyển bài cũ và trước nguồn thứ hai; bắt đầu có số liệu | Theo thứ tự: T-042 trích dẫn và chia sẻ (nhỏ, đã có), T-080 tách thành ngữ – tục ngữ (vừa), T-081 lượt đọc (nhỏ), T-109 nhận ra bài trùng (vừa), T-110 chống trùng khi lấy từ nguồn (vừa), T-111 báo trùng khi viết tay (nhỏ), T-076 chuyển bài cũ và ngừng site Astro (vừa, đã có) | Duyệt hàng loạt thể loại tách; quyết các cặp "Có thể trùng" |
 | **2 · Đọc dễ hơn** (Mốc B) | Mỗi bài đã có đọc tốt hơn ngay | T-082 chạm từ (vừa), T-083 dị bản (nhỏ), T-084 thể thơ (nhỏ), T-085 công cụ đọc + giọng điện thoại (nhỏ), T-090 vè dài (vừa) | Xem bản xem trước |
 | **3 · Địa danh, vùng, chủ đề** (Mốc B) | Ảnh, bản đồ, vùng, bộ chủ đề | T-086 Wikidata (vừa), T-087 thẻ địa danh (vừa), T-088 ảnh đáp án (nhỏ), T-089 vùng (nhỏ), T-091 bộ chủ đề (vừa), T-044 từ điển (vừa) | Xác nhận thực thể Wikidata; duyệt bảng chủ đề; duyệt vùng |
 | **4 · Khám phá và cộng đồng** (Mốc B) | Đi từ bài này sang bài khác; người đọc góp phần | T-041 tìm kiếm (vừa), T-092 bài gần gũi (vừa), T-093 Bạn có biết? (nhỏ), T-043 trang chủ (vừa), T-094 trang thể loại (nhỏ), T-095 câu một dòng (nhỏ), T-096 câu đố (vừa), T-045 góp ý + cảm nghĩ + chống rác (vừa), T-097 bài phân tích (vừa) | Cài Meilisearch trong FlashPanel; tạo khóa Turnstile; viết giới thiệu thể loại; duyệt bài người đọc gửi |
-| **5 · Nội dung sâu** (Mốc C) | Nghĩa, chú giải, bối cảnh, giọng đọc | T-098 Wiktionary (vừa), T-099 sách cũ + Hán Việt (lớn), T-100 Hiểu nhanh (vừa), T-101 gộp trùng (vừa), T-102 bối cảnh vè (vừa), T-103 đồng dao (vừa), T-104 bản đồ (lớn), T-105 giọng sinh sẵn (lớn), T-106 giọng riêng (nhỏ), T-050 ảnh chia sẻ (vừa), T-051, T-052 | Nghe thử 30 bài; thu giọng mẫu; tìm *Tục ngữ phong dao* (T-107, lúc nào cũng được) |
+| **5 · Nội dung sâu** (Mốc C) | Nghĩa, chú giải, bối cảnh, giọng đọc | T-098 Wiktionary (vừa), T-099 sách cũ + Hán Việt (lớn), T-100 Hiểu nhanh (vừa), T-101 gộp bài đã đăng bị trùng (vừa), T-102 bối cảnh vè (vừa), T-103 đồng dao (vừa), T-104 bản đồ (lớn), T-105 giọng sinh sẵn (lớn), T-106 giọng riêng (nhỏ), T-050 ảnh chia sẻ (vừa), T-051, T-052 | Nghe thử 30 bài; thu giọng mẫu; tìm *Tục ngữ phong dao* (T-107, lúc nào cũng được) |
 
-Phụ thuộc chính: T-082 cần cho T-087; T-086 cần cho T-087, T-088, T-102, T-104; T-091 cần cho T-092, T-096; T-045 cần cho T-097; T-080 cần cho T-095, T-098; T-085 và T-089 cần cho T-105. Chi tiết và tiêu chí chấp nhận từng task ở `22` mục 3.
+Phụ thuộc chính: T-109 cần cho T-110, T-111, T-101, T-076; T-082 cần cho T-087; T-086 cần cho T-087, T-088, T-102, T-104; T-091 cần cho T-092, T-096; T-045 cần cho T-097; T-080 cần cho T-095, T-098; T-085 và T-089 cần cho T-105. Chi tiết và tiêu chí chấp nhận từng task ở `22` mục 3.
 
 ## 7. Để sau
 

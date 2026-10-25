@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Phiên bản | 2.1 · 25/10/2026 (thêm gói nâng cấp D-059..D-064, `docs/25`) |
+| Phiên bản | 2.1 · 25/10/2026 (thêm gói nâng cấp D-059..D-065, `docs/25`) |
 | Trạng thái | **Sống.** Cập nhật cột trạng thái ở mục 1 sau mỗi task/PR; enum: `READY`, `IN_PROGRESS`, `REVIEW`, `BLOCKED`, `DONE`, `DEFERRED` |
 | Đọc khi | Nhận việc. Mỗi task ghi rõ cần đọc tài liệu nào |
 | Ai làm | **N** = người sáng lập · **A** = AI agent hoặc dev · **N+A** = A làm, N duyệt và quyết định |
@@ -42,12 +42,15 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-073 | Bộ đọc Ca dao Mẹ đầy đủ: dị bản, chú thích có ghi nguồn, tục ngữ, đồng dao, vè, câu đố | A | T-071 | — | DONE |
 | T-074 | Chọn và mua hosting WordPress | N | — | — | DONE |
 | T-075 | Cài WordPress lên hosting: plugin, sao lưu, bảo mật cơ bản (theme cài khi T-072 xong) | N+A | T-071, T-074 | — | DONE |
-| T-076 | Chuyển nội dung hiện có sang WordPress, ngừng site Astro | A | T-075 | — | READY |
+| T-076 | Chuyển nội dung hiện có sang WordPress, ngừng site Astro | A | T-075, T-109 | — | BLOCKED |
 | T-078 | Máy chủ tự cập nhật plugin từ `main` sau mỗi PR gộp | A | T-071 | — | DONE |
 | T-077 | Áp dụng D-057: lời không ghi nguồn, "Nguồn: …" chỉ dưới chú thích đã chép (plugin 0.2.0) | A | T-071 | — | DONE |
-| T-079 | Ghi gói nâng cấp 25/10/2026 vào tài liệu, lập kế hoạch (`docs/25`, D-059..D-064) | A | — | — | DONE |
+| T-079 | Ghi gói nâng cấp 25/10/2026 vào tài liệu, lập kế hoạch (`docs/25`, D-059..D-065) | A | — | — | DONE |
 | T-080 | Tách thành ngữ và tục ngữ (máy gợi ý, người duyệt) | N+A | T-073 | — | READY |
 | T-081 | Đếm lượt đọc không cookie, "Đọc nhiều", thống kê trên Bảng tin | A | T-071 | — | READY |
+| T-109 | Nhận ra bài trùng: "dấu vân tay" của lời, các mức giống (D-065) | A | T-073 | — | READY |
+| T-110 | Chống trùng khi lấy từ nguồn: gắn vào bài có sẵn, hàng "Có thể trùng" | N+A | T-109 | — | BLOCKED |
+| T-111 | Báo trùng khi viết bài tay (chỉ báo, không chặn) | A | T-109 | — | BLOCKED |
 | T-042 | Trích dẫn 2 định dạng + chia sẻ (trên WordPress) | A | T-072 | — | BLOCKED |
 | **Mốc B · Thử nhỏ** ||||||
 | T-041 | Tìm kiếm tức thì, gõ không dấu, tìm cả trong chú thích (WordPress) | N+A | T-072 | — | READY |
@@ -81,7 +84,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-098 | Thành ngữ – tục ngữ: nghĩa đen, nghĩa bóng, "dùng khi", đồng nghĩa (Wiktionary, CC BY-SA) | N+A | T-080 | — | BLOCKED |
 | T-099 | Chú giải từ sách hết bản quyền; chữ Hán Việt, điển tích của thành ngữ | N+A | T-082 | — | BLOCKED |
 | T-100 | Trợ giúp viết "Hiểu nhanh" (gợi ý; nháp máy chờ duyệt) | A | T-098 | — | BLOCKED |
-| T-101 | Gộp bài trùng thành dị bản (người duyệt từng lần) | N+A | T-073 | — | READY |
+| T-101 | Gộp bài đã đăng bị trùng: bài chính + dị bản, chuyển hướng, dồn lượt đọc và bài người đọc | N+A | T-109 | — | BLOCKED |
 | T-102 | Vè: khối "Bối cảnh" (sự kiện, năm, nơi chốn, nhân vật) | N+A | T-086 | — | BLOCKED |
 | T-103 | Đồng dao: cách chơi, chế độ "Đọc cùng bé" | A | T-085 | — | BLOCKED |
 | T-104 | Bản đồ ca dao theo vùng | A | T-086, T-089 | — | BLOCKED |
@@ -210,7 +213,7 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 **Việc:** bài tự động không ghi nguồn cho lời (địa chỉ gốc ở ô nội bộ `_cadao_url_goc`); dòng "Nguồn: … ↗" dưới chú thích đã chép, theo công tắc "Ghi nguồn cho chú thích" của từng nguồn; nâng cấp 0.2.0 bỏ nguồn máy tự điền ở bài cũ. **Chấp nhận:** kiểm thử plugin đạt; trên site thật, bài tự động không còn "Nguồn: …".
 
 #### T-079 · Ghi gói nâng cấp vào tài liệu — A
-**Việc:** tổng hợp 47 mục người sáng lập duyệt ngày 25/10/2026 vào `25`, D-059..D-064 trong `01`, task T-080..T-108 và các task cũ viết lại ở đây. **Chấp nhận:** `npm run kiem-tra` đạt; người sáng lập xem PR.
+**Việc:** tổng hợp 51 mục người sáng lập duyệt ngày 25/10/2026 (47 mục, sau đó thêm 4 ý chống trùng) vào `25`, D-059..D-065 trong `01`, task T-080..T-111 và các task cũ viết lại ở đây. **Chấp nhận:** `npm run kiem-tra` đạt; người sáng lập xem PR.
 
 #### T-080 · Tách thành ngữ và tục ngữ — N+A
 **Đọc:** `25` mục 4.4. **Việc:** máy gợi ý loại cho từng câu nhóm "thành ngữ – tục ngữ" của nguồn (danh mục Wiktionary, rồi cấu trúc câu), không chắc thì để chờ; hàng duyệt hàng loạt trong trang quản trị; bài đã đăng đổi thể loại và đường dẫn (`/thanh-ngu/…` ↔ `/tuc-ngu/…`, chuyển hướng 301 từ đường dẫn cũ). **Chấp nhận:** mẫu 50 câu do người sáng lập kiểm, gợi ý đúng ≥ 90% với câu máy đã chắc; không câu nào tự đổi loại khi chưa duyệt; kiểm thử plugin đạt.
@@ -218,8 +221,17 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 #### T-081 · Đếm lượt đọc — A
 **Đọc:** `25` mục 4.7, D-064. **Việc:** đếm khi trang hiện ≥ 5 giây, một máy một lần/ngày, không cookie, không lưu IP, gom theo bài theo ngày; "N lượt đọc" trên trang bài khi ≥ 10; danh sách "Đọc nhiều tuần này"; ô Bảng tin (7 ngày, bài đọc nhiều, trang giới thiệu). **Chấp nhận:** kiểm thử: máy dò không chạy JavaScript không được tính, tải lại trong ngày không cộng thêm; không có cookie mới; quét trợ năng đạt.
 
+#### T-109 · Nhận ra bài trùng — A
+**Đọc:** `25` mục 4.9, D-065. **Việc:** mỗi bài, mỗi dị bản, mỗi câu trong kho có hai dấu vân tay của lời (bỏ dấu câu, chữ hoa, khoảng trắng thừa; và bỏ cả dấu thanh), lưu có chỉ mục; hàm so trả mức: trùng y hệt / gần như y hệt (≥ 90%, so cặp âm tiết liền nhau) / có thể là dị bản (50–90%, hoặc trùng một dị bản đã ghi) / khác. Câu một dòng chỉ xét y hệt và gần như y hệt; câu ngắn nằm trong bài dài chỉ là "liên quan". **Không so tiêu đề hay dòng đầu.** **Chấp nhận:** kiểm thử trên dữ liệu tổng hợp đủ các mức (kể cả hai bài khác nhau chung dòng đầu, "hoà/hòa", câu ngắn trong bài dài, cùng lời khác thể loại); chạy lại trên kho thật ra số liệu khớp phép đo 25/10/2026 (`25` mục 4.9); không tự gộp, không tự xóa gì.
+
+#### T-110 · Chống trùng khi lấy từ nguồn — N+A
+**Đọc:** `25` mục 4.9. **Việc:** câu mới vào kho (mọi nguồn) được so với bài đã có và các câu trong kho; trùng y hệt / gần như y hệt → không tạo bài mới, gắn vào bài có sẵn (trạng thái kho "Đã gộp"), chú thích và dị bản mới của nguồn khác được bổ sung (bài chưa sửa tay tự bổ sung, kèm dòng "Nguồn" riêng của nguồn đó); có thể là dị bản → hàng "Có thể trùng" (Gộp làm dị bản / Là bài khác / Để sau) trong Bàn biên tập; máy tạo bài hằng ngày bỏ qua câu đang chờ quyết. Dọn luôn các trùng sẵn có trong kho (9 câu y hệt, 8 câu là dị bản đã ghi của câu khác). **Chấp nhận:** kiểm thử với hai nguồn giả cùng một câu (y hệt, khác dấu, dị bản) ra đúng kết quả; không câu nào bị gộp khi chưa duyệt ở mức "có thể là dị bản".
+
+#### T-111 · Báo trùng khi viết tay — A
+**Đọc:** `25` mục 4.9. **Việc:** trong trình soạn, sau khi dán/gõ lời (ngừng gõ một chút) và khi bấm Đăng, ô bên cạnh hiện các bài có thể trùng và mức giống, với nút Mở bài này / Thêm làm dị bản (lời vừa gõ thành dị bản của bài cũ; bản nháp mới vào thùng rác, khôi phục được 30 ngày) / Vẫn đăng bài mới; danh sách bài có nhãn "Có thể trùng". **Chấp nhận:** không chặn đăng (D-054); trên điện thoại dùng được; kiểm thử "Thêm làm dị bản" giữ đúng lời từng ký tự.
+
 #### T-076 · Chuyển nội dung, ngừng site Astro — A
-**Việc:** chuyển bài, mục từ, nguồn trong `content/` sang WordPress (giữ lời nguyên văn); trỏ địa chỉ tạm; ngừng triển khai Astro. **Chấp nhận:** mọi bài công khai cũ hiện trên WordPress; lời khớp từng ký tự.
+**Việc:** chuyển bài, mục từ, nguồn trong `content/` sang WordPress (giữ lời nguyên văn), **qua bước chống trùng** (T-109: bài cũ trùng câu đã có thì thành dị bản hoặc gộp, người sáng lập quyết); trỏ địa chỉ tạm; ngừng triển khai Astro. **Chấp nhận:** mọi bài công khai cũ hiện trên WordPress; lời khớp từng ký tự.
 
 #### T-040 · Trang tác phẩm — A
 **Đọc:** `20` mục 4–5, 10–12, 14; `10` mục 5, 10.
@@ -261,7 +273,7 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 **Chấp nhận:** Phương pháp giải thích 4 nhãn, lời hứa mới, cách dùng AI, ghi công Ca dao Mẹ; `/nguon` sinh tự động từ `content/nguon/` (chỉ nguồn đang được dùng); N duyệt câu chữ.
 
 #### T-047 · Bàn biên tập — A
-**Việc (viết lại 25/10/2026 cho WordPress):** một trang trong wp-admin gom các hàng chờ: bài Chờ duyệt, xác nhận Wikidata (T-086), vùng (T-089), thể loại tách (T-080), chủ đề (T-091), gộp bài trùng (T-101), bài và góp ý người đọc gửi (T-045, T-097), mỗi hàng có số đếm và nút duyệt hàng loạt. Phần dưới đây là đặc tả cũ cho site Astro, giữ làm tham khảo.
+**Việc (viết lại 25/10/2026 cho WordPress):** một trang trong wp-admin gom các hàng chờ: bài Chờ duyệt, xác nhận Wikidata (T-086), vùng (T-089), thể loại tách (T-080), chủ đề (T-091), "Có thể trùng" (T-110, T-111, T-101), bài và góp ý người đọc gửi (T-045, T-097), mỗi hàng có số đếm và nút duyệt hàng loạt. Phần dưới đây là đặc tả cũ cho site Astro, giữ làm tham khảo.
 **Chấp nhận (cũ):** trang `/ban-bien-tap` (noindex, khóa bằng Cloudflare Access) dựng từ `npm run health:json`: nháp AI chờ duyệt, bài công khai đang noindex, mục từ thiếu nguồn, tham chiếu web thiếu bản lưu trữ, chú thích trích nguyên văn chờ phép, tình huống chưa đủ bài, lỗi build gần nhất. Người sáng lập không cần dòng lệnh.
 
 #### T-082 · Chạm vào từ khó — A
@@ -341,8 +353,8 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 #### T-100 · Trợ giúp viết Hiểu nhanh — A
 **Chấp nhận:** trình soạn hiện chú thích nguồn và nghĩa Wiktionary cạnh ô đoạn trích; nháp máy luôn ghi là nháp, chỉ lên trang khi người sáng lập duyệt.
 
-#### T-101 · Gộp bài trùng — N+A
-**Chấp nhận:** đề nghị gộp khi lời chuẩn hóa trùng hoặc gần trùng; người sáng lập duyệt từng lần; bài phụ thành dị bản, đường dẫn cũ chuyển hướng 301.
+#### T-101 · Gộp bài đã đăng bị trùng — N+A
+**Đọc:** `25` mục 4.9 (ý 49, thay ý 17). **Việc:** mỗi đêm quét các bài đã đăng, đưa cặp nghi trùng vào hàng "Có thể trùng"; khi người sáng lập gộp: chọn bài chính, bài kia thành dị bản của bài chính, đường dẫn cũ chuyển hướng 301 về bài chính, lượt đọc cộng dồn, cảm nghĩ và bài phân tích chuyển sang bài chính, bài phụ vào thùng rác (không xóa hẳn). **Chấp nhận:** người sáng lập duyệt từng lần; sau khi gộp, link cũ mở đúng bài chính; không mất cảm nghĩ, bài phân tích, lượt đọc nào.
 
 #### T-102 · Bối cảnh vè — N+A
 **Chấp nhận:** khối bối cảnh (sự kiện, năm, nơi chốn, nhân vật qua Wikidata đã xác nhận); tóm tắt do người sáng lập viết hoặc duyệt; máy không tự viết sự kiện.

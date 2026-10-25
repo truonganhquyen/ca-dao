@@ -10,7 +10,7 @@
 
 ## Giai đoạn hiện tại
 
-**Đang chuyển sang WordPress** (D-056, `docs/24-wordpress.md`): WordPress, plugin, theme chạy trên VPS tại cadao.sdigi.net (T-075 xong 25/10/2026; sao lưu người sáng lập để sau), chưa mở cho Google; máy chủ tự cập nhật sau mỗi PR gộp (T-078). **Gói nâng cấp đã duyệt 25/10/2026** (D-059..D-064): 47 mục, kế hoạch 5 đợt ở `docs/25-nang-cap-giao-dien-noi-dung.md`, task T-080..T-108. Từ D-054 không còn chặn đăng vì lý do biên tập, nguồn không bắt buộc; từ D-055 chép chú thích có ghi công được phép.
+**Đang chuyển sang WordPress** (D-056, `docs/24-wordpress.md`): WordPress, plugin, theme chạy trên VPS tại cadao.sdigi.net (T-075 xong 25/10/2026; sao lưu người sáng lập để sau), chưa mở cho Google; máy chủ tự cập nhật sau mỗi PR gộp (T-078). **Gói nâng cấp đã duyệt 25/10/2026** (D-059..D-065): 51 mục (gồm 4 ý chống trùng), kế hoạch 5 đợt ở `docs/25-nang-cap-giao-dien-noi-dung.md`, task T-080..T-111. Từ D-054 không còn chặn đăng vì lý do biên tập, nguồn không bắt buộc; từ D-055 chép chú thích có ghi công được phép.
 
 **Mốc A · Chạy được** — hướng v2 "Trung thực hơn hoàn hảo" (D-039). Mốc Chuẩn bị đã xong (T-032, T-033 DONE, 24/10/2026); điều kiện xong của Mốc A ở `docs/22` mục 2. Mốc tiếp theo: **B · Thử nhỏ**.
 

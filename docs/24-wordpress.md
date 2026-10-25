@@ -69,6 +69,8 @@ Kiểu bộ đọc: `cadao_me` (T-073) — (1) tên chủ đề, (2) ca dao qua 
 
 **Lịch sự với máy chủ nguồn** (như `21` mục 16.2): tuần tự, ≥ 3 giây giữa hai yêu cầu API và ≥ 5 giây giữa hai trang HTML, User-Agent ghi tên dự án, gặp 429/5xx thì dừng tới lượt sau, lưu điểm dừng. Lịch: mỗi 5 phút một lượt — tối đa ~20 giây khi chạy trong yêu cầu web (WP-Cron, nút "Lấy ngay"), 120 giây khi chạy bằng cron thật của máy chủ (~20 trang mỗi lượt); tạo bài Chờ duyệt mỗi ngày một lần. Cuối lượt chỉ ghi điểm dừng và nhật ký lên cấu hình mới nhất (không đè thay đổi người quản trị vừa lưu).
 
+**Chống trùng giữa các nguồn** (D-065, `25` mục 4.9): `_cadao_ma_goc` chỉ chống lấy lại cùng một bài của cùng nguồn. Trước khi thêm nguồn thứ hai (và trước T-076), mỗi câu mới được so cả lời với bài đã có và kho: trùng thì gắn vào bài có sẵn, nghi là dị bản thì vào hàng "Có thể trùng" chờ người sáng lập quyết (T-109, T-110).
+
 ## 5. Những điều vẫn giữ
 
 - **Lời chép nguyên văn bằng máy, không qua AI**; AI không viết lời, dị bản, nguồn.

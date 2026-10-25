@@ -59,7 +59,7 @@ npm run viec-tiep-theo # đề xuất task kỹ thuật READY tiếp theo
 │   ├── 12-chinh-sach-nguon.md        nguồn web, Ca dao Mẹ, bản quyền, giấy phép, thư xin phép
 │   ├── 20-dac-ta-giao-dien.md        UX v2, nhãn, nguồn gốc, thành phần, trợ năng
 │   ├── 21-kien-truc-ky-thuat.md      Astro 7, CMS, Cloudflare, tìm kiếm, kho thô, đường ống thu thập
-│   ├── 22-backlog-trien-khai.md      task T-031..T-108, mốc và điều kiện xong
+│   ├── 22-backlog-trien-khai.md      task T-031..T-111, mốc và điều kiện xong
 │   ├── 23-ke-hoach-kiem-thu.md       fixture, giao diện, trợ năng, tìm kiếm, tiêu chí theo mốc
 │   ├── 24-wordpress.md               WordPress: plugin, theme, nguồn tự động, máy chủ
 │   ├── 25-nang-cap-giao-dien-noi-dung.md  gói nâng cấp đã duyệt 25/10/2026 và kế hoạch 5 đợt
