@@ -132,6 +132,24 @@ try {
   await cho(6000);
   kiem(`tải lại trong ngày không gửi thêm (đã gửi ${gui.length})`, gui.length === 1);
   kiem('không có cookie', (await tab.cookies()).length === 0);
+  // Chạm vào từ khó (T-082): mở bằng Enter, đóng bằng Esc, trả focus về từ; dị bản tô chỗ khác (T-083)
+  const tuTab = await ngCanh.newPage();
+  await tuTab.setViewport({ width: 360, height: 800, isMobile: true, hasTouch: true });
+  const baiDiBan = new URL(bai.find(b => /dong-mau-mot/.test(b.link))?.link ?? bai[0].link).pathname; // bài mẫu có dị bản, chú thích
+  await tuTab.goto(G + baiDiBan, { waitUntil: 'load' });
+  kiem('dị bản có nhãn và chữ khác được tô', (await tuTab.$('.cadao-nhan-di-ban')) !== null && (await tuTab.$('mark.cadao-khac')) !== null);
+  if (await tuTab.$('a.cadao-tu')) {
+    await tuTab.focus('a.cadao-tu');
+    await tuTab.keyboard.press('Enter');
+    await cho(300);
+    const mo = await tuTab.evaluate(() => { const d = document.querySelector('dialog.cadao-o-ct'); return d && d.open ? d.innerText : ''; });
+    kiem('chạm từ: Enter mở ô chú thích có lời giải', /Chú thích tổng hợp/.test(mo));
+    await tuTab.keyboard.press('Escape');
+    await cho(300);
+    kiem('chạm từ: Esc đóng ô, focus trở về từ', await tuTab.evaluate(() => !document.querySelector('dialog.cadao-o-ct').open && document.activeElement.classList.contains('cadao-tu')));
+  } else {
+    kiem('bài mẫu có từ chú thích bấm được', false);
+  }
   await ngCanh.close();
   console.log(`Thử trích dẫn, lượt đọc trên trình duyệt: ${kiemThem} phép thử.`);
 } catch (e) {

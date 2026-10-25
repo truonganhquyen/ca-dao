@@ -456,6 +456,35 @@ kt( 'không phải lục bát: một dòng', ! cadao_la_luc_bat( array( 'một h
 $tho = do_blocks( cadao_khoi_tho( "một hai ba bốn năm sáu\nmột hai ba bốn năm sáu bảy tám" ) );
 kt( 'khối Thơ ngoài trang: mỗi dòng một span, câu lục thụt lề', str_contains( $tho, '<span class="cadao-dong cadao-luc">một hai ba bốn năm sáu</span><span class="cadao-dong">' ), $tho );
 
+// ---------- Thể thơ (T-084) — dòng tổng hợp theo số âm tiết ----------
+$am = static fn( int $n, int $tu = 0 ) => implode( ' ', array_map( static fn( $i ) => "chữ$i", range( $tu, $tu + $n - 1 ) ) );
+kt( 'thể thơ: lục bát', 'luc-bat' === cadao_the_tho( implode( "\n", array( $am( 6 ), $am( 8 ), $am( 6 ), $am( 8 ) ) ) ) );
+kt( 'thể thơ: song thất lục bát (7 – 7 – 6 – 8)', 'song-that-luc-bat' === cadao_the_tho( implode( "\n", array( $am( 7 ), $am( 7 ), $am( 6 ), $am( 8 ), $am( 7 ), $am( 7 ), $am( 6 ), $am( 8 ) ) ) ) );
+kt( 'thể thơ: câu bốn chữ', 'bon-chu' === cadao_the_tho( implode( "\n", array_fill( 0, 6, $am( 4 ) ) ) ) );
+kt( 'thể thơ: câu ba chữ, năm chữ', 'ba-chu' === cadao_the_tho( implode( "\n", array_fill( 0, 5, $am( 3 ) ) ) ) && 'nam-chu' === cadao_the_tho( implode( "\n", array_fill( 0, 5, $am( 5 ) ) ) ) );
+kt( 'thể thơ: câu một dòng; tự do', 'mot-dong' === cadao_the_tho( $am( 7 ) ) && 'tu-do' === cadao_the_tho( implode( "\n", array( $am( 9 ), $am( 5 ), $am( 11 ) ) ) ) );
+kt( 'thể thơ: đếm âm tiết không tính dấu câu đứng riêng', 'luc-bat' === cadao_the_tho( $am( 6 ) . " –\n" . $am( 8 ) . ' !' ) );
+$tt_id = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'post_title' => 'Thể thơ thử', 'post_content' => cadao_khoi_tho( $am( 6, 9700 ) . "\n" . $am( 8, 9710 ) ) ) );
+kt( 'lưu bài: máy gắn thể thơ để lọc danh sách (/the-tho/luc-bat/)', has_term( 'luc-bat', 'the_tho', $tt_id ) && str_contains( (string) get_term_link( 'luc-bat', 'the_tho' ), '/the-tho/luc-bat/' ) );
+$st = do_blocks( cadao_khoi_tho( implode( "\n", array( $am( 7 ), $am( 7 ), $am( 6 ), $am( 8 ) ) ) ) );
+kt( 'song thất lục bát: câu lục thụt lề, hai câu thất không thụt', 1 === substr_count( $st, 'cadao-dong cadao-luc' ) && str_contains( $st, 'cadao-the-song-that-luc-bat' ), $st );
+
+// ---------- Dị bản tô chỗ khác (T-083), chạm vào từ khó (T-082) ----------
+$to = cadao_to_cho_khac( "Một hai ba bốn năm sáu\nBảy tám chín mười mười một mười hai", array( 'Một hai, ba BỐN năm bảy', 'Bảy tám chín &amp; mười' ) );
+kt( 'dị bản: chỉ chữ khác lời chính được tô (bỏ qua chữ hoa, dấu câu)', 'Một hai, ba BỐN năm <mark class="cadao-khac">bảy</mark>' === $to[0], $to );
+kt( 'dị bản: ký tự đặc biệt giữ nguyên, chữ thêm được tô', str_contains( $to[1], '<mark class="cadao-khac">&amp;</mark>' ) || str_contains( $to[1], 'chín &amp; mười' ), $to );
+$gt = cadao_gan_tu_chu_thich( array( 'Lên núi Thái Sơn cao', 'Thái Sơn lần nữa, mô tê' ), array( 'Thái Sơn' => 1, 'mô' => 2 ) );
+kt( 'từ có chú thích: thành liên kết tới chú thích, chỉ lần đầu', 1 === substr_count( implode( '', $gt ), 'href="#cadao-ct-1"' ) && str_contains( $gt[0], '<a class="cadao-tu" href="#cadao-ct-1" data-ct="1">Thái Sơn<span class="screen-reader-text"> (xem chú thích)</span></a>' ), $gt );
+kt( 'từ có chú thích: chỉ khớp trọn từ (không khớp "mô" trong chữ khác)', str_contains( $gt[1], '>mô<span' ) && 1 === substr_count( implode( '', cadao_gan_tu_chu_thich( array( 'Một mômen' ), array( 'mô' => 2 ) ) ), 'mômen' ) && ! str_contains( implode( '', cadao_gan_tu_chu_thich( array( 'Một mômen' ), array( 'mô' => 2 ) ) ), 'cadao-tu' ) );
+$nd_thu = cadao_khoi_tho( "Lời chính Thái Sơn đây\nDòng hai lời chính" ) . "\n\n" . cadao_khoi_tieu_de( 'Dị bản' ) . "\n\n" . cadao_khoi_tho( "Lời khác Thái Sơn đây\nDòng hai lời chính" ) . "\n\n" . cadao_khoi_tieu_de( 'Chú thích' )
+	. "\n\n<!-- wp:list {\"className\":\"cadao-chu-thich\"} -->\n<ul class=\"wp-block-list cadao-chu-thich\">\n<!-- wp:list-item -->\n<li><strong>Thái Sơn</strong>: Núi mẫu.</li>\n<!-- /wp:list-item -->\n</ul>\n<!-- /wp:list -->";
+$GLOBALS['cadao_bai_dung'] = cadao_chuan_bi_bai( $nd_thu ) + array( 'tho' => -1, 'ct' => 0 );
+$ra = do_blocks( $nd_thu );
+$GLOBALS['cadao_bai_dung'] = null;
+kt( 'trang bài: dị bản có nhãn "Dị bản 1", chữ khác được tô', str_contains( $ra, '<p class="cadao-nhan-di-ban">Dị bản 1</p>' ) && str_contains( $ra, '<mark class="cadao-khac">khác</mark>' ), $ra );
+kt( 'trang bài: từ chú thích trong lời chính trỏ tới đúng mục chú thích có id', str_contains( $ra, 'href="#cadao-ct-1"' ) && str_contains( $ra, '<li id="cadao-ct-1">' ) && 1 === substr_count( $ra, 'class="cadao-tu"' ), $ra );
+kt( 'trang bài: tắt JavaScript vẫn đọc được danh sách chú thích', str_contains( $ra, 'Núi mẫu.' ) );
+
 // ---------- Lịch ----------
 kt( 'lịch lấy bài mỗi 5 phút đã đặt', (bool) wp_next_scheduled( 'cadao_thu_thap' ) );
 kt( 'lịch tạo bài hằng ngày đã đặt', (bool) wp_next_scheduled( 'cadao_tao_bai_hang_ngay' ) );

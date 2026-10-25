@@ -59,9 +59,9 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-045 | Góp ý, dị bản, cảm nghĩ ngắn của người đọc; chống rác; quyền riêng tư; "Gửi số trang" | N+A | T-075 | — | READY |
 | T-046 | Trang Phương pháp, Nguồn, Về dự án | N+A | T-075 | — | READY |
 | T-047 | Bàn biên tập: gom các hàng chờ (Chờ duyệt, xác nhận, người đọc gửi) trong wp-admin | A | T-071 | — | READY |
-| T-082 | Chạm vào từ khó, nghĩa hiện ngay (lưu vị trí chú thích) | A | T-073 | — | READY |
-| T-083 | Dị bản đánh số, tô chỗ khác lời chính | A | T-072 | — | READY |
-| T-084 | Nhận thể thơ, trình bày theo thể | A | T-072 | — | READY |
+| T-082 | Chạm vào từ khó, nghĩa hiện ngay (lưu vị trí chú thích) | A | T-073 | — | DONE |
+| T-083 | Dị bản đánh số, tô chỗ khác lời chính | A | T-072 | — | DONE |
+| T-084 | Nhận thể thơ, trình bày theo thể | A | T-072 | — | DONE |
 | T-085 | Công cụ đọc: cỡ chữ, sáng/tối, trình chiếu, nghe bằng giọng có sẵn của điện thoại | A | T-072 | — | READY |
 | T-086 | Gắn Wikidata: hàng chờ xác nhận, ảnh Commons có ghi tác giả | N+A | T-073 | — | READY |
 | T-087 | Chú thích địa danh: bản đồ nhỏ, ảnh, "Bài khác nhắc tới…" | A | T-082, T-086 | — | BLOCKED |
@@ -293,11 +293,17 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 #### T-082 · Chạm vào từ khó — A
 **Đọc:** `25` mục 4.1; `20` FR-1.2–1.4. **Việc:** lưu vị trí dấu chú thích (mã, dòng, cột) và từ được chú thích; nút gạch chân chấm trong lời; ô trượt (điện thoại) / ô cạnh từ (máy tính); bài đã đăng chưa sửa tay tự cập nhật. **Chấp nhận:** mở bằng chạm và Enter, đóng bằng Esc/chạm ra ngoài, trả focus; tắt JavaScript vẫn đọc được danh sách chú thích; quét trợ năng 0 lỗi; kiểm thử plugin đạt.
 
+**Tiến độ (25/10/2026):** xong — theme 0.3.0, plugin 0.7.0. Làm khác đặc tả một chút cho bền hơn: **không lưu vị trí dấu chú thích**; lúc dựng trang, máy tìm đúng từ được chú thích (chữ đậm đầu mỗi mục "Chú thích") trong lời chính, trọn từ, lần xuất hiện đầu, từ dài trước — nên dùng được cho mọi bài (cả bài sửa tay, bài chuyển từ site cũ), không cần đọc lại trang nguồn hay làm lại bài. Chú thích không ghi từ chỉ có ở danh sách. Từ là liên kết tới mục chú thích (tắt JavaScript vẫn nhảy tới được); JavaScript mở `<dialog>`: ô trượt từ dưới lên trên điện thoại, ô cạnh từ trên máy tính, có dòng "Nguồn: …" của chú thích. Dị bản chưa gắn từ (chỉ tô chỗ khác). Thử trên trình duyệt: Enter mở, Esc đóng, focus trở về từ. "Xem trong từ điển": khi có T-044.
+
 #### T-083 · Dị bản — A
 **Đọc:** `25` mục 4.1. **Chấp nhận:** nhãn "Dị bản 1, 2…"; chữ khác lời chính được tô (so theo âm tiết), đọc được khi không phân biệt màu (gạch chân hoặc chữ đậm kèm theo); quét trợ năng 0 lỗi.
 
+**Tiến độ (25/10/2026):** xong — khối Thơ đứng sau tiêu đề "Dị bản" có nhãn "Dị bản 1, 2…", viền trái; chữ khác lời chính tô nền và gạch chân (so âm tiết, bỏ qua chữ hoa, dấu câu; cùng số dòng thì so từng dòng, khác số dòng thì so cả bài).
+
 #### T-084 · Thể thơ — A
 **Đọc:** `25` mục 4.1. **Chấp nhận:** nhận đúng lục bát, song thất lục bát, câu 3–4–5 chữ, một dòng trên bộ mẫu kiểm thử (tổng hợp); trình bày theo thể; lọc danh sách theo thể.
+
+**Tiến độ (25/10/2026):** xong — `inc/the-tho.php`: phân loại "Thể thơ" (`/the-tho/luc-bat/`…) máy gắn khi lưu bài, bài đã có gắn dần; nhãn thể thơ cạnh nhãn thể loại; lục bát và song thất lục bát thụt câu lục (Q-006 vẫn để hỏi người thử).
 
 #### T-085 · Công cụ đọc — A
 **Đọc:** `25` mục 4.1, 4.8; D-063. **Chấp nhận:** "Aa" 3 mức và sáng/tối nhớ trên máy (try/catch); trình chiếu toàn màn hình, phím mũi tên; nút "▶ Nghe" chỉ hiện khi máy có giọng tiếng Việt, có dòng "Giọng đọc máy", không tự phát; JavaScript thêm vào trang bài ≤ 15 KB.

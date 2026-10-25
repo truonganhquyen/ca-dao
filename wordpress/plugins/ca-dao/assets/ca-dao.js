@@ -101,6 +101,57 @@
 		});
 	}
 
+	// ---------- Chạm vào từ khó (T-082): ô chú thích; tắt JavaScript thì liên kết nhảy tới chú thích dưới lời ----------
+	var tuCt = document.querySelectorAll('a.cadao-tu');
+	if (tuCt.length && window.HTMLDialogElement) {
+		var o = document.createElement('dialog');
+		o.className = 'cadao-o-ct';
+		o.setAttribute('aria-labelledby', 'cadao-o-ct-tu');
+		o.innerHTML = '<div class="cadao-o-ct-than"><p id="cadao-o-ct-tu" class="cadao-o-ct-tu"></p><div class="cadao-o-ct-nd"></div><button type="button" class="cadao-o-ct-dong">Đóng</button></div>';
+		document.body.appendChild(o);
+		var tuMo = null;
+		var dong = function () { if (o.open) { o.close(); } };
+		o.addEventListener('close', function () { if (tuMo) { tuMo.focus(); tuMo.setAttribute('aria-expanded', 'false'); tuMo = null; } });
+		o.addEventListener('click', function (e) { if (e.target === o) { dong(); } }); // chạm ra ngoài (vùng nền)
+		o.querySelector('.cadao-o-ct-dong').addEventListener('click', dong);
+		tuCt.forEach(function (a) {
+			a.setAttribute('aria-haspopup', 'dialog');
+			a.setAttribute('aria-expanded', 'false');
+			a.addEventListener('click', function (e) {
+				var li = document.getElementById('cadao-ct-' + a.getAttribute('data-ct'));
+				if (!li) { return; }
+				e.preventDefault();
+				var ten = li.querySelector('strong');
+				o.querySelector('.cadao-o-ct-tu').textContent = ten ? ten.textContent : a.textContent;
+				var nd = li.cloneNode(true);
+				var dau = nd.querySelector('strong');
+				if (dau) { dau.remove(); }
+				var chu = nd.textContent.replace(/^\s*:\s*/, '');
+				var noi = o.querySelector('.cadao-o-ct-nd');
+				noi.textContent = '';
+				var p = document.createElement('p');
+				p.textContent = chu;
+				noi.appendChild(p);
+				// Dòng "Nguồn: …" của danh sách chứa chú thích này (D-057)
+				var ds = li.closest('ul, ol');
+				var sau = ds && ds.nextElementSibling;
+				if (sau && sau.classList.contains('cadao-chu-thich-nguon')) { noi.appendChild(sau.cloneNode(true)); }
+				tuMo = a;
+				a.setAttribute('aria-expanded', 'true');
+				o.showModal();
+				if (window.matchMedia('(min-width: 640px)').matches) { // máy tính: ô cạnh từ
+					var r = a.getBoundingClientRect();
+					o.style.top = Math.min(r.bottom + 8, window.innerHeight - o.offsetHeight - 8) + 'px';
+					o.style.left = Math.max(8, Math.min(r.left, window.innerWidth - o.offsetWidth - 8)) + 'px';
+				} else {
+					o.style.top = '';
+					o.style.left = '';
+				}
+				o.querySelector('.cadao-o-ct-dong').focus();
+			});
+		});
+	}
+
 	// ---------- Lượt đọc: hiện 5 giây trên màn hình, mỗi máy một lần mỗi ngày ----------
 	var ld = cauHinh.luotDoc;
 	if (!ld || !window.fetch) { return; }
