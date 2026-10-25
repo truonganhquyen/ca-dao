@@ -38,11 +38,12 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-040 | Trang tác phẩm đọc theo lớp, nhãn tự tính, nguồn gốc, sáng/tối, in, thanh điều hướng dưới | A | T-035 | — | DONE |
 | T-070 | Áp dụng D-054..D-056: nới quy tắc, kế hoạch chuyển WordPress | A | T-037 | — | DONE |
 | T-071 | Plugin WordPress `ca-dao`: loại bài, phân loại, dòng Nguồn, Nguồn tự động, kho thu thập, đổ bài Chờ duyệt | A | T-070 | — | DONE |
-| T-072 | Theme WordPress `ca-dao` (theme con, giao diện theo docs/20) | A | T-071 | — | BLOCKED |
-| T-073 | Bộ đọc Ca dao Mẹ đầy đủ: dị bản, chú thích có ghi công, tục ngữ, đồng dao, vè, câu đố | A | T-071 | — | BLOCKED |
+| T-072 | Theme WordPress `ca-dao` (theme con, giao diện theo docs/20) | A | T-071 | — | READY |
+| T-073 | Bộ đọc Ca dao Mẹ đầy đủ: dị bản, chú thích có ghi nguồn, tục ngữ, đồng dao, vè, câu đố | A | T-071 | — | READY |
 | T-074 | Chọn và mua hosting WordPress | N | — | — | DONE |
 | T-075 | Cài WordPress lên hosting: plugin, sao lưu, bảo mật cơ bản (theme cài khi T-072 xong) | N+A | T-071, T-074 | — | IN_PROGRESS |
 | T-076 | Chuyển nội dung hiện có sang WordPress, ngừng site Astro | A | T-075 | — | BLOCKED |
+| T-077 | Áp dụng D-057: lời không ghi nguồn, "Nguồn: …" chỉ dưới chú thích đã chép (plugin 0.2.0) | A | T-071 | — | DONE |
 | T-041 | Tìm kiếm không dấu trên WordPress | A | T-072 | — | BLOCKED |
 | T-042 | Trích dẫn 2 định dạng + chia sẻ (trên WordPress) | A | T-072 | — | BLOCKED |
 | **Mốc B · Thử nhỏ** ||||||
@@ -79,7 +80,7 @@ Thay cho các cổng đếm hồ sơ của v1 (D-044). Agent được tự chuy�
 | Mốc | Xong khi | Ước tính |
 |---|---|---|
 | **Chuẩn bị** | Gói D-035..D-047 nằm trong repo (T-033); có repo GitHub công khai, repo riêng tư cho kho thô và tài khoản Cloudflare (T-032) | Tuần cuối 10/2026 |
-| **A · Chạy được** | (D-056) WordPress chạy trên hosting thật; người sáng lập đăng một bài thủ công từ điện thoại trong vài phút; nguồn tự động Ca dao Mẹ (cấu hình trong trang quản trị) đổ bài vào **Chờ duyệt** mỗi ngày, duyệt là lên trang; trang bài hiện lời, dị bản, chú thích, dòng "Nguồn: …"; nội dung cũ đã chuyển, site Astro ngừng | Cuối 11/2026 |
+| **A · Chạy được** | (D-056) WordPress chạy trên hosting thật; người sáng lập đăng một bài thủ công từ điện thoại trong vài phút; nguồn tự động Ca dao Mẹ (cấu hình trong trang quản trị) đổ bài vào **Chờ duyệt** mỗi ngày, duyệt là lên trang; trang bài hiện lời, dị bản, chú thích (kèm "Nguồn: …" khi chép từ nguồn); nội dung cũ đã chuyển, site Astro ngừng | Cuối 11/2026 |
 | **B · Thử nhỏ** | 30–50 bài trên bản xem trước; trang tình huống, từ điển, form góp ý, trang Phương pháp chạy; 5 người dùng thật đã thử (2 giáo viên, 2 người trẻ, 1 người am hiểu văn hóa dân gian), vướng mắc đã thành task; Q-006 đã chốt | Giữa–cuối 12/2026 |
 | **C · Mở lặng lẽ** | Tên miền; 100–150 bài công khai; ảnh xem trước từng bài; thư đã gửi Ca dao Mẹ; người sáng lập quyết định mở (không thông báo rộng) | Trước Tết Đinh Mùi 2027 (đầu 02/2027) |
 
@@ -156,7 +157,7 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 **Tiến độ (24/10/2026):** đạt cả tiêu chí trên WordPress 7.1.3 tại máy — một lượt "Lấy ngay" lấy 400 ca dao (5 yêu cầu), "Tạo bài chờ duyệt ngay" tạo 5 bài, đăng một bài: trang `/ca-dao/<ten>/` có lời, "Nguồn: Ca dao Mẹ ↗" đúng trang gốc, `noindex` khi chưa có Hiểu nhanh. `npm run test:wordpress`: 39/39 (CI job `wordpress`). Bộ trích PHP khớp từng ký tự với bộ trích JavaScript của kho thô trên 100 bài mẫu thật (chạy ngoài repo). Ô "Chờ duyệt" trên Bảng tin. Chưa có: theme riêng (T-072), dị bản/chú thích/loại khác từ trang (T-073).
 
 #### T-072 · Theme WordPress `ca-dao` — A
-**Đọc:** `20` mục 1, 4, 11. **Việc:** theme con của Twenty Twenty-Five: token màu, phông, sáng/tối, trang bài (lời lớn, lục bát thụt lề, chú thích, dòng Nguồn), đọc tốt ở 360 px. **Chấp nhận:** quét trợ năng WCAG 2.2 AA 0 lỗi trên trang bài.
+**Đọc:** `20` mục 1, 4, 11. **Việc:** theme con của Twenty Twenty-Five: token màu, phông, sáng/tối, trang bài (lời lớn, lục bát thụt lề, chú thích và dòng "Nguồn: …" dưới chú thích), đọc tốt ở 360 px. **Chấp nhận:** quét trợ năng WCAG 2.2 AA 0 lỗi trên trang bài.
 
 #### T-073 · Bộ đọc Ca dao Mẹ đầy đủ — A
 **Việc:** dị bản và chú thích (chép kèm "Theo Ca dao Mẹ" + liên kết khi công tắc bật — D-055), thành ngữ–tục ngữ, đồng dao, vè, câu đố (câu hỏi + đáp án); dùng lại cách trích đã kiểm ở kho thô (T-038: 20/20 khớp từng ký tự). **Chấp nhận:** kiểm mẫu 20 bài khớp từng ký tự với trang gốc.
@@ -165,7 +166,10 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 **Việc:** chọn và mua hosting theo yêu cầu ở `24` mục 8 (agent soạn so sánh khi cần). **Chấp nhận:** có tài khoản quản trị hosting, PHP ≥ 8.3, có sao lưu. **Đã có (24/10/2026):** VPS + FlashPanel, cadao.sdigi.net, PHP 8.5 (`24` mục 8).
 
 #### T-075 · Cài WordPress lên hosting — N+A
-**Việc:** cài WordPress, plugin `ca-dao` (theme cài khi T-072 xong); tài khoản quản trị có xác thực hai lớp; sao lưu tự động; cron thật thay WP-Cron nếu hosting cho phép. **Chấp nhận:** người sáng lập đăng một bài từ điện thoại; nguồn tự động chạy theo lịch.
+**Việc:** cài WordPress, plugin `ca-dao` (theme cài khi T-072 xong); sao lưu tự động; cron thật thay WP-Cron nếu hosting cho phép. **Chấp nhận:** người sáng lập đăng một bài từ điện thoại; nguồn tự động chạy theo lịch.
+
+#### T-077 · Lời không ghi nguồn (D-057) — A
+**Việc:** bài tự động không ghi nguồn cho lời (địa chỉ gốc ở ô nội bộ `_cadao_url_goc`); dòng "Nguồn: … ↗" dưới chú thích đã chép, theo công tắc "Ghi nguồn cho chú thích" của từng nguồn; nâng cấp 0.2.0 bỏ nguồn máy tự điền ở bài cũ. **Chấp nhận:** kiểm thử plugin đạt; trên site thật, bài tự động không còn "Nguồn: …".
 
 #### T-076 · Chuyển nội dung, ngừng site Astro — A
 **Việc:** chuyển bài, mục từ, nguồn trong `content/` sang WordPress (giữ lời nguyên văn); trỏ địa chỉ tạm; ngừng triển khai Astro. **Chấp nhận:** mọi bài công khai cũ hiện trên WordPress; lời khớp từng ký tự.

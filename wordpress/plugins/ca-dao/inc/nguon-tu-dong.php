@@ -32,7 +32,8 @@ function cadao_nguon_mac_dinh(): array {
 		'loai_lay'        => array( 'ca_dao' ),
 		'so_bai_moi_ngay' => 20,
 		'dong_ghi_nguon'  => '',
-		'chep_chu_thich'  => true,  // D-055: chép chú thích có ghi công được phép; tắt được bất cứ lúc nào
+		'chep_chu_thich'  => true,  // D-055: chép chú thích, lời giải được phép; tắt được bất cứ lúc nào
+		'ghi_cong'        => true,  // D-057: dòng "Nguồn: …" dưới chú thích đã chép — tùy chọn
 		'bo_qua_co'       => array( 'tho_tuc' ),
 		'tu_tho_tuc'      => array( 'đụ', 'địt', 'lồn', 'buồi', 'cặc', 'đéo' ),
 		'nguoi_duyet'     => 0,

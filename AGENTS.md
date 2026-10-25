@@ -42,7 +42,7 @@ Một Q-xxx đang mở chỉ chặn task thực sự phụ thuộc/chạm Q đó
 ## Ba lằn ranh (D-040, nới bởi D-054)
 
 1. **AI không bao giờ viết** lời, dị bản, nguồn, số trang, vùng, địa danh, tác giả, niên đại. Lời chỉ vào `content/` bằng hai đường: **trích nguyên văn bằng máy** từ một nguồn có URL (đường ống T-039, không qua AI), hoặc **do người biên soạn nhập**.
-2. **Nguồn ghi đúng sự thật, không bịa.** Trang chỉ hiện một dòng "Nguồn: …" khi có nguồn (D-054); nguồn không bắt buộc. Không ai được ghi một nguồn, số trang, ngày truy cập mà mình không thấy tận mắt — kể cả CMS tự điền mặc định (D-052). Bài tự động ghi đúng địa chỉ trang đã lấy.
+2. **Nguồn ghi đúng sự thật, không bịa.** Lời ca dao, tục ngữ không ghi nguồn; "Nguồn: …" chỉ hiện dưới chú thích, lời giải chép từ nguồn (tùy chọn theo nguồn) hoặc khi người viết tự điền (D-057). Không ai được ghi một nguồn, số trang, ngày truy cập mà mình không thấy tận mắt — kể cả CMS tự điền mặc định (D-052). Dòng "Nguồn: …" dưới chú thích chép luôn trỏ đúng trang đã lấy.
 3. **Dữ liệu cá nhân và ghi âm phải có đồng ý.** Không thông tin cá nhân trong kho; ghi âm cần hồ sơ đồng ý.
 
 ## Human Gate
