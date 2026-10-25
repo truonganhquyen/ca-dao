@@ -2,6 +2,8 @@
  * Trình soạn bài Ca dao – Tục ngữ: ô "Có thể trùng" (T-111, D-065). Sau khi dán / gõ lời vào khối Thơ (ngừng gõ một
  * chút) và khi bấm Đăng, liệt kê bài có lời giống, với "Mở bài này" · "Thêm làm dị bản" · "Vẫn đăng bài mới".
  * Chỉ báo, không chặn đăng (D-054). Không thư viện ngoài: chỉ các gói wp.* có sẵn của WordPress.
+ * Lời nằm trong khối Đoạn văn (thường do dán từ trang web khác): ô báo và nút "Đưa lời vào khối Thơ" (T-112) — máy
+ * chuyển loại khối, không đổi chữ; dòng chú in nghiêng / trong ngoặc giữ là đoạn văn.
  */
 (function (wp) {
 	'use strict';
@@ -27,9 +29,43 @@
 		return '';
 	}
 
+	/** Có chữ trong khối Đoạn văn (lời có thể đã rơi vào đó khi dán). */
+	function coDoanVan(khoi) {
+		return khoi.some(function (k) {
+			var c = k.name === 'core/paragraph' ? k.attributes.content : '';
+			c = typeof c === 'string' ? c : (c && c.toHTMLString ? c.toHTMLString() : String(c || ''));
+			return c.replace(/<[^>]+>|&nbsp;/g, '').trim() !== '';
+		});
+	}
+
+	function KhoiTho(p) {
+		var dangS = useState(false);
+		var baoS = useState('');
+		var dua = function () {
+			dangS[1](true);
+			wp.apiFetch({ path: '/cadao/v1/khoi-tho', method: 'POST', data: { noi_dung: wp.data.select('core/editor').getEditedPostContent() } })
+				.then(function (r) {
+					dangS[1](false);
+					if (r && r.noi_dung) {
+						wp.data.dispatch('core/block-editor').resetBlocks(wp.blocks.parse(r.noi_dung));
+						baoS[1]('Đã đưa ' + r.so_dong + ' dòng lời vào khối Thơ. Xem lại rồi bấm Lưu / Cập nhật.');
+					} else {
+						baoS[1]('Máy không tách được lời. Bạn chọn đoạn có lời, bấm biểu tượng ¶ trên thanh công cụ rồi chọn "Thơ".');
+					}
+				})
+				.catch(function () { dangS[1](false); baoS[1]('Không chuyển được lúc này, thử lại sau.'); });
+		};
+		return el('div', { style: { borderLeft: '4px solid #dba617', paddingLeft: '8px', marginBottom: '8px' } },
+			el('p', null, el('strong', null, 'Lời đang nằm trong khối Đoạn văn.'), ' Trang bài sẽ thiếu nút Trích dẫn, Lưu, Trình chiếu, Nghe; tìm theo lời và so trùng cũng chưa thấy bài.'),
+			el(Button, { variant: 'primary', isBusy: dangS[0], disabled: dangS[0], onClick: dua }, 'Đưa lời vào khối Thơ'),
+			el('p', { className: 'description' }, 'Máy chỉ đổi loại khối, không đổi chữ nào; dòng chú in nghiêng hoặc trong ngoặc giữ là đoạn văn.'),
+			baoS[0] ? el('p', { role: 'status' }, baoS[0]) : null
+		);
+	}
+
 	function DanhSach(p) {
 		if (p.loi === '') {
-			return el('p', { className: 'description' }, 'Dán hoặc gõ lời vào khối Thơ; máy sẽ so cả lời với các bài đã có.');
+			return p.doanVan ? el(KhoiTho, p) : el('p', { className: 'description' }, 'Dán hoặc gõ lời vào khối Thơ; máy sẽ so cả lời với các bài đã có.');
 		}
 		if (p.kq === null) { return el('p', null, 'Đang so…'); }
 		if (p.daBoQua) { return el('p', null, 'Đã ghi: đây là bài khác. Bạn cứ đăng như thường.'); }
@@ -66,7 +102,7 @@
 		var themS = useState(0);
 		var loiS = useState('');
 		// Có bài giống thì tự mở ô (WordPress nhớ ô đóng / mở theo người dùng)
-		var coKq = !!(kqS[0] && kqS[0].length);
+		var coKq = !!(kqS[0] && kqS[0].length) || (loi === '' && coDoanVan(d.khoi));
 		useEffect(function () {
 			var ten = 'cadao-co-the-trung/cadao-co-the-trung';
 			var ed = wp.data.select('core/editor');
@@ -88,6 +124,7 @@
 
 		var p = {
 			loi: loi.replace(/<[^>]+>/g, '').trim(),
+			doanVan: coDoanVan(d.khoi),
 			kq: kqS[0],
 			daBoQua: boQuaS[0],
 			dangThem: themS[0],
@@ -110,7 +147,8 @@
 		var coBai = p.kq && p.kq.length && !p.daBoQua;
 		return el(wp.element.Fragment, null,
 			el(Panel, { name: 'cadao-co-the-trung', title: 'Có thể trùng' + (coBai ? ' (' + p.kq.length + ')' : '') }, el(DanhSach, p)),
-			coBai && TruocKhiDang ? el(TruocKhiDang, { title: 'Có thể trùng (' + p.kq.length + ')', initialOpen: true }, el(DanhSach, p)) : null
+			coBai && TruocKhiDang ? el(TruocKhiDang, { title: 'Có thể trùng (' + p.kq.length + ')', initialOpen: true }, el(DanhSach, p)) : null,
+			p.loi === '' && p.doanVan && TruocKhiDang ? el(TruocKhiDang, { title: 'Lời chưa vào khối Thơ', initialOpen: true }, el(KhoiTho, p)) : null
 		);
 	}
 

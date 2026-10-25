@@ -42,6 +42,7 @@ wordpress/
 │   ├── inc/do-luong.php     đo 3 sự kiện không cookie, ô "người đọc cần gì" trên Bảng tin (T-052)
 │   ├── inc/dong-dao.php     trò chơi, khối "Cách chơi" (lấy từ Wikipedia có nguồn), nút "Đọc cùng bé" (T-103)
 │   ├── inc/ban-do.php       trang "Bản đồ ca dao" (/ban-do/): điểm địa danh đã xác nhận (T-104)
+│   ├── inc/khoi-tho.php     lời dán vào khối Đoạn văn → đề xuất đưa vào khối Thơ, trang "Lời chưa vào khối Thơ" (T-112)
 │   ├── inc/tach-loai.php    gợi ý tách thành ngữ / tục ngữ, trang duyệt hàng loạt, chuyển hướng đường dẫn cũ (T-080)
 │   ├── inc/site-cu.php      chuyển bài công khai của site Astro cũ, qua bước chống trùng (T-076)
 │   ├── inc/the-tho.php      nhận thể thơ theo số âm tiết, phân loại "Thể thơ" để lọc (T-084)
@@ -77,6 +78,7 @@ wordpress/
 - **Công cụ đọc (T-085), bài dài (T-090):** "Aa", "◐", "Trình chiếu", "▶ Nghe" (chỉ khi máy có giọng tiếng Việt; "Giọng đọc máy") cạnh Trích dẫn · Chia sẻ; cỡ chữ và sáng / tối nhớ trên máy, áp trong `<head>` (thuộc tính `data-co-chu`, `data-che-do` trên `<html>`). Bài từ 41 dòng: tóm tắt, mục lục, đoạn, số dòng bên lề, "Đọc toàn bài", "Đọc tiếp từ đoạn N".
 - **Trích dẫn, chia sẻ (T-042):** hộp `<details>` "Trích dẫn" — kiểu thông dụng và APA 7 (`20` mục 6), nút "Sao chép kèm nguồn" / "Chỉ sao chép lời", ô "Kèm đáp án / chú thích" khi bài có phần chép từ nguồn; nút "Chia sẻ" (Web Share, không có thì sao chép liên kết). Ngày truy cập theo ngày bấm.
 - **Tách thành ngữ – tục ngữ (T-080):** trang **Ca dao – Tục ngữ → Tách thành ngữ – tục ngữ**, chia bốn nhóm: máy đã chắc / máy nghiêng về / máy chưa rõ / bạn đã quyết; nút "Đồng ý gợi ý", "Là thành ngữ", "Là tục ngữ". Gợi ý: danh mục Wiktionary (tải mỗi tuần, chỉ lưu dấu vân tay) khi độ dài câu cùng hướng; câu nhiều vế, từ 8 âm tiết, hai vế cách dấu phẩy → tục ngữ (chắc); có từ nối "thì, là, mới, hơn…" → nghiêng về tục ngữ; ≤ 4 âm tiết → nghiêng về thành ngữ. Chưa duyệt thì bài vẫn vào Tục ngữ như trước. Đổi thể loại thì đường dẫn cũ (`/tuc-ngu/<tên>/` ↔ `/thanh-ngu/<tên>/`) chuyển hướng 301 (mọi bài, kể cả đổi tay).
+- **Lời vào khối Thơ (T-112):** mọi tính năng của trang bài đọc lời từ khối Thơ. Bài có lời trong khối Đoạn văn: trình soạn báo và có nút "Đưa lời vào khối Thơ"; trang **Lời chưa vào khối Thơ** liệt kê bài cũ, xem trước, bấm Chuyển. Không đổi chữ; dòng chú (in nghiêng / trong ngoặc) giữ là đoạn văn; có bản sửa đổi để hoàn tác.
 - **Đồng dao (T-103):** bài gắn trò chơi có khối "Cách chơi" (thông tin, các bước, dòng Nguồn khi chép từ Wikipedia); nút "Đọc cùng bé" (một dòng, chữ rất to, vỗ tay tô chữ, không âm thanh — `assets/dong-dao.js`, chỉ tải ở bài đồng dao). Trang sửa trò chơi có nút lấy mục Cách chơi từ Wikipedia tiếng Việt.
 - **Bản đồ ca dao (T-104):** `/ban-do/`, mã ngắn `[cadao_ban_do]`: SVG tự lưu + điểm là liên kết tới danh sách địa danh từ Bắc vào Nam; không JavaScript, không dịch vụ ngoài.
 - **Đã lưu (T-051):** nút **☆ Lưu** trong hàng nút dưới lời nhớ bài vào bộ nhớ trình duyệt (không gửi về máy chủ); trang `/da-luu/` liệt kê, bỏ lưu từng bài.
