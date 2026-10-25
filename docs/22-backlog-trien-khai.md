@@ -66,9 +66,9 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-086 | Gắn Wikidata: hàng chờ xác nhận, ảnh Commons có ghi tác giả | N+A | T-073 | — | DONE |
 | T-087 | Chú thích địa danh: bản đồ nhỏ, ảnh, "Bài khác nhắc tới…" | A | T-082, T-086 | — | DONE |
 | T-088 | Câu đố: ảnh đáp án | A | T-086 | — | DONE |
-| T-089 | Tự gợi ý vùng cho bài (phương ngữ, địa danh) | N+A | T-073 | — | READY |
+| T-089 | Tự gợi ý vùng cho bài (phương ngữ, địa danh) | N+A | T-073 | — | DONE |
 | T-090 | Vè và bài dài: chia đoạn, mục lục, đọc tiếp | A | T-072 | — | DONE |
-| T-091 | Bộ chủ đề riêng của dự án (gồm nhóm tục ngữ kinh nghiệm, lối hát, loại câu đố), máy gợi ý | N+A | T-073 | — | READY |
+| T-091 | Bộ chủ đề riêng của dự án (gồm nhóm tục ngữ kinh nghiệm, lối hát, loại câu đố), máy gợi ý | N+A | T-073 | — | REVIEW |
 | T-092 | "Bài gần gũi" cuối bài và trang mô-típ | A | T-091 | — | BLOCKED |
 | T-093 | "Bạn có biết?" ghép từ chú thích | N+A | T-073 | — | READY |
 | T-094 | Trang riêng cho từng thể loại | N+A | T-072 | — | READY |
@@ -330,6 +330,8 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 #### T-089 · Vùng — N+A
 **Đọc:** `25` mục 4.2. **Chấp nhận:** gợi ý vùng từ ghi chú phương ngữ và địa danh đã xác nhận; duyệt hàng loạt; không gắn vùng khi chưa duyệt.
 
+**Tiến độ (25/10/2026):** xong — `inc/goi-y.php`: 7 vùng của từ vựng dự án (Bắc Bộ, Bắc / Trung / Nam Trung Bộ, Tây Nguyên, Nam Bộ, phổ biến toàn quốc); gợi ý từ lời giải của chú thích nhắc miền, tỉnh, phương ngữ (Nghệ, Huế, Nam Bộ…) và từ tọa độ địa danh đã xác nhận (chia gần đúng theo vĩ độ, kinh độ); trang **Gợi ý vùng, chủ đề** (gợi ý đánh dấu sẵn kèm lý do, bỏ dấu cái sai, "Đồng ý" cả trang); một bài nhiều vùng; bài đã duyệt không hiện lại. Dòng "Vùng: …" cuối bài.
+
 #### T-090 · Bài dài — A
 **Đọc:** `25` mục 4.1. **Chấp nhận:** bài > 40 dòng chia đoạn, mục lục, số dòng, "Đọc toàn bài", nhớ chỗ đọc trên máy; "Vè cậu Hai Miêng" (990 dòng) mở nhanh trên điện thoại.
 
@@ -337,6 +339,8 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 
 #### T-091 · Bộ chủ đề riêng — N+A
 **Đọc:** `25` mục 4.4, 4.5; D-061. **Việc:** người sáng lập duyệt danh sách chủ đề (agent soạn đề xuất từ số liệu kho) và bảng ánh xạ từ chủ đề, thẻ của nguồn; gồm nhóm tục ngữ kinh nghiệm, lối hát (hát ru, hò, lý, hát đối), loại câu đố. **Chấp nhận:** gợi ý chủ đề cho mọi bài đã đọc trang; không chép nguyên tên chủ đề, thẻ của nguồn ra trang khi chưa được chọn vào bộ của dự án.
+
+**Tiến độ (25/10/2026):** phần máy xong — bộ chủ đề của dự án tạo sẵn: 11 chủ đề của từ vựng kiểm soát + nhóm "Kinh nghiệm (tục ngữ)" (thời tiết, mùa vụ, chăn nuôi, ăn uống – sức khỏe, đối nhân xử thế), "Lối hát" (hát ru, hò, lý, hát đối), "Loại câu đố" (đồ vật, con vật, cây cối – hoa quả, thiên nhiên, con người – sinh hoạt) như `25` mục 4.4. Gợi ý: chủ đề của nguồn (19 chủ đề, chỉ dùng nội bộ) qua **bảng ánh xạ** máy đề xuất; lời ru → Hát ru, dòng đầu "hò" → Hò, tên "Lý…" → Lý; tục ngữ theo từ khóa → nhóm kinh nghiệm. Dòng "Chủ đề: …" cuối bài. **Còn chờ người sáng lập:** xem và lưu bảng ánh xạ (đầu trang Gợi ý vùng, chủ đề) — lưu rồi thì chuyển DONE; đối nhân xử thế, hát đối chưa có gợi ý tự động, gắn tay khi cần.
 
 #### T-092 · Bài gần gũi, mô-típ — A
 **Chấp nhận:** 3–5 thẻ cuối bài theo mô-típ, chú thích, địa danh, chủ đề; trang mô-típ do người sáng lập đặt tên/duyệt; không lặp chính bài đang xem.
