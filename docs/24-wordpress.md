@@ -47,6 +47,7 @@ wordpress/
 │   ├── inc/trang-chu.php    trang chủ, "Bạn có biết?", tình huống, trang thể loại (T-043, T-093, T-094)
 │   ├── inc/nguoi-doc.php    góp ý, cảm nghĩ (bình luận), chống rác, trang "Chống rác" (Turnstile) (T-045)
 │   ├── inc/phan-tich.php    bài cảm nhận, phân tích của người đọc; trang "Viết cảm nhận" (T-097)
+│   ├── inc/trang-du-an.php  trang Phương pháp, Nguồn (tự sinh), Về dự án ở dạng bản nháp; liên kết chân trang (T-046)
 │   ├── du-lieu/tinh-huong.json tình huống và lịch dịp của site cũ (sinh bằng `npm run xuat:site-cu`)
 │   ├── assets/tim.js        kết quả hiện khi gõ trên trang Tìm
 │   ├── assets/ban-do-vn.svg bản đồ nhỏ Việt Nam có Hoàng Sa, Trường Sa (sinh bằng `scripts/sinh-ban-do.mjs`)

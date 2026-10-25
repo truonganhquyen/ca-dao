@@ -57,7 +57,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-043 | Trang chủ mới (Câu hôm nay, Vừa bổ sung, Đọc nhiều, Bạn có biết?) + trang tình huống | A | T-072, T-081, T-093 | — | DONE |
 | T-044 | Từ điển chú giải: trang từng từ, "Các bài có từ này", lọc theo vùng | A | T-073 | — | DONE |
 | T-045 | Góp ý, dị bản, cảm nghĩ ngắn của người đọc; chống rác; quyền riêng tư; "Gửi số trang" | N+A | T-075 | — | DONE |
-| T-046 | Trang Phương pháp, Nguồn, Về dự án | N+A | T-075 | — | READY |
+| T-046 | Trang Phương pháp, Nguồn, Về dự án | N+A | T-075 | — | REVIEW |
 | T-047 | Bàn biên tập: gom các hàng chờ (Chờ duyệt, xác nhận, người đọc gửi) trong wp-admin | A | T-071 | — | READY |
 | T-082 | Chạm vào từ khó, nghĩa hiện ngay (lưu vị trí chú thích) | A | T-073 | — | DONE |
 | T-083 | Dị bản đánh số, tô chỗ khác lời chính | A | T-072 | — | DONE |
@@ -293,6 +293,8 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 #### T-046 · Trang Phương pháp, Nguồn, Về dự án — N+A
 **Đọc:** `docs/luu-tru/50-ban-nhap-trang-cong-khai.md` mục 1, 5; `12`.
 **Chấp nhận:** Phương pháp giải thích 4 nhãn, lời hứa mới, cách dùng AI, ghi công Ca dao Mẹ; `/nguon` sinh tự động từ `content/nguon/` (chỉ nguồn đang được dùng); N duyệt câu chữ.
+
+**Tiến độ (25/10/2026):** phần máy xong — plugin 0.14.0 (`inc/trang-du-an.php`). Ba trang tạo một lần ở dạng **Bản nháp**, câu chữ soạn theo cách site đang làm (thay các nhãn A–D của bản Astro, đã bỏ từ D-054): **Phương pháp** (lời chép nguyên văn bằng máy, không ghi nguồn dưới lời; chú thích, đáp án có dòng "Nguồn"; dị bản; máy làm gì — người làm gì; AI không viết lời, dị bản, nguồn; đóng góp vào Chờ duyệt; báo lỗi), **Nguồn** (mã ngắn `[cadao_nguon]` tự sinh: nguồn tự động có chú thích chép trên bài đang đăng, nguồn người biên soạn ghi trong bài, dữ liệu mở đang dùng — Wikidata, Commons, Natural Earth — kèm số bài), **Về dự án** (mục đích, phi lợi nhuận, mã nguồn mở, giấy phép, không cookie theo dõi, cách liên hệ / xin gỡ). Chân trang chỉ hiện liên kết tới trang đã đăng. **Còn chờ người sáng lập:** đọc, sửa câu chữ, bấm Đăng (Trang → Bản nháp).
 
 #### T-047 · Bàn biên tập — A
 **Việc (viết lại 25/10/2026 cho WordPress):** một trang trong wp-admin gom các hàng chờ: bài Chờ duyệt, xác nhận Wikidata (T-086), vùng (T-089), thể loại tách (T-080), chủ đề (T-091), "Có thể trùng" (T-110, T-111, T-101), bài và góp ý người đọc gửi (T-045, T-097), mỗi hàng có số đếm và nút duyệt hàng loạt. Phần dưới đây là đặc tả cũ cho site Astro, giữ làm tham khảo.

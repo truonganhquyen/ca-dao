@@ -40,6 +40,7 @@
 ## Đang chờ người sáng lập
 
 - **Sao lưu FlashPanel** — để sau (người sáng lập, 25/10/2026): khi làm, chọn hằng ngày, gồm site và cơ sở dữ liệu cadao, lưu ra ngoài VPS.
+- **Ba trang Phương pháp, Nguồn, Về dự án** (Trang → Bản nháp): máy đã soạn theo đúng cách site đang làm; bạn đọc, sửa câu chữ rồi bấm Đăng — chân trang tự có liên kết.
 - **Duyệt đóng góp của người đọc:** Ca dao – Tục ngữ → Góp ý của người đọc; Cảm nhận – phân tích (bài Chờ duyệt → Đăng); Bình luận (cảm nghĩ chờ duyệt → Chấp thuận).
 - **Khóa Turnstile** (tùy chọn, chặn tin rác chắc hơn): Cloudflare → Turnstile → Add widget cho cadao.sdigi.net, dán hai khóa vào Ca dao – Tục ngữ → Chống rác. Không gửi khóa cho ai, kể cả agent.
 - **Bạn có biết?** (Ca dao – Tục ngữ → Bạn có biết?): máy ghép câu từ chú thích, bạn sửa cho tự nhiên rồi chọn "Duyệt"; trang chủ hiện 4 câu đã duyệt mỗi tuần.

@@ -745,6 +745,16 @@ kt( '"Bài phân tích của dự án" có nhãn riêng', str_contains( cadao_do
 kt( 'trang "Viết cảm nhận" có sẵn; form có cam kết tự viết, CC BY 4.0, quyền riêng tư', ( $p_vt = get_page_by_path( 'viet-cam-nhan' ) ) && ( $_GET = array( 'bai' => $td2 ) ) && str_contains( $f_pt = do_shortcode( '[cadao_viet_phan_tich]' ), 'Bài do tôi tự viết' ) && str_contains( $f_pt, 'CC BY 4.0' ) && str_contains( $f_pt, '91/2025/QH15' ) );
 $_GET = array();
 
+// ---------- Trang Phương pháp, Nguồn, Về dự án (T-046) ----------
+$pp = get_page_by_path( 'phuong-phap', OBJECT, 'page' );
+kt( 'ba trang của dự án tạo sẵn ở dạng Bản nháp (người sáng lập sửa rồi đăng)', $pp && 'draft' === $pp->post_status && str_contains( $pp->post_content, 'AI không viết lời' ) && 'draft' === get_post_status( get_page_by_path( 've-du-an', OBJECT, 'page' ) ) && 'draft' === get_post_status( get_page_by_path( 'nguon', OBJECT, 'page' ) ) );
+kt( 'chân trang: chưa đăng thì không có liên kết', '' === do_shortcode( '[cadao_chan_trang]' ) );
+wp_publish_post( $pp->ID );
+kt( 'chân trang: trang đã đăng thì có liên kết', str_contains( do_shortcode( '[cadao_chan_trang]' ), 'Phương pháp' ) );
+wp_publish_post( $P );
+$ng = do_shortcode( '[cadao_nguon]' );
+kt( 'trang Nguồn tự sinh: nguồn tự động có chú thích chép, nguồn ghi trong bài, dữ liệu mở đang dùng', str_contains( $ng, 'Nguồn A' ) && str_contains( $ng, 'Sách thử' ) && str_contains( $ng, 'Wikidata' ) && str_contains( $ng, 'Natural Earth' ), $ng );
+
 $ngan = do_blocks( cadao_khoi_tho( implode( "\n", array_slice( $khong_kho, 0, 40 ) ) ) );
 kt( 'bài 40 dòng trở xuống: không chia đoạn', ! str_contains( $ngan, 'cadao-bai-dai' ) );
 
