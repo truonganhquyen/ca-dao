@@ -225,6 +225,8 @@ Mỗi PR gom các task liên quan của một đợt; agent tự gộp khi kiể
 
 **Điều chỉnh 26/10/2026 (D-073, sau báo cáo review):** tạm dừng tới sau cổng mở T-092, T-095, T-096, T-102, T-105; kéo T-050 và T-100 lên Mốc B; thêm T-118..T-121 (an toàn vận hành, dòng mức kiểm D-072, điều hướng và danh sách bài, cuối bài – Tìm – Bàn biên tập). Thứ tự còn lại: T-119 → T-120 → T-121 → T-050 → T-100.
 
+**Điều chỉnh 26/10/2026 (D-077):** gỡ tạm dừng của D-073 — T-092, T-095, T-096, T-102, T-105 quay lại kế hoạch; việc biên tập của người sáng lập không chặn mở. T-095, T-098 chờ Q-009 (gộp tục ngữ – thành ngữ).
+
 Phụ thuộc chính: T-109 cần cho T-110, T-111, T-101, T-076; T-082 cần cho T-087; T-086 cần cho T-087, T-088, T-102, T-104; T-091 cần cho T-092, T-096; T-045 cần cho T-097; T-080 cần cho T-095, T-098; T-085 và T-089 cần cho T-105. Chi tiết và tiêu chí chấp nhận từng task ở `22` mục 3.
 
 ## 7. Để sau
