@@ -51,6 +51,9 @@ function cadao_hang_cho(): array {
 	if ( function_exists( 'cadao_wd_bang' ) ) {
 		$ds[] = array( 'khoa' => 'wikidata', 'ten' => 'Xác nhận Wikidata', 'so' => (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . cadao_wd_bang() . " WHERE trang_thai = 'cho'" ), 'viec' => 'Mỗi mục: Đúng / Sai / Bỏ qua. Mục "Đúng" có ảnh, bản đồ nhỏ và chấm trên Bản đồ ca dao.', 'url' => $trang( CADAO_TRANG_WIKIDATA ) );
 	}
+	if ( function_exists( 'cadao_mo_tip_goi_y' ) ) {
+		$ds[] = array( 'khoa' => 'mo_tip', 'ten' => 'Gợi ý mô-típ', 'so' => count( cadao_mo_tip_goi_y() ), 'viec' => 'Mỗi nhóm bài cùng cụm mở đầu: sửa tên nếu cần, bỏ dấu bài không hợp, bấm "Tạo mô-típ" — hoặc "Không phải mô-típ".', 'url' => $trang( CADAO_TRANG_MO_TIP ) );
+	}
 	if ( defined( 'CADAO_TRANG_GOI_Y' ) ) {
 		$ds[] = array( 'khoa' => 'goi_y', 'ten' => 'Gợi ý vùng, chủ đề', 'so' => (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = %s", '_cadao_goi_y' ) ), 'viec' => 'Xem bảng ánh xạ chủ đề ở đầu trang rồi bấm "Lưu"; sau đó bỏ dấu cái sai, bấm "Đồng ý".', 'url' => $trang( CADAO_TRANG_GOI_Y ) );
 	}

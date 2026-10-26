@@ -9,7 +9,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /** Phân loại có trang danh sách bài; dưới 3 bài thì noindex, không vào sitemap. */
-const CADAO_PHAN_LOAI_DS = array( 'the_loai', 'the_tho', 'vung', 'chu_de', 'tinh_huong' );
+const CADAO_PHAN_LOAI_DS = array( 'the_loai', 'the_tho', 'vung', 'chu_de', 'tinh_huong', 'mo_tip' );
 const CADAO_IT_NHAT_BAI  = 3;
 
 /** Cắt mô tả ≤ 160 ký tự ở ranh giới từ. */

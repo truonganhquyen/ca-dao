@@ -61,7 +61,7 @@ const CADAO_DS_MOI_TRANG = 30;
 
 /** Truy vấn chính của trang Tất cả hoặc trang phân loại bài? */
 function cadao_la_truy_van_ds( WP_Query $q ): bool {
-	return $q->is_main_query() && ! is_admin() && ( $q->is_post_type_archive( CADAO_LOAI_BAI ) || $q->is_tax( array_keys( CADAO_LOC ) ) );
+	return $q->is_main_query() && ! is_admin() && ( $q->is_post_type_archive( CADAO_LOAI_BAI ) || $q->is_tax( array_merge( array_keys( CADAO_LOC ), array( 'mo_tip' ) ) ) );
 }
 
 /** Cách xếp đang chọn: 'az' (mặc định) hoặc 'moi'. */
@@ -152,7 +152,7 @@ add_shortcode(
 	'cadao_loc_ds',
 	static function () {
 		global $wp_query;
-		$bo   = is_tax( array_keys( CADAO_LOC ) ) ? get_queried_object()->taxonomy : '';
+		$bo   = is_tax( array_merge( array_keys( CADAO_LOC ), array( 'mo_tip' ) ) ) ? get_queried_object()->taxonomy : ''; // trang mô-típ: lọc trong mô-típ
 		$goc  = $bo ? (string) get_term_link( get_queried_object() ) : (string) get_post_type_archive_link( CADAO_LOAI_BAI );
 		return cadao_html_loc_ds( $goc, cadao_loc_dang( $bo ), cadao_xep_ds(), (int) $wp_query->found_posts, $bo );
 	}

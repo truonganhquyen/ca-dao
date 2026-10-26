@@ -73,7 +73,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-089 | Tự gợi ý vùng cho bài (phương ngữ, địa danh) | N+A | T-073 | — | DONE |
 | T-090 | Vè và bài dài: chia đoạn, mục lục, đọc tiếp | A | T-072 | — | DONE |
 | T-091 | Bộ chủ đề riêng của dự án (gồm nhóm tục ngữ kinh nghiệm, lối hát, loại câu đố), máy gợi ý | N+A | T-073 | — | DONE |
-| T-092 | "Bài gần gũi" cuối bài và trang mô-típ (mở lại D-077; bản tối giản "Đọc tiếp" đã có ở T-122) | A | T-091, T-122 | — | READY |
+| T-092 | "Bài gần gũi" cuối bài và trang mô-típ (mở lại D-077; bản tối giản "Đọc tiếp" đã có ở T-122) | A | T-091, T-122 | — | DONE |
 | T-093 | "Bạn có biết?" ghép từ chú thích | N+A | T-073 | — | DONE |
 | T-094 | Trang riêng cho từng thể loại | N+A | T-072 | — | DONE |
 | T-095 | Tục ngữ – Thành ngữ: trình bày câu một dòng, chỉ mục A–Z (mở lại D-077; một mục, D-079) | A | T-128 | — | READY |
@@ -395,6 +395,7 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 
 #### T-092 · Bài gần gũi, mô-típ — A
 **Chấp nhận:** 3–5 thẻ cuối bài theo mô-típ, chú thích, địa danh, chủ đề; trang mô-típ do người sáng lập đặt tên/duyệt; không lặp chính bài đang xem.
+**Tiến độ (26/10/2026):** xong — phân loại **Mô-típ** (`/mo-tip/<tên>/`, `inc/mo-tip.php`, plugin 0.32.0). Trang **Gợi ý mô-típ**: máy gom bài có dòng đầu bắt đầu bằng cùng một cụm chữ (2–4 âm tiết, từ 3 bài; cụm dài hơn thay cụm ngắn khi giữ ≥ 80% số bài), điền sẵn tên là chính cụm chữ; người sáng lập sửa tên, bỏ bài không hợp, bấm Tạo — hoặc "Không phải mô-típ"; bài mới cùng cụm được gợi ý thêm vào mô-típ đã có. Máy không tự gắn, không viết lời giới thiệu (ô Mô tả do người sáng lập viết). Khối "Đọc tiếp" (T-122) cộng điểm theo mô-típ (6), chủ đề (4), mục từ chung — từ khó, địa danh có ở 2–20 bài (3), vùng (2); nhãn "Cùng mô-típ …", "Cùng nhắc tới …". Cuối bài có dòng "Mô-típ: …". Gợi ý theo nghĩa ("thề bằng điều không thể") không làm: máy không đoán nghĩa — người sáng lập tạo mô-típ đó ở trang Mô-típ và gắn bài trong trình soạn.
 
 #### T-093 · Bạn có biết? — N+A
 **Chấp nhận:** khuôn ghép từ chú thích có sẵn, kèm nguồn; người sáng lập duyệt hoặc sửa trước khi lên trang; máy không tự viết sự kiện.
