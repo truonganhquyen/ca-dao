@@ -39,7 +39,7 @@ add_action(
  * Các chú thích trong nội dung một bài: mỗi mục { tu, noi_dung, nguon_ten, nguon_url } — nguồn là dòng
  * "Nguồn: …" ngay sau danh sách chứa mục đó (trống nếu người biên soạn tự viết).
  *
- * @return array<int, array{tu: string, noi_dung: string, nguon_ten: string, nguon_url: string}>
+ * @return array<int, array{tu: string, noi_dung: string, nguon_ten: string, nguon_url: string, chep: bool}>
  */
 function cadao_chu_thich_cua_bai( string $noi_dung ): array {
 	$ra   = array();
@@ -53,13 +53,14 @@ function cadao_chu_thich_cua_bai( string $noi_dung ): array {
 		if ( $sau && str_contains( (string) ( $sau['attrs']['className'] ?? '' ), 'cadao-chu-thich-nguon' ) && preg_match( '~<a href="([^"]+)"[^>]*>(.*?)<span~s', $sau['innerHTML'], $a ) ) {
 			$nguon = array( trim( cadao_giai_ma( wp_strip_all_tags( $a[2] ) ) ), cadao_giai_ma( $a[1] ) );
 		}
+		$chep = '' !== $nguon[0] || str_contains( (string) ( $k['attrs']['className'] ?? '' ), 'cadao-chep' ); // chép từ nguồn (D-068: có thể không còn dòng Nguồn)
 		$html = $k['innerHTML'] . implode( '', array_column( $k['innerBlocks'], 'innerHTML' ) );
 		preg_match_all( '~<li\b[^>]*>\s*<strong>(.*?)</strong>\s*:\s*(.*?)</li>~s', $html, $li, PREG_SET_ORDER );
 		foreach ( $li as $o ) {
 			$tu = trim( cadao_giai_ma( wp_strip_all_tags( $o[1] ) ) );
 			$nd = trim( cadao_giai_ma( wp_strip_all_tags( $o[2] ) ) );
 			if ( '' !== $tu && '' !== $nd ) {
-				$ra[] = array( 'tu' => $tu, 'noi_dung' => $nd, 'nguon_ten' => $nguon[0], 'nguon_url' => $nguon[1] );
+				$ra[] = array( 'tu' => $tu, 'noi_dung' => $nd, 'nguon_ten' => $nguon[0], 'nguon_url' => $nguon[1], 'chep' => $chep );
 			}
 		}
 	}
@@ -93,6 +94,9 @@ function cadao_muc_tu( array $ct, bool $tao = true ): ?WP_Term {
 	add_term_meta( $moi['term_id'], '_cadao_khoa', $khoa, true );
 	add_term_meta( $moi['term_id'], '_cadao_nguon_ten', $ct['nguon_ten'], true );
 	add_term_meta( $moi['term_id'], '_cadao_nguon_url', $ct['nguon_url'], true );
+	if ( ! empty( $ct['chep'] ) ) {
+		add_term_meta( $moi['term_id'], '_cadao_chep', 1, true ); // lời giải chép: noindex dù không hiện dòng Nguồn (D-068)
+	}
 	return get_term( $moi['term_id'], 'tu_kho' );
 }
 
@@ -169,7 +173,7 @@ add_filter(
 add_filter(
 	'wp_robots',
 	static function ( $robots ) {
-		if ( is_tax( 'tu_kho' ) && '' !== (string) get_term_meta( get_queried_object_id(), '_cadao_nguon_ten', true ) ) {
+		if ( is_tax( 'tu_kho' ) && ( '' !== (string) get_term_meta( get_queried_object_id(), '_cadao_nguon_ten', true ) || get_term_meta( get_queried_object_id(), '_cadao_chep', true ) ) ) {
 			$robots['noindex'] = true;
 		}
 		return $robots;

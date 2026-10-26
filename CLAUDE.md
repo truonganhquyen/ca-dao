@@ -22,7 +22,7 @@ Khi được yêu cầu review branch/PR:
    - backlog/trạng thái có phản ánh đúng thực tế không;
    - agent có vô tình làm việc của mốc sau không;
    - các lằn ranh (`AGENTS.md`, D-040 nới bởi D-054) có bị vượt không: AI viết lời/nguồn, nguồn bịa hoặc tự điền, dữ liệu cá nhân;
-   - chú thích, lời giải chép từ nguồn chỉ từ nguồn bật "Chép chú thích" (D-055), dòng "Nguồn: …" dưới đó (khi bật "Ghi nguồn cho chú thích") trỏ đúng trang đã lấy; lời không bị gắn nguồn tự động (D-057); có tải ảnh hay chép phân loại của nguồn không; kho thô có lọt vào repo công khai không;
+   - chú thích, lời giải chép từ nguồn chỉ từ nguồn bật "Chép chú thích" (D-055), dòng "Nguồn: …" dưới đó (khi bật "Ghi nguồn cho chú thích" — mặc định tắt từ D-068, nguồn tự động ghi nhận ở trang Chính sách thu thập dữ liệu) trỏ đúng trang đã lấy; lời không bị gắn nguồn tự động (D-057); có tải ảnh hay chép phân loại của nguồn không; kho thô có lọt vào repo công khai không;
    - PR có link bản xem trước không (người sáng lập duyệt bằng mắt, D-035).
 6. Có thể chạy các lệnh kiểm tra cần thiết; ưu tiên `npm run kiem-tra`.
 7. **Không sửa file mặc định.** Chỉ sửa khi người dùng yêu cầu rõ; khi đó làm như một implementer theo `AGENTS.md` (nhánh riêng, `npm run kiem-tra`, commit có dòng `AI-Agent:`).

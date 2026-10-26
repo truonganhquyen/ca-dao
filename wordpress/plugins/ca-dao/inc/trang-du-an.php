@@ -20,12 +20,12 @@ function cadao_noi_dung_trang_du_an( string $slug ): string {
 	$ul = static fn( array $ds ) => "<!-- wp:list -->\n<ul class=\"wp-block-list\">" . implode( '', array_map( static fn( $x ) => "<!-- wp:list-item -->\n<li>$x</li>\n<!-- /wp:list-item -->", $ds ) ) . "</ul>\n<!-- /wp:list -->";
 	$khoi = array(
 		'phuong-phap' => array(
-			$p( '<strong>Lời giữ nguyên văn. Chú thích ghi nguồn. Máy chỉ gợi ý, người biên soạn quyết.</strong>' ),
+			$p( '<strong>' . CADAO_CAU_PHUONG_PHAP_DAU . '</strong>' ),
 			$h( 'Lời ca dao, tục ngữ lấy từ đâu' ),
 			$p( 'Phần lớn lời được máy chép nguyên văn từ trang <a href="https://cadao.me">Ca dao Mẹ</a> — không qua AI, không sửa chữ, không đổi cách bỏ dấu. Người biên soạn cũng nhập tay những câu mình biết. Lời ca dao, tục ngữ là của cộng đồng nên không ghi nguồn dưới lời.' ),
 			$p( 'Ca dao, tục ngữ sống bằng truyền miệng, một câu thường có nhiều cách nói. Chúng tôi không chọn "bản đúng duy nhất": các cách nói khác được ghi ở mục <strong>Dị bản</strong>, chữ khác lời chính được tô để dễ so.' ),
 			$h( 'Chú thích, đáp án' ),
-			$p( 'Chú thích từ khó và đáp án câu đố chép từ nguồn luôn có dòng <strong>"Nguồn: …"</strong> dẫn về đúng trang đã lấy. Chú thích do dự án viết thì không có dòng đó. Ảnh minh hoạ chỉ lấy từ Wikimedia Commons với giấy phép mở, ghi tác giả và giấy phép ngay dưới ảnh.' ),
+			$p( CADAO_CAU_PHUONG_PHAP_NGUON ),
 			$h( 'Máy làm gì, người làm gì' ),
 			$ul(
 				array(
@@ -45,7 +45,7 @@ function cadao_noi_dung_trang_du_an( string $slug ): string {
 			"<!-- wp:shortcode -->\n[cadao_nguon]\n<!-- /wp:shortcode -->",
 		),
 		've-du-an'    => array(
-			$p( '<strong>Kho tàng Ca dao Tục ngữ Việt Nam</strong> là dự án phi lợi nhuận, không quảng cáo: một nơi để đọc, hiểu, trích dẫn và chia sẻ ca dao, tục ngữ, thành ngữ, đồng dao, vè, câu đố — đúng lời, có nghĩa từ khó, có dị bản, có nguồn cho phần chú thích.' ),
+			$p( '<strong>Kho tàng Ca dao Tục ngữ Việt Nam</strong> là dự án phi lợi nhuận, không quảng cáo: một nơi để đọc, hiểu, trích dẫn và chia sẻ ca dao, tục ngữ, thành ngữ, đồng dao, vè, câu đố — đúng lời, có nghĩa từ khó, có dị bản, ghi nhận công khai các nguồn đã thu thập.' ),
 			$p( 'Mã nguồn của site là mã nguồn mở: <a href="https://github.com/truonganhquyen/ca-dao">github.com/truonganhquyen/ca-dao</a>. Phần dự án tự viết dùng giấy phép CC BY 4.0; phần chép từ Wiktionary, Wikipedia giữ CC BY-SA và được ghi ngay tại chỗ.' ),
 			$p( 'Site không dùng cookie theo dõi, không lưu địa chỉ IP khi đếm lượt đọc.' ),
 			$p( '<strong>Liên hệ, báo lỗi, xin gỡ:</strong> dùng mục "Góp ý cho bài này" ở cuối mỗi bài.' ),
@@ -77,16 +77,16 @@ add_shortcode(
 	static function () {
 		global $wpdb;
 		$ra = '';
-		// Nguồn tự động: số bài đang đăng có chú thích / đáp án chép từ nguồn đó
+		// Nguồn tự động: số bài đang đăng lấy từ nguồn đó (D-068: dòng "Nguồn" dưới chú thích không còn, nguồn ghi ở đây)
 		$tu_dong = '';
 		foreach ( cadao_nguon_tat_ca() as $id => $n ) {
-			$so = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->posts} p JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = '_cadao_nguon_id' AND m.meta_value = %s WHERE p.post_status = 'publish' AND p.post_type = %s AND p.post_content LIKE %s", (string) $id, CADAO_LOAI_BAI, '%cadao-chu-thich-nguon%' ) );
+			$so = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->posts} p JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = '_cadao_nguon_id' AND m.meta_value = %s WHERE p.post_status = 'publish' AND p.post_type = %s ", (string) $id, CADAO_LOAI_BAI ) );
 			if ( $so ) {
-				$tu_dong .= '<li><a href="' . esc_url( $n['url'] ) . '" rel="noopener">' . esc_html( $n['dong_ghi_nguon'] ?: $n['ten'] ) . '</a> — chú thích, đáp án chép kèm dòng "Nguồn" ở ' . esc_html( number_format_i18n( $so ) ) . ' bài; lời ca dao lấy từ đây không ghi nguồn.</li>';
+				$tu_dong .= '<li><a href="' . esc_url( $n['url'] ) . '" rel="noopener">' . esc_html( $n['dong_ghi_nguon'] ?: $n['ten'] ) . '</a> — lời, dị bản, chú thích, đáp án của ' . esc_html( number_format_i18n( $so ) ) . ' bài đang đăng được thu thập từ trang này.</li>';
 			}
 		}
 		if ( $tu_dong ) {
-			$ra .= '<h2>Nguồn của chú thích, đáp án</h2><ul>' . $tu_dong . '</ul>';
+			$ra .= '<h2>Trang web đã thu thập</h2><ul>' . $tu_dong . '</ul>';
 		}
 		// Nguồn người biên soạn tự ghi trong bài
 		$tay = $wpdb->get_results( $wpdb->prepare( "SELECT m.meta_value AS ten, COUNT(*) AS so FROM {$wpdb->postmeta} m JOIN {$wpdb->posts} p ON p.ID = m.post_id WHERE m.meta_key = 'nguon_ten' AND m.meta_value <> '' AND p.post_status = 'publish' AND p.post_type = %s GROUP BY m.meta_value ORDER BY so DESC", CADAO_LOAI_BAI ) );
@@ -131,6 +131,9 @@ add_shortcode(
 			if ( $p && 'publish' === $p->post_status ) {
 				$ra[] = '<a href="' . esc_url( get_permalink( $p ) ) . '">' . esc_html( get_the_title( $p ) ) . '</a>';
 			}
+		}
+		if ( function_exists( 'cadao_url_chinh_sach_du_lieu' ) && cadao_url_chinh_sach_du_lieu() ) {
+			$ra[] = '<a href="' . esc_url( cadao_url_chinh_sach_du_lieu() ) . '">Chính sách dữ liệu</a>';
 		}
 		if ( function_exists( 'cadao_url_ban_do' ) && cadao_url_ban_do() ) {
 			$ra[] = '<a href="' . esc_url( cadao_url_ban_do() ) . '">Bản đồ ca dao</a>';

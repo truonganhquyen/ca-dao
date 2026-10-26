@@ -53,6 +53,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-111 | Báo trùng khi viết bài tay (chỉ báo, không chặn) | A | T-109 | — | DONE |
 | T-112 | Lời dán vào khối Đoạn văn: máy đề xuất đưa vào khối Thơ, người biên soạn bấm chuyển | A | T-072 | — | DONE |
 | T-113 | Sửa mục từ: nguồn của lời giải, ảnh riêng / ẩn ảnh Wikidata | A | T-044, T-087 | — | DONE |
+| T-114 | Bỏ dòng Nguồn dưới chú thích chép, trang Chính sách thu thập dữ liệu (D-068) | A | T-073 | — | DONE |
 | T-042 | Trích dẫn 2 định dạng + chia sẻ (trên WordPress) | A | T-072 | — | DONE |
 | **Mốc B · Thử nhỏ** ||||||
 | T-041 | Tìm kiếm tức thì, gõ không dấu, tìm cả trong chú thích (WordPress) | N+A | T-072 | — | DONE |
@@ -251,6 +252,11 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 **Ghi chú (26/10/2026):** người sáng lập hỏi cách đổi ảnh và dòng "Nguồn: Ca dao Mẹ ↗" của mục từ "canh" (`/tu-dien/canh/`). Ảnh xúp là do khớp nhầm Wikidata ("canh" giờ đêm ↔ Q41415 "xúp") đã được bấm "Đúng" — sửa tận gốc bằng "Sai" ở Xác nhận Wikidata; nhưng trang quản trị chưa có chỗ đổi ảnh hay sửa nguồn. **Chấp nhận:** người biên soạn sửa được nguồn (xóa khi tự viết lại lời giải), chọn ảnh khác kèm ghi công, ẩn ảnh Wikidata; máy không tự điền nguồn.
 
 **Tiến độ (26/10/2026):** xong — plugin 0.20.0 (`inc/sua-muc-tu.php`). Trang **Sửa mục từ** (Ca dao – Tục ngữ → Từ điển → bấm tên mục từ; hoặc "Sửa mục từ" trên thanh quản trị khi xem trang mục từ) thêm: **Nguồn của lời giải** (tên, đường dẫn — điền sẵn giá trị đang có; xóa thì trang không còn dòng Nguồn và mục từ hết `noindex`), **Ảnh** (xem ảnh đang dùng, "Chọn ảnh khác…" mở Thư viện ảnh của WordPress, "Bỏ ảnh đã chọn", ô ghi công hiện dưới ảnh, "Không hiện ảnh lấy từ Wikidata"), và lối tới Xác nhận Wikidata → Đúng → "Sai" khi máy khớp nhầm thực thể. Ảnh riêng dùng cho cả trang mục từ lẫn ô chạm từ trong bài (`cadao_phan_them_muc_tu`); chữ thay thế của ảnh riêng là tên mục từ. Thử trên trình duyệt: ô hiện đúng ở khổ 390 px, nút mở Thư viện ảnh.
+
+#### T-114 · Chính sách thu thập dữ liệu — A
+**Đọc:** D-068. **Chấp nhận:** không còn dòng "Nguồn: …" trỏ về nguồn tự động dưới chú thích, đáp án (bài, mục từ đã đăng); nguồn khác người biên soạn ghi vẫn giữ; không đổi chữ nào khác; trang chính sách đã đăng, có danh sách nguồn; ghi công CC BY-SA giữ tại chỗ; mục từ chép vẫn `noindex`.
+
+**Tiến độ (26/10/2026):** xong — plugin 0.21.0 (`inc/chinh-sach-du-lieu.php`). Nâng cấp tắt "Ghi nguồn cho chú thích" ở mọi nguồn tự động; mỗi lượt lấy bài (5 phút) dọn tối đa 25 giây: bài chưa sửa tay làm lại từ kho, bài đã sửa tay chỉ bỏ khối Nguồn trỏ về tên miền nguồn đó (giữ khoảng trắng, đánh dấu `cadao-chep` cho danh sách chú thích ngay trước); mục từ: bỏ `_cadao_nguon_ten/_url`, đặt `_cadao_chep`. Đếm trên site thật trước khi chạy (chỉ đọc): 90 bài (đều chưa sửa tay), 180 mục từ. Trang **Chính sách thu thập dữ liệu** (`/chinh-sach-du-lieu/`, đăng ngay vì là nơi ghi nhận nguồn): lấy gì, cách lấy, xin gỡ, `[cadao_nguon]`; chân trang có "Chính sách dữ liệu"; bản nháp Phương pháp sửa câu hứa dòng Nguồn. Sửa mục từ: viết lại lời giải thì bỏ dấu "chép".
 
 #### T-076 · Chuyển nội dung, ngừng site Astro — A
 **Việc:** chuyển bài, mục từ, nguồn trong `content/` sang WordPress (giữ lời nguyên văn), **qua bước chống trùng** (T-109: bài cũ trùng câu đã có thì thành dị bản hoặc gộp, người sáng lập quyết); trỏ địa chỉ tạm; ngừng triển khai Astro. **Chấp nhận:** mọi bài công khai cũ hiện trên WordPress; lời khớp từng ký tự.

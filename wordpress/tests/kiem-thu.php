@@ -57,7 +57,7 @@ kt( 'không gắn tho_tuc khi chỉ là một phần âm tiết', ! in_array( 't
 kt( 'cờ hien_dai khi có năm 19xx', in_array( 'hien_dai', cadao_gan_co( 'Năm 1975 mẫu', array(), array() ), true ) );
 
 // ---------- Kho → bài Chờ duyệt ----------
-cadao_nguon_luu( array( 'id' => 'nguon-thu', 'ten' => 'Nguồn thử', 'url' => 'https://example.org', 'dong_ghi_nguon' => 'Nguồn thử', 'so_bai_moi_ngay' => 5, 'chep_chu_thich' => true, 'loai_lay' => array( 'ca_dao', 've' ) ) + cadao_nguon_mac_dinh() );
+cadao_nguon_luu( array( 'id' => 'nguon-thu', 'ten' => 'Nguồn thử', 'url' => 'https://example.org', 'dong_ghi_nguon' => 'Nguồn thử', 'so_bai_moi_ngay' => 5, 'chep_chu_thich' => true, 'ghi_cong' => true, 'loai_lay' => array( 'ca_dao', 've' ) ) + cadao_nguon_mac_dinh() );
 $muc = array(
 	'ma_goc' => 101, 'doc_trang' => '2026-10-25', 'url' => 'https://example.org/bai-101/', 'loai' => 'ca_dao', 'tieu_de' => 'Dòng mẫu thứ nhất',
 	'loi' => "Dòng mẫu thứ nhất\nDòng mẫu thứ hai <có dấu nhỏ hơn>", 'di_ban' => array( "Dị bản mẫu một\nDị bản mẫu hai" ),
@@ -168,7 +168,7 @@ add_filter(
 	10,
 	3
 );
-cadao_nguon_luu( array( 'id' => 'me-thu', 'ten' => 'Mẹ thử', 'url' => $G, 'dong_ghi_nguon' => 'Mẹ thử', 'bat' => true ) + cadao_nguon_mac_dinh() );
+cadao_nguon_luu( array( 'id' => 'me-thu', 'ten' => 'Mẹ thử', 'url' => $G, 'dong_ghi_nguon' => 'Mẹ thử', 'bat' => true, 'ghi_cong' => true ) + cadao_nguon_mac_dinh() );
 $kq = cadao_nguon_chay( 'me-thu', 60 );
 $k  = static function ( $url ) {
 	global $wpdb;
@@ -304,7 +304,7 @@ kt( 'trùng một dị bản đã ghi: có thể là dị bản', 'di_ban' === c
 // T-110: hai nguồn giả cùng một câu
 wp_set_current_user( cadao_quan_tri_dau_tien() );
 foreach ( array( 'nguon-a' => 'Nguồn A', 'nguon-b' => 'Nguồn B' ) as $id_n => $ten_n ) {
-	cadao_nguon_luu( array( 'id' => $id_n, 'ten' => $ten_n, 'url' => "https://$id_n.example", 'dong_ghi_nguon' => $ten_n, 'loai_lay' => array( 'ca_dao', 'cau_do' ), 'bo_qua_co' => array() ) + cadao_nguon_mac_dinh() );
+	cadao_nguon_luu( array( 'id' => $id_n, 'ten' => $ten_n, 'url' => "https://$id_n.example", 'dong_ghi_nguon' => $ten_n, 'loai_lay' => array( 'ca_dao', 'cau_do' ), 'bo_qua_co' => array(), 'ghi_cong' => true ) + cadao_nguon_mac_dinh() );
 }
 $kho = static function ( string $n, string $ma, string $loi, array $them = array() ): int {
 	global $wpdb;
@@ -978,6 +978,31 @@ update_term_meta( $mt->term_id, '_cadao_nguon_url', $mt_cu[1] );
 delete_term_meta( $mt->term_id, '_cadao_anh_rieng' );
 delete_term_meta( $mt->term_id, '_cadao_an_anh' );
 $_POST = array();
+
+// ---------- D-068: bỏ dòng "Nguồn" dưới chú thích chép; trang Chính sách thu thập dữ liệu (T-114) ----------
+kt( 'nguồn tự động mới: mặc định không ghi dòng Nguồn dưới chú thích (bật lại được)', false === cadao_nguon_mac_dinh()['ghi_cong'] );
+cadao_nguon_luu( array( 'id' => 'cadao-me-thu', 'ten' => 'Ca dao Mẹ thử', 'url' => 'https://cadao.me', 'ghi_cong' => false ) + cadao_nguon_mac_dinh() );
+cadao_nguon_luu( array( 'id' => 'bat-thu', 'ten' => 'Bật thử', 'url' => 'https://bat-thu.example', 'ghi_cong' => true ) + cadao_nguon_mac_dinh() );
+kt( 'tên miền không ghi nguồn: lấy từ nguồn đã tắt ghi nguồn', in_array( 'cadao.me', cadao_mien_khong_ghi_nguon(), true ) && ! in_array( 'bat-thu.example', cadao_mien_khong_ghi_nguon(), true ) );
+$ds_068 = "<!-- wp:list {\"className\":\"cadao-chu-thich\"} -->\n<ul class=\"wp-block-list cadao-chu-thich\">\n<!-- wp:list-item -->\n<li><strong>chữ068</strong>: Lời giải chép thử &amp; nguyên văn.</li>\n<!-- /wp:list-item -->\n</ul>\n<!-- /wp:list -->";
+$ng_068 = static fn( string $url, string $ten ) => cadao_khoi_doan( 'Nguồn: <a href="' . $url . '" rel="noopener">' . $ten . ' <span aria-hidden="true">↗</span></a>', 'cadao-chu-thich-nguon' );
+$nd_068 = cadao_khoi_tho( "Lời thử 068 một\nLời thử 068 hai" ) . "\n\n" . cadao_khoi_tieu_de( 'Chú thích' ) . "\n\n" . $ds_068 . "\n\n" . $ng_068( 'https://cadao.me/loi-thu-068/', 'Ca dao Mẹ' ) . "\n\n" . cadao_khoi_doan( 'Đoạn người biên soạn viết thêm.' ) . "\n\n" . $ng_068( 'https://sach.example/trang-12', 'Sách khác' );
+$b_068  = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'post_title' => 'Bài thử bỏ nguồn', 'post_content' => wp_slash( $nd_068 ) ) );
+$m_068  = cadao_muc_tu( array( 'tu' => 'chữ068', 'noi_dung' => 'Lời giải chép thử & nguyên văn.' ), false );
+kt( 'trước khi dọn: mục từ mang nguồn Ca dao Mẹ (như trên site hiện nay)', $m_068 && 'Ca dao Mẹ' === get_term_meta( $m_068->term_id, '_cadao_nguon_ten', true ) );
+$sua_068 = count( wp_get_post_revisions( $b_068 ) );
+cadao_don_dong_nguon( microtime( true ) + 20 );
+$sau_068 = get_post( $b_068 )->post_content;
+kt( 'dọn: bỏ đúng dòng "Nguồn: Ca dao Mẹ"; nguồn khác người biên soạn ghi vẫn giữ; lời, chú thích, đoạn viết thêm không đổi chữ', ! str_contains( $sau_068, 'cadao.me' ) && str_contains( $sau_068, 'https://sach.example/trang-12' ) && str_contains( $sau_068, 'Lời giải chép thử &amp; nguyên văn.' ) && str_contains( $sau_068, 'Đoạn người biên soạn viết thêm.' ) && array( "Lời thử 068 một\nLời thử 068 hai" ) === cadao_loi_cac_khoi_tho( $sau_068 ), $sau_068 );
+kt( 'dọn: danh sách chú thích chép được đánh dấu (không hiện ra trang), khối hợp lệ; có bản sửa đổi để hoàn tác', str_contains( $sau_068, '{"className":"cadao-chu-thich cadao-chep"}' ) && str_contains( $sau_068, 'class="wp-block-list cadao-chu-thich cadao-chep"' ) && true === cadao_chu_thich_cua_bai( $sau_068 )[0]['chep'] && count( wp_get_post_revisions( $b_068 ) ) > $sua_068 );
+kt( 'dọn: mục từ hết dòng Nguồn nhưng vẫn mang dấu "chép" (giữ noindex)', '' === (string) get_term_meta( $m_068->term_id, '_cadao_nguon_ten', true ) && get_term_meta( $m_068->term_id, '_cadao_chep', true ) && ! str_contains( apply_filters( 'term_description', '', $m_068->term_id, 'tu_kho', 'tu_kho' ), 'cadao-chu-thich-nguon' ) );
+kt( 'dọn: chạy lại không đổi gì thêm', 0 === cadao_don_dong_nguon( microtime( true ) + 20 ) && $sau_068 === get_post( $b_068 )->post_content );
+$m_068b = cadao_muc_tu( array( 'tu' => 'chữ068b', 'noi_dung' => 'Mục từ mới từ danh sách chép.', 'nguon_ten' => '', 'nguon_url' => '', 'chep' => true ) );
+kt( 'mục từ mới tạo từ chú thích chép (không còn dòng Nguồn) vẫn mang dấu "chép"', (bool) get_term_meta( $m_068b->term_id, '_cadao_chep', true ) );
+$p_cs = get_page_by_path( 'chinh-sach-du-lieu', OBJECT, 'page' );
+kt( 'trang "Chính sách thu thập dữ liệu" đã đăng ở /chinh-sach-du-lieu/, có danh sách nguồn tự sinh', $p_cs && 'publish' === $p_cs->post_status && str_contains( $p_cs->post_content, '[cadao_nguon]' ) && str_contains( $p_cs->post_content, 'Xin gỡ, xin sửa' ) );
+kt( 'chân trang có "Chính sách dữ liệu"; trang Phương pháp (nháp) trỏ tới chính sách, không còn hứa dòng Nguồn dưới chú thích', str_contains( do_shortcode( '[cadao_chan_trang]' ), 'Chính sách dữ liệu' ) && ( $pp_068 = get_page_by_path( 'phuong-phap', OBJECT, 'page' ) ) && str_contains( $pp_068->post_content, '/chinh-sach-du-lieu/' ) && ! str_contains( $pp_068->post_content, 'luôn có dòng' ) );
+kt( 'danh sách nguồn: nêu trang đã thu thập và số bài đang đăng lấy từ đó', str_contains( do_shortcode( '[cadao_nguon]' ), 'bài đang đăng được thu thập từ trang này' ) );
 
 $ngan = do_blocks( cadao_khoi_tho( implode( "\n", array_slice( $khong_kho, 0, 40 ) ) ) );
 kt( 'bài 40 dòng trở xuống: không chia đoạn', ! str_contains( $ngan, 'cadao-bai-dai' ) );

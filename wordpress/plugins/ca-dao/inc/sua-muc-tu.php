@@ -19,7 +19,7 @@ add_action(
 		echo '<tr class="form-field"><th scope="row">Nguồn của lời giải</th><td>'
 			. '<p><label for="cadao-mt-nguon-ten">Tên nguồn</label><br><input type="text" id="cadao-mt-nguon-ten" name="cadao_mt[nguon_ten]" value="' . esc_attr( $ten ) . '"></p>'
 			. '<p><label for="cadao-mt-nguon-url">Đường dẫn</label><br><input type="url" id="cadao-mt-nguon-url" name="cadao_mt[nguon_url]" value="' . esc_attr( $url ) . '"></p>'
-			. '<p class="description">Lời giải chép từ nguồn thì giữ tên và đường dẫn đúng trang đã lấy — trang mục từ có dòng "Nguồn: …". Bạn tự viết lại lời giải (ô Mô tả ở trên) thì xóa hai ô này: trang không còn dòng Nguồn.</p></td></tr>';
+			. '<p class="description">Để trống thì trang không có dòng "Nguồn: …" (từ D-068, nguồn của lời giải chép tự động được liệt kê ở trang Chính sách thu thập dữ liệu). Muốn ghi một nguồn cụ thể (sách, trang web) thì điền tên và đường dẫn đúng chỗ đã lấy. Sửa lời giải ở ô Miêu tả thì mục từ được tính là của dự án.</p></td></tr>';
 		echo '<tr class="form-field"><th scope="row">Ảnh</th><td>'
 			. '<p><img id="cadao-mt-xem" src="' . esc_url( (string) $anh ) . '" alt="" style="max-width:240px;height:auto;border-radius:4px' . ( $anh ? '' : ';display:none' ) . '"></p>'
 			. '<p class="description" id="cadao-mt-dang">' . esc_html( $rieng ? 'Đang dùng ảnh bạn chọn.' : ( $anh ? 'Đang dùng ảnh lấy từ Wikidata (Wikimedia Commons).' : 'Chưa có ảnh.' ) ) . '</p>'
@@ -39,6 +39,10 @@ add_action(
 			return;
 		}
 		$m = (array) wp_unslash( $_POST['cadao_mt'] );
+		$t = get_term( $term_id, 'tu_kho' );
+		if ( $t && ! is_wp_error( $t ) && cadao_khoa_muc_tu( $t->name, $t->description ) !== (string) get_term_meta( $term_id, '_cadao_khoa', true ) ) {
+			delete_term_meta( $term_id, '_cadao_chep' ); // lời giải đã viết lại: của dự án, hết noindex
+		}
 		update_term_meta( $term_id, '_cadao_nguon_ten', sanitize_text_field( (string) ( $m['nguon_ten'] ?? '' ) ) );
 		update_term_meta( $term_id, '_cadao_nguon_url', esc_url_raw( (string) ( $m['nguon_url'] ?? '' ) ) );
 		$anh = (int) ( $m['anh_rieng'] ?? 0 );

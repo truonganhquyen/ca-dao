@@ -44,7 +44,7 @@ function cadao_nguon_mac_dinh(): array {
 		'so_bai_moi_ngay' => 20,
 		'dong_ghi_nguon'  => '',
 		'chep_chu_thich'  => true,  // D-055: chép chú thích, lời giải (đáp án câu đố) được phép; tắt được bất cứ lúc nào
-		'ghi_cong'        => true,  // D-057: dòng "Nguồn: …" dưới chú thích, lời giải đã chép — tùy chọn
+		'ghi_cong'        => false, // D-057, D-068: dòng "Nguồn: …" dưới chú thích, lời giải đã chép — mặc định tắt; nguồn ở trang Chính sách thu thập dữ liệu
 		'bo_qua_co'       => array( 'tho_tuc' ),
 		'tu_tho_tuc'      => array( 'đụ', 'địt', 'lồn', 'buồi', 'cặc', 'đéo' ),
 		'nguoi_duyet'     => 0,

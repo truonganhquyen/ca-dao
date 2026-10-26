@@ -31,7 +31,7 @@ function cadao_gop_hai_bai( int $chinh, int $phu ): bool {
 	}
 	// 2. Chú thích người biên soạn viết của bài phụ (không có dòng Nguồn): giữ ở bài chính
 	$co_ct = array_map( static fn( $c ) => mb_strtolower( $c['tu'] ) . '|' . $c['noi_dung'], cadao_chu_thich_cua_bai( get_post( $chinh )->post_content ) );
-	$them  = array_values( array_filter( cadao_chu_thich_cua_bai( $bp->post_content ), static fn( $c ) => '' === $c['nguon_ten'] && ! in_array( mb_strtolower( $c['tu'] ) . '|' . $c['noi_dung'], $co_ct, true ) ) );
+	$them  = array_values( array_filter( cadao_chu_thich_cua_bai( $bp->post_content ), static fn( $c ) => '' === $c['nguon_ten'] && empty( $c['chep'] ) && ! in_array( mb_strtolower( $c['tu'] ) . '|' . $c['noi_dung'], $co_ct, true ) ) );
 	if ( $them ) {
 		$cu = (array) ( get_post_meta( $chinh, '_cadao_chu_thich_them', true ) ?: array() );
 		update_post_meta( $chinh, '_cadao_chu_thich_them', array_merge( $cu, array_map( static fn( $c ) => array( 'tu' => $c['tu'], 'noi_dung' => $c['noi_dung'] ), $them ) ) );
