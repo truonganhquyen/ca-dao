@@ -2,7 +2,7 @@
 Theme Name:        Kho tàng Ca dao
 Description:       Theme con của Twenty Twenty-Five cho dự án Kho tàng Ca dao Tục ngữ Việt Nam: chữ và khoảng trắng trước, lời thơ lớn, sáng/tối theo máy (docs/20 trong repo ca-dao).
 Template:          twentytwentyfive
-Version:           0.15.0
+Version:           0.16.0
 Requires at least: 6.8
 Requires PHP:      8.1
 Author:            Dự án Kho tàng Ca dao Tục ngữ Việt Nam
@@ -714,6 +714,46 @@ html[data-co-chu="3"] .wp-block-verse {
 	color: inherit;
 }
 
+/* Đọc tiếp cuối bài (D-075): cả ô là một liên kết, cao ≥ 44 px */
+.cadao-doc-tiep ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+.cadao-doc-tiep li {
+	border-block-end: 1px solid var(--cadao-ke);
+}
+.cadao-doc-tiep a {
+	display: flex;
+	flex-direction: column;
+	gap: 0.15rem;
+	min-height: 44px;
+	padding-block: 0.6rem;
+	text-decoration: none;
+	color: inherit;
+}
+.cadao-doc-tiep a strong {
+	text-decoration: underline;
+	text-underline-offset: 0.15em;
+}
+.cadao-doc-tiep-loi {
+	font-family: var(--wp--preset--font-family--literata);
+}
+
+/* Trang không tìm thấy (báo cáo E2E, L-06) */
+.cadao-404-loi {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem 1.25rem;
+	list-style: none;
+	padding: 0;
+}
+.cadao-404-loi a {
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
+}
+
 /* Tìm (T-041) */
 .cadao-tim {
 	display: flex;
@@ -981,7 +1021,41 @@ html[data-co-chu="3"] .wp-block-verse {
 	min-height: 44px;
 	display: flex;
 	align-items: center;
+	gap: 0.35rem;
 	cursor: pointer;
+}
+/* display: flex làm mất mũi tên của trình duyệt: vẽ lại để thấy là bấm mở được (báo cáo E2E, L-02) */
+.cadao-loc-nhom summary::after {
+	content: "▾";
+	content: "▾" / ""; /* trình đọc màn hình không đọc mũi tên (summary đã báo mở / đóng) */
+	font-size: 1.1em;
+	transition: transform 0.15s;
+}
+.cadao-loc-nhom[open] > summary::after {
+	transform: rotate(180deg);
+}
+@media (prefers-reduced-motion: reduce) {
+	.cadao-loc-nhom summary::after {
+		transition: none;
+	}
+}
+/* Phân trang danh sách: số trang, Trang trước / sau đủ to để chạm (≥ 44 px, báo cáo E2E, L-07) */
+.wp-block-query-pagination {
+	gap: 0.5rem;
+	flex-wrap: wrap;
+}
+.wp-block-query-pagination a,
+.wp-block-query-pagination .page-numbers {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 44px;
+	min-height: 44px;
+	padding-inline: 0.5rem;
+}
+.wp-block-query-pagination .page-numbers.current {
+	font-weight: 700;
+	border-block-end: 3px solid currentColor;
 }
 .cadao-chips {
 	display: flex;

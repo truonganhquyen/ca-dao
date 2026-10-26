@@ -80,7 +80,7 @@ add_shortcode(
 		if ( ! $bai || CADAO_LOAI_BAI !== $bai->post_type || 'publish' !== $bai->post_status ) {
 			return '<p>Mở một bài ca dao rồi bấm "Viết cảm nhận của bạn" để viết về bài đó.</p>';
 		}
-		$ra  = $bao ? '<p class="cadao-bao-gui" role="alert">' . esc_html( rawurldecode( sanitize_text_field( wp_unslash( $_GET['ly_do'] ?? 'Chưa gửi được.' ) ) ) ) . '</p>' : '';
+		$ra  = $bao ? '<p class="cadao-bao-gui" role="alert">' . esc_html( cadao_bao_gui_tu_ma() ) . '</p>' : '';
 		$ra .= '<p>Bạn viết về: <a href="' . esc_url( get_permalink( $bai ) ) . '"><strong>' . esc_html( get_the_title( $bai ) ) . '</strong></a></p>';
 		$ra .= '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="cadao-form">' . wp_nonce_field( 'cadao_phan_tich', '_wpnonce', true, false );
 		$ra .= '<input type="hidden" name="action" value="cadao_phan_tich"><input type="hidden" name="bai" value="' . (int) $bai->ID . '">';
@@ -103,9 +103,9 @@ add_action( 'admin_post_nopriv_cadao_phan_tich', 'cadao_nhan_phan_tich' );
 
 function cadao_nhan_phan_tich(): void {
 	$p   = wp_unslash( $_POST );
-	$kq  = wp_verify_nonce( (string) ( $p['_wpnonce'] ?? '' ), 'cadao_phan_tich' ) ? cadao_luu_phan_tich( $p ) : 'Trang đã cũ, xin tải lại rồi gửi lại.';
+	$kq  = wp_verify_nonce( (string) ( $p['_wpnonce'] ?? '' ), 'cadao_phan_tich' ) ? cadao_luu_phan_tich( $p ) : CADAO_BAO_GUI['cu'];
 	$url = get_permalink( (int) get_option( 'cadao_trang_viet_phan_tich' ) ) ?: home_url( '/viet-cam-nhan/' );
-	wp_safe_redirect( add_query_arg( array( 'bai' => (int) ( $p['bai'] ?? 0 ) ) + ( is_int( $kq ) ? array( 'phan_tich' => 'da_gui' ) : array( 'phan_tich' => 'loi', 'ly_do' => rawurlencode( $kq ) ) ), $url ) );
+	wp_safe_redirect( add_query_arg( array( 'bai' => (int) ( $p['bai'] ?? 0 ) ) + ( is_int( $kq ) ? array( 'phan_tich' => 'da_gui' ) : array( 'phan_tich' => 'loi', 'ma' => cadao_ma_bao_gui( $kq ) ) ), $url ) );
 	exit;
 }
 
@@ -117,12 +117,12 @@ function cadao_nhan_phan_tich(): void {
 function cadao_luu_phan_tich( array $p ) {
 	$bai = get_post( (int) ( $p['bai'] ?? 0 ) );
 	if ( ! $bai || CADAO_LOAI_BAI !== $bai->post_type ) {
-		return 'Không thấy bài ca dao này.';
+		return CADAO_BAO_GUI['bai'];
 	}
 	$tieu = sanitize_text_field( (string) ( $p['tieu_de'] ?? '' ) );
 	$nd   = sanitize_textarea_field( (string) ( $p['noi_dung'] ?? '' ) );
 	if ( '' === $tieu || mb_strlen( $nd ) < 200 || empty( $p['tu_viet'] ) || empty( $p['dong_y'] ) ) {
-		return 'Xin ghi tiêu đề, bài viết (ít nhất 200 chữ cái), và đánh dấu hai ô cam kết.';
+		return CADAO_BAO_GUI['thieu_pt'];
 	}
 	$kiem = cadao_kiem_gui( $p );
 	if ( true !== $kiem ) {
@@ -139,7 +139,7 @@ function cadao_luu_phan_tich( array $p ) {
 			'meta_input'   => array( '_cadao_bai' => $bai->ID, '_cadao_but_danh' => sanitize_text_field( (string) ( $p['but_danh'] ?? '' ) ), '_cadao_vai_tro' => isset( CADAO_VAI_TRO[ $vt ] ) ? $vt : '', '_cadao_du_an' => false ),
 		)
 	);
-	return is_wp_error( $id ) ? 'Chưa gửi được, xin thử lại.' : (int) $id;
+	return is_wp_error( $id ) ? CADAO_BAO_GUI['loi'] : (int) $id;
 }
 
 // Trang "Viết cảm nhận" tạo một lần

@@ -57,6 +57,8 @@ function cadao_loc_dang( string $bo = '' ): array {
 	return $dang;
 }
 
+const CADAO_DS_MOI_TRANG = 30;
+
 /** Truy vấn chính của trang Tất cả hoặc trang phân loại bài? */
 function cadao_la_truy_van_ds( WP_Query $q ): bool {
 	return $q->is_main_query() && ! is_admin() && ( $q->is_post_type_archive( CADAO_LOAI_BAI ) || $q->is_tax( array_keys( CADAO_LOC ) ) );
@@ -73,6 +75,7 @@ add_action(
 		if ( ! cadao_la_truy_van_ds( $q ) ) {
 			return;
 		}
+		$q->set( 'posts_per_page', CADAO_DS_MOI_TRANG ); // mỗi bài chỉ 2 dòng: ít trang hơn (báo cáo E2E, L-07)
 		$tq = array();
 		foreach ( cadao_loc_dang( $q->is_tax() ? (string) ( $q->get_queried_object()->taxonomy ?? '' ) : '' ) as $tax => $slug ) {
 			$tq[] = array( 'taxonomy' => $tax, 'field' => 'slug', 'terms' => $slug );
@@ -133,7 +136,7 @@ function cadao_html_loc_ds( string $goc, array $dang, string $xep, int $tong, st
 		$ul = '<ul class="cadao-chips" aria-label="' . esc_attr( $ten ) . '">' . $chip . '</ul>';
 		// Vùng, chủ đề nhiều lựa chọn: thu gọn, mở sẵn khi đang lọc theo nhóm đó
 		$nhom .= in_array( $tax, array( 'vung', 'chu_de' ), true )
-			? '<details class="cadao-loc-nhom"' . ( empty( $dang[ $tax ] ) ? '' : ' open' ) . '><summary>' . esc_html( $ten ) . '</summary>' . $ul . '</details>'
+			? '<details class="cadao-loc-nhom"' . ( empty( $dang[ $tax ] ) ? '' : ' open' ) . '><summary>' . esc_html( $ten ) . ' <span class="cadao-chip-so">(' . esc_html( number_format_i18n( count( $ds ) ) ) . ')</span></summary>' . $ul . '</details>'
 			: '<div class="cadao-loc-nhom"><p class="cadao-loc-ten">' . esc_html( $ten ) . '</p>' . $ul . '</div>';
 	}
 	$xep_html = '<p class="cadao-xep">Xếp: '
@@ -222,5 +225,28 @@ add_shortcode(
 		}
 		return '<div class="cadao-ds-trong"><p><strong>Chưa có bài nào ở đây.</strong> Kho đang được bổ sung dần. Bạn có thể <a href="' . esc_url( home_url( '/tim/' ) ) . '">tìm theo vài chữ trong câu</a>'
 			. ( $li ? ', hoặc xem:</p><ul>' . $li . '</ul>' : '.</p>' ) . '</div>';
+	}
+);
+
+/**
+ * [cadao_404]: trang không tìm thấy (mẫu 404 của theme; báo cáo E2E, L-06) — ô tìm điền sẵn chữ lấy từ đường dẫn
+ * (đường dẫn bài là lời bỏ dấu: /ca-dao/cong-cha-nhu-nui/ → "cong cha nhu nui"), lối sang Tất cả bài, Từ điển.
+ */
+add_shortcode(
+	'cadao_404',
+	static function () {
+		$duong = (string) wp_parse_url( (string) wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ), PHP_URL_PATH );
+		$cuoi  = basename( untrailingslashit( $duong ) );
+		$goi_y = preg_replace( '/-\d+$/', '', sanitize_title( rawurldecode( $cuoi ) ) ); // bỏ đuôi -2
+		$goi_y = mb_substr( trim( str_replace( '-', ' ', (string) $goi_y ) ), 0, 80 );
+		return '<p>Câu này có thể đã đổi đường dẫn. Thử tìm vài chữ trong câu, có dấu hay không dấu đều được.</p>'
+			. '<form class="cadao-tim" role="search" method="get" action="' . esc_url( home_url( '/tim/' ) ) . '">'
+			. '<label for="cadao-404-o" class="screen-reader-text">Tìm câu ca dao, tục ngữ</label>'
+			. '<input id="cadao-404-o" type="search" name="q" value="' . esc_attr( $goi_y ) . '" placeholder="Gõ vài chữ trong câu" enterkeyhint="search">'
+			. '<button type="submit">Tìm</button></form>'
+			. '<ul class="cadao-404-loi">'
+			. '<li><a href="' . esc_url( home_url( '/kho/' ) ) . '">Tất cả bài</a></li>'
+			. '<li><a href="' . esc_url( home_url( '/tu-dien/' ) ) . '">Từ điển</a></li>'
+			. '<li><a href="' . esc_url( home_url( '/' ) ) . '">Trang chủ</a></li></ul>';
 	}
 );

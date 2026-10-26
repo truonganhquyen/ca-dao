@@ -39,25 +39,50 @@ function cadao_o_chong_rac(): string {
 }
 
 /**
+ * Lời báo khi gửi chưa được (góp ý, bài cảm nhận). Địa chỉ trang chỉ mang mã (?ma=…), câu báo tra trong bảng này —
+ * không ai tạo được liên kết làm site hiện một câu bất kỳ (báo cáo E2E, L-01).
+ */
+const CADAO_BAO_GUI = array(
+	'cu'        => 'Trang đã cũ, xin tải lại rồi gửi lại.',
+	'bai'       => 'Không thấy bài này.',
+	'thieu_gy'  => 'Xin chọn loại góp ý, ghi nội dung và đánh dấu đồng ý.',
+	'thieu_pt'  => 'Xin ghi tiêu đề, bài viết (ít nhất 200 chữ cái), và đánh dấu hai ô cam kết.',
+	'bay'       => 'Không gửi được.',
+	'nhieu'     => 'Bạn đã gửi nhiều lần trong giờ này. Xin thử lại sau ít phút.',
+	'turnstile' => 'Chưa qua bước kiểm tra chống tin rác. Xin thử lại.',
+	'loi'       => 'Chưa gửi được, xin thử lại.',
+);
+
+/** Mã của một lời báo (lời không có trong bảng → 'loi'). */
+function cadao_ma_bao_gui( string $bao ): string {
+	return (string) ( array_search( $bao, CADAO_BAO_GUI, true ) ?: 'loi' );
+}
+
+/** Lời báo theo mã trong địa chỉ trang (mã lạ → lời chung). */
+function cadao_bao_gui_tu_ma(): string {
+	return CADAO_BAO_GUI[ sanitize_key( wp_unslash( $_GET['ma'] ?? '' ) ) ] ?? CADAO_BAO_GUI['loi'];
+}
+
+/**
  * Kiểm một lần gửi: ô bẫy trống, chưa quá số lần mỗi giờ, Turnstile đạt (khi có khóa).
  *
  * @return true|string true hoặc lời báo lỗi cho người đọc
  */
 function cadao_kiem_gui( array $du_lieu ) {
 	if ( '' !== trim( (string) ( $du_lieu['cadao_web'] ?? '' ) ) ) {
-		return 'Không gửi được.'; // ô bẫy có chữ: máy tự động
+		return CADAO_BAO_GUI['bay']; // ô bẫy có chữ: máy tự động
 	}
 	$khoa = 'cadao_gui_' . substr( wp_hash( cadao_ip_nguoi_gui() . gmdate( 'YmdH' ) ), 0, 20 ); // chỉ dấu băm, hết hạn sau một giờ
 	$so   = (int) get_transient( $khoa );
 	if ( $so >= CADAO_GUI_MOI_GIO ) {
-		return 'Bạn đã gửi nhiều lần trong giờ này. Xin thử lại sau ít phút.';
+		return CADAO_BAO_GUI['nhieu'];
 	}
 	$t = cadao_turnstile();
 	if ( '' !== $t['bi_mat'] ) {
 		$tl = wp_remote_post( 'https://challenges.cloudflare.com/turnstile/v0/siteverify', array( 'timeout' => 10, 'body' => array( 'secret' => $t['bi_mat'], 'response' => (string) ( $du_lieu['cf-turnstile-response'] ?? '' ) ) ) );
 		$j  = is_wp_error( $tl ) ? null : json_decode( wp_remote_retrieve_body( $tl ), true );
 		if ( empty( $j['success'] ) ) {
-			return 'Chưa qua bước kiểm tra chống tin rác. Xin thử lại.';
+			return CADAO_BAO_GUI['turnstile'];
 		}
 	}
 	set_transient( $khoa, $so + 1, HOUR_IN_SECONDS );
@@ -145,7 +170,7 @@ function cadao_form_gop_y( WP_Post $bai ): string {
 	if ( 'da_gui' === $bao ) {
 		$ra .= '<p class="cadao-bao-gui" role="status"><strong>Cảm ơn bạn!</strong> Góp ý đã tới người biên soạn; sẽ hiện trên trang khi được duyệt.</p>';
 	} elseif ( $bao ) {
-		$ra .= '<p class="cadao-bao-gui" role="alert">' . esc_html( rawurldecode( sanitize_text_field( wp_unslash( $_GET['ly_do'] ?? 'Chưa gửi được.' ) ) ) ) . '</p>';
+		$ra .= '<p class="cadao-bao-gui" role="alert">' . esc_html( cadao_bao_gui_tu_ma() ) . '</p>';
 	}
 	$ra .= '<p class="cadao-gop-y-nut cadao-can-js" hidden>';
 	foreach ( array( 'di_ban' => 'Ở quê bạn câu này nói khác?', 'chu_thich' => 'Góp ý chú thích', 'bao_loi' => 'Báo lỗi', 'so_trang' => 'Bạn có sách? Gửi số trang' ) as $k => $nhan ) {
@@ -178,8 +203,8 @@ add_action( 'admin_post_nopriv_cadao_gop_y', 'cadao_nhan_gop_y' );
 function cadao_nhan_gop_y(): void {
 	$p   = wp_unslash( $_POST );
 	$bai = get_post( (int) ( $p['bai'] ?? 0 ) );
-	$kq  = wp_verify_nonce( (string) ( $p['_wpnonce'] ?? '' ), 'cadao_gop_y' ) ? cadao_luu_gop_y( $p ) : 'Trang đã cũ, xin tải lại rồi gửi lại.';
-	wp_safe_redirect( add_query_arg( is_int( $kq ) ? array( 'gop_y' => 'da_gui' ) : array( 'gop_y' => 'loi', 'ly_do' => rawurlencode( $kq ) ), $bai ? get_permalink( $bai ) : home_url( '/' ) ) . '#gop-y' );
+	$kq  = wp_verify_nonce( (string) ( $p['_wpnonce'] ?? '' ), 'cadao_gop_y' ) ? cadao_luu_gop_y( $p ) : CADAO_BAO_GUI['cu'];
+	wp_safe_redirect( add_query_arg( is_int( $kq ) ? array( 'gop_y' => 'da_gui' ) : array( 'gop_y' => 'loi', 'ma' => cadao_ma_bao_gui( $kq ) ), $bai ? get_permalink( $bai ) : home_url( '/' ) ) . '#gop-y' );
 	exit;
 }
 
@@ -191,12 +216,12 @@ function cadao_nhan_gop_y(): void {
 function cadao_luu_gop_y( array $p ) {
 	$bai = get_post( (int) ( $p['bai'] ?? 0 ) );
 	if ( ! $bai || CADAO_LOAI_BAI !== $bai->post_type ) {
-		return 'Không thấy bài này.';
+		return CADAO_BAO_GUI['bai'];
 	}
 	$loai = sanitize_key( $p['loai'] ?? '' );
 	$nd   = trim( sanitize_textarea_field( (string) ( $p['noi_dung'] ?? '' ) ) );
 	if ( ! isset( CADAO_KIEU_GOP_Y[ $loai ] ) || '' === $nd || empty( $p['dong_y'] ) ) {
-		return 'Xin chọn loại góp ý, ghi nội dung và đánh dấu đồng ý.';
+		return CADAO_BAO_GUI['thieu_gy'];
 	}
 	$kiem = cadao_kiem_gui( $p );
 	if ( true !== $kiem ) {
@@ -219,7 +244,7 @@ function cadao_luu_gop_y( array $p ) {
 			),
 		)
 	);
-	return is_wp_error( $id ) ? 'Chưa gửi được, xin thử lại.' : (int) $id;
+	return is_wp_error( $id ) ? CADAO_BAO_GUI['loi'] : (int) $id;
 }
 
 // Danh sách góp ý trong trang quản trị: loại, bài, người kể, nơi nghe

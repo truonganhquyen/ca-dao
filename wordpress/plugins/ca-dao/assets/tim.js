@@ -24,6 +24,8 @@
 	var KHOA = 'cadao-tim-gan-day';
 	var boDau = function (s) { return s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase(); };
 	var e = function (s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
+	/** Chữ gọn để so tên bài với dòng đầu (như cadao_chuan_loi: chữ thường, bỏ dấu câu, gộp khoảng trắng). */
+	var gon = function (s) { return (s || '').toLowerCase().replace(/[^\p{L}\p{M}\p{N}\s]/gu, ' ').replace(/\s+/g, ' ').trim(); };
 
 	/** Tô các từ của truy vấn trong một chuỗi (so khi đã bỏ dấu, giữ nguyên chữ gốc). */
 	var to = function (chu, q) {
@@ -50,11 +52,18 @@
 			}).join('') + '</ul>';
 		}
 		if (d.bai.length) {
-			h += '<h2 class="cadao-tim-nhom">' + (d.tong > d.bai.length ? d.bai.length + ' trên ' + d.tong + ' bài — gõ thêm chữ để thu hẹp' : d.bai.length + ' bài') + '</h2><ul class="cadao-tim-ds">' + d.bai.map(function (b) {
-				return '<li><a href="' + e(b.url) + '"><strong>' + to(b.dong_dau || b.tieu_de, d.q) + '</strong></a> <span class="cadao-tim-phu">· ' + e(b.the_loai) + (b.muc_kiem ? ' · ' + e(b.muc_kiem) : '') + '</span>' + (b.so_lieu || '')
-					+ (b.dong_khop ? '<br><span class="cadao-tim-khop">… ' + to(b.dong_khop, d.q) + '</span>' : '')
+			// Tên bài, rồi dòng có chữ khớp hoặc dòng đầu (cùng dạng với cadao_tim_html)
+			var muc = function (b) {
+				var dong = b.dong_khop ? '… ' + to(b.dong_khop, d.q) : (gon(b.dong_dau) !== gon(b.tieu_de) ? to(b.dong_dau, d.q) : '');
+				return '<li><a href="' + e(b.url) + '"><strong>' + to(b.tieu_de, d.q) + '</strong></a> <span class="cadao-tim-phu">· ' + e(b.the_loai) + (b.muc_kiem ? ' · ' + e(b.muc_kiem) : '') + '</span>' + (b.so_lieu || '')
+					+ (dong ? '<br><span class="cadao-tim-khop">' + dong + '</span>' : '')
 					+ (b.hieu_nhanh ? '<br><span class="cadao-tim-phu">' + e(b.hieu_nhanh) + '</span>' : '') + '</li>';
-			}).join('') + '</ul>';
+			};
+			var lien = d.bai.filter(function (b) { return !b.roi; });
+			var roi = d.bai.filter(function (b) { return b.roi; });
+			h += '<h2 class="cadao-tim-nhom">' + (d.tong > d.bai.length ? d.bai.length + ' trên ' + d.tong + ' bài — gõ thêm chữ để thu hẹp' : d.bai.length + ' bài') + '</h2>'
+				+ (lien.length ? '<ul class="cadao-tim-ds">' + lien.map(muc).join('') + '</ul>' : '')
+				+ (roi.length ? '<h3 class="cadao-tim-nhom cadao-tim-roi">Có các chữ này nhưng không liền nhau</h3><ul class="cadao-tim-ds">' + roi.map(muc).join('') + '</ul>' : '');
 		}
 		kq.innerHTML = h;
 	};

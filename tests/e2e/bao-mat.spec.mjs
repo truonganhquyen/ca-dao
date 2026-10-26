@@ -11,7 +11,7 @@ test('HTTPS: có HSTS, nosniff, chống nhúng khung', async ({ request }) => {
 });
 
 test('L-16 XML-RPC tắt (không trả danh sách phương thức)', async ({ request }) => {
-  test.fail(true, 'L-16: POST /xmlrpc.php trả system.multicall, pingback… — đường dò mật khẩu hàng loạt');
+  // Đã sửa (plugin 0.29.0, inc/an-toan.php) — kiểm thử bảo vệ
   const r = await request.post('/xmlrpc.php', { headers: { 'content-type': 'text/xml' }, data: '<?xml version="1.0"?><methodCall><methodName>system.listMethods</methodName></methodCall>' });
   expect(await r.text()).not.toContain('system.multicall');
 });
@@ -28,7 +28,7 @@ test('site còn chặn Google tới khi người sáng lập quyết mở (H5)',
 });
 
 test('L-03 không lộ tên đăng nhập (REST users, ?author=1, thông báo đăng nhập)', async ({ request }) => {
-  test.fail(true, 'L-03: /wp-json/wp/v2/users và /?author=1 cho biết tên đăng nhập quản trị; trang đăng nhập phân biệt "sai tên" với "sai mật khẩu"');
+  // Đã sửa (plugin 0.29.0, inc/an-toan.php) — kiểm thử bảo vệ
   const u = await request.get('/wp-json/wp/v2/users');
   const ds = u.status() === 200 ? await u.json() : [];
   expect(Array.isArray(ds) ? ds.length : 0).toBe(0);
@@ -40,7 +40,7 @@ test('L-03 không lộ tên đăng nhập (REST users, ?author=1, thông báo đ
 });
 
 test('L-01 tham số ly_do không cho người ngoài chèn chữ vào trang bài', async ({ page }, ti) => {
-  test.fail(true, 'L-01: ?gop_y=loi&ly_do=<chữ bất kỳ> hiện nguyên văn trong khung báo lỗi của site');
+  // Đã sửa (plugin 0.29.0: ?ma= thay ?ly_do=) — kiểm thử bảo vệ
   const chen = 'Tài khoản của bạn bị khóa, gọi 0900000000';
   await page.route(/\/wp-json\/cadao\/v1\/(luot-doc|su-kien)/, r => r.abort());
   await page.goto(`${BAI.docNhieu}?gop_y=loi&ly_do=${encodeURIComponent(chen)}#gop-y`);

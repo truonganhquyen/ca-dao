@@ -67,7 +67,7 @@ test.describe('Tìm', () => {
   });
 
   test('L-04 kết quả tìm cho thấy chữ người đọc đã gõ (tìm theo tên bài vè)', async ({ page }, ti) => {
-    test.fail(true, 'L-04: kết quả chỉ hiện dòng đầu; tìm "bang ninh" ra "Cầu Ngu, Trung Lễ xưa nay", không thấy tên bài');
+    // Đã sửa (plugin 0.29.0: kết quả hiện tên bài) — kiểm thử bảo vệ
     await page.goto('/tim/');
     await page.locator('#cadao-tim-o').pressSequentially('bang ninh', { delay: 60 });
     await expect(page.locator('.cadao-tim-kq')).toContainText('1 bài');
@@ -94,7 +94,7 @@ test.describe('Danh sách, lọc', () => {
   });
 
   test('L-02 nhóm lọc Vùng, Chủ đề có dấu hiệu mở được (mũi tên)', async ({ page }, ti) => {
-    test.fail(true, 'L-02: summary display:flex làm mất mũi tên ▸ — trông như tiêu đề rỗng');
+    // Đã sửa (theme 0.16.0: mũi tên ▾) — kiểm thử bảo vệ
     await page.goto('/kho/');
     const tom = page.locator('details.cadao-loc-nhom > summary').first();
     await chup(page, 'loc-vung-chu-de', ti);
@@ -116,7 +116,7 @@ test.describe('Danh sách, lọc', () => {
   });
 
   test('L-07 phân trang: số trang đủ lớn để chạm (≥ 24 px)', async ({ page }, ti) => {
-    test.fail(true, 'L-07: số trang 1 2 3 … 18 là chữ nhỏ ~10×20 px; 171 bài chia 18 trang');
+    // Đã sửa (theme 0.16.0: 30 bài/trang, số trang ≥ 44 px) — kiểm thử bảo vệ
     await page.goto('/kho/');
     const so = page.locator('.wp-block-query-pagination-numbers a').first();
     await so.scrollIntoViewIfNeeded();
@@ -170,8 +170,9 @@ test.describe('Trang bài', () => {
   });
 
   test('L-05 cuối bài có gợi ý đọc tiếp (bài liên quan)', async ({ page }, ti) => {
-    test.fail(true, 'L-05: trang bài không có "Bài liên quan / cùng chủ đề" — người đọc hết đường');
+    // Đã sửa: khối "Đọc tiếp" (D-075, plugin 0.29.0) — kiểm thử bảo vệ
     await page.goto(BAI.docNhieu);
+    await expect(page.getByRole('heading', { name: 'Đọc tiếp' })).toBeVisible();
     await chup(page, 'cuoi-bai', ti, { toanTrang: true });
     const lienKetBai = await page.locator('main a[href*="/ca-dao/"], main a[href*="/ve/"]').evaluateAll(
       (as, chinh) => new Set(as.map(a => new URL(a.href).pathname).filter(p => p !== chinh)).size, BAI.docNhieu); // bài khác, không tính liên kết góp ý của chính bài
@@ -214,7 +215,7 @@ test.describe('404', () => {
   });
 
   test('L-06 trang 404 đúng giọng site: không ảnh mẫu của theme, nút Tìm không bị cắt, có lối đi tiếp', async ({ page }) => {
-    test.fail(true, 'L-06: 404 là mẫu mặc định Twenty Twenty-Five (ảnh cây 115 KB, "Nhập tại đây…", nút "Tìm kiếm" vỡ dòng)');
+    // Đã sửa (theme 0.16.0: templates/404.html) — kiểm thử bảo vệ
     await page.goto('/khong-co-trang-nay-e2e/');
     await expect(page.locator('main img')).toHaveCount(0);
     await expect(page.locator('main a[href$="/kho/"]')).toBeVisible();
