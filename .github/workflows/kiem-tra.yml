@@ -43,6 +43,12 @@ jobs:
       - name: Kiểm thử plugin WordPress
         run: node scripts/test-wordpress.mjs
 
+      # Ảnh chia sẻ (T-050): Playground không vẽ được chữ bằng GD — vẽ bằng PHP của máy CI (có GD + FreeType)
+      - name: Kiểm thử vẽ ảnh chia sẻ
+        run: |
+          php -r 'exit(function_exists("imagettfbbox") ? 0 : 1);' || sudo apt-get install -y php-gd
+          node scripts/test-anh-chia-se.mjs
+
       - name: Cài gói (axe-core, puppeteer-core cho bước quét)
         run: npm ci
 

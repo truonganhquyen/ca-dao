@@ -243,6 +243,12 @@ try {
   const baiTay = bai.map(b => new URL(b.link).pathname).find(d => /bai-nhap-tay-mau/.test(d));
   await tuTab.goto(G + baiTay, { waitUntil: 'load' });
   kiem('mức kiểm: dòng đứng ngay sau lời, trước Hiểu nhanh; nêu sách đã đối chiếu', await tuTab.evaluate(() => { const m = document.querySelector('.cadao-muc-kiem'); return !!m && m.previousElementSibling?.tagName === 'PRE' && m.nextElementSibling?.classList.contains('cadao-hieu-nhanh') && /Lời đã đối chiếu với Sách mẫu tổng hợp, tr\. 12/.test(m.textContent); }));
+  // SEO (T-050): mô tả, Open Graph, JSON-LD đọc được trong <head> của trang thật
+  const seo = await tuTab.evaluate(() => {
+    const ld = [...document.querySelectorAll('script[type="application/ld+json"]')].map(s => { try { return JSON.parse(s.textContent); } catch { return null; } });
+    return { mt: document.querySelector('meta[name="description"]')?.content || '', og: document.querySelector('meta[property="og:title"]')?.content || '', ld: ld[0]?.['@graph']?.map(x => x['@type']) || [], loi: ld.includes(null), gen: !!document.querySelector('meta[name="generator"]') };
+  });
+  kiem(`SEO trang bài: mô tả, og:title, JSON-LD CreativeWork + BreadcrumbList (${seo.ld.join(', ')}), không lộ generator`, seo.mt.length > 20 && seo.og === 'Bài nhập tay mẫu' && seo.ld.includes('CreativeWork') && seo.ld.includes('BreadcrumbList') && !seo.loi && !seo.gen);
   await tuTab.goto(G + baiDiBan, { waitUntil: 'load' });
   kiem('mức kiểm: bài tự động ghi "chưa đối chiếu sách"', /chưa đối chiếu sách/.test(await tuTab.$eval('.cadao-muc-kiem', m => m.textContent).catch(() => '')));
   // Điều hướng, danh sách (T-120): trang Tất cả xếp A–Z, chip lọc, thanh dưới trên điện thoại
@@ -262,6 +268,7 @@ try {
   const chip = await tuTab.$eval('.cadao-chip', a => a.getAttribute('href')).catch(() => '');
   if (chip) {
     await tuTab.goto(chip.startsWith('http') ? chip : G + chip, { waitUntil: 'load' });
+    kiem('danh sách đã lọc: noindex (tránh trang trùng lặp)', await tuTab.evaluate(() => /noindex/.test(document.querySelector('meta[name="robots"]')?.content || '')));
     kiem('lọc: bấm chip thì vẫn ở trang Tất cả, đường dẫn có tham số, chip có ✓ và aria-current, danh sách ít đi hoặc bằng', await tuTab.evaluate(n => /[?&](loai|the|mien|chude)=/.test(location.search) && document.querySelector('h1')?.textContent.trim() === 'Tất cả bài' && !!document.querySelector('.cadao-chip[aria-current="true"]') && document.querySelectorAll('.cadao-ds-bai h3').length <= n, ds.ten.length));
   } else {
     kiem('lọc: có chip để lọc', false);

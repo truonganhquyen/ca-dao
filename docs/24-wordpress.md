@@ -153,6 +153,7 @@ WordPress Playground (PHP 8.5 — như máy chủ — chạy bằng WebAssembly,
 
 ```bash
 npm run test:wordpress            # kiểm thử plugin (CI chạy ở job "wordpress"); thêm -- --mang để thử bộ đọc trên cadao.me thật
+npm run test:anh                  # vẽ ảnh chia sẻ bằng PHP thật có GD + FreeType (Playground không vẽ được chữ); CADAO_PHP=<đường dẫn php>
 npm run quet:wordpress           # quét trợ năng theme (WCAG 2.2 AA) trên bài mẫu tổng hợp; -- --anh <thư-mục> lưu ảnh chụp
 npx @wp-playground/cli@3.1.57 server --port=9411 --blueprint=wordpress/blueprint.json \
   --mount-dir wordpress/plugins/ca-dao /wordpress/wp-content/plugins/ca-dao \
