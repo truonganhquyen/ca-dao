@@ -10,7 +10,7 @@ set -euo pipefail
 
 NHANH=${NHANH:-main}
 PHP=php8.5
-WP=/home/cadao/cadao.sdigi.net
+WP=/home/cadao/phongdao.com
 T=$(mktemp -d "$WP/wp-content/.tai-XXXXXX")      # WordPress bỏ qua thư mục bắt đầu bằng dấu chấm
 trap 'rm -rf "$T" "$WP/wp-content/plugins/.ca-dao-cu" "$WP/wp-content/themes/.ca-dao-cu"' EXIT
 wp() { "$PHP" -d error_reporting=0 /home/cadao/bin/wp-cli.phar --path="$WP" "$@"; }
@@ -21,7 +21,7 @@ curl -fsSL "https://codeload.github.com/truonganhquyen/ca-dao/tar.gz/$ref" |
 test -f "$T/plugins/ca-dao/ca-dao.php"
 find "$T" -name '*.php' -print0 | xargs -0 -n1 "$PHP" -l >/dev/null
 
-trang_chu() { curl -s -o /dev/null -w '%{http_code}' -m 30 --resolve cadao.sdigi.net:443:127.0.0.1 https://cadao.sdigi.net/; }
+trang_chu() { curl -s -o /dev/null -w '%{http_code}' -m 30 --resolve phongdao.com:443:127.0.0.1 https://phongdao.com/; }
 
 thay=()
 moi_bat=

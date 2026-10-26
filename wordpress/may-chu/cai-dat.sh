@@ -6,7 +6,7 @@
 set -euo pipefail
 
 TK=cadao                                  # tài khoản Linux của site (FlashPanel "Update Owner")
-D=/home/$TK/cadao.sdigi.net               # thư mục WordPress
+D=/home/$TK/phongdao.com                 # thư mục WordPress (đổi từ cadao.sdigi.net khi chuyển tên miền, T-116)
 PHP=php8.5
 WPCLI_BAN=2.12.0
 NHANH=${NHANH:-main}                      # nhánh GitHub lấy plugin (thử một nhánh: NHANH=<nhánh> bash -s)
@@ -73,7 +73,7 @@ wp rewrite flush
 
 echo "== Cron thật: lịch WordPress mỗi phút (Nguồn tự động cần 5 phút một lượt); tự cập nhật từ main mỗi 5 phút (T-078)"
 cat > /etc/cron.d/cadao-wordpress <<CRON
-# T-075: lịch WordPress của cadao.sdigi.net (wp-config: DISABLE_WP_CRON)
+# T-075: lịch WordPress của phongdao.com (wp-config: DISABLE_WP_CRON)
 * * * * * $TK flock -n /home/$TK/.wp-cron.lock $PHP -d error_reporting=0 /home/$TK/bin/wp-cli.phar --path=$D cron event run --due-now --quiet
 */5 * * * * $TK flock -n /home/$TK/.cap-nhat.lock bash /home/$TK/bin/tu-cap-nhat.sh >> /home/$TK/cap-nhat.log 2>&1
 CRON
