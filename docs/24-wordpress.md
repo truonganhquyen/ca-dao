@@ -45,6 +45,7 @@ wordpress/
 │   ├── inc/khoi-tho.php     lời dán vào khối Đoạn văn → đề xuất đưa vào khối Thơ, trang "Lời chưa vào khối Thơ" (T-112)
 │   ├── inc/ban-bien-tap.php trang "Bàn biên tập": mọi hàng chờ, số đếm, nút Mở; ô "việc chờ bạn" trên Bảng tin (T-047)
 │   ├── inc/sua-muc-tu.php   trang Sửa mục từ: nguồn của lời giải, ảnh riêng / ẩn ảnh Wikidata (T-113)
+│   ├── inc/chinh-sach-du-lieu.php  trang "Chính sách thu thập dữ liệu"; dọn dòng Nguồn dưới chú thích chép (D-068, T-114)
 │   ├── inc/tach-loai.php    gợi ý tách thành ngữ / tục ngữ, trang duyệt hàng loạt, chuyển hướng đường dẫn cũ (T-080)
 │   ├── inc/site-cu.php      chuyển bài công khai của site Astro cũ, qua bước chống trùng (T-076)
 │   ├── inc/the-tho.php      nhận thể thơ theo số âm tiết, phân loại "Thể thơ" để lọc (T-084)
@@ -139,7 +140,7 @@ Kiểu bộ đọc: `cadao_me` (T-073) — (1) tên chủ đề, (2) ca dao qua 
 
 - **Lời chép nguyên văn bằng máy, không qua AI**; AI không viết lời, dị bản, nguồn.
 - **Lời không ghi nguồn** (D-057); không tự điền nguồn cho bài nhập tay.
-- **Chú thích, lời giải** chỉ chép khi công tắc của nguồn đang bật (D-055); dòng "Nguồn: … ↗" dưới đó trỏ đúng trang đã lấy, tắt được bằng công tắc "Ghi nguồn cho chú thích" (D-057).
+- **Chú thích, lời giải** chỉ chép khi công tắc của nguồn đang bật (D-055); dòng "Nguồn: … ↗" dưới đó trỏ đúng trang đã lấy, tắt được bằng công tắc "Ghi nguồn cho chú thích" (D-057). **Từ D-068 (26/10/2026):** "Ghi nguồn cho chú thích" mặc định tắt; bài, mục từ đã đăng được dọn dần (mỗi lượt lấy bài 5 phút, tối đa 25 giây); danh sách chú thích chép mang lớp `cadao-chep` (mục từ chép giữ `noindex`, trường `_cadao_chep`); nguồn ghi nhận ở trang `/chinh-sach-du-lieu/` (mã ngắn `[cadao_nguon]`).
 - **Không tải ảnh** của nguồn; không chép cách phân loại, bộ thẻ ra trang.
 - **Google:** bài chưa có "Hiểu nhanh" (đoạn trích do dự án viết) mang `noindex` — lời và chú thích chép từ nguồn không tính là giá trị riêng (chính sách spam của Google về nội dung sao chép). Người đọc vẫn xem được. Từ D-062: bài có ít nhất một bài phân tích của người đọc đã duyệt cũng được tính là có giá trị riêng (T-097).
 - Không thông tin cá nhân trong nội dung.

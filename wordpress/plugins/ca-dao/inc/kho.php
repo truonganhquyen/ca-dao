@@ -222,7 +222,8 @@ function cadao_khoi_doan( string $html, string $lop = '' ): string {
 /**
  * Nội dung bài từ một mục kho: lời (khối Thơ) → câu hỏi/đáp án (câu đố) → dị bản → chú thích.
  * Chú thích và lời giải (đáp án câu đố) chỉ chép khi nguồn bật "Chép chú thích" (D-055); dưới phần chép là một dòng
- * "Nguồn: …" về trang gốc khi nguồn bật "Ghi nguồn cho chú thích" (D-057). Lời, dị bản không ghi nguồn.
+ * "Nguồn: …" về trang gốc khi nguồn bật "Ghi nguồn cho chú thích" (D-057; mặc định tắt từ D-068). Danh sách chú thích chép
+ * mang lớp cadao-chep (không hiện ra trang): mục từ chép vẫn noindex, gộp bài không coi là chú thích tự viết. Lời, dị bản không ghi nguồn.
  */
 function cadao_noi_dung_tu_kho( object $muc, array $nguon ): string {
 	$d    = json_decode( $muc->du_lieu, true ) ?: array();
@@ -277,7 +278,7 @@ function cadao_noi_dung_tu_kho( object $muc, array $nguon ): string {
 				$khoi[]  = cadao_khoi_tieu_de( 'Chú thích' );
 				$tieu_de = true;
 			}
-			$khoi[] = "<!-- wp:list {\"className\":\"cadao-chu-thich\"} -->\n<ul class=\"wp-block-list cadao-chu-thich\">\n$muc_li</ul>\n<!-- /wp:list -->";
+			$khoi[] = "<!-- wp:list {\"className\":\"cadao-chu-thich cadao-chep\"} -->\n<ul class=\"wp-block-list cadao-chu-thich cadao-chep\">\n$muc_li</ul>\n<!-- /wp:list -->";
 		}
 		if ( ! empty( $p['n']['ghi_cong'] ) && ( '' !== $muc_li || $i === $dap ) ) {
 			$khoi[] = cadao_khoi_doan( sprintf( 'Nguồn: <a href="%s" rel="noopener">%s <span aria-hidden="true">↗</span></a>', esc_url( $p['m']->url ), esc_html( $p['n']['dong_ghi_nguon'] ?: $p['n']['ten'] ) ), 'cadao-chu-thich-nguon' );

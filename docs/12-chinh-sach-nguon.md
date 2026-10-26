@@ -33,6 +33,8 @@
 
 ## 3. Cách ghi nguồn
 
+**Trên site WordPress (D-068, 26/10/2026):** chú thích, đáp án chép từ nguồn tự động (cadao.me) không còn dòng "Nguồn: …" dưới từng mục; các trang đã thu thập được ghi nhận ở trang **Chính sách thu thập dữ liệu** (`/chinh-sach-du-lieu/`). Ghi công theo giấy phép mở (CC BY-SA) vẫn ngay tại chỗ. Các mục dưới đây là quy ước của site Astro cũ, giữ làm tham khảo.
+
 - Mỗi tư liệu một tệp `content/nguon/src-<slug>.yaml` (mẫu: `templates/nguon.yaml`).
 - **Sách, tạp chí, luận văn, bản quét:** số trang ghi ở **chỗ dùng** (`nguon[].trang`). Hai lần in khác nhau → hai tệp nguồn, ghi rõ `tai_ban`. `da_xac_minh_ban_in: true` chỉ khi đã đối chiếu **toàn bộ** thông tin thư mục (R17).
 - **Trang web:** tệp nguồn ghi trang chủ ở `url`; mỗi chỗ dùng ghi `url` của **đúng trang** đã lấy, `ngay_truy_cap`, và `ban_luu_tru` (bản lưu Wayback Machine) cho lời của bài công khai (R22). Trang gốc có mất thì vẫn chứng minh được.
