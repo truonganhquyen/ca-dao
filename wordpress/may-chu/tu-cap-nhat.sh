@@ -18,6 +18,9 @@ for f in cap-nhat-plugin.sh tu-cap-nhat.sh; do
 done
 if NHANH=$sha bash "$B/cap-nhat-plugin.sh"; then
 	echo "$sha" > "$H/.cap-nhat-sha"
+	# Lịch sử các bản đã lên site (mới nhất ở cuối) — để quay lại bản trước: docs/huong-dan/quay-lai-ban-truoc.md
+	echo "$(date '+%F %T') $sha" >> "$H/.cap-nhat-lich-su"
+	tail -n 50 "$H/.cap-nhat-lich-su" > "$H/.cap-nhat-lich-su.moi" && mv "$H/.cap-nhat-lich-su.moi" "$H/.cap-nhat-lich-su"
 else
 	echo "$sha" > "$H/.cap-nhat-loi"
 fi

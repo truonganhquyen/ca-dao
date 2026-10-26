@@ -19,7 +19,7 @@ Ca dao Mẹ · bật · 20 bài/ngày     ──lấy theo lịch──►  lờ
 
 - **Nhập tay:** "Ca dao – Tục ngữ → Thêm mới": gõ tiêu đề, dán lời vào khối thơ, chọn thể loại → **Đăng**. Mọi ô khác tùy chọn.
 - **Tự động:** bài vào trạng thái **Chờ duyệt** (Pending Review có sẵn của WordPress). Duyệt từng bài hoặc chọn nhiều bài → Sửa hàng loạt → Đã xuất bản.
-- **Không chặn đăng vì lý do biên tập** (D-054). Không có "nhãn mức kiểm"; **lời ca dao, tục ngữ không ghi nguồn**; dòng **"Nguồn: … ↗"** chỉ hiện dưới chú thích, lời giải chép từ nguồn (tùy chọn) hoặc khi người viết tự điền hộp Nguồn (D-057).
+- **Không chặn đăng vì lý do biên tập** (D-054). Không có huy hiệu mức kiểm; dưới lời có **một dòng "lời và mức kiểm" do máy tính** (D-072, T-119): mặc định "chưa đối chiếu sách", chỉ thành "Đã đối chiếu: …" khi người biên soạn tự điền hộp Nguồn; **lời ca dao, tục ngữ không ghi nguồn web**; dòng **"Nguồn: … ↗"** chỉ hiện dưới chú thích, lời giải chép từ nguồn (tùy chọn) hoặc khi người viết tự điền hộp Nguồn (D-057).
 
 ## 2. Thành phần (mã trong repo này)
 
@@ -171,7 +171,7 @@ Trên Windows (Git Bash) đặt `MSYS_NO_PATHCONV=1` để Git Bash không đổ
 
 ## 8. Máy chủ (T-074, T-075)
 
-**cadao.sdigi.net** — VPS của người sáng lập (Ubuntu 24.04), quản lý bằng **FlashPanel** (gói miễn phí), web server Apache + PHP-FPM, MariaDB 10.11. Tên miền qua Cloudflare (proxy bật, chứng chỉ Let's Encrypt do FlashPanel cấp và gia hạn). VPS còn chạy **các site khác của người sáng lập**: chỉ đụng tới site cadao.
+**phongdao.com** (D-070; trước 26/10/2026 là cadao.sdigi.net, nay chuyển hướng 301) — VPS của người sáng lập (Ubuntu 24.04), quản lý bằng **FlashPanel** (gói miễn phí), web server Apache + PHP-FPM, MariaDB 10.11. Tên miền qua Cloudflare (proxy bật, chứng chỉ Let's Encrypt do FlashPanel cấp và gia hạn). VPS còn chạy **các site khác của người sáng lập**: chỉ đụng tới site cadao.
 
 | Thành phần | Cách làm |
 |---|---|
@@ -179,7 +179,7 @@ Trên Windows (Git Bash) đặt `MSYS_NO_PATHCONV=1` để Git Bash không đổ
 | **Cách ly** | Gói miễn phí không có ô "Website Isolation" khi tạo site → *Cài Đặt → Update Owner* `cadao`: FlashPanel tạo tài khoản Linux riêng, pool PHP riêng, thêm vào nhóm `isolated` (ACL chặn vào `/home` của site khác) |
 | Bổ sung cách ly | `cai-dat.sh` gỡ `cadao` khỏi nhóm `www-data` (nhóm đó gửi lệnh được tới pool PHP chung của các site khác), `wp-config.php` quyền 600 |
 | Tiếng Việt, múi giờ, đường dẫn, plugin, cron | `wordpress/may-chu/cai-dat.sh` (chạy bằng root, chạy lại được) |
-| **Tự cập nhật sau khi gộp PR** (T-078) | Cron mỗi 5 phút chạy `tu-cap-nhat.sh` bằng tài khoản `cadao`: thấy `main` có commit mới thì lấy `wordpress/plugins/ca-dao` và `wordpress/themes/ca-dao` của đúng commit đó (theme bật một lần; người quản trị đổi theme sau đó thì giữ), kiểm cú pháp PHP, thay thư mục một lần; trang chủ không trả 200 thì trả lại bản cũ và không thử lại commit đó. Nhật ký `/home/cadao/cap-nhat.log`. Chạy tay: `cd /home/cadao && sudo -u cadao bash bin/cap-nhat-plugin.sh` |
+| **Tự cập nhật sau khi gộp PR** (T-078) | Cron mỗi 5 phút chạy `tu-cap-nhat.sh` bằng tài khoản `cadao`: thấy `main` có commit mới thì lấy `wordpress/plugins/ca-dao` và `wordpress/themes/ca-dao` của đúng commit đó (theme bật một lần; người quản trị đổi theme sau đó thì giữ), kiểm cú pháp PHP, thay thư mục một lần; trang chủ không trả 200 thì trả lại bản cũ và không thử lại commit đó. Nhật ký `/home/cadao/cap-nhat.log`; các bản đã lên site ghi ở `/home/cadao/.cap-nhat-lich-su` (50 bản gần nhất). Chạy tay: `cd /home/cadao && sudo -u cadao bash bin/cap-nhat-plugin.sh`. **Quay lại bản trước** (T-118): nút Revert của PR trên GitHub, hoặc `NHANH=<mã commit>` khi chạy tay — `docs/huong-dan/quay-lai-ban-truoc.md` |
 | Lịch chạy | `DISABLE_WP_CRON`; `/etc/cron.d/cadao-wordpress` chạy `wp cron event run --due-now` mỗi phút |
 | WP-CLI | `sudo -u cadao /home/cadao/bin/wp <lệnh>` |
 | Chặn công cụ tìm kiếm | `blog_public = 0` tới khi mở công khai (H5, T-053) — ô "Discourage search engines" của FlashPanel đã không có tác dụng, script đặt lại |

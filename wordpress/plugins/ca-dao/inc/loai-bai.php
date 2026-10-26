@@ -207,6 +207,10 @@ add_filter(
 	}
 );
 
+// Không lộ phiên bản WordPress trong <head> và nguồn tin (giúp máy quét lỗ hổng tự động — T-118)
+remove_action( 'wp_head', 'wp_generator' );
+add_filter( 'the_generator', '__return_empty_string' );
+
 // Cột "Nguồn" trong danh sách bài
 add_filter(
 	'manage_' . CADAO_LOAI_BAI . '_posts_columns',

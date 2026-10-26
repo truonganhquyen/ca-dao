@@ -223,6 +223,8 @@ Mỗi PR gom các task liên quan của một đợt; agent tự gộp khi kiể
 | **4 · Khám phá và cộng đồng** (Mốc B) | Đi từ bài này sang bài khác; người đọc góp phần | T-041 tìm kiếm (vừa), T-092 bài gần gũi (vừa), T-093 Bạn có biết? (nhỏ), T-043 trang chủ (vừa), T-094 trang thể loại (nhỏ), T-095 câu một dòng (nhỏ), T-096 câu đố (vừa), T-045 góp ý + cảm nghĩ + chống rác (vừa), T-097 bài phân tích (vừa) | Tạo khóa Turnstile (Meilisearch không cần nữa — D-067); viết giới thiệu thể loại; duyệt bài người đọc gửi |
 | **5 · Nội dung sâu** (Mốc C) | Nghĩa, chú giải, bối cảnh, giọng đọc | T-098 Wiktionary (vừa), T-099 sách cũ + Hán Việt (lớn), T-100 Hiểu nhanh (vừa), T-101 gộp bài đã đăng bị trùng (vừa), T-102 bối cảnh vè (vừa), T-103 đồng dao (vừa), T-104 bản đồ (lớn), T-105 giọng sinh sẵn (lớn), T-106 giọng riêng (nhỏ), T-050 ảnh chia sẻ (vừa), T-051, T-052 | Nghe thử 30 bài; thu giọng mẫu; tìm *Tục ngữ phong dao* (T-107, lúc nào cũng được) |
 
+**Điều chỉnh 26/10/2026 (D-073, sau báo cáo review):** tạm dừng tới sau cổng mở T-092, T-095, T-096, T-102, T-105; kéo T-050 và T-100 lên Mốc B; thêm T-118..T-121 (an toàn vận hành, dòng mức kiểm D-072, điều hướng và danh sách bài, cuối bài – Tìm – Bàn biên tập). Thứ tự còn lại: T-119 → T-120 → T-121 → T-050 → T-100.
+
 Phụ thuộc chính: T-109 cần cho T-110, T-111, T-101, T-076; T-082 cần cho T-087; T-086 cần cho T-087, T-088, T-102, T-104; T-091 cần cho T-092, T-096; T-045 cần cho T-097; T-080 cần cho T-095, T-098; T-085 và T-089 cần cho T-105. Chi tiết và tiêu chí chấp nhận từng task ở `22` mục 3.
 
 ## 7. Để sau

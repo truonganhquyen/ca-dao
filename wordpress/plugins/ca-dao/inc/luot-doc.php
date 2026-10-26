@@ -1,8 +1,9 @@
 <?php
 /**
  * Lượt đọc tự đếm (T-081, D-064, docs/25 mục 4.7): trang bài gửi một lượt khi đã hiện trên màn hình 5 giây (máy dò
- * không chạy JavaScript thì không tính), mỗi máy một lần mỗi ngày (đánh dấu trong bộ nhớ của trình duyệt, không cookie).
- * Không lưu địa chỉ IP: chỉ cộng số theo bài theo ngày, và tên trang giới thiệu (không đường dẫn) theo ngày.
+ * không chạy JavaScript thì không tính), mỗi máy một lần mỗi ngày (đánh dấu trong bộ nhớ của trình duyệt, không cookie;
+ * máy chủ cũng chặn lặp bằng dấu băm tạm của IP — T-118). Không lưu địa chỉ IP: chỉ cộng số theo bài theo ngày, và
+ * tên trang giới thiệu (không đường dẫn) theo ngày.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -117,6 +118,62 @@ function cadao_la_may_do( string $ua ): bool {
 	return '' === $ua || 1 === preg_match( '/bot\b|bot\/|crawl|spider|slurp|headless|lighthouse|preview|facebookexternalhit|zalo.*(link|preview)/i', $ua );
 }
 
+/** Dải IP của Cloudflare (https://www.cloudflare.com/ips/, 26/10/2026). */
+const CADAO_DAI_IP_CLOUDFLARE = array(
+	'173.245.48.0/20', '103.21.244.0/22', '103.22.200.0/22', '103.31.4.0/22', '141.101.64.0/18', '108.162.192.0/18',
+	'190.93.240.0/20', '188.114.96.0/20', '197.234.240.0/22', '198.41.128.0/17', '162.158.0.0/15', '104.16.0.0/13',
+	'104.24.0.0/14', '172.64.0.0/13', '131.0.72.0/22',
+	'2400:cb00::/32', '2606:4700::/32', '2803:f800::/32', '2405:b500::/32', '2405:8100::/32', '2a06:98c0::/29', '2c0f:f248::/32',
+);
+
+/** IP có nằm trong dải CIDR không (IPv4 và IPv6). */
+function cadao_ip_trong_dai( string $ip, string $dai ): bool {
+	list( $goc, $bit ) = explode( '/', $dai );
+	$a = @inet_pton( $ip );   // phpcs:ignore WordPress.PHP.NoSilencedErrors -- chuỗi lạ thì false
+	$b = @inet_pton( $goc );  // phpcs:ignore WordPress.PHP.NoSilencedErrors
+	if ( false === $a || false === $b || strlen( $a ) !== strlen( $b ) ) {
+		return false;
+	}
+	$bit  = (int) $bit;
+	$byte = intdiv( $bit, 8 );
+	if ( substr( $a, 0, $byte ) !== substr( $b, 0, $byte ) ) {
+		return false;
+	}
+	$du = $bit % 8;
+	return 0 === $du || ( ( ord( $a[ $byte ] ) ^ ord( $b[ $byte ] ) ) & ( 0xFF << ( 8 - $du ) ) & 0xFF ) === 0;
+}
+
+/**
+ * IP của người gửi, chỉ để băm (không lưu). Chỉ tin header CF-Connecting-IP khi yêu cầu thật sự đến từ Cloudflare:
+ * người gửi thẳng tới máy chủ tự đặt header này thì không né được giới hạn (T-118).
+ */
+function cadao_ip_nguoi_gui(): string {
+	$goc = (string) ( $_SERVER['REMOTE_ADDR'] ?? '' );
+	$cf  = (string) ( $_SERVER['HTTP_CF_CONNECTING_IP'] ?? '' );
+	if ( '' === $cf || false === filter_var( $cf, FILTER_VALIDATE_IP ) ) {
+		return $goc;
+	}
+	foreach ( CADAO_DAI_IP_CLOUDFLARE as $dai ) {
+		if ( cadao_ip_trong_dai( $goc, $dai ) ) {
+			return $cf;
+		}
+	}
+	return $goc;
+}
+
+/**
+ * Lần đầu trong ngày của máy này với khóa này? Đánh dấu bằng dấu băm (IP + khóa + ngày), hết hạn sau một ngày —
+ * không lưu IP, không cookie. Chặn một máy gửi lặp để đẩy "Đọc nhiều" hay số chia sẻ, trích dẫn (T-118, D-064).
+ */
+function cadao_lan_dau_trong_ngay( string $khoa ): bool {
+	$t = 'cadao_1n_' . substr( wp_hash( cadao_ip_nguoi_gui() . '|' . $khoa . '|' . wp_date( 'Y-m-d' ) ), 0, 24 );
+	if ( get_transient( $t ) ) {
+		return false;
+	}
+	set_transient( $t, 1, DAY_IN_SECONDS );
+	return true;
+}
+
 /** Tên miền trang giới thiệu hợp lệ (chữ, số, dấu chấm, gạch nối), không phải chính site; còn lại bỏ. */
 function cadao_ten_mien_gioi_thieu( string $tu ): string {
 	$tu = strtolower( substr( trim( $tu ), 0, 190 ) );
@@ -140,7 +197,7 @@ add_action(
 					if ( ! $bai || CADAO_LOAI_BAI !== $bai->post_type || 'publish' !== $bai->post_status ) {
 						return new WP_Error( 'cadao_khong_co', 'Không có bài này.', array( 'status' => 404 ) );
 					}
-					if ( cadao_la_may_do( (string) $yc->get_header( 'user_agent' ) ) ) {
+					if ( cadao_la_may_do( (string) $yc->get_header( 'user_agent' ) ) || ! cadao_lan_dau_trong_ngay( 'doc:' . $bai->ID ) ) {
 						return new WP_REST_Response( array( 'tinh' => false ), 200 );
 					}
 					cadao_luot_doc_cong( $bai->ID, cadao_ten_mien_gioi_thieu( (string) ( $yc->get_param( 'tu' ) ?? '' ) ) );

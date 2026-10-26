@@ -5,7 +5,7 @@
 | | |
 |---|---|
 | Phiên bản | 2.0 · 23/10/2026 (UX v2: nhãn trung thực, nguồn gốc ở lớp 1, thanh điều hướng dưới, công cụ cho giáo viên) |
-| Trạng thái | **Ổn định cho Mốc A–C.** Ảnh xem trước (mục 7) chờ Q-005 (tên miền) |
+| Trạng thái | **Ổn định cho Mốc A–C.** Tên miền đã chốt: phongdao.com (D-070). Dòng "lời và mức kiểm" dưới lời: D-072 |
 | Đọc khi | Làm bất kỳ trang, thành phần, câu chữ giao diện nào |
 | Liên quan | `10` (dữ liệu hiển thị, mục 5 và 10) · `21` (cách dựng) · `23` (tiêu chí kiểm thử) · `25` (gói nâng cấp 25/10/2026 trên WordPress: chạm từ khó, dị bản, thể thơ, công cụ đọc, trang chủ, thể loại, người đọc góp phần, giọng đọc) |
 
@@ -208,7 +208,7 @@ Mục tiêu: mỗi lần chia sẻ đưa một trích dẫn **có ghi nguồn g�
 | ID | Yêu cầu | Mốc |
 |---|---|---|
 | FR-4.1 | Nút **Chia sẻ** dùng Web Share API (văn bản = lời + "— <tiêu đề> (<thể loại>) · Kho tàng Ca dao Tục ngữ Việt Nam", kèm URL; D-057: không ghi nguồn ngoài cho lời) — hiện Zalo, Messenger… có sẵn trên máy; không hỗ trợ thì sao chép link | A |
-| FR-4.2 | **Ảnh xem trước riêng từng bài** 1200×630 sinh lúc build: lời (trích tối đa 4 dòng), thể loại, **nhãn bằng chứng**, tên miền + đường dẫn bài. Dán link vào Zalo/Facebook là thấy | C (chờ Q-005) |
+| FR-4.2 | **Ảnh xem trước riêng từng bài** 1200×630 sinh lúc build: lời (trích tối đa 4 dòng), thể loại, **dòng mức kiểm** (D-072), tên miền + đường dẫn bài. Dán link vào Zalo/Facebook là thấy | B (T-050, D-073) |
 | FR-4.3 | Không có ảnh xem trước dạng bài riêng cho bài mang cờ nghi gán nhầm/phỏng tác hoặc có `canh_bao_noi_dung` (dùng ảnh chung toàn site) | C |
 | FR-4.4 | (Sau) Trình tạo thẻ ảnh 2 mẫu ("Giấy dó", "Mực tàu") × 2 khổ (1080×1350, 1080×1920); **nhãn và dòng nguồn gốc không tắt được**; không cho dị bản C, bài có cờ hoặc cảnh báo; tạo trên trình duyệt bằng Canvas, phông nạp trước bằng `FontFace` | Sau |
 
