@@ -24,7 +24,7 @@ jobs:
       - name: Cài phụ thuộc
         run: npm ci
 
-      # Dữ liệu + fixture + nhất quán + astro check + build + kiểm liên kết (docs/23 mục 1)
+      # Kiểm nhất quán backlog và trạng thái (D-034)
       - name: Chạy cổng kiểm tra
         run: npm run kiem-tra
 

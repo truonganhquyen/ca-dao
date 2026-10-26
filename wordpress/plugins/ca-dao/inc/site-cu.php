@@ -1,7 +1,7 @@
 <?php
 /**
  * Chuyển bài công khai của site Astro cũ vào WordPress (T-076, docs/24 mục 7): đọc du-lieu/site-cu.json (sinh từ
- * content/ bằng scripts/xuat-site-cu.mjs), chạy MỘT lần sau khi chỉ mục chống trùng làm xong. Lời giữ nguyên văn.
+ * site Astro cũ, đã gỡ theo D-071), chạy MỘT lần sau khi chỉ mục chống trùng làm xong. Lời giữ nguyên văn.
  * Qua bước chống trùng (D-065): bài cũ có lời trùng / gần trùng một bài đã có thì vào WordPress ở dạng **Bản nháp**
  * và hiện ở trang "Có thể trùng" để người sáng lập quyết; không trùng thì đăng như trên site cũ.
  */

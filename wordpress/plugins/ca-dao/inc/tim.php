@@ -1,6 +1,6 @@
 <?php
 /**
- * Tìm kiếm (T-041, docs/25 mục 4.3, docs/21 mục 5, docs/20 mục 8): chỉ mục bỏ dấu tự làm trong cơ sở dữ liệu của site —
+ * Tìm kiếm (T-041, docs/25 mục 4.3, docs/20 mục 8): chỉ mục bỏ dấu tự làm trong cơ sở dữ liệu của site —
  * không cần cài thêm dịch vụ (Meilisearch để sau, khi kho đủ lớn). Mỗi bài đang đăng có hai bản chữ: có dấu (đã chuẩn
  * hóa kiểu bỏ dấu cũ → mới: "hoà" → "hòa") và không dấu. Truy vấn có dấu ưu tiên khớp có dấu; truy vấn không dấu khớp bản
  * không dấu. Trọng số: tiêu đề và lời ×3, Hiểu nhanh và chú thích ×1. Trang /tim/?q=… đọc được khi tắt JavaScript;
@@ -42,13 +42,13 @@ add_action(
 	}
 );
 
-/** Bỏ dấu để so khớp: "Công cha" → "cong cha", "Đình" → "dinh" (docs/21 mục 5). */
+/** Bỏ dấu để so khớp: "Công cha" → "cong cha", "Đình" → "dinh" (docs/25 mục 4.3). */
 function cadao_bo_dau_tim( string $s ): string {
 	return trim( mb_strtolower( cadao_bo_dau( cadao_nfc( $s ) ) ) );
 }
 
 /**
- * Chuẩn hóa có dấu: kiểu bỏ dấu cũ → kiểu mới, CHỈ ở âm tiết mở và không sau "q" (docs/21 mục 5):
+ * Chuẩn hóa có dấu: kiểu bỏ dấu cũ → kiểu mới, CHỈ ở âm tiết mở và không sau "q" (docs/25 mục 4.3):
  * "hoà" → "hòa", "thuỷ" → "thủy"; "toàn", "quý", "loẹt" giữ nguyên. Chỉ dùng trong chỉ mục.
  */
 function cadao_chuan_hoa_co_dau( string $s ): string {

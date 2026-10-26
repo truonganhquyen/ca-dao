@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Phiên bản | 1.0 · 24/10/2026 (D-054, D-055, D-056) |
-| Trạng thái | **Đang làm.** Site Astro (`docs/21`) vẫn chạy tới khi T-076 xong |
+| Trạng thái | **Xong (T-076, T-117).** Site Astro đã gỡ khỏi repo (D-071); WordPress là site duy nhất |
 | Đọc khi | Làm T-071..T-076, hoặc bất kỳ việc gì trên WordPress. Gói nâng cấp 25/10/2026 (giao diện, nguồn nội dung, từng thể loại, lượt đọc, người đọc góp phần, giọng đọc): `25` |
 | Mục tiêu | Người sáng lập đăng bài như WordPress quen thuộc; phần lớn nội dung tự lấy từ các nguồn cấu hình trong trang quản trị, vào **Chờ duyệt**, xem rồi bấm **Đăng** |
 

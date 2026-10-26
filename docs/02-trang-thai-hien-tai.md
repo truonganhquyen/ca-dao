@@ -41,7 +41,7 @@
 - **Chống trùng (T-109..T-111, 25/10/2026):** máy so cả lời của câu mới lấy từ nguồn và của bài viết tay với các bài, câu đã có: giống hệt, cùng thể loại thì tự gắn vào bài có sẵn (Kho thu thập → Đã gộp, "Tách ra" được); còn lại vào trang **Có thể trùng** chờ người sáng lập quyết; trình soạn có ô "Có thể trùng" (chỉ báo, không chặn đăng).
 - **Theme WordPress (T-072):** theme con của Twenty Twenty-Five theo `docs/20`: màu, phông Literata / Be Vietnam Pro tự lưu trữ, sáng/tối theo máy, trang bài (lời lớn, lục bát thụt lề câu lục, Hiểu nhanh dưới lời, dị bản, chú thích); quét trợ năng 0 lỗi.
 - **Trang tác phẩm (T-040):** đọc theo lớp, nhãn tự tính, nguồn gốc ở lớp 1, chú giải chạm-là-hiện (tắt JavaScript vẫn đọc được), sáng/tối, bản in, thanh dưới; quét trợ năng tự động. Chưa có bài `cong_khai` thật: bản xem trước có 3 trang mẫu giao diện dữ liệu giả (D-050).
-- **CMS (T-037):** `/admin` — Sveltia, đăng nhập GitHub qua Worker `sveltia-cms-auth`, form tiếng Việt, "Thêm nhanh"; hướng dẫn `docs/huong-dan/bien-soan-cms.md`.
+- **Gỡ site Astro và CMS cũ (T-117, D-071, 26/10/2026):** đã xóa khỏi repo phần Astro, CMS Sveltia (`/admin`) và các công cụ chỉ phục vụ nó; luật và tài liệu viết lại theo WordPress.
 - **Schema một nguồn (T-036):** `scripts/lib/schema.mjs` dùng chung cho validator và bộ sinh Zod / kiểu từ vựng / cấu hình CMS (`npm run sinh:schema`); 7 content collections trong Astro.
 - GitHub (24/10/2026): repo công khai `truonganhquyen/ca-dao` (`main` = hướng v2; PR #1–#3 đã gộp) và repo riêng tư `truonganhquyen/ca-dao-kho-tho` (mã thu thập T-038; dữ liệu đổ dần bằng GitHub Actions hằng ngày sau khi PR của repo đó gộp). Commit dùng email ẩn của GitHub.
 
@@ -65,7 +65,7 @@ Mở **Ca dao – Tục ngữ → Bàn biên tập** (hoặc ô "việc chờ b�
 - **Tách thành ngữ – tục ngữ** (Ca dao – Tục ngữ → Tách thành ngữ – tục ngữ): xem nhóm "Máy đã chắc", kiểm khoảng 50 câu xem máy đoán đúng không (báo agent nếu sai nhiều), rồi chọn hàng loạt và bấm "Đồng ý gợi ý"; nhóm "Nghiêng về", "Chưa rõ" chọn loại từng câu khi rảnh.
 - **Quyết các cặp "Có thể trùng"** (menu Ca dao – Tục ngữ → Có thể trùng; Bảng tin báo số cặp): mỗi cặp chọn "Gộp: là cùng một bài" / "Gộp làm dị bản" / "Là bài khác" / "Để sau"; cặp hai bài đã đăng thì chọn "Gộp: giữ …" bài muốn giữ lại. Câu đang chờ thì máy chưa tạo thành bài.
 - **Việc của người sáng lập trong gói nâng cấp** (`docs/25` mục 6): duyệt hàng loạt thể loại tách, xác nhận Wikidata, duyệt bộ chủ đề và vùng; tạo khóa Turnstile khi tới đợt đó; nghe thử 30 bài giọng đọc; tìm *Tục ngữ phong dao* (T-107).
-- **Thử CMS** (điều kiện xong T-037, PR #9): đăng nhập `/admin` trên điện thoại, tạo một bài thật tới Công khai — `docs/huong-dan/bien-soan-cms.md`. Đăng nhập GitHub đã tạo xong và đã kiểm (24/10/2026).
+- **Thử biên soạn trên WordPress** (Ca dao – Tục ngữ → Thêm mới, trên điện thoại): tạo một bài thử, dán lời, bấm Lưu nháp rồi xem trước; xóa bài thử sau khi thử.
 - **T-034** · Gửi thư cho Ca dao Mẹ — không gấp, nhưng phải xong trước khi mở công khai (T-053).
 - **T-049** · Chốt tên miền (Q-005) — trước Mốc C.
 

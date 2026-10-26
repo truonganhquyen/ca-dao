@@ -1,8 +1,0 @@
-# DỮ LIỆU GIẢ — trang web dùng cho kiểm thử.
-id: src-web-thu
-loai: web
-tac_gia: ["Nhóm trang web thử"]
-ten: "Trang web dùng để kiểm thử"
-url: "https://example.org/"
-ban_quyen: chua_ro
-da_xac_minh_ban_in: false

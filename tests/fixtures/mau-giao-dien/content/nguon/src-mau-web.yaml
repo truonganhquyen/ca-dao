@@ -1,8 +1,0 @@
-# DỮ LIỆU GIẢ — bộ mẫu giao diện (D-050). Không phải trang web thật.
-id: src-mau-web
-loai: web
-tac_gia: ["Nhóm trang web mẫu"]
-ten: "Trang web mẫu"
-url: "https://example.org/"
-ban_quyen: chua_ro
-da_xac_minh_ban_in: false
