@@ -1,6 +1,6 @@
 <?php
 /**
- * Một mục "Tục ngữ – Thành ngữ" (D-078, Q-009): ranh giới hai loại mờ, người khó phân biệt, máy dễ xếp sai — nên
+ * Một mục "Tục ngữ – Thành ngữ" (D-079, Q-009): ranh giới hai loại mờ, người khó phân biệt, máy dễ xếp sai — nên
  * không tách nữa. Thể loại gộp giữ đường dẫn /tuc-ngu/ (bài tục ngữ không đổi địa chỉ). Bài từng ở "Thành ngữ" chuyển
  * sang mục gộp một lần khi nâng cấp; đường dẫn cũ /thanh-ngu/<tên>/ và /the-loai/thanh-ngu/ chuyển hướng 301.
  * Thay T-080 (trang "Tách thành ngữ – tục ngữ", máy gợi ý loại).

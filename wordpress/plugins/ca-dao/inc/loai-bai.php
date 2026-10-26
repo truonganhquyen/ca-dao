@@ -11,7 +11,7 @@ const CADAO_LOAI_BAI = 'cdtn';
 /** Thể loại → đoạn đầu của đường dẫn bài (/ca-dao/<ten>/, /tuc-ngu/<ten>/…), như site cũ. */
 const CADAO_THE_LOAI = array(
 	'ca-dao'    => 'Ca dao',
-	'tuc-ngu'   => 'Tục ngữ – Thành ngữ', // một mục (D-078); thể loại "Thành ngữ" cũ: CADAO_THE_LOAI_CU
+	'tuc-ngu'   => 'Tục ngữ – Thành ngữ', // một mục (D-079); thể loại "Thành ngữ" cũ: CADAO_THE_LOAI_CU
 	'dong-dao'  => 'Đồng dao',
 	've'        => 'Vè',
 	'cau-do'    => 'Câu đố',
@@ -176,12 +176,56 @@ function cadao_dong_nguon( int $id ): string {
 	return '<p class="cadao-nguon">Nguồn: ' . $chu . '</p>';
 }
 
+/**
+ * Các trang gốc máy đã lấy bài này từ đó (D-068, D-078): địa chỉ giữ nội bộ ở _cadao_url_goc, cộng trang gốc của
+ * các câu đã gộp vào bài (làm dị bản). Mỗi địa chỉ đếm một lần.
+ *
+ * @return array<int, array{ten: string, url: string}>
+ */
+function cadao_nguon_an( int $id ): array {
+	global $wpdb;
+	$ra   = array();
+	$them = static function ( string $url, string $nguon_id ) use ( &$ra ): void {
+		$url = esc_url_raw( $url );
+		if ( '' === $url || isset( $ra[ $url ] ) ) {
+			return;
+		}
+		$n          = cadao_nguon_lay( $nguon_id );
+		$ten        = $n ? ( $n['dong_ghi_nguon'] ?: $n['ten'] ) : '';
+		$ra[ $url ] = array( 'ten' => '' !== (string) $ten ? (string) $ten : (string) wp_parse_url( $url, PHP_URL_HOST ), 'url' => $url );
+	};
+	$them( (string) get_post_meta( $id, '_cadao_url_goc', true ), (string) get_post_meta( $id, '_cadao_nguon_id', true ) );
+	$bang = cadao_kho_bang();
+	foreach ( $wpdb->get_results( $wpdb->prepare( "SELECT url, nguon_id FROM $bang WHERE trang_thai = 'da_gop' AND ( gop_vao = %s OR gop_vao IN ( SELECT CONCAT( 'kho:', id ) FROM $bang WHERE post_id = %d ) ) ORDER BY id", 'bai:' . $id, $id ) ) ?: array() as $m ) {
+		$them( (string) $m->url, (string) $m->nguon_id );
+	}
+	return array_values( $ra );
+}
+
+/**
+ * Dòng nguồn đã ẩn cuối bài (D-078). Người đọc chỉ thấy "[N nguồn tham khảo đã ẩn]"; người biên soạn (đăng nhập, sửa
+ * được bài) thấy thêm liên kết về từng trang gốc. Liên kết chỉ được xuất ra HTML khi đúng người xem — không ẩn bằng CSS,
+ * để Google và người đọc không thấy. Nguồn người biên soạn tự điền (cadao_dong_nguon) vẫn hiện như cũ.
+ */
+function cadao_dong_nguon_an( int $id ): string {
+	$ds = cadao_nguon_an( $id );
+	if ( ! $ds ) {
+		return '';
+	}
+	$ra = '<p class="cadao-nguon-an">' . esc_html( sprintf( '[%d nguồn tham khảo đã ẩn]', count( $ds ) ) ) . '</p>';
+	if ( current_user_can( 'edit_post', $id ) ) {
+		$lk  = array_map( static fn( $x ) => sprintf( '<a href="%s" rel="noopener noreferrer">%s <span aria-hidden="true">↗</span></a>', esc_url( $x['url'] ), esc_html( $x['ten'] ) ), $ds );
+		$ra .= '<p class="cadao-nguon-quan-tri">Chỉ người biên soạn thấy dòng này · Nguồn đã ẩn: ' . implode( ' · ', $lk ) . '</p>';
+	}
+	return $ra;
+}
+
 add_filter(
 	'the_content',
 	static function ( $noi_dung ) {
 		// Theme khối (Twenty Twenty-Five…) không dùng vòng lặp cổ điển nên không kiểm in_the_loop()
 		if ( is_singular( CADAO_LOAI_BAI ) && get_the_ID() === get_queried_object_id() && ! doing_filter( 'get_the_excerpt' ) ) {
-			$noi_dung .= cadao_dong_nguon( get_the_ID() );
+			$noi_dung .= cadao_dong_nguon( get_the_ID() ) . cadao_dong_nguon_an( get_the_ID() );
 		}
 		return $noi_dung;
 	}

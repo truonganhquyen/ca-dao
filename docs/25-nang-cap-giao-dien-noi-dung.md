@@ -87,7 +87,7 @@ Mẫu VieNeu đọc "Bao giờ cạn lạch Đồng Nai" (giọng Hải Đăng, 
 | 21 | Bỏ phần lọc thô tục — **để sau**, ghi chú "Gắn cờ nội dung có chứa từ thô tục" | T-108 (DEFERRED) |
 | 22 | Nhận thể thơ, trình bày theo thể | T-084 |
 | 23 | Trang riêng cho từng thể loại | T-094 |
-| 24 | Tách thành ngữ và tục ngữ (thay bởi D-078: một mục "Tục ngữ – Thành ngữ") | T-080, T-128 |
+| 24 | Tách thành ngữ và tục ngữ (thay bởi D-079: một mục "Tục ngữ – Thành ngữ") | T-080, T-128 |
 | 25 | Nghĩa đen, nghĩa bóng, "dùng khi" | T-098 |
 | 26 | Thành ngữ – tục ngữ: câu một dòng, chỉ mục A–Z | T-095 |
 | 27 | Thành ngữ Hán Việt, điển tích | T-099 |
@@ -150,7 +150,7 @@ Mẫu VieNeu đọc "Bao giờ cạn lạch Đồng Nai" (giọng Hải Đăng, 
 
 ### 4.4. Theo thể loại
 
-- **Thay bởi D-078 (26/10/2026):** không tách nữa — một mục "Tục ngữ – Thành ngữ" (T-128); đoạn dưới là lịch sử.
+- **Thay bởi D-079 (26/10/2026):** không tách nữa — một mục "Tục ngữ – Thành ngữ" (T-128); đoạn dưới là lịch sử.
 - **Tách thành ngữ và tục ngữ (ý 24).** Máy gợi ý loại cho mỗi câu trong nhóm "thành ngữ – tục ngữ" của nguồn: có trong danh mục Wiktionary thì theo đó; còn lại theo cấu trúc (cụm từ cố định, chưa thành câu, thường 4 chữ đối → thành ngữ; câu trọn ý, có chủ – vị, đúc kết kinh nghiệm → tục ngữ); không chắc thì để chờ. Người sáng lập duyệt hàng loạt trong Kho thu thập và trong danh sách bài; bài đã đăng đổi thể loại theo.
   *Đã làm (T-080, 25/10/2026):* danh mục Wiktionary lẫn cả từ đơn ("a la hỉ" nằm trong "Tục ngữ tiếng Việt") và xếp vài câu sách giáo khoa gọi là tục ngữ vào thành ngữ, nên chỉ theo danh mục khi độ dài câu cùng hướng. Thử trên 200 câu đã đọc của kho: ~55% máy chắc, ~25% nghiêng, ~20% chưa rõ.
 - **Nghĩa (ý 25).** Bài thành ngữ, tục ngữ có khối nghĩa: nghĩa đen, nghĩa bóng, "Dùng khi…", một câu ví dụ, câu đồng nghĩa / trái nghĩa (liên kết sang nhau). Nghĩa từ Wiktionary ghi "Nguồn: Wiktionary ↗ · CC BY-SA" ngay dưới; phần còn lại người sáng lập viết, hoặc máy soạn nháp chờ duyệt (T-100).

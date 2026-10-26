@@ -316,7 +316,7 @@ function cadao_tach_muc( string $muc ): array {
 	return array( $loai, (int) $id );
 }
 
-/** Thể loại để so (thể loại "Thành ngữ" cũ tính là "Tục ngữ – Thành ngữ", D-078). */
+/** Thể loại để so (thể loại "Thành ngữ" cũ tính là "Tục ngữ – Thành ngữ", D-079). */
 function cadao_nhom_the_loai( string $muc ): string {
 	global $wpdb;
 	[ $loai, $id ] = cadao_tach_muc( $muc );

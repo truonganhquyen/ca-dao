@@ -49,7 +49,7 @@ wordpress/
 │   ├── inc/sua-muc-tu.php   trang Sửa mục từ: nguồn của lời giải, ảnh riêng / ẩn ảnh Wikidata (T-113)
 │   ├── inc/chinh-sach-du-lieu.php  trang "Chính sách thu thập dữ liệu"; dọn dòng Nguồn dưới chú thích chép (D-068, T-114)
 │   ├── inc/so-lieu.php      dòng 👁 đọc · ↗ chia sẻ · ❝ trích dẫn dưới tiêu đề bài, 👁 trong danh sách (D-069, T-115)
-│   ├── inc/tuc-ngu-thanh-ngu.php  một mục "Tục ngữ – Thành ngữ": gộp thể loại khi nâng cấp, chuyển hướng /thanh-ngu/… (T-128, D-078)
+│   ├── inc/tuc-ngu-thanh-ngu.php  một mục "Tục ngữ – Thành ngữ": gộp thể loại khi nâng cấp, chuyển hướng /thanh-ngu/… (T-128, D-079)
 │   ├── inc/site-cu.php      chuyển bài công khai của site Astro cũ, qua bước chống trùng (T-076)
 │   ├── inc/the-tho.php      nhận thể thơ theo số âm tiết, phân loại "Thể thơ" để lọc (T-084)
 │   ├── inc/tu-dien.php      từ điển: mục từ theo chú thích, trang /tu-dien/ (T-044)
@@ -83,7 +83,7 @@ wordpress/
 - **Từ điển, địa danh (T-044, T-086..T-088):** trang `/tu-dien/` và trang mục từ (theme dùng `taxonomy.html`; plugin thêm nguồn, ảnh, bản đồ vào mô tả); ô chạm từ có ảnh, bản đồ nhỏ, "Xem trong từ điển"; khối Đáp án có ảnh. Chỉ thực thể Wikidata người sáng lập đã xác nhận mới hiện.
 - **Công cụ đọc (T-085), bài dài (T-090):** "Aa", "◐", "Trình chiếu", "▶ Nghe" (chỉ khi máy có giọng tiếng Việt; "Giọng đọc máy") cạnh Trích dẫn · Chia sẻ; cỡ chữ và sáng / tối nhớ trên máy, áp trong `<head>` (thuộc tính `data-co-chu`, `data-che-do` trên `<html>`). Bài từ 41 dòng: tóm tắt, mục lục, đoạn, số dòng bên lề, "Đọc toàn bài", "Đọc tiếp từ đoạn N".
 - **Trích dẫn, chia sẻ (T-042):** hộp `<details>` "Trích dẫn" — kiểu thông dụng và APA 7 (`20` mục 6), nút "Sao chép kèm nguồn" / "Chỉ sao chép lời", ô "Kèm đáp án / chú thích" khi bài có phần chép từ nguồn; nút "Chia sẻ" (Web Share, không có thì sao chép liên kết). Ngày truy cập theo ngày bấm.
-- **Tục ngữ – Thành ngữ (D-078, T-128 — plugin 0.30.0):** một thể loại "Tục ngữ – Thành ngữ" ở `/tuc-ngu/`; câu nhóm "thành ngữ – tục ngữ" của nguồn thành bài trong mục này. Bản trước (T-080) có trang tách hai loại với máy gợi ý; đã bỏ vì ranh giới mờ, máy dễ xếp sai. Khi nâng cấp, bài "Thành ngữ" chuyển sang mục gộp; `/thanh-ngu/<tên>/`, `/the-loai/thanh-ngu/` chuyển hướng 301.
+- **Tục ngữ – Thành ngữ (D-079, T-128 — plugin 0.31.0):** một thể loại "Tục ngữ – Thành ngữ" ở `/tuc-ngu/`; câu nhóm "thành ngữ – tục ngữ" của nguồn thành bài trong mục này. Bản trước (T-080) có trang tách hai loại với máy gợi ý; đã bỏ vì ranh giới mờ, máy dễ xếp sai. Khi nâng cấp, bài "Thành ngữ" chuyển sang mục gộp; `/thanh-ngu/<tên>/`, `/the-loai/thanh-ngu/` chuyển hướng 301.
 - **Số liệu của bài (T-115, D-069):** dưới tiêu đề: 👁 lượt đọc (≥ 10) · ↗ lượt chia sẻ (≥ 3) · ❝ lượt trích dẫn (≥ 3), số rút gọn 1,2K; danh sách bài chỉ 👁. Chia sẻ = sự kiện `chia_se` (gửi xong qua hộp chia sẻ, hoặc sao chép liên kết).
 - **Sửa mục từ (T-113):** Từ điển → Sửa mục từ có ô **Nguồn của lời giải** (xóa khi tự viết lại) và **Ảnh** (chọn từ Thư viện ảnh kèm ghi công, hoặc ẩn ảnh Wikidata). Trường `_cadao_anh_rieng`, `_cadao_anh_ghi_cong`, `_cadao_an_anh`.
 - **Bàn biên tập (T-047):** mục đầu của menu Ca dao – Tục ngữ: mọi hàng chờ theo thứ tự nên làm (báo lỗi của người đọc trước), số đếm, "làm gì", nút Mở; ô "việc chờ bạn" ở đầu Bảng tin.
@@ -144,7 +144,7 @@ Kiểu bộ đọc: `cadao_me` (T-073) — (1) tên chủ đề, (2) ca dao qua 
 
 - **Lời chép nguyên văn bằng máy, không qua AI**; AI không viết lời, dị bản, nguồn.
 - **Lời không ghi nguồn** (D-057); không tự điền nguồn cho bài nhập tay.
-- **Chú thích, lời giải** chỉ chép khi công tắc của nguồn đang bật (D-055); dòng "Nguồn: … ↗" dưới đó trỏ đúng trang đã lấy, tắt được bằng công tắc "Ghi nguồn cho chú thích" (D-057). **Từ D-068 (26/10/2026):** "Ghi nguồn cho chú thích" mặc định tắt; bài, mục từ đã đăng được dọn dần (mỗi lượt lấy bài 5 phút, tối đa 25 giây); danh sách chú thích chép mang lớp `cadao-chep` (mục từ chép giữ `noindex`, trường `_cadao_chep`); nguồn ghi nhận ở trang `/chinh-sach-du-lieu/` (mã ngắn `[cadao_nguon]`).
+- **Chú thích, lời giải** chỉ chép khi công tắc của nguồn đang bật (D-055); dòng "Nguồn: … ↗" dưới đó trỏ đúng trang đã lấy, tắt được bằng công tắc "Ghi nguồn cho chú thích" (D-057). **Từ D-068 (26/10/2026):** "Ghi nguồn cho chú thích" mặc định tắt; bài, mục từ đã đăng được dọn dần (mỗi lượt lấy bài 5 phút, tối đa 25 giây); danh sách chú thích chép mang lớp `cadao-chep` (mục từ chép giữ `noindex`, trường `_cadao_chep`); nguồn ghi nhận ở trang `/chinh-sach-du-lieu/` (mã ngắn `[cadao_nguon]`). **Từ D-078:** cuối bài hiện "[N nguồn tham khảo đã ẩn]" (`cadao_dong_nguon_an`, `inc/loai-bai.php`); liên kết về trang gốc chỉ xuất ra HTML cho người sửa được bài.
 - **Không tải ảnh** của nguồn; không chép cách phân loại, bộ thẻ ra trang.
 - **Google:** bài chưa có "Hiểu nhanh" (đoạn trích do dự án viết) mang `noindex` — lời và chú thích chép từ nguồn không tính là giá trị riêng (chính sách spam của Google về nội dung sao chép). Người đọc vẫn xem được. Từ D-062: bài có ít nhất một bài phân tích của người đọc đã duyệt cũng được tính là có giá trị riêng (T-097).
 - Không thông tin cá nhân trong nội dung.
