@@ -35,6 +35,9 @@ $tay = wp_insert_post(
 	)
 );
 wp_set_object_terms( $tay, 'ca-dao', 'the_loai' );
+// Lời đã đối chiếu (D-072) — tên sách tổng hợp, để xem dạng thứ hai của dòng mức kiểm
+update_post_meta( $tay, 'doi_chieu_ten', 'Sách mẫu tổng hợp' );
+update_post_meta( $tay, 'doi_chieu_trang', '12' );
 // Bài dài mẫu (vè, 60 dòng, 3 khổ) để xem chia đoạn, mục lục, "Đọc toàn bài" (T-090) — lời tổng hợp
 $dai = array();
 for ( $k = 1; $k <= 3; $k++ ) {

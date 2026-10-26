@@ -19,7 +19,7 @@ Ca dao Mẹ · bật · 20 bài/ngày     ──lấy theo lịch──►  lờ
 
 - **Nhập tay:** "Ca dao – Tục ngữ → Thêm mới": gõ tiêu đề, dán lời vào khối thơ, chọn thể loại → **Đăng**. Mọi ô khác tùy chọn.
 - **Tự động:** bài vào trạng thái **Chờ duyệt** (Pending Review có sẵn của WordPress). Duyệt từng bài hoặc chọn nhiều bài → Sửa hàng loạt → Đã xuất bản.
-- **Không chặn đăng vì lý do biên tập** (D-054). Không có huy hiệu mức kiểm; dưới lời có **một dòng "lời và mức kiểm" do máy tính** (D-072, T-119): mặc định "chưa đối chiếu sách", chỉ thành "Đã đối chiếu: …" khi người biên soạn tự điền hộp Nguồn; **lời ca dao, tục ngữ không ghi nguồn web**; dòng **"Nguồn: … ↗"** chỉ hiện dưới chú thích, lời giải chép từ nguồn (tùy chọn) hoặc khi người viết tự điền hộp Nguồn (D-057).
+- **Không chặn đăng vì lý do biên tập** (D-054). Không có huy hiệu mức kiểm; dưới lời có **một dòng "lời và mức kiểm" do máy tính** (D-072, T-119): mặc định "chưa đối chiếu sách", chỉ thành "Lời đã đối chiếu với …" khi người biên soạn tự điền hộp **Lời đã đối chiếu với** (meta `doi_chieu_ten`, `doi_chieu_trang`, `doi_chieu_url`; hộp nguồn cũ là nguồn của chú thích chép); **lời ca dao, tục ngữ không ghi nguồn web**; dòng **"Nguồn: … ↗"** chỉ hiện dưới chú thích, lời giải chép từ nguồn (tùy chọn) hoặc khi người viết tự điền hộp Nguồn (D-057).
 
 ## 2. Thành phần (mã trong repo này)
 

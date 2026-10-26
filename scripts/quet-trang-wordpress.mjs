@@ -234,6 +234,12 @@ try {
   } else {
     kiem('đồng dao: có nút Đọc cùng bé', false);
   }
+  // Dòng mức kiểm (T-119, D-072): ngay dưới lời, trước Hiểu nhanh; bài tự động "chưa đối chiếu", bài người biên soạn đối chiếu thì nêu sách
+  const baiTay = bai.map(b => new URL(b.link).pathname).find(d => /bai-nhap-tay-mau/.test(d));
+  await tuTab.goto(G + baiTay, { waitUntil: 'load' });
+  kiem('mức kiểm: dòng đứng ngay sau lời, trước Hiểu nhanh; nêu sách đã đối chiếu', await tuTab.evaluate(() => { const m = document.querySelector('.cadao-muc-kiem'); return !!m && m.previousElementSibling?.tagName === 'PRE' && m.nextElementSibling?.classList.contains('cadao-hieu-nhanh') && /Lời đã đối chiếu với Sách mẫu tổng hợp, tr\. 12/.test(m.textContent); }));
+  await tuTab.goto(G + baiDiBan, { waitUntil: 'load' });
+  kiem('mức kiểm: bài tự động ghi "chưa đối chiếu sách"', /chưa đối chiếu sách/.test(await tuTab.$eval('.cadao-muc-kiem', m => m.textContent).catch(() => '')));
   // Bản đồ (T-104): điểm đủ lớn để chạm, chạm tới đúng địa danh trong danh sách; không tải gì từ nơi khác
   const ngoai = [];
   const ngheNgoai = r => { if (!r.url().startsWith(G) && !r.url().startsWith('data:')) ngoai.push(r.url()); };

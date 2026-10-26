@@ -80,10 +80,10 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-096 | Câu đố: nhóm theo đáp án và theo loại, trang "Đố vui" (tạm dừng, D-073) | A | T-091 | — | DEFERRED |
 | T-097 | Bài cảm nhận, phân tích của người đọc (cần duyệt); bài có phân tích được duyệt thì lên Google | A | T-045 | — | DONE |
 | T-118 | An toàn vận hành: chặn lặp lượt đọc, sự kiện phía máy chủ; chỉ tin IP Cloudflare khi đúng; gỡ thẻ phiên bản; quay lại bản trước (D-073) | A | T-081, T-052, T-078 | — | DONE |
-| T-119 | Dòng "lời và mức kiểm" dưới lời, trong Tìm và trích dẫn (D-072) | A | T-072, T-046 | — | READY |
+| T-119 | Dòng "lời và mức kiểm" dưới lời, trong Tìm và trích dẫn (D-072) | A | T-072 | — | DONE |
 | T-120 | Điều hướng và danh sách bài: menu, trang Tất cả A–Z có đoạn trích và bộ lọc, thanh dưới cho điện thoại (D-073) | A | T-072, T-094 | — | READY |
 | T-121 | Cuối bài gọn hơn, Tìm rõ hơn, Bàn biên tập ưu tiên việc quan trọng (D-073) | A | T-045, T-097, T-041, T-047 | — | READY |
-| T-050 | Ảnh chia sẻ tự sinh từng bài, noindex theo giá trị riêng, SEO cơ bản (kéo lên Mốc B, D-073) | A | T-076, T-119 | — | BLOCKED |
+| T-050 | Ảnh chia sẻ tự sinh từng bài, noindex theo giá trị riêng, SEO cơ bản (kéo lên Mốc B, D-073) | A | T-076, T-119 | — | READY |
 | T-100 | Trợ giúp viết "Hiểu nhanh" (gợi ý; nháp máy chờ duyệt) (kéo lên Mốc B, D-073) | A | T-082 | — | READY |
 | T-048 | Duyệt 30–50 bài, thử với 5 người | N | T-073, T-076, T-041..T-046, T-082, T-085, T-119..T-121 | — | BLOCKED |
 | **Mốc C · Mở lặng lẽ** ||||||
@@ -413,6 +413,7 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 **Đọc:** D-072; `20` (phần WordPress); `24` mục 5; trang Phương pháp (T-046).
 **Việc:** ngay dưới lời (trước Hiểu nhanh) một dòng do máy tính: mặc định "Lời theo bản lưu truyền phổ biến · chưa đối chiếu sách"; khi người biên soạn tự điền hộp Nguồn: "Đã đối chiếu: <tên nguồn>, tr. N" (thêm ô **Trang** vào hộp Nguồn) hoặc "Đã đối chiếu: <tên nguồn> ↗" khi có địa chỉ; liên kết "Vì sao?" tới trang Phương pháp khi trang đó đã đăng. Cùng thông tin trong kết quả Tìm (nhãn ngắn) và dòng trích dẫn (chỉ thêm nguồn đối chiếu khi có).
 **Chấp nhận:** máy không bao giờ hiện dạng "Đã đối chiếu" khi hộp Nguồn trống; bài tự động không có nguồn tự điền (D-057) nên luôn ở dạng mặc định; không dùng từ cấm (`AGENTS.md`); không chỉ dựa vào màu; đọc được khi tắt JavaScript; kiểm thử cho hai dạng và cho trường hợp trang Phương pháp chưa đăng; `npm run quet:wordpress` đạt.
+**Tiến độ (26/10/2026):** xong — plugin 0.25.0, theme 0.14.0 (`inc/muc-kiem.php`). Hộp nguồn cũ thực ra là nguồn của **chú thích chép**, nên không dùng làm căn cứ: thêm hộp riêng **"Lời đã đối chiếu với"** (tên sách hoặc trang web, trang, địa chỉ), hộp cũ đổi tên "Nguồn của chú thích". Dòng chèn sau khối Thơ đầu tiên (ưu tiên 25, sau Hiểu nhanh của theme ở 20 nên đứng giữa lời và Hiểu nhanh); bài chưa có khối Thơ thì không có dòng. "Vì sao?" / "Đối chiếu thế nào?" dẫn tới `/phuong-phap/#muc-kiem` khi trang đã đăng; bản nháp trang Phương pháp do máy soạn (chưa đăng, chưa sửa đoạn đó) được thêm mục "Dòng nhỏ dưới lời nói gì". Tìm ghi "· chưa đối chiếu sách" / "· đã đối chiếu"; trích dẫn thêm "lời đối chiếu với …" chỉ khi có. Kiểm thử: 13 ca mới; quét: 2 phép thử trên trình duyệt (vị trí giữa lời và Hiểu nhanh, dạng mặc định).
 
 #### T-120 · Điều hướng và danh sách bài — A
 **Đọc:** `20` (thanh điều hướng dưới, phần WordPress); D-073.

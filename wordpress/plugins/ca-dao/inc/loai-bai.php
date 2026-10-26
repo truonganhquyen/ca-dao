@@ -130,7 +130,7 @@ function cadao_tao_the_loai_mac_dinh() {
 add_action(
 	'add_meta_boxes_' . CADAO_LOAI_BAI,
 	static function () {
-		add_meta_box( 'cadao_nguon', 'Nguồn (tùy chọn)', 'cadao_hop_nguon', CADAO_LOAI_BAI, 'side' );
+		add_meta_box( 'cadao_nguon', 'Nguồn của chú thích (tùy chọn)', 'cadao_hop_nguon', CADAO_LOAI_BAI, 'side' );
 	}
 );
 
@@ -144,7 +144,7 @@ function cadao_hop_nguon( WP_Post $bai ) {
 		<input class="widefat" id="cadao_nguon_url" name="nguon_url" type="url" value="<?php echo $o( 'nguon_url' ); ?>" placeholder="https://"></p>
 	<p><label for="cadao_ngay_truy_cap">Ngày truy cập</label><br>
 		<input class="widefat" id="cadao_ngay_truy_cap" name="ngay_truy_cap" type="date" value="<?php echo $o( 'ngay_truy_cap' ); ?>"></p>
-	<p class="description">Thường để trống: lời ca dao, tục ngữ không cần ghi nguồn. Điền khi bài có chú thích, lời giải chép từ nơi khác — trang sẽ hiện "Nguồn: …".</p>
+	<p class="description">Thường để trống: lời ca dao, tục ngữ không cần ghi nguồn. Điền khi bài có chú thích, lời giải chép từ nơi khác — trang sẽ hiện "Nguồn: …". Đã tự so lời với sách? Điền ở hộp "Lời đã đối chiếu với".</p>
 	<?php
 }
 

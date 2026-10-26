@@ -22,7 +22,8 @@ function cadao_noi_dung_trang_du_an( string $slug ): string {
 		'phuong-phap' => array(
 			$p( '<strong>' . CADAO_CAU_PHUONG_PHAP_DAU . '</strong>' ),
 			$h( 'Lời ca dao, tục ngữ lấy từ đâu' ),
-			$p( 'Phần lớn lời được máy chép nguyên văn từ trang <a href="https://cadao.me">Ca dao Mẹ</a> — không qua AI, không sửa chữ, không đổi cách bỏ dấu. Người biên soạn cũng nhập tay những câu mình biết. Lời ca dao, tục ngữ là của cộng đồng nên không ghi nguồn dưới lời.' ),
+			CADAO_PP_LOI,
+			cadao_pp_muc_kiem(), // dòng mức kiểm dưới lời (D-072, muc-kiem.php)
 			$p( 'Ca dao, tục ngữ sống bằng truyền miệng, một câu thường có nhiều cách nói. Chúng tôi không chọn "bản đúng duy nhất": các cách nói khác được ghi ở mục <strong>Dị bản</strong>, chữ khác lời chính được tô để dễ so.' ),
 			$h( 'Chú thích, đáp án' ),
 			$p( CADAO_CAU_PHUONG_PHAP_NGUON ),
