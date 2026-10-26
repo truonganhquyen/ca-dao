@@ -161,7 +161,7 @@ add_shortcode(
 		}
 		$li = '';
 		foreach ( $ds as $id => $so ) {
-			$li .= '<li><a href="' . esc_url( get_permalink( $id ) ) . '">' . esc_html( get_the_title( $id ) ) . '</a></li>';
+			$li .= '<li><a href="' . esc_url( get_permalink( $id ) ) . '">' . esc_html( get_the_title( $id ) ) . '</a>' . ( function_exists( 'cadao_html_so_lieu' ) ? str_replace( '<p class=', '<span class=', str_replace( '</p>', '</span>', cadao_html_so_lieu( (int) $id, array( 'doc' ), 'cadao-so-lieu-ds' ) ) ) : '' ) . '</li>';
 		}
 		return '<section class="cadao-doc-nhieu" aria-labelledby="cadao-doc-nhieu"><h2 id="cadao-doc-nhieu">Đọc nhiều tuần này</h2><ol>' . $li . '</ol></section>';
 	}

@@ -63,7 +63,6 @@ function cadao_khoi_hanh_dong( WP_Post $bai ): string {
 	$kem       = $co_dap_an || $co_chu
 		? '<p class="cadao-can-js" hidden><label><input type="checkbox" class="cadao-kem"> Kèm ' . ( $co_dap_an && $co_chu ? 'đáp án và chú thích' : ( $co_dap_an ? 'đáp án' : 'chú thích' ) ) . '</label></p>'
 		: '';
-	$luot = cadao_luot_doc_tong( $bai->ID );
 	return '<div class="cadao-hanh-dong" data-id="' . (int) $bai->ID . '" data-loi="' . esc_attr( $loi ) . '" data-ten="' . esc_attr( cadao_giai_ma( wp_strip_all_tags( get_the_title( $bai ) ) ) ) . '" data-the-loai="' . esc_attr( cadao_ten_the_loai( $bai ) ) . '" data-url="' . esc_url( get_permalink( $bai ) ) . '">'
 		. '<details class="cadao-trich-dan"><summary><span aria-hidden="true">❝</span> Trích dẫn</summary><div class="cadao-trich-dan-hop">'
 		. '<fieldset class="cadao-can-js" hidden><legend>Kiểu trích dẫn</legend>'
@@ -85,7 +84,6 @@ function cadao_khoi_hanh_dong( WP_Post $bai ): string {
 		. ( function_exists( 'cadao_la_dong_dao' ) && cadao_la_dong_dao( $bai ) ? '<button type="button" class="cadao-doc-cung-be" hidden>Đọc cùng bé</button>' : '' ) // T-103, assets/dong-dao.js
 		. '<button type="button" class="cadao-nghe" hidden>▶ Nghe</button><span class="cadao-giong-may" hidden>Giọng đọc máy</span>'
 		. '</span>'
-		. ( $luot >= 10 ? '<span class="cadao-luot-doc">' . esc_html( number_format_i18n( $luot ) ) . ' lượt đọc</span>' : '' )
 		. '<p class="cadao-bao" role="status" aria-live="polite"></p>'
 		. '</div>';
 }

@@ -71,3 +71,11 @@ foreach ( array( 'bến Mẫu Bắc' => array( 'Địa danh tổng hợp ở ph�
 		update_term_meta( $muc->term_id, '_cadao_wd', array( 'nhan_wd' => $tu, 'mo_ta' => 'địa danh tổng hợp', 'toa_do' => array( $lat, $lon ), 'wiki' => '' ) );
 	}
 }
+// Số liệu mẫu (T-115): bài lục bát mẫu có đủ lượt đọc, chia sẻ, trích dẫn để thấy dòng 👁 ↗ ❝ — số tổng hợp
+global $wpdb;
+$lb_mau = get_posts( array( 'post_type' => 'cdtn', 'post_status' => 'publish', 'title' => 'Dòng mẫu một của bài', 'numberposts' => 1, 'fields' => 'ids' ) );
+if ( $lb_mau ) {
+	$wpdb->replace( cadao_luot_doc_bang(), array( 'post_id' => $lb_mau[0], 'ngay' => gmdate( 'Y-m-d' ), 'so' => 1234 ) );
+	$wpdb->replace( cadao_su_kien_bang(), array( 'ngay' => gmdate( 'Y-m-d' ), 'loai' => 'chia_se', 'khoa' => $lb_mau[0] . ':web_share', 'so' => 38 ) );
+	$wpdb->replace( cadao_su_kien_bang(), array( 'ngay' => gmdate( 'Y-m-d' ), 'loai' => 'trich_dan_sao_chep', 'khoa' => $lb_mau[0] . ':apa', 'so' => 12 ) );
+}

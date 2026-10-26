@@ -46,6 +46,7 @@ wordpress/
 │   ├── inc/ban-bien-tap.php trang "Bàn biên tập": mọi hàng chờ, số đếm, nút Mở; ô "việc chờ bạn" trên Bảng tin (T-047)
 │   ├── inc/sua-muc-tu.php   trang Sửa mục từ: nguồn của lời giải, ảnh riêng / ẩn ảnh Wikidata (T-113)
 │   ├── inc/chinh-sach-du-lieu.php  trang "Chính sách thu thập dữ liệu"; dọn dòng Nguồn dưới chú thích chép (D-068, T-114)
+│   ├── inc/so-lieu.php      dòng 👁 đọc · ↗ chia sẻ · ❝ trích dẫn dưới tiêu đề bài, 👁 trong danh sách (D-069, T-115)
 │   ├── inc/tach-loai.php    gợi ý tách thành ngữ / tục ngữ, trang duyệt hàng loạt, chuyển hướng đường dẫn cũ (T-080)
 │   ├── inc/site-cu.php      chuyển bài công khai của site Astro cũ, qua bước chống trùng (T-076)
 │   ├── inc/the-tho.php      nhận thể thơ theo số âm tiết, phân loại "Thể thơ" để lọc (T-084)
@@ -81,6 +82,7 @@ wordpress/
 - **Công cụ đọc (T-085), bài dài (T-090):** "Aa", "◐", "Trình chiếu", "▶ Nghe" (chỉ khi máy có giọng tiếng Việt; "Giọng đọc máy") cạnh Trích dẫn · Chia sẻ; cỡ chữ và sáng / tối nhớ trên máy, áp trong `<head>` (thuộc tính `data-co-chu`, `data-che-do` trên `<html>`). Bài từ 41 dòng: tóm tắt, mục lục, đoạn, số dòng bên lề, "Đọc toàn bài", "Đọc tiếp từ đoạn N".
 - **Trích dẫn, chia sẻ (T-042):** hộp `<details>` "Trích dẫn" — kiểu thông dụng và APA 7 (`20` mục 6), nút "Sao chép kèm nguồn" / "Chỉ sao chép lời", ô "Kèm đáp án / chú thích" khi bài có phần chép từ nguồn; nút "Chia sẻ" (Web Share, không có thì sao chép liên kết). Ngày truy cập theo ngày bấm.
 - **Tách thành ngữ – tục ngữ (T-080):** trang **Ca dao – Tục ngữ → Tách thành ngữ – tục ngữ**, chia bốn nhóm: máy đã chắc / máy nghiêng về / máy chưa rõ / bạn đã quyết; nút "Đồng ý gợi ý", "Là thành ngữ", "Là tục ngữ". Gợi ý: danh mục Wiktionary (tải mỗi tuần, chỉ lưu dấu vân tay) khi độ dài câu cùng hướng; câu nhiều vế, từ 8 âm tiết, hai vế cách dấu phẩy → tục ngữ (chắc); có từ nối "thì, là, mới, hơn…" → nghiêng về tục ngữ; ≤ 4 âm tiết → nghiêng về thành ngữ. Chưa duyệt thì bài vẫn vào Tục ngữ như trước. Đổi thể loại thì đường dẫn cũ (`/tuc-ngu/<tên>/` ↔ `/thanh-ngu/<tên>/`) chuyển hướng 301 (mọi bài, kể cả đổi tay).
+- **Số liệu của bài (T-115, D-069):** dưới tiêu đề: 👁 lượt đọc (≥ 10) · ↗ lượt chia sẻ (≥ 3) · ❝ lượt trích dẫn (≥ 3), số rút gọn 1,2K; danh sách bài chỉ 👁. Chia sẻ = sự kiện `chia_se` (gửi xong qua hộp chia sẻ, hoặc sao chép liên kết).
 - **Sửa mục từ (T-113):** Từ điển → Sửa mục từ có ô **Nguồn của lời giải** (xóa khi tự viết lại) và **Ảnh** (chọn từ Thư viện ảnh kèm ghi công, hoặc ẩn ảnh Wikidata). Trường `_cadao_anh_rieng`, `_cadao_anh_ghi_cong`, `_cadao_an_anh`.
 - **Bàn biên tập (T-047):** mục đầu của menu Ca dao – Tục ngữ: mọi hàng chờ theo thứ tự nên làm (báo lỗi của người đọc trước), số đếm, "làm gì", nút Mở; ô "việc chờ bạn" ở đầu Bảng tin.
 - **Lời vào khối Thơ (T-112):** mọi tính năng của trang bài đọc lời từ khối Thơ. Bài có lời trong khối Đoạn văn: trình soạn báo và có nút "Đưa lời vào khối Thơ"; trang **Lời chưa vào khối Thơ** liệt kê bài cũ, xem trước, bấm Chuyển. Không đổi chữ; dòng chú (in nghiêng / trong ngoặc) giữ là đoạn văn; có bản sửa đổi để hoàn tác.

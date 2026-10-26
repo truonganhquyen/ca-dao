@@ -51,7 +51,7 @@
 		}
 		if (d.bai.length) {
 			h += '<h2 class="cadao-tim-nhom">' + d.bai.length + ' bài</h2><ul class="cadao-tim-ds">' + d.bai.map(function (b) {
-				return '<li><a href="' + e(b.url) + '"><strong>' + to(b.dong_dau || b.tieu_de, d.q) + '</strong></a> <span class="cadao-tim-phu">· ' + e(b.the_loai) + '</span>'
+				return '<li><a href="' + e(b.url) + '"><strong>' + to(b.dong_dau || b.tieu_de, d.q) + '</strong></a> <span class="cadao-tim-phu">· ' + e(b.the_loai) + '</span>' + (b.so_lieu || '')
 					+ (b.dong_khop ? '<br><span class="cadao-tim-khop">… ' + to(b.dong_khop, d.q) + '</span>' : '')
 					+ (b.hieu_nhanh ? '<br><span class="cadao-tim-phu">' + e(b.hieu_nhanh) + '</span>' : '') + '</li>';
 			}).join('') + '</ul>';

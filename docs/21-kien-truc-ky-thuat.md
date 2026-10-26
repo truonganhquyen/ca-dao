@@ -165,6 +165,7 @@ Không cookie, không lưu IP, không công cụ quảng cáo. Chỉ đo thứ d
 | `tim_khong_ket_qua` | chuỗi truy vấn (không định danh) | Biên soạn bài nào tiếp theo |
 | `trich_dan_sao_chep` | mã tác phẩm, định dạng | North Star |
 | `chu_giai_mo` | mã mục từ | Mục từ nào cần viết kỹ |
+| `chia_se` | mã tác phẩm, kiểu (hộp chia sẻ / sao chép liên kết) | Hiện số chia sẻ dưới tiêu đề bài (D-069) |
 
 Thêm sự kiện chỉ khi có tính năng tương ứng và một quyết định cần đến nó (ghi D-xxx).
 

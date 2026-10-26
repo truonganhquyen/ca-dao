@@ -270,11 +270,11 @@ kt( 'bài chưa đăng không nhận lượt đọc', 404 === $gui( $bai_cd1->ID
 kt( 'bài không phải Ca dao – Tục ngữ không nhận lượt đọc', 404 === $gui( wp_insert_post( array( 'post_title' => 'Bài viết thường', 'post_status' => 'publish' ) ) )->get_status() );
 kt( 'trang giới thiệu: bỏ chuỗi không phải tên miền và chính site', '' === cadao_ten_mien_gioi_thieu( 'https://x.y/z' ) && '' === cadao_ten_mien_gioi_thieu( wp_parse_url( home_url(), PHP_URL_HOST ) ) && 'google.com' === cadao_ten_mien_gioi_thieu( 'WWW.Google.com' ) );
 kt( 'không đặt cookie (không có lệnh setcookie nào trong plugin)', ! preg_match( '/setcookie|setrawcookie|document\.cookie/', implode( '', array_map( 'file_get_contents', array_merge( glob( CADAO_THU_MUC . '/inc/*.php' ), glob( CADAO_THU_MUC . '/assets/*.js' ) ) ) ) ) );
-kt( 'chưa tới 10 lượt: không hiện số lượt đọc', ! str_contains( cadao_khoi_hanh_dong( get_post( $td ) ), 'lượt đọc' ) );
+kt( 'chưa tới 10 lượt: không hiện số lượt đọc', '' === cadao_html_so_lieu( $td ) && ! str_contains( cadao_khoi_hanh_dong( get_post( $td ) ), 'lượt đọc' ) );
 for ( $i = 0; $i < 9; $i++ ) {
 	cadao_luot_doc_cong( $td );
 }
-kt( 'từ 10 lượt: hiện "10 lượt đọc"', str_contains( cadao_khoi_hanh_dong( get_post( $td ) ), '>10 lượt đọc<' ) );
+kt( 'từ 10 lượt: hiện 👁 10 dưới tiêu đề (đọc được: "10 lượt đọc")', str_contains( cadao_html_so_lieu( $td ), '<span aria-hidden="true">10</span>' ) && str_contains( cadao_html_so_lieu( $td ), '>10 lượt đọc<' ) );
 kt( '"Đọc nhiều tuần này" ẩn khi chưa đủ 3 bài được đọc', '' === do_shortcode( '[cadao_doc_nhieu]' ) );
 cadao_luot_doc_cong( $tay );
 cadao_luot_doc_cong( $sua );
@@ -1003,6 +1003,35 @@ $p_cs = get_page_by_path( 'chinh-sach-du-lieu', OBJECT, 'page' );
 kt( 'trang "Chính sách thu thập dữ liệu" đã đăng ở /chinh-sach-du-lieu/, có danh sách nguồn tự sinh', $p_cs && 'publish' === $p_cs->post_status && str_contains( $p_cs->post_content, '[cadao_nguon]' ) && str_contains( $p_cs->post_content, 'Xin gỡ, xin sửa' ) );
 kt( 'chân trang có "Chính sách dữ liệu"; trang Phương pháp (nháp) trỏ tới chính sách, không còn hứa dòng Nguồn dưới chú thích', str_contains( do_shortcode( '[cadao_chan_trang]' ), 'Chính sách dữ liệu' ) && ( $pp_068 = get_page_by_path( 'phuong-phap', OBJECT, 'page' ) ) && str_contains( $pp_068->post_content, '/chinh-sach-du-lieu/' ) && ! str_contains( $pp_068->post_content, 'luôn có dòng' ) );
 kt( 'danh sách nguồn: nêu trang đã thu thập và số bài đang đăng lấy từ đó', str_contains( do_shortcode( '[cadao_nguon]' ), 'bài đang đăng được thu thập từ trang này' ) );
+
+// ---------- Số liệu của bài: 👁 đọc · ↗ chia sẻ · ❝ trích dẫn (T-115, D-069) ----------
+kt( 'số rút gọn: 999 · 1,2K · 15K · 1,2M', '999' === cadao_so_gon( 999 ) && '1K' === cadao_so_gon( 1000 ) && '1,2K' === cadao_so_gon( 1234 ) && '15K' === cadao_so_gon( 15200 ) && '1,2M' === cadao_so_gon( 1250000 ) );
+$sl_bai = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'post_title' => 'Bài thử số liệu', 'post_content' => cadao_khoi_tho( "Số liệu thử một\nSố liệu thử hai" ) ) );
+kt( 'chưa đủ ngưỡng: không có dòng số liệu', '' === cadao_html_so_lieu( $sl_bai ) );
+for ( $i = 0; $i < 12; $i++ ) {
+	cadao_luot_doc_cong( $sl_bai );
+}
+$sk_sl = static function ( array $du ) {
+	$yc = new WP_REST_Request( 'POST', '/cadao/v1/su-kien' );
+	$yc->set_header( 'user-agent', 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Mobile Safari/537.36' );
+	$yc->set_header( 'content-type', 'application/json' );
+	$yc->set_body( wp_json_encode( $du ) );
+	return rest_do_request( $yc )->get_data()['tinh'] ?? null;
+};
+kt( 'chia sẻ: nhận đúng hai kiểu (hộp chia sẻ, sao chép liên kết); kiểu lạ, bài chưa đăng thì không', true === $sk_sl( array( 'loai' => 'chia_se', 'bai' => $sl_bai, 'kieu' => 'web_share' ) ) && true === $sk_sl( array( 'loai' => 'chia_se', 'bai' => $sl_bai, 'kieu' => 'sao_chep_lien_ket' ) ) && false === $sk_sl( array( 'loai' => 'chia_se', 'bai' => $sl_bai, 'kieu' => 'facebook' ) ) && false === $sk_sl( array( 'loai' => 'chia_se', 'bai' => $bai_cd1->ID, 'kieu' => 'web_share' ) ) );
+$sk_sl( array( 'loai' => 'trich_dan_sao_chep', 'bai' => $sl_bai, 'kieu' => 'chi_loi' ) );
+$sk_sl( array( 'loai' => 'trich_dan_sao_chep', 'bai' => $sl_bai, 'kieu' => 'apa' ) );
+kt( 'số liệu của bài: đọc, chia sẻ, trích dẫn (chỉ tính sao chép kèm nguồn)', array( 'doc' => 12, 'chia_se' => 2, 'trich_dan' => 1 ) === cadao_so_lieu_bai( $sl_bai ), cadao_so_lieu_bai( $sl_bai ) );
+$h_sl = cadao_html_so_lieu( $sl_bai );
+kt( 'đọc ≥ 10 thì hiện; chia sẻ, trích dẫn dưới 3 thì ẩn; icon ẩn với trình đọc màn hình, có câu đầy đủ', str_contains( $h_sl, '<span class="screen-reader-text">12 lượt đọc</span>' ) && ! str_contains( $h_sl, 'lượt chia sẻ' ) && ! str_contains( $h_sl, 'lượt trích dẫn' ) && str_contains( $h_sl, 'aria-hidden="true" focusable="false"' ), $h_sl );
+$sk_sl( array( 'loai' => 'chia_se', 'bai' => $sl_bai, 'kieu' => 'web_share' ) );
+$sk_sl( array( 'loai' => 'trich_dan_sao_chep', 'bai' => $sl_bai, 'kieu' => 'thong_dung' ) );
+$sk_sl( array( 'loai' => 'trich_dan_sao_chep', 'bai' => $sl_bai, 'kieu' => 'apa' ) );
+$h_sl = cadao_html_so_lieu( $sl_bai );
+kt( 'đủ 3 lượt: hiện cả chia sẻ và trích dẫn', str_contains( $h_sl, '3 lượt chia sẻ' ) && str_contains( $h_sl, '3 lượt trích dẫn' ), $h_sl );
+$tieu_ds = ( new WP_Block( array( 'blockName' => 'core/post-title', 'attrs' => array( 'isLink' => true ), 'innerBlocks' => array(), 'innerHTML' => '', 'innerContent' => array() ), array( 'postId' => $sl_bai, 'postType' => CADAO_LOAI_BAI, 'queryId' => 1 ) ) )->render();
+kt( 'danh sách bài (vòng lặp): dưới tiêu đề chỉ có 👁', str_contains( $tieu_ds, 'cadao-so-lieu-ds' ) && str_contains( $tieu_ds, '12 lượt đọc' ) && ! str_contains( $tieu_ds, 'lượt chia sẻ' ), $tieu_ds );
+kt( 'nút Chia sẻ: chỉ tính khi gửi xong (hủy thì không), sao chép liên kết cũng tính; mỗi máy một lần mỗi ngày', (bool) preg_match( "/\\.then\\(function \\(\\) \\{ daChiaSe\\('web_share'\\); \\}/", file_get_contents( CADAO_THU_MUC . '/assets/ca-dao.js' ) ) && str_contains( file_get_contents( CADAO_THU_MUC . '/assets/ca-dao.js' ), "daChiaSe('sao_chep_lien_ket')" ) && str_contains( file_get_contents( CADAO_THU_MUC . '/assets/ca-dao.js' ), "'cadao-da-chia-se'" ) );
 
 $ngan = do_blocks( cadao_khoi_tho( implode( "\n", array_slice( $khong_kho, 0, 40 ) ) ) );
 kt( 'bài 40 dòng trở xuống: không chia đoạn', ! str_contains( $ngan, 'cadao-bai-dai' ) );
