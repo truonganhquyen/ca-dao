@@ -7,7 +7,8 @@
  * - chu_giai_mo: mục từ được chạm mở → mục từ nào cần viết kỹ.
  * - chia_se (D-069): bài + kiểu (gửi qua hộp chia sẻ của máy, sao chép liên kết) → số chia sẻ dưới tiêu đề bài; mỗi máy
  *   một lần mỗi ngày mỗi bài (đánh dấu trong bộ nhớ trình duyệt).
- * Người biên soạn đang đăng nhập không tính (như lượt đọc, D-064). Số liệu xem ở Bảng tin.
+ * Người biên soạn đang đăng nhập không tính (như lượt đọc, D-064). Mỗi máy một lần mỗi ngày cho cùng sự kiện và khóa
+ * (dấu băm tạm của IP, không lưu IP — T-118). Số liệu xem ở Bảng tin.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -107,6 +108,9 @@ function cadao_su_kien_ghi( string $loai, array $du ): bool {
 		$khoa = (string) $muc->term_id;
 	} else {
 		return false;
+	}
+	if ( ! cadao_lan_dau_trong_ngay( $loai . ':' . $khoa ) ) {
+		return false; // cùng máy, cùng sự kiện, cùng ngày: không cộng thêm (T-118)
 	}
 	$wpdb->query( $wpdb->prepare( "INSERT INTO $t (ngay, loai, khoa, so) VALUES (%s, %s, %s, 1) ON DUPLICATE KEY UPDATE so = so + 1", wp_date( 'Y-m-d' ), $loai, $khoa ) );
 	return true;

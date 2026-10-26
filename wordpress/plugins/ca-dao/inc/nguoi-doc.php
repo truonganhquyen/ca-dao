@@ -47,8 +47,7 @@ function cadao_kiem_gui( array $du_lieu ) {
 	if ( '' !== trim( (string) ( $du_lieu['cadao_web'] ?? '' ) ) ) {
 		return 'Không gửi được.'; // ô bẫy có chữ: máy tự động
 	}
-	$ip   = (string) ( $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['REMOTE_ADDR'] ?? '' );
-	$khoa = 'cadao_gui_' . substr( wp_hash( $ip . gmdate( 'YmdH' ) ), 0, 20 ); // chỉ dấu băm, hết hạn sau một giờ
+	$khoa = 'cadao_gui_' . substr( wp_hash( cadao_ip_nguoi_gui() . gmdate( 'YmdH' ) ), 0, 20 ); // chỉ dấu băm, hết hạn sau một giờ
 	$so   = (int) get_transient( $khoa );
 	if ( $so >= CADAO_GUI_MOI_GIO ) {
 		return 'Bạn đã gửi nhiều lần trong giờ này. Xin thử lại sau ít phút.';

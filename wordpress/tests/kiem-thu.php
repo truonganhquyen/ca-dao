@@ -260,11 +260,29 @@ $gui = static function ( int $id, string $ua = 'Mozilla/5.0 (Linux; Android 14) 
 	$yc->set_body( wp_json_encode( array( 'tu' => $tu ) ) );
 	return rest_do_request( $yc );
 };
+$_SERVER['REMOTE_ADDR'] = '198.51.100.1';
 $r = $gui( $td, 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Mobile Safari/537.36', 'www.zalo.me' );
 kt( 'gửi một lượt đọc: được tính', 200 === $r->get_status() && true === ( $r->get_data()['tinh'] ?? null ) && 1 === cadao_luot_doc_tong( $td ), array( $r->get_status(), $r->get_data() ) );
 kt( 'trang giới thiệu: chỉ tên miền', array( 'zalo.me' => 1 ) === cadao_gioi_thieu_nhieu(), cadao_gioi_thieu_nhieu() );
 $r = $gui( $td, 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)' );
 kt( 'máy dò tự khai tên (Googlebot) không được tính', true !== ( $r->get_data()['tinh'] ?? null ) && 1 === cadao_luot_doc_tong( $td ) );
+kt( 'cùng máy gửi lại trong ngày: máy chủ không tính thêm (T-118)', true !== ( $gui( $td )->get_data()['tinh'] ?? null ) && 1 === cadao_luot_doc_tong( $td ) );
+$_SERVER['HTTP_CF_CONNECTING_IP'] = '192.0.2.77';
+kt( 'gửi thẳng tới máy chủ, tự đặt header Cloudflare: vẫn là cùng máy, không tính thêm', true !== ( $gui( $td )->get_data()['tinh'] ?? null ) && 1 === cadao_luot_doc_tong( $td ) );
+$_SERVER['HTTP_CF_CONNECTING_IP'] = '192.0.2.1';
+$_SERVER['REMOTE_ADDR']           = '203.0.113.5';
+$ip_a                             = cadao_ip_nguoi_gui();
+$_SERVER['REMOTE_ADDR']           = '173.245.48.10';
+$ip_b                             = cadao_ip_nguoi_gui();
+$_SERVER['REMOTE_ADDR']           = '2606:4700:10::1';
+$ip_c                             = cadao_ip_nguoi_gui();
+$_SERVER['HTTP_CF_CONNECTING_IP'] = 'không phải IP';
+$ip_d                             = cadao_ip_nguoi_gui();
+kt( 'IP người gửi: chỉ tin CF-Connecting-IP khi yêu cầu đến từ dải Cloudflare (IPv4, IPv6); header lạ thì bỏ', array( '203.0.113.5', '192.0.2.1', '192.0.2.1', '2606:4700:10::1' ) === array( $ip_a, $ip_b, $ip_c, $ip_d ), array( $ip_a, $ip_b, $ip_c, $ip_d ) );
+kt( 'dải CIDR: đúng biên, không lẫn IPv4 với IPv6', cadao_ip_trong_dai( '104.23.255.255', '104.16.0.0/13' ) && ! cadao_ip_trong_dai( '104.24.0.0', '104.16.0.0/13' ) && cadao_ip_trong_dai( '2a06:98c7::1', '2a06:98c0::/29' ) && ! cadao_ip_trong_dai( '2a06:98c8::1', '2a06:98c0::/29' ) && ! cadao_ip_trong_dai( '1.2.3.4', '2400:cb00::/32' ) && ! cadao_ip_trong_dai( 'x', '173.245.48.0/20' ) );
+unset( $_SERVER['HTTP_CF_CONNECTING_IP'] );
+$_SERVER['REMOTE_ADDR'] = '198.51.100.1';
+kt( 'không lộ phiên bản WordPress (thẻ generator trong <head> và nguồn tin)', false === has_action( 'wp_head', 'wp_generator' ) && '' === apply_filters( 'the_generator', '<meta name="generator" content="WordPress">', 'xhtml' ) );
 kt( 'trình duyệt không giao diện không được tính', cadao_la_may_do( 'Mozilla/5.0 (X11; Linux x86_64) HeadlessChrome/120.0' ) && cadao_la_may_do( '' ) );
 kt( 'bài chưa đăng không nhận lượt đọc', 404 === $gui( $bai_cd1->ID )->get_status() && 0 === cadao_luot_doc_tong( $bai_cd1->ID ) );
 kt( 'bài không phải Ca dao – Tục ngữ không nhận lượt đọc', 404 === $gui( wp_insert_post( array( 'post_title' => 'Bài viết thường', 'post_status' => 'publish' ) ) )->get_status() );
@@ -791,8 +809,10 @@ kt( 'trang bài: nút ☆ Lưu (ẩn tới khi JavaScript thấy bộ nhớ dùn
 kt( 'chân trang có liên kết "Bài đã lưu"', str_contains( do_shortcode( '[cadao_chan_trang]' ), 'Bài đã lưu' ) );
 kt( 'bảng sự kiện đã tạo', (bool) $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', cadao_su_kien_bang() ) ) );
 kt( 'chuỗi tìm: chữ thường, gọn khoảng trắng; bỏ chuỗi trông như email, số điện thoại', 'con cò bay lả' === cadao_su_kien_chuoi_tim( '  Con Cò   bay LẢ ' ) && '' === cadao_su_kien_chuoi_tim( 'ten@mail.vn' ) && '' === cadao_su_kien_chuoi_tim( '0912 345 678' ) && 'năm 1945' === cadao_su_kien_chuoi_tim( 'năm 1945' ) && '' === cadao_su_kien_chuoi_tim( 'a' ) );
-$sk = static function ( array $du, string $ua = 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Mobile Safari/537.36' ) {
-	$yc = new WP_REST_Request( 'POST', '/cadao/v1/su-kien' );
+$may_sk = 0; // mỗi lần gửi là một người đọc khác (máy chủ chặn cùng máy gửi lặp — T-118), trừ khi chỉ định IP
+$sk     = static function ( array $du, string $ua = 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Mobile Safari/537.36', ?string $ip = null ) use ( &$may_sk ) {
+	$_SERVER['REMOTE_ADDR'] = $ip ?? '198.51.100.' . ( ++$may_sk % 200 + 10 );
+	$yc                     = new WP_REST_Request( 'POST', '/cadao/v1/su-kien' );
 	$yc->set_header( 'user-agent', $ua );
 	$yc->set_header( 'content-type', 'application/json' );
 	$yc->set_body( wp_json_encode( $du ) );
@@ -810,6 +830,8 @@ ob_start();
 cadao_su_kien_o_bang_tin();
 $o_sk = ob_get_clean();
 kt( 'Bảng tin "người đọc cần gì": câu tìm không ra, số lần sao chép theo kiểu, từ được chạm, cách đọc mỗi tuần', str_contains( $o_sk, 'zzqx khongcocau' ) && str_contains( $o_sk, '<strong>2</strong> lần (kèm nguồn, APA 7: 1, chỉ lời: 1)' ) && str_contains( $o_sk, esc_html( $m_do->name ) ) && str_contains( $o_sk, 'Đọc mỗi tuần' ), $o_sk );
+$ua_dt = 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Mobile Safari/537.36';
+kt( 'cùng máy gửi lặp một sự kiện trong ngày: chỉ tính một lần; không lưu IP (T-118)', $tinh( $sk( array( 'loai' => 'tim_khong_ket_qua', 'q' => 'zzqx lap lai' ), $ua_dt, '192.0.2.50' ) ) && ! $tinh( $sk( array( 'loai' => 'tim_khong_ket_qua', 'q' => 'zzqx lap lai' ), $ua_dt, '192.0.2.50' ) ) && $tinh( $sk( array( 'loai' => 'tim_khong_ket_qua', 'q' => 'zzqx lap lai' ), $ua_dt, '192.0.2.51' ) ) && 2 === ( cadao_su_kien_nhieu( 'tim_khong_ket_qua', 30, 50 )['zzqx lap lai'] ?? 0 ) && ! $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->options} WHERE option_value LIKE %s OR option_name LIKE %s", '%192.0.2.5%', '%192.0.2.5%' ) ) );
 $js_bai = file_get_contents( CADAO_THU_MUC . '/assets/ca-dao.js' );
 kt( 'trang bài gửi sự kiện sao chép, mở chú giải; trang tìm gửi "không ra" sau 2 giây đứng yên', str_contains( $js_bai, "suKien('trich_dan_sao_chep'" ) && str_contains( $js_bai, "suKien('chu_giai_mo'" ) && str_contains( file_get_contents( CADAO_THU_MUC . '/assets/tim.js' ), "loai: 'tim_khong_ket_qua'" ) );
 
@@ -1011,8 +1033,10 @@ kt( 'chưa đủ ngưỡng: không có dòng số liệu', '' === cadao_html_so_
 for ( $i = 0; $i < 12; $i++ ) {
 	cadao_luot_doc_cong( $sl_bai );
 }
-$sk_sl = static function ( array $du ) {
-	$yc = new WP_REST_Request( 'POST', '/cadao/v1/su-kien' );
+$may_sl = 0;
+$sk_sl  = static function ( array $du ) use ( &$may_sl ) {
+	$_SERVER['REMOTE_ADDR'] = '198.51.101.' . ( ++$may_sl % 200 + 10 ); // mỗi lần một người đọc khác
+	$yc                     = new WP_REST_Request( 'POST', '/cadao/v1/su-kien' );
 	$yc->set_header( 'user-agent', 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Mobile Safari/537.36' );
 	$yc->set_header( 'content-type', 'application/json' );
 	$yc->set_body( wp_json_encode( $du ) );
