@@ -13,12 +13,15 @@
     "test:nhat-quan": "node scripts/test-nhat-quan.mjs",
     "kiem-nhat-quan": "node scripts/kiem-nhat-quan.mjs",
     "kiem-tra": "npm run test:nhat-quan && npm run kiem-nhat-quan",
-    "viec-tiep-theo": "node scripts/viec-tiep-theo.mjs"
+    "viec-tiep-theo": "node scripts/viec-tiep-theo.mjs",
+    "e2e": "playwright test -c tests/e2e/playwright.config.mjs --project=may-tinh --project=dien-thoai",
+    "e2e:quan-tri": "playwright test -c tests/e2e/playwright.config.mjs --project=quan-tri"
   },
   "engines": {
     "node": ">=22.12.0"
   },
   "devDependencies": {
+    "@playwright/test": "1.56.1",
     "axe-core": "4.14.0",
     "puppeteer-core": "25.13.0"
   }

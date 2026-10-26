@@ -8,3 +8,7 @@ rieng-tu/
 .wrangler/
 wordpress/tests/.ket-qua.txt
 wordpress/tests/.anh-chia-se-thu.png
+
+# Khảo sát E2E (tests/e2e): kết quả chạy; ảnh trang quản trị có thể chứa kho thô, email — không đưa lên repo công khai
+test-results/
+docs/e2e-review/screenshots/admin/
