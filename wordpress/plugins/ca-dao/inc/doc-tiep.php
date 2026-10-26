@@ -1,8 +1,9 @@
 <?php
 /**
- * "Đọc tiếp" cuối bài, bản tối giản (D-075; thay một phần T-092 đang tạm dừng — không có trang mô-típ): 3–5 bài đã
- * đăng cùng chủ đề, cùng vùng (đã duyệt); thiếu thì thêm bài cùng thể loại đăng gần đó. Mỗi bài: tên, hai dòng đầu và
- * một nhãn vì sao được gợi ý. Chỉ dùng phân loại có sẵn, không gợi ý theo nghĩa; không JavaScript.
+ * "Đọc tiếp" cuối bài — bài gần gũi (T-092, T-122; docs/25 ý 4): 3–5 bài đã đăng cùng mô-típ, cùng chủ đề, cùng nhắc
+ * một mục từ (từ khó, địa danh được chú thích), cùng vùng (mô-típ, chủ đề, vùng do người sáng lập duyệt); thiếu thì thêm bài
+ * cùng thể loại đăng gần đó. Mỗi bài: tên, hai dòng đầu và một nhãn vì sao được gợi ý. Chỉ dùng phân loại có sẵn, không
+ * gợi ý theo nghĩa; không JavaScript.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,8 +11,14 @@ defined( 'ABSPATH' ) || exit;
 const CADAO_DOC_TIEP_TOI_DA    = 5;
 const CADAO_DOC_TIEP_TOI_THIEU = 3;
 
+/** Điểm của mỗi phân loại chung (mô-típ gần nhất); nhãn lấy theo phân loại điểm cao nhất mà hai bài cùng có. */
+const CADAO_DOC_TIEP_DIEM = array( 'mo_tip' => 6, 'chu_de' => 4, 'tu_kho' => 3, 'vung' => 2 );
+
+/** Mục từ dùng để nối bài: có ở 2–20 bài (từ có ở quá nhiều bài thì không nói lên hai bài gần nhau). */
+const CADAO_DOC_TIEP_MUC_TU_TOI_DA = 20;
+
 /**
- * Bài nên đọc tiếp sau $bai, gần nhất trước: cùng chủ đề (2 điểm mỗi chủ đề chung), cùng vùng (1 điểm); bằng điểm thì
+ * Bài nên đọc tiếp sau $bai, gần nhất trước: cộng điểm theo từng phân loại chung (CADAO_DOC_TIEP_DIEM); bằng điểm thì
  * bài mới hơn trước. Chưa đủ 3 bài thì thêm bài cùng thể loại đăng ngay trước (rồi ngay sau) bài này.
  *
  * @return array<int, array{bai: WP_Post, nhan: string}>
@@ -19,27 +26,44 @@ const CADAO_DOC_TIEP_TOI_THIEU = 3;
 function cadao_doc_tiep( WP_Post $bai ): array {
 	$cua = static function ( int $id, string $tax ): array {
 		$ds = get_the_terms( $id, $tax );
-		return ( $ds && ! is_wp_error( $ds ) ) ? $ds : array();
+		$ds = ( $ds && ! is_wp_error( $ds ) ) ? $ds : array();
+		return 'tu_kho' === $tax ? array_values( array_filter( $ds, static fn( $t ) => $t->count >= 2 && $t->count <= CADAO_DOC_TIEP_MUC_TU_TOI_DA ) ) : $ds;
 	};
-	$chu_de = wp_list_pluck( $cua( $bai->ID, 'chu_de' ), 'term_id' );
-	$vung   = wp_list_pluck( $cua( $bai->ID, 'vung' ), 'term_id' );
-	$chung  = array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'no_found_rows' => true, 'ignore_sticky_posts' => true );
-	$diem   = array();
-	$nhan   = array();
-	$ra     = array();
-	if ( $chu_de || $vung ) {
-		$hoi = array( 'relation' => 'OR' );
-		foreach ( array( 'chu_de' => $chu_de, 'vung' => $vung ) as $tax => $ids ) {
-			if ( $ids ) {
-				$hoi[] = array( 'taxonomy' => $tax, 'field' => 'term_id', 'terms' => $ids );
-			}
-		}
-		$ung_vien = get_posts( $chung + array( 'post__not_in' => array( $bai->ID ), 'tax_query' => $hoi, 'numberposts' => 60, 'orderby' => 'ID', 'order' => 'DESC' ) );
+	$cua_bai = array();
+	foreach ( array_keys( CADAO_DOC_TIEP_DIEM ) as $tax ) {
+		$cua_bai[ $tax ] = taxonomy_exists( $tax ) ? wp_list_pluck( $cua( $bai->ID, $tax ), 'term_id' ) : array();
+	}
+	$chung = array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'no_found_rows' => true, 'ignore_sticky_posts' => true );
+	$diem  = array();
+	$nhan  = array();
+	$ra    = array();
+	$hoi   = array( 'relation' => 'OR' );
+	foreach ( array_filter( $cua_bai ) as $tax => $ids ) {
+		$hoi[] = array( 'taxonomy' => $tax, 'field' => 'term_id', 'terms' => $ids );
+	}
+	if ( count( $hoi ) > 1 ) {
+		$ung_vien = get_posts( $chung + array( 'post__not_in' => array( $bai->ID ), 'tax_query' => $hoi, 'numberposts' => 80, 'orderby' => 'ID', 'order' => 'DESC' ) );
+		$ten_nhan = array(
+			'mo_tip' => static fn( $t ) => 'Cùng mô-típ ' . $t->name,
+			'chu_de' => static fn( $t ) => 'Cùng chủ đề ' . $t->name,
+			'tu_kho' => static fn( $t ) => 'Cùng nhắc tới "' . $t->name . '"',
+			'vung'   => static fn( $t ) => 'Cùng vùng ' . $t->name,
+		);
 		foreach ( $ung_vien as $p ) {
-			$cd = array_values( array_filter( $cua( $p->ID, 'chu_de' ), static fn( $t ) => in_array( $t->term_id, $chu_de, true ) ) );
-			$vu = array_values( array_filter( $cua( $p->ID, 'vung' ), static fn( $t ) => in_array( $t->term_id, $vung, true ) ) );
-			$diem[ $p->ID ] = 2 * count( $cd ) + count( $vu );
-			$nhan[ $p->ID ] = $cd ? 'Cùng chủ đề ' . $cd[0]->name : 'Cùng vùng ' . $vu[0]->name;
+			$d = 0;
+			foreach ( $cua_bai as $tax => $ids ) {
+				if ( ! $ids ) {
+					continue;
+				}
+				$chung_tax = array_values( array_filter( $cua( $p->ID, $tax ), static fn( $t ) => in_array( $t->term_id, $ids, true ) ) );
+				$d        += CADAO_DOC_TIEP_DIEM[ $tax ] * count( $chung_tax );
+				if ( $chung_tax && ! isset( $nhan[ $p->ID ] ) ) { // CADAO_DOC_TIEP_DIEM xếp từ gần nhất
+					$nhan[ $p->ID ] = $ten_nhan[ $tax ]( $chung_tax[0] );
+				}
+			}
+			if ( $d > 0 ) {
+				$diem[ $p->ID ] = $d;
+			}
 		}
 		$moi_hon = array_flip( wp_list_pluck( $ung_vien, 'ID' ) ); // đã xếp mới trước
 		uksort( $diem, static fn( $a, $b ) => array( $diem[ $b ], $moi_hon[ $a ] ) <=> array( $diem[ $a ], $moi_hon[ $b ] ) );

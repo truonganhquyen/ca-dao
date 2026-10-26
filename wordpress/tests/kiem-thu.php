@@ -1175,6 +1175,65 @@ kt( 'đọc tiếp: không có bài nào để gợi ý thì không có khối',
 $dt_html = cadao_khoi_doc_tiep( get_post( $dt_x ) );
 kt( 'khối "Đọc tiếp": tiêu đề h2, mỗi bài một liên kết có tên, 2 dòng đầu, nhãn', str_contains( $dt_html, '<h2 id="cadao-doc-tiep-tieu">Đọc tiếp</h2>' ) && str_contains( $dt_html, 'href="' . esc_url( get_permalink( $dt_a ) ) . '"><strong>Đọc tiếp cùng chủ đề và vùng</strong>' ) && str_contains( $dt_html, ' / ' ) && str_contains( $dt_html, '…' ) && str_contains( $dt_html, 'Cùng chủ đề ' . esc_html( $dt_ten ) ), $dt_html );
 
+// ---------- Mô-típ, bài gần gũi (T-092) ----------
+kt( 'phân loại Mô-típ có trang /mo-tip/', taxonomy_exists( 'mo_tip' ) && 'mo-tip' === get_taxonomy( 'mo_tip' )->rewrite['slug'] );
+kt( 'cụm mở đầu: k âm tiết đầu của dòng đầu, chữ thường, bỏ dấu câu; dòng ngắn quá thì không có', 'thân em' === cadao_mo_tip_dau( "\nThân em, như tấm lụa đào\nDòng hai", 2 ) && 'thân em như' === cadao_mo_tip_dau( 'Thân em như tấm lụa', 3 ) && '' === cadao_mo_tip_dau( 'Thân em', 2 ) );
+$mt_bai = static function ( string $dau, int $i, string $tt = 'publish' ) use ( $dong ): int {
+	$id = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => $tt, 'post_title' => "Mô-típ thử $dau $i", 'post_content' => cadao_khoi_tho( "$dau " . $dong( 13000 + 10 * $i, 3 ) . "\n" . $dong( 13005 + 10 * $i, 8 ) ) ) );
+	wp_set_object_terms( $id, 'ca-dao', 'the_loai' );
+	return $id;
+};
+$mt = array();
+for ( $i = 1; $i <= 3; $i++ ) {
+	$mt[ $i ] = $mt_bai( 'Zmt mở thử', $i );
+}
+$mt[4] = $mt_bai( 'Zmt mở thử', 4, 'pending' );
+$mt_q  = array( $mt_bai( 'Zqq ơi chữ1', 5 ), $mt_bai( 'Zqq ơi chữ2', 6 ), $mt_bai( 'Zqq ơi chữ3', 7 ) );
+$mt_gy = static function () {
+	$ra = array();
+	foreach ( cadao_mo_tip_goi_y() as $g ) {
+		$ra[ $g['dau'] ] = $g;
+	}
+	return $ra;
+};
+$g1 = $mt_gy();
+kt( 'gợi ý mô-típ: cụm mở đầu có từ 3 bài (đã đăng, Chờ duyệt); cụm dài hơn thay cụm ngắn khi giữ đủ bài; tên gợi ý là chính cụm chữ', isset( $g1['zmt mở thử'], $g1['zqq ơi'] ) && ! isset( $g1['zmt mở'] ) && 4 === count( $g1['zmt mở thử']['bai'] ) && 'Zmt mở thử…' === $g1['zmt mở thử']['ten'] && null === $g1['zmt mở thử']['mo_tip'], array_keys( $g1 ) );
+kt( 'chưa duyệt: bài chưa thuộc mô-típ nào (máy không tự gắn)', ! has_term( '', 'mo_tip', $mt[1] ) );
+$mt_t = cadao_mo_tip_tao( 'zmt mở thử', 'Zmt mở thử… (người sáng lập đặt)', array( $mt[1], $mt[2], $mt[3] ) );
+clean_object_term_cache( $mt, CADAO_LOAI_BAI );
+$g2 = $mt_gy();
+kt( 'tạo mô-típ: tên người sáng lập đặt, chỉ bài được chọn; bài bỏ ra không gợi ý lại', $mt_t instanceof WP_Term && 'Zmt mở thử… (người sáng lập đặt)' === $mt_t->name && has_term( (int) $mt_t->term_id, 'mo_tip', $mt[1] ) && has_term( (int) $mt_t->term_id, 'mo_tip', $mt[3] ) && ! has_term( '', 'mo_tip', $mt[4] ) && ! isset( $g2['zmt mở thử'] ) && '' === (string) $mt_t->description, $g2['zmt mở thử'] ?? null );
+$mt[5] = $mt_bai( 'Zmt mở thử', 8 );
+$g3    = $mt_gy();
+kt( 'bài mới cùng cụm mở đầu: gợi ý "thêm vào mô-típ" đã có (cả khi chỉ một bài)', isset( $g3['zmt mở thử'] ) && array( $mt[5] ) === $g3['zmt mở thử']['bai'] && $g3['zmt mở thử']['mo_tip'] && (int) $mt_t->term_id === (int) $g3['zmt mở thử']['mo_tip']->term_id );
+update_option( 'cadao_mo_tip_bo_qua', array( 'zqq ơi' ), false );
+kt( '"Không phải mô-típ": cụm đó không gợi ý lại', ! isset( $mt_gy()['zqq ơi'] ) );
+delete_option( 'cadao_mo_tip_bo_qua' );
+wp_set_current_user( cadao_quan_tri_dau_tien() );
+ob_start();
+cadao_trang_mo_tip();
+$mt_tr = ob_get_clean();
+kt( 'trang "Gợi ý mô-típ": ô tên điền sẵn, danh sách bài có dấu chọn, nút Tạo / Thêm vào / Không phải mô-típ', str_contains( $mt_tr, 'value="Zqq ơi…"' ) && str_contains( $mt_tr, 'name="chon[]"' ) && str_contains( $mt_tr, 'Tạo mô-típ' ) && str_contains( $mt_tr, 'Thêm vào mô-típ' ) && str_contains( $mt_tr, 'Không phải mô-típ' ) );
+kt( 'Bàn biên tập có hàng "Gợi ý mô-típ"', in_array( 'mo_tip', array_column( cadao_hang_cho(), 'khoa' ), true ) );
+wp_set_current_user( 0 );
+// Bài gần gũi: mô-típ đứng trên chủ đề; mục từ chung có nhãn riêng
+wp_set_object_terms( $mt[1], 'gia-dinh', 'chu_de' );
+$mt_cd = $mt_bai( 'Zcd khác hẳn', 9 );
+wp_set_object_terms( $mt_cd, 'gia-dinh', 'chu_de' );
+$gg = cadao_doc_tiep( get_post( $mt[1] ) );
+kt( 'đọc tiếp: bài cùng mô-típ đứng đầu, nhãn "Cùng mô-típ …"; bài chưa đăng không có', in_array( $gg[0]['bai']->ID, array( $mt[2], $mt[3] ), true ) && 'Cùng mô-típ Zmt mở thử… (người sáng lập đặt)' === $gg[0]['nhan'] && ! in_array( $mt[4], array_map( static fn( $x ) => $x['bai']->ID, $gg ), true ), wp_list_pluck( $gg, 'nhan' ) );
+$tk_t = wp_insert_term( 'zmục từ thử', 'tu_kho', array( 'slug' => 'zmuc-tu-thu' ) );
+wp_set_object_terms( $mt_q[0], (int) $tk_t['term_id'], 'tu_kho' );
+wp_set_object_terms( $mt_q[1], (int) $tk_t['term_id'], 'tu_kho' );
+$gq = cadao_doc_tiep( get_post( $mt_q[0] ) );
+kt( 'đọc tiếp: cùng nhắc một mục từ (từ khó, địa danh) → "Cùng nhắc tới …"', $mt_q[1] === $gq[0]['bai']->ID && 'Cùng nhắc tới "zmục từ thử"' === $gq[0]['nhan'], wp_list_pluck( $gq, 'nhan' ) );
+foreach ( array_merge( $mt, $mt_q, array( $mt_cd ) ) as $id ) {
+	wp_delete_post( $id, true );
+}
+wp_delete_term( (int) $mt_t->term_id, 'mo_tip' );
+wp_delete_term( (int) $tk_t['term_id'], 'tu_kho' );
+delete_option( 'cadao_mo_tip_bo' );
+
 // ---------- SEO cơ bản, ảnh chia sẻ (T-050) ----------
 $seo_bai = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'post_title' => 'Ngưỡng thuở quyện thử', 'post_content' => cadao_khoi_tho( "Ngưỡng thuở quyện thử dòng một sáu chữ\nNgưỡng thuở quyện thử dòng hai tám chữ đây\nDòng ba thử\nDòng bốn thử\nDòng năm thử" ) . cadao_khoi_tho( "Dị bản thử một\nDị bản thử hai" ) ) );
 wp_set_object_terms( $seo_bai, 'ca-dao', 'the_loai' );

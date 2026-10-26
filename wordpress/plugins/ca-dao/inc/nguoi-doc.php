@@ -350,14 +350,14 @@ function cadao_khoi_gop( WP_Post $bai ): string {
 	return $ra . '</section>';
 }
 
-// Cuối bài: Chủ đề, Vùng ngay sau Chú thích (ưu tiên 34); bài cảm nhận đã duyệt (35); khối "Bạn muốn góp gì?" (40)
+// Cuối bài: Mô-típ, Chủ đề, Vùng ngay sau Chú thích (ưu tiên 34); bài cảm nhận đã duyệt (35); khối "Bạn muốn góp gì?" (40)
 add_filter(
 	'the_content',
 	static function ( $noi_dung ) {
 		if ( ! is_singular( CADAO_LOAI_BAI ) || get_the_ID() !== get_queried_object_id() || doing_filter( 'get_the_excerpt' ) ) {
 			return $noi_dung;
 		}
-		foreach ( array( 'chu_de' => 'Chủ đề: ', 'vung' => 'Vùng: ' ) as $tax => $nhan ) {
+		foreach ( array( 'mo_tip' => 'Mô-típ: ', 'chu_de' => 'Chủ đề: ', 'vung' => 'Vùng: ' ) as $tax => $nhan ) {
 			$ds = get_the_term_list( get_the_ID(), $tax, $nhan, ', ' );
 			$noi_dung .= $ds && ! is_wp_error( $ds ) ? '<p class="cadao-nhan-cuoi">' . $ds . '</p>' : '';
 		}
