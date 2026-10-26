@@ -2,7 +2,7 @@
 Theme Name:        Kho tàng Ca dao
 Description:       Theme con của Twenty Twenty-Five cho dự án Kho tàng Ca dao Tục ngữ Việt Nam: chữ và khoảng trắng trước, lời thơ lớn, sáng/tối theo máy (docs/20 trong repo ca-dao).
 Template:          twentytwentyfive
-Version:           0.14.0
+Version:           0.15.0
 Requires at least: 6.8
 Requires PHP:      8.1
 Author:            Dự án Kho tàng Ca dao Tục ngữ Việt Nam
@@ -903,6 +903,161 @@ html[data-co-chu="3"] .wp-block-verse {
 .cadao-ds-bai .wp-block-post-title a:hover {
 	text-decoration: underline;
 }
+.cadao-ds-bai .wp-block-post-title {
+	margin-block-end: 0;
+}
+.cadao-ds-bai .wp-block-post-title + * {
+	margin-block-start: 0;
+}
+
+/* Thanh điều hướng dưới cho điện thoại (T-120): 4 mục, mỗi mục ≥ 56 px; nội dung, focus không bị che */
+.cadao-thanh-duoi {
+	display: none;
+}
+@media (max-width: 639px) {
+	.cadao-thanh-duoi {
+		display: block;
+		position: fixed;
+		inset-inline: 0;
+		bottom: 0;
+		z-index: 50;
+		background: var(--cadao-giay);
+		border-block-start: 1px solid var(--cadao-ke);
+		padding-block-end: env(safe-area-inset-bottom);
+	}
+	.cadao-thanh-duoi ul {
+		display: grid;
+		grid-auto-columns: 1fr;
+		grid-auto-flow: column;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	.cadao-thanh-duoi a {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 2px;
+		min-height: 56px;
+		border-block-start: 3px solid transparent;
+		color: var(--cadao-nhat);
+		font-size: 0.8125rem;
+		text-decoration: none;
+	}
+	.cadao-thanh-duoi a[aria-current="page"] {
+		border-block-start-color: var(--cadao-son);
+		color: var(--cadao-son);
+		font-weight: 600;
+	}
+	.cadao-thanh-duoi a:focus-visible {
+		outline-offset: -4px;
+	}
+	body {
+		padding-block-end: calc(60px + env(safe-area-inset-bottom));
+	}
+	html {
+		scroll-padding-block-end: calc(68px + env(safe-area-inset-bottom));
+	}
+	/* Tất cả, Tìm đã có ở thanh dưới: menu trên chỉ còn Thể loại, Từ điển */
+	.wp-block-navigation .cadao-nav-co-duoi {
+		display: none;
+	}
+}
+
+/* Danh sách bài (T-120): lọc dạng chip, xếp, 2 dòng đầu dưới tiêu đề */
+.cadao-loc {
+	display: grid;
+	gap: 0.75rem;
+	margin-block: 1rem;
+}
+.cadao-loc-ten,
+.cadao-loc-nhom summary {
+	margin: 0 0 0.25rem;
+	font-weight: 600;
+	font-size: var(--wp--preset--font-size--small);
+}
+.cadao-loc-nhom summary {
+	min-height: 44px;
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+}
+.cadao-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.cadao-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35em;
+	min-height: 44px;
+	padding: 0 0.9rem;
+	border: 1px solid var(--cadao-ke);
+	border-radius: 999px;
+	color: var(--cadao-muc);
+	text-decoration: none;
+}
+.cadao-chip[aria-current] {
+	border: 2px solid var(--cadao-son);
+	color: var(--cadao-son);
+	font-weight: 600;
+}
+.cadao-chip-so {
+	color: var(--cadao-nhat);
+	font-size: var(--wp--preset--font-size--small);
+}
+.cadao-xep {
+	margin-block: 0.5rem;
+	font-size: var(--wp--preset--font-size--small);
+}
+.cadao-xep a,
+.cadao-xep strong {
+	display: inline-block;
+	padding-block: 0.6rem;
+}
+.cadao-ds-tieu {
+	font-size: var(--wp--preset--font-size--medium);
+	margin-block: 1rem 0.5rem;
+}
+.cadao-bo-loc {
+	margin-inline-start: 0.75rem;
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 400;
+}
+.cadao-ds-loi {
+	margin: 0.25rem 0 0;
+	font-family: var(--wp--preset--font-family--literata);
+}
+.cadao-ds-phu {
+	margin: 0.25rem 0 0;
+	color: var(--cadao-nhat);
+	font-size: var(--wp--preset--font-size--small);
+}
+
+/* Chân trang: liên kết một dòng trên máy tính, hai cột trên điện thoại */
+.cadao-chan-trang {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0 1rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.cadao-chan-trang a {
+	display: inline-block;
+	padding-block: 0.6rem;
+}
+@media (max-width: 639px) {
+	.cadao-chan-trang {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+	}
+}
 
 @media (prefers-reduced-motion: reduce) {
 	*, *::before, *::after {
@@ -921,7 +1076,7 @@ html[data-co-chu="3"] .wp-block-verse {
 		background: #fff;
 		color: #000;
 	}
-	header, footer, .wp-block-navigation, .cadao-hanh-dong {
+	header, footer, .wp-block-navigation, .cadao-hanh-dong, .cadao-thanh-duoi {
 		display: none !important;
 	}
 }
@@ -950,18 +1105,28 @@ html[data-co-chu="3"] .wp-block-verse {
 }
 
 /* Form người đọc (T-045, T-097): góp ý, cảm nghĩ, bài phân tích — ô lớn, nhãn rõ, vùng chạm 44 px */
-.cadao-gop-y,
+.cadao-gop,
 .cadao-phan-tich,
 .cadao-cam-nghi {
 	margin-block-start: 2.5rem;
 	padding-block-start: 1rem;
 	border-block-start: 1px solid var(--cadao-ke);
 }
-.cadao-gop-y h2,
+.cadao-gop h2,
 .cadao-phan-tich h2,
 .cadao-cam-nghi h2,
 .cadao-cam-nghi .comment-reply-title {
 	font-size: var(--wp--preset--font-size--medium);
+}
+/* Khối "Bạn muốn góp gì?" (T-121): ba lựa chọn, mỗi form thu gọn */
+.cadao-gop h3 {
+	font-size: var(--wp--preset--font-size--medium);
+	font-weight: 600;
+	margin-block: 1.5rem 0.25rem;
+}
+/* Cảm nghĩ đã duyệt (danh sách của WordPress): chưa có thì không để khung trống */
+.cadao-cam-nghi:not(:has(li)) {
+	display: none;
 }
 .cadao-gop-y-nut {
 	display: flex;
@@ -982,7 +1147,8 @@ html[data-co-chu="3"] .wp-block-verse {
 	color: inherit;
 	text-decoration: none;
 }
-.cadao-gop-y-hop summary {
+.cadao-gop-y-hop summary,
+.cadao-gop-hop summary {
 	display: flex;
 	align-items: center;
 	min-height: 44px;
@@ -990,7 +1156,7 @@ html[data-co-chu="3"] .wp-block-verse {
 	cursor: pointer;
 }
 .cadao-form label,
-.cadao-cam-nghi label {
+.cadao-gop .comment-form label {
 	display: block;
 	font-weight: 600;
 }
@@ -1016,8 +1182,8 @@ html[data-co-chu="3"] .wp-block-verse {
 .cadao-form input:not([type="checkbox"]):not([type="radio"]),
 .cadao-form textarea,
 .cadao-form select,
-.cadao-cam-nghi input[type="text"],
-.cadao-cam-nghi textarea {
+.cadao-gop .comment-form input[type="text"],
+.cadao-gop .comment-form textarea {
 	box-sizing: border-box;
 	width: 100%;
 	min-height: 44px;
@@ -1029,7 +1195,7 @@ html[data-co-chu="3"] .wp-block-verse {
 	font: inherit;
 }
 .cadao-form button,
-.cadao-cam-nghi input[type="submit"] {
+.cadao-gop .comment-form input[type="submit"] {
 	min-height: 44px;
 	padding: 0 1.25rem;
 	border: 0;

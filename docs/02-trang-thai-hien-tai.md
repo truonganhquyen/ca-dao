@@ -41,6 +41,7 @@
 - **Chống trùng (T-109..T-111, 25/10/2026):** máy so cả lời của câu mới lấy từ nguồn và của bài viết tay với các bài, câu đã có: giống hệt, cùng thể loại thì tự gắn vào bài có sẵn (Kho thu thập → Đã gộp, "Tách ra" được); còn lại vào trang **Có thể trùng** chờ người sáng lập quyết; trình soạn có ô "Có thể trùng" (chỉ báo, không chặn đăng).
 - **Theme WordPress (T-072):** theme con của Twenty Twenty-Five theo `docs/20`: màu, phông Literata / Be Vietnam Pro tự lưu trữ, sáng/tối theo máy, trang bài (lời lớn, lục bát thụt lề câu lục, Hiểu nhanh dưới lời, dị bản, chú thích); quét trợ năng 0 lỗi.
 - **Trang tác phẩm (T-040):** đọc theo lớp, nhãn tự tính, nguồn gốc ở lớp 1, chú giải chạm-là-hiện (tắt JavaScript vẫn đọc được), sáng/tối, bản in, thanh dưới; quét trợ năng tự động. Chưa có bài `cong_khai` thật: bản xem trước có 3 trang mẫu giao diện dữ liệu giả (D-050).
+- **Điều hướng, danh sách, cuối bài (T-120, T-121, 26/10/2026):** menu "Tất cả · Thể loại ▾ · Từ điển · Tìm" (thể loại chưa có bài tự ẩn); điện thoại có thanh dưới Trang chủ · Tìm · Tất cả · Đã lưu. Trang Tất cả xếp A–Z (hoặc Mới thêm), lọc bằng chip theo thể loại, thể thơ, vùng, chủ đề, mỗi bài có 2 dòng đầu. Cuối bài: Chủ đề, Vùng ngay sau chú thích, rồi một khối "Bạn muốn góp gì?" thay cho ba form rời. Tìm ghi tổng số bài. Bàn biên tập chia "Làm trước" và "Khi rảnh".
 - **Dòng "lời và mức kiểm" (T-119, D-072, 26/10/2026):** ngay dưới lời mỗi bài: "Lời theo bản lưu truyền phổ biến · chưa đối chiếu sách", hoặc "Lời đã đối chiếu với <sách>, tr. N" khi người biên soạn tự điền hộp **Lời đã đối chiếu với** trong trang sửa bài (máy không bao giờ tự điền). Kèm "Vì sao?" tới trang Phương pháp (khi đã đăng); có trong kết quả Tìm và trích dẫn.
 - **An toàn vận hành (T-118, D-073, 26/10/2026):** máy chủ chặn cùng một máy gửi lặp lượt đọc, chia sẻ, trích dẫn, sự kiện đo lường (không lưu IP, chỉ dấu băm tạm một ngày) nên "Đọc nhiều tuần này" và số dưới tiêu đề không bị thổi phồng; chỉ tin IP do Cloudflare báo khi yêu cầu thật sự đi qua Cloudflare; không còn lộ phiên bản WordPress; máy chủ ghi các bản đã lên site, có hướng dẫn quay lại bản trước (`docs/huong-dan/quay-lai-ban-truoc.md`).
 - **Gỡ site Astro và CMS cũ (T-117, D-071, 26/10/2026):** đã xóa khỏi repo phần Astro, CMS Sveltia (`/admin`) và các công cụ chỉ phục vụ nó; luật và tài liệu viết lại theo WordPress.
@@ -48,7 +49,7 @@
 
 ## Đang chờ người sáng lập
 
-Mở **Ca dao – Tục ngữ → Bàn biên tập** (hoặc ô "việc chờ bạn" trên Bảng tin): mọi hàng chờ dưới đây có số đếm và nút mở đúng trang.
+Mở **Ca dao – Tục ngữ → Bàn biên tập** (hoặc ô "việc chờ bạn" trên Bảng tin): mọi hàng chờ dưới đây có số đếm và nút mở đúng trang; phần **"Làm trước"** là đủ cho mỗi tuần, phần "Khi rảnh" không gấp.
 
 - **Sao lưu FlashPanel — làm ngay** (điều kiện mở, D-073): FlashPanel → *Sao Lưu*, chọn hằng ngày, gồm site và cơ sở dữ liệu cadao, lưu ra ngoài VPS (Google Drive…); rồi thử khôi phục một lần. Quay lại bản trước chỉ trả lại mã, không trả lại dữ liệu (`docs/huong-dan/quay-lai-ban-truoc.md`).
 - **Gửi thư cho Ca dao Mẹ (T-034) — nên gửi tuần này:** bản nháp ở `docs/12` mục 7. Từ khi bỏ dòng Nguồn dưới chú thích chép (D-068), thư càng cần trước khi mở cho Google.

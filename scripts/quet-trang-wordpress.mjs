@@ -211,6 +211,11 @@ try {
   await tuTab.goto(G + baiDd, { waitUntil: 'load' });
   kiem('đồng dao: có khối Cách chơi của trò chơi', /Cách chơi: Trò chơi mẫu/.test(await tuTab.$eval('main', m => m.innerText)));
   if (await tuTab.$('.cadao-doc-cung-be:not([hidden])')) {
+    // Bàn phím: nút được focus không bị thanh dưới (điện thoại) che (WCAG 2.4.11)
+    await tuTab.evaluate(() => { scrollTo(0, 0); document.querySelector('.cadao-doc-cung-be').focus(); });
+    await cho(200);
+    kiem('focus không bị thanh dưới che', await tuTab.evaluate(() => document.querySelector('.cadao-doc-cung-be').getBoundingClientRect().bottom <= document.querySelector('.cadao-thanh-duoi').getBoundingClientRect().top + 1));
+    await tuTab.$eval('.cadao-doc-cung-be', n => n.scrollIntoView({ block: 'center' })); // người đọc cuộn tới nút rồi mới chạm
     await tuTab.click('.cadao-doc-cung-be');
     await cho(300);
     const be = () => tuTab.evaluate(() => { const d = document.querySelector('dialog.cadao-be'); return d && d.open ? { loi: d.querySelector('.cadao-be-dong').textContent, so: d.querySelector('.cadao-be-so').textContent, nhip: Array.from(d.querySelectorAll('.cadao-be-dong span')).findIndex(s => s.classList.contains('cadao-be-nhip')) } : null; });
@@ -240,6 +245,35 @@ try {
   kiem('mức kiểm: dòng đứng ngay sau lời, trước Hiểu nhanh; nêu sách đã đối chiếu', await tuTab.evaluate(() => { const m = document.querySelector('.cadao-muc-kiem'); return !!m && m.previousElementSibling?.tagName === 'PRE' && m.nextElementSibling?.classList.contains('cadao-hieu-nhanh') && /Lời đã đối chiếu với Sách mẫu tổng hợp, tr\. 12/.test(m.textContent); }));
   await tuTab.goto(G + baiDiBan, { waitUntil: 'load' });
   kiem('mức kiểm: bài tự động ghi "chưa đối chiếu sách"', /chưa đối chiếu sách/.test(await tuTab.$eval('.cadao-muc-kiem', m => m.textContent).catch(() => '')));
+  // Điều hướng, danh sách (T-120): trang Tất cả xếp A–Z, chip lọc, thanh dưới trên điện thoại
+  await tuTab.goto(G + '/kho/', { waitUntil: 'load' });
+  const ds = await tuTab.evaluate(() => ({
+    h1: document.querySelector('h1')?.textContent.trim(),
+    ten: [...document.querySelectorAll('.cadao-ds-bai h3')].map(h => h.textContent.trim()),
+    duoi: (() => { const n = document.querySelector('.cadao-thanh-duoi'); const r = n?.getBoundingClientRect(); return n && getComputedStyle(n).display !== 'none' && r.bottom >= innerHeight - 1 ? n.querySelector('[aria-current="page"]')?.textContent.trim() : null; })(),
+    menuTatCa: getComputedStyle(document.querySelector('.wp-block-navigation .cadao-nav-co-duoi')).display,
+    phu: document.querySelectorAll('.cadao-ds-bai .cadao-ds-phu').length,
+  }));
+  kiem(`Tất cả: mỗi mục có dòng thể loại (${ds.phu}/${ds.ten.length}) và có đoạn lời`, ds.phu === ds.ten.length && await tuTab.evaluate(() => document.querySelectorAll('.cadao-ds-bai .cadao-ds-loi').length > 0));
+  const khoa = t => t.toLowerCase().normalize('NFC').replace(/đ/g, 'd{').normalize('NFD').replace(/[̀-ͯ]/g, ''); // như cadao_khoa_xep()
+  const azDung = ds.ten.length > 1 && ds.ten.every((t, i) => i === 0 || khoa(ds.ten[i - 1]) <= khoa(t));
+  kiem(`Tất cả: tiêu đề "Tất cả bài", mục là h3, xếp A–Z (${ds.ten.slice(0, 4).join(' | ')})`, ds.h1 === 'Tất cả bài' && azDung);
+  kiem(`điện thoại: thanh dưới hiện, "Tất cả" đang chọn (${ds.duoi}); menu trên ẩn mục đã có ở thanh dưới`, ds.duoi === 'Tất cả' && ds.menuTatCa === 'none');
+  const chip = await tuTab.$eval('.cadao-chip', a => a.getAttribute('href')).catch(() => '');
+  if (chip) {
+    await tuTab.goto(chip.startsWith('http') ? chip : G + chip, { waitUntil: 'load' });
+    kiem('lọc: bấm chip thì vẫn ở trang Tất cả, đường dẫn có tham số, chip có ✓ và aria-current, danh sách ít đi hoặc bằng', await tuTab.evaluate(n => /[?&](loai|the|mien|chude)=/.test(location.search) && document.querySelector('h1')?.textContent.trim() === 'Tất cả bài' && !!document.querySelector('.cadao-chip[aria-current="true"]') && document.querySelectorAll('.cadao-ds-bai h3').length <= n, ds.ten.length));
+  } else {
+    kiem('lọc: có chip để lọc', false);
+  }
+  const cuoi = await tuTab.evaluate(async () => { scrollTo(0, document.body.scrollHeight); await new Promise(r => setTimeout(r, 200)); const a = [...document.querySelectorAll('footer a')].pop(); const r = a.getBoundingClientRect(); return r.bottom <= document.querySelector('.cadao-thanh-duoi').getBoundingClientRect().top + 1; });
+  kiem('thanh dưới không che liên kết cuối trang', cuoi);
+  await tuTab.setViewport({ width: 1280, height: 900 });
+  kiem('máy tính: không có thanh dưới', await tuTab.evaluate(() => getComputedStyle(document.querySelector('.cadao-thanh-duoi')).display === 'none'));
+  await tuTab.setViewport({ width: 360, height: 800, isMobile: true, hasTouch: true });
+  // Cuối bài (T-121): một khối "Bạn muốn góp gì?", không còn hai form mở sẵn
+  await tuTab.goto(G + baiDiBan, { waitUntil: 'load' });
+  kiem('cuối bài: một khối "Bạn muốn góp gì?", form cảm nghĩ thu gọn, Chủ đề/Vùng (nếu có) đứng trước khối', await tuTab.evaluate(() => document.querySelectorAll('.cadao-gop').length === 1 && !document.querySelector('.cadao-gop-hop').open && document.querySelectorAll('#commentform').length === 1 && [...document.querySelectorAll('.cadao-nhan-cuoi')].every(n => n.compareDocumentPosition(document.querySelector('.cadao-gop')) & Node.DOCUMENT_POSITION_FOLLOWING)));
   // Bản đồ (T-104): điểm đủ lớn để chạm, chạm tới đúng địa danh trong danh sách; không tải gì từ nơi khác
   const ngoai = [];
   const ngheNgoai = r => { if (!r.url().startsWith(G) && !r.url().startsWith('data:')) ngoai.push(r.url()); };

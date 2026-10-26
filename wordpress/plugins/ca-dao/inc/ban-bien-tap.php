@@ -3,7 +3,12 @@
  * Bàn biên tập (T-047): một trang gom mọi hàng chờ của người biên soạn, mỗi hàng có số đếm, một dòng "làm gì" và nút
  * mở đúng trang (nơi đó có duyệt hàng loạt nếu làm được). Báo lỗi của người đọc đứng đầu (trang Phương pháp hứa đọc
  * báo lỗi trước mọi việc khác). Ô "Việc chờ bạn" ở đầu Bảng tin tóm tắt các hàng còn việc.
+ * Từ T-121 (D-073): chỉ các nhóm tác động lớn đứng ở "Làm trước" (báo lỗi, Hiểu nhanh, đóng góp người đọc, Có thể
+ * trùng); các hàng khác thu vào "Khi rảnh" để người có dưới 10 giờ/tuần không bị ngợp.
  */
+
+/** Hàng chờ đứng ở "Làm trước", theo thứ tự; các hàng khác là "Khi rảnh". */
+const CADAO_LAM_TRUOC = array( 'bao_loi', 'hieu_nhanh', 'gop_y', 'binh_luan', 'phan_tich', 'trung' );
 
 defined( 'ABSPATH' ) || exit;
 
@@ -65,22 +70,33 @@ function cadao_hang_cho(): array {
 	}
 	$trong = get_terms( array( 'taxonomy' => 'the_loai', 'hide_empty' => true, 'fields' => 'all' ) );
 	$ds[]  = array( 'khoa' => 'the_loai', 'ten' => 'Giới thiệu thể loại', 'so' => is_array( $trong ) ? count( array_filter( $trong, static fn( $t ) => '' === trim( $t->description ) ) ) : 0, 'viec' => 'Vài dòng giới thiệu, cách đọc cho mỗi thể loại (ô "Mô tả"); hiện ở đầu trang thể loại.', 'url' => admin_url( 'edit-tags.php?taxonomy=the_loai&post_type=' . CADAO_LOAI_BAI ) );
-	return $ds;
+	$ds = apply_filters( 'cadao_hang_cho', $ds ); // hàng của mô-đun khác (Hiểu nhanh — T-100)
+	// Làm trước theo CADAO_LAM_TRUOC, rồi các hàng khác giữ thứ tự cũ
+	$vt = static function ( $h ) {
+		$i = array_search( $h['khoa'], CADAO_LAM_TRUOC, true );
+		return false === $i ? 99 : $i;
+	};
+	usort( $ds, static fn( $a, $b ) => $vt( $a ) <=> $vt( $b ) );
+	return array_map( static fn( $h ) => $h + array( 'truoc' => in_array( $h['khoa'], CADAO_LAM_TRUOC, true ) ), $ds );
 }
 
-function cadao_trang_ban_bien_tap(): void {
-	$ds   = cadao_hang_cho();
-	$con  = array_filter( $ds, static fn( $h ) => $h['so'] > 0 );
-	$xong = array_filter( $ds, static fn( $h ) => $h['so'] <= 0 );
-	echo '<div class="wrap"><h1>Bàn biên tập</h1><p>Mọi việc đang chờ bạn, xếp theo thứ tự nên làm. Mỗi hàng mở đúng trang để làm; trang nào làm hàng loạt được thì có nút ở đó.</p>';
-	if ( ! $con ) {
-		echo '<p><strong>Không còn việc nào đang chờ.</strong></p>';
-	}
-	foreach ( $con as $h ) {
-		echo '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;background:#fff;border:1px solid #dcdcde;border-left:4px solid ' . ( 'bao_loi' === $h['khoa'] ? '#d63638' : '#2271b1' ) . ';padding:12px 16px;margin:10px 0;max-width:52rem">'
+/** Một hàng chờ trên trang Bàn biên tập. */
+function cadao_hang_ban( array $h ): string {
+	return '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;background:#fff;border:1px solid #dcdcde;border-left:4px solid ' . ( 'bao_loi' === $h['khoa'] ? '#d63638' : '#2271b1' ) . ';padding:12px 16px;margin:10px 0;max-width:52rem">'
 			. '<span style="font-size:1.6em;font-weight:600;min-width:3ch;text-align:right">' . esc_html( number_format_i18n( $h['so'] ) ) . '</span>'
 			. '<span style="flex:1 1 13rem"><strong>' . esc_html( $h['ten'] ) . '</strong><br><span class="description">' . esc_html( $h['viec'] ) . '</span></span>'
 			. '<a class="button button-primary" href="' . esc_url( $h['url'] ) . '">Mở</a></div>';
+}
+
+function cadao_trang_ban_bien_tap(): void {
+	$ds    = cadao_hang_cho();
+	$truoc = array_filter( $ds, static fn( $h ) => $h['so'] > 0 && $h['truoc'] );
+	$ranh  = array_filter( $ds, static fn( $h ) => $h['so'] > 0 && ! $h['truoc'] );
+	$xong  = array_filter( $ds, static fn( $h ) => $h['so'] <= 0 );
+	echo '<div class="wrap"><h1>Bàn biên tập</h1><p>Việc đang chờ bạn. Làm phần "Làm trước" là đủ cho tuần này; phần "Khi rảnh" không gấp.</p>';
+	echo '<h2>Làm trước</h2>' . ( $truoc ? implode( '', array_map( 'cadao_hang_ban', $truoc ) ) : '<p><strong>Không còn việc gấp.</strong></p>' ); // phpcs:ignore WordPress.Security.EscapeOutput -- đã thoát trong cadao_hang_ban
+	if ( $ranh ) {
+		echo '<details style="max-width:52rem;margin-top:1.5rem"><summary style="cursor:pointer;font-size:1.3em;font-weight:600;padding:8px 0">Khi rảnh (' . (int) count( $ranh ) . ' việc)</summary>' . implode( '', array_map( 'cadao_hang_ban', $ranh ) ) . '</details>'; // phpcs:ignore WordPress.Security.EscapeOutput
 	}
 	if ( $xong ) {
 		echo '<h2>Đã xong</h2><p class="description">' . esc_html( implode( ' · ', array_column( $xong, 'ten' ) ) ) . '</p>';
@@ -108,16 +124,17 @@ add_action(
 			'cadao_viec_cho',
 			'Ca dao – Tục ngữ: việc chờ bạn',
 			static function () {
-				$con = array_filter( cadao_hang_cho(), static fn( $h ) => $h['so'] > 0 );
+				$con   = array_filter( cadao_hang_cho(), static fn( $h ) => $h['so'] > 0 );
+				$truoc = array_filter( $con, static fn( $h ) => $h['truoc'] );
 				if ( ! $con ) {
 					echo '<p>Không còn việc nào đang chờ.</p>';
 					return;
 				}
-				echo '<ul>';
-				foreach ( $con as $h ) {
+				echo $truoc ? '<p><strong>Làm trước:</strong></p><ul>' : '<p>Không còn việc gấp.</p><ul>';
+				foreach ( $truoc as $h ) {
 					echo '<li><a href="' . esc_url( $h['url'] ) . '"><strong>' . esc_html( number_format_i18n( $h['so'] ) ) . '</strong> · ' . esc_html( $h['ten'] ) . '</a></li>';
 				}
-				echo '</ul><p><a class="button" href="' . esc_url( admin_url( 'edit.php?post_type=' . CADAO_LOAI_BAI . '&page=' . CADAO_TRANG_BAN ) ) . '">Mở Bàn biên tập</a></p>';
+				echo '</ul>' . ( count( $con ) > count( $truoc ) ? '<p class="description">Khi rảnh: ' . esc_html( number_format_i18n( count( $con ) - count( $truoc ) ) ) . ' việc khác.</p>' : '' ) . '<p><a class="button" href="' . esc_url( admin_url( 'edit.php?post_type=' . CADAO_LOAI_BAI . '&page=' . CADAO_TRANG_BAN ) ) . '">Mở Bàn biên tập</a></p>';
 			},
 			null,
 			null,

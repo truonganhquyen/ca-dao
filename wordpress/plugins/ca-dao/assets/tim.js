@@ -40,7 +40,7 @@
 		if (!d.q.trim()) { kq.innerHTML = ''; return; }
 		if (!d.bai.length && !d.muc_tu.length) {
 			baoKhongRa(d.q);
-			kq.innerHTML = '<div class="cadao-tim-khong"><p><strong>Chưa tìm thấy câu này trong kho.</strong> Bạn thử gõ ít chữ hơn (vài chữ trong câu là đủ), hoặc xem theo <a href="/kho/">kho bài</a>, <a href="/tu-dien/">từ điển</a>.</p></div>';
+			kq.innerHTML = '<div class="cadao-tim-khong"><p><strong>Chưa tìm thấy câu này trong kho.</strong> Thử gõ ít chữ hơn — vài chữ liền nhau trong câu là đủ, có dấu hay không dấu đều được. Hoặc xem <a href="/kho/">tất cả bài</a>, <a href="/tu-dien/">từ điển</a>.</p><p class="cadao-tim-phu">Kho đang được bổ sung dần. Câu tìm không ra được ghi lại (không kèm thông tin gì về bạn) để người biên soạn thêm vào.</p></div>';
 			return;
 		}
 		var h = '';
@@ -50,7 +50,7 @@
 			}).join('') + '</ul>';
 		}
 		if (d.bai.length) {
-			h += '<h2 class="cadao-tim-nhom">' + d.bai.length + ' bài</h2><ul class="cadao-tim-ds">' + d.bai.map(function (b) {
+			h += '<h2 class="cadao-tim-nhom">' + (d.tong > d.bai.length ? d.bai.length + ' trên ' + d.tong + ' bài — gõ thêm chữ để thu hẹp' : d.bai.length + ' bài') + '</h2><ul class="cadao-tim-ds">' + d.bai.map(function (b) {
 				return '<li><a href="' + e(b.url) + '"><strong>' + to(b.dong_dau || b.tieu_de, d.q) + '</strong></a> <span class="cadao-tim-phu">· ' + e(b.the_loai) + (b.muc_kiem ? ' · ' + e(b.muc_kiem) : '') + '</span>' + (b.so_lieu || '')
 					+ (b.dong_khop ? '<br><span class="cadao-tim-khop">… ' + to(b.dong_khop, d.q) + '</span>' : '')
 					+ (b.hieu_nhanh ? '<br><span class="cadao-tim-phu">' + e(b.hieu_nhanh) + '</span>' : '') + '</li>';

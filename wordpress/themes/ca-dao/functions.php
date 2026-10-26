@@ -365,3 +365,35 @@ add_filter(
 	},
 	20
 );
+
+/**
+ * Thanh điều hướng dưới cho điện thoại (T-120, docs/20): Trang chủ · Tìm · Tất cả · Đã lưu. Chỉ hiện ở màn hình hẹp
+ * (CSS); máy tính dùng menu trên. Trang đang xem có aria-current và vạch trên (không chỉ dựa vào màu).
+ */
+function cadao_thanh_duoi(): string {
+	$icon = array(
+		'nha' => '<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>',
+		'tim' => '<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/>',
+		'ds'  => '<path d="M8 6h12M8 12h12M8 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01"/>',
+		'luu' => '<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',
+	);
+	$muc  = array(
+		array( 'Trang chủ', home_url( '/' ), 'nha' ),
+		array( 'Tìm', home_url( '/tim/' ), 'tim' ),
+		array( 'Tất cả', (string) get_post_type_archive_link( 'cdtn' ), 'ds' ),
+	);
+	if ( function_exists( 'cadao_url_da_luu' ) && cadao_url_da_luu() ) {
+		$muc[] = array( 'Đã lưu', cadao_url_da_luu(), 'luu' );
+	}
+	$dang = untrailingslashit( (string) wp_parse_url( esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ?? '/' ) ), PHP_URL_PATH ) );
+	$li   = '';
+	foreach ( $muc as list( $ten, $url, $i ) ) {
+		if ( '' === $url ) {
+			continue;
+		}
+		$day  = untrailingslashit( (string) wp_parse_url( $url, PHP_URL_PATH ) ) === $dang;
+		$li  .= '<li><a href="' . esc_url( $url ) . '"' . ( $day ? ' aria-current="page"' : '' ) . '><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' . $icon[ $i ] . '</svg><span>' . esc_html( $ten ) . '</span></a></li>';
+	}
+	return '<nav class="cadao-thanh-duoi" aria-label="Điều hướng nhanh"><ul>' . $li . '</ul></nav>';
+}
+add_action( 'wp_footer', static fn() => print( cadao_thanh_duoi() ), 5 ); // phpcs:ignore WordPress.Security.EscapeOutput -- đã thoát từng phần

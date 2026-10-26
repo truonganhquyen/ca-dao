@@ -141,7 +141,7 @@ function cadao_form_gop_y( WP_Post $bai ): string {
 	if ( $vi_pham ) {
 		$chon = 'vi_pham';
 	}
-	$ra  = '<section class="cadao-gop-y" id="gop-y" aria-labelledby="cadao-gop-y-tieu"><h2 id="cadao-gop-y-tieu">Góp ý cho bài này</h2>';
+	$ra  = '<div class="cadao-gop-y cadao-gop-muc" id="gop-y"><h3 id="cadao-gop-y-tieu">Góp ý cho bài này</h3>';
 	if ( 'da_gui' === $bao ) {
 		$ra .= '<p class="cadao-bao-gui" role="status"><strong>Cảm ơn bạn!</strong> Góp ý đã tới người biên soạn; sẽ hiện trên trang khi được duyệt.</p>';
 	} elseif ( $bao ) {
@@ -167,7 +167,7 @@ function cadao_form_gop_y( WP_Post $bai ): string {
 	$ra .= '<p><label for="cadao-gy-ke">Ai kể, người đó là gì với bạn? (tùy chọn)<span class="cadao-goi-y-o">Ví dụ: bà nội tôi, sinh khoảng 1940 — không cần tên</span></label><input id="cadao-gy-ke" name="nguoi_ke" maxlength="200"></p>';
 	$ra .= '<p><label for="cadao-gy-ten">Tên hiển thị nếu được ghi công (tùy chọn)<span class="cadao-goi-y-o">Bút danh cũng được; để trống: "Một bạn đọc"</span></label><input id="cadao-gy-ten" name="ten_hien_thi" maxlength="80"></p>';
 	$ra .= '<p><label><input type="checkbox" name="dong_y" value="1" required> Tôi đồng ý để dự án dùng nội dung này theo giấy phép CC BY 4.0 <span aria-hidden="true">*</span></label></p>';
-	$ra .= cadao_o_chong_rac() . cadao_thong_bao_rieng_tu() . '<p><button type="submit">Gửi góp ý</button></p></form></details></section>';
+	$ra .= cadao_o_chong_rac() . cadao_thong_bao_rieng_tu() . '<p><button type="submit">Gửi góp ý</button></p></form></details></div>';
 	return $ra;
 }
 
@@ -303,12 +303,48 @@ add_filter(
 	2
 );
 
-// Form góp ý cuối bài (sau nội dung, trước Cảm nghĩ)
+/**
+ * Khối cuối bài "Bạn muốn góp gì?" (T-121, D-073): một chỗ cho ba kênh — góp ý (dị bản ở quê, chú thích, báo lỗi,
+ * số trang), cảm nghĩ ngắn, bài cảm nhận. Mỗi form nằm trong một ô thu gọn, nên thông báo quyền riêng tư (trong form)
+ * chỉ hiện ở form đang mở.
+ */
+function cadao_khoi_gop( WP_Post $bai ): string {
+	$ra = '<section class="cadao-gop" aria-labelledby="cadao-gop-tieu"><h2 id="cadao-gop-tieu">Bạn muốn góp gì?</h2>'
+		. '<p class="cadao-goi-y-o">Mọi thứ bạn gửi đều được người biên soạn đọc rồi mới hiện. Không cần tên thật, email hay số điện thoại.</p>'
+		. cadao_form_gop_y( $bai );
+	if ( comments_open( $bai->ID ) ) {
+		ob_start();
+		comment_form( array( 'title_reply' => '', 'title_reply_before' => '', 'title_reply_after' => '' ), $bai->ID );
+		$ra .= '<div class="cadao-gop-muc"><h3>Cảm nghĩ ngắn</h3><details class="cadao-gop-hop"><summary>Viết cảm nghĩ</summary>' . ob_get_clean() . '</details></div>';
+	}
+	$trang_pt = (int) get_option( 'cadao_trang_viet_phan_tich' );
+	if ( $trang_pt && 'publish' === get_post_status( $trang_pt ) ) {
+		$ra .= '<div class="cadao-gop-muc"><h3>Bài cảm nhận, phân tích</h3><p class="cadao-goi-y-o">Bài dài hơn: bạn hiểu câu này thế nào, gợi cho bạn điều gì.</p>'
+			. '<p><a class="cadao-viet-cam-nhan" href="' . esc_url( add_query_arg( 'bai', $bai->ID, get_permalink( $trang_pt ) ) ) . '">Viết cảm nhận của bạn về câu này</a></p></div>';
+	}
+	return $ra . '</section>';
+}
+
+// Cuối bài: Chủ đề, Vùng ngay sau Chú thích (ưu tiên 34); bài cảm nhận đã duyệt (35); khối "Bạn muốn góp gì?" (40)
+add_filter(
+	'the_content',
+	static function ( $noi_dung ) {
+		if ( ! is_singular( CADAO_LOAI_BAI ) || get_the_ID() !== get_queried_object_id() || doing_filter( 'get_the_excerpt' ) ) {
+			return $noi_dung;
+		}
+		foreach ( array( 'chu_de' => 'Chủ đề: ', 'vung' => 'Vùng: ' ) as $tax => $nhan ) {
+			$ds = get_the_term_list( get_the_ID(), $tax, $nhan, ', ' );
+			$noi_dung .= $ds && ! is_wp_error( $ds ) ? '<p class="cadao-nhan-cuoi">' . $ds . '</p>' : '';
+		}
+		return $noi_dung;
+	},
+	34
+);
 add_filter(
 	'the_content',
 	static function ( $noi_dung ) {
 		if ( is_singular( CADAO_LOAI_BAI ) && get_the_ID() === get_queried_object_id() && ! doing_filter( 'get_the_excerpt' ) ) {
-			$noi_dung .= cadao_form_gop_y( get_post() );
+			$noi_dung .= cadao_khoi_gop( get_post() );
 		}
 		return $noi_dung;
 	},

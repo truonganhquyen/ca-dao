@@ -3,9 +3,13 @@
 <!-- wp:group {"tagName":"main","style":{"spacing":{"padding":{"top":"2rem","bottom":"3rem"}}},"layout":{"type":"constrained"}} -->
 <main class="wp-block-group" style="padding-top:2rem;padding-bottom:3rem"><!-- wp:query-title {"type":"archive","showPrefix":false} /-->
 
+<!-- wp:shortcode -->
+[cadao_loc_ds]
+<!-- /wp:shortcode -->
+
 <!-- wp:query {"queryId":1,"query":{"perPage":20,"pages":0,"offset":0,"postType":"cdtn","order":"desc","orderBy":"date","inherit":true},"className":"cadao-ds"} -->
 <div class="wp-block-query cadao-ds"><!-- wp:post-template {"className":"cadao-ds-bai"} -->
-<!-- wp:post-title {"level":2,"isLink":true,"fontSize":"large"} /-->
+<!-- wp:post-title {"level":3,"isLink":true,"fontSize":"large"} /-->
 <!-- /wp:post-template -->
 
 <!-- wp:query-pagination -->
@@ -15,9 +19,9 @@
 <!-- /wp:query-pagination -->
 
 <!-- wp:query-no-results -->
-<!-- wp:paragraph -->
-<p>Chưa có bài nào.</p>
-<!-- /wp:paragraph -->
+<!-- wp:shortcode -->
+[cadao_ds_trong]
+<!-- /wp:shortcode -->
 <!-- /wp:query-no-results --></div>
 <!-- /wp:query --></main>
 <!-- /wp:group -->
