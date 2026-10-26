@@ -200,7 +200,7 @@ function cadao_tim_ket_qua( string $q ): array {
 				break;
 			}
 		}
-		$bai[] = array( 'tieu_de' => get_the_title( $p ), 'url' => get_permalink( $p ), 'the_loai' => cadao_ten_the_loai( $p ), 'dong_dau' => $dong[0] ?? '', 'dong_khop' => $khop && $khop !== ( $dong[0] ?? '' ) ? $khop : '', 'hieu_nhanh' => wp_trim_words( $p->post_excerpt, 24 ), 'so_lieu' => function_exists( 'cadao_html_so_lieu' ) ? cadao_html_so_lieu( $p->ID, array( 'doc' ), 'cadao-so-lieu-ds' ) : '' );
+		$bai[] = array( 'tieu_de' => get_the_title( $p ), 'url' => get_permalink( $p ), 'the_loai' => cadao_ten_the_loai( $p ), 'muc_kiem' => function_exists( 'cadao_muc_kiem' ) ? cadao_muc_kiem( $p->ID )['ngan'] : '', 'dong_dau' => $dong[0] ?? '', 'dong_khop' => $khop && $khop !== ( $dong[0] ?? '' ) ? $khop : '', 'hieu_nhanh' => wp_trim_words( $p->post_excerpt, 24 ), 'so_lieu' => function_exists( 'cadao_html_so_lieu' ) ? cadao_html_so_lieu( $p->ID, array( 'doc' ), 'cadao-so-lieu-ds' ) : '' );
 	}
 	$muc_tu = array_map( static fn( $t ) => array( 'ten' => $t->name, 'url' => get_term_link( $t ), 'giai' => wp_trim_words( $t->description, 20 ), 'so_bai' => (int) $t->count ), cadao_tim_muc_tu( $q ) );
 	return array( 'q' => $q, 'bai' => $bai, 'muc_tu' => $muc_tu );
@@ -241,7 +241,7 @@ function cadao_tim_html( array $kq ): string {
 	if ( $kq['bai'] ) {
 		$ra .= '<h2 class="cadao-tim-nhom">' . esc_html( sprintf( '%d bài', count( $kq['bai'] ) ) ) . '</h2><ul class="cadao-tim-ds">';
 		foreach ( $kq['bai'] as $b ) {
-			$ra .= '<li><a href="' . esc_url( $b['url'] ) . '"><strong>' . esc_html( $b['dong_dau'] ?: $b['tieu_de'] ) . '</strong></a> <span class="cadao-tim-phu">· ' . esc_html( $b['the_loai'] ) . '</span>' . $b['so_lieu']
+			$ra .= '<li><a href="' . esc_url( $b['url'] ) . '"><strong>' . esc_html( $b['dong_dau'] ?: $b['tieu_de'] ) . '</strong></a> <span class="cadao-tim-phu">· ' . esc_html( $b['the_loai'] ) . ( $b['muc_kiem'] ? ' · ' . esc_html( $b['muc_kiem'] ) : '' ) . '</span>' . $b['so_lieu']
 				. ( $b['dong_khop'] ? '<br><span class="cadao-tim-khop">… ' . esc_html( $b['dong_khop'] ) . '</span>' : '' )
 				. ( $b['hieu_nhanh'] ? '<br><span class="cadao-tim-phu">' . esc_html( $b['hieu_nhanh'] ) . '</span>' : '' ) . '</li>';
 		}

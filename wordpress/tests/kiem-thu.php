@@ -1060,6 +1060,49 @@ kt( 'nút Chia sẻ: chỉ tính khi gửi xong (hủy thì không), sao chép l
 $ngan = do_blocks( cadao_khoi_tho( implode( "\n", array_slice( $khong_kho, 0, 40 ) ) ) );
 kt( 'bài 40 dòng trở xuống: không chia đoạn', ! str_contains( $ngan, 'cadao-bai-dai' ) );
 
+// ---------- Dòng "lời và mức kiểm" (T-119, D-072) ----------
+$mk_bai = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'post_title' => 'Bài thử mức kiểm', 'post_content' => cadao_khoi_tho( "Mức kiểm thử một\nMức kiểm thử hai" ) ) );
+$pp_mk  = get_page_by_path( 'phuong-phap', OBJECT, 'page' );
+wp_update_post( array( 'ID' => $pp_mk->ID, 'post_status' => 'draft' ) );
+$h_mk = cadao_html_muc_kiem( $mk_bai );
+kt( 'mặc định: "chưa đối chiếu sách"; trang Phương pháp chưa đăng thì không có "Vì sao?"', str_contains( $h_mk, 'Lời theo bản lưu truyền phổ biến · chưa đối chiếu sách' ) && ! str_contains( $h_mk, 'Vì sao?' ) && ! str_contains( $h_mk, 'cadao-muc-kiem-da' ), $h_mk );
+update_post_meta( $mk_bai, 'nguon_ten', 'Nguồn chú thích thử' );
+kt( 'nguồn của chú thích (hộp Nguồn cũ) không biến thành "đã đối chiếu"', ! cadao_muc_kiem( $mk_bai )['da_doi_chieu'] && str_contains( cadao_html_muc_kiem( $mk_bai ), 'chưa đối chiếu sách' ) );
+wp_publish_post( $pp_mk->ID );
+$h_mk = cadao_html_muc_kiem( $mk_bai );
+kt( 'trang Phương pháp đã đăng: "Vì sao?" dẫn tới mục #muc-kiem, có chữ cho trình đọc màn hình', str_contains( $h_mk, '#muc-kiem">Vì sao?<span class="screen-reader-text">' ), $h_mk );
+update_post_meta( $mk_bai, 'doi_chieu_ten', 'Sách <b>Thử</b> & Bàn' ); // thẻ bị lọc khi lưu, & được thoát khi hiện
+update_post_meta( $mk_bai, 'doi_chieu_trang', '45' );
+$h_mk = cadao_html_muc_kiem( $mk_bai );
+kt( 'người biên soạn điền đối chiếu: "Lời đã đối chiếu với <sách>, tr. N" (chữ được thoát)', str_contains( $h_mk, 'Lời đã đối chiếu với Sách Thử &amp; Bàn, tr. 45' ) && str_contains( $h_mk, 'cadao-muc-kiem-da' ) && ! str_contains( $h_mk, 'chưa đối chiếu' ), $h_mk );
+update_post_meta( $mk_bai, 'doi_chieu_ten', '' );
+update_post_meta( $mk_bai, 'doi_chieu_trang', '' );
+update_post_meta( $mk_bai, 'doi_chieu_url', 'https://sach.example.org/ban-quet' );
+$h_mk = cadao_html_muc_kiem( $mk_bai );
+kt( 'chỉ có địa chỉ: tên là tên miền, có liên kết ↗', str_contains( $h_mk, 'Lời đã đối chiếu với <a href="https://sach.example.org/ban-quet" rel="noopener">sach.example.org <span aria-hidden="true">↗</span></a>' ), $h_mk );
+update_post_meta( $mk_bai, 'doi_chieu_ten', 'Sách thử đối chiếu' );
+update_post_meta( $mk_bai, 'doi_chieu_trang', '45' );
+$tr_mk = cadao_mau_trich_dan( get_post( $mk_bai ) );
+kt( 'trích dẫn nêu nơi đối chiếu khi có; bài chưa đối chiếu giữ nguyên', str_contains( $tr_mk['thong_dung'], '(Ca dao, lời đối chiếu với Sách thử đối chiếu, tr. 45)' ) && str_contains( $tr_mk['apa'], '[Ca dao; lời đối chiếu với Sách thử đối chiếu, tr. 45]' ) && ! str_contains( implode( '', cadao_mau_trich_dan( get_post( $td ) ) ), 'đối chiếu' ), $tr_mk );
+$kq_mk = cadao_tim_ket_qua( 'muc kiem thu' );
+kt( 'kết quả Tìm có mức kiểm ngắn', 'đã đối chiếu' === ( $kq_mk['bai'][0]['muc_kiem'] ?? '' ) && str_contains( cadao_tim_html( $kq_mk ), '· Ca dao · đã đối chiếu' ), $kq_mk['bai'][0] ?? null );
+kt( 'dòng chèn ngay sau lời, trước Hiểu nhanh (theme chèn Hiểu nhanh sát </pre> ở ưu tiên 20, dòng này ở 25)', '<pre>l</pre>[M]<section class="cadao-hieu-nhanh">h</section>' === cadao_chen_muc_kiem( '<pre>l</pre><section class="cadao-hieu-nhanh">h</section>', '[M]' ) && 'không thơ' === cadao_chen_muc_kiem( 'không thơ', '[M]' ) );
+kt( 'không dùng từ cấm trong dòng mức kiểm', ! preg_match( '/bản gốc|bản đúng|bản chuẩn|bản sai/u', CADAO_MUC_KIEM_CHUA . cadao_html_muc_kiem( $mk_bai ) . cadao_pp_muc_kiem() ) );
+// Bản nháp Phương pháp cũ (chưa có mục) được thêm mục; trang đã đăng thì không đụng
+wp_update_post( array( 'ID' => $pp_mk->ID, 'post_status' => 'draft', 'post_content' => wp_slash( "<!-- wp:paragraph -->\n<p>Đoạn đầu.</p>\n<!-- /wp:paragraph -->\n\n" . CADAO_PP_LOI_CU ) ) );
+cadao_pp_them_muc_kiem();
+cadao_pp_them_muc_kiem();
+$pp_mk = get_post( $pp_mk->ID );
+kt( 'bản nháp Phương pháp: thêm mục "Dòng nhỏ dưới lời nói gì" (#muc-kiem) một lần, giữ đoạn khác', 1 === substr_count( $pp_mk->post_content, 'id="muc-kiem"' ) && str_contains( $pp_mk->post_content, 'Đoạn đầu.' ) && str_contains( $pp_mk->post_content, 'dưới lời không ghi trang web đã chép' ) && ! str_contains( $pp_mk->post_content, CADAO_PP_LOI_CU ), $pp_mk->post_content );
+wp_update_post( array( 'ID' => $pp_mk->ID, 'post_status' => 'publish', 'post_content' => wp_slash( CADAO_PP_LOI_CU ) ) );
+cadao_pp_them_muc_kiem();
+kt( 'trang Phương pháp đã đăng: máy không sửa', CADAO_PP_LOI_CU === get_post( $pp_mk->ID )->post_content );
+kt( 'trang Phương pháp mới tạo đã có mục #muc-kiem', str_contains( cadao_noi_dung_trang_du_an( 'phuong-phap' ), 'id="muc-kiem"' ) );
+ob_start();
+cadao_hop_doi_chieu( get_post( $mk_bai ) );
+$hop_dc = ob_get_clean();
+kt( 'hộp "Lời đã đối chiếu với" có ba ô và lời nhắc chỉ điền khi tự so', str_contains( $hop_dc, 'name="doi_chieu_ten"' ) && str_contains( $hop_dc, 'name="doi_chieu_trang"' ) && str_contains( $hop_dc, 'name="doi_chieu_url"' ) && str_contains( $hop_dc, 'chính bạn' ) );
+
 // ---------- Lịch ----------
 kt( 'lịch lấy bài mỗi 5 phút đã đặt', (bool) wp_next_scheduled( 'cadao_thu_thap' ) );
 kt( 'lịch tạo bài hằng ngày đã đặt', (bool) wp_next_scheduled( 'cadao_tao_bai_hang_ngay' ) );

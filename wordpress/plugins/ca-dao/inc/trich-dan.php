@@ -38,9 +38,10 @@ function cadao_mau_trich_dan( WP_Post $bai ): array {
 	$ten = cadao_giai_ma( wp_strip_all_tags( get_the_title( $bai ) ) );
 	$the = cadao_ten_the_loai( $bai );
 	$url = get_permalink( $bai );
+	$dc  = function_exists( 'cadao_chu_doi_chieu' ) ? cadao_chu_doi_chieu( $bai->ID ) : ''; // chỉ khi người biên soạn đã tự đối chiếu (D-072)
 	return array(
-		'thong_dung' => sprintf( '"%s" (%s). %s. Truy cập tại: %s, ngày {ngay}.', $ten, $the, CADAO_TEN_DU_AN, $url ),
-		'apa'        => sprintf( '%s. (%s). %s [%s]. %s', CADAO_TEN_DU_AN, get_the_date( 'Y', $bai ), $ten, $the, $url ),
+		'thong_dung' => sprintf( '"%s" (%s%s). %s. Truy cập tại: %s, ngày {ngay}.', $ten, $the, '' !== $dc ? ', lời đối chiếu với ' . $dc : '', CADAO_TEN_DU_AN, $url ),
+		'apa'        => sprintf( '%s. (%s). %s [%s%s]. %s', CADAO_TEN_DU_AN, get_the_date( 'Y', $bai ), $ten, $the, '' !== $dc ? '; lời đối chiếu với ' . $dc : '', $url ),
 	);
 }
 
