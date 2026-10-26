@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Kho tàng Ca dao – Tục ngữ
  * Description:       Loại bài Ca dao – Tục ngữ, nguồn tự động có cấu hình trong trang quản trị, kho thu thập, tự tạo bài Chờ duyệt, trích dẫn và chia sẻ, lượt đọc không cookie, chống trùng (máy báo, người quyết).
- * Version:           0.27.0
+ * Version:           0.28.0
  * Requires at least: 6.8
  * Requires PHP:      8.1
  * Author:            Dự án Kho tàng Ca dao Tục ngữ Việt Nam
@@ -16,7 +16,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-const CADAO_PHIEN_BAN = '0.27.0';
+const CADAO_PHIEN_BAN = '0.28.0';
 define( 'CADAO_THU_MUC', __DIR__ );
 
 require_once CADAO_THU_MUC . '/inc/trich.php';
@@ -54,6 +54,7 @@ require_once CADAO_THU_MUC . '/inc/muc-kiem.php';
 require_once CADAO_THU_MUC . '/inc/danh-sach.php';
 require_once CADAO_THU_MUC . '/inc/anh-chia-se.php';
 require_once CADAO_THU_MUC . '/inc/seo.php';
+require_once CADAO_THU_MUC . '/inc/hieu-nhanh.php';
 
 register_activation_hook( __FILE__, 'cadao_kich_hoat' );
 register_deactivation_hook( __FILE__, 'cadao_tat' );
