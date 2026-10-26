@@ -115,10 +115,41 @@ add_action(
 	11
 );
 
+/** Số âm tiết thêm tối đa giữa các chữ tìm để vẫn tính là "gần nhau" (báo cáo E2E, L-08). */
+const CADAO_TIM_CACH_TOI_DA = 3;
+
 /**
- * Tìm bài.
+ * Mọi chữ tìm có nằm gần nhau trong $chu không: một đoạn liền có đủ các chữ, dài tối đa số chữ + 3 âm tiết. Chữ cuối
+ * khớp phần đầu âm tiết (đang gõ dở). Bài vè dài chứa đủ chữ thông dụng ở rải rác các dòng thì không tính.
  *
- * @return array<int, array{id: int, diem: int}> giống nhất trước
+ * @param string[] $tu chữ tìm (đã bỏ khoảng trắng hai đầu), chữ cuối có thể gõ dở
+ */
+function cadao_tim_gan_nhau( string $chu, array $tu ): bool {
+	$tu = array_values( array_filter( $tu, static fn( $t ) => '' !== $t ) );
+	$n  = count( $tu );
+	if ( ! $n ) {
+		return false;
+	}
+	$am   = explode( ' ', trim( $chu ) );
+	$thay = array(); // chữ tìm thứ j → vị trí âm tiết gần nhất đã gặp
+	foreach ( $am as $i => $a ) {
+		foreach ( $tu as $j => $t ) {
+			if ( $j === $n - 1 ? str_starts_with( $a, $t ) : $a === $t ) {
+				$thay[ $j ] = $i;
+			}
+		}
+		if ( count( $thay ) === $n && $i - min( $thay ) + 1 <= $n + CADAO_TIM_CACH_TOI_DA ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * Tìm bài. Điểm: cả cụm liền nhau > các chữ gần nhau > các chữ rời rạc (bài dài chứa đủ chữ ở nhiều dòng — xếp cuối,
+ * ghi 'roi' để trang tìm hiện ở nhóm riêng); bằng nhau thì bài ngắn hơn trước.
+ *
+ * @return array<int, array{id: int, diem: int, roi: bool}> giống nhất trước
  */
 function cadao_tim( string $q, int $so = 20, ?int &$tong = null ): array {
 	global $wpdb;
@@ -137,29 +168,38 @@ function cadao_tim( string $q, int $so = 20, ?int &$tong = null ): array {
 	};
 	$tu     = $mau( $kd );
 	$tu_cd  = $mau( $co_dau );
+	$tron   = array_map( 'trim', $tu );
 	$cum    = " $kd";
 	$cum_cd = " $co_dau";
 	$co_het = static fn( string $chu, array $ds ) => array_reduce( $ds, static fn( $c, $t ) => $c && str_contains( $chu, $t ), true );
 	$giong  = static fn( $s ) => '%' . $wpdb->esc_like( $s ) . '%';
 	$diem   = array();
+	$roi    = array();
 	// Ứng viên: chứa mọi từ (không dấu) ở phần chính hoặc phần phụ
 	$dk = implode( ' AND ', array_map( static fn( $t ) => $wpdb->prepare( '(chinh_kd LIKE BINARY %s OR phu_kd LIKE BINARY %s)', $giong( $t ), $giong( $t ) ), $tu ) );
 	foreach ( $wpdb->get_results( 'SELECT post_id, chinh, chinh_kd, phu, phu_kd FROM ' . cadao_tim_bang() . " WHERE $dk LIMIT 500" ) as $r ) {
-		$d  = str_contains( $r->chinh_kd, $cum ) ? 300 : ( $co_het( $r->chinh_kd, $tu ) ? 150 : 0 );
-		$d += str_contains( $r->phu_kd, $cum ) ? 100 : ( $co_het( $r->phu_kd, $tu ) ? 50 : 0 );
+		$lien_c = str_contains( $r->chinh_kd, $cum );
+		$gan_c  = ! $lien_c && $co_het( $r->chinh_kd, $tu ) && cadao_tim_gan_nhau( $r->chinh_kd, $tron );
+		$lien_p = str_contains( $r->phu_kd, $cum );
+		$gan_p  = ! $lien_p && $co_het( $r->phu_kd, $tu ) && cadao_tim_gan_nhau( $r->phu_kd, $tron );
+		$d  = $lien_c ? 300 : ( $gan_c ? 150 : 0 );
+		$d += $lien_p ? 100 : ( $gan_p ? 50 : 0 );
 		if ( $co_dau_that ) { // gõ có dấu: khớp đúng dấu được ưu tiên
-			$d += str_contains( $r->chinh, $cum_cd ) ? 200 : ( $co_het( $r->chinh, $tu_cd ) ? 80 : 0 );
+			$d += str_contains( $r->chinh, $cum_cd ) ? 200 : ( $gan_c && $co_het( $r->chinh, $tu_cd ) ? 80 : 0 );
 			$d += str_contains( $r->phu, $cum_cd ) ? 60 : 0;
 		}
 		$d += str_starts_with( $r->chinh_kd, $cum ) ? 40 : 0; // khớp từ đầu tiêu đề
-		if ( $d > 0 ) {
-			$diem[ (int) $r->post_id ] = $d;
+		$id = (int) $r->post_id;
+		if ( $d <= 0 ) { // có đủ chữ nhưng rời rạc
+			$d          = 10;
+			$roi[ $id ] = true;
 		}
+		$diem[ $id ] = $d * 1000 - min( 999, intdiv( strlen( $r->chinh_kd ), 50 ) ); // bằng điểm: bài ngắn trước
 	}
 	arsort( $diem );
 	$tong = count( $diem ); // tổng số bài khớp (trong tối đa 500 ứng viên)
 	$diem = array_slice( $diem, 0, $so, true );
-	return array_map( static fn( $id, $d ) => array( 'id' => $id, 'diem' => $d ), array_keys( $diem ), $diem );
+	return array_map( static fn( $id, $d ) => array( 'id' => $id, 'diem' => $d, 'roi' => isset( $roi[ $id ] ) ), array_keys( $diem ), $diem );
 }
 
 /** Mục từ trong từ điển có tên khớp truy vấn (nhóm riêng phía trên). */
@@ -203,7 +243,7 @@ function cadao_tim_ket_qua( string $q ): array {
 				break;
 			}
 		}
-		$bai[] = array( 'tieu_de' => get_the_title( $p ), 'url' => get_permalink( $p ), 'the_loai' => cadao_ten_the_loai( $p ), 'muc_kiem' => function_exists( 'cadao_muc_kiem' ) ? cadao_muc_kiem( $p->ID )['ngan'] : '', 'dong_dau' => $dong[0] ?? '', 'dong_khop' => $khop && $khop !== ( $dong[0] ?? '' ) ? $khop : '', 'hieu_nhanh' => wp_trim_words( $p->post_excerpt, 24 ), 'so_lieu' => function_exists( 'cadao_html_so_lieu' ) ? cadao_html_so_lieu( $p->ID, array( 'doc' ), 'cadao-so-lieu-ds' ) : '' );
+		$bai[] = array( 'tieu_de' => cadao_giai_ma( wp_strip_all_tags( get_the_title( $p ) ) ), 'roi' => $x['roi'], 'url' => get_permalink( $p ), 'the_loai' => cadao_ten_the_loai( $p ), 'muc_kiem' => function_exists( 'cadao_muc_kiem' ) ? cadao_muc_kiem( $p->ID )['ngan'] : '', 'dong_dau' => $dong[0] ?? '', 'dong_khop' => $khop && $khop !== ( $dong[0] ?? '' ) ? $khop : '', 'hieu_nhanh' => wp_trim_words( $p->post_excerpt, 24 ), 'so_lieu' => function_exists( 'cadao_html_so_lieu' ) ? cadao_html_so_lieu( $p->ID, array( 'doc' ), 'cadao-so-lieu-ds' ) : '' );
 	}
 	$muc_tu = array_map( static fn( $t ) => array( 'ten' => $t->name, 'url' => get_term_link( $t ), 'giai' => wp_trim_words( $t->description, 20 ), 'so_bai' => (int) $t->count ), cadao_tim_muc_tu( $q ) );
 	return array( 'q' => $q, 'bai' => $bai, 'tong' => max( $tong, count( $bai ) ), 'muc_tu' => $muc_tu );
@@ -247,13 +287,18 @@ function cadao_tim_html( array $kq ): string {
 		$ra .= '</ul>';
 	}
 	if ( $kq['bai'] ) {
-		$ra .= '<h2 class="cadao-tim-nhom">' . esc_html( cadao_tim_dem( count( $kq['bai'] ), (int) ( $kq['tong'] ?? 0 ) ) ) . '</h2><ul class="cadao-tim-ds">';
-		foreach ( $kq['bai'] as $b ) {
-			$ra .= '<li><a href="' . esc_url( $b['url'] ) . '"><strong>' . esc_html( $b['dong_dau'] ?: $b['tieu_de'] ) . '</strong></a> <span class="cadao-tim-phu">· ' . esc_html( $b['the_loai'] ) . ( $b['muc_kiem'] ? ' · ' . esc_html( $b['muc_kiem'] ) : '' ) . '</span>' . $b['so_lieu']
-				. ( $b['dong_khop'] ? '<br><span class="cadao-tim-khop">… ' . esc_html( $b['dong_khop'] ) . '</span>' : '' )
+		$ra   .= '<h2 class="cadao-tim-nhom">' . esc_html( cadao_tim_dem( count( $kq['bai'] ), (int) ( $kq['tong'] ?? 0 ) ) ) . '</h2>';
+		$lien  = array_filter( $kq['bai'], static fn( $b ) => empty( $b['roi'] ) );
+		$roi   = array_filter( $kq['bai'], static fn( $b ) => ! empty( $b['roi'] ) );
+		$muc   = static function ( array $b ): string {
+			// Tên bài (người đọc thấy chữ mình gõ khi nó nằm ở tên), rồi dòng có chữ khớp hoặc dòng đầu (báo cáo E2E, L-04)
+			$dong = $b['dong_khop'] ? '… ' . $b['dong_khop'] : ( cadao_chuan_loi( $b['dong_dau'] ) !== cadao_chuan_loi( $b['tieu_de'] ) ? $b['dong_dau'] : '' );
+			return '<li><a href="' . esc_url( $b['url'] ) . '"><strong>' . esc_html( $b['tieu_de'] ) . '</strong></a> <span class="cadao-tim-phu">· ' . esc_html( $b['the_loai'] ) . ( $b['muc_kiem'] ? ' · ' . esc_html( $b['muc_kiem'] ) : '' ) . '</span>' . $b['so_lieu']
+				. ( '' !== $dong ? '<br><span class="cadao-tim-khop">' . esc_html( $dong ) . '</span>' : '' )
 				. ( $b['hieu_nhanh'] ? '<br><span class="cadao-tim-phu">' . esc_html( $b['hieu_nhanh'] ) . '</span>' : '' ) . '</li>';
-		}
-		$ra .= '</ul>';
+		};
+		$ra .= $lien ? '<ul class="cadao-tim-ds">' . implode( '', array_map( $muc, $lien ) ) . '</ul>' : '';
+		$ra .= $roi ? '<h3 class="cadao-tim-nhom cadao-tim-roi">Có các chữ này nhưng không liền nhau</h3><ul class="cadao-tim-ds">' . implode( '', array_map( $muc, $roi ) ) . '</ul>' : '';
 	}
 	return $ra;
 }

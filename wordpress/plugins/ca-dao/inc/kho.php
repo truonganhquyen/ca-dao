@@ -435,33 +435,59 @@ function cadao_quan_tri_dau_tien(): int {
 
 /**
  * Tạo tối đa $so bài Chờ duyệt từ kho của một nguồn: mục mới đã đọc trang, bỏ qua mục mang cờ nguồn đã chọn bỏ qua.
+ * Lấy **xoay vòng theo loại** (mỗi loại một bài rồi sang loại kế), để loại nhập kho sau (thành ngữ – tục ngữ, đồng
+ * dao…) không phải chờ hết hàng nghìn câu ca dao (T-125, báo cáo E2E L-15). Trong thành ngữ – tục ngữ, câu người sáng
+ * lập đã chọn loại (Tách thành ngữ – tục ngữ) đi trước.
  *
  * @return int số bài đã tạo
  */
 function cadao_kho_tao_bai_cho_duyet( array $nguon, int $so ): int {
 	global $wpdb;
 	$bang  = cadao_kho_bang();
-	$tao   = 0;
 	$bo_co = $nguon['bo_qua_co'] ?? array();
-	$loai  = $nguon['loai_lay'] ?? array();
-	$sau   = 0; // lật trang theo id: mục vừa tạo bài rời khỏi danh sách "mới" nên OFFSET sẽ bỏ sót
-	while ( $tao < $so ) {
-		// Chỉ mục đã đọc trang (có dị bản, chú thích) và có lời
-		$ds = $wpdb->get_results( $wpdb->prepare( "SELECT id, loai, du_lieu FROM $bang WHERE nguon_id = %s AND trang_thai = 'moi' AND doc_trang LIKE '2%%' AND loi <> '' AND id > %d ORDER BY id ASC LIMIT 50", $nguon['id'], $sau ) );
-		if ( ! $ds ) {
-			break;
-		}
-		foreach ( $ds as $muc ) {
-			$sau = (int) $muc->id;
-			$co = ( json_decode( $muc->du_lieu, true ) ?: array() )['co'] ?? array();
-			if ( ( $loai && ! in_array( $muc->loai, $loai, true ) ) || array_intersect( $co, $bo_co ) ) {
+	$loai  = $nguon['loai_lay'] ?: $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT loai FROM $bang WHERE nguon_id = %s", $nguon['id'] ) );
+	$quyet = '%"loai_tach"%'; // không esc_like: dấu _ chỉ là ký tự đại diện, vẫn khớp đúng
+	// Mỗi dòng: một loại (thành ngữ – tục ngữ: hai lượt, câu đã quyết loại trước); lật trang theo id vì mục vừa tạo bài
+	// rời khỏi danh sách "mới" nên OFFSET sẽ bỏ sót
+	$dong = array();
+	foreach ( $loai as $l ) {
+		$dk     = $wpdb->prepare( 'loai = %s', $l );
+		$dong[] = array( 'dk' => 'thanh_ngu_tuc_ngu' === $l ? array( $dk . $wpdb->prepare( ' AND du_lieu LIKE %s', $quyet ), $dk . $wpdb->prepare( ' AND du_lieu NOT LIKE %s', $quyet ) ) : array( $dk ), 'sau' => 0, 'cho' => array() );
+	}
+	$lay = static function ( array &$d ) use ( $wpdb, $bang, $nguon, $bo_co ) {
+		while ( $d['dk'] ) {
+			if ( ! $d['cho'] ) {
+				// Chỉ mục đã đọc trang (có dị bản, chú thích) và có lời
+				$d['cho'] = $wpdb->get_results( $wpdb->prepare( "SELECT id, du_lieu FROM $bang WHERE nguon_id = %s AND trang_thai = 'moi' AND doc_trang LIKE '2%%' AND loi <> '' AND {$d['dk'][0]} AND id > %d ORDER BY id ASC LIMIT 50", $nguon['id'], $d['sau'] ) );
+				if ( ! $d['cho'] ) {
+					array_shift( $d['dk'] );
+					$d['sau'] = 0;
+					continue;
+				}
+			}
+			$muc      = array_shift( $d['cho'] );
+			$d['sau'] = (int) $muc->id;
+			$co       = ( json_decode( $muc->du_lieu, true ) ?: array() )['co'] ?? array();
+			if ( array_intersect( $co, $bo_co ) ) {
 				continue; // để nguyên trong kho, người quản trị tự chọn nếu muốn
 			}
 			// Chống trùng (T-110): câu trùng thì đã gắn vào bài có sẵn; câu nghi trùng chờ người sáng lập quyết
 			if ( cadao_trung_dang_cho( (int) $muc->id ) || 'khong' !== cadao_trung_kiem_kho( (int) $muc->id ) ) {
 				continue;
 			}
-			if ( ! is_wp_error( cadao_kho_tao_bai( (int) $muc->id ) ) ) {
+			return (int) $muc->id;
+		}
+		return 0;
+	};
+	$tao = 0;
+	while ( $tao < $so && $dong ) {
+		foreach ( array_keys( $dong ) as $k ) {
+			$id = $lay( $dong[ $k ] );
+			if ( ! $id ) {
+				unset( $dong[ $k ] ); // loại này hết câu
+				continue;
+			}
+			if ( ! is_wp_error( cadao_kho_tao_bai( $id ) ) ) {
 				++$tao;
 			}
 			if ( $tao >= $so ) {

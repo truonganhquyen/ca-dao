@@ -87,6 +87,10 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-100 | Trợ giúp viết "Hiểu nhanh" (gợi ý; nháp máy chờ duyệt) (kéo lên Mốc B, D-073) | A | T-082 | — | DONE |
 | T-122 | "Đọc tiếp" cuối bài, bản tối giản: 3–5 bài cùng chủ đề, vùng, thể loại (D-075) | A | T-121, T-089 | — | DONE |
 | T-123 | Câu mới trùng 100% một dị bản đã ghi: máy tự gắn làm dị bản (D-074) | A | T-110 | — | DONE |
+| T-124 | Khoá cửa quản trị: tắt XML-RPC, không lộ tên đăng nhập, câu báo chung, tạm khoá khi sai nhiều, `?ly_do=` → mã (D-076) | A | T-118 | — | DONE |
+| T-125 | Tục ngữ, thành ngữ vào hàng Chờ duyệt: tạo bài xoay vòng theo loại; dòng "Kho đang có" (D-076) | A | T-071, T-047 | — | DONE |
+| T-126 | Người đọc bớt tắc: mũi tên nhóm lọc, 30 bài/trang, 404 riêng, kết quả tìm hiện tên bài, xếp hạng chữ liền nhau (D-076) | A | T-120, T-121, T-041 | — | DONE |
+| T-127 | Canonical cho trang chủ, Tất cả bài, trang phân loại (D-076) | A | T-050 | — | DONE |
 | T-048 | Duyệt 30–50 bài, thử với 5 người | N | T-073, T-076, T-041..T-046, T-082, T-085, T-119..T-121 | — | BLOCKED |
 | **Mốc C · Mở lặng lẽ** ||||||
 | T-049 | Chốt tên miền (D-070: phongdao.com) | N | — | — | DONE |
@@ -440,6 +444,25 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 **Việc:** khi so một câu mới trong kho, lời trùng 100% một dị bản đã ghi (dấu vân tay (1) hoặc (2)) của bài / câu có sẵn → gắn làm dị bản ("Đã gộp", `gop_lam = di_ban`), mọi thể loại; một lần sau nâng cấp, so lại các cặp loại này đang chờ (cặp khác của câu vừa gắn rời hàng chờ; cặp "Để sau" giữ nguyên).
 **Chấp nhận:** câu như vậy không vào hàng "Có thể trùng", bài không có dị bản lặp; "Tách ra" đưa câu về "mới" và so lại không tự gắn nữa; cặp hai bài, bài viết tay không đổi; `npm run test:wordpress` đạt.
 **Tiến độ (26/10/2026):** xong — `cadao_trung_kiem_kho`, `cadao_trung_tu_gan_di_ban_cu` trong `inc/trung.php` (plugin 0.29.0).
+
+#### T-124 · Khoá cửa quản trị — A
+**Đọc:** D-076; báo cáo `docs/e2e-review/REPORT.md` (L-16, L-03, L-01); AGENTS.md (không thu IP, không đổi cấu hình máy chủ).
+**Chấp nhận:** `POST /xmlrpc.php` không trả phương thức nào; người ngoài không đọc được `/wp/v2/users`, `?author=1` không chuyển tới `/author/<tên>/`; sai tên hay sai mật khẩu cùng một câu báo; sai 5 lần trong 15 phút thì tạm khoá (theo tài khoản, không theo IP); `?ly_do=<chữ bất kỳ>` không hiện trên trang.
+**Tiến độ (26/10/2026):** xong — `inc/an-toan.php`, bảng `CADAO_BAO_GUI` (`inc/nguoi-doc.php`); kiểm thử E2E L-16, L-03, L-01 thành kiểm thử bảo vệ. Việc của người vận hành (không phải mã): đổi mật khẩu, xác thực hai lớp, tên hiển thị khác tên đăng nhập.
+
+#### T-125 · Tục ngữ, thành ngữ vào hàng Chờ duyệt — A
+**Đọc:** D-076; `docs/24` mục 7 (Nguồn tự động); báo cáo E2E (L-15).
+**Chấp nhận:** mỗi lượt tạo bài lấy xoay vòng theo loại của nguồn; trong thành ngữ – tục ngữ, câu đã quyết loại đi trước và thành bài đúng thể loại; Bàn biên tập có dòng "Kho đang có" đủ các thể loại (kể cả 0 bài).
+**Tiến độ (26/10/2026):** xong — `cadao_kho_tao_bai_cho_duyet` (`inc/kho.php`), `cadao_kho_dang_co` (`inc/ban-bien-tap.php`). Bài vẫn ở Chờ duyệt; người sáng lập bấm Đăng.
+
+#### T-126 · Người đọc bớt tắc — A
+**Đọc:** D-076; `docs/20`; báo cáo E2E (L-02, L-04, L-06, L-07, L-08).
+**Chấp nhận:** nhóm lọc Vùng, Chủ đề có mũi tên và số lựa chọn; danh sách 30 bài/trang, số trang ≥ 44 px; trang 404 đúng giọng site (ô tìm, lối sang Tất cả bài, Từ điển, không ảnh mẫu); kết quả tìm hiện tên bài + dòng khớp, tên không còn mã HTML; bài chỉ có chữ rời rạc xếp cuối, ở nhóm riêng; `npm run quet:wordpress` đạt.
+**Tiến độ (26/10/2026):** xong — `inc/tim.php`, `assets/tim.js`, `inc/danh-sach.php` ([cadao_404]), theme `templates/404.html`, CSS; kiểm thử E2E L-02, L-04, L-06, L-07, L-08 (câu không có trong kho) thành kiểm thử bảo vệ. Không làm: chịu lỗi gõ (L-09).
+
+#### T-127 · Canonical — A
+**Chấp nhận:** trang chủ, Tất cả bài, trang phân loại có `<link rel="canonical">`; trang 2, 3… trỏ về chính nó; trang lọc, đổi cách xếp trỏ về danh sách không lọc; bài, trang tĩnh để WordPress tự in (không in hai lần).
+**Tiến độ (26/10/2026):** xong — `cadao_canonical` (`inc/seo.php`).
 
 #### T-048 · Duyệt 30–50 bài, thử với 5 người — N
 **Đọc:** `11`; `docs/luu-tru/24-ke-hoach-beta.md` mục 2 (dùng nhiệm vụ N1–N6, không chấm ngưỡng 80%).

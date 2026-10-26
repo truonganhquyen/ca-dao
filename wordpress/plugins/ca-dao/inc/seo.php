@@ -170,6 +170,45 @@ add_action(
 	3
 );
 
+// ---------- Canonical cho trang không phải bài (T-127): trang chủ, Tất cả, trang phân loại ----------
+
+/**
+ * Địa chỉ canonical của trang chủ và trang danh sách (bài, trang tĩnh: WordPress tự in). Trang lọc (?loai=, ?mien=…),
+ * cách xếp (?xep=) trỏ về danh sách không lọc; trang 2, 3… trỏ về chính nó (không có bộ lọc).
+ */
+function cadao_canonical(): string {
+	if ( is_singular() || is_404() ) {
+		return ''; // bài, trang tĩnh (kể cả trang chủ tĩnh): WordPress đã in rel_canonical
+	}
+	if ( is_front_page() && ! is_paged() ) {
+		return home_url( '/' );
+	}
+	if ( is_post_type_archive( CADAO_LOAI_BAI ) ) {
+		$goc = get_post_type_archive_link( CADAO_LOAI_BAI );
+	} elseif ( is_tax() || is_category() || is_tag() ) {
+		$goc = get_term_link( get_queried_object() );
+	} else {
+		return '';
+	}
+	if ( ! $goc || is_wp_error( $goc ) ) {
+		return '';
+	}
+	$loc   = ( function_exists( 'cadao_loc_dang' ) && cadao_loc_dang() ) || isset( $_GET['xep'] );
+	$trang = (int) get_query_var( 'paged' );
+	return ( $trang > 1 && ! $loc ) ? trailingslashit( $goc ) . user_trailingslashit( 'page/' . $trang, 'paged' ) : $goc;
+}
+
+add_action(
+	'wp_head',
+	static function () {
+		$url = cadao_canonical();
+		if ( '' !== $url ) {
+			echo '<link rel="canonical" href="' . esc_url( $url ) . '">' . "\n";
+		}
+	},
+	4
+);
+
 // ---------- Không lập chỉ mục: trang phân loại mỏng, danh sách đã lọc, trang Tìm có câu tìm ----------
 add_filter(
 	'wp_robots',

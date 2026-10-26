@@ -740,6 +740,20 @@ html[data-co-chu="3"] .wp-block-verse {
 	font-family: var(--wp--preset--font-family--literata);
 }
 
+/* Trang không tìm thấy (báo cáo E2E, L-06) */
+.cadao-404-loi {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem 1.25rem;
+	list-style: none;
+	padding: 0;
+}
+.cadao-404-loi a {
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
+}
+
 /* Tìm (T-041) */
 .cadao-tim {
 	display: flex;
@@ -1007,7 +1021,41 @@ html[data-co-chu="3"] .wp-block-verse {
 	min-height: 44px;
 	display: flex;
 	align-items: center;
+	gap: 0.35rem;
 	cursor: pointer;
+}
+/* display: flex làm mất mũi tên của trình duyệt: vẽ lại để thấy là bấm mở được (báo cáo E2E, L-02) */
+.cadao-loc-nhom summary::after {
+	content: "▾";
+	content: "▾" / ""; /* trình đọc màn hình không đọc mũi tên (summary đã báo mở / đóng) */
+	font-size: 1.1em;
+	transition: transform 0.15s;
+}
+.cadao-loc-nhom[open] > summary::after {
+	transform: rotate(180deg);
+}
+@media (prefers-reduced-motion: reduce) {
+	.cadao-loc-nhom summary::after {
+		transition: none;
+	}
+}
+/* Phân trang danh sách: số trang, Trang trước / sau đủ to để chạm (≥ 44 px, báo cáo E2E, L-07) */
+.wp-block-query-pagination {
+	gap: 0.5rem;
+	flex-wrap: wrap;
+}
+.wp-block-query-pagination a,
+.wp-block-query-pagination .page-numbers {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 44px;
+	min-height: 44px;
+	padding-inline: 0.5rem;
+}
+.wp-block-query-pagination .page-numbers.current {
+	font-weight: 700;
+	border-block-end: 3px solid currentColor;
 }
 .cadao-chips {
 	display: flex;

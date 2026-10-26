@@ -54,11 +54,12 @@ test.describe('Tìm: lỗi đã biết', () => {
   });
 
   test('L-08 câu không có trong kho thì không trả bài lạc đề', async ({ request }) => {
-    test.fail(true, 'L-08: các bài vè dài chứa mọi chữ nên khớp gần như mọi câu tìm');
+    // Đã sửa (plugin 0.29.0: chữ rời rạc → nhóm riêng, cờ roi) — kiểm thử bảo vệ
     const kq = await timApi(request, 'ăn quả nhớ kẻ trồng cây');
-    // hoặc không có bài nào, hoặc bài đầu thực sự chứa cụm từ
+    // hoặc không có bài nào, hoặc bài đầu thực sự chứa cụm từ, hoặc bài đầu được đánh dấu "chữ rời rạc" (trang Tìm
+    // hiện ở nhóm riêng "Có các chữ này nhưng không liền nhau", đúng cách sửa báo cáo đề xuất)
     const dau = kq.bai[0];
-    expect(!dau || /nhớ kẻ trồng cây/i.test(`${dau.tieu_de} ${dau.dong_dau} ${dau.dong_khop}`)).toBe(true);
+    expect(!dau || dau.roi === true || /nhớ kẻ trồng cây/i.test(`${dau.tieu_de} ${dau.dong_dau} ${dau.dong_khop}`)).toBe(true);
   });
 
   test('L-08 gõ hai chữ có dấu thì bài có đúng cụm đó đứng trước bài vè dài', async ({ request }) => {
@@ -68,7 +69,7 @@ test.describe('Tìm: lỗi đã biết', () => {
   });
 
   test('L-04 API trả tiêu đề dạng chữ thường, không mã HTML', async ({ request }) => {
-    test.fail(true, 'L-04: get_the_title() trả "&#8211;"');
+    // Đã sửa (plugin 0.29.0) — kiểm thử bảo vệ
     const kq = await timApi(request, 'bang ninh');
     expect(kq.bai.length).toBeGreaterThan(0);
     for (const b of kq.bai) expect(b.tieu_de).not.toMatch(/&#\d+;|&[a-z]+;/);

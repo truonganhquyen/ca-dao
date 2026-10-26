@@ -56,6 +56,7 @@ require_once CADAO_THU_MUC . '/inc/anh-chia-se.php';
 require_once CADAO_THU_MUC . '/inc/seo.php';
 require_once CADAO_THU_MUC . '/inc/hieu-nhanh.php';
 require_once CADAO_THU_MUC . '/inc/doc-tiep.php';
+require_once CADAO_THU_MUC . '/inc/an-toan.php';
 
 register_activation_hook( __FILE__, 'cadao_kich_hoat' );
 register_deactivation_hook( __FILE__, 'cadao_tat' );

@@ -88,12 +88,30 @@ function cadao_hang_ban( array $h ): string {
 			. '<a class="button button-primary" href="' . esc_url( $h['url'] ) . '">Mở</a></div>';
 }
 
+/**
+ * Dòng "Kho đang có" (T-125): số bài đã đăng theo từng thể loại (cả thể loại còn 0 bài — menu tự ẩn nên người sáng lập
+ * không thấy chỗ thiếu), số bài chưa có thể loại.
+ */
+function cadao_kho_dang_co(): string {
+	$phan = array();
+	foreach ( CADAO_THE_LOAI as $slug => $ten ) {
+		$t      = get_term_by( 'slug', $slug, 'the_loai' );
+		$phan[] = number_format_i18n( $t ? (int) $t->count : 0 ) . ' ' . mb_strtolower( $ten );
+	}
+	$khong = new WP_Query( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'fields' => 'ids', 'posts_per_page' => 1, 'tax_query' => array( array( 'taxonomy' => 'the_loai', 'operator' => 'NOT EXISTS' ) ) ) );
+	if ( $khong->found_posts ) {
+		$phan[] = number_format_i18n( $khong->found_posts ) . ' bài chưa có thể loại';
+	}
+	return 'Kho đang có (bài đã đăng): ' . implode( ' · ', $phan ) . '.';
+}
+
 function cadao_trang_ban_bien_tap(): void {
 	$ds    = cadao_hang_cho();
 	$truoc = array_filter( $ds, static fn( $h ) => $h['so'] > 0 && $h['truoc'] );
 	$ranh  = array_filter( $ds, static fn( $h ) => $h['so'] > 0 && ! $h['truoc'] );
 	$xong  = array_filter( $ds, static fn( $h ) => $h['so'] <= 0 );
 	echo '<div class="wrap"><h1>Bàn biên tập</h1><p>Việc đang chờ bạn. Làm phần "Làm trước" là đủ cho tuần này; phần "Khi rảnh" không gấp.</p>';
+	echo '<p class="cadao-kho-dang-co"><strong>' . esc_html( cadao_kho_dang_co() ) . '</strong></p>';
 	echo '<h2>Làm trước</h2>' . ( $truoc ? implode( '', array_map( 'cadao_hang_ban', $truoc ) ) : '<p><strong>Không còn việc gấp.</strong></p>' ); // phpcs:ignore WordPress.Security.EscapeOutput -- đã thoát trong cadao_hang_ban
 	if ( $ranh ) {
 		echo '<details style="max-width:52rem;margin-top:1.5rem"><summary style="cursor:pointer;font-size:1.3em;font-weight:600;padding:8px 0">Khi rảnh (' . (int) count( $ranh ) . ' việc)</summary>' . implode( '', array_map( 'cadao_hang_ban', $ranh ) ) . '</details>'; // phpcs:ignore WordPress.Security.EscapeOutput
