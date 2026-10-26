@@ -52,6 +52,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-110 | Chống trùng khi lấy từ nguồn: gắn vào bài có sẵn, hàng "Có thể trùng" | N+A | T-109 | — | DONE |
 | T-111 | Báo trùng khi viết bài tay (chỉ báo, không chặn) | A | T-109 | — | DONE |
 | T-112 | Lời dán vào khối Đoạn văn: máy đề xuất đưa vào khối Thơ, người biên soạn bấm chuyển | A | T-072 | — | DONE |
+| T-113 | Sửa mục từ: nguồn của lời giải, ảnh riêng / ẩn ảnh Wikidata | A | T-044, T-087 | — | DONE |
 | T-042 | Trích dẫn 2 định dạng + chia sẻ (trên WordPress) | A | T-072 | — | DONE |
 | **Mốc B · Thử nhỏ** ||||||
 | T-041 | Tìm kiếm tức thì, gõ không dấu, tìm cả trong chú thích (WordPress) | N+A | T-072 | — | DONE |
@@ -245,6 +246,11 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 **Ghi chú (25/10/2026):** phát hiện khi kiểm site thật — 16 bài vè người sáng lập nhập tay tối 25/10 có lời trong khối Đoạn văn (dán từ trang web khác), nên trang bài thiếu hộp Trích dẫn, ☆ Lưu, Trình chiếu, Nghe; tìm theo lời và so trùng không thấy bài (mọi thứ đọc lời từ khối Thơ). **Chấp nhận:** máy đề xuất, người biên soạn quyết; không đổi chữ nào; dòng chú giữ là đoạn văn; hoàn tác được.
 
 **Tiến độ (25/10/2026):** xong — plugin 0.18.0 (`inc/khoi-tho.php`). Đề xuất: đoạn văn chứa lời → khối Thơ (mỗi dòng một dòng; mỗi dòng một đoạn văn thì nối liền; hai đoạn nhiều dòng thì cách một dòng trống), dòng chú in nghiêng trọn dòng hoặc nằm trong ngoặc giữ là đoạn văn, tiêu đề và khối khác giữ nguyên, đoạn trống bỏ; chữ sau khi chuyển khác chữ trước thì không đề xuất. Trang **Lời chưa vào khối Thơ** (menu Ca dao – Tục ngữ, có số đếm, chỉ hiện khi còn bài): mỗi bài xem trước số dòng, 4 dòng đầu, dòng chú giữ lại; nút **Chuyển bài này** hoặc chọn nhiều rồi **Chuyển các bài đã chọn**; WordPress lưu bản sửa đổi để hoàn tác. Trình soạn: ô bên cạnh (và bước xác nhận khi bấm Đăng) báo "Lời đang nằm trong khối Đoạn văn" với nút **Đưa lời vào khối Thơ**. Đã chạy thử (chỉ đọc) trên bản sao 16 bài vè: cả 16 đề xuất được, lời chú và dòng nguồn người sáng lập tự ghi giữ là đoạn văn.
+
+#### T-113 · Sửa mục từ — A
+**Ghi chú (26/10/2026):** người sáng lập hỏi cách đổi ảnh và dòng "Nguồn: Ca dao Mẹ ↗" của mục từ "canh" (`/tu-dien/canh/`). Ảnh xúp là do khớp nhầm Wikidata ("canh" giờ đêm ↔ Q41415 "xúp") đã được bấm "Đúng" — sửa tận gốc bằng "Sai" ở Xác nhận Wikidata; nhưng trang quản trị chưa có chỗ đổi ảnh hay sửa nguồn. **Chấp nhận:** người biên soạn sửa được nguồn (xóa khi tự viết lại lời giải), chọn ảnh khác kèm ghi công, ẩn ảnh Wikidata; máy không tự điền nguồn.
+
+**Tiến độ (26/10/2026):** xong — plugin 0.20.0 (`inc/sua-muc-tu.php`). Trang **Sửa mục từ** (Ca dao – Tục ngữ → Từ điển → bấm tên mục từ; hoặc "Sửa mục từ" trên thanh quản trị khi xem trang mục từ) thêm: **Nguồn của lời giải** (tên, đường dẫn — điền sẵn giá trị đang có; xóa thì trang không còn dòng Nguồn và mục từ hết `noindex`), **Ảnh** (xem ảnh đang dùng, "Chọn ảnh khác…" mở Thư viện ảnh của WordPress, "Bỏ ảnh đã chọn", ô ghi công hiện dưới ảnh, "Không hiện ảnh lấy từ Wikidata"), và lối tới Xác nhận Wikidata → Đúng → "Sai" khi máy khớp nhầm thực thể. Ảnh riêng dùng cho cả trang mục từ lẫn ô chạm từ trong bài (`cadao_phan_them_muc_tu`); chữ thay thế của ảnh riêng là tên mục từ. Thử trên trình duyệt: ô hiện đúng ở khổ 390 px, nút mở Thư viện ảnh.
 
 #### T-076 · Chuyển nội dung, ngừng site Astro — A
 **Việc:** chuyển bài, mục từ, nguồn trong `content/` sang WordPress (giữ lời nguyên văn), **qua bước chống trùng** (T-109: bài cũ trùng câu đã có thì thành dị bản hoặc gộp, người sáng lập quyết); trỏ địa chỉ tạm; ngừng triển khai Astro. **Chấp nhận:** mọi bài công khai cũ hiện trên WordPress; lời khớp từng ký tự.
