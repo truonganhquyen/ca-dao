@@ -193,7 +193,7 @@ function cadao_canonical(): string {
 	if ( ! $goc || is_wp_error( $goc ) ) {
 		return '';
 	}
-	$loc   = ( function_exists( 'cadao_loc_dang' ) && cadao_loc_dang() ) || isset( $_GET['xep'] );
+	$loc   = ( function_exists( 'cadao_loc_dang' ) && cadao_loc_dang() ) || isset( $_GET['xep'] ) || isset( $_GET['chu'] );
 	$trang = (int) get_query_var( 'paged' );
 	return ( $trang > 1 && ! $loc ) ? trailingslashit( $goc ) . user_trailingslashit( 'page/' . $trang, 'paged' ) : $goc;
 }
@@ -214,7 +214,7 @@ add_filter(
 	'wp_robots',
 	static function ( $robots ) {
 		$mong = is_tax( CADAO_PHAN_LOAI_DS ) && (int) get_queried_object()->count < CADAO_IT_NHAT_BAI;
-		$loc  = ( is_post_type_archive( CADAO_LOAI_BAI ) || is_tax( CADAO_PHAN_LOAI_DS ) ) && ( ( function_exists( 'cadao_loc_dang' ) && cadao_loc_dang() ) || isset( $_GET['xep'] ) );
+		$loc  = ( is_post_type_archive( CADAO_LOAI_BAI ) || is_tax( CADAO_PHAN_LOAI_DS ) ) && ( ( function_exists( 'cadao_loc_dang' ) && cadao_loc_dang() ) || isset( $_GET['xep'] ) || isset( $_GET['chu'] ) );
 		$tim  = is_page( 'tim' ) && '' !== trim( (string) wp_unslash( $_GET['q'] ?? '' ) );
 		if ( $mong || $loc || $tim ) {
 			$robots['noindex'] = true;

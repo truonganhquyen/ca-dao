@@ -23,7 +23,32 @@ function cadao_khoa_xep( string $ten ): string {
 	return trim( cadao_bo_dau( str_replace( 'đ', 'd{', $ten ) ) );
 }
 
-add_action( 'save_post_' . CADAO_LOAI_BAI, static fn( $id, $bai ) => update_post_meta( $id, '_cadao_ten_xep', cadao_khoa_xep( $bai->post_title ) ), 10, 2 );
+/**
+ * Chữ cái đầu cho chỉ mục A–Z (T-095), theo khóa xếp: a…z, "dd" cho Đ, "0" khi tên không bắt đầu bằng chữ cái.
+ * Lưu cùng bài (_cadao_chu_dau) để lọc bằng một điều kiện bằng nhau trên mọi cơ sở dữ liệu.
+ */
+function cadao_chu_dau( string $khoa ): string {
+	if ( str_starts_with( $khoa, 'd{' ) ) {
+		return 'dd';
+	}
+	$c = substr( $khoa, 0, 1 );
+	return preg_match( '/^[a-z]$/', $c ) ? $c : '0';
+}
+
+/** Thứ tự chữ cái tiếng Việt (Đ sau D; F, J, W, Z của tên mượn vẫn có chỗ), "#" cuối. */
+const CADAO_CHU_CAI = array( 'a', 'b', 'c', 'd', 'dd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0' );
+
+/** Thể loại có chỉ mục A–Z trên trang thể loại (câu một dòng, tìm theo chữ đầu). */
+const CADAO_THE_LOAI_A_Z = array( 'tuc-ngu' );
+
+/** Ghi khóa xếp và chữ đầu của một bài. */
+function cadao_ghi_khoa_xep( int $id, string $ten ): void {
+	$khoa = cadao_khoa_xep( $ten );
+	update_post_meta( $id, '_cadao_ten_xep', $khoa );
+	update_post_meta( $id, '_cadao_chu_dau', cadao_chu_dau( $khoa ) );
+}
+
+add_action( 'save_post_' . CADAO_LOAI_BAI, static fn( $id, $bai ) => cadao_ghi_khoa_xep( (int) $id, $bai->post_title ), 10, 2 );
 
 // Bài có từ trước: lập khóa xếp một lần mỗi phiên bản plugin
 add_action(
@@ -34,7 +59,7 @@ add_action(
 		}
 		global $wpdb;
 		foreach ( $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_title FROM {$wpdb->posts} WHERE post_type = %s", CADAO_LOAI_BAI ) ) as $r ) {
-			update_post_meta( (int) $r->ID, '_cadao_ten_xep', cadao_khoa_xep( $r->post_title ) );
+			cadao_ghi_khoa_xep( (int) $r->ID, $r->post_title );
 		}
 		update_option( 'cadao_ten_xep_phien_ban', CADAO_PHIEN_BAN, false );
 	},
@@ -64,6 +89,43 @@ function cadao_la_truy_van_ds( WP_Query $q ): bool {
 	return $q->is_main_query() && ! is_admin() && ( $q->is_post_type_archive( CADAO_LOAI_BAI ) || $q->is_tax( array_merge( array_keys( CADAO_LOC ), array( 'mo_tip' ) ) ) );
 }
 
+/** Chữ cái đang chọn trong chỉ mục A–Z (?chu=…), '' nếu không chọn. */
+function cadao_chu_dang(): string {
+	$c = sanitize_key( wp_unslash( (string) ( $_GET['chu'] ?? '' ) ) );
+	return in_array( $c, CADAO_CHU_CAI, true ) ? $c : '';
+}
+
+/** Tên hiện của một chữ trong chỉ mục. */
+function cadao_ten_chu( string $c ): string {
+	return 'dd' === $c ? 'Đ' : ( '0' === $c ? '#' : strtoupper( $c ) );
+}
+
+/**
+ * Chỉ mục A–Z của một thể loại: chỉ chữ có bài đang đăng; chữ đang chọn có aria-current; "Tất cả" bỏ chọn. Các liên kết
+ * giữ bộ lọc đang có. Chạy được khi tắt JavaScript.
+ */
+function cadao_html_chu_cai( WP_Term $the, string $goc, array $dang, string $xep ): string {
+	global $wpdb;
+	$dem = array();
+	foreach ( $wpdb->get_results( $wpdb->prepare( "SELECT pm.meta_value AS chu, COUNT(DISTINCT p.ID) AS so FROM {$wpdb->posts} p JOIN {$wpdb->term_relationships} tr ON tr.object_id = p.ID JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID AND pm.meta_key = '_cadao_chu_dau' WHERE tr.term_taxonomy_id = %d AND p.post_type = %s AND p.post_status = 'publish' GROUP BY pm.meta_value", $the->term_taxonomy_id, CADAO_LOAI_BAI ) ) as $r ) {
+		$dem[ (string) $r->chu ] = (int) $r->so;
+	}
+	if ( count( $dem ) < 2 ) {
+		return ''; // một chữ thì chỉ mục không có ích
+	}
+	$dang_chon = cadao_chu_dang();
+	$co_ban    = cadao_url_ds( $goc, $dang, $xep );
+	$li        = '<li>' . ( '' === $dang_chon ? '<strong aria-current="true">Tất cả</strong>' : '<a href="' . esc_url( $co_ban ) . '">Tất cả</a>' ) . '</li>';
+	foreach ( CADAO_CHU_CAI as $c ) {
+		if ( empty( $dem[ $c ] ) ) {
+			continue;
+		}
+		$nhan = esc_html( cadao_ten_chu( $c ) ) . '<span class="screen-reader-text"> (' . esc_html( number_format_i18n( $dem[ $c ] ) ) . ' bài)</span>';
+		$li  .= '<li>' . ( $c === $dang_chon ? '<strong aria-current="true">' . $nhan . '</strong>' : '<a href="' . esc_url( add_query_arg( 'chu', $c, $co_ban ) ) . '">' . $nhan . '</a>' ) . '</li>';
+	}
+	return '<nav class="cadao-chu-cai" aria-label="Theo chữ cái đầu"><ul>' . $li . '</ul></nav>';
+}
+
 /** Cách xếp đang chọn: 'az' (mặc định) hoặc 'moi'. */
 function cadao_xep_ds(): string {
 	return 'moi' === sanitize_key( wp_unslash( $_GET['xep'] ?? '' ) ) ? 'moi' : 'az';
@@ -83,11 +145,16 @@ add_action(
 		if ( $tq ) {
 			$q->set( 'tax_query', array_merge( (array) $q->get( 'tax_query' ), $tq ) );
 		}
+		$chu = cadao_chu_dang();
 		if ( 'moi' === cadao_xep_ds() ) {
 			$q->set( 'orderby', array( 'date' => 'DESC', 'ID' => 'DESC' ) );
+			if ( '' !== $chu ) {
+				$q->set( 'meta_query', array( array( 'key' => '_cadao_chu_dau', 'value' => $chu ) ) );
+			}
 		} else {
 			// Bài chưa có khóa xếp (vừa nhập thẳng vào cơ sở dữ liệu) vẫn hiện, xếp theo tiêu đề
-			$q->set( 'meta_query', array( 'relation' => 'OR', 'cadao_xep' => array( 'key' => '_cadao_ten_xep', 'compare' => 'EXISTS' ), array( 'key' => '_cadao_ten_xep', 'compare' => 'NOT EXISTS' ) ) );
+			$xep = array( 'relation' => 'OR', 'cadao_xep' => array( 'key' => '_cadao_ten_xep', 'compare' => 'EXISTS' ), array( 'key' => '_cadao_ten_xep', 'compare' => 'NOT EXISTS' ) );
+			$q->set( 'meta_query', '' === $chu ? $xep : array( 'relation' => 'AND', $xep, array( 'key' => '_cadao_chu_dau', 'value' => $chu ) ) );
 			$q->set( 'orderby', array( 'cadao_xep' => 'ASC', 'title' => 'ASC', 'ID' => 'ASC' ) );
 		}
 	}
@@ -115,7 +182,7 @@ function cadao_url_ds( string $goc, array $dang, string $xep ): string {
  * @param array<string, string> $dang  bộ lọc đang chọn (phân loại → slug)
  * @param string                $bo    phân loại của chính trang (trang thể loại thì không lọc lại theo thể loại)
  */
-function cadao_html_loc_ds( string $goc, array $dang, string $xep, int $tong, string $bo = '' ): string {
+function cadao_html_loc_ds( string $goc, array $dang, string $xep, int $tong, string $bo = '', array $mo = array() ): string {
 	$nhom = '';
 	foreach ( CADAO_LOC as $tax => list( $ten ) ) {
 		if ( $tax === $bo || ! taxonomy_exists( $tax ) ) {
@@ -136,7 +203,7 @@ function cadao_html_loc_ds( string $goc, array $dang, string $xep, int $tong, st
 		$ul = '<ul class="cadao-chips" aria-label="' . esc_attr( $ten ) . '">' . $chip . '</ul>';
 		// Vùng, chủ đề nhiều lựa chọn: thu gọn, mở sẵn khi đang lọc theo nhóm đó
 		$nhom .= in_array( $tax, array( 'vung', 'chu_de' ), true )
-			? '<details class="cadao-loc-nhom"' . ( empty( $dang[ $tax ] ) ? '' : ' open' ) . '><summary>' . esc_html( $ten ) . ' <span class="cadao-chip-so">(' . esc_html( number_format_i18n( count( $ds ) ) ) . ')</span></summary>' . $ul . '</details>'
+			? '<details class="cadao-loc-nhom"' . ( empty( $dang[ $tax ] ) && ! in_array( $tax, $mo, true ) ? '' : ' open' ) . '><summary>' . esc_html( $ten ) . ' <span class="cadao-chip-so">(' . esc_html( number_format_i18n( count( $ds ) ) ) . ')</span></summary>' . $ul . '</details>'
 			: '<div class="cadao-loc-nhom"><p class="cadao-loc-ten">' . esc_html( $ten ) . '</p>' . $ul . '</div>';
 	}
 	$xep_html = '<p class="cadao-xep">Xếp: '
@@ -154,13 +221,17 @@ add_shortcode(
 		global $wp_query;
 		$bo   = is_tax( array_merge( array_keys( CADAO_LOC ), array( 'mo_tip' ) ) ) ? get_queried_object()->taxonomy : ''; // trang mô-típ: lọc trong mô-típ
 		$goc  = $bo ? (string) get_term_link( get_queried_object() ) : (string) get_post_type_archive_link( CADAO_LOAI_BAI );
-		return cadao_html_loc_ds( $goc, cadao_loc_dang( $bo ), cadao_xep_ds(), (int) $wp_query->found_posts, $bo );
+		$az = 'the_loai' === $bo && in_array( get_queried_object()->slug, CADAO_THE_LOAI_A_Z, true );
+		// Tục ngữ – Thành ngữ (T-095): chỉ mục A–Z, nhóm Chủ đề mở sẵn
+		return ( $az ? cadao_html_chu_cai( get_queried_object(), $goc, cadao_loc_dang( $bo ), cadao_xep_ds() ) : '' )
+			. cadao_html_loc_ds( $goc, cadao_loc_dang( $bo ), cadao_xep_ds(), (int) $wp_query->found_posts, $bo, $az ? array( 'chu_de' ) : array() );
 	}
 );
 
 /** Dưới tiêu đề mỗi mục trong danh sách: 2 dòng đầu của lời (bỏ dòng trùng tiêu đề), thể loại, vùng. */
 function cadao_html_muc_ds( WP_Post $bai ): string {
 	$dong = array_values( array_filter( explode( "\n", cadao_loi_cac_khoi_tho( $bai->post_content )[0] ?? '' ), static fn( $d ) => '' !== trim( $d ) ) );
+	$mot  = count( $dong ) <= 1; // câu một dòng (T-095): kèm nghĩa ngắn từ Hiểu nhanh, nếu đã có
 	$chu  = static fn( $s ) => mb_strtolower( trim( preg_replace( '/[^\p{L}\p{N} ]+/u', '', wp_strip_all_tags( $s ) ) ) );
 	if ( $dong && $chu( $dong[0] ) === $chu( get_the_title( $bai ) ) ) {
 		array_shift( $dong );
@@ -168,6 +239,7 @@ function cadao_html_muc_ds( WP_Post $bai ): string {
 	$vung = get_the_terms( $bai, 'vung' );
 	$phu  = array_merge( array( cadao_ten_the_loai( $bai ) ), $vung && ! is_wp_error( $vung ) ? wp_list_pluck( $vung, 'name' ) : array() );
 	return ( $dong ? '<p class="cadao-ds-loi">' . implode( '<br>', array_map( 'esc_html', array_slice( $dong, 0, 2 ) ) ) . ( count( $dong ) > 2 ? '…' : '' ) . '</p>' : '' )
+		. ( $mot && has_excerpt( $bai ) ? '<p class="cadao-ds-nghia">' . esc_html( wp_trim_words( wp_strip_all_tags( $bai->post_excerpt ), 24 ) ) . '</p>' : '' )
 		. '<p class="cadao-ds-phu">' . esc_html( implode( ' · ', $phu ) ) . '</p>';
 }
 

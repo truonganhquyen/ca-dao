@@ -299,8 +299,10 @@ add_filter(
 			$ra   .= '<span class="cadao-dong' . ( $luc ? ' cadao-luc' : '' ) . '"' . $so_le . '>' . ( '' === trim( $d ) ? '&nbsp;' : $d ) . '</span>';
 		}
 		$ra .= $dai && $doan['bat_dau'] ? '</span>' : '';
-		$lop = preg_replace( '~class="([^"]*)"~', 'class="$1 cadao-the-' . esc_attr( $the ) . '"', $m[2], 1, $co );
-		$tho = $m[1] . ( $co ? $lop : ' class="cadao-the-' . esc_attr( $the ) . '"' . $m[2] ) . $ra . $m[4];
+		// Lời chính chỉ một dòng (tục ngữ – thành ngữ, T-095): trình bày như một câu — chữ to, không thụt dòng thơ
+		$ten_lop = 'cadao-the-' . esc_attr( $the ) . ( $bai && 0 === $i && 'mot-dong' === $the ? ' cadao-cau' : '' );
+		$lop     = preg_replace( '~class="([^"]*)"~', 'class="$1 ' . $ten_lop . '"', $m[2], 1, $co );
+		$tho     = $m[1] . ( $co ? $lop : ' class="' . $ten_lop . '"' . $m[2] ) . $ra . $m[4];
 		if ( $dai ) {
 			return cadao_khung_bai_dai( $tho, $doan, count( $so_dong ), array_sum( array_map( static fn( $d ) => count( preg_split( '/\s+/u', trim( $d ), -1, PREG_SPLIT_NO_EMPTY ) ), $chu ) ) );
 		}

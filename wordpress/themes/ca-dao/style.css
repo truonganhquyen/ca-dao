@@ -2,7 +2,7 @@
 Theme Name:        Kho tàng Ca dao
 Description:       Theme con của Twenty Twenty-Five cho dự án Kho tàng Ca dao Tục ngữ Việt Nam: chữ và khoảng trắng trước, lời thơ lớn, sáng/tối theo máy (docs/20 trong repo ca-dao).
 Template:          twentytwentyfive
-Version:           0.18.0
+Version:           0.19.0
 Requires at least: 6.8
 Requires PHP:      8.1
 Author:            Dự án Kho tàng Ca dao Tục ngữ Việt Nam
@@ -89,6 +89,20 @@ a {
 }
 .wp-block-verse .cadao-dong.cadao-luc {
 	padding-inline-start: 2.75em; /* câu lục bắt đầu thụt 1,5em */
+}
+
+/* Câu một dòng (tục ngữ – thành ngữ, T-095): chữ to hơn lời thơ, không thụt treo, xuống dòng cân hai bên */
+.wp-block-verse.cadao-cau {
+	font-size: clamp(1.75rem, 1.35rem + 2vw, 2.5rem);
+	line-height: 1.35;
+	font-weight: 500;
+	text-wrap: balance;
+	white-space: normal;
+	margin-block: 1.25rem 1.75rem;
+}
+.wp-block-verse.cadao-cau .cadao-dong {
+	padding-inline-start: 0;
+	text-indent: 0;
 }
 
 /* Dị bản (T-083): nhãn "Dị bản N", lời nhỏ hơn lời chính một bậc, ngăn cách rõ; chữ khác lời chính tô nền và
@@ -382,6 +396,12 @@ html[data-co-chu="2"] .wp-block-verse {
 }
 html[data-co-chu="3"] .wp-block-verse {
 	font-size: calc(var(--wp--preset--font-size--loi) * 1.45);
+}
+html[data-co-chu="2"] .wp-block-verse.cadao-cau {
+	font-size: calc(clamp(1.75rem, 1.35rem + 2vw, 2.5rem) * 1.2);
+}
+html[data-co-chu="3"] .wp-block-verse.cadao-cau {
+	font-size: calc(clamp(1.75rem, 1.35rem + 2vw, 2.5rem) * 1.45);
 }
 .cadao-cong-cu {
 	display: inline-flex;
@@ -752,6 +772,36 @@ html[data-co-chu="3"] .wp-block-verse {
 }
 .cadao-doc-tiep-loi {
 	font-family: var(--wp--preset--font-family--literata);
+}
+
+/* Chỉ mục A–Z của Tục ngữ – Thành ngữ (T-095): mỗi chữ một ô chạm ≥ 44 px, chữ đang chọn đậm, gạch dưới */
+.cadao-chu-cai ul {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem;
+	list-style: none;
+	padding: 0;
+	margin: 0 0 1rem;
+}
+.cadao-chu-cai a,
+.cadao-chu-cai strong {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 44px;
+	min-height: 44px;
+	padding-inline: 0.5rem;
+	border: 1px solid var(--cadao-ke);
+	border-radius: 8px;
+	text-decoration: none;
+}
+.cadao-chu-cai strong {
+	border-color: currentColor;
+	text-decoration: underline;
+	text-underline-offset: 0.2em;
+}
+.cadao-ds-nghia {
+	margin: 0.15rem 0 0;
 }
 
 /* Trang không tìm thấy (báo cáo E2E, L-06) */

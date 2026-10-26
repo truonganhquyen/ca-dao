@@ -1234,6 +1234,40 @@ wp_delete_term( (int) $mt_t->term_id, 'mo_tip' );
 wp_delete_term( (int) $tk_t['term_id'], 'tu_kho' );
 delete_option( 'cadao_mo_tip_bo' );
 
+// ---------- Câu một dòng, chỉ mục A–Z cho Tục ngữ – Thành ngữ (T-095) ----------
+kt( 'chữ đầu cho chỉ mục: a…z, Đ riêng (sau D), không phải chữ cái thì "#"', 'a' === cadao_chu_dau( cadao_khoa_xep( 'Ăn quả thử' ) ) && 'dd' === cadao_chu_dau( cadao_khoa_xep( 'Đường thử' ) ) && 'd' === cadao_chu_dau( cadao_khoa_xep( 'Dưới thử' ) ) && '0' === cadao_chu_dau( cadao_khoa_xep( '"Ngoặc" thử' ) ) && 'Đ' === cadao_ten_chu( 'dd' ) && '#' === cadao_ten_chu( '0' ) );
+$az = array();
+foreach ( array( 'Ăn zaz thử một câu', 'Bê zaz thử một câu', 'Đường zaz thử một câu' ) as $i => $ten ) {
+	$az[ $i ] = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'post_title' => $ten, 'post_excerpt' => 0 === $i ? 'Nghĩa ngắn thử của câu.' : '', 'post_content' => cadao_khoi_tho( $ten ) ) );
+	wp_set_object_terms( $az[ $i ], 'tuc-ngu', 'the_loai' );
+}
+kt( 'lưu bài: ghi chữ đầu cùng khóa xếp', 'dd' === get_post_meta( $az[2], '_cadao_chu_dau', true ) && 'a' === get_post_meta( $az[0], '_cadao_chu_dau', true ) );
+$az_the = get_term_by( 'slug', 'tuc-ngu', 'the_loai' );
+$az_goc = (string) get_term_link( $az_the );
+$az_nav = cadao_html_chu_cai( $az_the, $az_goc, array(), 'az' );
+kt( 'chỉ mục A–Z: chỉ chữ có bài, Đ sau D, "Tất cả" đang chọn, mỗi chữ có số bài cho trình đọc màn hình', str_contains( $az_nav, 'aria-label="Theo chữ cái đầu"' ) && str_contains( $az_nav, '<strong aria-current="true">Tất cả</strong>' ) && str_contains( $az_nav, esc_url( add_query_arg( 'chu', 'dd', $az_goc ) ) ) && ! str_contains( $az_nav, '?chu=f"' ) && strpos( $az_nav, '>B<' ) < strpos( $az_nav, '>Đ<' ) && str_contains( $az_nav, 'bài)</span>' ), $az_nav );
+$_GET = array( 'chu' => 'dd' );
+kt( 'chữ đang chọn có aria-current', str_contains( cadao_html_chu_cai( $az_the, $az_goc, array(), 'az' ), '<strong aria-current="true">Đ<span' ) );
+$az_q = new WP_Query();
+$GLOBALS['wp_the_query'] = $az_q;
+$GLOBALS['wp_query']     = $az_q;
+$az_ra = $az_q->query( array( 'tax_query' => array( array( 'taxonomy' => 'the_loai', 'field' => 'slug', 'terms' => 'tuc-ngu' ) ), 'fields' => 'ids' ) );
+$_GET = array();
+$GLOBALS['wp_the_query'] = new WP_Query();
+$GLOBALS['wp_query']     = $GLOBALS['wp_the_query'];
+kt( 'trang thể loại ?chu=dd: chỉ bài bắt đầu bằng Đ (lọc phía máy chủ, tắt JavaScript vẫn dùng được)', array( $az[2] ) === array_map( 'intval', $az_ra ), $az_ra );
+kt( 'danh sách: câu một dòng kèm nghĩa ngắn (Hiểu nhanh đã có); chưa có thì không thêm gì', str_contains( cadao_html_muc_ds( get_post( $az[0] ) ), '<p class="cadao-ds-nghia">Nghĩa ngắn thử của câu.</p>' ) && ! str_contains( cadao_html_muc_ds( get_post( $az[1] ) ), 'cadao-ds-nghia' ) );
+$az_nd = get_post( $az[0] )->post_content;
+$GLOBALS['cadao_bai_dung'] = cadao_chuan_bi_bai( $az_nd ) + array( 'tho' => -1, 'ct' => 0 );
+$az_html = do_blocks( $az_nd );
+$GLOBALS['cadao_bai_dung'] = cadao_chuan_bi_bai( $nd_thu ) + array( 'tho' => -1, 'ct' => 0 );
+$az_hai = do_blocks( $nd_thu );
+$GLOBALS['cadao_bai_dung'] = null;
+kt( 'trang bài: lời chính một dòng trình bày như một câu (chữ to, không thụt dòng thơ); lời nhiều dòng giữ như cũ', str_contains( $az_html, 'cadao-the-mot-dong cadao-cau' ) && ! str_contains( $az_hai, 'cadao-cau' ) && str_contains( file_get_contents( '/repo/themes/ca-dao/style.css' ), '.wp-block-verse.cadao-cau {' ), $az_html );
+foreach ( $az as $id ) {
+	wp_delete_post( $id, true );
+}
+
 // ---------- SEO cơ bản, ảnh chia sẻ (T-050) ----------
 $seo_bai = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'post_title' => 'Ngưỡng thuở quyện thử', 'post_content' => cadao_khoi_tho( "Ngưỡng thuở quyện thử dòng một sáu chữ\nNgưỡng thuở quyện thử dòng hai tám chữ đây\nDòng ba thử\nDòng bốn thử\nDòng năm thử" ) . cadao_khoi_tho( "Dị bản thử một\nDị bản thử hai" ) ) );
 wp_set_object_terms( $seo_bai, 'ca-dao', 'the_loai' );
