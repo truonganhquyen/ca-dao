@@ -7,6 +7,7 @@
   "scripts": {
     "build": "node -e \"console.log('Worker chuyển hướng không cần build; site chạy trên WordPress.')\"",
     "test:wordpress": "node scripts/test-wordpress.mjs",
+    "test:anh": "node scripts/test-anh-chia-se.mjs",
     "quet:wordpress": "node scripts/quet-trang-wordpress.mjs",
     "xem-truoc:wordpress": "node scripts/xem-truoc-wordpress.mjs",
     "test:nhat-quan": "node scripts/test-nhat-quan.mjs",

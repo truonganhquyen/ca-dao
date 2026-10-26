@@ -1136,6 +1136,55 @@ kt( 'cuối bài: form vẫn đủ chống rác, quyền riêng tư (mỗi form 
 kt( 'Tìm: "N bài", hoặc "20 trên N bài" khi chỉ hiện một phần', '3 bài' === cadao_tim_dem( 3, 3 ) && '20 trên 37 bài — gõ thêm chữ để thu hẹp' === cadao_tim_dem( 20, 37 ) && isset( cadao_tim_ket_qua( 'thu' )['tong'] ) );
 kt( 'Tìm không ra: gợi ý gõ ít chữ, có dấu hay không, tất cả bài, từ điển; nói rõ câu tìm không ra được ghi lại', str_contains( $kr_tim = cadao_tim_html( array( 'q' => 'zzqx', 'bai' => array(), 'muc_tu' => array() ) ), 'không dấu' ) && str_contains( $kr_tim, 'tất cả bài' ) && str_contains( $kr_tim, 'được ghi lại' ) && str_contains( file_get_contents( CADAO_THU_MUC . '/assets/tim.js' ), 'được ghi lại' ) );
 
+// ---------- SEO cơ bản, ảnh chia sẻ (T-050) ----------
+$seo_bai = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'post_title' => 'Ngưỡng thuở quyện thử', 'post_content' => cadao_khoi_tho( "Ngưỡng thuở quyện thử dòng một sáu chữ\nNgưỡng thuở quyện thử dòng hai tám chữ đây\nDòng ba thử\nDòng bốn thử\nDòng năm thử" ) . cadao_khoi_tho( "Dị bản thử một\nDị bản thử hai" ) ) );
+wp_set_object_terms( $seo_bai, 'ca-dao', 'the_loai' );
+$mt_seo = cadao_mo_ta_bai( get_post( $seo_bai ) );
+kt( 'mô tả bài chưa có Hiểu nhanh: 2 dòng đầu, thể loại, số dị bản; ≤ 160 ký tự', str_starts_with( $mt_seo, 'Ngưỡng thuở quyện thử dòng một sáu chữ / Ngưỡng thuở quyện thử dòng hai tám chữ đây… — Ca dao.' ) && str_contains( $mt_seo, 'Có 1 dị bản.' ) && mb_strlen( $mt_seo ) <= 160, $mt_seo );
+wp_update_post( array( 'ID' => $seo_bai, 'post_excerpt' => str_repeat( 'Hiểu nhanh thử rất dài. ', 12 ) ) );
+kt( 'mô tả bài có Hiểu nhanh: lấy Hiểu nhanh, cắt ở ranh giới từ', str_starts_with( cadao_mo_ta_bai( get_post( $seo_bai ) ), 'Hiểu nhanh thử rất dài.' ) && str_ends_with( cadao_mo_ta_bai( get_post( $seo_bai ) ), '…' ) && mb_strlen( cadao_mo_ta_bai( get_post( $seo_bai ) ) ) <= 160 );
+$anh_nd = cadao_anh_noi_dung( get_post( $seo_bai ) );
+kt( 'nội dung ảnh: tối đa 4 dòng, còn thì đánh dấu; thể loại; dòng mức kiểm; tên miền', 4 === count( $anh_nd['dong'] ) && $anh_nd['con'] && 'Ca dao' === $anh_nd['loai'] && CADAO_MUC_KIEM_CHUA === $anh_nd['muc_kiem'] && '' !== $anh_nd['ten_mien'], $anh_nd );
+update_post_meta( $seo_bai, 'doi_chieu_ten', 'Sách thử ảnh' );
+kt( 'nội dung ảnh: mức kiểm theo phần người biên soạn đã đối chiếu', 'Lời đã đối chiếu với Sách thử ảnh' === cadao_anh_noi_dung( get_post( $seo_bai ) )['muc_kiem'] );
+// Phần vẽ (GD + FreeType) kiểm bằng PHP thật: npm run test:anh. Playground không vẽ được chữ: kiểm đường bỏ qua êm.
+if ( cadao_anh_ve_duoc() ) {
+	delete_post_meta( $seo_bai, 'doi_chieu_ten' );
+	$anh     = cadao_anh_chia_se( get_post( $seo_bai ) );
+	$anh_tep = $anh ? cadao_anh_thu_muc()[0] . '/' . basename( $anh['url'] ) : '';
+	$anh_co  = $anh_tep && file_exists( $anh_tep ) ? getimagesize( $anh_tep ) : false;
+	kt( 'ảnh chia sẻ: PNG 1200×630 trong uploads/cadao-anh/; lần sau dùng lại', $anh_co && 1200 === $anh_co[0] && 630 === $anh_co[1] && $anh['url'] === cadao_anh_chia_se( get_post( $seo_bai ) )['url'], $anh );
+	update_post_meta( $seo_bai, 'doi_chieu_ten', 'Sách thử ảnh' );
+	$anh2 = cadao_anh_chia_se( get_post( $seo_bai ) );
+	kt( 'đổi mức kiểm: ảnh sinh lại, ảnh cũ bị xoá', $anh2 && $anh2['url'] !== $anh['url'] && ! file_exists( $anh_tep ) && 1 === count( glob( cadao_anh_thu_muc()[0] . '/' . $seo_bai . '-*.png' ) ) );
+} else {
+	$anh2 = null;
+	kt( 'máy không vẽ được chữ: không có ảnh riêng, không lỗi, không ghi tệp', null === cadao_anh_chia_se( get_post( $seo_bai ) ) && null === cadao_anh_chung() && ! glob( cadao_anh_thu_muc()[0] . '/*.png' ) );
+}
+// Trang bài thật: thẻ meta, Open Graph, JSON-LD
+$GLOBALS['wp_the_query'] = new WP_Query( array( 'p' => $seo_bai, 'post_type' => CADAO_LOAI_BAI ) );
+$GLOBALS['wp_query']     = $GLOBALS['wp_the_query'];
+$GLOBALS['wp_query']->the_post();
+$the_seo = cadao_the_chia_se();
+$ld_seo  = cadao_json_ld();
+kt( 'trang bài: meta description, og:title, og:url, og:locale vi_VN; og:image 1200×630 + twitter:card khi có ảnh, không có thẻ ảnh rỗng khi không', str_contains( $the_seo, '<meta name="description" content="Hiểu nhanh thử' ) && str_contains( $the_seo, '<meta property="og:title" content="Ngưỡng thuở quyện thử">' ) && str_contains( $the_seo, 'og:url" content="' . esc_attr( get_permalink( $seo_bai ) ) ) && str_contains( $the_seo, 'og:locale" content="vi_VN"' ) && ( $anh2 ? str_contains( $the_seo, 'og:image" content="' . esc_attr( $anh2['url'] ) ) && str_contains( $the_seo, 'og:image:width" content="1200"' ) && str_contains( $the_seo, 'summary_large_image' ) : ! str_contains( $the_seo, 'og:image' ) ), $the_seo );
+$ld_tp = $ld_seo['@graph'][0] ?? array();
+kt( 'JSON-LD bài: CreativeWork (thể loại, tiếng Việt, lời, isBasedOn chỉ khi đã đối chiếu), BreadcrumbList qua thể loại', 'CreativeWork' === ( $ld_tp['@type'] ?? '' ) && 'Ca dao' === $ld_tp['genre'] && 'vi' === $ld_tp['inLanguage'] && str_contains( $ld_tp['text'], 'Ngưỡng thuở' ) && 'Sách thử ảnh' === ( $ld_tp['isBasedOn']['name'] ?? '' ) && 'BreadcrumbList' === $ld_seo['@graph'][1]['@type'] && 'Ca dao' === $ld_seo['@graph'][1]['itemListElement'][1]['name'], $ld_seo );
+delete_post_meta( $seo_bai, 'doi_chieu_ten' );
+kt( 'JSON-LD bài chưa đối chiếu: không có isBasedOn (không gán nguồn tự động)', ! isset( cadao_json_ld()['@graph'][0]['isBasedOn'] ) );
+wp_reset_postdata();
+$GLOBALS['wp_the_query'] = new WP_Query();
+$GLOBALS['wp_query']     = $GLOBALS['wp_the_query'];
+// Sitemap: bài có giá trị riêng; trang Đã lưu, Viết cảm nhận không vào
+$gt = cadao_bai_co_gia_tri_rieng();
+kt( 'sitemap bài: có bài có Hiểu nhanh, không có bài chưa có', in_array( $seo_bai, $gt, true ) && ! in_array( $ds_bai, $gt, true ) );
+$sm_bai  = apply_filters( 'wp_sitemaps_posts_query_args', array(), CADAO_LOAI_BAI );
+$sm_tr   = apply_filters( 'wp_sitemaps_posts_query_args', array(), 'page' );
+$sm_loai = apply_filters( 'wp_sitemaps_taxonomies_query_args', array(), 'the_loai' );
+kt( 'sitemap: bài chỉ gồm bài có giá trị riêng; bỏ trang Đã lưu, Viết cảm nhận; phân loại dưới 3 bài không vào; không có người dùng', $gt === $sm_bai['post__in'] && in_array( (int) get_option( 'cadao_trang_da_luu' ), $sm_tr['post__not_in'], true ) && ! in_array( (int) get_term_by( 'slug', 'trong-thu', 'the_loai' )->term_id, $sm_loai['include'], true ) && false === apply_filters( 'wp_sitemaps_add_provider', new stdClass(), 'users' ) );
+kt( 'sitemap mục từ: bỏ mục có lời giải chép', '_cadao_chep' === ( apply_filters( 'wp_sitemaps_taxonomies_query_args', array(), 'tu_kho' )['meta_query'][0]['key'] ?? '' ) );
+kt( 'không đổi blog_public (mở cho Google là quyết định của người sáng lập)', ! str_contains( file_get_contents( CADAO_THU_MUC . '/inc/seo.php' ), "update_option( 'blog_public'" ) );
+
 // ---------- Lịch ----------
 kt( 'lịch lấy bài mỗi 5 phút đã đặt', (bool) wp_next_scheduled( 'cadao_thu_thap' ) );
 kt( 'lịch tạo bài hằng ngày đã đặt', (bool) wp_next_scheduled( 'cadao_tao_bai_hang_ngay' ) );
