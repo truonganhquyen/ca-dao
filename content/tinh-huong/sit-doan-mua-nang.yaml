@@ -1,8 +1,0 @@
-id: sit-doan-mua-nang
-slug: doan-mua-nang
-tieu_de: "Đoán mưa nắng"
-nhom: thoi_tiet_mua_vu
-mo_dau: "CAN_BO_SUNG"
-tac_pham:
-  - { ref: tn-0001, hop_khi: "NHAP_AI Bạn muốn kể cho trẻ nhỏ cách ông bà đoán thời tiết." }
-tu_khoa: ["dự báo thời tiết", "trời mưa", "kinh nghiệm thời tiết"]

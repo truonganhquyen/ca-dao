@@ -1,5 +1,7 @@
 # 00 · Tài liệu nền
 
+> **Lưu ý (D-071, 26/10/2026):** site Astro và CMS Sveltia đã gỡ khỏi repo. Chỗ nào nhắc `content/`, YAML, `templates/`, `config/`, Astro hay `/admin` là lịch sử; quy tắc nội dung và nguồn vẫn còn hiệu lực trên WordPress.
+
 | | |
 |---|---|
 | Phiên bản | 2.0 · 23/10/2026 (hướng v2: D-035..D-047) |

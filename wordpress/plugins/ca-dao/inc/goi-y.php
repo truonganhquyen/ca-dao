@@ -1,7 +1,7 @@
 <?php
 /**
  * Gợi ý vùng (T-089) và chủ đề (T-091) cho từng bài — máy gợi ý, người sáng lập duyệt hàng loạt (docs/25 mục 4.2,
- * 4.4, 4.5; D-061 B). Không gắn gì khi chưa duyệt. Chủ đề là bộ của dự án (taxonomy/tu-vung-kiem-soat.yaml và các
+ * 4.4, 4.5; D-061 B). Không gắn gì khi chưa duyệt. Chủ đề là bộ của dự án (docs/25 mục 4.2 và các
  * nhóm đã duyệt ở docs/25 mục 4.4); chủ đề của nguồn chỉ dùng nội bộ qua bảng ánh xạ do người sáng lập duyệt — không
  * bao giờ hiện ra trang.
  *
@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 
 const CADAO_TRANG_GOI_Y = 'cadao-goi-y';
 
-/** Vùng của dự án (taxonomy/tu-vung-kiem-soat.yaml). */
+/** Vùng của dự án (bảy vùng trong từ vựng của dự án, docs/25 mục 4.2). */
 const CADAO_VUNG = array(
 	'bac-bo'         => 'Bắc Bộ',
 	'bac-trung-bo'   => 'Bắc Trung Bộ',

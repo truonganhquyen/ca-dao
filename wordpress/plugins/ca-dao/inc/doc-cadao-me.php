@@ -18,7 +18,7 @@ const CADAO_NHIP_GIAY   = 3; // API
 const CADAO_NHIP_TRANG  = 5; // trang HTML
 const CADAO_CHU_KY_NGAY = 30; // xong đợt đầu thì 30 ngày cập nhật bài mới/sửa một lần
 
-/** Chủ đề của nguồn cần xem lại trước khi chọn (docs/21 mục 16.3) — chỉ để gắn cờ, không xóa. */
+/** Chủ đề của nguồn cần xem lại trước khi chọn (docs/12 mục 6) — chỉ để gắn cờ, không xóa. */
 const CADAO_CHU_DE_CAN_XEM = array( 'Trào phúng, phê phán đả kích', 'Đấu tranh, phản kháng', 'Lịch sử' );
 
 /** Loại ngoài ca dao → sitemap liệt kê bài của loại đó trên Ca dao Mẹ. */

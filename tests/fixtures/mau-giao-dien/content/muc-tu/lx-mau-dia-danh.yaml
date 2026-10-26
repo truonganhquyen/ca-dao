@@ -1,8 +1,0 @@
-# DỮ LIỆU GIẢ — bộ mẫu giao diện (D-050).
-id: lx-mau-dia-danh
-tu: "Bến Mẫu"
-loai: dia_danh
-giai_nghia: "NHAP_AI Giải nghĩa mẫu của một địa danh, do AI soạn nháp và đã được duyệt."
-nguon:
-  - { ref: src-mau-web, url: "https://example.org/bai-mau", ngay_truy_cap: "2026-10-24", cach_dung: tham_khao }
-nhap_ai_da_duyet: true

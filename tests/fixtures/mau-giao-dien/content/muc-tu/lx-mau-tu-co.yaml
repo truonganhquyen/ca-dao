@@ -1,7 +1,0 @@
-# DỮ LIỆU GIẢ — bộ mẫu giao diện (D-050).
-id: lx-mau-tu-co
-tu: "từ cổ"
-loai: tu_co
-giai_nghia: "Giải nghĩa mẫu của một từ cổ, hiện trong ô chú giải."
-nguon:
-  - { ref: src-mau-sach, trang: "5" }

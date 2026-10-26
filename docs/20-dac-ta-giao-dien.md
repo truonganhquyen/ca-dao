@@ -1,5 +1,7 @@
 # 20 · Đặc tả giao diện
 
+> **Lưu ý (D-071, 26/10/2026):** site Astro và CMS Sveltia đã gỡ khỏi repo. Chỗ nào nhắc `content/`, YAML, `templates/`, `config/`, Astro hay `/admin` là lịch sử; quy tắc nội dung và nguồn vẫn còn hiệu lực trên WordPress.
+
 | | |
 |---|---|
 | Phiên bản | 2.0 · 23/10/2026 (UX v2: nhãn trung thực, nguồn gốc ở lớp 1, thanh điều hướng dưới, công cụ cho giáo viên) |

@@ -18,14 +18,16 @@ Khi được yêu cầu review branch/PR:
    - acceptance criteria có đạt không;
    - kiến trúc/source-of-truth có bị lệch không;
    - có regression, lỗ hổng dữ liệu, bảo mật hoặc trợ năng không;
-   - test/validator có đủ và có bị làm yếu để qua không;
+   - test có đủ và có bị làm yếu để qua không;
    - backlog/trạng thái có phản ánh đúng thực tế không;
    - agent có vô tình làm việc của mốc sau không;
-   - các lằn ranh (`AGENTS.md`, D-040 nới bởi D-054) có bị vượt không: AI viết lời/nguồn, nguồn bịa hoặc tự điền, dữ liệu cá nhân;
-   - chú thích, lời giải chép từ nguồn chỉ từ nguồn bật "Chép chú thích" (D-055), dòng "Nguồn: …" dưới đó (khi bật "Ghi nguồn cho chú thích" — mặc định tắt từ D-068, nguồn tự động ghi nhận ở trang Chính sách thu thập dữ liệu) trỏ đúng trang đã lấy; lời không bị gắn nguồn tự động (D-057); có tải ảnh hay chép phân loại của nguồn không; kho thô có lọt vào repo công khai không;
-   - PR có link bản xem trước không (người sáng lập duyệt bằng mắt, D-035).
-6. Có thể chạy các lệnh kiểm tra cần thiết; ưu tiên `npm run kiem-tra`.
-7. **Không sửa file mặc định.** Chỉ sửa khi người dùng yêu cầu rõ; khi đó làm như một implementer theo `AGENTS.md` (nhánh riêng, `npm run kiem-tra`, commit có dòng `AI-Agent:`).
+   - các lằn ranh (`AGENTS.md`, D-040 nới bởi D-054) có bị vượt không: AI viết lời/nguồn, nguồn bịa hoặc tự điền, dữ liệu cá nhân, máy tự đăng bài hoặc tự đặt dấu duyệt;
+   - chú thích, lời giải chép từ nguồn chỉ từ nguồn bật "Chép chú thích" (D-055), dòng "Nguồn: …" dưới đó chỉ khi bật "Ghi nguồn cho chú thích" (mặc định tắt từ D-068) và trỏ đúng trang đã lấy; lời không bị gắn nguồn tự động (D-057); có tải ảnh hay chép phân loại của nguồn không; kho thô có lọt vào repo công khai không;
+   - thay đổi plugin hoặc theme có tăng số phiên bản không (`CADAO_PHIEN_BAN`, dòng `Version:`);
+   - PR có link bản xem trước không (người sáng lập duyệt bằng mắt, D-035);
+   - nếu PR chạm giao diện, `npm run quet:wordpress` có còn đạt không.
+6. Có thể chạy các lệnh kiểm tra cần thiết; ưu tiên `npm run kiem-tra`, `npm run test:wordpress`, `npm run quet:wordpress`.
+7. **Không sửa file mặc định.** Chỉ sửa khi người dùng yêu cầu rõ; khi đó làm như một implementer theo `AGENTS.md` (nhánh riêng, kiểm thử đạt, commit có dòng `AI-Agent:`).
 
 ## Phân loại phát hiện
 
@@ -52,4 +54,4 @@ Chỉ dùng `HUMAN DECISION REQUIRED` cho Human Gate được định nghĩa tro
 
 ## Dữ liệu văn hóa
 
-Không xác nhận thay người biên soạn về lời, nguồn, trang, vùng, dị bản, quyền sử dụng, việc duyệt nháp AI (`nhap_ai_da_duyet`), việc đưa bài sang `cong_khai` hoặc nội dung canonical. Từ D-054 trang chỉ hiện dòng "Nguồn: …"; một PR ghi nguồn mà không có căn cứ (bịa, tự điền mặc định) là `BLOCKER`. Một PR chặn đăng vì lý do biên tập là đi ngược D-054 (`MAJOR`). Nếu PR chạm các quyết định trên mà không có phê duyệt phù hợp, coi là `BLOCKER` hoặc `HUMAN DECISION REQUIRED` tùy trường hợp.
+Không xác nhận thay người biên soạn về lời, nguồn, trang, vùng, dị bản, quyền sử dụng, việc duyệt nội dung do máy soạn (dấu "đã duyệt" hay "có hỗ trợ AI"), việc đăng bài, việc xác nhận Wikidata hay nội dung canonical. Từ D-054 trang chỉ hiện dòng "Nguồn: …" khi người biên soạn bật; một PR ghi nguồn mà không có căn cứ (bịa, tự điền mặc định) là `BLOCKER`. Một PR chặn đăng vì lý do biên tập là đi ngược D-054 (`MAJOR`). Nếu PR chạm các quyết định trên mà không có phê duyệt phù hợp, coi là `BLOCKER` hoặc `HUMAN DECISION REQUIRED` tùy trường hợp.

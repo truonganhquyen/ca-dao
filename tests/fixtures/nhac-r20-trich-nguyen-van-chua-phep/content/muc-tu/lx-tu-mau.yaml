@@ -1,6 +1,0 @@
-id: lx-tu-mau
-tu: "từ mẫu"
-loai: tu_co
-giai_nghia: "chữ1 chữ2 chữ3 chữ4 chữ5 chữ6 chữ7 chữ8 chữ9 chữ10 chữ11 chữ12 chữ13 chữ14 chữ15 chữ16 chữ17 chữ18 chữ19 chữ20"
-nguon:
-  - { ref: src-web-thu, url: "https://example.org/chu-thich-thu", ngay_truy_cap: "2026-10-23", cach_dung: trich_nguyen_van }

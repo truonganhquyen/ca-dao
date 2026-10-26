@@ -1,6 +1,6 @@
 <?php
 /**
- * Đo lường không cookie (T-052, docs/21 mục 7, D-047): đúng ba sự kiện, cộng số theo ngày, không lưu IP, không định danh.
+ * Đo lường không cookie (T-052, D-047): đúng ba sự kiện, cộng số theo ngày, không lưu IP, không định danh.
  * - tim_khong_ket_qua: chuỗi tìm (đã chuẩn hóa) không ra kết quả → biên soạn bài nào tiếp theo. Chuỗi trông như email,
  *   số điện thoại thì bỏ; chuỗi tìm giữ một năm.
  * - trich_dan_sao_chep: bài + kiểu (thông dụng, APA, chỉ lời) → North Star.

@@ -1,9 +1,0 @@
-id: lx-ni-non
-tu: "nỉ non"
-bien_the: []
-loai: tu_co
-vung: []
-giai_nghia: "NHAP_AI Âm thanh nhỏ, kéo dài, buồn thảm, như tiếng than khóc."
-giai_nghia_day_du: "CAN_BO_SUNG"
-nguon: []             # CAN_BO_SUNG: từ điển đã đối chiếu (xem docs/12 mục 6), kèm số trang
-xem_them: []

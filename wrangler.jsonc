@@ -1,7 +1,5 @@
-// Địa chỉ cũ của site Astro trên Cloudflare Workers (D-049). Từ T-076 site Astro ngừng: Worker này chỉ chuyển hướng
-// 301 mọi đường dẫn sang site WordPress (cadao.sdigi.net); không còn phục vụ tệp tĩnh của dist/.
-// Cloudflare Workers Builds vẫn chạy lệnh build (kiểm dữ liệu content/, build Astro) rồi triển khai Worker này.
-// `previews`: lệnh mặc định cho nhánh khác main là `npx wrangler preview`, lệnh này bắt buộc có khối này.
+// Worker chuyển hướng cho địa chỉ cũ (D-049, D-070): mọi đường dẫn chuyển 301 sang site WordPress ở phongdao.com.
+// Cloudflare Workers Builds chạy `npm run build` (no-op) rồi triển khai Worker này; nhánh khác main dùng `npx wrangler preview`.
 {
   "name": "ca-dao",
   "main": "cloudflare/chuyen-huong.js",
