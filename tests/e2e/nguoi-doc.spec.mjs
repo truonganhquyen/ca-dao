@@ -170,8 +170,9 @@ test.describe('Trang bài', () => {
   });
 
   test('L-05 cuối bài có gợi ý đọc tiếp (bài liên quan)', async ({ page }, ti) => {
-    test.fail(true, 'L-05: trang bài không có "Bài liên quan / cùng chủ đề" — người đọc hết đường');
+    // Đã sửa: khối "Đọc tiếp" (D-075, plugin 0.29.0) — kiểm thử bảo vệ
     await page.goto(BAI.docNhieu);
+    await expect(page.getByRole('heading', { name: 'Đọc tiếp' })).toBeVisible();
     await chup(page, 'cuoi-bai', ti, { toanTrang: true });
     const lienKetBai = await page.locator('main a[href*="/ca-dao/"], main a[href*="/ve/"]').evaluateAll(
       (as, chinh) => new Set(as.map(a => new URL(a.href).pathname).filter(p => p !== chinh)).size, BAI.docNhieu); // bài khác, không tính liên kết góp ý của chính bài

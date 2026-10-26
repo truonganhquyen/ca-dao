@@ -349,7 +349,10 @@ $r4 = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . cadao_trung_bang() . ' 
 kt( 'cùng lời, khác thể loại: vào hàng chờ để chọn', 'moi' === $hang( $b4 )->trang_thai && $r4 && 'y_het' === $r4->muc && str_contains( $r4->ly_do, 'khác thể loại' ), $r4 );
 $b5 = $kho( 'nguon-b', 'b5', $V );
 $r5 = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . cadao_trung_bang() . ' WHERE a = %s', "kho:$b5" ) );
-kt( 'trùng một dị bản đã ghi: vào hàng chờ', $r5 && 'di_ban' === $r5->muc && "bai:$P" === $r5->b, $r5 );
+kt( 'trùng 100% một dị bản đã ghi: tự gắn làm dị bản của bài, không vào hàng chờ (D-074)', 'da_gop' === $hang( $b5 )->trang_thai && "bai:$P" === $hang( $b5 )->gop_vao && 'di_ban' === $hang( $b5 )->gop_lam && ! cadao_trung_dang_cho( $b5 ) && ( ! $r5 || 'da_gop' === $r5->trang_thai ), $hang( $b5 ) );
+kt( 'gắn làm dị bản: bài không có dị bản lặp lại', 1 === count( array_keys( array_map( 'cadao_chuan_loi', cadao_loi_cac_khoi_tho( get_post( $P )->post_content ) ), cadao_chuan_loi( $V ), true ) ) );
+$b6 = $kho( 'nguon-b', 'b6', str_replace( 'chữ', 'chư', $V ), array( 'loai' => 'cau_do' ) );
+kt( 'trùng một dị bản đã ghi, khác cách bỏ dấu, khác thể loại: cũng tự gắn (D-074)', 'da_gop' === $hang( $b6 )->trang_thai && "bai:$P" === $hang( $b6 )->gop_vao );
 kt( 'máy tạo bài hằng ngày bỏ qua câu đang chờ quyết', 0 === cadao_kho_tao_bai_cho_duyet( cadao_nguon_lay( 'nguon-b' ), 10 ) );
 $_GET = array( 'tab' => 'cho' );
 ob_start();
@@ -364,6 +367,16 @@ kt( '"Tách ra": câu đã gộp thành câu mới, bài bỏ phần của ngu�
 kt( 'tách ra rồi so lại không tự gộp nữa (đã ghi là bài khác)', 'da_gop' !== ( cadao_trung_kiem_kho( $b1 ) ) && 'moi' === $hang( $b1 )->trang_thai );
 cadao_trung_kiem_kho( $b4 );
 kt( 'một cặp chỉ ghi một lần (không ghi thêm chiều ngược lại); câu bên kia không bị giữ lại', ! $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM ' . cadao_trung_bang() . ' WHERE a = %s AND b = %s', "kho:$b4", "kho:$b1" ) ) && ! cadao_trung_dang_cho( $b4 ) );
+kt( '"Tách ra" câu tự gắn làm dị bản: thành câu mới, so lại không tự gắn nữa', cadao_trung_tach( $b6 ) && 'moi' === $hang( $b6 )->trang_thai && 'da_gop' !== cadao_trung_kiem_kho( $b6 ) );
+// D-074 một lần sau nâng cấp: cặp cũ "trùng một dị bản đã ghi" đang chờ thì so lại để tự gắn; cặp khác của câu đó rời hàng chờ
+$b7 = $kho( 'nguon-b', 'b7', $dong( 9900, 6 ) . "\n" . $dong( 9906, 8 ) );
+$wpdb->update( cadao_kho_bang(), array( 'loi' => mb_strtoupper( $hang( $b3 )->loi ) ), array( 'id' => $b7 ) ); // lời = dị bản b3 đã gộp vào bài
+cadao_trung_ghi_cho( "kho:$b7", "bai:$P", 'di_ban', 100, 'trùng một dị bản đã ghi' );
+cadao_trung_ghi_cho( "kho:$b7", "kho:$b3", 'di_ban', 60, '' );
+delete_option( 'cadao_trung_tu_gan' );
+$tu_gan = cadao_trung_tu_gan_di_ban_cu();
+$tt_b7  = $wpdb->get_col( $wpdb->prepare( 'SELECT trang_thai FROM ' . cadao_trung_bang() . ' WHERE a = %s ORDER BY id', "kho:$b7" ) );
+kt( 'nâng cấp: cặp cũ trùng một dị bản đã ghi được tự gắn, cặp khác của câu rời hàng chờ, chỉ chạy một lần', 1 === $tu_gan && 'da_gop' === $hang( $b7 )->trang_thai && array( 'da_gop', 'bo' ) === $tt_b7 && 1 === (int) get_option( 'cadao_trung_tu_gan' ), array( $tu_gan, $tt_b7 ) );
 
 // Bài viết tay: câu kho y hệt gắn vào, bài không bị sửa; "Gộp làm dị bản" chèn khối Thơ vào bài đã sửa tay
 $Q = $dong( 8000, 6 ) . "\n" . $dong( 8006, 8 );
@@ -1135,6 +1148,35 @@ kt( 'cuối bài: một khối "Bạn muốn góp gì?" với Góp ý, Cảm ngh
 kt( 'cuối bài: form vẫn đủ chống rác, quyền riêng tư (mỗi form một lần, nằm trong ô thu gọn)', 2 === substr_count( $gop, 'name="cadao_web"' ) && 2 === substr_count( $gop, '91/2025/QH15' ) && ! str_contains( $gop, 'id="reply-title"' ) );
 kt( 'Tìm: "N bài", hoặc "20 trên N bài" khi chỉ hiện một phần', '3 bài' === cadao_tim_dem( 3, 3 ) && '20 trên 37 bài — gõ thêm chữ để thu hẹp' === cadao_tim_dem( 20, 37 ) && isset( cadao_tim_ket_qua( 'thu' )['tong'] ) );
 kt( 'Tìm không ra: gợi ý gõ ít chữ, có dấu hay không, tất cả bài, từ điển; nói rõ câu tìm không ra được ghi lại', str_contains( $kr_tim = cadao_tim_html( array( 'q' => 'zzqx', 'bai' => array(), 'muc_tu' => array() ) ), 'không dấu' ) && str_contains( $kr_tim, 'tất cả bài' ) && str_contains( $kr_tim, 'được ghi lại' ) && str_contains( file_get_contents( CADAO_THU_MUC . '/assets/tim.js' ), 'được ghi lại' ) );
+
+// ---------- Đọc tiếp cuối bài (D-075) ----------
+$dt_bai = static function ( string $ten, string $the, array $chu_de = array(), array $vung = array(), string $tt = 'publish' ) use ( $dong ): int {
+	static $so = 0;
+	$id = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => $tt, 'post_title' => $ten, 'post_content' => cadao_khoi_tho( $dong( 9700 + 20 * ++$so, 6 ) . "\n" . $dong( 9710 + 20 * $so, 8 ) . "\nDòng ba đọc tiếp" ) ) );
+	wp_set_object_terms( $id, $the, 'the_loai' );
+	wp_set_object_terms( $id, $chu_de, 'chu_de' );
+	wp_set_object_terms( $id, $vung, 'vung' );
+	return $id;
+};
+$dt_x  = $dt_bai( 'Đọc tiếp đang xem', 'ca-dao', array( 'gia-dinh' ), array( 'nam-bo' ) );
+$dt_a  = $dt_bai( 'Đọc tiếp cùng chủ đề và vùng', 'ca-dao', array( 'gia-dinh' ), array( 'nam-bo' ) );
+$dt_b  = $dt_bai( 'Đọc tiếp cùng chủ đề', 've', array( 'gia-dinh' ) );
+$dt_c  = $dt_bai( 'Đọc tiếp cùng vùng', 'ca-dao', array(), array( 'nam-bo' ) );
+$dt_d  = $dt_bai( 'Đọc tiếp bản nháp', 'ca-dao', array( 'gia-dinh' ), array( 'nam-bo' ), 'draft' );
+$dt    = cadao_doc_tiep( get_post( $dt_x ) );
+$dt_id = array_map( static fn( $x ) => $x['bai']->ID, $dt );
+$dt_vt = static fn( int $id ) => array_search( $id, $dt_id, true );
+kt( 'đọc tiếp: cùng chủ đề và vùng trước, rồi cùng chủ đề, rồi cùng vùng; không có bài đang xem, bản nháp; tối đa 5', false !== $dt_vt( $dt_a ) && false !== $dt_vt( $dt_b ) && false !== $dt_vt( $dt_c ) && $dt_vt( $dt_a ) < $dt_vt( $dt_b ) && $dt_vt( $dt_b ) < $dt_vt( $dt_c ) && ! in_array( $dt_x, $dt_id, true ) && ! in_array( $dt_d, $dt_id, true ) && count( $dt ) <= 5, $dt_id );
+$dt_ten = get_term_by( 'slug', 'gia-dinh', 'chu_de' )->name;
+kt( 'đọc tiếp: nhãn nói vì sao (chủ đề trước vùng)', 'Cùng chủ đề ' . $dt_ten === $dt[ $dt_vt( $dt_a ) ]['nhan'] && str_starts_with( $dt[ $dt_vt( $dt_c ) ]['nhan'], 'Cùng vùng ' ), wp_list_pluck( $dt, 'nhan' ) );
+$dt_bai( 'Đọc tiếp vè thêm', 've' );
+$dt_y  = $dt_bai( 'Đọc tiếp vè không chủ đề', 've' );
+$dt_y2 = cadao_doc_tiep( get_post( $dt_y ) );
+kt( 'đọc tiếp: bài chưa có chủ đề, vùng thì lấy 3 bài cùng thể loại đăng gần đó', 3 === count( $dt_y2 ) && array() === array_filter( $dt_y2, static fn( $x ) => $x['bai']->ID === $dt_y || ! has_term( 've', 'the_loai', $x['bai'] ) || 'Cùng thể loại vè' !== $x['nhan'] ), wp_list_pluck( $dt_y2, 'nhan' ) );
+wp_insert_term( 'Thể loại một bài thử', 'the_loai', array( 'slug' => 'mot-bai-thu' ) );
+kt( 'đọc tiếp: không có bài nào để gợi ý thì không có khối', '' === cadao_khoi_doc_tiep( get_post( $dt_bai( 'Đọc tiếp một mình', 'mot-bai-thu' ) ) ) );
+$dt_html = cadao_khoi_doc_tiep( get_post( $dt_x ) );
+kt( 'khối "Đọc tiếp": tiêu đề h2, mỗi bài một liên kết có tên, 2 dòng đầu, nhãn', str_contains( $dt_html, '<h2 id="cadao-doc-tiep-tieu">Đọc tiếp</h2>' ) && str_contains( $dt_html, 'href="' . esc_url( get_permalink( $dt_a ) ) . '"><strong>Đọc tiếp cùng chủ đề và vùng</strong>' ) && str_contains( $dt_html, ' / ' ) && str_contains( $dt_html, '…' ) && str_contains( $dt_html, 'Cùng chủ đề ' . esc_html( $dt_ten ) ), $dt_html );
 
 // ---------- SEO cơ bản, ảnh chia sẻ (T-050) ----------
 $seo_bai = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'post_title' => 'Ngưỡng thuở quyện thử', 'post_content' => cadao_khoi_tho( "Ngưỡng thuở quyện thử dòng một sáu chữ\nNgưỡng thuở quyện thử dòng hai tám chữ đây\nDòng ba thử\nDòng bốn thử\nDòng năm thử" ) . cadao_khoi_tho( "Dị bản thử một\nDị bản thử hai" ) ) );

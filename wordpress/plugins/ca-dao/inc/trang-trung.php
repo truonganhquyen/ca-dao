@@ -49,7 +49,7 @@ function cadao_trang_trung(): void {
 	echo '<div class="wrap"><h1>Có thể trùng</h1>';
 	cadao_hien_bao();
 	echo '<p>Máy so <strong>cả lời</strong> (không so tiêu đề hay dòng đầu) của câu mới lấy từ nguồn và của bài với các bài, các câu đã có. '
-		. 'Lời giống hệt và cùng thể loại thì máy đã tự gắn vào bài có sẵn — xem <a href="' . esc_url( cadao_url_trang( CADAO_TRANG_KHO, array( 'tt' => 'da_gop' ) ) ) . '">Kho thu thập → Đã gộp</a>, bấm "Tách ra" nếu máy gắn sai. '
+		. 'Lời giống hệt và cùng thể loại thì máy đã tự gắn vào bài có sẵn; lời trùng đúng một dị bản đã ghi thì máy đã tự gắn làm dị bản của bài đó — xem<a href="' . esc_url( cadao_url_trang( CADAO_TRANG_KHO, array( 'tt' => 'da_gop' ) ) ) . '">Kho thu thập → Đã gộp</a>, bấm "Tách ra" nếu máy gắn sai. '
 		. 'Các cặp dưới đây cần bạn quyết. Câu đang chờ quyết thì máy chưa tạo thành bài. Không có gì bị xóa.</p>';
 	$lam = get_option( 'cadao_trung_lam_dan', array( 'buoc' => 'xong' ) );
 	if ( 'xong' !== ( $lam['buoc'] ?? 'xong' ) ) {

@@ -6,7 +6,8 @@
  * gộp khoảng trắng, bỏ xuống dòng; (2) bỏ thêm mọi dấu và đổi đ → d (bắt "hoà / hòa", gõ thiếu dấu). Mức giống = tỉ lệ
  * cặp âm tiết liền nhau chung nhau (Jaccard) trên bản (2) — đúng cách đo ngày 25/10/2026. Không so tiêu đề, không so
  * dòng đầu. Không tự xóa gì; không tự gộp hai bài với nhau. Câu trong kho chỉ tự gắn vào bài / câu có sẵn khi lời
- * giống hệt (kể cả chỉ khác dấu câu, chữ hoa, cách bỏ dấu) và cùng thể loại; mọi trường hợp khác vào hàng "Có thể trùng".
+ * giống hệt (kể cả chỉ khác dấu câu, chữ hoa, cách bỏ dấu) và cùng thể loại, hoặc khi lời trùng 100% một dị bản đã ghi
+ * (gắn làm dị bản, D-074); mọi trường hợp khác vào hàng "Có thể trùng".
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -401,10 +402,16 @@ function cadao_trung_dem_cho(): int {
 
 // ---------- Khi lấy từ nguồn (T-110) ----------
 
+/** Kết quả so (cadao_tim_trung) là lời trùng 100% một dị bản đã ghi của bài / câu khác (kể cả chỉ khác cách bỏ dấu). */
+function cadao_trung_la_di_ban_da_ghi( array $t ): bool {
+	return $t['phan'] > 0 && 100 === $t['giong'] && 'di_ban' === $t['cap_do'];
+}
+
 /**
  * So một câu "mới" trong kho với bài đã có và các câu khác trong kho.
  * Giống hệt (kể cả chỉ khác dấu câu, chữ hoa, cách bỏ dấu) và cùng thể loại → tự gắn vào bài / câu có sẵn ("Đã gộp").
- * Khác thể loại, khác vài chữ, có thể là dị bản, trùng một dị bản đã ghi → hàng "Có thể trùng".
+ * Trùng 100% một dị bản đã ghi (mọi thể loại, D-074) → tự gắn làm dị bản của bài / câu đó ("Đã gộp", "Tách ra" được).
+ * Khác thể loại, khác vài chữ, có thể là dị bản → hàng "Có thể trùng".
  *
  * @return string 'khong' | 'da_gop' | 'cho_quyet'
  */
@@ -422,6 +429,10 @@ function cadao_trung_kiem_kho( int $kho_id ): string {
 		$cung_loai = cadao_nhom_the_loai( $khoa ) === cadao_nhom_the_loai( $t['muc'] );
 		if ( $cung_loai && 0 === $t['phan'] && 100 === $t['giong'] && in_array( $t['cap_do'], array( 'y_het', 'gan_y_het' ), true ) ) {
 			cadao_trung_gop( $khoa, $t['muc'], 'trung' );
+			return 'da_gop';
+		}
+		if ( cadao_trung_la_di_ban_da_ghi( $t ) ) { // D-074: lời trùng đúng một dị bản đã ghi → gắn làm dị bản
+			cadao_trung_gop( $khoa, $t['muc'], 'di_ban' );
 			return 'da_gop';
 		}
 		$ly_do = $cung_loai ? $t['ly_do'] : trim( 'khác thể loại' . ( $t['ly_do'] ? '; ' . $t['ly_do'] : '' ) );
@@ -687,11 +698,39 @@ function cadao_trung_lam_dan( int $giay = 20 ): array {
 	return $t;
 }
 
+/**
+ * D-074, một lần sau khi nâng cấp: các cặp đang chờ mà câu mới trùng 100% một dị bản đã ghi thì so lại để tự gắn; câu
+ * đã gắn thì các cặp khác của nó rời hàng chờ. Cặp "Để sau" giữ nguyên (người sáng lập đã chạm tới).
+ *
+ * @return int số câu đã tự gắn
+ */
+function cadao_trung_tu_gan_di_ban_cu( int $so = 50 ): int {
+	global $wpdb;
+	$t   = cadao_trung_bang();
+	$ds  = $wpdb->get_results( $wpdb->prepare( "SELECT id, a FROM $t WHERE trang_thai = 'cho' AND muc = 'di_ban' AND giong = 100 AND a LIKE 'kho:%%' AND id > %d ORDER BY id LIMIT %d", (int) get_option( 'cadao_trung_tu_gan_sau', 0 ), $so ) );
+	$gan = 0;
+	foreach ( $ds as $r ) {
+		update_option( 'cadao_trung_tu_gan_sau', (int) $r->id, false );
+		if ( 'da_gop' === cadao_trung_kiem_kho( cadao_tach_muc( $r->a )[1] ) ) {
+			$wpdb->query( $wpdb->prepare( "UPDATE $t SET trang_thai = 'bo' WHERE a = %s AND trang_thai = 'cho'", $r->a ) );
+			++$gan;
+		}
+	}
+	if ( count( $ds ) < $so ) {
+		update_option( 'cadao_trung_tu_gan', 1, false );
+		delete_option( 'cadao_trung_tu_gan_sau' );
+	}
+	return $gan;
+}
+
 add_action(
 	'cadao_thu_thap', // lịch 5 phút của nguồn tự động; WP-Cron chạy trước lượt lấy bài
 	static function () {
 		if ( 'xong' !== ( get_option( 'cadao_trung_lam_dan', array( 'buoc' => 'xong' ) )['buoc'] ?? 'xong' ) ) {
 			cadao_trung_lam_dan( cadao_giay_moi_luot() );
+		}
+		if ( ! get_option( 'cadao_trung_tu_gan' ) ) {
+			cadao_trung_tu_gan_di_ban_cu();
 		}
 	},
 	5
