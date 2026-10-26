@@ -113,6 +113,22 @@ kt( 'nâng cấp: giữ nguồn người duyệt đã sửa', 'Sách ABC' === ge
 kt( 'dòng Nguồn có liên kết khi người viết điền', str_contains( cadao_dong_nguon( $sua ), 'Nguồn: <a href="https://example.org/sach/"' ), cadao_dong_nguon( $sua ) );
 $tay = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'post_title' => 'Bài nhập tay', 'post_content' => cadao_khoi_tho( 'Dòng nhập tay' ) ) );
 kt( 'bài nhập tay không nguồn: đăng được, không có dòng Nguồn', ! is_wp_error( $tay ) && 'publish' === get_post_status( $tay ) && '' === cadao_dong_nguon( $tay ) );
+
+// ---------- Nguồn đã ẩn: người đọc thấy số lượng, người biên soạn thấy liên kết (D-078) ----------
+global $wpdb;
+$nguoi_truoc = get_current_user_id();
+cadao_kho_luu( 'nguon-thu', array( 'ma_goc' => 107, 'doc_trang' => '2026-10-26', 'url' => 'https://example.org/bai-gop/', 'loai' => 'ca_dao', 'tieu_de' => 'Câu đã gộp', 'loi' => 'Câu đã gộp vào bài cũ' ) );
+$wpdb->update( cadao_kho_bang(), array( 'trang_thai' => 'da_gop', 'gop_vao' => 'bai:' . $cu ), array( 'nguon_id' => 'nguon-thu', 'ma_goc' => '107' ) );
+kt( 'nguồn đã ẩn: địa chỉ gốc nội bộ + câu đã gộp = 2 nguồn', 2 === count( cadao_nguon_an( $cu ) ) && 'https://example.org/bai-cu/' === cadao_nguon_an( $cu )[0]['url'], wp_json_encode( cadao_nguon_an( $cu ) ) );
+kt( 'nguồn đã ẩn: bài nhập tay không có nguồn thì không có dòng', array() === cadao_nguon_an( $tay ) && '' === cadao_dong_nguon_an( $tay ) );
+wp_set_current_user( 0 );
+$khach = cadao_dong_nguon_an( $cu );
+kt( 'người đọc thấy "[2 nguồn tham khảo đã ẩn]"', str_contains( $khach, '[2 nguồn tham khảo đã ẩn]' ), $khach );
+kt( 'người đọc không thấy địa chỉ, tên nguồn hay liên kết trong HTML (không ẩn bằng CSS)', ! str_contains( $khach, 'example.org' ) && ! str_contains( $khach, '<a ' ) && ! str_contains( $khach, 'Nguồn thử' ), $khach );
+wp_set_current_user( cadao_quan_tri_dau_tien() );
+$qt = cadao_dong_nguon_an( $cu );
+kt( 'người biên soạn thấy cùng dòng của người đọc, kèm liên kết từng nguồn', str_contains( $qt, '[2 nguồn tham khảo đã ẩn]' ) && str_contains( $qt, 'href="https://example.org/bai-cu/"' ) && str_contains( $qt, 'href="https://example.org/bai-gop/"' ), $qt );
+wp_set_current_user( $nguoi_truoc );
 kt( 'chưa chọn thể loại: đường dẫn /ca-dao/…', str_contains( get_permalink( $tay ), '/ca-dao/bai-nhap-tay/' ), get_permalink( $tay ) );
 wp_set_object_terms( $tay, 've', 'the_loai' );
 clean_post_cache( $tay );

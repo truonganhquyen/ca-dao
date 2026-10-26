@@ -2,7 +2,7 @@
 Theme Name:        Kho tàng Ca dao
 Description:       Theme con của Twenty Twenty-Five cho dự án Kho tàng Ca dao Tục ngữ Việt Nam: chữ và khoảng trắng trước, lời thơ lớn, sáng/tối theo máy (docs/20 trong repo ca-dao).
 Template:          twentytwentyfive
-Version:           0.16.0
+Version:           0.17.0
 Requires at least: 6.8
 Requires PHP:      8.1
 Author:            Dự án Kho tàng Ca dao Tục ngữ Việt Nam
@@ -228,6 +228,20 @@ a {
 }
 .cadao-chu-thich-nguon a,
 .cadao-nguon a {
+	color: inherit;
+}
+/* Nguồn đã ẩn (D-078): người đọc chỉ thấy "[N nguồn tham khảo đã ẩn]", chữ nghiêng, cỡ bằng một nửa chữ nội dung.
+   Dòng liên kết cho người biên soạn giữ cỡ chữ nhỏ thường để bấm được. */
+.cadao-nguon-an {
+	color: var(--cadao-nhat);
+	font-size: 0.5em;
+	font-style: italic;
+}
+.cadao-nguon-quan-tri {
+	color: var(--cadao-nhat);
+	font-size: var(--wp--preset--font-size--small);
+}
+.cadao-nguon-quan-tri a {
 	color: inherit;
 }
 
