@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Cho ai | Người sáng lập (không cần dòng lệnh) |
-| Làm khi | Mỗi tuần khoảng 10 bài; mục tiêu ≥ 50 bài trước khi mở cho Google |
+| Làm khi | Mỗi tuần khoảng 10 bài; mục tiêu ≥ 50 bài (không chặn mở site — D-077) |
 | Vì sao | Bài chưa có Hiểu nhanh thì Google không lập chỉ mục (lời chép giống nơi khác không tính là giá trị riêng) |
 
 ## Viết một bài
