@@ -259,6 +259,23 @@ function cadao_wd_cua_muc_tu( int $term_id ): ?array {
 	return is_array( $d ) && $d ? $d : null;
 }
 
+/**
+ * Phần hiện thêm của mục từ (ảnh, bản đồ nhỏ, Wikipedia): dữ liệu Wikidata đã xác nhận, cộng lựa chọn của người biên
+ * soạn trong trang Sửa mục từ (T-113): ảnh riêng từ Thư viện ảnh (kèm ghi công) thay ảnh Wikidata, hoặc ẩn ảnh Wikidata.
+ */
+function cadao_phan_them_muc_tu( int $term_id ): ?array {
+	$d     = cadao_wd_cua_muc_tu( $term_id ) ?? array();
+	$rieng = (int) get_term_meta( $term_id, '_cadao_anh_rieng', true );
+	$url   = $rieng ? wp_get_attachment_image_url( $rieng, 'medium_large' ) : false;
+	if ( $url ) {
+		$t               = get_term( $term_id, 'tu_kho' );
+		$d['anh_da_tai'] = array( 'rieng' => true, 'url' => $url, 'alt' => $t && ! is_wp_error( $t ) ? $t->name : '', 'ghi_cong' => (string) get_term_meta( $term_id, '_cadao_anh_ghi_cong', true ) );
+	} elseif ( get_term_meta( $term_id, '_cadao_an_anh', true ) ) {
+		unset( $d['anh_da_tai'] );
+	}
+	return $d ?: null;
+}
+
 // ---------- Trang "Xác nhận Wikidata" ----------
 
 add_action(
@@ -344,7 +361,9 @@ const CADAO_BAN_DO_KHUNG = array( 102.0, 117.6, 23.6, 8.0 );
 function cadao_html_dia_danh( array $wd ): string {
 	$ra  = '';
 	$anh = $wd['anh_da_tai'] ?? null;
-	if ( is_array( $anh ) && ! empty( $anh['url'] ) ) {
+	if ( is_array( $anh ) && ! empty( $anh['url'] ) && ! empty( $anh['rieng'] ) ) {
+		$ra .= '<figure class="cadao-anh-wd"><img src="' . esc_url( $anh['url'] ) . '" alt="' . esc_attr( $anh['alt'] ) . '" loading="lazy" decoding="async">' . ( '' !== trim( $anh['ghi_cong'] ) ? '<figcaption>' . esc_html( $anh['ghi_cong'] ) . '</figcaption>' : '' ) . '</figure>';
+	} elseif ( is_array( $anh ) && ! empty( $anh['url'] ) ) {
 		$gp  = $anh['giay_phep_url'] ? '<a href="' . esc_url( $anh['giay_phep_url'] ) . '" rel="noopener">' . esc_html( $anh['giay_phep'] ) . '</a>' : esc_html( $anh['giay_phep'] );
 		$ra .= '<figure class="cadao-anh-wd"><img src="' . esc_url( $anh['url'] ) . '" alt="' . esc_attr( $wd['nhan_wd'] ?? '' ) . '" loading="lazy" decoding="async">'
 			. '<figcaption>Ảnh: ' . esc_html( $anh['tac_gia'] ) . ' · ' . $gp . ' · <a href="' . esc_url( $anh['trang'] ) . '" rel="noopener">Wikimedia Commons</a></figcaption></figure>';
@@ -368,7 +387,7 @@ function cadao_html_dia_danh( array $wd ): string {
 add_filter(
 	'cadao_muc_tu_them',
 	static function ( $html, $term_id ) {
-		$wd = cadao_wd_cua_muc_tu( (int) $term_id );
+		$wd = cadao_phan_them_muc_tu( (int) $term_id );
 		return $html . ( $wd ? cadao_html_dia_danh( $wd ) : '' );
 	},
 	10,
@@ -381,7 +400,7 @@ function cadao_them_cho_chu_thich( string $tu, string $noi_dung ): array {
 	if ( ! $t ) {
 		return array();
 	}
-	$wd = cadao_wd_cua_muc_tu( (int) $t->term_id );
+	$wd = cadao_phan_them_muc_tu( (int) $t->term_id );
 	return array( 'id' => (int) $t->term_id, 'url' => (string) get_term_link( $t ), 'so_bai' => (int) $t->count, 'them' => $wd ? cadao_html_dia_danh( $wd ) : '' );
 }
 

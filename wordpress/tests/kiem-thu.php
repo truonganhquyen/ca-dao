@@ -945,6 +945,40 @@ wp_delete_post( $gy_loi, true );
 wp_delete_post( $gy_khac, true );
 wp_delete_post( $cd_bbt, true );
 
+// ---------- Sửa mục từ: nguồn của lời giải, ảnh (T-113) ----------
+$mt     = get_term( $m_do->term_id, 'tu_kho' );
+$mt_mo  = static fn() => apply_filters( 'term_description', '', $m_do->term_id, 'tu_kho', 'tu_kho' );
+$mt_wd  = cadao_wd_cua_muc_tu( $m_do->term_id );
+$mt_anh = (int) ( $mt_wd['anh_da_tai']['id'] ?? 0 );
+$mt_cu  = array( (string) get_term_meta( $mt->term_id, '_cadao_nguon_ten', true ), (string) get_term_meta( $mt->term_id, '_cadao_nguon_url', true ) );
+ob_start();
+do_action( 'tu_kho_edit_form_fields', $mt, 'tu_kho' );
+$mt_form = ob_get_clean();
+kt( 'Sửa mục từ: ô nguồn điền sẵn giá trị đang có, ô ảnh, liên kết sửa Wikidata khớp nhầm', str_contains( $mt_form, 'name="cadao_mt[nguon_ten]" value="' . esc_attr( $mt_cu[0] ) . '"' ) && str_contains( $mt_form, 'Chọn ảnh khác…' ) && str_contains( $mt_form, 'tab=dung' ) && str_contains( $mt_form, 'Không hiện ảnh lấy từ Wikidata' ) );
+wp_set_current_user( cadao_quan_tri_dau_tien() );
+$_POST = array( 'cadao_mt' => array( 'nguon_ten' => '', 'nguon_url' => '', 'anh_rieng' => '', 'ghi_cong' => '' ) );
+wp_update_term( $mt->term_id, 'tu_kho', array( 'description' => $mt->description ) );
+kt( 'Sửa mục từ: xóa nguồn (tự viết lại lời giải) → trang mục từ không còn dòng Nguồn', ! str_contains( $mt_mo(), 'cadao-chu-thich-nguon' ) && str_contains( $mt_mo(), 'cadao-anh-wd' ) );
+$_POST = array( 'cadao_mt' => array( 'nguon_ten' => 'Sách mục từ thử', 'nguon_url' => 'https://example.org/sach', 'anh_rieng' => '', 'ghi_cong' => '', 'an_anh' => '1' ) );
+wp_update_term( $mt->term_id, 'tu_kho', array( 'description' => $mt->description ) );
+kt( 'Sửa mục từ: ghi nguồn khác; ẩn ảnh Wikidata (bản đồ, Wikipedia vẫn còn)', str_contains( $mt_mo(), 'Nguồn: <a href="https://example.org/sach" rel="noopener">Sách mục từ thử' ) && ! str_contains( $mt_mo(), 'cadao-anh-wd' ) && str_contains( $mt_mo(), 'cadao-ban-do-nho' ) );
+if ( $mt_anh ) {
+	$_POST = array( 'cadao_mt' => array( 'nguon_ten' => 'Sách mục từ thử', 'nguon_url' => '', 'anh_rieng' => (string) $mt_anh, 'ghi_cong' => 'Ảnh: Người Chụp Riêng · CC BY 4.0' ) );
+	wp_update_term( $mt->term_id, 'tu_kho', array( 'description' => $mt->description ) );
+	$mo_rieng = $mt_mo();
+	kt( 'Sửa mục từ: ảnh chọn từ Thư viện thay ảnh Wikidata, ghi công do người biên soạn viết, chữ thay thế là tên mục từ; ô chạm từ trong bài cũng dùng ảnh đó', str_contains( $mo_rieng, '<figcaption>Ảnh: Người Chụp Riêng · CC BY 4.0</figcaption>' ) && str_contains( $mo_rieng, 'alt="' . esc_attr( $mt->name ) . '"' ) && ! str_contains( $mo_rieng, 'Wikimedia Commons</a></figcaption>' ) && str_contains( cadao_them_cho_chu_thich( 'Đò Thử', 'Bến đò mẫu ở Nam Bộ.' )['them'], 'Người Chụp Riêng' ), $mo_rieng );
+}
+$_POST = array( 'cadao_mt' => array( 'nguon_ten' => 'Bịa', 'anh_rieng' => '99999999' ) );
+wp_set_current_user( 0 );
+wp_update_term( $mt->term_id, 'tu_kho', array( 'description' => $mt->description ) );
+kt( 'Sửa mục từ: người không có quyền không đổi được', 'Bịa' !== get_term_meta( $mt->term_id, '_cadao_nguon_ten', true ) );
+// Trả lại như cũ cho các phần sau
+update_term_meta( $mt->term_id, '_cadao_nguon_ten', $mt_cu[0] );
+update_term_meta( $mt->term_id, '_cadao_nguon_url', $mt_cu[1] );
+delete_term_meta( $mt->term_id, '_cadao_anh_rieng' );
+delete_term_meta( $mt->term_id, '_cadao_an_anh' );
+$_POST = array();
+
 $ngan = do_blocks( cadao_khoi_tho( implode( "\n", array_slice( $khong_kho, 0, 40 ) ) ) );
 kt( 'bài 40 dòng trở xuống: không chia đoạn', ! str_contains( $ngan, 'cadao-bai-dai' ) );
 
