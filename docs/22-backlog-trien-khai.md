@@ -76,7 +76,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-092 | "Bài gần gũi" cuối bài và trang mô-típ (mở lại D-077; bản tối giản "Đọc tiếp" đã có ở T-122) | A | T-091, T-122 | — | DONE |
 | T-093 | "Bạn có biết?" ghép từ chú thích | N+A | T-073 | — | DONE |
 | T-094 | Trang riêng cho từng thể loại | N+A | T-072 | — | DONE |
-| T-095 | Tục ngữ – Thành ngữ: trình bày câu một dòng, chỉ mục A–Z (mở lại D-077; một mục, D-079) | A | T-128 | — | READY |
+| T-095 | Tục ngữ – Thành ngữ: trình bày câu một dòng, chỉ mục A–Z (mở lại D-077; một mục, D-079) | A | T-128 | — | DONE |
 | T-096 | Câu đố: nhóm theo đáp án và theo loại, trang "Đố vui" (mở lại D-077) | A | T-091 | — | READY |
 | T-097 | Bài cảm nhận, phân tích của người đọc (cần duyệt); bài có phân tích được duyệt thì lên Google | A | T-045 | — | DONE |
 | T-118 | An toàn vận hành: chặn lặp lượt đọc, sự kiện phía máy chủ; chỉ tin IP Cloudflare khi đúng; gỡ thẻ phiên bản; quay lại bản trước (D-073) | A | T-081, T-052, T-078 | — | DONE |
@@ -410,6 +410,7 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 #### T-095 · Câu một dòng — A
 **Đọc:** D-079 — làm cho một mục "Tục ngữ – Thành ngữ".
 **Chấp nhận:** trang bài thành ngữ, tục ngữ chữ to, không khung lời thơ; chỉ mục A–Z và theo chủ đề.
+**Tiến độ (26/10/2026):** xong — trang bài: lời chính chỉ một dòng hiện như một câu (lớp `cadao-cau`: chữ to hơn lời thơ, không thụt treo, xuống dòng cân; theo cả cỡ chữ người đọc chọn) — theme 0.19.0. Trang Tục ngữ – Thành ngữ (`/the-loai/tuc-ngu/`): chỉ mục **A–Z** theo chữ đầu của tên bài (Đ sau D; chỉ chữ có bài; `?chu=…`, lọc phía máy chủ, noindex, canonical về danh sách), nhóm **Chủ đề** mở sẵn; mỗi câu một dòng kèm **nghĩa ngắn** khi đã có Hiểu nhanh (máy không viết nghĩa). Chữ đầu lưu cùng bài (`_cadao_chu_dau`) — plugin 0.33.0.
 
 #### T-096 · Câu đố — A
 **Chấp nhận:** trang bài vẫn hiện đáp án (D-058); trang "Đố vui" 10 câu một lượt, chọn theo loại, điểm nhớ trên máy; câu đố cùng đáp án hiện cạnh nhau.
