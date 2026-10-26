@@ -202,8 +202,8 @@ function cadao_goi_y_bai( int $id ): array {
 	if ( preg_match( '/^lý\s/u', mb_strtolower( get_the_title( $bai ) ) ) ) {
 		$ra['chu_de']['ly'] ??= 'tên bài bắt đầu bằng "Lý"';
 	}
-	// Kinh nghiệm: chỉ tục ngữ, thành ngữ
-	if ( has_term( array( 'tuc-ngu', 'thanh-ngu' ), 'the_loai', $bai ) ) {
+	// Kinh nghiệm: chỉ tục ngữ – thành ngữ
+	if ( has_term( 'tuc-ngu', 'the_loai', $bai ) ) {
 		foreach ( CADAO_KINH_NGHIEM_TU_KHOA as $slug => $mau ) {
 			if ( preg_match( $mau, mb_strtolower( $loi ), $m ) ) {
 				$ra['chu_de'][ $slug ] ??= 'lời có "' . $m[0] . '"';

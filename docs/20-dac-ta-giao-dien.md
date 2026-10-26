@@ -70,7 +70,7 @@ Chế độ tối theo cài đặt hệ thống (`prefers-color-scheme`) có t�
 ```text
 /                               Trang chủ
 ├── /tim?q=…                    Kết quả tìm kiếm
-├── /ca-dao/{slug}              Trang tác phẩm  (tương tự /tuc-ngu/, /thanh-ngu/)
+├── /ca-dao/{slug}              Trang tác phẩm  (tương tự /tuc-ngu/ — Tục ngữ – Thành ngữ, D-078)
 ├── /tinh-huong/ , /tinh-huong/{slug}
 ├── /tu-dien/ , /tu-dien/{slug}
 ├── /da-luu                     Đã lưu (trên máy, Mốc C)

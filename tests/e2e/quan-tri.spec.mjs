@@ -90,7 +90,7 @@ test('đăng nhập', async ({}, ti) => {
 });
 
 test('mọi trang của plugin mở được, không lỗi PHP, dưới 5 s', async ({}, ti) => {
-  const TRANG = ['cadao-ban-bien-tap', 'cadao-nguon-tu-dong', 'cadao-kho', 'cadao-co-the-trung', 'cadao-tach-loai',
+  const TRANG = ['cadao-ban-bien-tap', 'cadao-nguon-tu-dong', 'cadao-kho', 'cadao-co-the-trung',
     'cadao-wikidata', 'cadao-goi-y', 'cadao-ban-co-biet', 'cadao-chong-rac', 'cadao-hieu-nhanh'];
   const cham = [];
   for (const p of TRANG) {

@@ -11,8 +11,7 @@ const CADAO_LOAI_BAI = 'cdtn';
 /** Thể loại → đoạn đầu của đường dẫn bài (/ca-dao/<ten>/, /tuc-ngu/<ten>/…), như site cũ. */
 const CADAO_THE_LOAI = array(
 	'ca-dao'    => 'Ca dao',
-	'tuc-ngu'   => 'Tục ngữ',
-	'thanh-ngu' => 'Thành ngữ',
+	'tuc-ngu'   => 'Tục ngữ – Thành ngữ', // một mục (D-078); thể loại "Thành ngữ" cũ: CADAO_THE_LOAI_CU
 	'dong-dao'  => 'Đồng dao',
 	've'        => 'Vè',
 	'cau-do'    => 'Câu đố',
@@ -94,7 +93,7 @@ function cadao_dang_ky_loai_bai() {
 	}
 
 	// /ca-dao/<ten>/, /tuc-ngu/<ten>/… → bài (đứng đầu để không quy tắc nào khác chen trước)
-	add_rewrite_rule( '^(' . implode( '|', array_keys( CADAO_THE_LOAI ) ) . ')/([^/]+)/?$', 'index.php?post_type=' . CADAO_LOAI_BAI . '&name=$matches[2]', 'top' );
+	add_rewrite_rule( '^(' . implode( '|', array_merge( array_keys( CADAO_THE_LOAI ), array_keys( CADAO_THE_LOAI_CU ) ) ) . ')/([^/]+)/?$', 'index.php?post_type=' . CADAO_LOAI_BAI . '&name=$matches[2]', 'top' );
 
 	// Cập nhật plugin (đổi quy tắc đường dẫn) mà không tắt bật lại: tự làm mới quy tắc một lần
 	if ( get_option( 'cadao_quy_tac_duong_dan' ) !== CADAO_PHIEN_BAN ) {

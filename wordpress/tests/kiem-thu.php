@@ -238,8 +238,8 @@ wp_set_object_terms( $td, 'tuc-ngu', 'the_loai' );
 clean_post_cache( $td );
 kt( 'lời của bài: khối Thơ đầu tiên, đúng từng dòng, giải mã HTML', "Dòng trích mẫu & <một>\nDòng trích mẫu hai" === cadao_loi_cua_bai( get_post( $td ) ), cadao_loi_cua_bai( get_post( $td ) ) );
 $mau = cadao_mau_trich_dan( get_post( $td ) );
-kt( 'trích dẫn thông dụng: tên bài, thể loại, tên dự án, địa chỉ trang, ngày truy cập', '"Dòng trích mẫu" (Tục ngữ). Kho tàng Ca dao Tục ngữ Việt Nam. Truy cập tại: ' . get_permalink( $td ) . ', ngày {ngay}.' === $mau['thong_dung'], $mau );
-kt( 'trích dẫn APA 7', 'Kho tàng Ca dao Tục ngữ Việt Nam. (' . get_the_date( 'Y', $td ) . '). Dòng trích mẫu [Tục ngữ]. ' . get_permalink( $td ) === $mau['apa'], $mau );
+kt( 'trích dẫn thông dụng: tên bài, thể loại, tên dự án, địa chỉ trang, ngày truy cập', '"Dòng trích mẫu" (Tục ngữ – Thành ngữ). Kho tàng Ca dao Tục ngữ Việt Nam. Truy cập tại: ' . get_permalink( $td ) . ', ngày {ngay}.' === $mau['thong_dung'], $mau );
+kt( 'trích dẫn APA 7', 'Kho tàng Ca dao Tục ngữ Việt Nam. (' . get_the_date( 'Y', $td ) . '). Dòng trích mẫu [Tục ngữ – Thành ngữ]. ' . get_permalink( $td ) === $mau['apa'], $mau );
 $hd = cadao_khoi_hanh_dong( get_post( $td ) );
 kt( 'khối Trích dẫn · Chia sẻ: hai kiểu, hai nút sao chép, nút Chia sẻ', str_contains( $hd, '<summary><span aria-hidden="true">❝</span> Trích dẫn</summary>' ) && str_contains( $hd, 'APA 7' ) && str_contains( $hd, 'Sao chép kèm nguồn' ) && str_contains( $hd, 'Chỉ sao chép lời' ) && str_contains( $hd, '>Chia sẻ</button>' ), $hd );
 kt( 'lời mang sẵn trong khối (đã thoát HTML)', str_contains( $hd, 'data-loi="Dòng trích mẫu &amp; &lt;một&gt;' ) );
@@ -415,52 +415,27 @@ update_option( 'cadao_trung_lam_dan', array( 'buoc' => 'bai', 'sau' => 0 ), fals
 kt( 'làm dần: chỉ mục cho bài, kho rồi so từng câu — xong', 'xong' === cadao_trung_lam_dan( 120 )['buoc'] );
 $tk = cadao_trung_thong_ke();
 kt( 'thống kê (chỉ đọc): đếm được câu y hệt, chỉ khác dấu, là dị bản đã ghi', $tk['y_het'] >= 2 && $tk['chi_khac_dau'] >= 1 && $tk['la_di_ban'] >= 1, $tk );
-// ---------- Tách thành ngữ – tục ngữ (T-080) — danh mục Wiktionary giả, lời tổng hợp ----------
-add_filter( 'cadao_nhip_giay', '__return_zero' );
-add_filter(
-	'pre_http_request',
-	static function ( $tra, $tham, $url ) {
-		if ( ! str_contains( $url, 'vi.wiktionary.org' ) ) {
-			return $tra;
-		}
-		$ds = str_contains( urldecode( $url ), 'Thành ngữ' ) ? array( 'chữ9100 chữ9101 chữ9102 chữ9103', 'từ đơn mẫu' ) : array( 'chữ9200 chữ9201 chữ9202 chữ9203 chữ9204 chữ9205', 'tiếng mẫu' );
-		return array( 'headers' => array(), 'body' => wp_json_encode( array( 'query' => array( 'categorymembers' => array_map( static fn( $t ) => array( 'title' => $t ), $ds ) ) ) ), 'response' => array( 'code' => 200, 'message' => '' ), 'cookies' => array(), 'filename' => null );
-	},
-	10,
-	3
-);
-kt( 'tải danh mục Wiktionary (chỉ lưu dấu vân tay, không lưu chữ)', cadao_wiktionary_cap_nhat() && 2 === count( get_option( 'cadao_wiktionary' )['thanh_ngu'] ) && ! str_contains( wp_json_encode( get_option( 'cadao_wiktionary' ) ), 'chữ9100' ) );
-remove_all_filters( 'pre_http_request' );
-remove_all_filters( 'cadao_nhip_giay' );
-$gy = static fn( $l ) => array( cadao_goi_y_loai( $l )['loai'], cadao_goi_y_loai( $l )['muc'] );
-kt( 'có trong danh mục thành ngữ, câu ngắn → thành ngữ (chắc)', array( 'thanh_ngu', 'chac' ) === $gy( 'Chữ9100 chữ9101, chữ9102 chữ9103' ) );
-kt( 'có trong danh mục tục ngữ, câu đủ dài → tục ngữ (chắc)', array( 'tuc_ngu', 'chac' ) === $gy( $dong( 9200, 6 ) ) );
-kt( 'danh mục Wiktionary ngược với độ dài câu → không theo danh mục', array( 'thanh_ngu', 'nghieng' ) === $gy( 'Tiếng mẫu' ) );
-kt( 'câu nhiều vế → tục ngữ (chắc)', array( 'tuc_ngu', 'chac' ) === $gy( $dong( 1, 3 ) . "\n" . $dong( 4, 3 ) ) );
-kt( 'câu dài từ 8 âm tiết → tục ngữ (chắc)', array( 'tuc_ngu', 'chac' ) === $gy( $dong( 9300, 8 ) ) );
-kt( 'hai vế cách dấu phẩy → tục ngữ (chắc)', array( 'tuc_ngu', 'chac' ) === $gy( $dong( 1, 3 ) . ', ' . $dong( 4, 3 ) ) );
-kt( 'có từ nối "thì" → nghiêng về tục ngữ', array( 'tuc_ngu', 'nghieng' ) === $gy( 'chữ1 chữ2 thì chữ3' ) );
-kt( 'cụm ngắn → nghiêng về thành ngữ', array( 'thanh_ngu', 'nghieng' ) === $gy( $dong( 1, 4 ) ) );
-kt( 'câu 5–7 âm tiết không dấu hiệu → chưa rõ', array( '', 'chua' ) === $gy( $dong( 1, 5 ) ) );
+// ---------- Một mục "Tục ngữ – Thành ngữ" (D-078) ----------
+kt( 'thể loại: một mục "Tục ngữ – Thành ngữ" ở /tuc-ngu/, không còn thể loại "Thành ngữ"', 'Tục ngữ – Thành ngữ' === get_term_by( 'slug', 'tuc-ngu', 'the_loai' )->name && ! isset( CADAO_THE_LOAI['thanh-ngu'] ) && ! term_exists( 'thanh-ngu', 'the_loai' ) );
 $tg = $kho( 'nguon-a', 'tg1', $dong( 9400, 4 ), array( 'loai' => 'thanh_ngu_tuc_ngu' ) );
 $p_tg = (int) cadao_kho_tao_bai( $tg );
-wp_update_post( array( 'ID' => $p_tg, 'post_status' => 'publish' ) );
-clean_post_cache( $p_tg );
-$duong_cu = get_permalink( $p_tg );
-kt( 'chưa duyệt: không tự đổi — bài vẫn vào Tục ngữ như trước', has_term( 'tuc-ngu', 'the_loai', $p_tg ) && str_contains( $duong_cu, '/tuc-ngu/' ), $duong_cu );
-cadao_tach_loai_quyet( $tg, 'thanh_ngu' );
-kt( 'duyệt "Là thành ngữ": bài đổi thể loại, đường dẫn /thanh-ngu/…', has_term( 'thanh-ngu', 'the_loai', $p_tg ) && ! has_term( 'tuc-ngu', 'the_loai', $p_tg ) && str_contains( get_permalink( $p_tg ), '/thanh-ngu/' ) );
-kt( 'đường dẫn cũ vẫn dẫn tới bài và được chuyển hướng 301 sang đường dẫn mới', $p_tg === url_to_postid( $duong_cu ) && get_permalink( $p_tg ) === cadao_duong_dan_dung( (string) wp_parse_url( $duong_cu, PHP_URL_PATH ), get_post( $p_tg ) ) && null === cadao_duong_dan_dung( (string) wp_parse_url( get_permalink( $p_tg ), PHP_URL_PATH ), get_post( $p_tg ) ) );
-$tg2 = $kho( 'nguon-a', 'tg2', $dong( 9500, 4 ), array( 'loai' => 'thanh_ngu_tuc_ngu' ) );
-cadao_tach_loai_quyet( $tg2, 'thanh_ngu' );
-kt( 'câu đã duyệt tách rồi mới thành bài: vào đúng Thành ngữ', has_term( 'thanh-ngu', 'the_loai', (int) cadao_kho_tao_bai( $tg2 ) ) );
-$kho( 'nguon-a', 'tg3', $dong( 9550, 3 ), array( 'loai' => 'thanh_ngu_tuc_ngu' ) );
-$_GET = array( 'tab' => 'nghieng' );
-ob_start();
-cadao_trang_tach_loai();
-$tt = ob_get_clean();
-$_GET = array();
-kt( 'trang "Tách thành ngữ – tục ngữ": gợi ý, lý do, nút duyệt hàng loạt', str_contains( $tt, 'Đồng ý gợi ý' ) && str_contains( $tt, 'Là thành ngữ' ) && str_contains( $tt, 'cụm ngắn' ) && str_contains( $tt, 'chữ9550' ), $tt );
+kt( 'câu thành ngữ – tục ngữ của nguồn thành bài trong mục gộp, đường dẫn /tuc-ngu/…', has_term( 'tuc-ngu', 'the_loai', $p_tg ) && str_contains( get_permalink( $p_tg ), '/tuc-ngu/' ) );
+// Nâng cấp từ bản có hai thể loại: bài "Thành ngữ" (đã đăng, có thể loại khác) chuyển sang mục gộp; mô tả nối vào
+wp_update_term( (int) get_term_by( 'slug', 'tuc-ngu', 'the_loai' )->term_id, 'the_loai', array( 'name' => 'Tục ngữ', 'description' => 'Giới thiệu tục ngữ thử.' ) );
+$tn_cu = wp_insert_term( 'Thành ngữ', 'the_loai', array( 'slug' => 'thanh-ngu', 'description' => 'Giới thiệu thành ngữ thử.' ) );
+$tn_bai = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'post_title' => 'Thành ngữ cũ thử', 'post_name' => 'thanh-ngu-cu-thu', 'post_content' => cadao_khoi_tho( $dong( 9450, 4 ) ) ) );
+wp_set_object_terms( $tn_bai, array( 'thanh-ngu', 'cau-do' ), 'the_loai' );
+delete_option( 'cadao_gop_tn' );
+cadao_gop_tuc_ngu_thanh_ngu();
+clean_post_cache( $tn_bai );
+$tn_moi = get_term_by( 'slug', 'tuc-ngu', 'the_loai' );
+kt( 'nâng cấp: bài "Thành ngữ" vào mục gộp, giữ thể loại khác; thể loại cũ bỏ đi; tên đổi, mô tả hai bên đều giữ', has_term( 'tuc-ngu', 'the_loai', $tn_bai ) && has_term( 'cau-do', 'the_loai', $tn_bai ) && ! term_exists( 'thanh-ngu', 'the_loai' ) && 'Tục ngữ – Thành ngữ' === $tn_moi->name && str_contains( $tn_moi->description, 'Giới thiệu tục ngữ thử.' ) && str_contains( $tn_moi->description, 'Giới thiệu thành ngữ thử.' ) && 1 === (int) get_option( 'cadao_gop_tn' ), $tn_moi );
+wp_update_term( (int) $tn_moi->term_id, 'the_loai', array( 'description' => '' ) );
+$tn_url = get_permalink( $tn_bai );
+kt( 'đường dẫn cũ /thanh-ngu/<tên>/ vẫn mở được bài và chuyển hướng 301 sang /tuc-ngu/<tên>/', str_contains( $tn_url, '/tuc-ngu/thanh-ngu-cu-thu/' ) && $tn_bai === url_to_postid( home_url( '/thanh-ngu/thanh-ngu-cu-thu/' ) ) && $tn_url === cadao_duong_dan_dung( '/thanh-ngu/thanh-ngu-cu-thu/', get_post( $tn_bai ) ) && null === cadao_duong_dan_dung( '/tuc-ngu/thanh-ngu-cu-thu/', get_post( $tn_bai ) ), $tn_url );
+kt( 'chống trùng: thể loại "Thành ngữ" cũ tính là cùng mục gộp', cadao_nhom_the_loai( "bai:$tn_bai" ) === cadao_nhom_the_loai( "bai:$p_tg" ) );
+kt( 'không còn trang "Tách thành ngữ – tục ngữ", không còn hàng chờ đó trên Bàn biên tập', ! function_exists( 'cadao_trang_tach_loai' ) && ! in_array( 'tach_loai', array_column( cadao_hang_cho(), 'khoa' ), true ) && ! wp_next_scheduled( 'cadao_wiktionary_hang_tuan' ) );
+wp_delete_post( $tn_bai, true );
 
 // ---------- Chuyển bài site cũ (T-076) ----------
 $cu_ds = array(
@@ -968,7 +943,7 @@ $hc       = cadao_hang_cho();
 $hc_so    = array_column( $hc, 'so', 'khoa' );
 kt( 'bàn biên tập: báo lỗi của người đọc đứng đầu', 'bao_loi' === $hc[0]['khoa'] );
 kt( 'bàn biên tập: đếm đúng báo lỗi, góp ý khác, bài Chờ duyệt', $hc_so['bao_loi'] === $hc_truoc['bao_loi'] + 1 && $hc_so['gop_y'] === $hc_truoc['gop_y'] + 1 && $hc_so['cho_duyet'] === $hc_truoc['cho_duyet'] + 1, array( $hc_truoc, $hc_so ) );
-kt( 'bàn biên tập: gom đủ các hàng chờ (đóng góp người đọc, Chờ duyệt, khối Thơ, trùng, tách loại, Wikidata, gợi ý, Bạn có biết?, trang dự án, thể loại)', array() === array_diff( array( 'bao_loi', 'gop_y', 'binh_luan', 'phan_tich', 'cho_duyet', 'khoi_tho', 'trung', 'tach_loai', 'wikidata', 'goi_y', 'bcb', 'du_an', 'the_loai' ), array_keys( $hc_so ) ), array_keys( $hc_so ) );
+kt( 'bàn biên tập: gom đủ các hàng chờ (đóng góp người đọc, Chờ duyệt, khối Thơ, trùng, Wikidata, gợi ý, Bạn có biết?, trang dự án, thể loại)', array() === array_diff( array( 'bao_loi', 'gop_y', 'binh_luan', 'phan_tich', 'cho_duyet', 'khoi_tho', 'trung', 'wikidata', 'goi_y', 'bcb', 'du_an', 'the_loai' ), array_keys( $hc_so ) ), array_keys( $hc_so ) );
 kt( 'bàn biên tập: mỗi hàng có đường dẫn trong trang quản trị và một dòng "làm gì"', array() === array_filter( $hc, static fn( $h ) => ! str_starts_with( $h['url'], admin_url() ) || '' === $h['viec'] ) );
 wp_set_current_user( cadao_quan_tri_dau_tien() );
 ob_start();
@@ -1307,15 +1282,14 @@ for ( $i = 0; $i < 4; $i++ ) {
 }
 $xv_tn_k = $kho( 'nguon-xv', 'tn-k', $dong( 12200, 7 ), array( 'loai' => 'thanh_ngu_tuc_ngu' ) );
 $xv_tn_q = $kho( 'nguon-xv', 'tn-q', $dong( 12300, 7 ), array( 'loai' => 'thanh_ngu_tuc_ngu' ) );
-cadao_tach_loai_quyet( $xv_tn_q, 'tuc_ngu' );
 $xv_so = cadao_kho_tao_bai_cho_duyet( cadao_nguon_lay( 'nguon-xv' ), 3 );
 $xv_co = static fn( int $id ) => (int) $hang( $id )->post_id > 0;
-kt( 'tạo bài hằng ngày xoay vòng theo loại: tục ngữ không phải chờ hết ca dao; câu đã quyết loại đi trước', 3 === $xv_so && $xv_co( $xv_ca[0] ) && $xv_co( $xv_ca[1] ) && ! $xv_co( $xv_ca[2] ) && $xv_co( $xv_tn_q ) && ! $xv_co( $xv_tn_k ), array( $xv_so, array_map( $xv_co, array_merge( $xv_ca, array( $xv_tn_k, $xv_tn_q ) ) ) ) );
-kt( 'bài từ câu đã quyết loại: đúng thể loại Tục ngữ, ở Chờ duyệt', has_term( 'tuc-ngu', 'the_loai', (int) $hang( $xv_tn_q )->post_id ) && 'pending' === get_post_status( (int) $hang( $xv_tn_q )->post_id ) );
+kt( 'tạo bài hằng ngày xoay vòng theo loại: tục ngữ không phải chờ hết ca dao', 3 === $xv_so && $xv_co( $xv_ca[0] ) && $xv_co( $xv_ca[1] ) && ! $xv_co( $xv_ca[2] ) && $xv_co( $xv_tn_k ) && ! $xv_co( $xv_tn_q ), array( $xv_so, array_map( $xv_co, array_merge( $xv_ca, array( $xv_tn_k, $xv_tn_q ) ) ) ) );
+kt( 'bài tục ngữ – thành ngữ: đúng mục gộp, ở Chờ duyệt', has_term( 'tuc-ngu', 'the_loai', (int) $hang( $xv_tn_k )->post_id ) && 'pending' === get_post_status( (int) $hang( $xv_tn_k )->post_id ) );
 cadao_kho_tao_bai_cho_duyet( cadao_nguon_lay( 'nguon-xv' ), 10 );
-kt( 'lượt sau lấy nốt các câu còn lại của mọi loại', $xv_co( $xv_ca[2] ) && $xv_co( $xv_ca[3] ) && $xv_co( $xv_tn_k ) );
+kt( 'lượt sau lấy nốt các câu còn lại của mọi loại', $xv_co( $xv_ca[2] ) && $xv_co( $xv_ca[3] ) && $xv_co( $xv_tn_q ) );
 $kdc = cadao_kho_dang_co();
-kt( 'Bàn biên tập: dòng "Kho đang có" đủ các thể loại, kể cả thể loại 0 bài', str_starts_with( $kdc, 'Kho đang có (bài đã đăng): ' ) && str_contains( $kdc, ' tục ngữ' ) && str_contains( $kdc, ' thành ngữ' ) && str_contains( $kdc, ' câu đố' ), $kdc );
+kt( 'Bàn biên tập: dòng "Kho đang có" đủ các thể loại, kể cả thể loại 0 bài', str_starts_with( $kdc, 'Kho đang có (bài đã đăng): ' ) && str_contains( $kdc, ' tục ngữ – thành ngữ' ) && str_contains( $kdc, ' câu đố' ), $kdc );
 
 // ---------- Người đọc bớt tắc (T-126) ----------
 kt( 'danh sách: 30 bài mỗi trang (truy vấn và mẫu trang)', 30 === CADAO_DS_MOI_TRANG && str_contains( file_get_contents( '/repo/themes/ca-dao/templates/archive-cdtn.html' ), '"perPage":30' ) && str_contains( file_get_contents( '/repo/themes/ca-dao/templates/taxonomy.html' ), '"perPage":30' ) );

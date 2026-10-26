@@ -46,7 +46,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-078 | Máy chủ tự cập nhật plugin từ `main` sau mỗi PR gộp | A | T-071 | — | DONE |
 | T-077 | Áp dụng D-057: lời không ghi nguồn, "Nguồn: …" chỉ dưới chú thích đã chép (plugin 0.2.0) | A | T-071 | — | DONE |
 | T-079 | Ghi gói nâng cấp 25/10/2026 vào tài liệu, lập kế hoạch (`docs/25`, D-059..D-065) | A | — | — | DONE |
-| T-080 | Tách thành ngữ và tục ngữ (máy gợi ý, người duyệt) | N+A | T-073 | — | DONE |
+| T-080 | Tách thành ngữ và tục ngữ (máy gợi ý, người duyệt) — thay bởi T-128 (gộp, D-078) | N+A | T-073 | — | DONE |
 | T-081 | Đếm lượt đọc không cookie, "Đọc nhiều", thống kê trên Bảng tin | A | T-071 | — | DONE |
 | T-109 | Nhận ra bài trùng: "dấu vân tay" của lời, các mức giống (D-065) | A | T-073 | — | DONE |
 | T-110 | Chống trùng khi lấy từ nguồn: gắn vào bài có sẵn, hàng "Có thể trùng" | N+A | T-109 | — | DONE |
@@ -76,7 +76,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-092 | "Bài gần gũi" cuối bài và trang mô-típ (mở lại D-077; bản tối giản "Đọc tiếp" đã có ở T-122) | A | T-091, T-122 | — | READY |
 | T-093 | "Bạn có biết?" ghép từ chú thích | N+A | T-073 | — | DONE |
 | T-094 | Trang riêng cho từng thể loại | N+A | T-072 | — | DONE |
-| T-095 | Thành ngữ – tục ngữ: trình bày câu một dòng, chỉ mục A–Z (mở lại D-077) | A | T-080 | Q-009 | BLOCKED |
+| T-095 | Tục ngữ – Thành ngữ: trình bày câu một dòng, chỉ mục A–Z (mở lại D-077; một mục, D-078) | A | T-128 | — | READY |
 | T-096 | Câu đố: nhóm theo đáp án và theo loại, trang "Đố vui" (mở lại D-077) | A | T-091 | — | READY |
 | T-097 | Bài cảm nhận, phân tích của người đọc (cần duyệt); bài có phân tích được duyệt thì lên Google | A | T-045 | — | DONE |
 | T-118 | An toàn vận hành: chặn lặp lượt đọc, sự kiện phía máy chủ; chỉ tin IP Cloudflare khi đúng; gỡ thẻ phiên bản; quay lại bản trước (D-073) | A | T-081, T-052, T-078 | — | DONE |
@@ -91,12 +91,13 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-125 | Tục ngữ, thành ngữ vào hàng Chờ duyệt: tạo bài xoay vòng theo loại; dòng "Kho đang có" (D-076) | A | T-071, T-047 | — | DONE |
 | T-126 | Người đọc bớt tắc: mũi tên nhóm lọc, 30 bài/trang, 404 riêng, kết quả tìm hiện tên bài, xếp hạng chữ liền nhau (D-076) | A | T-120, T-121, T-041 | — | DONE |
 | T-127 | Canonical cho trang chủ, Tất cả bài, trang phân loại (D-076) | A | T-050 | — | DONE |
+| T-128 | Một mục "Tục ngữ – Thành ngữ": gộp thể loại, chuyển hướng đường dẫn cũ, bỏ trang tách loại (D-078) | A | T-080 | — | DONE |
 | T-048 | Duyệt 30–50 bài, thử với 5 người (nên làm, không chặn mở — D-077) | N | T-073, T-076, T-041..T-046, T-082, T-085, T-119..T-121 | — | READY |
 | **Mốc C · Mở lặng lẽ** ||||||
 | T-049 | Chốt tên miền (D-070: phongdao.com) | N | — | — | DONE |
 | T-051 | "Đã lưu": bài yêu thích nhớ trên máy (Câu hôm nay, Vừa bổ sung → T-043; cỡ chữ, sáng/tối, trình chiếu → T-085) | A | T-072 | — | DONE |
 | T-052 | Đo lường không cookie: tìm không ra, sao chép trích dẫn, mở chú giải | A | T-076, T-081, T-041 | — | DONE |
-| T-098 | Thành ngữ – tục ngữ: nghĩa đen, nghĩa bóng, "dùng khi", đồng nghĩa (Wiktionary, CC BY-SA) | N+A | T-080 | Q-009 | BLOCKED |
+| T-098 | Tục ngữ – Thành ngữ: nghĩa đen, nghĩa bóng, "dùng khi", đồng nghĩa (Wiktionary, CC BY-SA) | N+A | T-128 | — | READY |
 | T-099 | Chú giải từ sách hết bản quyền; chữ Hán Việt, điển tích của thành ngữ | N+A | T-082 | — | BLOCKED |
 | T-101 | Gộp bài đã đăng bị trùng: bài chính + dị bản, chuyển hướng, dồn lượt đọc và bài người đọc | N+A | T-109 | — | DONE |
 | T-102 | Vè: khối "Bối cảnh" (sự kiện, năm, nơi chốn, nhân vật) (mở lại D-077) | N+A | T-086 | — | READY |
@@ -406,7 +407,7 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 **Tiến độ (25/10/2026):** xong — trang `/the-loai/<tên>/`: lời giới thiệu (mô tả của thể loại — người sáng lập viết ở Ca dao – Tục ngữ → Thể loại → Sửa; máy không viết), **bài tiêu biểu** (đọc nhiều nhất 30 ngày, chưa có lượt đọc thì bài mới), lối vào theo chủ đề và vùng đã duyệt, tổng số bài, rồi danh sách bài. Việc của người sáng lập: viết vài dòng giới thiệu cho từng thể loại.
 
 #### T-095 · Câu một dòng — A
-**Chặn:** Q-009 — gộp hay tách tục ngữ, thành ngữ quyết định trang này là một mục hay hai.
+**Đọc:** D-078 — làm cho một mục "Tục ngữ – Thành ngữ".
 **Chấp nhận:** trang bài thành ngữ, tục ngữ chữ to, không khung lời thơ; chỉ mục A–Z và theo chủ đề.
 
 #### T-096 · Câu đố — A
@@ -470,6 +471,11 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 #### T-127 · Canonical — A
 **Chấp nhận:** trang chủ, Tất cả bài, trang phân loại có `<link rel="canonical">`; trang 2, 3… trỏ về chính nó; trang lọc, đổi cách xếp trỏ về danh sách không lọc; bài, trang tĩnh để WordPress tự in (không in hai lần).
 **Tiến độ (26/10/2026):** xong — `cadao_canonical` (`inc/seo.php`).
+
+#### T-128 · Một mục "Tục ngữ – Thành ngữ" — A
+**Đọc:** D-078.
+**Chấp nhận:** một thể loại "Tục ngữ – Thành ngữ" ở `/tuc-ngu/`; bài "Thành ngữ" cũ chuyển sang (giữ thể loại khác), mô tả nối lại; `/thanh-ngu/<tên>/`, `/the-loai/thanh-ngu/` chuyển hướng 301; không còn trang, hàng chờ "Tách thành ngữ – tục ngữ"; chống trùng coi là một mục; menu một mục.
+**Tiến độ (26/10/2026):** xong — `inc/tuc-ngu-thanh-ngu.php` thay `inc/tach-loai.php` (plugin 0.30.0), menu theme 0.17.0. Dữ liệu `loai_tach` cũ trong kho để yên, không đọc.
 
 #### T-048 · Duyệt 30–50 bài, thử với 5 người — N
 **Đọc:** `11`; `docs/luu-tru/24-ke-hoach-beta.md` mục 2 (dùng nhiệm vụ N1–N6, không chấm ngưỡng 80%).

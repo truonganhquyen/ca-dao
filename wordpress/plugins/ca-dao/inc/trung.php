@@ -316,7 +316,7 @@ function cadao_tach_muc( string $muc ): array {
 	return array( $loai, (int) $id );
 }
 
-/** Nhóm thể loại để so (thành ngữ và tục ngữ chung một nhóm: nguồn gộp hai loại). */
+/** Thể loại để so (thể loại "Thành ngữ" cũ tính là "Tục ngữ – Thành ngữ", D-078). */
 function cadao_nhom_the_loai( string $muc ): string {
 	global $wpdb;
 	[ $loai, $id ] = cadao_tach_muc( $muc );
@@ -326,7 +326,7 @@ function cadao_nhom_the_loai( string $muc ): string {
 		$the  = get_the_terms( $id, 'the_loai' );
 		$slug = ( $the && ! is_wp_error( $the ) ) ? $the[0]->slug : 'ca-dao';
 	}
-	return in_array( $slug, array( 'thanh-ngu', 'tuc-ngu' ), true ) ? 'tn-tn' : $slug;
+	return CADAO_THE_LOAI_CU[ $slug ] ?? $slug;
 }
 
 /** Bài ứng với một mục: 'bai:<id>' → id; 'kho:<id>' → bài đã tạo từ câu đó (0 nếu chưa). */
