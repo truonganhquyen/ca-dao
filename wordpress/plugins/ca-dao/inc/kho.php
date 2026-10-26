@@ -409,7 +409,7 @@ function cadao_kho_tao_bai( int $kho_id ) {
 	if ( is_wp_error( $id ) ) {
 		return $id;
 	}
-	$the_loai = cadao_the_loai_tu_kho( $muc ); // thành ngữ – tục ngữ đã duyệt tách thì theo quyết định (T-080)
+	$the_loai = cadao_the_loai_tu_kho( $muc );
 	if ( $the_loai ) {
 		wp_set_object_terms( $id, $the_loai, 'the_loai' );
 	}
@@ -436,8 +436,7 @@ function cadao_quan_tri_dau_tien(): int {
 /**
  * Tạo tối đa $so bài Chờ duyệt từ kho của một nguồn: mục mới đã đọc trang, bỏ qua mục mang cờ nguồn đã chọn bỏ qua.
  * Lấy **xoay vòng theo loại** (mỗi loại một bài rồi sang loại kế), để loại nhập kho sau (thành ngữ – tục ngữ, đồng
- * dao…) không phải chờ hết hàng nghìn câu ca dao (T-125, báo cáo E2E L-15). Trong thành ngữ – tục ngữ, câu người sáng
- * lập đã chọn loại (Tách thành ngữ – tục ngữ) đi trước.
+ * dao…) không phải chờ hết hàng nghìn câu ca dao (T-125, báo cáo E2E L-15).
  *
  * @return int số bài đã tạo
  */
@@ -446,13 +445,10 @@ function cadao_kho_tao_bai_cho_duyet( array $nguon, int $so ): int {
 	$bang  = cadao_kho_bang();
 	$bo_co = $nguon['bo_qua_co'] ?? array();
 	$loai  = $nguon['loai_lay'] ?: $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT loai FROM $bang WHERE nguon_id = %s", $nguon['id'] ) );
-	$quyet = '%"loai_tach"%'; // không esc_like: dấu _ chỉ là ký tự đại diện, vẫn khớp đúng
-	// Mỗi dòng: một loại (thành ngữ – tục ngữ: hai lượt, câu đã quyết loại trước); lật trang theo id vì mục vừa tạo bài
-	// rời khỏi danh sách "mới" nên OFFSET sẽ bỏ sót
+	// Mỗi dòng: một loại; lật trang theo id vì mục vừa tạo bài rời khỏi danh sách "mới" nên OFFSET sẽ bỏ sót
 	$dong = array();
 	foreach ( $loai as $l ) {
-		$dk     = $wpdb->prepare( 'loai = %s', $l );
-		$dong[] = array( 'dk' => 'thanh_ngu_tuc_ngu' === $l ? array( $dk . $wpdb->prepare( ' AND du_lieu LIKE %s', $quyet ), $dk . $wpdb->prepare( ' AND du_lieu NOT LIKE %s', $quyet ) ) : array( $dk ), 'sau' => 0, 'cho' => array() );
+		$dong[] = array( 'dk' => array( $wpdb->prepare( 'loai = %s', $l ) ), 'sau' => 0, 'cho' => array() );
 	}
 	$lay = static function ( array &$d ) use ( $wpdb, $bang, $nguon, $bo_co ) {
 		while ( $d['dk'] ) {

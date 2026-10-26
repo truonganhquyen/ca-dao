@@ -48,9 +48,6 @@ function cadao_hang_cho(): array {
 	if ( function_exists( 'cadao_trung_dem_cho' ) ) {
 		$ds[] = array( 'khoa' => 'trung', 'ten' => 'Có thể trùng', 'so' => cadao_trung_dem_cho(), 'viec' => 'Mỗi cặp: cùng một bài, dị bản, hay bài khác. Câu đang chờ thì máy chưa tạo thành bài.', 'url' => $trang( CADAO_TRANG_TRUNG ) );
 	}
-	if ( function_exists( 'cadao_kho_bang' ) && defined( 'CADAO_TRANG_TACH_LOAI' ) ) {
-		$ds[] = array( 'khoa' => 'tach_loai', 'ten' => 'Tách thành ngữ – tục ngữ', 'so' => (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . cadao_kho_bang() . " WHERE loai = 'thanh_ngu_tuc_ngu' AND loi <> '' AND trang_thai <> 'bo_qua' AND du_lieu NOT LIKE '%\"loai_tach\"%'" ), 'viec' => 'Nhóm "Máy đã chắc": kiểm vài câu rồi chọn hàng loạt, bấm "Đồng ý gợi ý".', 'url' => $trang( CADAO_TRANG_TACH_LOAI ) );
-	}
 	if ( function_exists( 'cadao_wd_bang' ) ) {
 		$ds[] = array( 'khoa' => 'wikidata', 'ten' => 'Xác nhận Wikidata', 'so' => (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . cadao_wd_bang() . " WHERE trang_thai = 'cho'" ), 'viec' => 'Mỗi mục: Đúng / Sai / Bỏ qua. Mục "Đúng" có ảnh, bản đồ nhỏ và chấm trên Bản đồ ca dao.', 'url' => $trang( CADAO_TRANG_WIKIDATA ) );
 	}
