@@ -142,6 +142,6 @@ add_shortcode(
 		if ( function_exists( 'cadao_url_da_luu' ) && cadao_url_da_luu() ) {
 			$ra[] = '<a href="' . esc_url( cadao_url_da_luu() ) . '">Bài đã lưu</a>';
 		}
-		return implode( ' · ', $ra );
+		return $ra ? '<ul class="cadao-chan-trang"><li>' . implode( '</li><li>', $ra ) . '</li></ul>' : ''; // điện thoại: hai cột (theme)
 	}
 );

@@ -120,10 +120,11 @@ add_action(
  *
  * @return array<int, array{id: int, diem: int}> giống nhất trước
  */
-function cadao_tim( string $q, int $so = 20 ): array {
+function cadao_tim( string $q, int $so = 20, ?int &$tong = null ): array {
 	global $wpdb;
 	$co_dau = cadao_chu_tim( $q );
 	$kd     = cadao_bo_dau_tim( $co_dau );
+	$tong = 0;
 	if ( '' === $kd ) {
 		return array();
 	}
@@ -156,6 +157,7 @@ function cadao_tim( string $q, int $so = 20 ): array {
 		}
 	}
 	arsort( $diem );
+	$tong = count( $diem ); // tổng số bài khớp (trong tối đa 500 ứng viên)
 	$diem = array_slice( $diem, 0, $so, true );
 	return array_map( static fn( $id, $d ) => array( 'id' => $id, 'diem' => $d ), array_keys( $diem ), $diem );
 }
@@ -185,7 +187,8 @@ foreach ( array( 'created_tu_kho', 'edited_tu_kho', 'delete_tu_kho', 'set_object
 /** Kết quả cho trang và cho JavaScript. */
 function cadao_tim_ket_qua( string $q ): array {
 	$bai = array();
-	foreach ( cadao_tim( $q, 20 ) as $x ) {
+	$tong = 0;
+	foreach ( cadao_tim( $q, 20, $tong ) as $x ) {
 		$p = get_post( $x['id'] );
 		if ( ! $p ) {
 			continue;
@@ -203,7 +206,7 @@ function cadao_tim_ket_qua( string $q ): array {
 		$bai[] = array( 'tieu_de' => get_the_title( $p ), 'url' => get_permalink( $p ), 'the_loai' => cadao_ten_the_loai( $p ), 'muc_kiem' => function_exists( 'cadao_muc_kiem' ) ? cadao_muc_kiem( $p->ID )['ngan'] : '', 'dong_dau' => $dong[0] ?? '', 'dong_khop' => $khop && $khop !== ( $dong[0] ?? '' ) ? $khop : '', 'hieu_nhanh' => wp_trim_words( $p->post_excerpt, 24 ), 'so_lieu' => function_exists( 'cadao_html_so_lieu' ) ? cadao_html_so_lieu( $p->ID, array( 'doc' ), 'cadao-so-lieu-ds' ) : '' );
 	}
 	$muc_tu = array_map( static fn( $t ) => array( 'ten' => $t->name, 'url' => get_term_link( $t ), 'giai' => wp_trim_words( $t->description, 20 ), 'so_bai' => (int) $t->count ), cadao_tim_muc_tu( $q ) );
-	return array( 'q' => $q, 'bai' => $bai, 'muc_tu' => $muc_tu );
+	return array( 'q' => $q, 'bai' => $bai, 'tong' => max( $tong, count( $bai ) ), 'muc_tu' => $muc_tu );
 }
 
 add_action(
@@ -222,13 +225,18 @@ add_action(
 	}
 );
 
+/** "N bài", hoặc "20 trên N bài — gõ thêm chữ để thu hẹp" khi chỉ hiện một phần. */
+function cadao_tim_dem( int $hien, int $tong ): string {
+	return $tong > $hien ? sprintf( '%d trên %d bài — gõ thêm chữ để thu hẹp', $hien, $tong ) : sprintf( '%d bài', $hien );
+}
+
 /** HTML danh sách kết quả (trang /tim/ khi tắt JavaScript; JavaScript dựng cùng dạng). */
 function cadao_tim_html( array $kq ): string {
 	if ( '' === trim( $kq['q'] ) ) {
 		return '';
 	}
 	if ( ! $kq['bai'] && ! $kq['muc_tu'] ) {
-		return '<div class="cadao-tim-khong"><p><strong>Chưa tìm thấy câu này trong kho.</strong> Bạn thử gõ ít chữ hơn (vài chữ trong câu là đủ), hoặc xem theo <a href="' . esc_url( home_url( '/kho/' ) ) . '">kho bài</a>, <a href="' . esc_url( home_url( '/tu-dien/' ) ) . '">từ điển</a>.</p></div>';
+		return '<div class="cadao-tim-khong"><p><strong>Chưa tìm thấy câu này trong kho.</strong> Thử gõ ít chữ hơn — vài chữ liền nhau trong câu là đủ, có dấu hay không dấu đều được. Hoặc xem <a href="' . esc_url( home_url( '/kho/' ) ) . '">tất cả bài</a>, <a href="' . esc_url( home_url( '/tu-dien/' ) ) . '">từ điển</a>.</p><p class="cadao-tim-phu">Kho đang được bổ sung dần. Câu tìm không ra được ghi lại (không kèm thông tin gì về bạn) để người biên soạn thêm vào.</p></div>';
 	}
 	$ra = '';
 	if ( $kq['muc_tu'] ) {
@@ -239,7 +247,7 @@ function cadao_tim_html( array $kq ): string {
 		$ra .= '</ul>';
 	}
 	if ( $kq['bai'] ) {
-		$ra .= '<h2 class="cadao-tim-nhom">' . esc_html( sprintf( '%d bài', count( $kq['bai'] ) ) ) . '</h2><ul class="cadao-tim-ds">';
+		$ra .= '<h2 class="cadao-tim-nhom">' . esc_html( cadao_tim_dem( count( $kq['bai'] ), (int) ( $kq['tong'] ?? 0 ) ) ) . '</h2><ul class="cadao-tim-ds">';
 		foreach ( $kq['bai'] as $b ) {
 			$ra .= '<li><a href="' . esc_url( $b['url'] ) . '"><strong>' . esc_html( $b['dong_dau'] ?: $b['tieu_de'] ) . '</strong></a> <span class="cadao-tim-phu">· ' . esc_html( $b['the_loai'] ) . ( $b['muc_kiem'] ? ' · ' . esc_html( $b['muc_kiem'] ) : '' ) . '</span>' . $b['so_lieu']
 				. ( $b['dong_khop'] ? '<br><span class="cadao-tim-khop">… ' . esc_html( $b['dong_khop'] ) . '</span>' : '' )

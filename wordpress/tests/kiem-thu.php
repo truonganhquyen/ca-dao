@@ -963,6 +963,7 @@ cadao_trang_ban_bien_tap();
 $tr_bbt = ob_get_clean();
 wp_set_current_user( 0 );
 kt( 'trang Bàn biên tập: hàng còn việc có số và nút Mở; hàng đã xong gom ở cuối', str_contains( $tr_bbt, 'Báo lỗi, báo vi phạm của người đọc' ) && str_contains( $tr_bbt, '>Mở</a>' ) && ( ! array_filter( $hc, static fn( $h ) => $h['so'] <= 0 ) || str_contains( $tr_bbt, '<h2>Đã xong</h2>' ) ), substr( $tr_bbt, 0, 400 ) );
+kt( 'bàn biên tập: "Làm trước" có báo lỗi, góp ý; bài Chờ duyệt thu vào "Khi rảnh" (T-121)', $hc[0]['truoc'] && str_contains( $tr_bbt, '<h2>Làm trước</h2>' ) && strpos( $tr_bbt, 'Góp ý khác của người đọc' ) < strpos( $tr_bbt, 'Khi rảnh (' ) && strpos( $tr_bbt, 'Khi rảnh (' ) < strpos( $tr_bbt, 'Bài Chờ duyệt' ), substr( $tr_bbt, 0, 600 ) );
 wp_delete_post( $gy_loi, true );
 wp_delete_post( $gy_khac, true );
 wp_delete_post( $cd_bbt, true );
@@ -1102,6 +1103,38 @@ ob_start();
 cadao_hop_doi_chieu( get_post( $mk_bai ) );
 $hop_dc = ob_get_clean();
 kt( 'hộp "Lời đã đối chiếu với" có ba ô và lời nhắc chỉ điền khi tự so', str_contains( $hop_dc, 'name="doi_chieu_ten"' ) && str_contains( $hop_dc, 'name="doi_chieu_trang"' ) && str_contains( $hop_dc, 'name="doi_chieu_url"' ) && str_contains( $hop_dc, 'chính bạn' ) );
+
+// ---------- Điều hướng, danh sách bài (T-120) ----------
+kt( 'đường dẫn lọc: tham số riêng (không trùng tên phân loại), giữ bộ lọc khác, bỏ ô trống, thêm cách xếp', 'https://x.example/kho/?loai=ve&chude=gia-dinh&xep=moi' === cadao_url_ds( 'https://x.example/kho/', array( 'the_loai' => 've', 'vung' => '', 'chu_de' => 'gia-dinh' ), 'moi' ) && 'https://x.example/kho/' === cadao_url_ds( 'https://x.example/kho/', array(), 'az' ) );
+kt( 'khóa xếp A–Z: bỏ dấu, chữ thường; "đ" sau mọi "d"', 'cau d{o' === cadao_khoa_xep( 'Câu Đố' ) && strcmp( cadao_khoa_xep( 'Câu' ), cadao_khoa_xep( 'Con' ) ) < 0 && strcmp( cadao_khoa_xep( 'Dừa' ), cadao_khoa_xep( 'Đá' ) ) < 0, cadao_khoa_xep( 'Câu Đố' ) );
+$_GET = array( 'loai' => 'Ve', 'the' => '', 'mien' => 'nam-bo' );
+kt( 'bộ lọc đọc từ đường dẫn; trang thể loại bỏ qua tham số thể loại', array( 'the_loai' => 've', 'vung' => 'nam-bo' ) === cadao_loc_dang() && array( 'vung' => 'nam-bo' ) === cadao_loc_dang( 'the_loai' ) );
+$_GET = array();
+$ds_goc = (string) get_post_type_archive_link( CADAO_LOAI_BAI );
+$ds_loc = cadao_html_loc_ds( $ds_goc, array( 'the_loai' => 'ca-dao' ), 'az', 12 );
+kt( 'khối lọc: chip đang chọn có ✓ và aria-current, bấm lại thì bỏ; "N bài" là h2; có "Bỏ lọc", A–Z đang chọn, "Mới thêm" là liên kết', str_contains( $ds_loc, 'aria-label="Lọc danh sách bài"' ) && (bool) preg_match( '~<a class="cadao-chip" href="' . preg_quote( esc_url( $ds_goc ), '~' ) . '" aria-current="true"><span aria-hidden="true">✓ </span>Ca dao~u', $ds_loc ) && str_contains( $ds_loc, '<h2 class="cadao-ds-tieu">12 bài' ) && str_contains( $ds_loc, 'Bỏ lọc' ) && str_contains( $ds_loc, '<strong aria-current="true">A–Z</strong>' ) && str_contains( $ds_loc, 'xep=moi' ), $ds_loc );
+kt( 'trang thể loại: không lọc lại theo thể loại', ! str_contains( cadao_html_loc_ds( $ds_goc, array(), 'az', 3, 'the_loai' ), 'aria-label="Thể loại"' ) );
+kt( 'trang Tất cả có tên "Tất cả bài"', 'Tất cả bài' === apply_filters( 'post_type_archive_title', 'Ca dao – Tục ngữ', CADAO_LOAI_BAI ) );
+$ds_bai = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'post_title' => 'Danh sách thử một', 'post_content' => cadao_khoi_tho( "Danh sách thử một\nDanh sách thử hai\nDanh sách thử ba\nDanh sách thử bốn" ) ) );
+wp_set_object_terms( $ds_bai, 've', 'the_loai' );
+$ds_muc = cadao_html_muc_ds( get_post( $ds_bai ) );
+kt( 'bài mới có khóa xếp', 'danh sach thu mot' === get_post_meta( $ds_bai, '_cadao_ten_xep', true ) );
+kt( 'mục trong danh sách: 2 dòng đầu (bỏ dòng trùng tiêu đề), dấu … khi còn, thể loại', str_contains( $ds_muc, 'Danh sách thử hai<br>Danh sách thử ba…' ) && ! str_contains( $ds_muc, 'thử một' ) && str_contains( $ds_muc, '<p class="cadao-ds-phu">Vè' ), $ds_muc );
+$ds_html = do_blocks( '<!-- wp:query {"queryId":7,"query":{"perPage":3,"postType":"cdtn","order":"desc","orderBy":"date","inherit":false}} --><div class="wp-block-query"><!-- wp:post-template {"className":"cadao-ds-bai"} --><!-- wp:post-title {"level":3,"isLink":true} /--><!-- /wp:post-template --></div><!-- /wp:query -->' );
+$ds_khac = do_blocks( '<!-- wp:query {"queryId":8,"query":{"perPage":3,"postType":"cdtn","order":"desc","orderBy":"date","inherit":false}} --><div class="wp-block-query"><!-- wp:post-template --><!-- wp:post-title {"level":3,"isLink":true} /--><!-- /wp:post-template --></div><!-- /wp:query -->' );
+kt( 'danh sách bài (khối có lớp cadao-ds-bai): dưới tiêu đề có 2 dòng đầu; danh sách khác (trang chủ…) không thêm', str_contains( $ds_html, 'Danh sách thử hai<br>Danh sách thử ba…' ) && ! str_contains( $ds_khac, 'cadao-ds-loi' ), $ds_html );
+wp_insert_term( 'Thể loại trống thử', 'the_loai', array( 'slug' => 'trong-thu' ) );
+kt( 'menu: thể loại chưa có bài thì ẩn; thể loại có bài, liên kết khác giữ nguyên', '' === cadao_an_the_loai_trong( '<li>x</li>', array( 'attrs' => array( 'url' => '/the-loai/trong-thu/' ) ) ) && '<li>v</li>' === cadao_an_the_loai_trong( '<li>v</li>', array( 'attrs' => array( 'url' => '/the-loai/ve/' ) ) ) && '<li>t</li>' === cadao_an_the_loai_trong( '<li>t</li>', array( 'attrs' => array( 'url' => '/tu-dien/' ) ) ) );
+$ds_trong = do_shortcode( '[cadao_ds_trong]' );
+kt( 'trang trống: lối sang Tìm và các thể loại có bài (không có thể loại trống)', str_contains( $ds_trong, '/tim/' ) && str_contains( $ds_trong, '>Vè</a>' ) && ! str_contains( $ds_trong, 'Thể loại trống thử' ), $ds_trong );
+kt( 'chân trang: danh sách liên kết (điện thoại chia hai cột)', str_starts_with( do_shortcode( '[cadao_chan_trang]' ), '<ul class="cadao-chan-trang"><li>' ) );
+
+// ---------- Cuối bài, Tìm (T-121) ----------
+$gop = cadao_khoi_gop( get_post( $td1 ) );
+kt( 'cuối bài: một khối "Bạn muốn góp gì?" với Góp ý, Cảm nghĩ ngắn (form thu gọn), Bài cảm nhận', str_contains( $gop, '<h2 id="cadao-gop-tieu">Bạn muốn góp gì?</h2>' ) && str_contains( $gop, '<h3 id="cadao-gop-y-tieu">Góp ý cho bài này</h3>' ) && str_contains( $gop, '<summary>Viết cảm nghĩ</summary>' ) && str_contains( $gop, 'name="comment"' ) && str_contains( $gop, 'Viết cảm nhận của bạn về câu này' ) && strpos( $gop, 'Góp ý cho bài này' ) < strpos( $gop, 'Cảm nghĩ ngắn' ), $gop );
+kt( 'cuối bài: form vẫn đủ chống rác, quyền riêng tư (mỗi form một lần, nằm trong ô thu gọn)', 2 === substr_count( $gop, 'name="cadao_web"' ) && 2 === substr_count( $gop, '91/2025/QH15' ) && ! str_contains( $gop, 'id="reply-title"' ) );
+kt( 'Tìm: "N bài", hoặc "20 trên N bài" khi chỉ hiện một phần', '3 bài' === cadao_tim_dem( 3, 3 ) && '20 trên 37 bài — gõ thêm chữ để thu hẹp' === cadao_tim_dem( 20, 37 ) && isset( cadao_tim_ket_qua( 'thu' )['tong'] ) );
+kt( 'Tìm không ra: gợi ý gõ ít chữ, có dấu hay không, tất cả bài, từ điển; nói rõ câu tìm không ra được ghi lại', str_contains( $kr_tim = cadao_tim_html( array( 'q' => 'zzqx', 'bai' => array(), 'muc_tu' => array() ) ), 'không dấu' ) && str_contains( $kr_tim, 'tất cả bài' ) && str_contains( $kr_tim, 'được ghi lại' ) && str_contains( file_get_contents( CADAO_THU_MUC . '/assets/tim.js' ), 'được ghi lại' ) );
 
 // ---------- Lịch ----------
 kt( 'lịch lấy bài mỗi 5 phút đã đặt', (bool) wp_next_scheduled( 'cadao_thu_thap' ) );

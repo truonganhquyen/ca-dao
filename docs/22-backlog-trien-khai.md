@@ -81,8 +81,8 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-097 | Bài cảm nhận, phân tích của người đọc (cần duyệt); bài có phân tích được duyệt thì lên Google | A | T-045 | — | DONE |
 | T-118 | An toàn vận hành: chặn lặp lượt đọc, sự kiện phía máy chủ; chỉ tin IP Cloudflare khi đúng; gỡ thẻ phiên bản; quay lại bản trước (D-073) | A | T-081, T-052, T-078 | — | DONE |
 | T-119 | Dòng "lời và mức kiểm" dưới lời, trong Tìm và trích dẫn (D-072) | A | T-072 | — | DONE |
-| T-120 | Điều hướng và danh sách bài: menu, trang Tất cả A–Z có đoạn trích và bộ lọc, thanh dưới cho điện thoại (D-073) | A | T-072, T-094 | — | READY |
-| T-121 | Cuối bài gọn hơn, Tìm rõ hơn, Bàn biên tập ưu tiên việc quan trọng (D-073) | A | T-045, T-097, T-041, T-047 | — | READY |
+| T-120 | Điều hướng và danh sách bài: menu, trang Tất cả A–Z có đoạn trích và bộ lọc, thanh dưới cho điện thoại (D-073) | A | T-072, T-094 | — | DONE |
+| T-121 | Cuối bài gọn hơn, Tìm rõ hơn, Bàn biên tập ưu tiên việc quan trọng (D-073) | A | T-045, T-097, T-041, T-047 | — | DONE |
 | T-050 | Ảnh chia sẻ tự sinh từng bài, noindex theo giá trị riêng, SEO cơ bản (kéo lên Mốc B, D-073) | A | T-076, T-119 | — | READY |
 | T-100 | Trợ giúp viết "Hiểu nhanh" (gợi ý; nháp máy chờ duyệt) (kéo lên Mốc B, D-073) | A | T-082 | — | READY |
 | T-048 | Duyệt 30–50 bài, thử với 5 người | N | T-073, T-076, T-041..T-046, T-082, T-085, T-119..T-121 | — | BLOCKED |
@@ -419,11 +419,13 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 **Đọc:** `20` (thanh điều hướng dưới, phần WordPress); D-073.
 **Việc:** menu trên: "Kho" đổi thành "Tất cả"; mục "Thể loại" mở danh sách thể loại; thể loại chưa có bài không hiện trên menu; thanh điều hướng dưới cố định cho điện thoại: Trang chủ · Tìm · Tất cả · Đã lưu (máy tính giữ menu trên); trang Tất cả (`/kho/`) mặc định xếp A–Z (có lựa chọn "Mới thêm"), mỗi mục có 2 dòng đầu của lời, thể loại, vùng, tiêu đề mục là `h3` dưới một `h2`; lọc dạng chip theo thể loại, thể thơ, vùng, chủ đề (tham số trên đường dẫn, chạy được khi tắt JavaScript); trang thể loại trống có lối sang Tìm và thể loại có bài; chân trang chia hai cột trên điện thoại.
 **Chấp nhận:** 360 px không tràn ngang; vùng chạm ≥ 44 px; thanh dưới không che nội dung, nút hay focus; kiểm thử cho thứ tự A–Z, bộ lọc, ẩn thể loại trống; `npm run quet:wordpress` đạt.
+**Tiến độ (26/10/2026):** xong — plugin 0.26.0 (`inc/danh-sach.php`), theme 0.15.0. Menu: Tất cả · Thể loại ▾ (thể loại 0 bài tự ẩn) · Từ điển · Tìm; trên điện thoại menu trên chỉ còn Thể loại, Từ điển, thanh dưới (Trang chủ · Tìm · Tất cả · Đã lưu) có `aria-current`, vạch trên, `scroll-padding` để focus không bị che. Trang Tất cả tên "Tất cả bài". Lọc dùng tham số riêng `?loai=`, `?the=`, `?mien=`, `?chude=` (tên phân loại làm WordPress coi trang là trang thể loại); A–Z theo khóa bỏ dấu `_cadao_ten_xep` ("đ" sau "d", cùng thứ tự trên MySQL và SQLite; bài cũ lập khóa một lần khi nâng plugin). Chip đang chọn có ✓ và `aria-current`; Vùng, Chủ đề thu gọn. Mục: tiêu đề h3 dưới h2 "N bài", 2 dòng đầu (bỏ dòng trùng tiêu đề), thể loại · vùng. Trang trống: lối sang Tìm và thể loại có bài. Chân trang: danh sách, hai cột trên điện thoại.
 
 #### T-121 · Cuối bài, Tìm, Bàn biên tập — A
 **Đọc:** D-062, D-073; `docs/huong-dan/doc-so-lieu.md`.
 **Việc:** cuối bài: Chủ đề, Vùng lên ngay sau Chú thích; Góp ý, Cảm nghĩ, Viết cảm nhận gộp thành một khối "Bạn muốn góp gì?" với 3 lựa chọn, đoạn quyền riêng tư nói một lần; tiêu đề "Cảm nhận, phân tích" chỉ hiện khi đã có bài được duyệt. Tìm: ghi tổng số bài tìm được; khi không ra, gợi ý bỏ bớt từ, xem Từ điển, gửi câu còn thiếu. Bàn biên tập và ô "việc chờ bạn": đưa lên đầu 3 nhóm tác động lớn (bài đọc nhiều chưa có Hiểu nhanh, đóng góp người đọc chờ duyệt, Có thể trùng), các hàng chờ khác thu vào "Khi rảnh".
 **Chấp nhận:** form giữ đủ trường, chống rác, cam kết như T-045, T-097 (kiểm thử cũ vẫn đạt); không thêm cookie, không hỏi thêm dữ liệu cá nhân; `npm run quet:wordpress` đạt.
+**Tiến độ (26/10/2026):** xong — cuối bài: Chủ đề, Vùng ngay sau chú thích (plugin, thay khối của mẫu trang); "Cảm nhận, phân tích (N)" chỉ khi có bài được duyệt; khối **"Bạn muốn góp gì?"** (Góp ý cho bài này · Cảm nghĩ ngắn · Bài cảm nhận, phân tích), form góp ý và form cảm nghĩ đều thu gọn nên đoạn quyền riêng tư chỉ hiện ở form đang mở; mẫu trang bỏ form bình luận riêng. Tìm: "N bài" hoặc "20 trên N bài — gõ thêm chữ để thu hẹp"; khi không ra gợi ý gõ ít chữ, có dấu hay không, tất cả bài, từ điển, và nói rõ câu tìm không ra được ghi lại (không có form "gửi câu còn thiếu" riêng — sự kiện tìm không ra đã làm việc đó). Bàn biên tập: "Làm trước" (báo lỗi, Hiểu nhanh, góp ý, cảm nghĩ, bài phân tích, Có thể trùng) và "Khi rảnh" thu gọn; ô trên Bảng tin chỉ liệt kê việc Làm trước.
 
 #### T-048 · Duyệt 30–50 bài, thử với 5 người — N
 **Đọc:** `11`; `docs/luu-tru/24-ke-hoach-beta.md` mục 2 (dùng nhiệm vụ N1–N6, không chấm ngưỡng 80%).

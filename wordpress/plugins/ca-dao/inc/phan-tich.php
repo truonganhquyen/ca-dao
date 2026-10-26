@@ -159,24 +159,22 @@ add_filter( 'wp_robots', static fn( $r ) => is_page( (int) get_option( 'cadao_tr
 
 // ---------- Hiển thị ----------
 
-// Dưới bài ca dao: "Cảm nhận, phân tích (N)" + "Viết cảm nhận của bạn" (trước form góp ý)
+// Dưới bài ca dao: "Cảm nhận, phân tích (N)" — chỉ khi đã có bài được duyệt; lời mời viết nằm trong khối "Bạn muốn góp gì?" (T-121)
 add_filter(
 	'the_content',
 	static function ( $noi_dung ) {
 		if ( ! is_singular( CADAO_LOAI_BAI ) || get_the_ID() !== get_queried_object_id() || doing_filter( 'get_the_excerpt' ) ) {
 			return $noi_dung;
 		}
-		$ds  = cadao_phan_tich_cua_bai( get_the_ID() );
-		$ra  = '<section class="cadao-phan-tich" aria-labelledby="cadao-pt-tieu-de"><h2 id="cadao-pt-tieu-de">Cảm nhận, phân tích' . ( $ds ? ' (' . count( $ds ) . ')' : '' ) . '</h2>';
-		if ( $ds ) {
-			$ra .= '<ul class="cadao-tim-ds">';
-			foreach ( $ds as $p ) {
-				$ra .= '<li><a href="' . esc_url( get_permalink( $p ) ) . '"><strong>' . esc_html( get_the_title( $p ) ) . '</strong></a><br><span class="cadao-tim-phu">' . cadao_dong_tac_gia( $p ) . '</span></li>';
-			}
-			$ra .= '</ul>';
+		$ds = cadao_phan_tich_cua_bai( get_the_ID() );
+		if ( ! $ds ) {
+			return $noi_dung;
 		}
-		$ra .= '<p><a class="cadao-viet-cam-nhan" href="' . esc_url( add_query_arg( 'bai', get_the_ID(), get_permalink( (int) get_option( 'cadao_trang_viet_phan_tich' ) ) ) ) . '">Viết cảm nhận của bạn về câu này</a></p></section>';
-		return $noi_dung . $ra;
+		$ra = '<section class="cadao-phan-tich" aria-labelledby="cadao-pt-tieu-de"><h2 id="cadao-pt-tieu-de">Cảm nhận, phân tích (' . count( $ds ) . ')</h2><ul class="cadao-tim-ds">';
+		foreach ( $ds as $p ) {
+			$ra .= '<li><a href="' . esc_url( get_permalink( $p ) ) . '"><strong>' . esc_html( get_the_title( $p ) ) . '</strong></a><br><span class="cadao-tim-phu">' . cadao_dong_tac_gia( $p ) . '</span></li>';
+		}
+		return $noi_dung . $ra . '</ul></section>';
 	},
 	35
 );
