@@ -95,6 +95,18 @@
 		});
 
 		var chiaSe = hop.querySelector('.cadao-chia-se');
+		// Lượt chia sẻ (D-069): mỗi máy một lần mỗi ngày mỗi bài (bộ nhớ trình duyệt, không cookie)
+		var daChiaSe = function (kieu) {
+			var ngayCs = homNay.getFullYear() + '-' + hai(homNay.getMonth() + 1) + '-' + hai(homNay.getDate());
+			var dc = null;
+			try { dc = JSON.parse(localStorage.getItem('cadao-da-chia-se')); } catch (e) { /* chế độ riêng tư */ }
+			if (!dc || dc.ngay !== ngayCs || !Array.isArray(dc.bai)) { dc = { ngay: ngayCs, bai: [] }; }
+			var idCs = hop.getAttribute('data-id');
+			if (dc.bai.indexOf(idCs) >= 0) { return; }
+			dc.bai.push(idCs);
+			try { localStorage.setItem('cadao-da-chia-se', JSON.stringify(dc)); } catch (e) { /* vẫn tính lần này */ }
+			suKien('chia_se', { bai: idCs, kieu: kieu });
+		};
 		chiaSe.addEventListener('click', function () {
 			var url = hop.getAttribute('data-url');
 			var ten = hop.getAttribute('data-ten');
@@ -103,11 +115,12 @@
 					title: ten,
 					text: loi + '\n— ' + ten + ' (' + hop.getAttribute('data-the-loai') + ') · ' + (cauHinh.duAn || ''),
 					url: url
-				}).catch(function () { /* người đọc đóng hộp chia sẻ */ });
+				}).then(function () { daChiaSe('web_share'); }, function () { /* người đọc đóng hộp chia sẻ: không tính */ });
 				return;
 			}
 			saoChep(url).then(function () {
 				noiBao('Đã sao chép liên kết. Dán vào Zalo, Facebook… để chia sẻ.');
+				daChiaSe('sao_chep_lien_ket');
 			}, function () {
 				noiBao('Không sao chép được. Liên kết: ' + url);
 			});

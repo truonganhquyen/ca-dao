@@ -137,9 +137,14 @@ try {
   kiem(`"Sao chép kèm nguồn": báo "${bao}"`, bao === 'Đã sao chép. Cảm ơn bạn đã ghi nguồn!');
   kiem('"Sao chép kèm nguồn": bộ nhớ tạm có lời và trích dẫn', tam.length > 40 && tam.includes('Kho tàng Ca dao Tục ngữ Việt Nam. Truy cập tại:') && !tam.includes('{ngay}'));
   // Đo lường (T-052): sao chép gửi đúng một sự kiện, được tính
+  // Chia sẻ (T-115): gửi xong mới tính — giả lập hộp chia sẻ của máy báo thành công
+  await tab.evaluate(() => { navigator.share = () => Promise.resolve(); });
+  await tab.click('.cadao-chia-se');
+  await choDk(() => suKien.length >= 2);
+  kiem('chia sẻ: gửi xong thì tính một lượt chia sẻ', suKien.some(r => JSON.parse(r.postData() || '{}').loai === 'chia_se'));
   await choDk(() => suKien[0]?.response());
   const sk0 = suKien[0];
-  kiem(`đo lường: sao chép gửi sự kiện "trich_dan_sao_chep", được tính (đã gửi ${suKien.length})`, suKien.length === 1 && JSON.parse(sk0.postData() || '{}').loai === 'trich_dan_sao_chep' && !!sk0.response() && (await sk0.response().json()).tinh === true);
+  kiem(`đo lường: sao chép gửi sự kiện "trich_dan_sao_chep", được tính (đã gửi ${suKien.length})`, JSON.parse(sk0.postData() || '{}').loai === 'trich_dan_sao_chep' && !!sk0.response() && (await sk0.response().json()).tinh === true);
   await cho(6000);
   kiem(`lượt đọc gửi một lần sau 5 giây (đã gửi ${gui.length})`, gui.length === 1 && gui[0].status() === 200 && (await gui[0].json()).tinh === true);
   await tab.reload({ waitUntil: 'load' });

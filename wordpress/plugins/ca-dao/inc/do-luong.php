@@ -5,13 +5,19 @@
  *   số điện thoại thì bỏ; chuỗi tìm giữ một năm.
  * - trich_dan_sao_chep: bài + kiểu (thông dụng, APA, chỉ lời) → North Star.
  * - chu_giai_mo: mục từ được chạm mở → mục từ nào cần viết kỹ.
+ * - chia_se (D-069): bài + kiểu (gửi qua hộp chia sẻ của máy, sao chép liên kết) → số chia sẻ dưới tiêu đề bài; mỗi máy
+ *   một lần mỗi ngày mỗi bài (đánh dấu trong bộ nhớ trình duyệt).
  * Người biên soạn đang đăng nhập không tính (như lượt đọc, D-064). Số liệu xem ở Bảng tin.
  */
 
 defined( 'ABSPATH' ) || exit;
 
 const CADAO_SU_KIEN_PHIEN_BAN = 1;
-const CADAO_SU_KIEN           = array( 'tim_khong_ket_qua', 'trich_dan_sao_chep', 'chu_giai_mo' );
+const CADAO_SU_KIEN           = array( 'tim_khong_ket_qua', 'trich_dan_sao_chep', 'chu_giai_mo', 'chia_se' );
+const CADAO_KIEU_CHIA_SE      = array(
+	'web_share'         => 'gửi qua hộp chia sẻ',
+	'sao_chep_lien_ket' => 'sao chép liên kết',
+);
 const CADAO_KIEU_SAO_CHEP     = array(
 	'thong_dung' => 'kèm nguồn, thông dụng',
 	'apa'        => 'kèm nguồn, APA 7',
@@ -83,6 +89,13 @@ function cadao_su_kien_ghi( string $loai, array $du ): bool {
 		$bai  = get_post( (int) ( $du['bai'] ?? 0 ) );
 		$kieu = (string) ( $du['kieu'] ?? '' );
 		if ( ! $bai || CADAO_LOAI_BAI !== $bai->post_type || 'publish' !== $bai->post_status || ! isset( CADAO_KIEU_SAO_CHEP[ $kieu ] ) ) {
+			return false;
+		}
+		$khoa = $bai->ID . ':' . $kieu;
+	} elseif ( 'chia_se' === $loai ) {
+		$bai  = get_post( (int) ( $du['bai'] ?? 0 ) );
+		$kieu = (string) ( $du['kieu'] ?? '' );
+		if ( ! $bai || CADAO_LOAI_BAI !== $bai->post_type || 'publish' !== $bai->post_status || ! isset( CADAO_KIEU_CHIA_SE[ $kieu ] ) ) {
 			return false;
 		}
 		$khoa = $bai->ID . ':' . $kieu;
@@ -184,6 +197,8 @@ function cadao_su_kien_o_bang_tin(): void {
 		echo '</ol>';
 	}
 	$muc = cadao_su_kien_nhieu( 'chu_giai_mo', 30, 10 );
+	$cs = cadao_su_kien_nhieu( 'chia_se', 30, 1000 );
+	echo '<h3>Chia sẻ</h3><p><strong>' . esc_html( number_format_i18n( array_sum( $cs ) ) ) . '</strong> lần (gửi qua hộp chia sẻ của máy hoặc sao chép liên kết).</p>';
 	echo '<h3>Từ được chạm xem nghĩa nhiều</h3>';
 	if ( $muc ) {
 		echo '<ol>';
