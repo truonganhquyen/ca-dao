@@ -1185,6 +1185,47 @@ kt( 'sitemap: bài chỉ gồm bài có giá trị riêng; bỏ trang Đã lưu,
 kt( 'sitemap mục từ: bỏ mục có lời giải chép', '_cadao_chep' === ( apply_filters( 'wp_sitemaps_taxonomies_query_args', array(), 'tu_kho' )['meta_query'][0]['key'] ?? '' ) );
 kt( 'không đổi blog_public (mở cho Google là quyết định của người sáng lập)', ! str_contains( file_get_contents( CADAO_THU_MUC . '/inc/seo.php' ), "update_option( 'blog_public'" ) );
 
+// ---------- Trợ giúp viết Hiểu nhanh (T-100) ----------
+$hn_co  = cadao_hn_da_co();
+$hn_a   = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'post_title' => 'Hiểu nhanh thử A', 'post_content' => cadao_khoi_tho( "Hiểu nhanh thử A một\nHiểu nhanh thử A hai" ) . $ds_ct( 'Thử A', 'Lời giải tổng hợp của từ thử.' ) ) );
+$hn_b   = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'publish', 'post_title' => 'Hiểu nhanh thử B', 'post_content' => cadao_khoi_tho( "Hiểu nhanh thử B một\nHiểu nhanh thử B hai" ) ) );
+$hn_nhp = wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'draft', 'post_title' => 'Hiểu nhanh thử nháp', 'post_content' => cadao_khoi_tho( 'Chưa đăng' ) ) );
+for ( $i = 0; $i < 5; $i++ ) {
+	cadao_luot_doc_cong( $hn_b );
+}
+$hn_ds = array_column( cadao_hn_can_viet( 500 ), 'id' );
+kt( 'cần viết: bài đang đăng chưa có Hiểu nhanh, đọc nhiều trước; không có bài đã có, bài chưa đăng', array_search( $hn_b, $hn_ds, true ) < array_search( $hn_a, $hn_ds, true ) && ! in_array( $seo_bai, $hn_ds, true ) && ! in_array( $hn_nhp, $hn_ds, true ) );
+kt( 'chú thích của bài dạng chữ (để tham khảo khi viết)', array( 'Thử A: Lời giải tổng hợp của từ thử.' ) === cadao_hn_chu_thich( get_post( $hn_a ) ), cadao_hn_chu_thich( get_post( $hn_a ) ) );
+$hn_kq = cadao_hn_nap_lo( array( array( 'id' => $hn_a, 'nhap' => "Nháp máy thử cho A.\n<b>đậm</b>" ), array( 'id' => $seo_bai, 'nhap' => 'Bài đã có Hiểu nhanh' ), array( 'id' => $hn_nhp, 'nhap' => 'Bài chưa đăng' ), array( 'id' => 999999, 'nhap' => 'x' ), array( 'id' => $hn_b, 'nhap' => '' ) ) );
+kt( 'nạp lô nháp: chỉ bài đang đăng chưa có Hiểu nhanh; bỏ thẻ HTML', array( 'da_nap' => 1, 'bo_qua' => 4 ) === $hn_kq && "Nháp máy thử cho A.\nđậm" === get_post_meta( $hn_a, CADAO_HN_NHAP, true ), $hn_kq );
+kt( 'nạp nháp không đụng ô Tóm tắt, trạng thái, dấu "có hỗ trợ của AI"; bài vẫn noindex', '' === get_post( $hn_a )->post_excerpt && 'publish' === get_post_status( $hn_a ) && ! get_post_meta( $hn_a, '_cadao_ho_tro_ai', true ) && ! cadao_co_gia_tri_rieng( get_post( $hn_a ) ) );
+kt( 'nháp không ra trang, mô tả, REST công khai', ! str_contains( cadao_mo_ta_bai( get_post( $hn_a ) ), 'Nháp máy' ) && ! str_contains( wp_json_encode( rest_do_request( new WP_REST_Request( 'GET', '/wp/v2/cdtn/' . $hn_a ) )->get_data() ), 'Nháp máy' ) );
+wp_set_current_user( cadao_quan_tri_dau_tien() );
+ob_start();
+cadao_hop_hieu_nhanh( get_post( $hn_a ) );
+$hn_hop = ob_get_clean();
+kt( 'hộp Viết Hiểu nhanh: chú thích, nháp ghi rõ "chưa duyệt" (chỉ đọc), nút Dùng nháp, ô "có hỗ trợ của AI" chưa đánh dấu', str_contains( $hn_hop, 'Thử A: Lời giải tổng hợp' ) && str_contains( $hn_hop, 'Nháp máy — chưa duyệt' ) && str_contains( $hn_hop, 'readonly>Nháp máy thử cho A.' ) && str_contains( $hn_hop, 'Dùng nháp này' ) && (bool) preg_match( '/id="cadao-ho-tro-ai" name="cadao_ho_tro_ai" value="1">/', $hn_hop ), $hn_hop );
+ob_start();
+cadao_hop_hieu_nhanh( get_post( $hn_b ) );
+kt( 'bài không có nháp: không có ô nháp, nút dùng nháp', ! str_contains( ob_get_clean(), 'Nháp máy' ) );
+$_POST = array( 'cadao_hn_nonce' => wp_create_nonce( 'cadao_luu_hn' ), 'cadao_ho_tro_ai' => '1' );
+cadao_luu_hop_hieu_nhanh( $hn_a );
+kt( 'lưu: người biên soạn đánh dấu "có hỗ trợ của AI" thì ghi; nháp giữ khi chưa bảo xoá', '1' === (string) get_post_meta( $hn_a, '_cadao_ho_tro_ai', true ) && '' !== get_post_meta( $hn_a, CADAO_HN_NHAP, true ) );
+$_POST = array( 'cadao_hn_nonce' => wp_create_nonce( 'cadao_luu_hn' ), 'cadao_hn_xoa_nhap' => '1' );
+cadao_luu_hop_hieu_nhanh( $hn_a );
+kt( 'lưu: bỏ đánh dấu thì xoá dấu; "Xoá nháp máy" thì xoá nháp', ! get_post_meta( $hn_a, '_cadao_ho_tro_ai', true ) && '' === get_post_meta( $hn_a, CADAO_HN_NHAP, true ) );
+$_POST = array( 'cadao_ho_tro_ai' => '1' );
+cadao_luu_hop_hieu_nhanh( $hn_a );
+kt( 'lưu không có mã xác nhận (lưu nhanh, REST, máy): không đổi gì', ! get_post_meta( $hn_a, '_cadao_ho_tro_ai', true ) );
+$_POST = array();
+$hn_hang = array_values( array_filter( cadao_hang_cho(), static fn( $h ) => 'hieu_nhanh' === $h['khoa'] ) )[0] ?? array();
+kt( 'Bàn biên tập: hàng "Viết Hiểu nhanh (đã có X/50)" ở Làm trước, số còn thiếu tới 50', $hn_hang && $hn_hang['truoc'] && max( 0, 50 - cadao_hn_da_co() ) === $hn_hang['so'] && str_contains( $hn_hang['ten'], '/50' ), $hn_hang );
+ob_start();
+cadao_trang_hieu_nhanh();
+$hn_tr = ob_get_clean();
+wp_set_current_user( 0 );
+kt( 'trang Viết Hiểu nhanh: đếm X/50, bài đọc nhiều trước, cột nháp máy', str_contains( $hn_tr, '/ 50 bài' ) && strpos( $hn_tr, 'Hiểu nhanh thử B' ) < strpos( $hn_tr, 'Hiểu nhanh thử A' ) && str_contains( $hn_tr, 'Nháp máy' ), substr( $hn_tr, 0, 300 ) );
+
 // ---------- Lịch ----------
 kt( 'lịch lấy bài mỗi 5 phút đã đặt', (bool) wp_next_scheduled( 'cadao_thu_thap' ) );
 kt( 'lịch tạo bài hằng ngày đã đặt', (bool) wp_next_scheduled( 'cadao_tao_bai_hang_ngay' ) );

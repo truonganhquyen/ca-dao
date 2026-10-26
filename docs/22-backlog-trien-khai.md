@@ -84,7 +84,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-120 | Điều hướng và danh sách bài: menu, trang Tất cả A–Z có đoạn trích và bộ lọc, thanh dưới cho điện thoại (D-073) | A | T-072, T-094 | — | DONE |
 | T-121 | Cuối bài gọn hơn, Tìm rõ hơn, Bàn biên tập ưu tiên việc quan trọng (D-073) | A | T-045, T-097, T-041, T-047 | — | DONE |
 | T-050 | Ảnh chia sẻ tự sinh từng bài, noindex theo giá trị riêng, SEO cơ bản (kéo lên Mốc B, D-073) | A | T-076, T-119 | — | DONE |
-| T-100 | Trợ giúp viết "Hiểu nhanh" (gợi ý; nháp máy chờ duyệt) (kéo lên Mốc B, D-073) | A | T-082 | — | READY |
+| T-100 | Trợ giúp viết "Hiểu nhanh" (gợi ý; nháp máy chờ duyệt) (kéo lên Mốc B, D-073) | A | T-082 | — | DONE |
 | T-048 | Duyệt 30–50 bài, thử với 5 người | N | T-073, T-076, T-041..T-046, T-082, T-085, T-119..T-121 | — | BLOCKED |
 | **Mốc C · Mở lặng lẽ** ||||||
 | T-049 | Chốt tên miền (D-070: phongdao.com) | N | — | — | DONE |
@@ -462,6 +462,7 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 #### T-100 · Trợ giúp viết Hiểu nhanh — A
 **Ghi chú (26/10/2026, D-073):** bỏ phụ thuộc T-098 — ca dao không cần nghĩa Wiktionary; nghĩa Wiktionary thêm vào khi T-098 xong. Mục tiêu trước khi mở: ≥ 50 bài có Hiểu nhanh.
 **Chấp nhận:** trình soạn hiện chú thích của bài (và nghĩa Wiktionary khi có) cạnh ô Hiểu nhanh; nháp máy nằm ở ô riêng ghi rõ "Nháp máy — chưa duyệt", không bao giờ tự vào đoạn trích, chỉ lên trang khi người sáng lập bấm dùng (sửa được trước khi lưu); dấu "có hỗ trợ AI" do người sáng lập đặt khi dùng nháp, máy không đặt thay; nháp do agent soạn theo lô cho danh sách bài người sáng lập chọn (ghi lên máy chủ chỉ khi người sáng lập đồng ý cho lần đó — `AGENTS.md`); Bàn biên tập có hàng "Viết Hiểu nhanh" đếm N/50.
+**Tiến độ (26/10/2026):** xong — plugin 0.28.0 (`inc/hieu-nhanh.php`). Hộp **Viết Hiểu nhanh** trong trình soạn: chú thích của bài; nháp máy (meta ẩn `_cadao_nhap_hieu_nhanh`, chỉ đọc, ghi "Nháp máy — chưa duyệt"), nút "Dùng nháp này" chép vào ô Tóm tắt và đánh dấu ô "có hỗ trợ của AI" ngay trước mắt người biên soạn (bỏ được), chỉ lên trang khi họ bấm Cập nhật; "Xoá nháp máy khi lưu". Ô "có hỗ trợ của AI" (`_cadao_ho_tro_ai`) trước đây chưa có trong trình soạn — nay người biên soạn tự bật/tắt; lưu không qua hộp (lưu nhanh, REST, máy) không đổi dấu. Trang **Viết Hiểu nhanh**: X/50, bài đọc nhiều 30 ngày trước, cột nháp. Bàn biên tập: hàng "Viết Hiểu nhanh (đã có X/50)" ở Làm trước. Lệnh agent: `wp cadao hieu-nhanh-ds [--so=] [--ids=]`, `wp cadao hieu-nhanh-nhap <tệp.json>` (chỉ bài đang đăng chưa có Hiểu nhanh; không đụng ô Tóm tắt, trạng thái, dấu AI). Nháp không ra trang, mô tả, REST công khai. Nghĩa Wiktionary thêm khi T-098 xong. Hướng dẫn: `docs/huong-dan/viet-hieu-nhanh.md`.
 
 #### T-101 · Gộp bài đã đăng bị trùng — N+A
 **Đọc:** `25` mục 4.9 (ý 49, thay ý 17). **Việc:** mỗi đêm quét các bài đã đăng, đưa cặp nghi trùng vào hàng "Có thể trùng"; khi người sáng lập gộp: chọn bài chính, bài kia thành dị bản của bài chính, đường dẫn cũ chuyển hướng 301 về bài chính, lượt đọc cộng dồn, cảm nghĩ và bài phân tích chuyển sang bài chính, bài phụ vào thùng rác (không xóa hẳn). **Chấp nhận:** người sáng lập duyệt từng lần; sau khi gộp, link cũ mở đúng bài chính; không mất cảm nghĩ, bài phân tích, lượt đọc nào.
