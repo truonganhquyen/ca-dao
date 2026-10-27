@@ -448,6 +448,7 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 **Việc:** khối "Đọc tiếp" sau Chủ đề, Vùng, trước "Bạn muốn góp gì?": bài đã đăng cùng chủ đề (2 điểm mỗi chủ đề chung), cùng vùng (1 điểm), bằng điểm thì bài mới hơn trước; chưa đủ 3 bài thì thêm bài cùng thể loại đăng ngay trước / sau bài này. Mỗi bài: tên, hai dòng đầu, nhãn vì sao. Không có bài nào thì không có khối.
 **Chấp nhận:** 3–5 bài, không lặp bài đang xem, không có bản nháp; cả ô là một liên kết cao ≥ 44 px; không JavaScript; `npm run test:wordpress`, `npm run quet:wordpress` đạt. Không làm mô-típ, trang mô-típ (phần còn lại của T-092).
 **Tiến độ (26/10/2026):** xong — `inc/doc-tiep.php` (plugin 0.29.0), CSS `.cadao-doc-tiep` (theme 0.16.0); kiểm thử E2E L-05 bỏ đánh dấu "lỗi đã biết".
+**Sửa trình bày (27/10/2026):** lớp `.cadao-doc-tiep` trùng với nút "Đọc tiếp từ đoạn N" của bài dài (T-090), nên trên site khối thành một hình bầu dục viền son, tiêu đề nằm cạnh danh sách. Nút đổi sang `.cadao-doc-tiep-doan`; khối theo nhịp "Bạn muốn góp gì?" (kẻ trên, tiêu đề cỡ vừa) và danh sách trang Tất cả (tên màu son, lời chữ có chân, nhãn nhạt, dấu ›). Tên bài trùng dòng đầu thì đoạn trích bắt đầu từ dòng hai (không lặp tên), mỗi dòng một hàng. Plugin 0.33.1, theme 0.19.1; thêm kiểm thử đoạn trích và một phép thử trình duyệt chặn lỗi tái diễn.
 
 #### T-123 · Tự gắn câu trùng một dị bản đã ghi — A
 **Đọc:** D-074, D-065; `docs/25` mục 4.9; `docs/24` mục 4.
