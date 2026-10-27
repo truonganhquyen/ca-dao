@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Ngày khảo sát | 26–27/10/2026 (mở trang ngày 27/10/2026) |
-| Trạng thái | **Bản cuối.** Gồm phần bổ sung theo yêu cầu ngày 27/10: vanvn.net (đã khảo sát), cadaotucngu.com (chưa mở được, mục 0) |
+| Trạng thái | **Bản cuối.** Gồm phần bổ sung theo yêu cầu ngày 27/10: vanvn.net (đã khảo sát), cadaotucngu.com (chưa mở được, mục 0). Kế hoạch thực hiện theo ưu tiên: `docs/nghien-cuu/ke-hoach-thuc-hien-2026-10-27.md` |
 | Người làm | Claude Code (agent), theo yêu cầu của người sáng lập |
 | Phạm vi | 10 site, ứng dụng Việt Nam; 4 site nước ngoài để so; phongdao.com |
 | Cách làm | Playwright + Chromium, điện thoại 390 px và máy tính 1366 px; axe-core WCAG 2.2 AA; `npm run e2e` trên phongdao.com (chỉ đọc); công cụ tìm kiếm của phiên cho phần thứ hạng |
@@ -44,7 +44,7 @@
    - khối "Đọc tiếp", trang 404 riêng, canonical cho trang danh sách;
    - gộp "Tục ngữ – Thành ngữ", trang mô-típ, dòng "[N nguồn tham khảo đã ẩn]".
 
-   Máy chủ tự cập nhật có vẻ đã dừng cập nhật plugin. Bộ kiểm E2E chạy ngày 27/10 xác nhận: 11 kiểm thử hỏng đúng ở các chỗ này.
+   Bộ kiểm E2E chạy ngày 27/10 xác nhận: 11 kiểm thử hỏng đúng ở các chỗ này. Kịch bản cập nhật thay plugin và theme cùng lúc, mà theme đã lên bản mới nhất, nên tệp plugin mới nhiều khả năng đã nằm trên đĩa. Giả thuyết mạnh nhất (chưa kiểm trên máy chủ): PHP vẫn chạy mã cũ trong bộ nhớ đệm OPcache, bật sau báo cáo E2E ngày 26/10. Thử rẻ nhất là khởi động lại PHP.
 2. **Đối thủ về tìm kiếm là các trang văn mẫu, không phải kho ca dao.** Với 13 câu và chủ đề quen, kết quả tìm gần như toàn là trang văn mẫu, lời giải bài tập:
    - loigiaihay.com có mặt ở 12/13 lần tìm, hoatieu.vn và luatminhkhue.vn ở 11/13;
    - Ca dao Mẹ và Thi viện ở 0/13 (chỉ hiện khi lọc riêng tên miền).
@@ -67,7 +67,7 @@
 
 ### 5 việc nên làm trước
 
-1. **Đưa site lên đúng bản plugin, rồi chạy lại bộ kiểm E2E** (bạn khoảng 30–60 phút trong FlashPanel; agent soạn hướng dẫn và kiểm lại). Kèm một kiểm tra tự động báo khi site thật lệch bản với repo.
+1. **Đưa site lên đúng bản plugin, rồi chạy lại bộ kiểm E2E.** Bạn khởi động lại PHP trong FlashPanel (khoảng 15 phút; chưa được thì xem nhật ký cập nhật); agent soạn hướng dẫn và kiểm lại. Kèm một kiểm tra tự động báo khi site thật lệch bản với repo.
 2. **Đăng 50 câu tục ngữ, thành ngữ quen nhất trước.** Phần máy đưa tục ngữ vào hàng Chờ duyệt đã có trong repo nhưng cũng nằm trong bản plugin chưa lên site, nên việc này đi sau việc 1. Agent lập danh sách câu được tìm nhiều và soạn nháp Hiểu nhanh theo lô 10 câu. Bạn đọc, sửa, bấm Đăng: khoảng 2–3 giờ mỗi tuần.
 3. **Khối nghĩa ngắn cho tục ngữ**: nghĩa đen, nghĩa bóng, dùng khi nào, câu gần nghĩa, trả lời đúng câu hỏi "nghĩa là gì" trong 10 giây, không văn mẫu, không quảng cáo.
 4. **Đối chiếu lời với sách hết bản quyền có bản quét** (*Câu hát góp*, *Tục ngữ, cổ ngữ, gia ngôn*): máy tìm câu khớp và mở sẵn trang quét, bạn nhìn tận mắt rồi bấm xác nhận. Cần bạn quyết (câu hỏi Q3).
@@ -564,7 +564,7 @@ Gộp mọi phát hiện, kể cả phần bổ sung về vanvn.net. Số trong 
 
 | Phương án | Hệ quả |
 |---|---|
-| A. Bạn mở FlashPanel, làm theo hướng dẫn từng bước agent soạn (xem nhật ký tự cập nhật, chạy lại lệnh cập nhật) | Nhanh, bạn giữ toàn quyền máy chủ |
+| A. Bạn mở FlashPanel, làm theo hướng dẫn từng bước agent soạn: khởi động lại PHP (thử giả thuyết OPcache); chưa được thì xem nhật ký tự cập nhật | Nhanh, bạn giữ toàn quyền máy chủ |
 | B. Cho agent một lần truy cập máy chủ để xem nhật ký và sửa | Nhanh nhất nếu lỗi khó; cần bạn đồng ý cho lần đó |
 | C. Tải tệp plugin từ GitHub, cài đè trong trang Plugin | Không cần đọc nhật ký, nhưng không biết vì sao tự cập nhật dừng |
 
