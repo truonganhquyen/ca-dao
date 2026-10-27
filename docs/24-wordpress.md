@@ -33,6 +33,11 @@ wordpress/
 │   ├── inc/nguon-tu-dong.php trang cấu hình nguồn, lịch chạy
 │   ├── inc/doc-cadao-me.php bộ đọc Ca dao Mẹ (trích tất định, không qua AI)
 │   ├── inc/trang-quan-tri.php trang "Kho thu thập" (cột "Đã có dị bản, chú thích", bộ lọc "chỉ hiện câu đã đọc xong")
+│   ├── inc/seo.php          meta description, Open Graph, JSON-LD, sitemap chỉ trang được lập chỉ mục, noindex trang mỏng (T-050)
+│   ├── inc/anh-chia-se.php  ảnh chia sẻ 1200×630 cho từng bài, vẽ bằng GD (T-050)
+│   ├── inc/muc-kiem.php     dòng "lời và mức kiểm" dưới lời; hộp "Lời đã đối chiếu với" (T-119, D-072)
+│   ├── inc/danh-sach.php    trang Tất cả (/kho/): A–Z, chip lọc, 30 bài mỗi trang; menu, thanh dưới (T-120, T-126)
+│   ├── inc/hieu-nhanh.php   trợ giúp viết Hiểu nhanh: hộp trong trình soạn, nháp máy chờ duyệt, trang "Viết Hiểu nhanh" (T-100)
 │   ├── inc/trich-dan.php    hộp Trích dẫn (2 kiểu), nút Chia sẻ trên trang bài (T-042)
 │   ├── inc/luot-doc.php     lượt đọc không cookie, "Đọc nhiều tuần này", ô Bảng tin (T-081, D-064)
 │   ├── inc/trung.php        chống trùng: dấu vân tay, mức giống, chỉ mục, gộp, tách, làm dần (T-109, T-110)
@@ -61,10 +66,10 @@ wordpress/
 │   ├── inc/nguoi-doc.php    góp ý, cảm nghĩ (bình luận), chống rác, trang "Chống rác" (Turnstile) (T-045)
 │   ├── inc/phan-tich.php    bài cảm nhận, phân tích của người đọc; trang "Viết cảm nhận" (T-097)
 │   ├── inc/trang-du-an.php  trang Phương pháp, Nguồn (tự sinh), Về dự án ở dạng bản nháp; liên kết chân trang (T-046)
-│   ├── du-lieu/tinh-huong.json tình huống và lịch dịp của site cũ (sinh bằng `npm run xuat:site-cu`)
+│   ├── du-lieu/tinh-huong.json tình huống và lịch dịp của site cũ (chép một lần từ site cũ; công cụ sinh đã gỡ cùng Astro, T-117)
 │   ├── assets/tim.js        kết quả hiện khi gõ trên trang Tìm
 │   ├── assets/ban-do-vn.svg bản đồ nhỏ Việt Nam có Hoàng Sa, Trường Sa (sinh bằng `scripts/sinh-ban-do.mjs`)
-│   ├── du-lieu/site-cu.json bài công khai của site cũ (sinh bằng `npm run xuat:site-cu` từ `content/`)
+│   ├── du-lieu/site-cu.json bài công khai của site cũ (chép một lần từ site cũ; công cụ sinh đã gỡ cùng Astro, T-117)
 │   ├── assets/ca-dao.js     JavaScript duy nhất của trang bài (sao chép, chia sẻ, gửi lượt đọc; ~6 KB)
 │   └── assets/soan-trung.js ô "Có thể trùng" trong trình soạn khối (chỉ trong trang quản trị)
 ├── themes/ca-dao/           theme con của Twenty Twenty-Five (T-072)
@@ -157,6 +162,8 @@ WordPress Playground (PHP 8.5 — như máy chủ — chạy bằng WebAssembly,
 ```bash
 npm run test:wordpress            # kiểm thử plugin (CI chạy ở job "wordpress"); thêm -- --mang để thử bộ đọc trên cadao.me thật
 npm run test:anh                  # vẽ ảnh chia sẻ bằng PHP thật có GD + FreeType (Playground không vẽ được chữ); CADAO_PHP=<đường dẫn php>
+npm run kiem-site-that           # site thật (phongdao.com) có đúng phiên bản plugin, theme của main không; chỉ đọc (T-129)
+npm run e2e                       # khảo sát E2E site thật bằng Playwright (không ghi); e2e:quan-tri cần E2E_USER, E2E_PASS và tạo / xóa bản ghi [E2E-TEST] — tests/e2e/README.md
 npm run quet:wordpress           # quét trợ năng theme (WCAG 2.2 AA) trên bài mẫu tổng hợp; -- --anh <thư-mục> lưu ảnh chụp
 npx @wp-playground/cli@3.1.57 server --port=9411 --blueprint=wordpress/blueprint.json \
   --mount-dir wordpress/plugins/ca-dao /wordpress/wp-content/plugins/ca-dao \
@@ -170,8 +177,8 @@ Trên Windows (Git Bash) đặt `MSYS_NO_PATHCONV=1` để Git Bash không đổ
 
 ## 7. Chuyển đổi (T-076 — xong 25/10/2026)
 
-- **Bài:** `npm run xuat:site-cu` chép các bài **công khai** của `content/tac-pham/` sang `wordpress/plugins/ca-dao/du-lieu/site-cu.json` (`kiem-tra` báo lỗi nếu tệp lệch `content/`). Chỉ chép những gì người biên soạn đã nhập: lời bản tham chiếu (nguyên văn), dị bản có nguồn, tên nguồn / địa chỉ / ngày truy cập đã điền, nghĩa ngắn → Hiểu nhanh, chú giải từ mục từ; nháp AI chỉ khi đã được duyệt (bỏ tiền tố, bài ghi "Phần giải nghĩa có hỗ trợ của AI, đã được người biên soạn duyệt."); bỏ mọi chuỗi `CAN_BO_SUNG`. Hai hồ sơ khung ở trạng thái nháp (`cd-0002`, `tn-0001`) không chuyển. Plugin nhập **một lần** sau khi chỉ mục chống trùng làm xong: bài trùng / gần trùng bài đã có vào WordPress ở dạng **Bản nháp** và hiện ở "Có thể trùng"; bài không trùng đăng như trên site cũ, giữ đường dẫn `/ca-dao/<tên>/`. Mục từ, tình huống, mô-típ chưa chuyển: dùng lại khi làm từ điển (T-044), trang tình huống (T-043).
-- **Site Astro ngừng:** `wrangler.jsonc` không còn phục vụ `dist/`; Worker `cloudflare/chuyen-huong.js` chuyển hướng 301 mọi đường dẫn ở địa chỉ cũ (`ca-dao.truonganhquyen.workers.dev`) sang `https://cadao.sdigi.net` cùng đường dẫn. CMS Sveltia (`/admin`) không còn dùng — biên soạn trong WordPress. Mã Astro, `content/` và các công cụ kiểm dữ liệu vẫn ở repo (lưu trữ; `kiem-tra` vẫn chạy).
+- **Bài (đã làm một lần; `npm run xuat:site-cu` và `content/` đã gỡ ở T-117):** các bài **công khai** của `content/tac-pham/` sang `wordpress/plugins/ca-dao/du-lieu/site-cu.json` Chỉ chép những gì người biên soạn đã nhập: lời bản tham chiếu (nguyên văn), dị bản có nguồn, tên nguồn / địa chỉ / ngày truy cập đã điền, nghĩa ngắn → Hiểu nhanh, chú giải từ mục từ; nháp AI chỉ khi đã được duyệt (bỏ tiền tố, bài ghi "Phần giải nghĩa có hỗ trợ của AI, đã được người biên soạn duyệt."); bỏ mọi chuỗi `CAN_BO_SUNG`. Hai hồ sơ khung ở trạng thái nháp (`cd-0002`, `tn-0001`) không chuyển. Plugin nhập **một lần** sau khi chỉ mục chống trùng làm xong: bài trùng / gần trùng bài đã có vào WordPress ở dạng **Bản nháp** và hiện ở "Có thể trùng"; bài không trùng đăng như trên site cũ, giữ đường dẫn `/ca-dao/<tên>/`. Mục từ, tình huống, mô-típ chưa chuyển: dùng lại khi làm từ điển (T-044), trang tình huống (T-043).
+- **Site Astro ngừng:** `wrangler.jsonc` không còn phục vụ `dist/`; Worker `cloudflare/chuyen-huong.js` chuyển hướng 301 mọi đường dẫn ở địa chỉ cũ (`ca-dao.truonganhquyen.workers.dev`) sang `https://phongdao.com` cùng đường dẫn (từ D-070; trước đó là cadao.sdigi.net). CMS Sveltia (`/admin`) không còn dùng — biên soạn trong WordPress. Mã Astro, `content/` và các công cụ kiểm dữ liệu đã gỡ khỏi repo (T-117, D-071).
 
 ## 8. Máy chủ (T-074, T-075)
 

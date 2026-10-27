@@ -99,13 +99,15 @@ Ngoài các Human Gate này, agent phải tự quyết các chi tiết kỹ thu�
 ## Lệnh
 
 ```bash
-npm ci                          # cài công cụ (axe-core, puppeteer-core) — Node ≥ 22.12
+npm ci                          # cài công cụ (axe-core, puppeteer-core, @playwright/test) — Node ≥ 22.12
 npm run kiem-tra                # cổng nhanh: kiểm thử nhất quán backlog/trạng thái
 npm run test:wordpress          # kiểm thử plugin WordPress trong Playground (cần Node ≥ 24.18; CI chạy job riêng)
 npm run test:anh                # vẽ ảnh chia sẻ bằng PHP thật (GD + FreeType); không có PHP thì bỏ qua tại máy, CI luôn chạy
 npm run quet:wordpress          # quét trợ năng theme WordPress (WCAG 2.2 AA) và thử trên trình duyệt; -- --anh <thư-mục> để lưu ảnh
 npm run xem-truoc:wordpress     # in link bản xem trước WordPress cho nhánh đã đẩy — dán vào PR
 npm run viec-tiep-theo          # đề xuất task kỹ thuật READY tiếp theo
+npm run kiem-site-that          # phongdao.com có đang chạy đúng phiên bản của main không (chỉ đọc; T-129)
+npm run e2e                     # khảo sát E2E site thật, không ghi (tests/e2e/README.md); e2e:quan-tri chỉ tạo bản ghi [E2E-TEST] rồi xóa
 ```
 
 ## Điều kiện hoàn tất task
