@@ -4,7 +4,7 @@
 |---|---|
 | Ngày | 27/10/2026 |
 | Dựa trên | `docs/nghien-cuu/khao-sat-doi-thu-2026-10-27.md` (khảo sát 14 site, E2E phongdao.com ngày 27/10) |
-| Trạng thái | **Đề xuất, chờ người sáng lập duyệt.** Chưa có việc nào trong đây được thêm vào `docs/22` |
+| Trạng thái | **Đã duyệt 27/10/2026 (D-080).** Câu trả lời Q1–Q6 ghi ở D-080; ĐX-1..ĐX-9 thành T-129..T-137, việc 5 và 7 thành T-138. Thư cho Ca dao Mẹ (Q5): chưa gửi |
 | Thời gian | 6 tuần tới (tới khoảng giữa 12/2026), rồi sau khi mở |
 | Ngân sách | Người sáng lập khoảng 3–5 giờ mỗi tuần (D-035); mọi phần mã do agent làm |
 
