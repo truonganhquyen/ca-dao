@@ -1,5 +1,7 @@
 # 20 · Đặc tả giao diện
 
+> **V2 (D-087, 27/10/2026):** sản phẩm cho người đọc của bản xây mới nằm ở `27-san-pham-v2.md`. Tài liệu này mô tả giao diện MVP đang chạy (đóng băng, vào `luu-tru/` ngày chuyển); **mục 1 (ngôn ngữ thị giác, token màu, phông), mục 10 (câu chữ, từ cấm), mục 11 (trợ năng) vẫn áp dụng cho V2**. Ngân sách hiện hành: trang bài ≤ 200 KB, JavaScript trang bài ≤ 21 KB (AGENTS.md) — thay bảng mục 12.
+>
 > **Lưu ý (D-071, 26/10/2026):** site Astro và CMS Sveltia đã gỡ khỏi repo. Chỗ nào nhắc `content/`, YAML, `templates/`, `config/`, Astro hay `/admin` là lịch sử; quy tắc nội dung và nguồn vẫn còn hiệu lực trên WordPress.
 
 | | |

@@ -37,7 +37,7 @@ Agent phải:
    - task trực tiếp gỡ phụ thuộc hoặc tiến tới điều kiện xong của mốc;
    - task có số nhỏ hơn khi các yếu tố trên ngang nhau.
 7. Có thể chạy `npm run viec-tiep-theo` để lấy đề xuất máy đọc; agent vẫn phải đối chiếu với tài liệu trước khi làm.
-8. Khi mọi task A của mốc hiện tại đã `DONE` và điều kiện xong ở `docs/22` mục 2 đạt, agent **tự chuyển** `giai_doan` sang mốc kế tiếp (Chuẩn bị → A → B → C). Riêng **mở công khai (T-053) là Human Gate H5**.
+8. Khi mọi task A của mốc hiện tại đã `DONE` và điều kiện xong ở `docs/22` mục 2 đạt, agent **tự chuyển** `giai_doan` sang mốc kế tiếp (Chuẩn bị → A → B → C). Riêng **mở công khai (T-053) là Human Gate H5**. Nhóm **V2** chạy song song (`giai_doan_song_song`, D-091): không chuyển mốc; mã ở `wordpress/v2/`, MVP đóng băng tính năng. T-156 (dùng thử) và T-157 (ngày chuyển) cần người sáng lập; agent không tự đánh `DONE` khi chưa có câu trả lời.
 
 Một Q-xxx đang mở **không chặn toàn dự án**. Chỉ dừng nếu task được chọn chạm trực tiếp Q đó hoặc cột `Chặn` của task nêu Q đó.
 

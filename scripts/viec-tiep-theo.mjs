@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Đề xuất task kỹ thuật READY tiếp theo (docs/03-quy-trinh-thuc-thi.md mục 3).
 // Xét task của giai đoạn hiện tại VÀ các giai đoạn trước còn sót; không lấy task của giai đoạn sau.
+// Nhóm chạy song song (giai_doan_song_song, ví dụ V2 — D-088) luôn được xét, xếp sau task của mốc.
 import { docTrangThai, docBacklog, phuThuocCua, cauHoiTrong, TEN_GIAI_DOAN } from './lib/backlog.mjs';
 
 const state = docTrangThai();
@@ -10,7 +11,7 @@ if (viTri < 0 || !TEN_GIAI_DOAN[state.giai_doan]) {
   console.error(`Không nhận diện được giai đoạn: ${state.giai_doan}`);
   process.exit(1);
 }
-const duocXet = new Set(thuTu.slice(0, viTri + 1).map(g => TEN_GIAI_DOAN[g]));
+const duocXet = new Set([...thuTu.slice(0, viTri + 1), ...(state.giai_doan_song_song ?? [])].map(g => TEN_GIAI_DOAN[g]));
 
 const { tasks } = docBacklog();
 if (!tasks.length) {

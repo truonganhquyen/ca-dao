@@ -5,8 +5,8 @@ import path from 'node:path';
 
 export const TRANG_THAI_TASK = new Set(['READY', 'IN_PROGRESS', 'REVIEW', 'BLOCKED', 'DONE', 'DEFERRED']);
 
-/** Tên giai đoạn trong tiêu đề bảng backlog, theo mã trong trang-thai.json. */
-export const TEN_GIAI_DOAN = { CHUAN_BI: 'Chuẩn bị', MOC_A: 'Mốc A', MOC_B: 'Mốc B', MOC_C: 'Mốc C', SAU: 'Sau' };
+/** Tên giai đoạn trong tiêu đề bảng backlog, theo mã trong trang-thai.json. V2 là nhóm chạy song song (D-088). */
+export const TEN_GIAI_DOAN = { CHUAN_BI: 'Chuẩn bị', MOC_A: 'Mốc A', MOC_B: 'Mốc B', MOC_C: 'Mốc C', SAU: 'Sau', V2: 'V2' };
 
 export function docTrangThai(root = process.cwd()) {
   return JSON.parse(fs.readFileSync(path.join(root, 'du-an', 'trang-thai.json'), 'utf8'));

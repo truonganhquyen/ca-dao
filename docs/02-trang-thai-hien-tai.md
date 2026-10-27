@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Phiên bản | 2.4 · 27/10/2026 |
+| Phiên bản | 2.5 · 27/10/2026 (xây mới V2: D-082..D-091) |
 | Mục đích | Trang tổng quan ngắn cho người sáng lập và AI agent |
 | Nguồn máy đọc | `du-an/trang-thai.json` (`npm run kiem-nhat-quan` đối chiếu với `docs/01`, `docs/22`) |
 
@@ -11,6 +11,8 @@
 ## Giai đoạn hiện tại
 
 **Đang chuyển sang WordPress** (D-056, `docs/24-wordpress.md`): WordPress, plugin, theme chạy trên VPS tại **phongdao.com** (D-070; T-075 xong 25/10/2026; sao lưu chưa bật — điều kiện mở duy nhất còn lại ngoài quyết định mở, D-073, D-077), chưa mở cho Google; máy chủ tự cập nhật sau mỗi PR gộp (T-078). **Gói nâng cấp đã duyệt 25/10/2026** (D-059..D-065): 51 mục (gồm 4 ý chống trùng), kế hoạch 5 đợt ở `docs/25-nang-cap-giao-dien-noi-dung.md`, task T-080..T-111. Từ D-054 không còn chặn đăng vì lý do biên tập, nguồn không bắt buộc; từ D-055 chép chú thích có ghi công được phép. **Kế hoạch tới Mốc C sau báo cáo review 26/10/2026** (D-072, D-073): dòng "lời và mức kiểm" dưới lời, điều hướng và danh sách bài, SEO cơ bản, trợ giúp viết Hiểu nhanh. **Từ D-077 (26/10/2026):** việc biên tập của người sáng lập (thư cho Ca dao Mẹ, 5 người thử, 50 Hiểu nhanh, số bài, bản quét sách) nên làm nhưng không chặn mở; mở lại mô-típ, câu một dòng, đố vui, bối cảnh vè, giọng sinh sẵn. Tục ngữ và thành ngữ gộp thành một mục "Tục ngữ – Thành ngữ" (D-079).
+
+**Xây mới V2 đã duyệt 27/10/2026 (D-082..D-091):** dự án thành **Thư viện Văn học Dân gian Việt Nam**. Giữ WordPress làm khung, **viết mới toàn bộ** plugin, theme, Bàn biên tập và mô hình dữ liệu (tác phẩm nhiều lớp); xây song song ở `wordpress/v2/` (máy chủ chưa lấy), **chuyển một lần** rồi **mở cho Google ngay sau đó**. Bốn đợt trước khi mở: 1 · Nền, 2 · Trang đọc, 3 · Bàn biên tập, 4 · Chuyển đổi; đợt 5 sau khi mở. **MVP đóng băng tính năng** (chỉ sửa lỗi bảo mật, mất dữ liệu); viết, duyệt Hiểu nhanh trên MVP vẫn làm — dữ liệu người làm được mang sang. Sao lưu hằng ngày đã bật (D-090). Đặc tả: `docs/00` (bản V2), `docs/26` kỹ thuật, `docs/27` sản phẩm cho người đọc, `docs/28` nguồn và Bàn biên tập, `docs/29` chuyển dữ liệu và ngày chuyển.
 
 **Mốc B · Thử nhỏ** — hướng v2 "Trung thực hơn hoàn hảo" (D-039). Mốc A xong 25/10/2026: WordPress chạy trên VPS, người sáng lập đăng bài từ điện thoại, nguồn tự động đổ bài Chờ duyệt mỗi ngày, trang bài có lời, dị bản, chú thích, trích dẫn, chống trùng; nội dung cũ đã chuyển, site Astro ngừng (T-076). Đang làm tiếp các tính năng của gói nâng cấp (D-077). Điều kiện xong Mốc B ở `docs/22` mục 2. Mốc tiếp theo: **C · Mở lặng lẽ**.
 
@@ -54,6 +56,8 @@
 - **Gỡ site Astro và CMS cũ (T-117, D-071, 26/10/2026):** đã xóa khỏi repo phần Astro, CMS Sveltia (`/admin`) và các công cụ chỉ phục vụ nó; luật và tài liệu viết lại theo WordPress.
 - **Khảo sát đối thủ, kế hoạch thực hiện (D-080, 27/10/2026):** báo cáo 14 site ở `docs/nghien-cuu/khao-sat-doi-thu-2026-10-27.md`; kế hoạch theo ưu tiên ở `docs/nghien-cuu/ke-hoach-thuc-hien-2026-10-27.md`, việc mới T-129..T-138. Khối "Đọc tiếp" cuối bài đã sửa trình bày (plugin 0.33.1, theme 0.19.1).
 - **Kiểm site thật, E2E (T-129, T-130, D-080, 27/10/2026):** `npm run kiem-site-that` so phiên bản plugin, theme phongdao.com đang phục vụ với `main` (chỉ đọc; GitHub Action mở issue khi lệch); bộ E2E `tests/e2e/` (`npm run e2e`, `npm run e2e:quan-tri`) chạy được ở mọi nơi, kỳ vọng lỗi đã sửa đã cập nhật. Báo cáo gốc: `docs/e2e-review/REPORT.md` (có mục tình trạng từng lỗi).
+- **Tài liệu xây mới V2 (T-139, D-082..D-091, 27/10/2026):** tài liệu nền V2 (bản MVP lưu ở `docs/luu-tru/00-tai-lieu-nen-mvp.md`), `docs/26`–`29`, ba nghiên cứu V2 ở `docs/nghien-cuu/`; backlog có nhóm V2 (T-141..T-164); `npm run viec-tiep-theo` xét mốc hiện tại trước rồi tới V2.
+- **Số bài trên site (đo 27/10/2026, chỉ đọc):** 191 bài đã đăng — 154 ca dao, 24 vè, 4 tục ngữ – thành ngữ, 4 đồng dao, 4 câu đố; site đúng bản plugin 0.33.2, theme 0.19.1; vẫn chặn Google.
 - GitHub (24/10/2026): repo công khai `truonganhquyen/ca-dao` (`main` = hướng v2; PR #1–#3 đã gộp) và repo riêng tư `truonganhquyen/ca-dao-kho-tho` (mã thu thập T-038; dữ liệu đổ dần bằng GitHub Actions hằng ngày sau khi PR của repo đó gộp). Commit dùng email ẩn của GitHub.
 
 ## Đang chờ người sáng lập
@@ -61,14 +65,15 @@
 Mở **Ca dao – Tục ngữ → Bàn biên tập** (hoặc ô "việc chờ bạn" trên Bảng tin): mọi hàng chờ dưới đây có số đếm và nút mở đúng trang; phần **"Làm trước"** là đủ cho mỗi tuần, phần "Khi rảnh" không gấp.
 
 - **An toàn tài khoản quản trị — làm ngay** (báo cáo khảo sát E2E 26/10/2026): đổi mật khẩu quản trị (mật khẩu dài, lưu trong trình quản lý mật khẩu — mật khẩu cũ đã đi qua kênh chữ thường); bật xác thực hai lớp; Hồ sơ → "Tên hiển thị công khai" chọn tên khác tên đăng nhập; FlashPanel → PHP bật OPcache; xóa bài mẫu "Hello world!" và bình luận mẫu. Nếu đăng nhập sai 5 lần, site tạm khoá tài khoản 15 phút — đợi, hoặc bấm "Quên mật khẩu?".
-- **Sao lưu FlashPanel — làm ngay** (điều kiện mở, D-073): FlashPanel → *Sao Lưu*, chọn hằng ngày, gồm site và cơ sở dữ liệu cadao, lưu ra ngoài VPS (Google Drive…); rồi thử khôi phục một lần. Quay lại bản trước chỉ trả lại mã, không trả lại dữ liệu (`docs/huong-dan/quay-lai-ban-truoc.md`).
+- **Sao lưu FlashPanel:** đã bật hằng ngày (người sáng lập xác nhận 27/10/2026, D-090; không thử khôi phục theo quyết định của người sáng lập). Trước ngày chuyển sang V2: mở FlashPanel xác nhận có bản sao lưu đêm trước.
 - **Gợi ý mô-típ** (Ca dao – Tục ngữ → Gợi ý mô-típ; khi rảnh): mỗi nhóm bài cùng cụm mở đầu — sửa tên cho tự nhiên (ví dụ "Công cha… nghĩa mẹ…"), bỏ dấu bài không hợp, bấm "Tạo mô-típ"; viết vài dòng giới thiệu ở Mô-típ → Sửa → Mô tả nếu muốn.
 - **Gửi thư cho Ca dao Mẹ (T-034) — nên gửi tuần này, không chặn mở (D-077):** bản nháp ở `docs/12` mục 7. Từ khi bỏ dòng Nguồn dưới chú thích chép (D-068), thư càng cần trước khi mở cho Google.
 - **Viết Hiểu nhanh** (mục tiêu ≥ 50 bài, khoảng 10 bài mỗi tuần — không chặn mở từ D-077, nhưng bài chưa có Hiểu nhanh thì Google chưa lập chỉ mục): Ca dao – Tục ngữ → **Viết Hiểu nhanh**; ưu tiên câu trong SGK Ngữ văn và câu theo dịp (Tết, Vu Lan, 20/11). Muốn nhanh hơn: nhờ agent soạn nháp cho 10 bài, bạn chỉ đọc, sửa — `docs/huong-dan/viet-hieu-nhanh.md`. Bài chưa có Hiểu nhanh thì Google không lập chỉ mục.
 - **Chuyển hướng cadao.sdigi.net** (nếu chưa làm, D-070): Cloudflare → thêm bản ghi cho cadao.sdigi.net và quy tắc chuyển hướng 301 sang `https://phongdao.com/$1`.
-- **Ba trang Phương pháp, Nguồn, Về dự án** (Trang → Bản nháp): máy đã soạn theo đúng cách site đang làm (Phương pháp có thêm mục "Dòng nhỏ dưới lời nói gì" — liên kết "Vì sao?" dưới lời chỉ hiện khi trang này đã đăng); bạn đọc, sửa câu chữ rồi bấm Đăng — chân trang tự có liên kết.
+- **Ba trang Phương pháp, Nguồn, Về dự án** (đã đăng — thấy trên site 27/10/2026): đọc lại câu chữ khi rảnh; agent đề xuất sửa tên dự án trong các trang này lúc chuyển sang V2.
+- **Đổi tiêu đề site ngay** (1 phút, D-082): Cài đặt → Tổng quan → Tiêu đề trang = "Thư viện Văn học Dân gian Việt Nam". Mã MVP không đổi tên (đóng băng); V2 mang tên mới.
 - **Đọc lại trang Chính sách thu thập dữ liệu** (Trang → Chính sách thu thập dữ liệu): máy đã soạn và đăng (vì đây là nơi ghi nhận nguồn); sửa câu chữ nếu muốn.
-- **Chuyển 16 bài vè vừa nhập** (Ca dao – Tục ngữ → Lời chưa vào khối Thơ): lời đang nằm trong khối Đoạn văn nên trang thiếu nút Trích dẫn, Lưu, Trình chiếu và tìm theo lời chưa ra; xem đề xuất rồi bấm "Chuyển các bài đã chọn". Về sau khi dán lời, nếu ô bên cạnh báo "Lời đang nằm trong khối Đoạn văn" thì bấm "Đưa lời vào khối Thơ".
+- **Chuyển 16 bài vè vừa nhập** (không còn bắt buộc — công cụ nhập V2 tách được lời trong khối Đoạn văn; làm thì trang MVP đủ nút ngay) (Ca dao – Tục ngữ → Lời chưa vào khối Thơ): lời đang nằm trong khối Đoạn văn nên trang thiếu nút Trích dẫn, Lưu, Trình chiếu và tìm theo lời chưa ra; xem đề xuất rồi bấm "Chuyển các bài đã chọn". Về sau khi dán lời, nếu ô bên cạnh báo "Lời đang nằm trong khối Đoạn văn" thì bấm "Đưa lời vào khối Thơ".
 - **Trò chơi cho đồng dao** (Ca dao – Tục ngữ → Trò chơi): thêm trò chơi (ví dụ Rồng rắn lên mây), bấm vào tên rồi bấm "Lấy mục Cách chơi từ Wikipedia" (hoặc tự viết), điền số người, độ tuổi, đồ dùng; trong trình soạn bài đồng dao, chọn trò chơi ở ô "Trò chơi".
 - **Đọc số liệu mỗi tuần** (Bảng tin → ô "người đọc cần gì"; khoảng 5 phút): câu tìm không ra → thêm bài; bài được sao chép nhiều → kiểm lại; từ được chạm nhiều → viết nghĩa kỹ hơn — `docs/huong-dan/doc-so-lieu.md`.
 - **Duyệt đóng góp của người đọc:** Ca dao – Tục ngữ → Góp ý của người đọc; Cảm nhận – phân tích (bài Chờ duyệt → Đăng); Bình luận (cảm nghĩ chờ duyệt → Chấp thuận).
