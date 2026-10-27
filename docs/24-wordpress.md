@@ -6,7 +6,7 @@
 | Trạng thái | **Xong (T-076, T-117).** Site Astro đã gỡ khỏi repo (D-071); WordPress là site duy nhất |
 | Đọc khi | Làm T-071..T-076, hoặc bất kỳ việc gì trên WordPress. Gói nâng cấp 25/10/2026 (giao diện, nguồn nội dung, từng thể loại, lượt đọc, người đọc góp phần, giọng đọc): `25` |
 | Mục tiêu | Người sáng lập đăng bài như WordPress quen thuộc; phần lớn nội dung tự lấy từ các nguồn cấu hình trong trang quản trị, vào **Chờ duyệt**, xem rồi bấm **Đăng** |
-| V2 (D-085) | Tài liệu này mô tả mã MVP đang chạy. Kiến trúc đích (tác phẩm nhiều lớp, khối `cadao/*`, theme 1.0, Bàn biên tập React): `26-kien-truc-v2.md`. Khi một module V2 thay phần nào ở đây, sửa mục đó trong cùng PR |
+| V2 (D-083) | Tài liệu này mô tả mã MVP đang chạy (đóng băng tính năng). V2 xây mới ở `wordpress/v2/`: `26-kien-truc-v2.md`; ngày chuyển (T-157) tài liệu này vào `luu-tru/`. Phần máy chủ (mục 8) vẫn đúng cho V2 |
 
 ## 1. Luồng nội dung
 

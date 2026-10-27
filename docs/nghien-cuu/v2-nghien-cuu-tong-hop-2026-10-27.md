@@ -4,7 +4,7 @@
 |---|---|
 | Ngày | 27/10/2026 |
 | Người soạn | Claude Code (agent), theo yêu cầu của người sáng lập |
-| Trạng thái | **Đã duyệt 27/10/2026 (D-082..D-088).** Q1 chọn "đổi cả tên ngay" (khác gợi ý C); Q2–Q8 theo gợi ý; Q4 = React. Bản chốt: `docs/00` (V2), `docs/26`, `docs/27`, `docs/28`. Tài liệu này giữ làm căn cứ, không sửa thêm |
+| Trạng thái | **Đã quyết 27/10/2026 (D-082..D-091), có thay đổi so với tài liệu này:** xây mới thay cải tiến tại chỗ; chuyển một lần rồi mở (thay Q5 A); đổi tên ngay; bỏ đường dự phòng Gutenberg; L2 không tính bài phân tích; câu đố có nút Hiện đáp án. Bản chốt: `docs/00` (V2), `docs/26`–`29`. Tài liệu này giữ làm căn cứ, không sửa thêm |
 | Căn cứ | Mã trên `main` (plugin 0.33.2, theme 0.19.1); `docs/00`, `01` (tới D-081), `02` (bản 2.4), `12`, `20`, `22`, `24`, `25`; `docs/e2e-review/REPORT.md`; `docs/nghien-cuu/khao-sat-doi-thu-2026-10-27.md`; bản đề xuất *Phongdao Next Generation v1.0* (27/10/2026, gọi tắt **PNG**) |
 | Giới hạn | Không đo lại site thật trong phiên này; số liệu site lấy từ báo cáo E2E 26/10 và khảo sát 27/10. Không vào trang quản trị trên VPS |
 | Đọc kèm | Phiên bổ sung: `v2-backend-plugin-theme-2026-10-27.md` (kiến trúc plugin, theme, dữ liệu, thứ tự PR) và `v2-ux-ui-2026-10-27.md` (UX/UI, học từ vanvn.net) |

@@ -4,7 +4,7 @@
 |---|---|
 | Ngày | 27/10/2026 |
 | Người soạn | Claude Code (agent), phiên bổ sung theo yêu cầu của người sáng lập |
-| Trạng thái | **Đã duyệt 27/10/2026 (D-083, D-085).** B1–B6 theo gợi ý. Bản chốt để làm: `docs/26-kien-truc-v2.md`; tài liệu này giữ làm căn cứ, không sửa thêm |
+| Trạng thái | **Đã quyết 27/10/2026 (D-083..D-086), có thay đổi:** B1 thành **viết mới** (xây song song ở `wordpress/v2/`, chuyển một lần — không thay dần, không ghi song song); B2–B5 theo gợi ý; B6 thay bằng chạy thử chỉ đọc trên site thật. Bản chốt: `docs/26-kien-truc-v2.md`, `docs/29-chuyen-doi-v2.md`; tài liệu này giữ làm căn cứ, không sửa thêm |
 | Căn cứ | Mã trên `main`: plugin 0.33.2 (`wordpress/plugins/ca-dao/`), theme 0.19.1 (`wordpress/themes/ca-dao/`), `wordpress/tests/`, `tests/e2e/`, `wordpress/may-chu/` |
 | Đọc kèm | `v2-ux-ui-2026-10-27.md` (giao diện mà backend này phục vụ) |
 

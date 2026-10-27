@@ -10,7 +10,7 @@ Website chạy trên **WordPress** (phongdao.com). Kho mã này chứa mã ngu�
 | Bạn là | Bắt đầu từ |
 |---|---|
 | **Người sáng lập** | `docs/02-trang-thai-hien-tai.md` (đang ở đâu, việc của bạn) |
-| **Dev, AI agent** | `AGENTS.md` (luật chơi), `docs/00-tai-lieu-nen.md`, `docs/24-wordpress.md`, `docs/22-backlog-trien-khai.md`; đại tu V2: `docs/26-kien-truc-v2.md`, `docs/27-giao-dien-v2.md`, `docs/28-dac-ta-dot-v2-0.md` |
+| **Dev, AI agent** | `AGENTS.md` (luật chơi), `docs/00-tai-lieu-nen.md`, `docs/24-wordpress.md`, `docs/22-backlog-trien-khai.md`; xây mới V2: `docs/26-kien-truc-v2.md`, `docs/27-san-pham-v2.md`, `docs/28-ban-bien-tap-v2.md`, `docs/29-chuyen-doi-v2.md` |
 | **Người biên soạn** | `docs/huong-dan/` |
 
 ## Cấu trúc

@@ -2,13 +2,13 @@
 
 | | |
 |---|---|
-| Phiên bản | 3.0 · 27/10/2026 (đại tu V2: D-082..D-088) |
+| Phiên bản | 3.0 · 27/10/2026 (đại tu V2, xây mới: D-082..D-091) |
 | Trạng thái | **Ổn định.** Đổi nội dung phải ghi vào `01-nhat-ky-quyet-dinh.md` |
 | Đọc khi | Trước mọi việc khác. Người mới và AI agent đọc tài liệu này đầu tiên |
 | Thay cho | Bản 2.0 (MVP, 23/10/2026) — lưu ở `docs/luu-tru/00-tai-lieu-nen-mvp.md` |
 | Căn cứ | Bản đề xuất *Phongdao Next Generation v1.0* (27/10/2026); `docs/nghien-cuu/v2-*-2026-10-27.md`; khảo sát đối thủ 27/10; báo cáo E2E 26/10 |
 
-Tài liệu này trả lời: làm gì, cho ai, theo nguyên tắc nào, trong phạm vi nào, đo bằng gì. Chi tiết "làm thế nào": kiến trúc ở `26`, giao diện ở `27`, đặc tả từng đợt ở `28` trở đi, task ở `22`.
+Tài liệu này trả lời: làm gì, cho ai, theo nguyên tắc nào, trong phạm vi nào, đo bằng gì. Chi tiết "làm thế nào": kỹ thuật ở `26`, sản phẩm cho người đọc ở `27`, luồng nội dung và Bàn biên tập ở `28`, chuyển dữ liệu và chuyển đổi ở `29`, task ở `22`.
 
 ---
 
@@ -81,7 +81,7 @@ Người tìm văn học dân gian trên mạng gặp sáu vấn đề lặp l�
 | Sử thi, thần thoại chuyên sâu; văn học dân gian các dân tộc thiểu số | Ngoài V2 | Cần chuyên gia và đồng thuận của cộng đồng |
 | Thơ hiện đại, truyện nước ngoài, văn mẫu, "ca dao chế" | Ngoài phạm vi | Câu hay bị nhầm chỉ xuất hiện khi gắn cờ "Nghi không phải dân gian" |
 
-**Cổng mở một thể loại mới (D-088):** có mẫu trang đọc riêng qua quét trợ năng; ≥ 20 bài đã đăng, trong đó ≥ 10 bài ở cấp L2; lời có hồ sơ nguồn và quyền đã ghi. Thể loại chưa qua cổng không lên menu.
+**Cổng mở một thể loại mới (D-091):** có mẫu trang đọc riêng qua quét trợ năng; ≥ 20 bài đã đăng, trong đó ≥ 10 bài ở cấp L2; lời có hồ sơ nguồn và quyền đã ghi. Thể loại chưa qua cổng không lên menu.
 
 ### Những thứ không làm
 
@@ -97,41 +97,43 @@ Người tìm văn học dân gian trên mạng gặp sáu vấn đề lặp l�
 | Tra năm sinh, phong thuỷ, meme để kéo lượt xem | Lạc định vị | Không bao giờ |
 | Quảng cáo, liên kết tiếp thị, khối liên kết chân trang | Mâu thuẫn với lý do tồn tại | Không bao giờ |
 
-Đã đổi so với bản MVP: **giọng đọc máy** được làm, luôn ghi "Giọng đọc máy" (D-063); **bản đồ** đã có, không gọi dịch vụ ngoài (T-104); **công cụ quản trị riêng** nay là Bàn biên tập V2 nằm trong plugin WordPress (D-085, D-086).
+Đã đổi so với bản MVP: **giọng đọc máy** được làm, luôn ghi "Giọng đọc máy" (D-063); **bản đồ** đã có, không gọi dịch vụ ngoài (T-104); **công cụ quản trị riêng** nay là Bàn biên tập V2 nằm trong plugin WordPress, thay hẳn trình soạn Gutenberg cho tác phẩm (D-083, D-086).
 
 ## 6. V2 là gì
 
+**Xây mới trên WordPress (D-083).** WordPress chỉ là khung: đăng nhập, quyền, ảnh, REST, sao lưu, tự cập nhật. Plugin, theme, trang quản trị và mô hình dữ liệu viết mới; thuật toán đã kiểm chứng của MVP được chuyển sang kèm kiểm thử. Xây song song trong `wordpress/v2/`, chuyển một lần, mở cho Google ngay sau khi chuyển.
+
 | Trục | MVP | V2 |
 |---|---|---|
-| **Luồng nội dung** | Một bài = một khối HTML; nguồn rải 6 chỗ; Hiểu nhanh = ô Tóm tắt | **Tác phẩm nhiều lớp** (D-083): lời, dị bản, nghĩa, chú thích, bối cảnh, thực hành, media là lớp có cấu trúc; mỗi mục có hồ sơ nguồn, người làm, trạng thái, lịch sử. Chính sách hiện nguồn là **cài đặt** (D-084) |
-| **Giao diện** | Một mẫu trang bài; phần riêng chèn bằng PHP; trang chủ là mã ngắn | **Trang đọc theo thể loại** dựng từ khối `cadao/*`; **lối vào theo nhu cầu** (Đọc · Khám phá · Cho lớp học · Tra cứu); tuyển tập đọc liền; Thông tin tư liệu (D-087) |
-| **Quản trị** | 13 trang con, mỗi trang một kiểu | **Một Bàn biên tập** (D-086): Hộp việc, Duyệt nhanh, trình soạn có cấu trúc, kế hoạch tuần |
+| **Luồng nội dung** | Một bài = một khối HTML; nguồn rải 6 chỗ; mỗi ngày máy tạo hàng loạt bài Chờ duyệt | **Tác phẩm nhiều lớp** (D-084): mỗi lớp có hồ sơ nguồn, người làm, trạng thái, lịch sử. Ứng viên từ kho là thẻ việc, bấm Đăng mới thành tác phẩm. Chính sách hiện nguồn là **cài đặt** (D-085) |
+| **Giao diện** | Một mẫu trang bài; phần riêng chèn bằng PHP; trang chủ là mã ngắn | **Trang đọc theo thể loại**; **lối vào theo nhu cầu** (Đọc · Khám phá · Cho lớp học · Tra cứu); tuyển tập đọc liền; Thông tin tư liệu (D-087) |
+| **Quản trị** | 13 trang con, Gutenberg trên điện thoại | **Một Bàn biên tập** React (D-086): Hôm nay, Duyệt nhanh, soạn có cấu trúc, quản lý nguồn, từ điển, tuyển tập |
 
 ```text
 Nguồn (Ca dao Mẹ · Wikisource · người đọc · nhập tay)
   → Kho thu thập (riêng tư, không lên trang)
-  → Máy: tách lớp · chống trùng · gợi ý phân loại · tìm trang sách quét khớp lời
+  → Máy: chống trùng · gợi ý phân loại · tách lớp · tìm trang sách quét khớp lời
   → Agent: nháp nghĩa theo lô (ai_nhap, chờ duyệt)
   → Hộp việc: mỗi thẻ một quyết định → người sáng lập Đăng · Sửa · Để sau
   → Trang đọc dựng từ lớp đã duyệt
-  → Hậu kiểm: góp ý, báo lỗi, tìm không ra → quay lại Hộp việc
+  → Hậu kiểm: góp ý, báo lỗi, "mong có câu này" → quay lại Hộp việc
 ```
 
-**Cấp chất lượng (nội bộ, máy tính, không hiện cho người đọc):** L0 có lời · L1 có thể loại và dòng mức kiểm · L2 có Hiểu nhanh, khối nghĩa đã duyệt hoặc bài phân tích đã duyệt · L3 có thêm đối chiếu sách, bối cảnh hoặc media có quyền. Dùng để xếp việc, chọn bài nổi bật và quyết lập chỉ mục (L2 trở lên). Không chặn đăng.
+**Cấp chất lượng (nội bộ, máy tính, không hiện cho người đọc):** L0 có lời · L1 có thể loại và dòng mức kiểm · L2 có Hiểu nhanh hoặc bộ nghĩa đã duyệt · L3 có thêm đối chiếu sách, bối cảnh hoặc media có quyền. Dùng để xếp việc, chọn bài nổi bật và quyết lập chỉ mục (L2 trở lên). Bài phân tích của người đọc không tính cấp. Không chặn đăng.
 
 ## 7. Lộ trình
 
-Giả định khoảng 5 giờ/tuần của người sáng lập; mọi phần mã do agent làm. Mốc ngày là ước tính, không phải cam kết công khai.
+Giả định khoảng 5 giờ/tuần của người sáng lập; mọi phần mã do agent làm. Không hứa ngày công khai; mục tiêu mở vẫn là trước Tết Đinh Mùi 2027.
 
-| Đường | Kết quả | Ước tính |
+| Đợt | Kết quả | Người sáng lập |
 |---|---|---|
-| **Mốc C · Mở lặng lẽ** | Sao lưu hằng ngày + thử khôi phục; người sáng lập quyết mở (H5). Nên có: ~50 câu có Hiểu nhanh, thư đã gửi Ca dao Mẹ | Trước Tết Đinh Mùi 2027 |
-| **V2.0 · Nền** | Mô hình lớp, hồ sơ nguồn, nhật ký, chuyển dữ liệu, chính sách hiện nguồn thành cài đặt. Giao diện người đọc **không đổi** | Song song, bắt đầu ngay |
-| **V2.1 · Bàn biên tập** | Hộp việc, Duyệt nhanh, trình soạn có cấu trúc, nghĩa tục ngữ, cờ nghi, đối chiếu sách | Sau V2.0 |
-| **V2.2 · Trang đọc** | Khối theo lớp, theme 1.0, mẫu 5 thể loại, trang chủ lối vào, tuyển tập, Thông tin tư liệu, Đố vui | Sau V2.1 |
-| **V2.3 · Mở rộng** | Thể loại mới qua cổng, giọng đọc sinh sẵn, Cho lớp học, dữ liệu mở | Theo số liệu sau khi mở |
+| **1 · Nền** | Khung V2, mô hình lớp, nguồn vào + kho + chống trùng, tìm, công cụ nhập dữ liệu chạy được trên bản mẫu | — |
+| **2 · Trang đọc** | Theme 1.0, 5 mẫu thể loại, trang chủ lối vào, tuyển tập, tra cứu, người đọc góp, đo lường, SEO, an toàn | Xem bản xem trước (~1–2 giờ) |
+| **3 · Bàn biên tập** | Hôm nay, Duyệt nhanh, soạn có cấu trúc, quản lý; E2E trên bản xem trước | Dùng thử trên điện thoại (~1–2 giờ); thử với 5 người |
+| **4 · Chuyển đổi và mở** | Thay plugin + theme, nhập dữ liệu trên site thật, kiểm, mở cho Google (H5) | Xác nhận sao lưu đêm trước, đọc báo cáo, kiểm trên điện thoại, bấm mở (~2 giờ) |
+| **5 · Mở rộng** | Đối chiếu sách Wikisource, Cho lớp học, giọng đọc, thể loại mới, truyện, dữ liệu mở, dọn dữ liệu cũ | Theo từng việc |
 
-Mỗi đợt V2 có một đặc tả ngắn được người sáng lập duyệt trước khi làm (`docs/28` cho V2.0). Mỗi đợt để lại site chạy được; không đổi đường dẫn.
+Trong lúc xây: MVP đóng băng tính năng; người sáng lập vẫn viết, duyệt Hiểu nhanh trên MVP — dữ liệu được mang sang (D-089).
 
 ## 8. Chỉ số
 
@@ -154,8 +156,9 @@ Mỗi đợt V2 có một đặc tả ngắn được người sáng lập duy�
 
 | Rủi ro | Mức | Giảm thiểu |
 |---|---|---|
-| Chuyển dữ liệu làm hỏng bài | Cao | Chỉ chạy sau sao lưu + thử khôi phục; chạy lại được; so từng ký tự lời; hàng "Cần xem" thay vì đoán; cờ tính năng |
-| V2 kéo dài, MVP đứng yên | Cao | Mở không chờ V2; Hiểu nhanh chạy tiếp trên công cụ hiện có; mỗi đợt để lại site chạy được |
+| Chuyển dữ liệu làm mất quyết định của người biên soạn | Cao | Kiểm kê dữ liệu người làm trước khi viết công cụ nhập; chạy thử, báo cáo, so từng ký tự lời; "Cần xem" thay vì đoán; dữ liệu cũ giữ nguyên tới khi được cho dọn; lệnh hoàn tác |
+| Xây mới kéo dài, site không mở được | Cao | Đợt 1–3 chỉ thay đúng tính năng MVP + lõi V2; mọi thứ khác để đợt 5; mỗi đợt có bản xem trước |
+| Bản sao lưu chưa từng khôi phục thử | TB | Người sáng lập đã chấp nhận (D-090); dữ liệu cũ không bị xoá khi chuyển; lệnh hoàn tác |
 | Người sáng lập kiệt sức | Cao | Duyệt nhanh trên điện thoại; máy xếp việc; lô 5–10 câu/tuần |
 | Ca dao Mẹ phản đối việc chép chú thích | TB | Gửi thư sớm (T-034); công tắc "Chép chú thích" tắt được ngay; chính sách hiện là cài đặt |
 | Duyệt qua loa vì quá dễ | TB | Thẻ luôn kèm chú thích, nguồn; nhãn AI rõ; báo lỗi đứng đầu hộp |
@@ -170,13 +173,14 @@ Mỗi đợt V2 có một đặc tả ngắn được người sáng lập duy�
 | 01 | Nhật ký quyết định + câu hỏi còn mở | Luôn |
 | 02–03 | Trạng thái hiện tại, quy trình thực thi | Mỗi phiên làm việc |
 | 12 | Chính sách nguồn | Mọi việc chạm nguồn, bản quyền, ghi công |
-| 20 | Đặc tả giao diện đang chạy (token màu, phông vẫn dùng ở V2) | Sửa giao diện MVP |
+| 20 | Đặc tả giao diện MVP (token màu, phông, câu chữ, trợ năng vẫn dùng ở V2) | Sửa lỗi MVP; tra token |
 | 22 | Backlog, mốc | Nhận việc |
-| 24 | WordPress hiện tại (plugin, theme, máy chủ, kiểm thử) | Sửa mã MVP |
+| 24 | WordPress MVP (plugin, theme, máy chủ, tự cập nhật) | Sửa lỗi MVP; máy chủ |
 | 25 | Gói nâng cấp 25/10/2026 | Task trỏ tới |
-| **26** | **Kiến trúc kỹ thuật V2** | Mọi task V2 |
-| **27** | **Đặc tả giao diện V2** | Task V2.2 trở đi, mọi thay đổi giao diện mới |
-| **28** | **Đặc tả đợt V2.0** | Task V2.0 |
+| **26** | **Kỹ thuật V2**: nền tảng, cấu trúc mã, dữ liệu, REST, quyền, kiểm thử | Mọi task V2 |
+| **27** | **Sản phẩm cho người đọc V2**: từng màn hình, SEO, đo lường, thiết kế | Task chạm trang người đọc |
+| **28** | **Luồng nội dung và Bàn biên tập V2** | Task chạm nguồn, kho, quản trị |
+| **29** | **Chuyển dữ liệu và chuyển đổi** | Công cụ nhập, ngày chuyển |
 | `nghien-cuu/` | Khảo sát, kế hoạch, nghiên cứu V2 (căn cứ) | Khi cần lý do |
 | `huong-dan/` | Hướng dẫn cho người biên soạn | Viết hướng dẫn |
 | `luu-tru/` | Tài liệu không còn dùng hằng ngày (bản MVP của tài liệu này, v1.2) | Khi task trỏ tới |

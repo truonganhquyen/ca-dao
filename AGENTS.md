@@ -8,7 +8,7 @@ Tệp này dành cho mọi AI agent làm việc trong kho mã (Claude Code, Code
 
 **Hướng hiện tại — "Trung thực hơn hoàn hảo"** (D-039, chuyển WordPress D-054..D-056): xuất bản sớm, nội dung dày dần. Không chặn đăng vì lý do biên tập; nguồn không bắt buộc nhưng không được bịa. Site Astro cũ đã gỡ khỏi repo (D-071).
 
-**Đại tu V2** (D-082..D-088) chạy song song với mốc mở công khai: tác phẩm nhiều lớp, một Bàn biên tập, trang đọc theo thể loại. Mọi tính năng V2 nằm sau cờ tính năng, tắt trên site thật tới khi chuyển dữ liệu xong; mỗi PR giữ site như cũ khi cờ tắt.
+**Xây mới V2** (D-082..D-091): giữ WordPress làm khung, viết mới toàn bộ plugin, theme, Bàn biên tập và mô hình dữ liệu (tác phẩm nhiều lớp). Mã V2 ở `wordpress/v2/` — máy chủ chưa lấy; chuyển một lần (T-157) rồi mở cho Google. **MVP (`wordpress/plugins/ca-dao`, `wordpress/themes/ca-dao`) đóng băng tính năng:** chỉ sửa lỗi bảo mật, lỗi mất dữ liệu; mọi tính năng mới làm trong V2.
 
 ## Đọc trước khi làm
 
@@ -20,7 +20,10 @@ Tệp này dành cho mọi AI agent làm việc trong kho mã (Claude Code, Code
 
 | Loại việc | Tài liệu |
 |---|---|
-| **V2** (tác phẩm nhiều lớp, khối `cadao/*`, theme 1.0, Bàn biên tập React, chuyển dữ liệu) | `docs/26-kien-truc-v2.md`, `docs/27-giao-dien-v2.md`, đặc tả đợt `docs/28` trở đi |
+| **V2 — kỹ thuật** (cấu trúc mã, dữ liệu, REST, quyền, kiểm thử) | `docs/26-kien-truc-v2.md` |
+| **V2 — trang người đọc** (từng màn hình, SEO, đo lường, thiết kế) | `docs/27-san-pham-v2.md` |
+| **V2 — nguồn, kho, Bàn biên tập** | `docs/28-ban-bien-tap-v2.md` |
+| **V2 — chuyển dữ liệu, ngày chuyển** | `docs/29-chuyen-doi-v2.md` |
 | **WordPress** (plugin, theme, nguồn tự động, kho, chuyển đổi, công cụ) | `docs/24-wordpress.md` |
 | **Gói nâng cấp 25/10/2026** (giao diện, nguồn nội dung, chống trùng, lượt đọc, người đọc góp phần, giọng đọc) | `docs/25-nang-cap-giao-dien-noi-dung.md` |
 | Giao diện, câu chữ, màu, phông | `docs/20-dac-ta-giao-dien.md` (phần WordPress ở cuối) |
@@ -72,7 +75,7 @@ Ngoài các Human Gate này, agent phải tự quyết các chi tiết kỹ thu�
 5. **Không xóa, gộp, đổi đường dẫn** bài, dị bản, nguồn, mục từ đã có — kể cả khi công cụ báo nghi trùng. Báo lại để người biên soạn quyết (chỉ dùng công cụ gộp khi người biên soạn đã bấm).
 6. **Không thêm giá trị vào bộ chủ đề, vùng của dự án** nếu task không yêu cầu rõ (bảng ánh xạ trong docs/25 là nguồn).
 7. **Không làm yếu, tắt hay bỏ qua kiểm thử** để qua cổng, và không hạ một kiểm thử từ bắt buộc xuống không chặn khi không có quyết định (D-xxx).
-8. **Không thêm:** cookie, theo dõi, quảng cáo, đăng nhập hay tài khoản người đọc, dịch vụ bên thứ ba khi người đọc chưa mở (ví dụ bản đồ ngoài), thu IP. Đo lường chỉ các sự kiện đã quyết trong docs/21 mục 7 và D-047/D-069.
+8. **Không thêm:** cookie, theo dõi, quảng cáo, đăng nhập hay tài khoản người đọc, dịch vụ bên thứ ba khi người đọc chưa mở (ví dụ bản đồ ngoài), thu IP. Đo lường chỉ lượt đọc (D-064) và đúng năm sự kiện đã quyết: `tim_khong_ket_qua`, `trich_dan_sao_chep`, `chu_giai_mo` (D-047), `chia_se` (D-069), `mong_co_cau` (D-088). Thêm sự kiện mới phải có D-xxx và sửa dòng này.
 9. **Không đưa thông tin cá nhân** (email, số điện thoại, tên thật của người chọn ẩn danh, địa chỉ) vào bất kỳ tệp nào trong repo hay vào nội dung site. Email người dùng không được gửi đi đâu.
 10. **Không dùng từ cấm trong giao diện:** "bản gốc", "bản đúng", "bản chuẩn", "bản sai", "AI giải thích", "câu hay nhất". Bản đại diện gọi là **"Bản tham chiếu"**.
 11. **Không chép lời ca dao từ các bản ý tưởng gốc hay từ trí nhớ** vào site. Lời chỉ đến từ đường thu thập hoặc người biên soạn.
@@ -83,8 +86,8 @@ Ngoài các Human Gate này, agent phải tự quyết các chi tiết kỹ thu�
 
 ## LUÔN LUÔN
 
-- Chạy `npm run kiem-tra` và `npm run test:wordpress` trước khi kết thúc. Khi thêm kiểm thử mới, mở rộng chính lệnh này thay vì tạo đường kiểm tra rời rạc.
-- Mỗi lần đổi plugin hoặc theme: tăng số phiên bản (`CADAO_PHIEN_BAN` và dòng `Version:` của plugin; dòng `Version:` của theme). Máy chủ dùng số này để biết đã cập nhật.
+- Chạy `npm run kiem-tra` và `npm run test:wordpress` trước khi kết thúc (task V2: `npm run kiem-tra`, `npm run test:v2`, `npm run quet:v2` — có từ T-141). Khi thêm kiểm thử mới, mở rộng chính lệnh này thay vì tạo đường kiểm tra rời rạc.
+- Mỗi lần đổi plugin hoặc theme (MVP hay V2): tăng số phiên bản (`CADAO_PHIEN_BAN` và dòng `Version:` của plugin; dòng `Version:` của theme). Máy chủ dùng số này để biết đã cập nhật.
 - Lưu văn bản UTF-8, Unicode dựng sẵn (NFC), xuống dòng LF (`.gitattributes` giữ LF trên Windows).
 - Giữ JavaScript phía trình duyệt tối thiểu; trang đọc được khi tắt JavaScript. Tệp JavaScript của trang bài dưới ngân sách 21 KB.
 - Giữ trợ năng: bàn phím, focus rõ, nhãn không chỉ dựa vào màu, vùng chạm ≥ 44 px. `npm run quet:wordpress` (WCAG 2.2 AA) phải đạt.
