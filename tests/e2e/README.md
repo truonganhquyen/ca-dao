@@ -21,6 +21,9 @@ E2E_USER=... E2E_PASS=... npm run e2e:quan-tri          # bash
 $env:E2E_USER='...'; $env:E2E_PASS='...'; npm run e2e:quan-tri   # PowerShell
 
 E2E_BASE_URL=http://127.0.0.1:9411 npm run e2e   # chạy với site khác (ví dụ Playground)
+
+# Máy không có Chrome, hoặc mạng phải qua proxy (ví dụ môi trường agent):
+E2E_TRINH_DUYET=/opt/pw-browsers/chromium E2E_PROXY=$HTTPS_PROXY npm run e2e
 npx playwright show-report test-results/e2e       # xem dấu vết khi hỏng
 ```
 

@@ -49,7 +49,6 @@ test('L-01 tham số ly_do không cho người ngoài chèn chữ vào trang bà
 });
 
 test('L-10 không còn bài mẫu "Hello world!" và bình luận mẫu', async ({ request }) => {
-  test.fail(true, 'L-10: /hello-world/ (bài mẫu WordPress, bình luận của "A WordPress Commenter") đang công khai');
   expect((await request.get('/hello-world/', { maxRedirects: 0 })).status()).toBe(404);
 });
 

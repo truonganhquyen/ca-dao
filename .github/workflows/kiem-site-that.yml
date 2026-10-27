@@ -1,0 +1,53 @@
+name: Kiểm site thật đúng bản
+
+# T-129 (D-080): phongdao.com có đang chạy đúng phiên bản plugin, theme trên main không. Chỉ đọc site.
+# Lệch → mở issue "Site thật lệch bản" (một issue, không mở trùng); khớp lại → đóng issue đó.
+# Chạy mỗi giờ (máy chủ tự cập nhật trong vài phút sau khi gộp, nên lệch quá một giờ là có chuyện) và chạy tay được.
+on:
+  schedule:
+    - cron: '23 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  kiem:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 50
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+
+      - name: So phiên bản site với main
+        id: so
+        run: |
+          set +e
+          ket_qua=$(node scripts/kiem-site-that.mjs)
+          ma=$?
+          echo "$ket_qua"
+          echo "ket_qua<<HET" >> "$GITHUB_OUTPUT"; echo "$ket_qua" >> "$GITHUB_OUTPUT"; echo "HET" >> "$GITHUB_OUTPUT"
+          # Bỏ qua nếu lần đổi plugin/theme gần nhất trên main mới hơn 30 phút (máy chủ còn đang cập nhật)
+          moi=$(( $(date +%s) - $(git log -1 --format=%ct -- wordpress/plugins/ca-dao wordpress/themes/ca-dao) ))
+          echo "lech=$([ $ma -ne 0 ] && [ $moi -gt 1800 ] && echo 1 || echo 0)" >> "$GITHUB_OUTPUT"
+
+      - name: Mở hoặc đóng issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          KET_QUA: ${{ steps.so.outputs.ket_qua }}
+        run: |
+          TIEU_DE="Site thật lệch bản"
+          so=$(gh issue list --state open --search "\"$TIEU_DE\" in:title" --json number --jq '.[0].number')
+          if [ "${{ steps.so.outputs.lech }}" = "1" ]; then
+            if [ -z "$so" ]; then
+              gh issue create --title "$TIEU_DE" --body "$(printf '%s\n\n%s\n\n%s' "$KET_QUA" 'Máy chủ chưa chạy đúng bản trên main. Thường gặp: PHP còn giữ mã cũ trong bộ nhớ đệm (OPcache) — vào FlashPanel khởi động lại PHP; hoặc kịch bản tự cập nhật báo lỗi — xem /home/cadao/cap-nhat.log. Issue tự đóng khi site khớp lại.' 'Mở bởi workflow kiem-site-that (T-129).')"
+            fi
+            exit 1
+          elif [ -n "$so" ]; then
+            gh issue close "$so" --comment "Site đã khớp lại: $KET_QUA"
+          fi
