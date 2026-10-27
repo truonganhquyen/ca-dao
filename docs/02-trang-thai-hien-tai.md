@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| Phiên bản | 2.3 · 26/10/2026 |
+| Phiên bản | 2.4 · 27/10/2026 |
 | Mục đích | Trang tổng quan ngắn cho người sáng lập và AI agent |
-| Nguồn máy đọc | `du-an/trang-thai.json` (`npm run trang-thai`) |
+| Nguồn máy đọc | `du-an/trang-thai.json` (`npm run kiem-nhat-quan` đối chiếu với `docs/01`, `docs/22`) |
 
 > Tệp này mô tả **thực tế hiện tại**, không phải kế hoạch tương lai. Sau mỗi task đã gộp, agent cập nhật tệp này cùng `du-an/trang-thai.json` và trạng thái trong `docs/22-backlog-trien-khai.md`. `npm run kiem-nhat-quan` báo lỗi khi các nguồn này lệch nhau.
 
@@ -48,11 +48,12 @@
 - **Câu một dòng, chỉ mục A–Z (T-095, 26/10/2026):** trang bài tục ngữ, thành ngữ hiện câu chữ to, không thụt như thơ; trang Tục ngữ – Thành ngữ có hàng chữ cái A B C D Đ… để lọc theo chữ đầu, nhóm Chủ đề mở sẵn; câu nào đã có Hiểu nhanh thì kèm nghĩa ngắn ngay trong danh sách.
 - **Mô-típ, bài gần gũi (T-092, 26/10/2026):** trang **Gợi ý mô-típ** gom các bài mở đầu bằng cùng một cụm chữ ("Thân em như…", "Chiều chiều…"); bạn đặt tên, bỏ bài không hợp rồi bấm Tạo — mỗi mô-típ có trang `/mo-tip/<tên>/`. Khối "Đọc tiếp" cuối bài xếp bài cùng mô-típ lên đầu, rồi cùng chủ đề, cùng nhắc một từ hay địa danh, cùng vùng.
 - **Một mục "Tục ngữ – Thành ngữ" (T-128, D-079, 26/10/2026):** không tách tục ngữ với thành ngữ nữa — menu, trang thể loại, đường dẫn `/tuc-ngu/` chung; bài "Thành ngữ" cũ (nếu có) chuyển sang, đường dẫn cũ tự chuyển; không còn trang "Tách thành ngữ – tục ngữ" phải duyệt.
-- **"Đọc tiếp" cuối bài (T-122, D-075, 26/10/2026):** sau Chủ đề, Vùng có 3–5 bài nên đọc tiếp — cùng chủ đề, cùng vùng (đã duyệt), thiếu thì cùng thể loại; mỗi bài có tên, hai dòng đầu và nhãn vì sao. Duyệt chủ đề, vùng càng nhiều thì gợi ý càng sát. Mô-típ, trang mô-típ vẫn tạm dừng.
+- **"Đọc tiếp" cuối bài (T-122, D-075, 26/10/2026):** sau Chủ đề, Vùng có 3–5 bài nên đọc tiếp — cùng chủ đề, cùng vùng (đã duyệt), thiếu thì cùng thể loại; mỗi bài có tên, hai dòng đầu và nhãn vì sao. Duyệt chủ đề, vùng càng nhiều thì gợi ý càng sát. Mô-típ xếp lên đầu (xem dòng "Mô-típ, bài gần gũi" ở trên).
 - **Dòng "lời và mức kiểm" (T-119, D-072, 26/10/2026):** ngay dưới lời mỗi bài: "Lời theo bản lưu truyền phổ biến · chưa đối chiếu sách", hoặc "Lời đã đối chiếu với <sách>, tr. N" khi người biên soạn tự điền hộp **Lời đã đối chiếu với** trong trang sửa bài (máy không bao giờ tự điền). Kèm "Vì sao?" tới trang Phương pháp (khi đã đăng); có trong kết quả Tìm và trích dẫn.
 - **An toàn vận hành (T-118, D-073, 26/10/2026):** máy chủ chặn cùng một máy gửi lặp lượt đọc, chia sẻ, trích dẫn, sự kiện đo lường (không lưu IP, chỉ dấu băm tạm một ngày) nên "Đọc nhiều tuần này" và số dưới tiêu đề không bị thổi phồng; chỉ tin IP do Cloudflare báo khi yêu cầu thật sự đi qua Cloudflare; không còn lộ phiên bản WordPress; máy chủ ghi các bản đã lên site, có hướng dẫn quay lại bản trước (`docs/huong-dan/quay-lai-ban-truoc.md`).
 - **Gỡ site Astro và CMS cũ (T-117, D-071, 26/10/2026):** đã xóa khỏi repo phần Astro, CMS Sveltia (`/admin`) và các công cụ chỉ phục vụ nó; luật và tài liệu viết lại theo WordPress.
 - **Khảo sát đối thủ, kế hoạch thực hiện (D-080, 27/10/2026):** báo cáo 14 site ở `docs/nghien-cuu/khao-sat-doi-thu-2026-10-27.md`; kế hoạch theo ưu tiên ở `docs/nghien-cuu/ke-hoach-thuc-hien-2026-10-27.md`, việc mới T-129..T-138. Khối "Đọc tiếp" cuối bài đã sửa trình bày (plugin 0.33.1, theme 0.19.1).
+- **Kiểm site thật, E2E (T-129, T-130, D-080, 27/10/2026):** `npm run kiem-site-that` so phiên bản plugin, theme phongdao.com đang phục vụ với `main` (chỉ đọc; GitHub Action mở issue khi lệch); bộ E2E `tests/e2e/` (`npm run e2e`, `npm run e2e:quan-tri`) chạy được ở mọi nơi, kỳ vọng lỗi đã sửa đã cập nhật. Báo cáo gốc: `docs/e2e-review/REPORT.md` (có mục tình trạng từng lỗi).
 - GitHub (24/10/2026): repo công khai `truonganhquyen/ca-dao` (`main` = hướng v2; PR #1–#3 đã gộp) và repo riêng tư `truonganhquyen/ca-dao-kho-tho` (mã thu thập T-038; dữ liệu đổ dần bằng GitHub Actions hằng ngày sau khi PR của repo đó gộp). Commit dùng email ẩn của GitHub.
 
 ## Đang chờ người sáng lập
@@ -78,7 +79,7 @@ Mở **Ca dao – Tục ngữ → Bàn biên tập** (hoặc ô "việc chờ b�
 - **Gợi ý vùng, chủ đề** (Ca dao – Tục ngữ → Gợi ý vùng, chủ đề): trước hết xem **bảng ánh xạ** ở đầu trang (chủ đề của Ca dao Mẹ → chủ đề của dự án; máy đã đề xuất), sửa nếu cần rồi bấm "Lưu"; sau đó duyệt gợi ý từng trang (bỏ dấu cái sai, bấm "Đồng ý").
 - **Xác nhận Wikidata** (Ca dao – Tục ngữ → Xác nhận Wikidata; máy thêm dần): mỗi mục bấm Đúng / Sai / Bỏ qua. Chỉ mục "Đúng" mới hiện ảnh, bản đồ trên trang.
 - **Quyết các cặp "Có thể trùng"** (menu Ca dao – Tục ngữ → Có thể trùng; Bảng tin báo số cặp): câu trùng đúng một dị bản đã ghi máy đã tự gắn (xem Kho thu thập → Đã gộp, bấm "Tách ra" nếu sai); mỗi cặp còn lại chọn "Gộp: là cùng một bài" / "Gộp làm dị bản" / "Là bài khác" / "Để sau"; cặp hai bài đã đăng thì chọn "Gộp: giữ …" bài muốn giữ lại. Câu đang chờ thì máy chưa tạo thành bài.
-- **Việc của người sáng lập trong gói nâng cấp** (`docs/25` mục 6): duyệt hàng loạt thể loại tách, xác nhận Wikidata, duyệt bộ chủ đề và vùng; tạo khóa Turnstile khi tới đợt đó; nghe thử 30 bài giọng đọc; tìm *Tục ngữ phong dao* (T-107).
+- **Việc của người sáng lập trong gói nâng cấp** (`docs/25` mục 6): xác nhận Wikidata, duyệt bộ chủ đề và vùng; tạo khóa Turnstile khi tới đợt đó; nghe thử 30 bài giọng đọc; tìm *Tục ngữ phong dao* (T-107).
 - **Thử biên soạn trên WordPress** (Ca dao – Tục ngữ → Thêm mới, trên điện thoại): tạo một bài thử, dán lời, bấm Lưu nháp rồi xem trước; xóa bài thử sau khi thử.
 - **T-034** · Gửi thư cho Ca dao Mẹ — nên gửi trước khi mở công khai, không chặn (D-077).
 
@@ -93,7 +94,7 @@ Q-006 (trình bày lục bát), Q-008 (tài trợ). Q-005 (tên miền) đã ch�
 ## Lệnh điều hành
 
 ```bash
-npm run trang-thai
 npm run viec-tiep-theo
 npm run kiem-tra
+npm run kiem-site-that      # site thật có đúng bản của main không (chỉ đọc)
 ```

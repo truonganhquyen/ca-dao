@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Phiên bản | 2.1 · 25/10/2026 (thêm gói nâng cấp D-059..D-065, `docs/25`) |
+| Phiên bản | 2.2 · 27/10/2026 (gói nâng cấp D-059..D-065, `docs/25`; T-118..T-138 sau các báo cáo review, khảo sát đối thủ D-080) |
 | Trạng thái | **Sống.** Cập nhật cột trạng thái ở mục 1 sau mỗi task/PR; enum: `READY`, `IN_PROGRESS`, `REVIEW`, `BLOCKED`, `DONE`, `DEFERRED` |
 | Đọc khi | Nhận việc. Mỗi task ghi rõ cần đọc tài liệu nào |
 | Ai làm | **N** = người sáng lập · **A** = AI agent hoặc dev · **N+A** = A làm, N duyệt và quyết định |

@@ -20,6 +20,32 @@ Ba điểm yếu lớn nhất:
 
 ---
 
+## Cập nhật tình trạng (27/10/2026)
+
+Báo cáo dưới đây giữ nguyên như lúc khảo sát (26/10/2026, plugin 0.28.0) làm hồ sơ; ảnh trong `screenshots/` là ảnh **lúc còn lỗi**. Bảng này là tình trạng sau khi đã sửa, kiểm lại trên phongdao.com (plugin 0.33.2) bằng `npm run e2e` và các kiểm tra riêng; lỗi nào còn thì kiểm thử `test.fail` trong `tests/e2e/` vẫn đánh dấu.
+
+| # | Tình trạng | Ghi chú |
+|---|---|---|
+| L-01 | Đã sửa | `?ma=` thay `?ly_do=` (T-124) |
+| L-02 | Đã sửa | nhóm lọc Vùng, Chủ đề có mũi tên (T-126) |
+| L-03 | Đã sửa | REST users trả 404; `?author=`, thông báo đăng nhập (T-124). Còn việc của người sáng lập: Hồ sơ → tên hiển thị khác tên đăng nhập |
+| L-04 | Đã sửa | kết quả tìm hiện tên bài và dòng khớp (T-126) |
+| L-05 | Đã sửa | "Đọc tiếp" cuối bài (T-122, T-092) |
+| L-06 | Đã sửa | trang "Không tìm thấy" riêng (T-126) |
+| L-07 | Đã sửa | 30 bài mỗi trang, số trang to (T-126) |
+| L-08 | Sửa một phần | câu không có trong kho không còn ra bài lạc đề; "lục bát" vẫn ra bài vè trước |
+| L-09 | Chưa sửa | T-132 (READY): chịu gõ sai một chữ, "Có phải bạn tìm …?" |
+| L-10 | Đã sửa | `/hello-world/` trả 404 |
+| L-11 | Chưa sửa | `readme.html`, `license.txt` vẫn trả 200 (cấu hình máy chủ) |
+| L-12 | Chưa sửa | chưa có Content-Security-Policy, Referrer-Policy |
+| L-13 | Chưa sửa | chưa có header đệm trang; OPcache, Cloudflare là việc của người vận hành |
+| L-14 | Chưa sửa | `/ca-dao/cong-cha-nhu-nui-thai-son/` vẫn chuyển 301 sang `…-2` (đổi đường dẫn bài đã đăng là H6) |
+| L-15 | Phần máy đã xong | tục ngữ, thành ngữ vào hàng Chờ duyệt (T-125, T-128); site chưa có bài tục ngữ nào đã đăng — chờ người sáng lập duyệt |
+| L-16 | Đã sửa | XML-RPC tắt (T-124) |
+| L-17, L-20 | Chưa kiểm lại | số "Có thể trùng" đếm cả cặp mồ côi; nhận mật khẩu yếu |
+
+Việc tiếp theo cho các mục "Chưa sửa" nằm trong `docs/nghien-cuu/ke-hoach-thuc-hien-2026-10-27.md` và `docs/22` (T-129..T-138).
+
 ## 1. Phạm vi và an toàn
 
 - **Đối chiếu repo ↔ site:** route, loại bài (`cdtn`, `gop_y`, `phan_tich`), phân loại (`the_loai`, `chu_de`, `vung`, `the_tho`, `tu_kho`, `tinh_huong`, `tro_choi`), REST `cadao/v1/*`, 10 trang quản trị của plugin — đều khớp với `docs/02` và mã.
