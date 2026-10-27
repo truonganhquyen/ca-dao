@@ -1173,7 +1173,11 @@ kt( 'đọc tiếp: bài chưa có chủ đề, vùng thì lấy 3 bài cùng th
 wp_insert_term( 'Thể loại một bài thử', 'the_loai', array( 'slug' => 'mot-bai-thu' ) );
 kt( 'đọc tiếp: không có bài nào để gợi ý thì không có khối', '' === cadao_khoi_doc_tiep( get_post( $dt_bai( 'Đọc tiếp một mình', 'mot-bai-thu' ) ) ) );
 $dt_html = cadao_khoi_doc_tiep( get_post( $dt_x ) );
-kt( 'khối "Đọc tiếp": tiêu đề h2, mỗi bài một liên kết có tên, 2 dòng đầu, nhãn', str_contains( $dt_html, '<h2 id="cadao-doc-tiep-tieu">Đọc tiếp</h2>' ) && str_contains( $dt_html, 'href="' . esc_url( get_permalink( $dt_a ) ) . '"><strong>Đọc tiếp cùng chủ đề và vùng</strong>' ) && str_contains( $dt_html, ' / ' ) && str_contains( $dt_html, '…' ) && str_contains( $dt_html, 'Cùng chủ đề ' . esc_html( $dt_ten ) ), $dt_html );
+kt( 'khối "Đọc tiếp": tiêu đề h2, mỗi bài một liên kết có tên, 2 dòng đầu, nhãn', str_contains( $dt_html, '<h2 id="cadao-doc-tiep-tieu">Đọc tiếp</h2>' ) && str_contains( $dt_html, 'href="' . esc_url( get_permalink( $dt_a ) ) . '"><strong>Đọc tiếp cùng chủ đề và vùng</strong>' ) && str_contains( $dt_html, '<span class="cadao-doc-tiep-loi">' ) && str_contains( $dt_html, '<br>' ) && str_contains( $dt_html, '…' ) && str_contains( $dt_html, 'Cùng chủ đề ' . esc_html( $dt_ten ) ), $dt_html );
+$dt_trich = static fn( string $ten, string $loi ): array => cadao_doc_tiep_trich( get_post( wp_insert_post( array( 'post_type' => CADAO_LOAI_BAI, 'post_status' => 'draft', 'post_title' => $ten, 'post_content' => cadao_khoi_tho( $loi ) ) ) ) );
+kt( 'đọc tiếp: tên bài là dòng đầu (khác dấu câu, chữ hoa) thì đoạn trích bắt đầu từ dòng hai, không lặp tên; còn dòng sau thì có "…"', array( 'Dòng hai của bài thử…' ) === $dt_trich( 'Dòng thử trùng tên', "dòng thử, trùng tên!\nDòng hai của bài thử\nDòng ba của bài thử" ) );
+kt( 'đọc tiếp: tên bài khác dòng đầu thì giữ hai dòng đầu, mỗi dòng một hàng; hết lời thì không có "…"', array( 'Dòng một khác tên bài', 'Dòng hai khác tên bài' ) === $dt_trich( 'Tên riêng của bài thử', "Dòng một khác tên bài\nDòng hai khác tên bài" ) );
+kt( 'đọc tiếp: câu một dòng trùng tên thì không có đoạn trích', array() === $dt_trich( 'Câu một dòng thử', 'Câu một dòng thử.' ) );
 
 // ---------- Mô-típ, bài gần gũi (T-092) ----------
 kt( 'phân loại Mô-típ có trang /mo-tip/', taxonomy_exists( 'mo_tip' ) && 'mo-tip' === get_taxonomy( 'mo_tip' )->rewrite['slug'] );

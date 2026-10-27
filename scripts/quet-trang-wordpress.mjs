@@ -281,6 +281,16 @@ try {
   // Cuối bài (T-121): một khối "Bạn muốn góp gì?", không còn hai form mở sẵn
   await tuTab.goto(G + baiDiBan, { waitUntil: 'load' });
   kiem('cuối bài: một khối "Bạn muốn góp gì?", form cảm nghĩ thu gọn, Chủ đề/Vùng (nếu có) đứng trước khối', await tuTab.evaluate(() => document.querySelectorAll('.cadao-gop').length === 1 && !document.querySelector('.cadao-gop-hop').open && document.querySelectorAll('#commentform').length === 1 && [...document.querySelectorAll('.cadao-nhan-cuoi')].every(n => n.compareDocumentPosition(document.querySelector('.cadao-gop')) & Node.DOCUMENT_POSITION_FOLLOWING)));
+  // Đọc tiếp (D-075): một khối riêng như các khối cuối bài khác — tiêu đề nằm trên danh sách, không mượn kiểu nút bo tròn
+  // (lớp .cadao-doc-tiep từng trùng với nút "Đọc tiếp từ đoạn N" của bài dài nên khối thành một hình bầu dục viền son)
+  kiem('cuối bài: khối "Đọc tiếp" là khối thường, tiêu đề ở trên danh sách, mỗi bài một ô ≥ 44 px', await tuTab.evaluate(() => {
+    const s = document.querySelector('.cadao-doc-tiep');
+    if (!s) return false;
+    const cs = getComputedStyle(s);
+    const h = s.querySelector('h2').getBoundingClientRect();
+    const o = [...s.querySelectorAll('li a')].map(a => a.getBoundingClientRect());
+    return cs.display === 'block' && parseFloat(cs.borderTopLeftRadius) === 0 && o.length > 0 && o.every(r => r.top >= h.bottom - 1 && r.height >= 44);
+  }));
   // Bản đồ (T-104): điểm đủ lớn để chạm, chạm tới đúng địa danh trong danh sách; không tải gì từ nơi khác
   const ngoai = [];
   const ngheNgoai = r => { if (!r.url().startsWith(G) && !r.url().startsWith('data:')) ngoai.push(r.url()); };
