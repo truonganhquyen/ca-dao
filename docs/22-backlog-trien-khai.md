@@ -93,6 +93,16 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-127 | Canonical cho trang chủ, Tất cả bài, trang phân loại (D-076) | A | T-050 | — | DONE |
 | T-128 | Một mục "Tục ngữ – Thành ngữ": gộp thể loại, chuyển hướng đường dẫn cũ, bỏ trang tách loại (D-079) | A | T-080 | — | DONE |
 | T-048 | Duyệt 30–50 bài, thử với 5 người (nên làm, không chặn mở — D-077) | N | T-073, T-076, T-041..T-046, T-082, T-085, T-119..T-121 | — | READY |
+| T-129 | Kiểm tự động "site thật đúng bản": so phiên bản trên phongdao.com với `main`, báo khi lệch (D-080) | A | T-078 | — | READY |
+| T-130 | Bộ kiểm E2E chạy được ở mọi nơi (trình duyệt cài sẵn, proxy); cập nhật kỳ vọng lỗi đã sửa (D-080) | A | — | — | READY |
+| T-131 | Đối chiếu lời với sách có bản quét (Câu hát góp 1901; Tục ngữ, cổ ngữ, gia ngôn 1897): máy gợi ý, người biên soạn bấm (D-080) | N+A | T-119 | — | READY |
+| T-132 | Tìm chịu gõ sai một chữ, "Có phải bạn tìm …?" (L-09; D-080) | A | T-126 | — | READY |
+| T-133 | Bộ câu "Có trong SGK": người sáng lập đánh dấu bộ sách, lớp, bài; trang lọc, nối Trình chiếu (D-080) | N+A | — | — | READY |
+| T-134 | Người soát lời tình nguyện qua "Gửi số trang", ghi bút danh (sau khi mở; D-080) | N+A | T-053 | — | DEFERRED |
+| T-135 | Cờ "Nghi không phải dân gian" trên WordPress (D-008, `docs/20` mục 4.1, 10; D-080) | N+A | — | — | READY |
+| T-136 | Khối "Biên soạn" cuối bài: bút danh trong cài đặt, liên kết Phương pháp, dữ liệu có cấu trúc (D-080) | A | T-046 | — | READY |
+| T-137 | Trang chủ đề, vùng "đọc liền": mỗi câu kèm Hiểu nhanh, chú thích địa danh; giới thiệu do người sáng lập viết (D-080) | N+A | T-094, T-095 | — | READY |
+| T-138 | 50 câu được tìm nhiều: danh sách đề xuất, nháp Hiểu nhanh theo lô 10 câu, hướng dẫn duyệt; tiêu đề "nghĩa và cách dùng" khi có Hiểu nhanh (D-080) | N+A | T-100, T-125 | — | READY |
 | **Mốc C · Mở lặng lẽ** ||||||
 | T-049 | Chốt tên miền (D-070: phongdao.com) | N | — | — | DONE |
 | T-051 | "Đã lưu": bài yêu thích nhớ trên máy (Câu hôm nay, Vừa bổ sung → T-043; cỡ chữ, sáng/tối, trình chiếu → T-085) | A | T-072 | — | DONE |
@@ -484,6 +494,36 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 **Đọc:** `11`; `docs/luu-tru/24-ke-hoach-beta.md` mục 2 (dùng nhiệm vụ N1–N6, không chấm ngưỡng 80%).
 **Chấp nhận:** 30–50 bài trên bản xem trước; 5 người đã thử; vướng mắc thành task; Q-006 chốt.
 
+#### T-129 · Kiểm "site thật đúng bản" — A
+**Đọc:** D-080; kế hoạch `docs/nghien-cuu/ke-hoach-thuc-hien-2026-10-27.md` việc 2. **Việc:** GitHub Action chạy sau mỗi lần gộp vào `main` và mỗi ngày: đọc `ca-dao.js?ver=` và `style.css?ver=` trên phongdao.com, so với `CADAO_PHIEN_BAN` và dòng `Version:` của theme trên `main`; lệch quá 30 phút thì mở (hoặc cập nhật) một issue "Site thật lệch bản". Chỉ đọc site. **Chấp nhận:** có kiểm thử cho phần so sánh; thử với số sai thì báo lệch; không ghi gì lên máy chủ.
+
+#### T-130 · E2E chạy được ở mọi nơi — A
+**Việc:** `tests/e2e/` nhận biến môi trường cho đường dẫn trình duyệt (thay `channel: 'chrome'` khi có) và cho yêu cầu API đi qua proxy; gỡ dấu "lỗi đã biết" của các lỗi đã sửa (L-10, các lỗi D-076). **Chấp nhận:** `npm run e2e` chạy được trên máy người sáng lập và trong môi trường agent; 0 kiểm thử hỏng ngoài dự kiến trên site đúng bản.
+
+#### T-131 · Đối chiếu lời với sách có bản quét — N+A
+**Đọc:** D-080 (3), D-072, `docs/12`. **Việc:** (a) lấy văn bản hai sách theo cách Wikimedia cho phép (không cào hàng loạt), lưu ngoài repo công khai; đo số bài khớp. (b) Trang quản trị "Đối chiếu với sách": mỗi dòng một cặp bài ↔ ảnh trang quét, nút "Đúng, tr. N" / "Không khớp"; bấm mới điền hộp "Lời đã đối chiếu với". **Chấp nhận:** máy không tự điền; lời sách không vào repo công khai; lời khác thì đề xuất dị bản, không sửa lời chính.
+
+#### T-132 · Tìm chịu gõ sai — A
+**Việc:** khi 0 kết quả hoặc kết quả yếu, so gần đúng từng âm tiết đã bỏ dấu, hiện "Có phải bạn tìm …?". **Chấp nhận:** E2E L-09 đạt; câu không có trong kho không ra bài lạc đề.
+
+#### T-133 · Bộ câu "Có trong SGK" — N+A
+**Việc:** ô trong trình soạn: bộ sách, lớp, bài học (và trang khi người sáng lập đã thấy); trang lọc "Có trong SGK", nối Trình chiếu. **Chấp nhận:** máy không tự đánh dấu; chỉ hiện điều người sáng lập điền.
+
+#### T-134 · Người soát lời tình nguyện — N+A
+**Việc (sau khi mở):** dùng form "Gửi số trang" sẵn có; ghi bút danh người soát khi được duyệt. Không tài khoản, không dữ liệu cá nhân.
+
+#### T-135 · Cờ "Nghi không phải dân gian" — N+A
+**Đọc:** D-008, `docs/20` mục 4.1 và 10. **Việc:** ô bật cờ và câu căn cứ trong trình soạn; nhãn xám dưới lời; lọc trong danh sách. **Chấp nhận:** máy chỉ gợi ý, không tự gắn cờ; tắt JavaScript vẫn đọc được; quét trợ năng đạt.
+
+#### T-136 · Khối "Biên soạn" cuối bài — A
+**Việc:** ô cài đặt "Người biên soạn" (bút danh, D-080 (6)); khối cuối bài chỉ hiện khi ô có chữ, liên kết tới trang Phương pháp; thêm `Organization` (và `Person` khi có tên) vào dữ liệu có cấu trúc. **Chấp nhận:** để trống thì không có khối; JSON-LD hợp lệ; quét trợ năng đạt.
+
+#### T-137 · Trang chủ đề, vùng "đọc liền" — N+A
+**Việc:** trên trang chủ đề, vùng mỗi câu hiện kèm Hiểu nhanh và chú thích địa danh; đoạn giới thiệu do người sáng lập viết; chỉ lập chỉ mục khi đủ câu có Hiểu nhanh. **Chấp nhận:** máy không viết giới thiệu; tắt JavaScript vẫn đọc được.
+
+#### T-138 · 50 câu được tìm nhiều — N+A
+**Việc:** danh sách đề xuất (câu thường được tìm, câu tìm không ra trên Bảng tin, tục ngữ phổ biến trong kho), mỗi câu có lý do; nháp Hiểu nhanh theo lô 10 câu (chờ duyệt); hướng dẫn "Duyệt 10 câu trong 30 phút"; bài có Hiểu nhanh thì tiêu đề trang thêm "nghĩa và cách dùng". **Chấp nhận:** agent không tự khẳng định câu có trong SGK; không đổi đường dẫn; mục tiêu ≥ 50 câu đã đăng trước khi mở (nên có, không chặn).
+
 ### Mốc C · Mở lặng lẽ
 
 #### T-049 · Tên miền — N
@@ -512,6 +552,7 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 #### T-099 · Chú giải từ sách hết bản quyền, Hán Việt — N+A
 **Đọc:** `25` mục 4.4, 4.5. **Chấp nhận:** trích đoạn ghi tên sách, tác giả, năm, liên kết Wikisource; chỉ khớp chắc chắn; người sáng lập duyệt; chữ Hán kèm âm Hán Việt.
 
+**Bổ sung (D-080, 27/10/2026):** thêm lớp "Giải nghĩa trong sách năm 1897" từ *Tục ngữ, cổ ngữ, gia ngôn* (Wikisource, có bản quét), ghi nguồn và trang tại chỗ, giữ chính tả xưa, chỉ ở câu người sáng lập đã duyệt; làm sau bước (a) của T-131.
 #### T-100 · Trợ giúp viết Hiểu nhanh — A
 **Ghi chú (26/10/2026, D-073):** bỏ phụ thuộc T-098 — ca dao không cần nghĩa Wiktionary; nghĩa Wiktionary thêm vào khi T-098 xong. Mục tiêu trước khi mở: ≥ 50 bài có Hiểu nhanh.
 **Chấp nhận:** trình soạn hiện chú thích của bài (và nghĩa Wiktionary khi có) cạnh ô Hiểu nhanh; nháp máy nằm ở ô riêng ghi rõ "Nháp máy — chưa duyệt", không bao giờ tự vào đoạn trích, chỉ lên trang khi người sáng lập bấm dùng (sửa được trước khi lưu); dấu "có hỗ trợ AI" do người sáng lập đặt khi dùng nháp, máy không đặt thay; nháp do agent soạn theo lô cho danh sách bài người sáng lập chọn (ghi lên máy chủ chỉ khi người sáng lập đồng ý cho lần đó — `AGENTS.md`); Bàn biên tập có hàng "Viết Hiểu nhanh" đếm N/50.
