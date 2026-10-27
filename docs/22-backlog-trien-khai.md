@@ -93,8 +93,8 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-127 | Canonical cho trang chủ, Tất cả bài, trang phân loại (D-076) | A | T-050 | — | DONE |
 | T-128 | Một mục "Tục ngữ – Thành ngữ": gộp thể loại, chuyển hướng đường dẫn cũ, bỏ trang tách loại (D-079) | A | T-080 | — | DONE |
 | T-048 | Duyệt 30–50 bài, thử với 5 người (nên làm, không chặn mở — D-077) | N | T-073, T-076, T-041..T-046, T-082, T-085, T-119..T-121 | — | READY |
-| T-129 | Kiểm tự động "site thật đúng bản": so phiên bản trên phongdao.com với `main`, báo khi lệch (D-080) | A | T-078 | — | READY |
-| T-130 | Bộ kiểm E2E chạy được ở mọi nơi (trình duyệt cài sẵn, proxy); cập nhật kỳ vọng lỗi đã sửa (D-080) | A | — | — | READY |
+| T-129 | Kiểm tự động "site thật đúng bản": so phiên bản trên phongdao.com với `main`, báo khi lệch (D-080) | A | T-078 | — | DONE |
+| T-130 | Bộ kiểm E2E chạy được ở mọi nơi (trình duyệt cài sẵn, proxy); cập nhật kỳ vọng lỗi đã sửa (D-080) | A | — | — | DONE |
 | T-131 | Đối chiếu lời với sách có bản quét (Câu hát góp 1901; Tục ngữ, cổ ngữ, gia ngôn 1897): máy gợi ý, người biên soạn bấm (D-080) | N+A | T-119 | — | READY |
 | T-132 | Tìm chịu gõ sai một chữ, "Có phải bạn tìm …?" (L-09; D-080) | A | T-126 | — | READY |
 | T-133 | Bộ câu "Có trong SGK": người sáng lập đánh dấu bộ sách, lớp, bài; trang lọc, nối Trình chiếu (D-080) | N+A | — | — | READY |
@@ -496,9 +496,11 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 
 #### T-129 · Kiểm "site thật đúng bản" — A
 **Đọc:** D-080; kế hoạch `docs/nghien-cuu/ke-hoach-thuc-hien-2026-10-27.md` việc 2. **Việc:** GitHub Action chạy sau mỗi lần gộp vào `main` và mỗi ngày: đọc `ca-dao.js?ver=` và `style.css?ver=` trên phongdao.com, so với `CADAO_PHIEN_BAN` và dòng `Version:` của theme trên `main`; lệch quá 30 phút thì mở (hoặc cập nhật) một issue "Site thật lệch bản". Chỉ đọc site. **Chấp nhận:** có kiểm thử cho phần so sánh; thử với số sai thì báo lệch; không ghi gì lên máy chủ.
+**Tiến độ (27/10/2026):** xong — `scripts/kiem-site-that.mjs` (`npm run kiem-site-that`), `scripts/lib/phien-ban.mjs` (kiểm thử trong `npm run kiem-tra`), workflow `.github/workflows/kiem-site-that.yml` chạy mỗi giờ và chạy tay được: lệch quá 30 phút sau lần đổi plugin/theme gần nhất thì mở issue "Site thật lệch bản" (không mở trùng), khớp lại thì tự đóng. Thử trên site thật: "ĐÚNG BẢN plugin 0.33.1, theme 0.19.1".
 
 #### T-130 · E2E chạy được ở mọi nơi — A
 **Việc:** `tests/e2e/` nhận biến môi trường cho đường dẫn trình duyệt (thay `channel: 'chrome'` khi có) và cho yêu cầu API đi qua proxy; gỡ dấu "lỗi đã biết" của các lỗi đã sửa (L-10, các lỗi D-076). **Chấp nhận:** `npm run e2e` chạy được trên máy người sáng lập và trong môi trường agent; 0 kiểm thử hỏng ngoài dự kiến trên site đúng bản.
+**Tiến độ (27/10/2026):** xong — biến `E2E_TRINH_DUYET`, `E2E_PROXY` (`tests/e2e/README.md`); bỏ dấu "lỗi đã biết" của L-10; câu tìm "đêm qua" (kho nay có nhiều bài mở đầu "Đêm qua") thay bằng "đêm qua trời sáng", thêm kiểm thử các bài có tên mở đầu bằng cụm vừa gõ đứng trước. Chạy trên phongdao.com 0.33.1: 89 đạt như mong đợi, 0 hỏng ngoài dự kiến.
 
 #### T-131 · Đối chiếu lời với sách có bản quét — N+A
 **Đọc:** D-080 (3), D-072, `docs/12`. **Việc:** (a) lấy văn bản hai sách theo cách Wikimedia cho phép (không cào hàng loạt), lưu ngoài repo công khai; đo số bài khớp. (b) Trang quản trị "Đối chiếu với sách": mỗi dòng một cặp bài ↔ ảnh trang quét, nút "Đúng, tr. N" / "Không khớp"; bấm mới điền hộp "Lời đã đối chiếu với". **Chấp nhận:** máy không tự điền; lời sách không vào repo công khai; lời khác thì đề xuất dị bản, không sửa lời chính.

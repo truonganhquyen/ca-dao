@@ -21,7 +21,7 @@ test.describe('Tìm: đúng', () => {
   const DUNG = [
     ['cong cha nhu nui thai son', 'Công cha như núi Thái Sơn'],
     ['ba co doi gao', 'Ba cô đội gạo lên chùa'],
-    ['đêm qua', 'Đêm qua trời sáng trăng rằm'],
+    ['đêm qua trời sáng', 'Đêm qua trời sáng trăng rằm'], // kho đã có nhiều bài mở đầu "Đêm qua": gõ thêm chữ để chỉ một bài đúng
     ['Ba cô đội gạo lên chùa,', 'Ba cô đội gạo lên chùa'], // dấu câu thừa
     ['Ba  cô   đội', 'Ba cô đội gạo lên chùa'],           // khoảng trắng thừa
   ];
@@ -30,6 +30,11 @@ test.describe('Tìm: đúng', () => {
       expect(tieuDe(await timApi(request, q))[0]).toBe(mong);
     });
   }
+  test('"đêm qua" → các bài có tên mở đầu bằng cụm vừa gõ đứng trước (ít nhất 2 bài đầu)', async ({ request }) => {
+    const dau = tieuDe(await timApi(request, 'đêm qua')).slice(0, 2);
+    expect(dau.length).toBe(2);
+    for (const t of dau) expect(t.toLowerCase().startsWith('đêm qua'), t).toBe(true);
+  });
 
   test('chuỗi lạ (HTML, SQL, ký tự đại diện, rất dài) không gây lỗi', async ({ request }) => {
     for (const q of ['<script>alert(1)</script>', "' OR 1=1 --", '%', '_', 'a'.repeat(600)]) {

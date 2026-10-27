@@ -14,6 +14,7 @@
     "kiem-nhat-quan": "node scripts/kiem-nhat-quan.mjs",
     "kiem-tra": "npm run test:nhat-quan && npm run kiem-nhat-quan",
     "viec-tiep-theo": "node scripts/viec-tiep-theo.mjs",
+    "kiem-site-that": "node scripts/kiem-site-that.mjs",
     "e2e": "playwright test -c tests/e2e/playwright.config.mjs --project=may-tinh --project=dien-thoai",
     "e2e:quan-tri": "playwright test -c tests/e2e/playwright.config.mjs --project=quan-tri"
   },
