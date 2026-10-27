@@ -268,7 +268,7 @@
 		if (den > 1 && doan[den - 1]) {
 			var tiep = document.createElement('a');
 			tiep.href = '#' + doan[den - 1].id;
-			tiep.className = 'cadao-doc-tiep';
+			tiep.className = 'cadao-doc-tiep-doan';
 			tiep.textContent = 'Đọc tiếp từ đoạn ' + den;
 			tiep.addEventListener('click', function () { mo(); });
 			dai.insertBefore(tiep, dai.firstChild);

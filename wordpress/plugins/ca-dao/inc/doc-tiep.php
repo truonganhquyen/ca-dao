@@ -96,6 +96,23 @@ function cadao_doc_tiep( WP_Post $bai ): array {
 	return $ra;
 }
 
+/**
+ * Đoạn trích của một bài trong "Đọc tiếp": hai dòng đầu của lời, mỗi dòng một hàng. Tên bài thường chính là dòng đầu
+ * (khác dấu câu), khi đó bỏ dòng đầu để không lặp ngay dưới tên — người đọc vẫn thấy hai dòng đầu (tên + dòng hai).
+ * Còn dòng sau thì thêm "…". Câu một dòng trùng tên thì không có đoạn trích.
+ *
+ * @return string[]
+ */
+function cadao_doc_tiep_trich( WP_Post $bai ): array {
+	$dong = array_values( array_filter( array_map( 'trim', explode( "\n", cadao_loi_cac_khoi_tho( $bai->post_content )[0] ?? '' ) ), static fn( $d ) => '' !== $d ) );
+	$bo   = ( $dong && cadao_chuan_loi( $dong[0] ) === cadao_chuan_loi( $bai->post_title ) ) ? 1 : 0;
+	$lay  = array_slice( $dong, $bo, 2 - $bo );
+	if ( $lay && count( $dong ) > $bo + count( $lay ) ) {
+		$lay[ count( $lay ) - 1 ] .= '…';
+	}
+	return $lay;
+}
+
 /** Khối "Đọc tiếp" (rỗng khi không có bài nào để gợi ý). */
 function cadao_khoi_doc_tiep( WP_Post $bai ): string {
 	$ds = cadao_doc_tiep( $bai );
@@ -104,8 +121,9 @@ function cadao_khoi_doc_tiep( WP_Post $bai ): string {
 	}
 	$ra = '<section class="cadao-doc-tiep" aria-labelledby="cadao-doc-tiep-tieu"><h2 id="cadao-doc-tiep-tieu">Đọc tiếp</h2><ul>';
 	foreach ( $ds as $x ) {
-		$ra .= '<li><a href="' . esc_url( get_permalink( $x['bai'] ) ) . '"><strong>' . esc_html( get_the_title( $x['bai'] ) ) . '</strong>'
-			. '<span class="cadao-doc-tiep-loi">' . esc_html( str_replace( "\n", ' / ', cadao_loi_rut_gon( $x['bai'], 2 ) ) ) . '</span>'
+		$trich = cadao_doc_tiep_trich( $x['bai'] );
+		$ra   .= '<li><a href="' . esc_url( get_permalink( $x['bai'] ) ) . '"><strong>' . esc_html( get_the_title( $x['bai'] ) ) . '</strong>'
+			. ( $trich ? '<span class="cadao-doc-tiep-loi">' . implode( '<br>', array_map( 'esc_html', $trich ) ) . '</span>' : '' )
 			. '<span class="cadao-tim-phu">' . esc_html( $x['nhan'] ) . '</span></a></li>';
 	}
 	return $ra . '</ul></section>';
