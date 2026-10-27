@@ -7,6 +7,7 @@
 | Trạng thái | **Nghiên cứu, chờ người sáng lập quyết.** Chưa phải quyết định, chưa đổi `docs/00`, chưa tạo task |
 | Căn cứ | Mã trên `main` (plugin 0.33.2, theme 0.19.1); `docs/00`, `01` (tới D-081), `02` (bản 2.4), `12`, `20`, `22`, `24`, `25`; `docs/e2e-review/REPORT.md`; `docs/nghien-cuu/khao-sat-doi-thu-2026-10-27.md`; bản đề xuất *Phongdao Next Generation v1.0* (27/10/2026, gọi tắt **PNG**) |
 | Giới hạn | Không đo lại site thật trong phiên này; số liệu site lấy từ báo cáo E2E 26/10 và khảo sát 27/10. Không vào trang quản trị trên VPS |
+| Đọc kèm | Phiên bổ sung: `v2-backend-plugin-theme-2026-10-27.md` (kiến trúc plugin, theme, dữ liệu, thứ tự PR) và `v2-ux-ui-2026-10-27.md` (UX/UI, học từ vanvn.net) |
 
 Người sáng lập xác định: tài liệu nền, quyết định, trạng thái và backlog hiện tại là **bản MVP đầu tiên**. V2 phải đột phá hơn ở ba chỗ: **luồng nội dung, giao diện, quản trị**. Tài liệu này gom hiện trạng, lọc đề xuất PNG, rồi đưa ra một hướng V2 cụ thể kèm các câu hỏi cần chốt.
 
