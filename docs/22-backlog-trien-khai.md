@@ -282,6 +282,8 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 
 **Tiến độ (26/10/2026):** xong — plugin 0.21.0 (`inc/chinh-sach-du-lieu.php`). Nâng cấp tắt "Ghi nguồn cho chú thích" ở mọi nguồn tự động; mỗi lượt lấy bài (5 phút) dọn tối đa 25 giây: bài chưa sửa tay làm lại từ kho, bài đã sửa tay chỉ bỏ khối Nguồn trỏ về tên miền nguồn đó (giữ khoảng trắng, đánh dấu `cadao-chep` cho danh sách chú thích ngay trước); mục từ: bỏ `_cadao_nguon_ten/_url`, đặt `_cadao_chep`. Đếm trên site thật trước khi chạy (chỉ đọc): 90 bài (đều chưa sửa tay), 180 mục từ. Trang **Chính sách thu thập dữ liệu** (`/chinh-sach-du-lieu/`, đăng ngay vì là nơi ghi nhận nguồn): lấy gì, cách lấy, xin gỡ, `[cadao_nguon]`; chân trang có "Chính sách dữ liệu"; bản nháp Phương pháp sửa câu hứa dòng Nguồn. Sửa mục từ: viết lại lời giải thì bỏ dấu "chép".
 
+**Nguồn công khai (27/10/2026, D-081):** bài đã có dòng "Nguồn: …" do người biên soạn điền thì người đọc không còn thấy dòng "[N nguồn tham khảo đã ẩn]"; người biên soạn đăng nhập vẫn thấy liên kết về trang gốc (`cadao_dong_nguon_an`, plugin 0.33.2; 3 kiểm thử mới trong `wordpress/tests/kiem-thu.php`).
+
 #### T-115 · Số liệu của bài — A
 **Đọc:** D-069. **Chấp nhận:** dòng nhỏ dưới tiêu đề, icon nét, số rút gọn, ẩn dưới ngưỡng; trình đọc màn hình đọc câu đầy đủ; chia sẻ chỉ tính khi gửi xong; không cookie, không IP.
 

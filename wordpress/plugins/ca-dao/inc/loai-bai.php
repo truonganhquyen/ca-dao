@@ -205,14 +205,15 @@ function cadao_nguon_an( int $id ): array {
 /**
  * Dòng nguồn đã ẩn cuối bài (D-078). Người đọc chỉ thấy "[N nguồn tham khảo đã ẩn]"; người biên soạn (đăng nhập, sửa
  * được bài) thấy thêm liên kết về từng trang gốc. Liên kết chỉ được xuất ra HTML khi đúng người xem — không ẩn bằng CSS,
- * để Google và người đọc không thấy. Nguồn người biên soạn tự điền (cadao_dong_nguon) vẫn hiện như cũ.
+ * để Google và người đọc không thấy. Nguồn người biên soạn tự điền (cadao_dong_nguon) vẫn hiện như cũ; bài đã có
+ * dòng "Nguồn: …" thì bỏ dòng "[N … đã ẩn]", người biên soạn vẫn thấy liên kết (D-081).
  */
 function cadao_dong_nguon_an( int $id ): string {
 	$ds = cadao_nguon_an( $id );
 	if ( ! $ds ) {
 		return '';
 	}
-	$ra = '<p class="cadao-nguon-an">' . esc_html( sprintf( '[%d nguồn tham khảo đã ẩn]', count( $ds ) ) ) . '</p>';
+	$ra = '' !== cadao_dong_nguon( $id ) ? '' : '<p class="cadao-nguon-an">' . esc_html( sprintf( '[%d nguồn tham khảo đã ẩn]', count( $ds ) ) ) . '</p>';
 	if ( current_user_can( 'edit_post', $id ) ) {
 		$lk  = array_map( static fn( $x ) => sprintf( '<a href="%s" rel="noopener noreferrer">%s <span aria-hidden="true">↗</span></a>', esc_url( $x['url'] ), esc_html( $x['ten'] ) ), $ds );
 		$ra .= '<p class="cadao-nguon-quan-tri">Chỉ người biên soạn thấy dòng này · Nguồn đã ẩn: ' . implode( ' · ', $lk ) . '</p>';
