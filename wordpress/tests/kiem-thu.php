@@ -128,6 +128,13 @@ kt( 'người đọc không thấy địa chỉ, tên nguồn hay liên kết tr
 wp_set_current_user( cadao_quan_tri_dau_tien() );
 $qt = cadao_dong_nguon_an( $cu );
 kt( 'người biên soạn thấy cùng dòng của người đọc, kèm liên kết từng nguồn', str_contains( $qt, '[2 nguồn tham khảo đã ẩn]' ) && str_contains( $qt, 'href="https://example.org/bai-cu/"' ) && str_contains( $qt, 'href="https://example.org/bai-gop/"' ), $qt );
+update_post_meta( $cu, 'nguon_url', 'https://example.org/sach-cong-khai/' );
+$qt_ck = cadao_dong_nguon_an( $cu );
+kt( 'có nguồn công khai: người biên soạn vẫn thấy liên kết nguồn đã ẩn, không có dòng "[N … đã ẩn]" (D-081)', ! str_contains( $qt_ck, 'nguồn tham khảo đã ẩn' ) && str_contains( $qt_ck, 'href="https://example.org/bai-cu/"' ), $qt_ck );
+wp_set_current_user( 0 );
+kt( 'có nguồn công khai: người đọc không thấy dòng nguồn đã ẩn (D-081)', '' === cadao_dong_nguon_an( $cu ), cadao_dong_nguon_an( $cu ) );
+delete_post_meta( $cu, 'nguon_url' );
+kt( 'bỏ nguồn công khai: dòng "[2 nguồn tham khảo đã ẩn]" hiện lại', str_contains( cadao_dong_nguon_an( $cu ), '[2 nguồn tham khảo đã ẩn]' ) );
 wp_set_current_user( $nguoi_truoc );
 kt( 'chưa chọn thể loại: đường dẫn /ca-dao/…', str_contains( get_permalink( $tay ), '/ca-dao/bai-nhap-tay/' ), get_permalink( $tay ) );
 wp_set_object_terms( $tay, 've', 'the_loai' );
