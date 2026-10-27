@@ -4,9 +4,11 @@ Tệp này dành cho mọi AI agent làm việc trong kho mã (Claude Code, Code
 
 ## Dự án là gì
 
-**Kho tàng Ca dao Tục ngữ Việt Nam** (phongdao.com): một website WordPress, phi lợi nhuận, không quảng cáo, đọc tốt trên điện thoại. Mỗi câu ca dao, tục ngữ có giải nghĩa từ khó, tình huống dùng, dị bản, và **ghi rõ lời lấy từ đâu và đã được kiểm đến mức nào**.
+**Thư viện Văn học Dân gian Việt Nam** (phongdao.com; trước đây "Kho tàng Ca dao Tục ngữ Việt Nam" — D-082): một website WordPress, phi lợi nhuận, không quảng cáo, đọc tốt trên điện thoại. Mỗi câu ca dao, tục ngữ, đồng dao, vè, câu đố có giải nghĩa từ khó, tình huống dùng, dị bản, và **ghi rõ lời lấy từ đâu và đã được kiểm đến mức nào**.
 
 **Hướng hiện tại — "Trung thực hơn hoàn hảo"** (D-039, chuyển WordPress D-054..D-056): xuất bản sớm, nội dung dày dần. Không chặn đăng vì lý do biên tập; nguồn không bắt buộc nhưng không được bịa. Site Astro cũ đã gỡ khỏi repo (D-071).
+
+**Đại tu V2** (D-082..D-088) chạy song song với mốc mở công khai: tác phẩm nhiều lớp, một Bàn biên tập, trang đọc theo thể loại. Mọi tính năng V2 nằm sau cờ tính năng, tắt trên site thật tới khi chuyển dữ liệu xong; mỗi PR giữ site như cũ khi cờ tắt.
 
 ## Đọc trước khi làm
 
@@ -18,6 +20,7 @@ Tệp này dành cho mọi AI agent làm việc trong kho mã (Claude Code, Code
 
 | Loại việc | Tài liệu |
 |---|---|
+| **V2** (tác phẩm nhiều lớp, khối `cadao/*`, theme 1.0, Bàn biên tập React, chuyển dữ liệu) | `docs/26-kien-truc-v2.md`, `docs/27-giao-dien-v2.md`, đặc tả đợt `docs/28` trở đi |
 | **WordPress** (plugin, theme, nguồn tự động, kho, chuyển đổi, công cụ) | `docs/24-wordpress.md` |
 | **Gói nâng cấp 25/10/2026** (giao diện, nguồn nội dung, chống trùng, lượt đọc, người đọc góp phần, giọng đọc) | `docs/25-nang-cap-giao-dien-noi-dung.md` |
 | Giao diện, câu chữ, màu, phông | `docs/20-dac-ta-giao-dien.md` (phần WordPress ở cuối) |

@@ -13,6 +13,10 @@ const byId = new Map(tasks.map(t => [t.id, t]));
 if (!tasks.length) loi.push('docs/22: không đọc được task nào trong bảng tổng');
 for (const g of giaiDoanLa) loi.push(`docs/22: tiêu đề giai đoạn lạ "${g}" (chỉ dùng: ${Object.values(TEN_GIAI_DOAN).join(', ')})`);
 if (!TEN_GIAI_DOAN[state.giai_doan]) loi.push(`trang-thai.json: giai_doan "${state.giai_doan}" không hợp lệ`);
+for (const g of state.giai_doan_song_song ?? []) {
+  if (!TEN_GIAI_DOAN[g]) loi.push(`trang-thai.json: giai_doan_song_song "${g}" không hợp lệ`);
+  else if ((state.thu_tu_giai_doan ?? []).includes(g)) loi.push(`trang-thai.json: "${g}" vừa là mốc tuần tự vừa chạy song song`);
+}
 for (const t of tasks) {
   if (!TRANG_THAI_TASK.has(t.trangThai)) loi.push(`${t.id}: trạng thái "${t.trangThai}" không thuộc ${[...TRANG_THAI_TASK].join('/')}`);
   if (!t.phase) loi.push(`${t.id}: nằm ngoài mọi tiêu đề giai đoạn`);

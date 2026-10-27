@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Phiên bản | 2.2 · 27/10/2026 (gói nâng cấp D-059..D-065, `docs/25`; T-118..T-138 sau các báo cáo review, khảo sát đối thủ D-080) |
+| Phiên bản | 2.3 · 27/10/2026 (gói nâng cấp D-059..D-065, `docs/25`; T-118..T-138 sau các báo cáo review, khảo sát đối thủ D-080; nhóm V2 T-139..T-164, D-082..D-088) |
 | Trạng thái | **Sống.** Cập nhật cột trạng thái ở mục 1 sau mỗi task/PR; enum: `READY`, `IN_PROGRESS`, `REVIEW`, `BLOCKED`, `DONE`, `DEFERRED` |
 | Đọc khi | Nhận việc. Mỗi task ghi rõ cần đọc tài liệu nào |
 | Ai làm | **N** = người sáng lập · **A** = AI agent hoặc dev · **N+A** = A làm, N duyệt và quyết định |
@@ -77,7 +77,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-093 | "Bạn có biết?" ghép từ chú thích | N+A | T-073 | — | DONE |
 | T-094 | Trang riêng cho từng thể loại | N+A | T-072 | — | DONE |
 | T-095 | Tục ngữ – Thành ngữ: trình bày câu một dòng, chỉ mục A–Z (mở lại D-077; một mục, D-079) | A | T-128 | — | DONE |
-| T-096 | Câu đố: nhóm theo đáp án và theo loại, trang "Đố vui" (mở lại D-077) | A | T-091 | — | READY |
+| T-096 | Câu đố: nhóm theo đáp án và theo loại, trang "Đố vui" (mở lại D-077) — gộp vào T-155 (D-088) | A | T-091 | — | DEFERRED |
 | T-097 | Bài cảm nhận, phân tích của người đọc (cần duyệt); bài có phân tích được duyệt thì lên Google | A | T-045 | — | DONE |
 | T-118 | An toàn vận hành: chặn lặp lượt đọc, sự kiện phía máy chủ; chỉ tin IP Cloudflare khi đúng; gỡ thẻ phiên bản; quay lại bản trước (D-073) | A | T-081, T-052, T-078 | — | DONE |
 | T-119 | Dòng "lời và mức kiểm" dưới lời, trong Tìm và trích dẫn (D-072) | A | T-072 | — | DONE |
@@ -95,28 +95,55 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-048 | Duyệt 30–50 bài, thử với 5 người (nên làm, không chặn mở — D-077) | N | T-073, T-076, T-041..T-046, T-082, T-085, T-119..T-121 | — | READY |
 | T-129 | Kiểm tự động "site thật đúng bản": so phiên bản trên phongdao.com với `main`, báo khi lệch (D-080) | A | T-078 | — | DONE |
 | T-130 | Bộ kiểm E2E chạy được ở mọi nơi (trình duyệt cài sẵn, proxy); cập nhật kỳ vọng lỗi đã sửa (D-080) | A | — | — | DONE |
-| T-131 | Đối chiếu lời với sách có bản quét (Câu hát góp 1901; Tục ngữ, cổ ngữ, gia ngôn 1897): máy gợi ý, người biên soạn bấm (D-080) | N+A | T-119 | — | READY |
+| T-131 | Đối chiếu lời với sách có bản quét (Câu hát góp 1901; Tục ngữ, cổ ngữ, gia ngôn 1897): máy gợi ý, người biên soạn bấm (D-080) — gộp vào T-152 (D-088) | N+A | T-119 | — | DEFERRED |
 | T-132 | Tìm chịu gõ sai một chữ, "Có phải bạn tìm …?" (L-09; D-080) | A | T-126 | — | READY |
-| T-133 | Bộ câu "Có trong SGK": người sáng lập đánh dấu bộ sách, lớp, bài; trang lọc, nối Trình chiếu (D-080) | N+A | — | — | READY |
+| T-133 | Bộ câu "Có trong SGK": người sáng lập đánh dấu bộ sách, lớp, bài; trang lọc, nối Trình chiếu (D-080) — gộp vào T-159 (D-088) | N+A | — | — | DEFERRED |
 | T-134 | Người soát lời tình nguyện qua "Gửi số trang", ghi bút danh (sau khi mở; D-080) | N+A | T-053 | — | DEFERRED |
-| T-135 | Cờ "Nghi không phải dân gian" trên WordPress (D-008, `docs/20` mục 4.1, 10; D-080) | N+A | — | — | READY |
-| T-136 | Khối "Biên soạn" cuối bài: bút danh trong cài đặt, liên kết Phương pháp, dữ liệu có cấu trúc (D-080) | A | T-046 | — | READY |
-| T-137 | Trang chủ đề, vùng "đọc liền": mỗi câu kèm Hiểu nhanh, chú thích địa danh; giới thiệu do người sáng lập viết (D-080) | N+A | T-094, T-095 | — | READY |
+| T-135 | Cờ "Nghi không phải dân gian" trên WordPress (D-008, `docs/20` mục 4.1, 10; D-080) — gộp vào T-151 (D-088) | N+A | — | — | DEFERRED |
+| T-136 | Khối "Biên soạn" cuối bài: bút danh trong cài đặt, liên kết Phương pháp, dữ liệu có cấu trúc (D-080) — gộp vào T-155 (D-088) | A | T-046 | — | DEFERRED |
+| T-137 | Trang chủ đề, vùng "đọc liền": mỗi câu kèm Hiểu nhanh, chú thích địa danh; giới thiệu do người sáng lập viết (D-080) — gộp vào T-156 (D-088) | N+A | T-094, T-095 | — | DEFERRED |
 | T-138 | 50 câu được tìm nhiều: danh sách đề xuất, nháp Hiểu nhanh theo lô 10 câu, hướng dẫn duyệt; tiêu đề "nghĩa và cách dùng" khi có Hiểu nhanh (D-080) | N+A | T-100, T-125 | — | READY |
 | **Mốc C · Mở lặng lẽ** ||||||
 | T-049 | Chốt tên miền (D-070: phongdao.com) | N | — | — | DONE |
 | T-051 | "Đã lưu": bài yêu thích nhớ trên máy (Câu hôm nay, Vừa bổ sung → T-043; cỡ chữ, sáng/tối, trình chiếu → T-085) | A | T-072 | — | DONE |
 | T-052 | Đo lường không cookie: tìm không ra, sao chép trích dẫn, mở chú giải | A | T-076, T-081, T-041 | — | DONE |
-| T-098 | Tục ngữ – Thành ngữ: nghĩa đen, nghĩa bóng, "dùng khi", đồng nghĩa (Wiktionary, CC BY-SA) | N+A | T-128 | — | READY |
-| T-099 | Chú giải từ sách hết bản quyền; chữ Hán Việt, điển tích của thành ngữ | N+A | T-082 | — | BLOCKED |
+| T-098 | Tục ngữ – Thành ngữ: nghĩa đen, nghĩa bóng, "dùng khi", đồng nghĩa (Wiktionary, CC BY-SA) — gộp vào T-151 (D-088) | N+A | T-128 | — | DEFERRED |
+| T-099 | Chú giải từ sách hết bản quyền; chữ Hán Việt, điển tích của thành ngữ (làm sau đối chiếu sách V2.1, D-088) | N+A | T-082, T-152 | — | BLOCKED |
 | T-101 | Gộp bài đã đăng bị trùng: bài chính + dị bản, chuyển hướng, dồn lượt đọc và bài người đọc | N+A | T-109 | — | DONE |
-| T-102 | Vè: khối "Bối cảnh" (sự kiện, năm, nơi chốn, nhân vật) (mở lại D-077) | N+A | T-086 | — | READY |
+| T-102 | Vè: khối "Bối cảnh" (sự kiện, năm, nơi chốn, nhân vật) (mở lại D-077) — gộp vào T-155 (D-088) | N+A | T-086 | — | DEFERRED |
 | T-103 | Đồng dao: cách chơi, chế độ "Đọc cùng bé" | A | T-085 | — | DONE |
 | T-104 | Bản đồ ca dao theo vùng | A | T-086, T-089 | — | DONE |
-| T-105 | Giọng đọc sinh sẵn theo miền (VieNeu-TTS), phiên nghe thử 30 bài (mở lại D-077) | N+A | T-085, T-089 | — | READY |
+| T-105 | Giọng đọc sinh sẵn theo miền (VieNeu-TTS), phiên nghe thử 30 bài (mở lại D-077) — gộp vào T-160 (D-088) | N+A | T-085, T-089 | — | DEFERRED |
 | T-106 | Giọng riêng của dự án, thu từ người đồng ý | N | T-105 | — | BLOCKED |
 | T-107 | Tìm bản quét "Tục ngữ phong dao" (Nguyễn Văn Ngọc, 1928) (không chặn — D-077) | N | — | — | READY |
-| T-053 | Mở công khai lặng lẽ (H5; số bài, Hiểu nhanh, thư cho Ca dao Mẹ nên có nhưng không chặn — D-077) | N | T-049..T-052 | — | READY |
+| T-146 | Bật sao lưu hằng ngày ngoài VPS và thử khôi phục một lần (điều kiện mở D-073; điều kiện chuyển dữ liệu V2, D-083) | N | — | — | READY |
+| T-053 | Mở công khai lặng lẽ (H5; số bài, Hiểu nhanh, thư cho Ca dao Mẹ nên có nhưng không chặn — D-077) | N | T-049..T-052, T-146 | — | READY |
+| **V2 · Đại tu, chạy song song với Mốc B–C (D-082..D-088)** ||||||
+| T-139 | [V2] Ghi quyết định đại tu, tài liệu nền V2, kiến trúc (`26`), giao diện (`27`), đặc tả V2.0 (`28`) | A | — | — | DONE |
+| T-140 | [V2] Đổi tên hiển thị thành "Thư viện Văn học Dân gian Việt Nam" (D-082): đầu, chân trang, trích dẫn, JSON-LD, ảnh chia sẻ chung, trang dự án; hướng dẫn đổi Tiêu đề trang | N+A | T-139 | — | READY |
+| T-141 | [V2.0] Khung mã: tự nạp `Phongdao\`, module, cờ tính năng, khung chuyển dữ liệu, bộ kiểm PHP thuần | A | T-139 | — | READY |
+| T-142 | [V2.0] Bảng lớp, hồ sơ nguồn, nhật ký, hàng đợi; hồ sơ nguồn ban đầu | A | T-141 | — | READY |
+| T-143 | [V2.0] Tách lớp: kho → lớp, thân bài → lớp (chạy thử), hàng "Cần xem", kiểm "trước = sau" | A | T-142 | — | READY |
+| T-144 | [V2.0] Ghi song song mọi đường ghi; sinh thân bài từ lớp; kiểm lệch mỗi đêm | A | T-143 | — | READY |
+| T-145 | [V2.0] Chính sách hiện nguồn thành cài đặt (mặc định D-068, D-078, D-081); HTML người đọc không đổi | A | T-144 | — | READY |
+| T-147 | [V2.0] Chuyển dữ liệu trên site thật: chạy thử, người sáng lập đọc báo cáo, chạy thật, bật cờ | N+A | T-145, T-146 | — | READY |
+| T-162 | [V2.1] Đặc tả đợt V2.1 (`docs/29`), người sáng lập duyệt trước khi làm | N+A | T-145 | — | READY |
+| T-148 | [V2.1] REST `cadao/v2`, quyền riêng, kiểm lằn ranh trong mã | A | T-162 | — | READY |
+| T-149 | [V2.1] Bước dựng trang quản trị React, CI so bản dựng; Hộp việc, Tuần này, Kho đang thiếu | A | T-148 | — | READY |
+| T-150 | [V2.1] Duyệt nhanh trên điện thoại | A | T-149 | — | READY |
+| T-151 | [V2.1] Trình soạn tác phẩm có cấu trúc; khối nghĩa tục ngữ (gộp T-098); cờ "Nghi không phải dân gian" (gộp T-135); Gutenberg dự phòng | N+A | T-150 | — | READY |
+| T-152 | [V2.1] Đối chiếu lời với sách có bản quét, bộ đọc Wikisource (gộp T-131) | N+A | T-151 | — | READY |
+| T-163 | [V2.2] Đặc tả đợt V2.2 (`docs/30`), người sáng lập duyệt trước khi làm | N+A | T-152 | — | READY |
+| T-153 | [V2.2] Khối lời, mức kiểm, chú thích, dị bản, nghĩa, hành động | A | T-163 | — | READY |
+| T-154 | [V2.2] Theme 1.0 khối độc lập: `theme.json`, mẫu theo thể loại, phần, thanh dưới, biến thể bảng màu | A | T-153 | — | READY |
+| T-155 | [V2.2] Khối Thông tin tư liệu, Biên soạn (gộp T-136), Đọc tiếp, Góp, Thực hành – Đố vui (gộp T-096), Bối cảnh (gộp T-102), Đoạn | N+A | T-154 | — | READY |
+| T-156 | [V2.2] Trang chủ lối vào, IA mới, tuyển tập (gộp T-137), vai người đọc, sự kiện `mong_co_cau`, kiểm liên kết ra ngoài | N+A | T-155 | — | READY |
+| T-164 | [V2.3] Đặc tả đợt V2.3 (`docs/31`), người sáng lập duyệt trước khi làm | N+A | T-156 | — | READY |
+| T-157 | [V2.3] Cổng thể loại mới; hát ru – hò – lý dạng văn bản | N+A | T-164 | — | READY |
+| T-158 | [V2.3] Truyện dân gian: mẫu trang, lớp đoạn, chỉ từ sách hết bản quyền người sáng lập đã kiểm | N+A | T-157 | — | READY |
+| T-159 | [V2.3] Cho lớp học, bộ câu SGK, phiếu in (gộp T-133) | N+A | T-164 | — | READY |
+| T-160 | [V2.3] Giọng đọc sinh sẵn theo miền, phiên nghe thử 30 bài (gộp T-105) | N+A | T-164 | — | READY |
+| T-161 | [V2.3] Xuất dữ liệu mở có phiên bản (nền cho T-066) | A | T-164, T-147 | — | READY |
 | **Sau · Cải tiến liên tục** ||||||
 | T-060 | Thẻ chia sẻ dạng ảnh (2 mẫu × 2 khổ) — gộp vào T-050 (D-059) | A | T-050 | — | DEFERRED |
 | T-061 | Thứ tự tình huống theo dịp | A | T-043 | — | DEFERRED |
@@ -130,7 +157,9 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-069 | Mời hội đồng cố vấn | N | T-053 | — | DEFERRED |
 | T-108 | Gắn cờ (không chặn) bài có từ tục; bỏ ô lọc thô tục của nguồn tự động (ý 21, để sau — D-060) | A | T-071 | — | DEFERRED |
 
-Không có task cho cơ sở dữ liệu, công cụ quản trị riêng hay monorepo (D-047). Task `DEFERRED` chỉ mở khi người sáng lập chọn ở nhịp hằng tháng sau Mốc C.
+Không monorepo, không công cụ quản trị ngoài WordPress. Bảng riêng và trang quản trị React của V2 nằm trong plugin `ca-dao` (D-085). Task `DEFERRED` chỉ mở khi người sáng lập chọn ở nhịp hằng tháng sau Mốc C; task `DEFERRED` có ghi "gộp vào T-xxx" thì không mở lại — việc đó làm trong task V2 tương ứng (D-088).
+
+**Nhóm V2 chạy song song** với mốc hiện tại (`giai_doan_song_song` trong `du-an/trang-thai.json`): `npm run viec-tiep-theo` xét task của mốc hiện tại trước, rồi tới task V2. Thứ tự các đợt V2.0 → V2.3 theo phụ thuộc; mỗi đợt V2.1–V2.3 có đặc tả ngắn được người sáng lập duyệt trước khi làm (D-088) — agent soạn đặc tả đó làm việc đầu tiên của đợt.
 
 ## 2. Mốc và điều kiện xong
 
@@ -142,6 +171,7 @@ Thay cho các cổng đếm hồ sơ của v1 (D-044). Agent được tự chuy�
 | **A · Chạy được** | (D-056) WordPress chạy trên hosting thật; người sáng lập đăng một bài thủ công từ điện thoại trong vài phút; nguồn tự động Ca dao Mẹ (cấu hình trong trang quản trị) đổ bài vào **Chờ duyệt** mỗi ngày, duyệt là lên trang; trang bài hiện lời, dị bản, chú thích (kèm "Nguồn: …" khi chép từ nguồn); nội dung cũ đã chuyển, site Astro ngừng | Cuối 11/2026 |
 | **B · Thử nhỏ** | 30–50 bài trên bản xem trước; trang tình huống, từ điển, form góp ý, trang Phương pháp chạy; đọc dễ hơn (chạm từ khó, dị bản tô chỗ khác, thể thơ, công cụ đọc), tìm kiếm, trang thể loại, cảm nghĩ và bài phân tích của người đọc (`docs/25` mục 6, đợt 2–4); dòng mức kiểm dưới lời (D-072), điều hướng và danh sách bài, SEO cơ bản (D-073: T-118..T-121, T-050, T-100); bài gần gũi – mô-típ, câu một dòng, đố vui (T-092, T-095, T-096 — mở lại D-077). **Nên làm, không chặn (D-077):** 5 người dùng thật thử (2 giáo viên, 2 người trẻ, 1 người am hiểu văn hóa dân gian), vướng mắc thành task; chốt Q-006 | Giữa–cuối 12/2026 |
 | **C · Mở lặng lẽ** | Tên miền (xong: phongdao.com, D-070); ảnh xem trước từng bài; sao lưu hằng ngày đã bật và đã thử khôi phục một lần (D-073); người sáng lập quyết định mở (H5, không thông báo rộng). **Nên có, không chặn (D-077):** 100–150 bài công khai, ≥ 50 bài có Hiểu nhanh (bài chưa có Hiểu nhanh chưa vào Google), thư đã gửi Ca dao Mẹ | Trước Tết Đinh Mùi 2027 (đầu 02/2027) |
+| **V2 · Đại tu** (song song, không chặn mở) | **V2.0:** mọi bài có lớp và hồ sơ nguồn trên site thật, "trước = sau" đạt, HTML người đọc không đổi (T-141..T-147). **V2.1:** người sáng lập duyệt một nháp ≤ 60 giây trên điện thoại; mọi việc chờ ở Hộp việc (T-148..T-152). **V2.2:** 5 mẫu thể loại, trang chủ lối vào, 10 tuyển tập, Thông tin tư liệu; mỗi mẫu ≤ 200 KB, 0 lỗi axe; thử 5 người (T-153..T-156). **V2.3:** theo cổng thể loại và số liệu (T-157..T-161). Chi tiết: `docs/26`, `27`, `28` | V2.0–V2.1 trước khi mở nếu kịp; V2.2–V2.3 sau |
 
 Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tầng LỖI, fixture, kiểm nhất quán; từ T-035 thêm `astro check`, build, kiểm liên kết), quét trợ năng và ngân sách JS (từ T-040).
 
@@ -589,8 +619,38 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 #### T-107 · Tìm "Tục ngữ phong dao" — N
 **Việc:** tìm bản quét trên Gallica, Google Sách, thư viện; agent soạn hướng dẫn tìm khi cần. **Chấp nhận:** có đường dẫn bản quét rõ đọc được, hoặc ghi lại nơi đã tìm.
 
+#### T-146 · Sao lưu và thử khôi phục — N
+**Đọc:** `docs/28` mục 3 (T-146); D-073, D-077. **Việc:** FlashPanel → Sao Lưu hằng ngày, gồm site và cơ sở dữ liệu, lưu ngoài VPS; thử khôi phục một lần; báo agent ngày bật, ngày thử. **Chấp nhận:** sao lưu chạy ≥ 2 ngày liền; một lần khôi phục thử thành công; ngày ghi ở `docs/02`. Là điều kiện của T-053 và T-147.
+
 #### T-053 · Mở công khai lặng lẽ — N (Human Gate H5)
 **Chấp nhận:** 100–150 bài `cong_khai`, 0 LỖI; thư đã gửi Ca dao Mẹ (T-034); trang Phương pháp và thông báo quyền riêng tư đã duyệt; người sáng lập quyết định mở, không thông báo rộng.
+**Ghi chú (D-077, D-088):** điều kiện bắt buộc chỉ còn sao lưu + thử khôi phục (T-146) và quyết định của người sáng lập; các điều trên nên có, không chặn. Mở không chờ V2.
+
+### V2 · Đại tu (D-082..D-088)
+
+Mọi task V2 đọc `docs/26` (kiến trúc) và AGENTS.md; task giao diện đọc thêm `docs/27`. Mọi tính năng V2 nằm sau cờ tính năng, tắt trên site thật tới T-147; mỗi PR giữ site như cũ khi cờ tắt. Mỗi PR đổi plugin / theme tăng phiên bản.
+
+#### T-139 · Tài liệu V2 — A
+**Chấp nhận:** D-082..D-088 trong `docs/01`; `docs/00` bản V2 (bản MVP ở `docs/luu-tru/00-tai-lieu-nen-mvp.md`); `docs/26`, `27`, `28`; ba nghiên cứu V2 ở `docs/nghien-cuu/`; backlog, `docs/02`, `trang-thai.json`, `viec-tiep-theo` nhận nhóm V2 chạy song song; `npm run kiem-tra` đạt.
+**Tiến độ (27/10/2026):** xong — PR tài liệu V2 (không đổi mã plugin, theme).
+
+#### T-140 · Đổi tên hiển thị — N+A
+**Đọc:** D-082 (1), `docs/27` mục 2. **Việc (A):** thay "Kho tàng Ca dao Tục ngữ Việt Nam" bằng "Thư viện Văn học Dân gian Việt Nam" trong plugin (trích dẫn, JSON-LD, trang dự án, Chính sách thu thập dữ liệu, ảnh chia sẻ chung), theme (đầu, chân trang, trang chủ, `style.css`), blueprint Playground, kiểm thử, `package.json`, `scripts/quet-trang-wordpress.mjs`; tên ngắn "Phongdao" ở đầu trang điện thoại; tăng phiên bản plugin, theme. **Việc (N):** Cài đặt → Tổng quan → Tiêu đề trang (agent soạn hướng dẫn một bước). **Chấp nhận:** không còn tên cũ trên trang người đọc (trừ lịch sử trong tài liệu lưu trữ); đường dẫn, tên miền, mã định danh không đổi; trích dẫn mới mang tên mới; quét trợ năng đạt.
+
+#### T-141..T-145, T-147 · Đợt V2.0 — A, N+A
+Tiêu chí chấp nhận từng task: `docs/28` mục 3.
+
+#### T-162, T-163, T-164 · Đặc tả đợt V2.1, V2.2, V2.3 — N+A
+**Việc:** agent soạn đặc tả ngắn của đợt (`docs/29`, `docs/30`, `docs/31`) theo khuôn `docs/28`: mục tiêu, không làm, tiêu chí đo được từng task, thứ tự PR, rủi ro, việc của người sáng lập; dựa trên `docs/26`, `27` và kết quả đợt trước. **Chấp nhận:** người sáng lập trả lời "Duyệt đặc tả V2.x" (hoặc nêu chỗ đổi); agent **không tự đánh `DONE`** khi chưa có câu trả lời đó; điều nào đổi quyết định đã chốt thì ghi D-xxx.
+
+#### T-148..T-152 · Đợt V2.1 — Bàn biên tập
+**Đọc:** `docs/26` mục 3.1, 6; `docs/27` mục 5; đặc tả `docs/29`. **Chấp nhận chung:** máy không đặt "đã duyệt", "có hỗ trợ AI", không đăng; mọi route kiểm quyền + nonce; Duyệt nhanh dùng được một tay trên 390 px; T-151 đạt tiêu chí cũ của T-098 (nghĩa từ Wiktionary ghi "Nguồn: Wiktionary ↗ · CC BY-SA" ngay dưới) và T-135 (máy chỉ gợi ý cờ); T-152 đạt tiêu chí cũ của T-131 (máy không tự điền "Lời đã đối chiếu với"; lời sách không vào repo công khai) và mở lại phần T-099 (giải nghĩa sách 1897).
+
+#### T-153..T-156 · Đợt V2.2 — Trang đọc
+**Đọc:** `docs/26` mục 4.3, 5; `docs/27` mục 3–8; đặc tả `docs/30`. **Chấp nhận chung:** mỗi mẫu thể loại ≤ 200 KB, JavaScript trang bài ≤ 21 KB, 0 lỗi axe, tắt JavaScript vẫn đọc được; trang bài câu đố hiện đáp án sẵn (D-058); T-155 đạt tiêu chí cũ của T-136 (để trống bút danh thì không có khối), T-096 (Đố vui 10 câu, điểm nhớ trên máy), T-102 (máy không tự viết sự kiện); T-156 đạt tiêu chí cũ của T-137 (máy không viết lời dẫn) và chạy kiểm liên kết ra ngoài trong CI; thử 5 người theo `docs/27` mục 9 (T-048).
+
+#### T-157..T-161 · Đợt V2.3 — Mở rộng
+**Đọc:** D-088 (cổng thể loại); đặc tả `docs/31`. **Chấp nhận chung:** thể loại chỉ lên menu khi qua cổng; truyện chỉ từ sách hết bản quyền người sáng lập đã kiểm (H3); T-159 đạt tiêu chí cũ của T-133 (máy không tự đánh dấu SGK); T-160 đạt tiêu chí cũ của T-105 (nghe thử 30 bài trước khi sinh cả kho, ghi "Giọng đọc máy"); T-161 chỉ xuất lớp đã duyệt, của bài đã đăng, nguồn có quyền.
 
 ## 4. User story
 
