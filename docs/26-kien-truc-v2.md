@@ -50,7 +50,7 @@ wordpress/v2/plugins/ca-dao/
 ├── ca-dao.php           khai báo, hằng số, spl_autoload cho Phongdao\, khởi động module
 ├── src/
 │   ├── MienDuLieu/      không gọi hàm WordPress — kiểm bằng PHP thuần
-│   │   ├── TacPham, Phan (các phần của bài), NguoiLam, KiemPhan (lằn ranh khi lưu)
+│   │   ├── Phan (danh mục các phần của bài), KiemPhan (lằn ranh khi lưu), NguoiLam, TheLoai, BanChu
 │   │   ├── HoSoNguon, ChinhSachHien, CapChatLuong, DongMucKiem
 │   │   ├── TheTho (nhận lục bát, song thất, một dòng…), ToChoKhac (dị bản), ChiaDoan
 │   │   └── VanTay (dấu vân tay lời), BoDau (bỏ dấu, chuẩn hoá tìm)
@@ -73,7 +73,7 @@ wordpress/v2/plugins/ca-dao/
 │   │   ├── Cli/         wp phongdao …
 │   │   ├── BienTap/     trang /bien-tap/…, nạp mã sửa cho người có quyền, chế độ sửa trên trang đọc
 │   │   └── QuanTri/     trang Nguồn & cài đặt (PHP), ẩn menu thừa
-│   └── HaTang/          CaiDat (khai báo meta, bảng, nâng cấp CSDL), LichChay, BoNhoDem, AnToan, ChuyenHuong
+│   └── HaTang/          KhaiBao (loại bài, phân loại, khoá meta, đường dẫn), CaiDat (bảng, nâng cấp CSDL), LichChay, BoNhoDem, AnToan, ChuyenHuong
 ├── khoi/<ten>/          block.json, render.php, style.css, view.js (nếu cần)
 ├── assets/              bien-tap.js (chỉ người biên soạn), phông cho ảnh chia sẻ
 └── languages/           (không cần: giao diện viết thẳng tiếng Việt)
@@ -114,7 +114,7 @@ Bỏ phân loại `tinh_huong` (thành tuyển tập loại `tinh_huong`) và `t
 
 ### 4.3. Phần của bài
 
-Mỗi phần của tác phẩm là **một khoá post meta** `_phongdao_<phần>` (D-094), khai báo bằng `register_post_meta` trong `HaTang\CaiDat`, không mở qua REST mặc định của WordPress. Giá trị là mảng PHP; hình dạng và lằn ranh kiểm ở `MienDuLieu\KiemPhan` (PHP thuần, có kiểm thử) mỗi lần lưu.
+Mỗi phần của tác phẩm là **một khoá post meta** `_phongdao_<phần>` (D-094), khai báo bằng `register_post_meta` trong `HaTang\KhaiBao` (danh mục phần ở `MienDuLieu\Phan`), không mở qua REST mặc định của WordPress. Giá trị là mảng PHP; hình dạng và lằn ranh kiểm ở `MienDuLieu\KiemPhan` (PHP thuần, có kiểm thử) mỗi lần lưu.
 
 Mỗi phần (hoặc mỗi mục trong phần dạng danh sách) mang:
 - `nguoi_lam`: `may_chep` (máy chép từ nguồn bật "Chép chú thích"), `nguoi_viet`, `ai_da_duyet` (nháp AI người đã duyệt), `doc_gia_gop`;

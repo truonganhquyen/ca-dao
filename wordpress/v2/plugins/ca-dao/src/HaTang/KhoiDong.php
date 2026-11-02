@@ -13,6 +13,7 @@ final class KhoiDong {
 
 	/** Thứ tự đăng ký: hạ tầng → dịch vụ → giao tiếp. Module mới thêm vào đây (docs/26 mục 3). */
 	public const MODULE = array(
+		KhaiBao::class,
 		CaiDat::class,
 		GiaoTiep\Rest\Module::class,
 		GiaoTiep\Khoi\Module::class,
