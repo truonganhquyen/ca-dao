@@ -1,5 +1,5 @@
-PHONGDAO V2 — BỘ THIẾT KẾ UX/UI BẢN CUỐI 2.0 — 02/11/2026
-Bản 1.0 (28/10/2026) đổi lớp nhìn theo D-092: bảng tím – lục, bỏ "Đọc theo tâm trạng", giữ thụt câu lục.
+PHONGDAO V2 — BỘ THIẾT KẾ UX/UI BẢN CHỐT 2.1 — 02/11/2026
+Bản 1.0 (28/10/2026) đổi lớp nhìn theo D-092 (bảng tím – lục, bỏ "Đọc theo tâm trạng", thụt câu lục) và chốt theo D-093 (mỗi câu một dòng, Ý nghĩa, nhãn mức kiểm, Sao chép, Ảnh để chia sẻ, Khám phá là trang riêng).
 
 DỰNG VÀ MỞ
 Chạy từ thư mục design/v2 (Node, không cần npm install):
@@ -17,6 +17,7 @@ source/views-core.mjs — trang chủ, ca dao, tục ngữ, đồng dao, tuyển
 source/views-extra.mjs — phần còn lại R/A/F, D04
 source/styles.css — token sáng/tối ở đầu tệp; lớp giao diện tím – lục ở cuối tệp
 source/runtime.js, extra-runtime.js — tương tác mô phỏng
+source/fit.js — mỗi câu một dòng: co cỡ chữ lời vừa khung (D-093); dùng lại được cho theme production
 source/viewer.html — công cụ duyệt, chỉ dùng ở prototype
 assets/ — phông WOFF tự lưu trữ (OFL), bản đồ SVG
 brief/ — brief gốc của bản 1.0

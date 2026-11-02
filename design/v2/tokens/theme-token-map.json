@@ -110,6 +110,46 @@
       "slug": "tren-tim",
       "color": "#FFFFFF",
       "name": "tren-tim"
+    },
+    {
+      "slug": "nen-vang",
+      "color": "#FFF8E1",
+      "name": "nen-vang"
+    },
+    {
+      "slug": "nen-tim",
+      "color": "#F6F2FD",
+      "name": "nen-tim"
+    },
+    {
+      "slug": "nen-luc",
+      "color": "#EFF7F1",
+      "name": "nen-luc"
+    },
+    {
+      "slug": "nen-xanh",
+      "color": "#EEF4FB",
+      "name": "nen-xanh"
+    },
+    {
+      "slug": "nen-dat",
+      "color": "#F7F2E9",
+      "name": "nen-dat"
+    },
+    {
+      "slug": "nen-hong",
+      "color": "#FCF0F5",
+      "name": "nen-hong"
+    },
+    {
+      "slug": "vang-dam",
+      "color": "#8A5A00",
+      "name": "vang-dam"
+    },
+    {
+      "slug": "hong",
+      "color": "#A3245E",
+      "name": "hong"
     }
   ],
   "settings.typography.fontSizes": [

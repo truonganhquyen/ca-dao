@@ -115,6 +115,28 @@
     "steps": "Lớp / bộ sách → bộ câu → A4 / trình chiếu",
     "verification": "Đã thử 1/8 và mở phiếu; chưa nghiệm thu in vật lý / hồ sơ SGK thật"
   },
+  "J16": {
+    "screens": [
+      "R05",
+      "R11"
+    ],
+    "steps": "Sao chép lời trong thẻ / Sao chép cả bộ",
+    "verification": "Đạt: lời giữ thụt câu lục, có đường dẫn; cả bộ 8 câu có 8 đường dẫn"
+  },
+  "J17": {
+    "screens": [
+      "R05"
+    ],
+    "steps": "Chia sẻ → Tạo ảnh → đổi khổ dọc, nền Giấy dó, kèm ý nghĩa → Tải ảnh",
+    "verification": "Đạt: tỷ lệ 4:5, không tràn khung; tải PNG thật cần máy chủ"
+  },
+  "J18": {
+    "screens": [
+      "R05"
+    ],
+    "steps": "Người biên soạn: Sửa ý nghĩa tại chỗ → Lưu",
+    "verification": "Đạt trên bản mẫu; REST và lịch sử do dev nối"
+  },
   "J15": {
     "screens": [
       "R07"

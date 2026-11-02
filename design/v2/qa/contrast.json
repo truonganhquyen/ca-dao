@@ -656,6 +656,390 @@
     "pass": true
   },
   {
+    "palette": "light",
+    "foreground": "muc",
+    "background": "nen-vang",
+    "ratio": 17.6,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "nhat",
+    "background": "nen-vang",
+    "ratio": 6.84,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "tim",
+    "background": "nen-vang",
+    "ratio": 7.34,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "muc",
+    "background": "nen-tim",
+    "ratio": 16.95,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "nhat",
+    "background": "nen-tim",
+    "ratio": 6.59,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "tim",
+    "background": "nen-tim",
+    "ratio": 7.07,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "muc",
+    "background": "nen-luc",
+    "ratio": 17.13,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "nhat",
+    "background": "nen-luc",
+    "ratio": 6.66,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "tim",
+    "background": "nen-luc",
+    "ratio": 7.15,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "muc",
+    "background": "nen-xanh",
+    "ratio": 16.89,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "nhat",
+    "background": "nen-xanh",
+    "ratio": 6.57,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "tim",
+    "background": "nen-xanh",
+    "ratio": 7.05,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "muc",
+    "background": "nen-dat",
+    "ratio": 16.77,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "nhat",
+    "background": "nen-dat",
+    "ratio": 6.52,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "tim",
+    "background": "nen-dat",
+    "ratio": 6.99,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "muc",
+    "background": "nen-hong",
+    "ratio": 16.85,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "nhat",
+    "background": "nen-hong",
+    "ratio": 6.55,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "tim",
+    "background": "nen-hong",
+    "ratio": 7.03,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "luc",
+    "background": "nen-luc",
+    "ratio": 5.9,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "vang-dam",
+    "background": "nen-vang",
+    "ratio": 5.58,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "xanh",
+    "background": "nen-xanh",
+    "ratio": 6.99,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "hong",
+    "background": "nen-hong",
+    "ratio": 6.37,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "vang-dam",
+    "background": "surface",
+    "ratio": 5.93,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "hong",
+    "background": "surface",
+    "ratio": 7.07,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "muc",
+    "background": "nen-vang",
+    "ratio": 12.99,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "nhat",
+    "background": "nen-vang",
+    "ratio": 7.01,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "tim",
+    "background": "nen-vang",
+    "ratio": 7.38,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "muc",
+    "background": "nen-tim",
+    "ratio": 13.67,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "nhat",
+    "background": "nen-tim",
+    "ratio": 7.38,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "tim",
+    "background": "nen-tim",
+    "ratio": 7.77,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "muc",
+    "background": "nen-luc",
+    "ratio": 13.23,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "nhat",
+    "background": "nen-luc",
+    "ratio": 7.15,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "tim",
+    "background": "nen-luc",
+    "ratio": 7.52,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "muc",
+    "background": "nen-xanh",
+    "ratio": 13.5,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "nhat",
+    "background": "nen-xanh",
+    "ratio": 7.29,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "tim",
+    "background": "nen-xanh",
+    "ratio": 7.67,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "muc",
+    "background": "nen-dat",
+    "ratio": 13.5,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "nhat",
+    "background": "nen-dat",
+    "ratio": 7.29,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "tim",
+    "background": "nen-dat",
+    "ratio": 7.67,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "muc",
+    "background": "nen-hong",
+    "ratio": 13.8,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "nhat",
+    "background": "nen-hong",
+    "ratio": 7.46,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "tim",
+    "background": "nen-hong",
+    "ratio": 7.85,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "luc",
+    "background": "nen-luc",
+    "ratio": 8.61,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "vang-dam",
+    "background": "nen-vang",
+    "ratio": 8.37,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "xanh",
+    "background": "nen-xanh",
+    "ratio": 7.58,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "hong",
+    "background": "nen-hong",
+    "ratio": 7.87,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "vang-dam",
+    "background": "surface",
+    "ratio": 9.11,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "hong",
+    "background": "surface",
+    "ratio": 8.06,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
     "palette": "share-image",
     "foreground": "chu",
     "background": "nen",
@@ -668,6 +1052,198 @@
     "foreground": "phu",
     "background": "nen",
     "ratio": 7.82,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "share-tim",
+    "foreground": "chu",
+    "background": "a1",
+    "ratio": 13.79,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "share-tim",
+    "foreground": "chu",
+    "background": "a2",
+    "ratio": 6.62,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "share-tim",
+    "foreground": "phu",
+    "background": "a1",
+    "ratio": 10.65,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "share-tim",
+    "foreground": "phu",
+    "background": "a2",
+    "ratio": 5.11,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "share-giay",
+    "foreground": "chu",
+    "background": "a1",
+    "ratio": 14.42,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "share-giay",
+    "foreground": "chu",
+    "background": "a2",
+    "ratio": 11.75,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "share-giay",
+    "foreground": "phu",
+    "background": "a1",
+    "ratio": 7.12,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "share-giay",
+    "foreground": "phu",
+    "background": "a2",
+    "ratio": 5.8,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "share-dem",
+    "foreground": "chu",
+    "background": "a1",
+    "ratio": 18.53,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "share-dem",
+    "foreground": "chu",
+    "background": "a2",
+    "ratio": 13.55,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "share-dem",
+    "foreground": "phu",
+    "background": "a1",
+    "ratio": 11.63,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "share-dem",
+    "foreground": "phu",
+    "background": "a2",
+    "ratio": 8.5,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "share-luc",
+    "foreground": "chu",
+    "background": "a1",
+    "ratio": 12.69,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "share-luc",
+    "foreground": "chu",
+    "background": "a2",
+    "ratio": 6.4,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "share-luc",
+    "foreground": "phu",
+    "background": "a1",
+    "ratio": 9.98,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "share-luc",
+    "foreground": "phu",
+    "background": "a2",
+    "ratio": 5.04,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "share-nang",
+    "foreground": "chu",
+    "background": "a1",
+    "ratio": 11.01,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "share-nang",
+    "foreground": "chu",
+    "background": "a2",
+    "ratio": 7.34,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "share-nang",
+    "foreground": "phu",
+    "background": "a1",
+    "ratio": 7.39,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "share-nang",
+    "foreground": "phu",
+    "background": "a2",
+    "ratio": 4.93,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "share-xanh",
+    "foreground": "chu",
+    "background": "a1",
+    "ratio": 13.84,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "share-xanh",
+    "foreground": "chu",
+    "background": "a2",
+    "ratio": 6.13,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "share-xanh",
+    "foreground": "phu",
+    "background": "a1",
+    "ratio": 10.81,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "share-xanh",
+    "foreground": "phu",
+    "background": "a2",
+    "ratio": 4.79,
     "threshold": 4.5,
     "pass": true
   }

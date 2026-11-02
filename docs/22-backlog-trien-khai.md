@@ -120,7 +120,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-053 | Mở công khai lặng lẽ (H5; số bài, Hiểu nhanh, thư cho Ca dao Mẹ nên có nhưng không chặn — D-077) | N | T-049..T-052, T-140, T-157 | — | READY |
 | **V2 · Xây mới song song, chuyển một lần (D-082..D-091)** ||||||
 | T-139 | [V2] Quyết định xây mới, tài liệu nền V2, đặc tả `docs/26` kỹ thuật, `27` sản phẩm, `28` Bàn biên tập, `29` chuyển đổi | A | — | — | DONE |
-| T-165 | [V2] Bộ thiết kế UX/UI bản cuối ở `design/v2/`: bảng tím – lục, 66 màn, token, đặc tả (D-092) | N+A | T-139 | — | DONE |
+| T-165 | [V2] Bộ thiết kế UX/UI bản chốt ở `design/v2/`: bảng tím – lục, mỗi câu một dòng, 66 màn, token, đặc tả (D-092, D-093) | N+A | T-139 | — | DONE |
 | T-141 | [Đợt 1] Khung V2 ở `wordpress/v2/`: plugin (tự nạp `Phongdao\`, module), theme khối trống, lệnh `test:v2`, `quet:v2`, `xem-truoc:v2`, job CI, bộ kiểm PHP thuần | A | T-139 | — | READY |
 | T-142 | [Đợt 1] Mô hình dữ liệu: loại bài, sáu phân loại, bảng lớp / hồ sơ nguồn / nhật ký / hàng đợi / tuyển tập / gợi ý, cấp chất lượng, ràng buộc lằn ranh | A | T-141 | — | READY |
 | T-143 | [Đợt 1] Nguồn vào: bộ đọc Ca dao Mẹ, kho, hồ sơ nguồn, chống trùng (chuyển kèm kiểm thử), ứng viên từ kho, gợi ý chủ đề / vùng / mô-típ / Wikidata | A | T-142 | — | READY |
@@ -637,7 +637,7 @@ Mọi task V2 đọc AGENTS.md và `docs/26`; task trang người đọc đọc 
 
 #### T-165 · Bộ thiết kế V2 — N+A
 **Chấp nhận:** người sáng lập chọn bảng màu và bản mẫu tham khảo (D-092); `design/v2/` có mã nguồn, token, đặc tả, `qa/`; `node source/build.mjs` và `python -X utf8 source/package-handoff.py` chạy được; 0 lỗi kiểm tĩnh, 0 cặp màu dưới ngưỡng tương phản, 0 trang tràn ngang ở 320 / 390 / 1440; bản dựng, ảnh chia sẻ và hai bản mẫu HTML không vào repo.
-**Tiến độ (02/11/2026):** xong — bản cuối 2.0 của bộ duyệt 28/10; còn tên khối tư liệu và cách mở Khám phá trên điện thoại chọn trên bản xem trước.
+**Tiến độ (02/11/2026):** xong — bản chốt 2.1 (D-092, D-093): mọi lựa chọn đã chốt; kiểm thêm "mỗi câu một dòng" và "nhãn nút không gãy" ở 320 / 360 / 390 / 768 / 1440 đạt, 13 luồng tương tác đạt.
 
 #### Đợt 1 · Nền (T-141..T-145)
 - **T-141:** đo phiên bản PHP của máy chủ trước khi chọn cú pháp (`docs/26` mục 2); `npm run test:v2` chạy bộ kiểm PHP thuần < 5 giây và Playground; `xem-truoc:v2` mở được plugin + theme V2 với dữ liệu mẫu; job CI `v2`. **Chấp nhận:** cây thư mục đúng `docs/26` mục 3; MVP không đổi; CI xanh.

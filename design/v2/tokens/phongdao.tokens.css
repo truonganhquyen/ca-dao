@@ -22,6 +22,14 @@
   --line: #E8E0D0;
   --control-line: #8C8478;
   --tren-tim: #FFFFFF;
+  --nen-vang: #FFF8E1;
+  --nen-tim: #F6F2FD;
+  --nen-luc: #EFF7F1;
+  --nen-xanh: #EEF4FB;
+  --nen-dat: #F7F2E9;
+  --nen-hong: #FCF0F5;
+  --vang-dam: #8A5A00;
+  --hong: #A3245E;
 }
 :root[data-theme="dark"]{
   --giay: #17151B;
@@ -46,6 +54,14 @@
   --line: #38343F;
   --control-line: #8E8799;
   --tren-tim: #17151B;
+  --nen-vang: #2A2414;
+  --nen-tim: #221E2E;
+  --nen-luc: #18261F;
+  --nen-xanh: #172231;
+  --nen-dat: #24211C;
+  --nen-hong: #2C1A24;
+  --vang-dam: #E6B860;
+  --hong: #F09ABF;
 }
 :root{--font-reading:Literata,Georgia,serif;--font-ui:"Be Vietnam Pro",sans-serif;--read:38em;--verse-indent:1.6em;--reading-size:22px;--radius:10px;--bo:14px;--bo-nho:10px;
 --space-4:4px;--space-8:8px;--space-12:12px;--space-16:16px;--space-24:24px;--space-32:32px;--space-48:48px;--space-64:64px;
