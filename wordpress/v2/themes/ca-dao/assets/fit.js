@@ -9,5 +9,7 @@ function doRong(el){const box=el.closest('.verse-box')||el.parentElement,avail=b
 function fit(root=document){const groups=new Map();for(const el of root.querySelectorAll('[data-fit]')){el.classList.remove('theo-ve','tran','mot-dong');const san=+(el.dataset.san||(innerWidth<360?14:15));let s=doRong(el);if(s===null)continue;if(s<san&&el.querySelector('.ve')){el.classList.add('theo-ve');s=doRong(el)}const key=el.dataset.nhom||el,g=groups.get(key)||{els:[],size:Infinity,san};g.els.push(el);g.size=Math.min(g.size,tran(el),s);groups.set(key,g)}
 for(const {els,size,san} of groups.values())for(const el of els){el.style.fontSize=Math.max(san,size)+'px';el.classList.add(size>=san?'mot-dong':'tran')}}
 let hen;const lai=()=>{cancelAnimationFrame(hen);hen=requestAnimationFrame(()=>fit())};
-window.PDfit=r=>fit(r||document);fit();document.fonts?.ready.then(lai);addEventListener('resize',lai);document.addEventListener('toggle',e=>{if(e.target.open)lai()},true);
+window.PDfit=r=>fit(r||document);fit();document.fonts?.ready.then(lai);
+// fonts.ready chỉ xong một lần: phông của lời nạp ở đợt sau (sau phông đầu trang) thì phải co lại sau mỗi đợt
+document.fonts?.addEventListener?.('loadingdone',lai);addEventListener('resize',lai);document.addEventListener('toggle',e=>{if(e.target.open)lai()},true);
 })();
