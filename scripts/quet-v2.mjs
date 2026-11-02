@@ -91,8 +91,11 @@ try {
       if (tl.status() !== 200) loi.push(`${duong} (${c.ten}): trả ${tl.status()}`);
       if (ngoai.size) loi.push(`${duong} (${c.ten}): gọi máy chủ ngoài ${[...ngoai].join(', ')}`);
       await tab.evaluate(() => document.querySelectorAll('details').forEach(d => { d.open = true; }));
-      // Tràn ngang: đo lúc vừa tải và sau khi phông nạp xong; báo phần tử vượt mép phải để biết chỗ sửa
-      const tran = () => tab.evaluate(() => {
+      // Tràn ngang: đo lúc vừa tải và sau khi phông nạp xong; báo phần tử vượt mép phải để biết chỗ sửa.
+      // Chờ hai khung hình rồi mới đo: fit.js co chữ trong requestAnimationFrame (trước khi vẽ), nên đo giữa hai
+      // khung hình là đo trạng thái không bao giờ hiện trên màn hình.
+      const tran = () => tab.evaluate(async () => {
+        await new Promise(ok => requestAnimationFrame(() => requestAnimationFrame(ok)));
         const w = document.documentElement.clientWidth, du = document.documentElement.scrollWidth - w;
         if (du <= 1) return null;
         const ten = e => e.tagName.toLowerCase() + (typeof e.className === 'string' && e.className.trim() ? '.' + e.className.trim().split(/\s+/).join('.') : '');
