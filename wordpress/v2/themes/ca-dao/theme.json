@@ -163,14 +163,5 @@
 			"title": "Chân trang",
 			"area": "footer"
 		}
-	],
-	"customTemplates": [
-		{
-			"name": "tac-pham-mau",
-			"title": "Tác phẩm (mẫu giao diện)",
-			"postTypes": [
-				"page"
-			]
-		}
 	]
 }

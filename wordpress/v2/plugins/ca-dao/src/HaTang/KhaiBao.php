@@ -36,6 +36,20 @@ final class KhaiBao implements Module {
 		add_action( 'init', array( self::class, 'khai_bao' ), 0 );
 		add_filter( 'post_type_link', array( self::class, 'duong_dan' ), 10, 2 );
 		add_action( 'template_redirect', array( self::class, 've_duong_dan_chuan' ) );
+		add_action( 'pre_get_posts', array( self::class, 'truy_van_danh_sach' ) );
+		add_filter( 'query_vars', static fn( array $v ): array => array_merge( $v, array( 'sap' ) ) );
+	}
+
+	/** Trang Tất cả (/kho/) và trang phân loại: 30 bài mỗi trang, A–Z (?sap=moi: mới thêm trước). */
+	public static function truy_van_danh_sach( \WP_Query $q ): void {
+		if ( is_admin() || ! $q->is_main_query() || ! ( $q->is_post_type_archive( self::TAC_PHAM ) || $q->is_tax( array_keys( self::PHAN_LOAI ) ) ) ) {
+			return;
+		}
+		$q->set( 'post_type', self::TAC_PHAM );
+		$q->set( 'posts_per_page', 30 );
+		$moi = 'moi' === $q->get( 'sap' );
+		$q->set( 'orderby', $moi ? 'date' : 'title' );
+		$q->set( 'order', $moi ? 'DESC' : 'ASC' );
 	}
 
 	public static function khai_bao(): void {

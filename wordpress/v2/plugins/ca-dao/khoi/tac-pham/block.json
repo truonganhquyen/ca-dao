@@ -4,12 +4,12 @@
 	"name": "cadao/tac-pham",
 	"title": "Trang tác phẩm",
 	"category": "theme",
-	"description": "Trang tác phẩm đủ phần (docs/27 mục 6). Tạm đọc dữ liệu mẫu theo thuộc tính mau.",
+	"description": "Trang tác phẩm đủ phần (docs/27 mục 6): đọc tác phẩm đang xem; thuộc tính mau vẽ dữ liệu mẫu.",
 	"textdomain": "ca-dao",
 	"attributes": {
 		"mau": {
 			"type": "string",
-			"default": "ca-dao"
+			"default": ""
 		}
 	},
 	"supports": {

@@ -160,9 +160,11 @@ kt( 'không in mã emoji (không gọi máy chủ ngoài)', false === has_action
 
 // ---------- Giao diện người đọc: khối cadao/* ----------
 $dang_ky = WP_Block_Type_Registry::get_instance();
-$co_khoi = array_values( array_filter( array( 'cadao/dau-trang', 'cadao/chan-trang', 'cadao/tac-pham' ), static fn( $k ) => ! $dang_ky->is_registered( $k ) ) );
-kt( 'đã đăng ký khối cadao/dau-trang, cadao/chan-trang, cadao/tac-pham', array() === $co_khoi, $co_khoi );
-kt( 'theme có mẫu tác phẩm (tac-pham-mau)', in_array( 'tac-pham-mau', array_map( static fn( $t ) => $t->slug, get_block_templates() ), true ) );
+$co_khoi = array_values( array_filter( array( 'cadao/dau-trang', 'cadao/chan-trang', 'cadao/tac-pham', 'cadao/danh-sach' ), static fn( $k ) => ! $dang_ky->is_registered( $k ) ) );
+kt( 'đã đăng ký khối cadao/dau-trang, cadao/chan-trang, cadao/tac-pham, cadao/danh-sach', array() === $co_khoi, $co_khoi );
+$mau  = array_map( static fn( $t ) => $t->slug, get_block_templates() );
+$thieu = array_values( array_diff( array( 'single-tac_pham', 'archive-tac_pham', 'taxonomy' ), $mau ) );
+kt( 'theme có mẫu trang tác phẩm, Tất cả, trang phân loại', array() === $thieu, $thieu );
 
 wp_set_current_user( 0 );
 $h    = do_blocks( '<!-- wp:cadao/tac-pham {"mau":"ca-dao"} /-->' );
@@ -197,6 +199,61 @@ $dau = do_blocks( '<!-- wp:cadao/dau-trang /-->' );
 kt( 'đầu trang: logo, ô tìm tới /tim/, thanh thể loại 8 mục, nút sáng / tối', str_contains( $dau, 'class="brand"' ) && str_contains( $dau, 'action="' . esc_url( home_url( '/tim/' ) ) . '"' ) && 8 === substr_count( (string) strstr( $dau, 'genre-bar-inner' ), '<a ' ) && str_contains( $dau, 'data-action="theme"' ) );
 $chan = do_blocks( '<!-- wp:cadao/chan-trang /-->' );
 kt( 'chân trang + thanh dưới điện thoại 4 mục', str_contains( $chan, 'class="site-footer"' ) && 4 === substr_count( (string) strstr( $chan, 'bottom-nav' ), '<a ' ) );
+
+// ---------- Trang đọc từ dữ liệu thật (các phần đã lưu) ----------
+$mau_id = \Phongdao\DichVu\DungTrang\GieoMau::gieo( $ai_ql );
+kt( 'tạo 6 tác phẩm mẫu tổng hợp qua đường lưu có kiểm lằn ranh', 6 === count( array_filter( $mau_id ) ), $mau_id );
+kt( 'máy gắn thể thơ khi lưu lời: lục bát, câu bốn chữ', has_term( 'luc-bat', 'hinh_thuc', $mau_id['dong-mau-mot-cua-bai'] ) && has_term( 'bon-chu', 'hinh_thuc', $mau_id['dong-dao-mau'] ) );
+LuuPhan::luu( $mau_id['dong-mau-mot-cua-bai'], 'nguon_may', array( 'nguon_id' => 'nguon-mau', 'url_goc' => 'https://nguon-an.example/bai-goc' ), array( 'nguoi' => 0, 'goi' => KiemPhan::GOI_MAY ) );
+/** Vẽ khối như khi khách mở trang của một bài (truy vấn chính = bài đó). */
+$xem = static function ( int $id ): string {
+	$GLOBALS['wp_query']     = new WP_Query( array( 'p' => $id, 'post_type' => KhaiBao::TAC_PHAM ) );
+	$GLOBALS['wp_the_query'] = $GLOBALS['wp_query'];
+	$GLOBALS['post']         = $GLOBALS['wp_query']->post;
+	return do_blocks( '<!-- wp:cadao/tac-pham /-->' );
+};
+wp_set_current_user( 0 );
+$h = $xem( $mau_id['dong-mau-mot-cua-bai'] );
+kt( 'trang bài thật: tiêu đề, 4 câu lục bát, nhãn "Ca dao · Lục bát"', str_contains( $h, '<h1 class="read-title">Dòng mẫu một của bài</h1>' ) && 4 === substr_count( (string) strstr( (string) strstr( $h, 'class="work-main"' ), 'class="work-rail', true ), 'class="line"' ) && str_contains( $h, 'verse lucbat' ) && str_contains( $h, 'Ca dao · Lục bát' ), substr( $h, 0, 600 ) );
+kt( 'trang bài thật: Ý nghĩa có ghi chú hỗ trợ AI đã duyệt', str_contains( $h, 'Một câu giải nghĩa tổng hợp để xem khối Ý nghĩa.' ) && str_contains( $h, 'Có hỗ trợ của AI, đã được người biên soạn duyệt.' ) );
+kt( 'trang bài thật: Từ khó 2 mục, từ "chút" trong lời dẫn tới Từ khó', 2 === substr_count( $h, '<div class="term">' ) && str_contains( $h, '<a class="word" href="#chu-thich"' ) );
+kt( 'trang bài thật: dị bản gạch dưới chữ khác', str_contains( $h, '<ins>khác</ins>' ) );
+kt( '"Lời này từ đâu?": tách chú thích chép từ nguồn (nguồn ẩn) với chú thích người viết', str_contains( $h, '1 mục chép từ nguồn tham khảo · nguồn đã ẩn' ) && str_contains( $h, '1 mục người biên soạn viết' ) );
+kt( 'trang bài thật: chủ đề dẫn tới trang chủ đề, nút Sao chép mang đường dẫn bài', str_contains( $h, 'href="' . esc_url( (string) get_term_link( 'lao-dong', 'chu_de' ) ) . '"' ) && str_contains( $h, 'data-url="' . esc_url( (string) get_permalink( $mau_id['dong-mau-mot-cua-bai'] ) ) . '"' ) );
+kt( 'khách không nhận địa chỉ gốc máy đã lấy, người làm, giao diện sửa', ! str_contains( $h, 'nguon-an.example' ) && ! str_contains( $h, 'may_chep' ) && ! preg_match( '/nut-sua|dai-bien-tap|tam-sua/', $h ) );
+kt( 'chưa đối chiếu sách → nhãn "Bản lưu truyền phổ biến"', str_contains( $h, 'Bản lưu truyền phổ biến' ) && ! str_contains( $h, 'pill checked' ) );
+$h = $xem( $mau_id['cau-do-mau'] );
+kt( 'câu đố: Gợi ý và "Hiện đáp án" thu gọn (tắt JavaScript vẫn mở được), không nhắc thiếu ý nghĩa', str_contains( $h, '<details class="answer"><summary>Hiện đáp án</summary>' ) && str_contains( $h, '<summary>Gợi ý</summary>' ) && ! str_contains( $h, 'Bài đang được bổ sung ý nghĩa' ) );
+$h = $xem( $mau_id['tuc-ngu-mau-ngan'] );
+kt( 'tục ngữ thật: câu là tiêu đề, Giải nghĩa chi tiết, Dùng khi 2 ví dụ', str_contains( $h, '<h1 class="read-title"><span class="verse-box"><span class="verse proverb"' ) && str_contains( $h, 'Giải nghĩa chi tiết' ) && 2 === substr_count( (string) strstr( (string) strstr( $h, '<ul class="uses">' ), '</ul>', true ), '<li>' ) );
+$h = $xem( $mau_id['cau-mau-thu-hai'] );
+kt( 'bài chưa có ý nghĩa: nói "đang bổ sung", không tự điền', str_contains( $h, 'Bài đang được bổ sung ý nghĩa' ) && ! str_contains( $h, 'class="meaning"' ) );
+kt( 'trang không phải tác phẩm: khối không in gì', '' === trim( $xem( $trang ) ) );
+
+// ---------- Danh sách: Tất cả, thể loại ----------
+$ds = static function ( array $tham, bool $tat_ca ): string {
+	$q = new WP_Query( $tham + array( 'post_type' => KhaiBao::TAC_PHAM, 'posts_per_page' => 30, 'orderby' => 'title', 'order' => 'ASC' ) );
+	if ( $tat_ca ) {
+		$q->is_post_type_archive = true;
+		$q->is_archive           = true;
+	}
+	return \Phongdao\GiaoTiep\Khoi\DanhSach::hien( $q );
+};
+$tong = (int) wp_count_posts( KhaiBao::TAC_PHAM )->publish;
+$h    = $ds( array(), true );
+kt( 'Tất cả: một thẻ cho mỗi tác phẩm đã đăng, có số bài', $tong === substr_count( $h, '<article class="card g-' ) && str_contains( $h, $tong . ' tác phẩm' ), $tong );
+kt( 'Tất cả: bộ lọc là form GET (tắt JavaScript vẫn lọc): thể loại, chủ đề, hình thức, nơi lưu truyền, sắp xếp', str_contains( $h, '<form method="get"' ) && 5 === preg_match_all( '/<select id="loc-[a-z_]+" name="(the_loai|chu_de|hinh_thuc|vung|sap)"/', $h ) );
+kt( 'thẻ bài: thể loại, tên dẫn tới bài, hai dòng đầu', str_contains( $h, '<span class="tag">Câu đố</span>' ) && str_contains( $h, '<a href="' . esc_url( (string) get_permalink( $mau_id['cau-do-mau'] ) ) . '">Câu đố mẫu</a>' ) && str_contains( $h, '<span class="dong">Câu đố mẫu dòng hai</span>' ) );
+$h = $ds( array( 'chu_de' => 'khong-co-chu-de-nay' ), true );
+kt( 'lọc không ra bài: báo rõ, có nút Xoá lọc', str_contains( $h, 'Chưa có bài khớp các bộ lọc' ) && str_contains( $h, 'Xoá lọc' ) );
+$h = $ds( array( 'posts_per_page' => 2 ), true );
+kt( 'phân trang: trang đang xem đánh dấu, các trang khác là liên kết', str_contains( $h, '<nav class="pagination" aria-label="Phân trang">' ) && str_contains( $h, 'aria-current="page">1</span>' ) && str_contains( $h, 'aria-label="Trang 2"' ) );
+$h = $ds( array( KhaiBao::THE_LOAI => 'ca-dao' ), false );
+$so_ca_dao = count( get_posts( array( 'post_type' => KhaiBao::TAC_PHAM, 'numberposts' => -1, 'fields' => 'ids', 'tax_query' => array( array( 'taxonomy' => KhaiBao::THE_LOAI, 'field' => 'slug', 'terms' => 'ca-dao' ) ) ) ) );
+kt( 'trang thể loại: tiêu đề, đường dẫn về Kho, chỉ bài của thể loại', str_contains( $h, '<h1>Ca dao</h1>' ) && str_contains( $h, 'Đọc theo thể loại' ) && str_contains( $h, 'Kho tác phẩm' ) && $so_ca_dao === substr_count( $h, '<article class="card g-ca-dao"' ) && ! str_contains( $h, 'g-cau-do' ), $so_ca_dao );
+$h = \Phongdao\GiaoTiep\Khoi\DanhSach::the( array( 'id' => 1, 'tieu_de' => '<script>x</script>', 'url' => 'javascript:alert(1)', 'the_loai' => 'ca-dao', 'ten_the_loai' => 'Ca dao', 'dong' => array( '<b>a</b>' ), 'y_nghia' => '', 'co_nghi' => false ) );
+kt( 'thẻ bài: chữ lạ được thoát, không có đường dẫn javascript:', ! preg_match( '/<script|<b>|javascript:/i', $h ) );
+wp_reset_query();
 
 do_action( 'wp_enqueue_scripts' );
 kt( 'theme nạp giao-dien.css, fit.js, doc.js (hoãn, cuối trang)', wp_style_is( 'phongdao-giao-dien', 'enqueued' ) && wp_script_is( 'phongdao-fit', 'enqueued' ) && wp_script_is( 'phongdao-doc', 'enqueued' ) );
