@@ -75,6 +75,7 @@ final class TrangTacPham {
 			'dung_khi'     => array_values( array_filter( array_map( 'trim', explode( "\n", (string) ( $phan['dung_khi']['chu'] ?? '' ) ) ) ) ),
 			'dap_an'       => (string) ( $phan['dap_an']['chu'] ?? '' ),
 			'goi_y'        => (string) ( $phan['goi_y']['chu'] ?? '' ),
+			'cau_hoi'      => (string) ( $phan['cau_hoi']['chu'] ?? '' ),
 			'chu_de'       => $bai['chu_de'] ?? array(),
 			'vung'         => $bai['vung'] ?? array(),
 			'tuyen_tap'    => $bai['tuyen_tap'] ?? array(),

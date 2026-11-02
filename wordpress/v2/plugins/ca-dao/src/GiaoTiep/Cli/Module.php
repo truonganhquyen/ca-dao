@@ -16,7 +16,28 @@ final class Module implements \Phongdao\HaTang\Module {
 			\WP_CLI::add_command( 'phongdao phien-ban', array( $this, 'phien_ban' ) );
 			\WP_CLI::add_command( 'phongdao tim', array( $this, 'tim' ) );
 			\WP_CLI::add_command( 'phongdao nguon', array( $this, 'nguon' ) );
+			\WP_CLI::add_command( 'phongdao cau-moi', array( $this, 'cau_moi' ) );
 		}
+	}
+
+	/**
+	 * Chọn câu mới từ kho vào Hộp việc ngay (không đợi lịch hằng ngày).
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--nguon=<id>]
+	 * : Mã nguồn. Mặc định: cadao-me.
+	 *
+	 * [--so=<so>]
+	 * : Số câu. Mặc định: số câu mỗi ngày của nguồn.
+	 */
+	public function cau_moi( array $doi, array $tuy ): void {
+		$n = \Phongdao\DichVu\NhapNguon\NguonTuDong::lay( (string) ( $tuy['nguon'] ?? 'cadao-me' ) );
+		if ( ! $n ) {
+			\WP_CLI::error( 'Không có nguồn này.' );
+		}
+		$so = \Phongdao\DichVu\UngVien\UngVien::chon( $n, (int) ( $tuy['so'] ?? $n['so_bai_moi_ngay'] ) );
+		\WP_CLI::success( "Đã thêm $so câu mới vào Hộp việc." );
 	}
 
 	/**

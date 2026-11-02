@@ -93,6 +93,29 @@ final class Viec {
 		return array_map( array( self::class, 'doc' ), $ds ?: array() );
 	}
 
+	/** Việc còn mở (chờ, để sau) của một đối tượng, theo loại việc (rỗng = mọi loại). */
+	public static function mo( string $doi_tuong_loai, int $doi_tuong_id, string $loai = '' ): array {
+		global $wpdb;
+		$dk = $loai ? $wpdb->prepare( ' AND loai = %s', $loai ) : '';
+		$ds = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . self::bang() . " WHERE doi_tuong_loai = %s AND doi_tuong_id = %d AND trang_thai IN ('cho','de_sau'){$dk} ORDER BY id ASC", $doi_tuong_loai, $doi_tuong_id ), ARRAY_A );
+		return array_map( array( self::class, 'doc' ), $ds ?: array() );
+	}
+
+	/** Đóng một việc: trạng thái xong / bỏ / để sau, hành động đã chọn, người quyết, lúc quyết. */
+	public static function dong( int $id, string $trang_thai, string $quyet, int $nguoi ): bool {
+		global $wpdb;
+		return false !== $wpdb->update(
+			self::bang(),
+			array(
+				'trang_thai'  => $trang_thai,
+				'quyet'       => $quyet,
+				'nguoi_quyet' => $nguoi,
+				'quyet_luc'   => gmdate( 'Y-m-d H:i:s' ),
+			),
+			array( 'id' => $id )
+		);
+	}
+
 	/** Lịch sử của một đối tượng (bài, phân loại): việc đã quyết, mới nhất trước. */
 	public static function lich_su( string $doi_tuong_loai, int $doi_tuong_id, int $so = 50 ): array {
 		global $wpdb;

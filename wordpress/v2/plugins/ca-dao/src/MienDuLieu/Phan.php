@@ -33,6 +33,7 @@ final class Phan {
 			'gan_nghia'   => array( 'dang' => self::DS, 'the_loai' => array( 'tuc-ngu' ), 'nguoi_lam' => null, 'may' => false, 'truong' => array( 'tac_pham_id' => 'id!', 'quan_he' => 'chon:gan|trai!' ) ),
 			'giai_sach'   => array( 'dang' => self::MOT, 'the_loai' => null, 'nguoi_lam' => array( NguoiLam::MAY_CHEP ), 'may' => true, 'truong' => array( 'chu' => 'chu!' ) ),
 			'chu_thich'   => array( 'dang' => self::DS, 'the_loai' => null, 'nguoi_lam' => array( NguoiLam::MAY_CHEP, NguoiLam::NGUOI_VIET ), 'may' => true, 'truong' => array( 'tu' => 'chu_ngan', 'loi_giai' => 'chu!', 'muc_tu_id' => 'id', 'vi_tri' => 'ds_so' ) ),
+			'cau_hoi'     => array( 'dang' => self::MOT, 'the_loai' => array( 'cau-do' ), 'nguoi_lam' => array( NguoiLam::MAY_CHEP, NguoiLam::NGUOI_VIET ), 'may' => true, 'truong' => array( 'chu' => 'chu_ngan!' ) ),
 			'dap_an'      => array( 'dang' => self::MOT, 'the_loai' => array( 'cau-do' ), 'nguoi_lam' => array( NguoiLam::MAY_CHEP, NguoiLam::NGUOI_VIET ), 'may' => true, 'truong' => array( 'chu' => 'chu!' ) ),
 			'goi_y'       => array( 'dang' => self::MOT, 'the_loai' => array( 'cau-do' ), 'nguoi_lam' => self::NGHIA, 'may' => false, 'truong' => array( 'chu' => 'chu!', 'ai' => 'bool' ) ),
 			'doan'        => array( 'dang' => self::DS, 'the_loai' => array( 've' ), 'nguoi_lam' => null, 'may' => false, 'truong' => array( 'tieu_de' => 'chu_ngan', 'tu_dong' => 'so!', 'den_dong' => 'so!' ) ),
