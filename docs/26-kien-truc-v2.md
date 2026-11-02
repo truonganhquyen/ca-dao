@@ -130,6 +130,7 @@ Mỗi phần (hoặc mỗi mục trong phần dạng danh sách) mang:
 | `gan_nghia` | danh sách `{tac_pham_id, quan_he: gan / trai}` | tục ngữ – thành ngữ | `nguoi_viet` |
 | `giai_sach` | `{chu}` (chính tả xưa) | mọi | `may_chep` (sách hết bản quyền) |
 | `chu_thich` | danh sách `{tu?, loi_giai, muc_tu_id?, vi_tri?}` | mọi | `may_chep`, `nguoi_viet` |
+| `cau_hoi` | `{chu}` — dòng hỏi nguồn tách khỏi lời ("Là cái gì?") | câu đố | `may_chep`, `nguoi_viet` |
 | `dap_an` | `{chu}` | câu đố | `may_chep`, `nguoi_viet` |
 | `goi_y` | `{chu, ai}` | câu đố | `nguoi_viet`, `ai_da_duyet` |
 | `doan` | danh sách `{tieu_de?, tu_dong, den_dong}` | vè dài, truyện | `nguoi_viet` |
