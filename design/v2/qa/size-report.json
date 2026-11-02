@@ -1,15 +1,15 @@
 {
   "PHONGDAO_V2_Prototype.html": {
-    "bytes": 3065111,
-    "gzip_bytes": 574926
+    "bytes": 3391484,
+    "gzip_bytes": 600988
   },
   "public_runtime": {
-    "bytes": 49527,
-    "gzip_bytes": 15600
+    "bytes": 57348,
+    "gzip_bytes": 18314
   },
   "styles": {
-    "bytes": 39470,
-    "gzip_bytes": 9379
+    "bytes": 52994,
+    "gzip_bytes": 12554
   },
   "woff_total_bytes": 445224
 }

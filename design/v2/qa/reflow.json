@@ -1,14 +1,24 @@
 {
   "date": "02/11/2026",
-  "measurements": 609,
+  "measurements": 1025,
   "screens": 66,
-  "states": 203,
+  "states": 205,
   "widths": [
     320,
+    360,
     390,
+    768,
     1440
   ],
   "failures": 0,
+  "verse_wraps": 0,
+  "verse_fallback_wrap": 0,
+  "button_wraps": 0,
+  "button_clipped": 0,
+  "script_errors": 0,
   "failed": [],
-  "script_errors": 0
+  "verse_wrap_list": [],
+  "button_wrap_list": [],
+  "button_clipped_list": [],
+  "verse_fallback_list": []
 }

@@ -99,6 +99,8 @@ Một mục menu **Phongdao** mở ứng dụng. Thanh dưới trên điện tho
 
 **Thứ tự ưu tiên của thẻ:** báo lỗi của người đọc → mong có câu này (kho có) → nháp nghĩa của bài đọc / tìm nhiều → ứng viên → có thể trùng → người đọc gửi khác → gợi ý → Wikidata. Lọc theo loại.
 
+> **Tên gọi (D-093):** trên mọi màn hình, lớp `hieu_nhanh` hiển thị là **"Ý nghĩa"** ("Nháp ý nghĩa", "Đăng ý nghĩa", "Bài nên có ý nghĩa"). Ngoài Bàn biên tập, người biên soạn đăng nhập còn sửa / thêm Ý nghĩa ngay trên trang đọc (`docs/27` mục 6); mọi lần lưu qua cùng REST và ghi lịch sử như Soạn.
+
 ### 4.2. Duyệt nhanh
 
 ```text

@@ -78,5 +78,20 @@
     "component": "Trạng thái / điều khiển",
     "implementation": "btn / chip / notice / empty",
     "variants": "Normal, hover, focus-visible, selected, expanded, loading, disabled, error/success"
+  },
+  {
+    "component": "Mỗi câu một dòng",
+    "implementation": "verse / fit.js",
+    "variants": "data-fit, data-nhom (cùng cỡ), data-max (px, mode, kid, w-tỷ lệ), data-san; theo vế; thụt treo dự phòng"
+  },
+  {
+    "component": "Sao chép / Ý nghĩa",
+    "implementation": "copyBtn / meaning / editorStrip",
+    "variants": "Chép lời có thụt và nguồn; Sửa / Thêm ý nghĩa tại chỗ, có hỗ trợ AI, lưu / huỷ"
+  },
+  {
+    "component": "Ảnh để chia sẻ",
+    "implementation": "shareBlock / .acs",
+    "variants": "3 khổ, 3 nền theo thể loại, kèm ý nghĩa, câu đố ẩn đáp án; chạy được khi tắt JavaScript cho khổ (CSS :has)"
   }
 ]

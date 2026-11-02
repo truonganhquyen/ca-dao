@@ -1,7 +1,7 @@
 {
   "name": "Phongdao V2",
-  "version": "design-handoff-2.0",
-  "status": "Bảng màu và các lựa chọn D-092 đã chốt; còn tên khối tư liệu và cách mở Khám phá trên điện thoại chọn trên bản xem trước",
+  "version": "design-handoff-2.1",
+  "status": "Bản chốt: mọi lựa chọn D-092, D-093 đã chốt",
   "date": "2026-11-02",
   "colors": {
     "light": {
@@ -26,7 +26,15 @@
       "nhan-co": "#5E5E5E",
       "line": "#E8E0D0",
       "control-line": "#8C8478",
-      "tren-tim": "#FFFFFF"
+      "tren-tim": "#FFFFFF",
+      "nen-vang": "#FFF8E1",
+      "nen-tim": "#F6F2FD",
+      "nen-luc": "#EFF7F1",
+      "nen-xanh": "#EEF4FB",
+      "nen-dat": "#F7F2E9",
+      "nen-hong": "#FCF0F5",
+      "vang-dam": "#8A5A00",
+      "hong": "#A3245E"
     },
     "dark": {
       "giay": "#17151B",
@@ -50,18 +58,97 @@
       "nhan-co": "#B0B0B0",
       "line": "#38343F",
       "control-line": "#8E8799",
-      "tren-tim": "#17151B"
+      "tren-tim": "#17151B",
+      "nen-vang": "#2A2414",
+      "nen-tim": "#221E2E",
+      "nen-luc": "#18261F",
+      "nen-xanh": "#172231",
+      "nen-dat": "#24211C",
+      "nen-hong": "#2C1A24",
+      "vang-dam": "#E6B860",
+      "hong": "#F09ABF"
     },
     "share-image": {
       "nen": "#4B2F8A",
       "chu": "#FFFFFF",
       "phu": "#E8DDFF",
       "duong": "#7A62B8"
+    },
+    "share-themes": {
+      "tim": {
+        "ten": "Trống đồng",
+        "a1": "#35205F",
+        "a2": "#6A42C2",
+        "chu": "#FFFFFF",
+        "phu": "#E8DDFF"
+      },
+      "giay": {
+        "ten": "Giấy dó",
+        "a1": "#FBF4E4",
+        "a2": "#EBDDBE",
+        "chu": "#2A2118",
+        "phu": "#5E3AAE"
+      },
+      "dem": {
+        "ten": "Đêm sao",
+        "a1": "#12102A",
+        "a2": "#2E2560",
+        "chu": "#FFFFFF",
+        "phu": "#CFC6FF"
+      },
+      "luc": {
+        "ten": "Đồng lúa",
+        "a1": "#0E3A28",
+        "a2": "#236B4C",
+        "chu": "#FFFFFF",
+        "phu": "#CDEBDC"
+      },
+      "nang": {
+        "ten": "Nắng",
+        "a1": "#FFC65C",
+        "a2": "#FF8A4C",
+        "chu": "#2A1708",
+        "phu": "#5A2E00"
+      },
+      "xanh": {
+        "ten": "Sông nước",
+        "a1": "#132E4A",
+        "a2": "#2F6690",
+        "chu": "#FFFFFF",
+        "phu": "#D2E6F7"
+      }
+    },
+    "share-themes-by-genre": {
+      "ca-dao": [
+        "tim",
+        "giay",
+        "dem"
+      ],
+      "tuc-ngu": [
+        "luc",
+        "giay",
+        "tim"
+      ],
+      "dong-dao": [
+        "nang",
+        "giay",
+        "luc"
+      ],
+      "ve": [
+        "xanh",
+        "giay",
+        "tim"
+      ],
+      "cau-do": [
+        "dem",
+        "nang",
+        "tim"
+      ]
     }
   },
   "color_roles": {
     "tim": "Thương hiệu, nút chính, liên kết, mục đang chọn",
-    "luc": "Nghĩa (Hiểu nhanh) và nhãn “đã đối chiếu”",
+    "luc": "Ý nghĩa và nhãn “đã đối chiếu”",
     "to": "Nền từ có chú thích trong lời",
     "loi": "Lỗi, cảnh báo chặn",
     "vang": "Nháp AI chưa duyệt trong Bàn biên tập",
