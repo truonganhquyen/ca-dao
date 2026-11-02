@@ -172,6 +172,17 @@ final class KhaiBao implements Module {
 			}
 		}
 
+		register_post_meta(
+			self::HO_SO_NGUON,
+			\Phongdao\KhoLuu\HoSo::META,
+			array(
+				'type'          => 'array',
+				'single'        => true,
+				'show_in_rest'  => false,
+				'auth_callback' => '__return_false',
+			)
+		);
+
 		add_rewrite_rule( '^(' . implode( '|', array_map( 'preg_quote', array_keys( TheLoai::DS ) ) ) . ')/([^/]+)/?$', 'index.php?' . self::TAC_PHAM . '=$matches[2]', 'top' );
 	}
 

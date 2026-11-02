@@ -311,6 +311,81 @@ $_SERVER['REQUEST_URI'] = '/ca-dao/cong-thu-nhu-nui/';
 $h404 = do_blocks( '<!-- wp:cadao/khong-thay /-->' );
 kt( 'trang 404: ô tìm gửi tới /tim/ điền sẵn chữ từ đường dẫn, lối sang Tất cả', str_contains( $h404, 'action="' . esc_url( home_url( '/tim/' ) ) . '"' ) && str_contains( $h404, 'value="cong thu nhu nui"' ) && str_contains( $h404, esc_url( home_url( '/kho/' ) ) ), $h404 );
 
+// ---------- Nguồn vào: hồ sơ, nguồn tự động, bộ đọc Ca dao Mẹ trên nguồn giả (ca kiểm MVP) ----------
+use Phongdao\DichVu\NhapNguon\NguonTuDong;
+use Phongdao\KhoLuu\HoSo;
+use Phongdao\KhoLuu\Kho;
+
+$hs_me = HoSo::theo_khoa( 'cadao-me' );
+$hs_tr = $hs_me ? HoSo::truong( $hs_me->ID ) : array();
+kt( 'hồ sơ nguồn Ca dao Mẹ: chú thích chép ẩn với người đọc (như hiện nay), xin phép "chưa"', $hs_me && 'an' === ( $hs_tr['chinh_sach_hien'] ?? '' ) && 'chua' === ( $hs_tr['xin_phep'] ?? '' ) && true === ( $hs_tr['chep_chu_thich'] ?? null ), $hs_tr );
+$me = NguonTuDong::lay( 'cadao-me' );
+kt( 'nguồn tự động Ca dao Mẹ có sẵn ở trạng thái TẮT, gắn hồ sơ nguồn', $me && empty( $me['bat'] ) && $hs_me && $hs_me->ID === (int) $me['ho_so'] );
+kt( 'lịch lấy nguồn mỗi 5 phút đã hẹn (cùng tên lịch MVP)', (bool) wp_next_scheduled( NguonTuDong::LICH_LAY ) && (bool) wp_next_scheduled( NguonTuDong::LICH_NGAY ) );
+$G      = 'https://mau.example';
+$tr_cd1 = '<article id="post-1" class="post"><h1 class="post-title entry-title"><a href="' . $G . '/cd-1/">Dòng một mẫu</a></h1>'
+	. '<div class="entry-content"><p>Dòng một mẫu<a class="footnote" data-ref-id="71" href="#note-71">1</a><br>Dòng hai mẫu</p></div>'
+	. '<section class="variants"><ul><li class="variant"><p>Dị một mẫu<br>Dị hai mẫu<a class="footnote" data-ref-id="72">2</a></p></li></ul></section>'
+	. '<aside class="post-data"><ul class="post-categories"><li><a href="#">Chủ đề mẫu</a></li></ul></aside></article>'
+	. '<article id="post-2"><h1 class="post-title"><a href="' . $G . '/cd-2/">Bài hai</a></h1><div class="entry-content"><p>Bài hai dòng một<br>Bài hai dòng hai</p></div>'
+	. '<section class="variants"><ul><li class="variant"><p>Bài hai dị bản</p></li></ul></section></article>'
+	. '<article id="post-3"><h1 class="post-title"><a href="' . $G . '/cd-3/">Bài ba</a></h1><div class="entry-content"><p>Bài ba dòng một…</p></div></article>'
+	. '<section class="ref"><ol><li data-ref-id="71" id="note-71"><dl><dt>từ mẫu</dt><dd><p>Nghĩa &amp; mẫu.</p></dd></dl></li></ol></section>';
+$api    = wp_json_encode(
+	array(
+		array( 'id' => 1, 'link' => "$G/cd-1/", 'title' => array( 'rendered' => 'Dòng một mẫu' ), 'content' => array( 'rendered' => '<p>Dòng một mẫu<a class="footnote" data-ref-id="71">1</a><br>Dòng hai mẫu</p>' ), 'categories' => array( 5 ), 'modified' => '2026-01-01T00:00:00' ),
+		array( 'id' => 2, 'link' => "$G/cd-2/", 'title' => array( 'rendered' => 'Bài hai' ), 'content' => array( 'rendered' => '<p>Bài hai dòng một<br>Bài hai dòng hai</p>' ), 'categories' => array(), 'modified' => '2026-01-01T00:00:00' ),
+		array( 'id' => 3, 'link' => "$G/cd-3/", 'title' => array( 'rendered' => 'Bài ba' ), 'content' => array( 'rendered' => '<p>Bài ba dòng một<br>Bài ba dòng hai</p>' ), 'categories' => array(), 'modified' => '2026-01-01T00:00:00' ),
+	)
+);
+$trang_gia = array(
+	"$G/wp-json/wp/v2/categories?per_page=100&_fields=id,name" => wp_json_encode( array( array( 'id' => 5, 'name' => 'Chủ đề mẫu' ) ) ),
+	"$G/wp-json/wp/v2/posts?per_page=100&page=1&orderby=id&order=asc&_fields=id,link,title,content,categories,modified" => $api,
+	"$G/ve-sitemap.xml"        => "<urlset><url><loc>$G/ve/ve-mau/</loc><lastmod>2026-01-02T00:00:00+00:00</lastmod></url><url><loc>$G/ve/</loc></url></urlset>",
+	"$G/cau-do-sitemap.xml"    => "<urlset><url><loc>$G/cau-do/do-mau/</loc></url></urlset>",
+	"$G/cd-1/"                 => $tr_cd1,
+	"$G/cd-3/"                 => '<article id="post-3"><h1 class="post-title"><a href="' . $G . '/cd-3/">Bài ba</a></h1><div class="entry-content"><p>Bài ba dòng một<br>Bài ba dòng hai</p></div></article>',
+	"$G/ve/ve-mau/"            => '<article id="post-50"><h1 class="post-title"><a href="' . $G . '/ve/ve-mau/">Vè mẫu</a></h1><div class="entry-content"><p>Vè mẫu câu một<br>Vè mẫu câu hai</p></div></article>',
+	"$G/cau-do/do-mau/"        => '<article id="post-60"><h1 class="post-title"><a href="' . $G . '/cau-do/do-mau/">Đố mẫu</a></h1><div class="entry-content"><p>Mình tròn mẫu<br>Đố là gì mẫu</p><div class="q">Là cái gì?</div><div class="a"><p>Cái mẫu</p></div></div></article>',
+	"$G/chu-thich/chi-tiet/72" => '<li data-ref-id="72" id="note-72"><dl><dt></dt><dd>Chú thích chi tiết mẫu.</dd></dl></li>',
+);
+$GLOBALS['v2_da_hoi'] = array();
+add_filter( 'phongdao_nhip_giay', '__return_zero' );
+add_filter(
+	'pre_http_request',
+	static function ( $tra, $tham, $url ) use ( $trang_gia ) {
+		$GLOBALS['v2_da_hoi'][] = array( $url, $tham['user-agent'] ?? '' );
+		$co                     = array_key_exists( $url, $trang_gia );
+		return array( 'headers' => array( 'x-wp-totalpages' => '1' ), 'body' => $co ? $trang_gia[ $url ] : '', 'response' => array( 'code' => $co ? 200 : 404, 'message' => '' ), 'cookies' => array(), 'filename' => null );
+	},
+	10,
+	3
+);
+NguonTuDong::luu( array( 'id' => 'me-thu', 'ten' => 'Mẹ thử', 'url' => $G, 'bat' => true, 'loai_lay' => array( 'ca_dao', 've', 'cau_do' ) ) + NguonTuDong::mac_dinh() );
+$kq_doc = NguonTuDong::chay( 'me-thu', 60 );
+$k      = static function ( string $url ) {
+	global $wpdb;
+	return $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . Kho::bang() . ' WHERE nguon_id = %s AND url = %s', 'me-thu', $url ) );
+};
+$h1 = $k( "$G/cd-1/" );
+kt( 'đọc nguồn: lời ca dao là lời API, dị bản lấy từ trang', $h1 && "Dòng một mẫu\nDòng hai mẫu" === $h1->loi && array( "Dị một mẫu\nDị hai mẫu" ) === ( Kho::du_lieu( $h1 )['di_ban'] ?? null ), $kq_doc );
+kt( 'đọc nguồn: chú thích theo thứ tự, giải mã HTML; chú thích thiếu lấy ở trang chi tiết', $h1 && array( array( 'ma' => 71, 'tu' => 'từ mẫu', 'noi_dung' => 'Nghĩa & mẫu.' ), array( 'ma' => 72, 'tu' => '', 'noi_dung' => 'Chú thích chi tiết mẫu.' ) ) === ( Kho::du_lieu( $h1 )['chu_thich'] ?? null ) );
+$h2 = $k( "$G/cd-2/" );
+kt( 'bài liên quan đủ lời: nhận dị bản ngay, không tải trang riêng', $h2 && array( 'Bài hai dị bản' ) === ( Kho::du_lieu( $h2 )['di_ban'] ?? null ) && ! in_array( "$G/cd-2/", array_column( $GLOBALS['v2_da_hoi'], 0 ), true ) );
+$h3 = $k( "$G/cd-3/" );
+kt( 'bài liên quan chỉ là đoạn trích: không nhận, tải trang riêng', $h3 && in_array( "$G/cd-3/", array_column( $GLOBALS['v2_da_hoi'], 0 ), true ) );
+$hv = $k( "$G/ve/ve-mau/" );
+kt( 'vè lấy qua sitemap: lời, tiêu đề từ trang, mã gốc là đường dẫn; bỏ trang danh mục', $hv && 've' === $hv->loai && "Vè mẫu câu một\nVè mẫu câu hai" === $hv->loi && 'Vè mẫu' === $hv->tieu_de && '/ve/ve-mau' === $hv->ma_goc && null === $k( "$G/ve/" ) );
+$hd = $k( "$G/cau-do/do-mau/" );
+kt( 'câu đố: câu hỏi và đáp án tách khỏi lời', $hd && 'Cái mẫu' === ( Kho::du_lieu( $hd )['dap_an'] ?? '' ) );
+kt( 'lịch sự với nguồn: User-Agent ghi tên dự án, không tải ảnh', ! array_filter( $GLOBALS['v2_da_hoi'], static fn( $y ) => ! str_contains( $y[1], 'KhoTangCaDao' ) || preg_match( '/\.(jpe?g|png|webp|gif)$/i', $y[0] ) ) );
+kt( 'chạy lại khi không có gì mới: không đọc lại trang; nhật ký lượt có ghi', 0 === NguonTuDong::chay( 'me-thu', 60 )['trang'] && ! empty( NguonTuDong::lay( 'me-thu' )['nhat_ky'] ) );
+Kho::luu( 'me-thu', array( 'ma_goc' => 3, 'ngay_sua_goc' => '2026-02-01' ) );
+kt( 'nguồn sửa bài: đọc lại trang ở lượt sau', '' === $k( "$G/cd-3/" )->doc_trang );
+kt( 'kho không ra trang người đọc: tìm không thấy lời chỉ có trong kho', array() === \Phongdao\DichVu\ChiMucTim\ChiMucTim::tim( 'bai hai dong mot' )['ds'] );
+remove_all_filters( 'pre_http_request' );
+remove_all_filters( 'phongdao_nhip_giay' );
+
 do_action( 'wp_enqueue_scripts' );
 kt( 'theme nạp giao-dien.css, fit.js, doc.js (hoãn, cuối trang)', wp_style_is( 'phongdao-giao-dien', 'enqueued' ) && wp_script_is( 'phongdao-fit', 'enqueued' ) && wp_script_is( 'phongdao-doc', 'enqueued' ) );
 
