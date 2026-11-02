@@ -231,8 +231,9 @@ kt( 'bài chưa có ý nghĩa: nói "đang bổ sung", không tự điền', str
 kt( 'trang không phải tác phẩm: khối không in gì', '' === trim( $xem( $trang ) ) );
 
 // ---------- Danh sách: Tất cả, thể loại ----------
+// Như truy vấn thật: /kho/ có post_type; /the-loai/<ma>/ chỉ có tham số phân loại (pre_get_posts đặt loại bài sau khi WordPress đã xếp loại trang)
 $ds = static function ( array $tham, bool $tat_ca ): string {
-	$q = new WP_Query( $tham + array( 'post_type' => KhaiBao::TAC_PHAM, 'posts_per_page' => 30, 'orderby' => 'title', 'order' => 'ASC' ) );
+	$q = new WP_Query( $tham + ( $tat_ca ? array( 'post_type' => KhaiBao::TAC_PHAM ) : array() ) + array( 'posts_per_page' => 30, 'orderby' => 'title', 'order' => 'ASC' ) );
 	if ( $tat_ca ) {
 		$q->is_post_type_archive = true;
 		$q->is_archive           = true;
