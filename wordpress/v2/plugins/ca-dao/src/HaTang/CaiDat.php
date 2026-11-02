@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class CaiDat implements Module {
 
-	public const PHIEN_BAN_CSDL = 5;
+	public const PHIEN_BAN_CSDL = 6;
 
 	/** Tuỳ chọn lưu phiên bản lược đồ đã cài. */
 	public const TUY_CHON = 'phongdao_csdl';
@@ -47,6 +47,9 @@ final class CaiDat implements Module {
 		}
 		if ( $da_cai < 5 ) {
 			self::buoc_5();
+		}
+		if ( $da_cai < 6 ) {
+			self::buoc_6();
 		}
 		update_option( self::TUY_CHON, self::PHIEN_BAN_CSDL, false );
 	}
@@ -100,6 +103,26 @@ final class CaiDat implements Module {
 		if ( $nguon && empty( $nguon['ho_so'] ) ) {
 			$nguon['ho_so'] = $ho_so;
 			NguonTuDong::luu( $nguon );
+		}
+	}
+
+	/**
+	 * Bước 6: quyền riêng (docs/26 mục 5.1). Quản trị: mọi quyền; Biên tập: soạn, duyệt; vai mới Cộng tác: gửi đối chiếu,
+	 * soát lời, không đăng. Quyền nguồn (hồ sơ nguồn, nguồn tự động, chính sách hiện) chỉ Quản trị.
+	 */
+	private static function buoc_6(): void {
+		$quyen = array(
+			'administrator' => array( 'cadao_soan', 'cadao_duyet', 'cadao_nguon', 'cadao_cong_tac' ),
+			'editor'        => array( 'cadao_soan', 'cadao_duyet', 'cadao_cong_tac' ),
+		);
+		foreach ( $quyen as $vai => $ds ) {
+			$r = get_role( $vai );
+			foreach ( $r ? $ds : array() as $q ) {
+				$r->add_cap( $q );
+			}
+		}
+		if ( ! get_role( 'cadao_cong_tac' ) ) {
+			add_role( 'cadao_cong_tac', 'Cộng tác', array( 'read' => true, 'cadao_cong_tac' => true ) );
 		}
 	}
 

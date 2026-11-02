@@ -55,6 +55,7 @@ final class Ve {
 		'aa'       => '<path d="M3 19 8 5l5 14M5 14h6M15 19l3-8 3 8m-5-2.5h4"/>',
 		'download' => '<path d="M12 3v12m-5-5 5 5 5-5M4 20h16"/>',
 		'link'     => '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1-1"/>',
+		'edit'     => '<path d="m15 4 5 5M3 21l1-6L16 3l5 5L9 20z"/>',
 		'type'     => '<path d="M4 7V5h16v2M12 5v14m-3 0h6"/>',
 		'map'      => '<path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15m6-12v15"/>',
 		'tag'      => '<path d="M3 12V3h9l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
@@ -142,8 +143,9 @@ final class Ve {
 	}
 
 	/** Ý nghĩa (tên hiển thị của lớp hieu_nhanh — D-093). */
-	public static function y_nghia( string $chu, bool $ai = false, string $tieu_de = 'Ý nghĩa' ): string {
-		return '<div class="meaning"><div class="meaning-head"><h2>' . esc_html( $tieu_de ) . '</h2></div><p class="y-nghia-chu">' . esc_html( $chu ) . '</p>'
+	/** $nut: nút Sửa (HTML an toàn, chỉ ở chế độ sửa). */
+	public static function y_nghia( string $chu, bool $ai = false, string $tieu_de = 'Ý nghĩa', string $nut = '' ): string {
+		return '<div class="meaning"><div class="meaning-head"><h2>' . esc_html( $tieu_de ) . '</h2>' . $nut . '</div><p class="y-nghia-chu">' . esc_html( $chu ) . '</p>'
 			. ( $ai ? '<p class="ai-note">Có hỗ trợ của AI, đã được người biên soạn duyệt.</p>' : '' ) . '</div>';
 	}
 
@@ -152,8 +154,8 @@ final class Ve {
 		return '<button type="button" class="nut-chep no-print" data-action="copy-loi" data-url="' . esc_url( $url ) . '"' . ( '' === $the_loai ? '' : ' data-the-loai="' . esc_attr( $the_loai ) . '"' ) . ' aria-label="Sao chép lời kèm đường dẫn bài" title="Sao chép lời kèm đường dẫn bài">' . self::icon( 'copy' ) . '<span class="nhan">Sao chép</span></button>';
 	}
 
-	public static function the_loi( string $than, string $url, string $nhan = 'Lời', string $aria = 'Lời và ý nghĩa' ): string {
-		return '<section class="verse-card" aria-label="' . esc_attr( $aria ) . '"><div class="the-dau"><span class="eyebrow">' . esc_html( $nhan ) . '</span>' . self::nut_chep( $url ) . '</div>' . $than . '</section>';
+	public static function the_loi( string $than, string $url, string $nhan = 'Lời', string $aria = 'Lời và ý nghĩa', string $nut = '' ): string {
+		return '<section class="verse-card' . ( '' === $nut ? '' : ' dang-sua' ) . '" aria-label="' . esc_attr( $aria ) . '"><div class="the-dau"><span class="eyebrow">' . esc_html( $nhan ) . '</span>' . ( '' === $nut ? self::nut_chep( $url ) : '<span class="row">' . $nut . self::nut_chep( $url ) . '</span>' ) . '</div>' . $than . '</section>';
 	}
 
 	private static function nut( string $viec, string $hinh, string $nhan, string $lop = '', string $them = '' ): string {
@@ -205,8 +207,9 @@ final class Ve {
 		return implode( '', array_map( static fn( string $x ): string => '<span>' . $x . '</span>', $o ) );
 	}
 
-	public static function khoi( string $tieu_de, string $than, string $lop = '', string $id = '' ): string {
-		return '<section class="block ' . esc_attr( $lop ) . '"' . ( $id ? ' id="' . esc_attr( $id ) . '"' : '' ) . '><h2>' . esc_html( $tieu_de ) . '</h2>' . $than . '</section>';
+	public static function khoi( string $tieu_de, string $than, string $lop = '', string $id = '', string $nut = '' ): string {
+		$dau = '<h2>' . esc_html( $tieu_de ) . '</h2>';
+		return '<section class="block ' . esc_attr( $lop ) . '"' . ( $id ? ' id="' . esc_attr( $id ) . '"' : '' ) . '>' . ( '' === $nut ? $dau : '<div class="block-dau">' . $dau . $nut . '</div>' ) . $than . '</section>';
 	}
 
 	public static function khoi_gon( string $tieu_de, string $than, string $id, string $mau ): string {

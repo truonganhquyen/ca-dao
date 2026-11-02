@@ -25,6 +25,7 @@ final class KhoiDong {
 		GiaoTiep\Rest\Module::class,
 		GiaoTiep\Khoi\Module::class,
 		GiaoTiep\TrangCoDinh\Module::class,
+		GiaoTiep\BienTap\Module::class,
 		GiaoTiep\Cli\Module::class,
 		GiaoTiep\QuanTri\Module::class,
 	);
