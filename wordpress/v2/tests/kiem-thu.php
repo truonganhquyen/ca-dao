@@ -382,7 +382,7 @@ kt( 'lịch sự với nguồn: User-Agent ghi tên dự án, không tải ảnh
 kt( 'chạy lại khi không có gì mới: không đọc lại trang; nhật ký lượt có ghi', 0 === NguonTuDong::chay( 'me-thu', 60 )['trang'] && ! empty( NguonTuDong::lay( 'me-thu' )['nhat_ky'] ) );
 Kho::luu( 'me-thu', array( 'ma_goc' => 3, 'ngay_sua_goc' => '2026-02-01' ) );
 kt( 'nguồn sửa bài: đọc lại trang ở lượt sau', '' === $k( "$G/cd-3/" )->doc_trang );
-kt( 'kho không ra trang người đọc: tìm không thấy lời chỉ có trong kho', array() === \Phongdao\DichVu\ChiMucTim\ChiMucTim::tim( 'bai hai dong mot' )['ds'] );
+kt( 'kho không ra trang người đọc: tìm không thấy lời chỉ có trong kho', array() === \Phongdao\DichVu\ChiMucTim\ChiMucTim::tim( 'minh tron mau' )['ds'] && ! str_contains( \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 'Mình tròn mẫu' ), 'Mình tròn' ) );
 remove_all_filters( 'pre_http_request' );
 remove_all_filters( 'phongdao_nhip_giay' );
 
