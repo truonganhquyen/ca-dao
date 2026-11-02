@@ -55,6 +55,13 @@ final class Ve {
 		'aa'       => '<path d="M3 19 8 5l5 14M5 14h6M15 19l3-8 3 8m-5-2.5h4"/>',
 		'download' => '<path d="M12 3v12m-5-5 5 5 5-5M4 20h16"/>',
 		'link'     => '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1-1"/>',
+		'type'     => '<path d="M4 7V5h16v2M12 5v14m-3 0h6"/>',
+		'map'      => '<path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15m6-12v15"/>',
+		'tag'      => '<path d="M3 12V3h9l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
+		'calendar' => '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4m8-4v4"/>',
+		'kids'     => '<circle cx="9" cy="7" r="3"/><circle cx="17" cy="9" r="2"/><path d="M3 21v-2a6 6 0 0 1 12 0v2m0-6a4 4 0 0 1 6 3.5V21"/>',
+		'layers'   => '<path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/>',
+		'spark'    => '<path d="M12 3v4m0 10v4M3 12h4m10 0h4M6 6l2.5 2.5m7 7L18 18M6 18l2.5-2.5m7-7L18 6"/>',
 	);
 
 	public static function icon( string $ten ): string {
@@ -117,8 +124,9 @@ final class Ve {
 	 * Nhãn mức kiểm (D-093): nói điều có, chi tiết trong ⓘ và khối "Lời này từ đâu?". Máy không tự đặt "đã đối chiếu".
 	 *
 	 * @param array{sach:string,trang?:string}|null $doi_chieu người biên soạn điền
+	 * @param string $tu_lieu đường dẫn khối "Lời này từ đâu?" (ngoài trang bài, ví dụ Câu hôm nay: đường dẫn bài + #tu-lieu)
 	 */
-	public static function muc_kiem( ?array $doi_chieu, bool $gon = false ): string {
+	public static function muc_kiem( ?array $doi_chieu, bool $gon = false, string $tu_lieu = '#tu-lieu' ): string {
 		$co   = null !== $doi_chieu && '' !== ( $doi_chieu['sach'] ?? '' );
 		$nhan = $co
 			? '<span class="pill checked">' . self::icon( 'check' ) . 'Đã đối chiếu: ' . esc_html( $doi_chieu['sach'] ) . ( empty( $doi_chieu['trang'] ) ? '' : ', tr. ' . esc_html( $doi_chieu['trang'] ) ) . '</span>'
@@ -129,7 +137,7 @@ final class Ve {
 		$giai = $co
 			? 'Lời khớp với bản in trong sách, đúng trang đã ghi. Người biên soạn đối chiếu; máy không tự gắn nhãn này.'
 			: 'Lời ghi theo cách người Việt thường đọc, hát hiện nay. Thư viện đang đối chiếu dần với sách in; khi xong, nhãn này ghi tên sách và số trang.';
-		$lien = ( $co ? '' : self::lien_ket( 'gop', 'Có sách? Gửi số trang' ) . ' · ' ) . '<a href="#tu-lieu">Lời này từ đâu?</a> · ' . self::lien_ket( 'phuong-phap', 'Cách biên soạn' );
+		$lien = ( $co ? '' : self::lien_ket( 'gop', 'Có sách? Gửi số trang' ) . ' · ' ) . '<a href="' . esc_url( $tu_lieu ) . '">Lời này từ đâu?</a> · ' . self::lien_ket( 'phuong-phap', 'Cách biên soạn' );
 		return '<div class="level">' . $nhan . '<details class="vi-sao"><summary aria-label="' . ( $co ? 'Đã đối chiếu nghĩa là gì?' : 'Bản lưu truyền phổ biến là gì?' ) . '">' . self::icon( 'info' ) . '</summary><div class="vi-sao-pop"><p>' . $giai . '</p><p>' . $lien . '</p></div></details></div>';
 	}
 
@@ -139,8 +147,9 @@ final class Ve {
 			. ( $ai ? '<p class="ai-note">Có hỗ trợ của AI, đã được người biên soạn duyệt.</p>' : '' ) . '</div>';
 	}
 
-	public static function nut_chep( string $url ): string {
-		return '<button type="button" class="nut-chep no-print" data-action="copy-loi" data-url="' . esc_url( $url ) . '" aria-label="Sao chép lời kèm đường dẫn bài" title="Sao chép lời kèm đường dẫn bài">' . self::icon( 'copy' ) . '<span class="nhan">Sao chép</span></button>';
+	/** Nút Sao chép lời; $the_loai ghi kèm khi nút nằm ngoài trang bài (Câu hôm nay). */
+	public static function nut_chep( string $url, string $the_loai = '' ): string {
+		return '<button type="button" class="nut-chep no-print" data-action="copy-loi" data-url="' . esc_url( $url ) . '"' . ( '' === $the_loai ? '' : ' data-the-loai="' . esc_attr( $the_loai ) . '"' ) . ' aria-label="Sao chép lời kèm đường dẫn bài" title="Sao chép lời kèm đường dẫn bài">' . self::icon( 'copy' ) . '<span class="nhan">Sao chép</span></button>';
 	}
 
 	public static function the_loi( string $than, string $url, string $nhan = 'Lời', string $aria = 'Lời và ý nghĩa' ): string {

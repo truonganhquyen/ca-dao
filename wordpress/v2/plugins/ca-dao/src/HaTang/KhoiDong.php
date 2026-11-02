@@ -17,6 +17,7 @@ final class KhoiDong {
 		KhaiBao::class,
 		CaiDat::class,
 		DichVu\LuuPhan\GanHinhThuc::class,
+		DichVu\DungTrang\DuLieuTrangChu::class,
 		GiaoTiep\Rest\Module::class,
 		GiaoTiep\Khoi\Module::class,
 		GiaoTiep\Cli\Module::class,

@@ -1,0 +1,15 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cadao/trang-chu",
+	"title": "Trang chủ",
+	"category": "theme",
+	"description": "Trang chủ (docs/27 mục 4): tìm, Bạn là, lối tìm, Câu hôm nay, Bắt đầu từ đâu, thể loại, Vừa bổ sung. Khối không có dữ liệu thì ẩn.",
+	"textdomain": "ca-dao",
+	"supports": {
+		"html": false,
+		"inserter": false,
+		"reusable": false
+	},
+	"render": "file:./render.php"
+}

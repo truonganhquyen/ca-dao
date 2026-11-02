@@ -62,3 +62,11 @@ kt( 'câu đố: có đáp án, gợi ý', 'Đáp án mẫu' === $cd['dap_an'] &
 $the = TrangTacPham::the( array( 'loi' => array( 'dong' => array( 'Một', '', 'Hai', 'Ba' ) ), 'y_nghia' => array( 'chu' => str_repeat( 'ý ', 100 ) ), 'co_nghi' => array( 'ly_do' => 'x' ) ), $bai );
 kt( 'thẻ danh sách: hai dòng đầu, ý nghĩa cắt ở 160 ký tự, cờ nghi', array( 'Một', 'Hai' ) === $the['dong'] && 160 === mb_strlen( $the['y_nghia'] ) && str_ends_with( $the['y_nghia'], '…' ) && $the['co_nghi'] );
 kt( 'thẻ danh sách: chưa có lời → không có thẻ', null === TrangTacPham::the( array(), $bai ) );
+
+// ---------- Câu hôm nay (giữ cách MVP) ----------
+use Phongdao\MienDuLieu\CauHomNay;
+
+kt( 'Câu hôm nay: bài 1–4 câu mới hợp (dòng trống không tính)', CauHomNay::hop_le( array( 'a' ) ) && CauHomNay::hop_le( array( 'a', '', 'b', 'c', 'd' ) ) && ! CauHomNay::hop_le( array( 'a', 'b', 'c', 'd', 'e' ) ) && ! CauHomNay::hop_le( array( '', ' ' ) ) );
+kt( 'Câu hôm nay: cùng ngày cùng câu (ai mở cũng thấy như nhau), danh sách trống → không có', CauHomNay::chon( array( 3, 5, 9 ), '2026-11-02' ) === CauHomNay::chon( array( 3, 5, 9 ), '2026-11-02' ) && in_array( CauHomNay::chon( array( 3, 5, 9 ), '2026-11-02' ), array( 3, 5, 9 ), true ) && null === CauHomNay::chon( array(), '2026-11-02' ) );
+$ngay_khac = array_unique( array_map( static fn( int $d ): ?int => CauHomNay::chon( range( 1, 50 ), sprintf( '2026-11-%02d', $d ) ), range( 1, 30 ) ) );
+kt( 'Câu hôm nay: đổi theo ngày (30 ngày cho nhiều câu khác nhau)', count( $ngay_khac ) >= 10, count( $ngay_khac ) );
