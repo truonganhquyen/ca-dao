@@ -1,0 +1,674 @@
+[
+  {
+    "palette": "light",
+    "foreground": "muc",
+    "background": "giay",
+    "ratio": 18.25,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "muc",
+    "background": "panel",
+    "ratio": 16.75,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "muc",
+    "background": "surface",
+    "ratio": 18.7,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "nhat",
+    "background": "giay",
+    "ratio": 7.1,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "nhat",
+    "background": "panel",
+    "ratio": 6.51,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "nhat",
+    "background": "surface",
+    "ratio": 7.27,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "tim",
+    "background": "giay",
+    "ratio": 7.61,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "tim",
+    "background": "panel",
+    "ratio": 6.99,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "tim",
+    "background": "surface",
+    "ratio": 7.8,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "tim-dam",
+    "background": "giay",
+    "ratio": 9.89,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "tim-dam",
+    "background": "panel",
+    "ratio": 9.07,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "tim-dam",
+    "background": "surface",
+    "ratio": 10.13,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "luc",
+    "background": "giay",
+    "ratio": 6.29,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "luc",
+    "background": "panel",
+    "ratio": 5.77,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "luc",
+    "background": "surface",
+    "ratio": 6.44,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "loi",
+    "background": "giay",
+    "ratio": 7.49,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "loi",
+    "background": "panel",
+    "ratio": 6.87,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "loi",
+    "background": "surface",
+    "ratio": 7.67,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "vang",
+    "background": "giay",
+    "ratio": 6.21,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "vang",
+    "background": "panel",
+    "ratio": 5.7,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "vang",
+    "background": "surface",
+    "ratio": 6.37,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "xanh",
+    "background": "giay",
+    "ratio": 7.55,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "xanh",
+    "background": "panel",
+    "ratio": 6.93,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "xanh",
+    "background": "surface",
+    "ratio": 7.74,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "nhan-co",
+    "background": "giay",
+    "ratio": 6.33,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "nhan-co",
+    "background": "panel",
+    "ratio": 5.81,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "nhan-co",
+    "background": "surface",
+    "ratio": 6.48,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "tim",
+    "background": "tim-nhat",
+    "ratio": 6.43,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "tim",
+    "background": "tim-giay",
+    "ratio": 7.07,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "nhat",
+    "background": "tim-giay",
+    "ratio": 6.59,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "muc",
+    "background": "tim-giay",
+    "ratio": 16.95,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "luc",
+    "background": "luc-nhat",
+    "ratio": 5.6,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "muc",
+    "background": "luc-nhat",
+    "ratio": 16.24,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "nhat",
+    "background": "luc-nhat",
+    "ratio": 6.32,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "muc",
+    "background": "to",
+    "ratio": 16.65,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "tren-tim",
+    "background": "tim",
+    "ratio": 7.8,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "tren-tim",
+    "background": "tim-dam",
+    "ratio": 10.13,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "tren-tim",
+    "background": "luc",
+    "ratio": 6.44,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "control-line",
+    "background": "giay",
+    "ratio": 3.6,
+    "threshold": 3,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "control-line",
+    "background": "panel",
+    "ratio": 3.31,
+    "threshold": 3,
+    "pass": true
+  },
+  {
+    "palette": "light",
+    "foreground": "control-line",
+    "background": "surface",
+    "ratio": 3.69,
+    "threshold": 3,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "muc",
+    "background": "giay",
+    "ratio": 15.24,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "muc",
+    "background": "panel",
+    "ratio": 13.33,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "muc",
+    "background": "surface",
+    "ratio": 14.14,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "nhat",
+    "background": "giay",
+    "ratio": 8.23,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "nhat",
+    "background": "panel",
+    "ratio": 7.2,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "nhat",
+    "background": "surface",
+    "ratio": 7.64,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "tim",
+    "background": "giay",
+    "ratio": 8.66,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "tim",
+    "background": "panel",
+    "ratio": 7.58,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "tim",
+    "background": "surface",
+    "ratio": 8.04,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "tim-dam",
+    "background": "giay",
+    "ratio": 11.49,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "tim-dam",
+    "background": "panel",
+    "ratio": 10.05,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "tim-dam",
+    "background": "surface",
+    "ratio": 10.66,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "luc",
+    "background": "giay",
+    "ratio": 9.92,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "luc",
+    "background": "panel",
+    "ratio": 8.68,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "luc",
+    "background": "surface",
+    "ratio": 9.2,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "loi",
+    "background": "giay",
+    "ratio": 8.15,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "loi",
+    "background": "panel",
+    "ratio": 7.12,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "loi",
+    "background": "surface",
+    "ratio": 7.56,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "vang",
+    "background": "giay",
+    "ratio": 10.16,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "vang",
+    "background": "panel",
+    "ratio": 8.88,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "vang",
+    "background": "surface",
+    "ratio": 9.42,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "xanh",
+    "background": "giay",
+    "ratio": 8.57,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "xanh",
+    "background": "panel",
+    "ratio": 7.49,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "xanh",
+    "background": "surface",
+    "ratio": 7.95,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "nhan-co",
+    "background": "giay",
+    "ratio": 8.35,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "nhan-co",
+    "background": "panel",
+    "ratio": 7.3,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "nhan-co",
+    "background": "surface",
+    "ratio": 7.75,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "tim",
+    "background": "tim-nhat",
+    "ratio": 6.76,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "tim",
+    "background": "tim-giay",
+    "ratio": 7.77,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "nhat",
+    "background": "tim-giay",
+    "ratio": 7.38,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "muc",
+    "background": "tim-giay",
+    "ratio": 13.67,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "luc",
+    "background": "luc-nhat",
+    "ratio": 7.42,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "muc",
+    "background": "luc-nhat",
+    "ratio": 11.4,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "nhat",
+    "background": "luc-nhat",
+    "ratio": 6.16,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "muc",
+    "background": "to",
+    "ratio": 8.79,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "tren-tim",
+    "background": "tim",
+    "ratio": 8.66,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "tren-tim",
+    "background": "tim-dam",
+    "ratio": 11.49,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "tren-tim",
+    "background": "luc",
+    "ratio": 9.92,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "control-line",
+    "background": "giay",
+    "ratio": 5.24,
+    "threshold": 3,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "control-line",
+    "background": "panel",
+    "ratio": 4.58,
+    "threshold": 3,
+    "pass": true
+  },
+  {
+    "palette": "dark",
+    "foreground": "control-line",
+    "background": "surface",
+    "ratio": 4.86,
+    "threshold": 3,
+    "pass": true
+  },
+  {
+    "palette": "share-image",
+    "foreground": "chu",
+    "background": "nen",
+    "ratio": 10.13,
+    "threshold": 4.5,
+    "pass": true
+  },
+  {
+    "palette": "share-image",
+    "foreground": "phu",
+    "background": "nen",
+    "ratio": 7.82,
+    "threshold": 4.5,
+    "pass": true
+  }
+]

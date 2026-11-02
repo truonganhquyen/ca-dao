@@ -1,0 +1,125 @@
+{
+  "J01": {
+    "screens": [
+      "R01",
+      "R12",
+      "R06"
+    ],
+    "steps": "Tìm “tuc ngu mau” → kết quả → nghĩa",
+    "verification": "Đã thử UI; chưa đo ≤10 giây với người thật"
+  },
+  "J02": {
+    "screens": [
+      "R04",
+      "R21"
+    ],
+    "steps": "Lưu 5 câu → trình chiếu",
+    "verification": "Đã thử UI: 1/5 → 2/5; chưa đo ≤3 phút"
+  },
+  "J03": {
+    "screens": [
+      "R17",
+      "R18",
+      "R08"
+    ],
+    "steps": "4 bé / 5 tuổi / trong nhà → đồng dao → Đọc cùng bé",
+    "verification": "Đã thử UI trên fixture; chưa đo ≤1 phút"
+  },
+  "J04": {
+    "screens": [
+      "R05",
+      "R14"
+    ],
+    "steps": "Từ chú thích → mục từ → tác phẩm; đóng trả focus",
+    "verification": "Đã thử sheet, trả focus, liên kết; fixture liên quan được chỉnh đúng từ"
+  },
+  "J05": {
+    "screens": [
+      "R05",
+      "R24",
+      "R27"
+    ],
+    "steps": "Mức kiểm → Thông tin tư liệu → Phương pháp",
+    "verification": "Đã mở UI; mức hiểu của người đọc chưa được đo"
+  },
+  "J06": {
+    "screens": [
+      "R12"
+    ],
+    "steps": "Chờ biên soạn → Mong có",
+    "verification": "Đã thử; xác nhận không lộ lời kho"
+  },
+  "J07": {
+    "screens": [
+      "R05"
+    ],
+    "steps": "Trích dẫn thông dụng / APA → copy / copy tay",
+    "verification": "Đã thử preview APA và nhánh lỗi copy tay; Clipboard hệ thống phụ thuộc trình duyệt"
+  },
+  "J08": {
+    "screens": [
+      "R05",
+      "R22"
+    ],
+    "steps": "Gửi số trang / dị bản / cảm nghĩ",
+    "verification": "Đã thử giữ nguyên chữ khi lỗi; không gửi đến dịch vụ thật"
+  },
+  "J09": {
+    "screens": [
+      "R09",
+      "R16"
+    ],
+    "steps": "Gợi ý → đáp án → lượt 10 câu → hoàn tất",
+    "verification": "Đã thử hoàn tất 10/10, không điểm hoặc phạt"
+  },
+  "J10": {
+    "screens": [
+      "A01",
+      "A02"
+    ],
+    "steps": "Nháp nghĩa → người xác nhận → Hoàn tác",
+    "verification": "Đã thử chặn khi chưa xác nhận và hoàn tác trong 10 giây; chưa đo ≤60 giây"
+  },
+  "J11": {
+    "screens": [
+      "A02",
+      "A04",
+      "A19",
+      "R05"
+    ],
+    "steps": "Ứng viên → soạn → nhắc trùng → đăng → trang đọc",
+    "verification": "Đã thử sửa nghĩa, xác nhận và xem đúng chữ đã sửa; backend không được gọi"
+  },
+  "J12": {
+    "screens": [
+      "A02",
+      "A19"
+    ],
+    "steps": "So hai bài → giữ → xác nhận gộp",
+    "verification": "Đã thử dialog hệ quả: dị bản, 301, dữ liệu dồn, thùng rác; thao tác mô phỏng"
+  },
+  "J13": {
+    "screens": [
+      "A11",
+      "R05"
+    ],
+    "steps": "Preview khách / biên soạn theo chính sách nguồn",
+    "verification": "Đã thử chặn đổi thiếu quyết định; static scan public kiểm URL và nội dung"
+  },
+  "J14": {
+    "screens": [
+      "F01",
+      "F02",
+      "F03"
+    ],
+    "steps": "Lớp / bộ sách → bộ câu → A4 / trình chiếu",
+    "verification": "Đã thử 1/8 và mở phiếu; chưa nghiệm thu in vật lý / hồ sơ SGK thật"
+  },
+  "J15": {
+    "screens": [
+      "R07"
+    ],
+    "steps": "Mục lục → khổ cuối → nhớ chỗ → Aa lớn → in",
+    "verification": "Đã mở khổ 50 của 990 dòng; cỡ 34 không tràn 390. CSS in có mở toàn bài; chưa nghiệm thu phân trang trên máy in"
+  }
+}

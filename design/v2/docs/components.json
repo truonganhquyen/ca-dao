@@ -1,0 +1,82 @@
+[
+  {
+    "component": "Khung site",
+    "implementation": "publicHeader / publicFooter / bottom / bread",
+    "variants": "Desktop nav; mobile 4 đích; menu details; skip link; active route"
+  },
+  {
+    "component": "Ô tìm / kết quả",
+    "implementation": "runSearch / resultCard",
+    "variants": "Idle, debounce, match, groups, typo fixture, pending, error; aria-live; Enter submit"
+  },
+  {
+    "component": "Bộ lọc / phân trang",
+    "implementation": "catalogue / filters",
+    "variants": "Chip bỏ lọc, xoá tất cả, sort, trang cuối, rỗng; select native"
+  },
+  {
+    "component": "Lời / thơ / tục ngữ",
+    "implementation": "verse / level / meaning",
+    "variants": "Dòng nguồn span.line; lục thụt; tục ngữ nghĩa sớm; vè 60/220/990"
+  },
+  {
+    "component": "Mức kiểm / cờ",
+    "implementation": "level / flag",
+    "variants": "Câu chữ có căn cứ; nhãn + chữ, không chỉ màu; cờ đi theo bài"
+  },
+  {
+    "component": "Chú thích / dị bản",
+    "implementation": "dialog / details / .variant",
+    "variants": "Popover desktop, sheet mobile; Esc; focus; ins/del, không đúng/sai"
+  },
+  {
+    "component": "Tư liệu / nguồn",
+    "implementation": "materials / A11 sourcePreview",
+    "variants": "Theo từng lớp; 3 chính sách; public/admin tách từ server khi production"
+  },
+  {
+    "component": "Tuyển tập",
+    "implementation": "collectionItem / A05",
+    "variants": "Dùng lại lời/nghĩa; 8/30; missing; cờ; ngưỡng công khai"
+  },
+  {
+    "component": "Trích dẫn",
+    "implementation": "cite / citation / copy",
+    "variants": "Normal/APA; lời-only; notes; answer opt-in; preview/readonly; status + fallback"
+  },
+  {
+    "component": "Lưu / share / Aa",
+    "implementation": "saved / aa / applyTheme",
+    "variants": "Local; blocked; removed; 22/28/34; hệ thống/sáng/tối; share native hoặc link"
+  },
+  {
+    "component": "Trình chiếu / cùng bé",
+    "implementation": "openMode / renderMode",
+    "variants": "Prev/Next; tiến độ; focus trap; Esc; reduced motion; không âm thanh tự phát"
+  },
+  {
+    "component": "Đố / trò chơi",
+    "implementation": "quiz / gameParams / gameSteps",
+    "variants": "10 câu, đáp án details đóng; tuổi/số trẻ/nơi/đồ dùng; không điểm"
+  },
+  {
+    "component": "Đóng góp",
+    "implementation": "contributionForm",
+    "variants": "6 loại, consent, validation, pending/success, network/rate-limit; giữ buffer"
+  },
+  {
+    "component": "Thẻ việc",
+    "implementation": "A02 / review",
+    "variants": "Human-approved rõ; reject reason; defer; conflict; Undo 10 giây"
+  },
+  {
+    "component": "Editor",
+    "implementation": "A04 / editorData / publish",
+    "variants": "10 vùng cấu trúc; manual save; diff trước/sau; nhắc không chặn; mất phiên/mạng"
+  },
+  {
+    "component": "Trạng thái / điều khiển",
+    "implementation": "btn / chip / notice / empty",
+    "variants": "Normal, hover, focus-visible, selected, expanded, loading, disabled, error/success"
+  }
+]

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Phiên bản | 2.3 · 27/10/2026 (gói nâng cấp D-059..D-065, `docs/25`; T-118..T-138 sau các báo cáo review, khảo sát đối thủ D-080; nhóm V2 T-139..T-164, D-082..D-091) |
+| Phiên bản | 2.4 · 02/11/2026 (bộ thiết kế V2 T-165, D-092; gói nâng cấp D-059..D-065, `docs/25`; T-118..T-138 sau các báo cáo review, khảo sát đối thủ D-080; nhóm V2 T-139..T-164, D-082..D-091) |
 | Trạng thái | **Sống.** Cập nhật cột trạng thái ở mục 1 sau mỗi task/PR; enum: `READY`, `IN_PROGRESS`, `REVIEW`, `BLOCKED`, `DONE`, `DEFERRED` |
 | Đọc khi | Nhận việc. Mỗi task ghi rõ cần đọc tài liệu nào |
 | Ai làm | **N** = người sáng lập · **A** = AI agent hoặc dev · **N+A** = A làm, N duyệt và quyết định |
@@ -120,12 +120,13 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-053 | Mở công khai lặng lẽ (H5; số bài, Hiểu nhanh, thư cho Ca dao Mẹ nên có nhưng không chặn — D-077) | N | T-049..T-052, T-140, T-157 | — | READY |
 | **V2 · Xây mới song song, chuyển một lần (D-082..D-091)** ||||||
 | T-139 | [V2] Quyết định xây mới, tài liệu nền V2, đặc tả `docs/26` kỹ thuật, `27` sản phẩm, `28` Bàn biên tập, `29` chuyển đổi | A | — | — | DONE |
+| T-165 | [V2] Bộ thiết kế UX/UI bản cuối ở `design/v2/`: bảng tím – lục, 66 màn, token, đặc tả (D-092) | N+A | T-139 | — | DONE |
 | T-141 | [Đợt 1] Khung V2 ở `wordpress/v2/`: plugin (tự nạp `Phongdao\`, module), theme khối trống, lệnh `test:v2`, `quet:v2`, `xem-truoc:v2`, job CI, bộ kiểm PHP thuần | A | T-139 | — | READY |
 | T-142 | [Đợt 1] Mô hình dữ liệu: loại bài, sáu phân loại, bảng lớp / hồ sơ nguồn / nhật ký / hàng đợi / tuyển tập / gợi ý, cấp chất lượng, ràng buộc lằn ranh | A | T-141 | — | READY |
 | T-143 | [Đợt 1] Nguồn vào: bộ đọc Ca dao Mẹ, kho, hồ sơ nguồn, chống trùng (chuyển kèm kiểm thử), ứng viên từ kho, gợi ý chủ đề / vùng / mô-típ / Wikidata | A | T-142 | — | READY |
 | T-144 | [Đợt 1] Tìm: chỉ mục từ lớp, bỏ dấu, gõ sai (gộp T-132), nhóm theo thể loại, "mong có câu này" | A | T-142 | — | READY |
 | T-145 | [Đợt 1] Công cụ nhập dữ liệu người làm: kiểm kê, chạy thử, nhập, hoàn tác, "Cần xem", kiểm "trước = sau" (`docs/29`) | A | T-143 | — | READY |
-| T-146 | [Đợt 2] Theme 1.0 và hệ thống thiết kế: `theme.json`, token, thang chữ và khoảng cách, đầu / chân trang, thanh dưới, biến thể bảng màu | A | T-141 | — | READY |
+| T-146 | [Đợt 2] Theme 1.0 và hệ thống thiết kế theo `design/v2/` (D-092): `theme.json`, token tím – lục sáng / tối, thang chữ và khoảng cách, đầu / chân trang, thanh thể loại, thanh dưới | A | T-141 | — | READY |
 | T-147 | [Đợt 2] Trang tác phẩm theo 5 thể loại: lời, chạm từ, dòng mức kiểm, nghĩa, dị bản, chú thích, bối cảnh, đoạn, đồng dao (Đọc cùng bé, cách chơi), câu đố (nút Hiện đáp án) | A | T-142, T-146 | — | READY |
 | T-148 | [Đợt 2] Thông tin tư liệu và chính sách hiện; thanh hành động (trích dẫn, chia sẻ, lưu, trình chiếu, cỡ chữ); khối Biên soạn (gộp T-136); ảnh chia sẻ | A | T-147 | — | READY |
 | T-149 | [Đợt 2] Trang chủ lối vào, vai, menu và IA mới; Tất cả, thể loại, chủ đề / vùng / mô-típ đọc liền (gộp T-137); tuyển tập; Một câu ngẫu nhiên | A | T-148 | — | READY |
@@ -524,7 +525,7 @@ Cổng tự động luôn áp dụng: `npm run kiem-tra` đạt (validator tần
 
 #### T-048 · Duyệt 30–50 bài, thử với 5 người — N
 **Đọc:** `11`; `docs/luu-tru/24-ke-hoach-beta.md` mục 2 (dùng nhiệm vụ N1–N6, không chấm ngưỡng 80%).
-**Chấp nhận:** 30–50 bài trên bản xem trước; 5 người đã thử; vướng mắc thành task; Q-006 chốt.
+**Chấp nhận:** 30–50 bài trên bản xem trước; 5 người đã thử; vướng mắc thành task; Q-006 chốt (đã chốt D-092, 02/11/2026: thụt câu lục).
 
 #### T-129 · Kiểm "site thật đúng bản" — A
 **Đọc:** D-080; kế hoạch `docs/nghien-cuu/ke-hoach-thuc-hien-2026-10-27.md` việc 2. **Việc:** GitHub Action chạy sau mỗi lần gộp vào `main` và mỗi ngày: đọc `ca-dao.js?ver=` và `style.css?ver=` trên phongdao.com, so với `CADAO_PHIEN_BAN` và dòng `Version:` của theme trên `main`; lệch quá 30 phút thì mở (hoặc cập nhật) một issue "Site thật lệch bản". Chỉ đọc site. **Chấp nhận:** có kiểm thử cho phần so sánh; thử với số sai thì báo lệch; không ghi gì lên máy chủ.
@@ -634,6 +635,10 @@ Mọi task V2 đọc AGENTS.md và `docs/26`; task trang người đọc đọc 
 **Chấp nhận:** D-082..D-091 trong `docs/01`; `docs/00` bản V2 (bản MVP ở `docs/luu-tru/00-tai-lieu-nen-mvp.md`); `docs/26`–`29`; ba nghiên cứu V2 ở `docs/nghien-cuu/`; backlog, `docs/02`, `trang-thai.json`, `viec-tiep-theo` nhận nhóm V2; AGENTS.md cập nhật sự kiện đo (D-088) và quy tắc xây V2; `npm run kiem-tra` đạt.
 **Tiến độ (27/10/2026):** xong — chỉ tài liệu và công cụ backlog, không đổi mã plugin, theme.
 
+#### T-165 · Bộ thiết kế V2 — N+A
+**Chấp nhận:** người sáng lập chọn bảng màu và bản mẫu tham khảo (D-092); `design/v2/` có mã nguồn, token, đặc tả, `qa/`; `node source/build.mjs` và `python -X utf8 source/package-handoff.py` chạy được; 0 lỗi kiểm tĩnh, 0 cặp màu dưới ngưỡng tương phản, 0 trang tràn ngang ở 320 / 390 / 1440; bản dựng, ảnh chia sẻ và hai bản mẫu HTML không vào repo.
+**Tiến độ (02/11/2026):** xong — bản cuối 2.0 của bộ duyệt 28/10; còn tên khối tư liệu và cách mở Khám phá trên điện thoại chọn trên bản xem trước.
+
 #### Đợt 1 · Nền (T-141..T-145)
 - **T-141:** đo phiên bản PHP của máy chủ trước khi chọn cú pháp (`docs/26` mục 2); `npm run test:v2` chạy bộ kiểm PHP thuần < 5 giây và Playground; `xem-truoc:v2` mở được plugin + theme V2 với dữ liệu mẫu; job CI `v2`. **Chấp nhận:** cây thư mục đúng `docs/26` mục 3; MVP không đổi; CI xanh.
 - **T-142:** **Chấp nhận:** đủ loại bài, phân loại, bảng ở `docs/26` mục 4; kiểm thử khẳng định ràng buộc lằn ranh mục 4.3 và `docs/28` mục 6; `CapChatLuong` cho đúng L0–L3 (bài phân tích không tính); SQL chạy trên SQLite và MySQL.
@@ -642,7 +647,7 @@ Mọi task V2 đọc AGENTS.md và `docs/26`; task trang người đọc đọc 
 - **T-145:** **Chấp nhận:** theo `docs/29` mục 2–4 — kiểm kê đối chiếu đủ với mã MVP; nhập → hoàn tác → nhập cho cùng kết quả trên dữ liệu mẫu; "trước = sau" từng ký tự; báo cáo không chép lời.
 
 #### Đợt 2 · Trang đọc (T-146..T-151)
-**Chấp nhận chung:** đúng `docs/27` từng màn hình (thứ tự thành phần, trạng thái trống / lỗi); mỗi mẫu thể loại ≤ 200 KB, JavaScript trang bài ≤ 21 KB, tuyển tập 30 câu ≤ 300 KB; 0 lỗi axe; tắt JavaScript vẫn đọc được; câu đố có nút "Hiện đáp án" bằng `<details>` (D-087); Thông tin tư liệu mặc định đúng D-068 + D-078 + D-081 (liên kết nguồn ẩn không có trong HTML gửi người đọc); khối Biên soạn chỉ hiện khi có bút danh (T-136 cũ); trang chủ đề / vùng không có giới thiệu do máy viết (T-137 cũ); bối cảnh vè không do máy viết (T-102 cũ); nghĩa từ Wiktionary ghi "Nguồn: Wiktionary ↗ · CC BY-SA" ngay dưới (T-098 cũ); Đố vui 10 câu một lượt, nhớ trên máy, không chấm điểm (T-096 cũ); đúng 5 sự kiện đo (D-088); kiểm liên kết ra ngoài trong CI.
+**Chấp nhận chung:** đúng `docs/27` và bộ thiết kế `design/v2/` (D-092) từng màn hình (thứ tự thành phần, trạng thái trống / lỗi); mỗi mẫu thể loại ≤ 200 KB, JavaScript trang bài ≤ 21 KB, tuyển tập 30 câu ≤ 300 KB; 0 lỗi axe; tắt JavaScript vẫn đọc được; câu đố có nút "Hiện đáp án" bằng `<details>` (D-087); Thông tin tư liệu mặc định đúng D-068 + D-078 + D-081 (liên kết nguồn ẩn không có trong HTML gửi người đọc); khối Biên soạn chỉ hiện khi có bút danh (T-136 cũ); trang chủ đề / vùng không có giới thiệu do máy viết (T-137 cũ); bối cảnh vè không do máy viết (T-102 cũ); nghĩa từ Wiktionary ghi "Nguồn: Wiktionary ↗ · CC BY-SA" ngay dưới (T-098 cũ); Đố vui 10 câu một lượt, nhớ trên máy, không chấm điểm (T-096 cũ); đúng 5 sự kiện đo (D-088); kiểm liên kết ra ngoài trong CI.
 
 #### Đợt 3 · Bàn biên tập (T-152..T-156)
 **Chấp nhận chung:** đúng `docs/28`; bản dựng React khớp mã nguồn (CI); mọi route kiểm quyền + nonce; 6 lằn ranh của `docs/28` mục 6 có kiểm thử; máy chỉ gợi ý cờ nghi (T-135 cũ), không tự đánh dấu SGK (T-133 cũ); không còn trang quản trị con nào của MVP trong V2; Gutenberg không mở cho tác phẩm. **T-156:** người sáng lập dùng thử trên điện thoại và trả lời "Bàn biên tập dùng được" (agent không tự đánh `DONE` khi chưa có câu trả lời); `e2e:v2` đạt; `thu-nhap` trên site thật (được đồng ý) cho "trước = sau" đạt trừ "Cần xem" đã giải thích.

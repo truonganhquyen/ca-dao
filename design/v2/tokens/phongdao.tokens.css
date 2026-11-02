@@ -1,0 +1,53 @@
+/* Phongdao V2: bảng tím – lục (D-092). Token kích thước là đề xuất thể hiện. */
+:root{
+  --giay: #FEFCF8;
+  --surface: #FFFFFF;
+  --panel: #F6F2EA;
+  --muc: #14120F;
+  --nhat: #5A5652;
+  --tim: #5E3AAE;
+  --tim-dam: #4B2F8A;
+  --tim-nhat: #EDE6FB;
+  --tim-vien: #D5C8F0;
+  --tim-giay: #F6F2FD;
+  --luc: #1F6B4A;
+  --luc-nhat: #E6F2E9;
+  --luc-vien: #A9D1B8;
+  --to: #FFF3B0;
+  --to-vien: #F0D97A;
+  --loi: #A1201A;
+  --vang: #7A5A12;
+  --xanh: #2B5580;
+  --nhan-co: #5E5E5E;
+  --line: #E8E0D0;
+  --control-line: #8C8478;
+  --tren-tim: #FFFFFF;
+}
+:root[data-theme="dark"]{
+  --giay: #17151B;
+  --surface: #1F1C24;
+  --panel: #24212A;
+  --muc: #EFEBE4;
+  --nhat: #B4AEA6;
+  --tim: #BCA8F4;
+  --tim-dam: #D4C7F8;
+  --tim-nhat: #2E2648;
+  --tim-vien: #4A3D72;
+  --tim-giay: #221E2E;
+  --luc: #86CFA8;
+  --luc-nhat: #1B3328;
+  --luc-vien: #2F5E46;
+  --to: #4A3F12;
+  --to-vien: #8C7426;
+  --loi: #F2958B;
+  --vang: #E0BE72;
+  --xanh: #8DB6E3;
+  --nhan-co: #B0B0B0;
+  --line: #38343F;
+  --control-line: #8E8799;
+  --tren-tim: #17151B;
+}
+:root{--font-reading:Literata,Georgia,serif;--font-ui:"Be Vietnam Pro",sans-serif;--read:38em;--verse-indent:1.6em;--reading-size:22px;--radius:10px;--bo:14px;--bo-nho:10px;
+--space-4:4px;--space-8:8px;--space-12:12px;--space-16:16px;--space-24:24px;--space-32:32px;--space-48:48px;--space-64:64px;
+--text-15:15px;--text-17:17px;--text-22:22px;--text-28:28px;--text-36:36px;--text-48:48px;--text-64:64px;}
+@media(max-width:767px){:root{--verse-indent:.9em}}

@@ -33,6 +33,8 @@ wordpress/
 ├── v2/blueprint.json      Playground cho bản xem trước V2
 ├── may-chu/               kịch bản máy chủ (không đổi trong lúc xây)
 └── tests/                 kiểm thử MVP
+
+design/v2/                 bộ thiết kế UX/UI bản cuối (D-092): mã nguồn bản mẫu, token, đặc tả, qa — không chạy trên site
 ```
 
 - Máy chủ (`cap-nhat-plugin.sh`) chỉ chép `wordpress/plugins/ca-dao` và `wordpress/themes/ca-dao`, nên gộp PR V2 vào `main` không đụng site thật.
@@ -192,7 +194,7 @@ Mọi route quản trị: `permission_callback` kiểm quyền riêng + nonce RE
 
 ## 6. Trang người đọc
 
-- **Theme khối độc lập 1.0** (`wordpress/v2/themes/ca-dao`): `theme.json` (token `docs/20` mục 1.1–1.2, thang chữ 7 bậc, khoảng cách 8 bậc, 38em, biến thể sáng / tối / bảng màu đề xuất); `functions.php` dưới 50 dòng, không nghiệp vụ; người sáng lập chỉnh bố cục bằng Trình sửa site.
+- **Theme khối độc lập 1.0** (`wordpress/v2/themes/ca-dao`): `theme.json` (token bảng tím – lục ở `design/v2/tokens/` — D-092, thang chữ 7 bậc, khoảng cách 8 bậc, 38em, biến thể sáng / tối; hình ảnh từng màn theo bộ thiết kế `design/v2/`); `functions.php` dưới 50 dòng, không nghiệp vụ; người sáng lập chỉnh bố cục bằng Trình sửa site.
 - **Mẫu:** `front-page`, `single-tac_pham-{thể loại}` (plugin thêm vào thứ bậc mẫu bằng `single_template_hierarchy`) với mặc định `single-tac_pham`, `archive-tac_pham` (Tất cả), `taxonomy-the_loai`, `taxonomy-chu_de`, `taxonomy-vung`, `taxonomy-mo_tip`, `taxonomy-muc_tu`, `taxonomy-tro_choi`, `single-tuyen_tap`, `archive-tuyen_tap`, `single-phan_tich`, `search`, `404`, `page`. Phần: đầu trang, chân trang, thanh dưới.
 - **Khối động** (`cadao/*`, render trên máy chủ, khối không có dữ liệu không in gì, CSS nạp khi khối có mặt): `loi`, `muc-kiem`, `nghia`, `chu-thich`, `di-ban`, `boi-canh`, `doan`, `thuc-hanh` (câu đố, trò chơi), `hanh-dong`, `tu-lieu`, `bien-soan`, `doc-tiep`, `gop`, `thuoc-tuyen-tap`, `the-bai`, `danh-sach`, `bo-loc`, `tuyen-tap`, `loi-vao`, `cau-hom-nay`, `ban-co-biet`, `ban-do`, `tim`, `do-vui`, `vai`.
 - **JavaScript thuần**, mô-đun nhỏ nạp theo trang: chạm từ (popover), lưu, chia sẻ, sao chép trích dẫn, trình chiếu, cỡ chữ / sáng tối, đọc cùng bé, tìm khi gõ, đố vui (nhớ tiến độ), vai, nhớ chỗ đọc. Tổng trên trang bài ≤ 21 KB; mọi thứ hoạt động cơ bản khi tắt JavaScript (`<details>`, form, liên kết).
