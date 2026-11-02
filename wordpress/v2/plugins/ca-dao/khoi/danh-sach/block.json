@@ -1,0 +1,15 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cadao/danh-sach",
+	"title": "Danh sách tác phẩm",
+	"category": "theme",
+	"description": "Danh sách tác phẩm theo truy vấn chính: Tất cả (/kho/, có bộ lọc), thể loại, chủ đề, vùng, mô-típ, hình thức (docs/27 mục 3).",
+	"textdomain": "ca-dao",
+	"supports": {
+		"html": false,
+		"inserter": false,
+		"reusable": false
+	},
+	"render": "file:./render.php"
+}

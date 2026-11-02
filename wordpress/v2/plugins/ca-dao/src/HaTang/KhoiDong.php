@@ -2,6 +2,7 @@
 
 namespace Phongdao\HaTang;
 
+use Phongdao\DichVu;
 use Phongdao\GiaoTiep;
 
 defined( 'ABSPATH' ) || exit;
@@ -15,6 +16,7 @@ final class KhoiDong {
 	public const MODULE = array(
 		KhaiBao::class,
 		CaiDat::class,
+		DichVu\LuuPhan\GanHinhThuc::class,
 		GiaoTiep\Rest\Module::class,
 		GiaoTiep\Khoi\Module::class,
 		GiaoTiep\Cli\Module::class,

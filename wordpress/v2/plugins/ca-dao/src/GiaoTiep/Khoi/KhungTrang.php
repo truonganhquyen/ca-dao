@@ -2,6 +2,9 @@
 
 namespace Phongdao\GiaoTiep\Khoi;
 
+use Phongdao\DichVu\DungTrang\DocBai;
+use Phongdao\HaTang\KhaiBao;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -21,13 +24,21 @@ final class KhungTrang {
 		'tuyen-tap' => 'Tuyển tập',
 	);
 
-	/** Mục đang xem: trang chủ, hoặc thể loại của tác phẩm (bài mẫu: theo tên đường dẫn "bai-mau-<thể loại>"). */
+	/** Mục đang xem trên thanh thể loại: trang chủ, Tất cả, thể loại (trang thể loại hoặc thể loại của tác phẩm). */
 	public static function dang_xem(): string {
 		if ( is_front_page() ) {
 			return 'trang-chu';
 		}
-		$ten = (string) get_post_field( 'post_name', get_queried_object_id() );
-		return str_starts_with( $ten, 'bai-mau-' ) ? substr( $ten, 8 ) : '';
+		if ( is_post_type_archive( KhaiBao::TAC_PHAM ) ) {
+			return (string) get_query_var( KhaiBao::THE_LOAI ) ?: 'kho';
+		}
+		if ( is_tax( KhaiBao::THE_LOAI ) ) {
+			return (string) get_queried_object()->slug;
+		}
+		if ( is_singular( KhaiBao::TAC_PHAM ) ) {
+			return (string) DocBai::the_loai( get_queried_object() );
+		}
+		return is_post_type_archive( KhaiBao::TUYEN_TAP ) || is_singular( KhaiBao::TUYEN_TAP ) ? 'tuyen-tap' : '';
 	}
 
 	public static function dau_trang(): string {

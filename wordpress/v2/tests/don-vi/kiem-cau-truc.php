@@ -27,7 +27,7 @@ foreach ( array( 'ca-dao.php', 'src/tu-nap.php', 'src/MienDuLieu', 'src/KhoLuu',
 }
 kt( 'cây thư mục plugin đúng docs/26 mục 3', array() === $thieu, $thieu );
 kt( 'không còn thư mục ứng dụng React quan-tri/ (D-094: không bước dựng JavaScript)', ! file_exists( "$plugin/quan-tri" ) );
-$thieu = array_values( array_filter( array( 'style.css', 'theme.json', 'functions.php', 'templates/index.html', 'templates/page.html', 'templates/tac-pham-mau.html', 'parts/dau-trang.html', 'parts/chan-trang.html', 'assets/giao-dien.css', 'assets/fit.js', 'assets/doc.js', 'assets/fonts/literata-400-vietnamese.woff2', 'assets/fonts/OFL-literata.txt' ), static fn( $t ) => ! file_exists( "$theme/$t" ) ) );
+$thieu = array_values( array_filter( array( 'style.css', 'theme.json', 'functions.php', 'templates/index.html', 'templates/page.html', 'templates/single-tac_pham.html', 'templates/archive-tac_pham.html', 'templates/taxonomy.html', 'parts/dau-trang.html', 'parts/chan-trang.html', 'assets/giao-dien.css', 'assets/fit.js', 'assets/doc.js', 'assets/fonts/literata-400-vietnamese.woff2', 'assets/fonts/OFL-literata.txt' ), static fn( $t ) => ! file_exists( "$theme/$t" ) ) );
 kt( 'theme khối có đủ tệp: mẫu trang, phần đầu / chân, giao diện, fit.js, doc.js, phông và giấy phép OFL', array() === $thieu, $thieu );
 
 // Khối cadao/*: mỗi thư mục khoi/<tên> có block.json tên cadao/<tên>, apiVersion 3, render.php
@@ -66,7 +66,7 @@ $khoi_dong = (string) file_get_contents( "$plugin/src/HaTang/KhoiDong.php" );
 preg_match_all( '/^\s*([\w\\\\]+)::class,$/m', $khoi_dong, $m );
 $module_hong = array();
 foreach ( $m[1] as $lop ) {
-	$duong = str_starts_with( $lop, 'GiaoTiep\\' ) ? $lop : 'HaTang\\' . $lop;
+	$duong = str_starts_with( $lop, 'GiaoTiep\\' ) || str_starts_with( $lop, 'DichVu\\' ) ? $lop : 'HaTang\\' . $lop;
 	$tep = "$plugin/src/" . str_replace( '\\', '/', $duong ) . '.php';
 	if ( ! is_file( $tep ) || ! preg_match( '/implements\s+[\\\\\w]*Module\b/', (string) file_get_contents( $tep ) ) ) {
 		$module_hong[] = $lop;

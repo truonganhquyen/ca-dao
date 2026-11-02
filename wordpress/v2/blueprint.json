@@ -5,7 +5,7 @@
 		"description": "WordPress + plugin, theme V2 và dữ liệu mẫu tổng hợp, tiếng Việt, đường dẫn đẹp. Xem docs/26 mục 13.",
 		"author": "truonganhquyen"
 	},
-	"landingPage": "/bai-mau-ca-dao/",
+	"landingPage": "/ca-dao/dong-mau-mot-cua-bai/",
 	"preferredVersions": {
 		"php": "8.3",
 		"wp": "latest"
@@ -37,7 +37,7 @@
 		},
 		{
 			"step": "runPHP",
-			"code": "<?php require '/wordpress/wp-load.php'; update_option('permalink_structure', '/%postname%/'); foreach (get_posts(array('post_type' => array('post', 'page'), 'post_status' => 'any', 'numberposts' => -1)) as $p) { wp_delete_post($p->ID, true); } $mau = '<!-- wp:paragraph --><p>Dữ liệu thử: Dòng mẫu một của bài này. Dòng mẫu hai dài hơn chút cho vừa.</p><!-- /wp:paragraph -->'; wp_insert_post(array('post_type' => 'page', 'post_status' => 'publish', 'post_name' => 'trang-mau-v2', 'post_title' => 'Trang mẫu V2', 'post_content' => $mau)); wp_insert_post(array('post_type' => 'post', 'post_status' => 'publish', 'post_name' => 'bai-viet-mau-v2', 'post_title' => 'Bài viết mẫu V2', 'post_content' => $mau)); foreach (array('ca-dao' => 'Bài mẫu ca dao', 'tuc-ngu' => 'Bài mẫu tục ngữ') as $ma => $ten) { $id = wp_insert_post(array('post_type' => 'page', 'post_status' => 'publish', 'post_name' => 'bai-mau-' . $ma, 'post_title' => $ten, 'post_content' => '<!-- wp:cadao/tac-pham {\"mau\":\"' . $ma . '\"} /-->')); update_post_meta($id, '_wp_page_template', 'tac-pham-mau'); } flush_rewrite_rules(); ?>"
+			"code": "<?php require '/wordpress/wp-load.php'; update_option('permalink_structure', '/%postname%/'); foreach (get_posts(array('post_type' => array('post', 'page'), 'post_status' => 'any', 'numberposts' => -1)) as $p) { wp_delete_post($p->ID, true); } $mau = '<!-- wp:paragraph --><p>Dữ liệu thử: Dòng mẫu một của bài này. Dòng mẫu hai dài hơn chút cho vừa.</p><!-- /wp:paragraph -->'; wp_insert_post(array('post_type' => 'page', 'post_status' => 'publish', 'post_name' => 'trang-mau-v2', 'post_title' => 'Trang mẫu V2', 'post_content' => $mau)); wp_insert_post(array('post_type' => 'post', 'post_status' => 'publish', 'post_name' => 'bai-viet-mau-v2', 'post_title' => 'Bài viết mẫu V2', 'post_content' => $mau)); \\Phongdao\\DichVu\\DungTrang\\GieoMau::gieo(1); flush_rewrite_rules(); ?>"
 		}
 	]
 }

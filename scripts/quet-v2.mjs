@@ -4,7 +4,7 @@
 // mỗi câu của lời một dòng (D-093), không gọi máy chủ ngoài, ngân sách (trang ≤ 200 KB, JavaScript ≤ 21 KB — tính theo
 // dung lượng nén gzip như khi qua Cloudflare; woff2 đã nén sẵn). Cần Node ≥ 24.18 và Chrome/Chromium.
 // Dùng:  npm run quet:v2 [-- --anh <thư-mục>]   (--anh: lưu ảnh chụp 390 px từng trang để xem bằng mắt)
-// Các đợt sau thêm trang vào DS_TRANG khi có mẫu: thể loại, tuyển tập, tìm, từ điển, Bàn biên tập.
+// Các đợt sau thêm trang vào DS_TRANG khi có mẫu: tuyển tập, tìm, từ điển, trang biên tập.
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -33,7 +33,7 @@ const iAnh = process.argv.indexOf('--anh');
 const thuMucAnh = iAnh > 0 ? path.resolve(process.argv[iAnh + 1]) : null;
 if (thuMucAnh) fs.mkdirSync(thuMucAnh, { recursive: true });
 
-const DS_TRANG = ['/', '/trang-mau-v2/', '/bai-mau-ca-dao/', '/bai-mau-tuc-ngu/'];
+const DS_TRANG = ['/', '/trang-mau-v2/', '/ca-dao/dong-mau-mot-cua-bai/', '/tuc-ngu/tuc-ngu-mau-ngan/', '/cau-do/cau-do-mau/', '/kho/', '/the-loai/ca-dao/'];
 const NGAN_SACH = { trang: 200 * 1024, js: 21 * 1024 };
 const CHE_DO = [
   { ten: 'điện thoại · sáng', w: 360, h: 800, toi: false },

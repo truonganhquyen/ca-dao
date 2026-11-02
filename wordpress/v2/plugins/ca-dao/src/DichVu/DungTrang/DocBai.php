@@ -1,0 +1,107 @@
+<?php
+
+namespace Phongdao\DichVu\DungTrang;
+
+use Phongdao\HaTang\KhaiBao;
+use Phongdao\KhoLuu\PhanBai;
+use Phongdao\MienDuLieu\Phan;
+use Phongdao\MienDuLieu\TheTho;
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Lấy dữ liệu một tác phẩm từ WordPress (các phần, phân loại, tên hồ sơ nguồn, tuyển tập chứa bài) rồi giao
+ * cho TrangTacPham dựng. Không đọc phần nguon_may (nội bộ).
+ */
+final class DocBai {
+
+	/** @return array<string,mixed>|null dữ liệu cho GiaoTiep\Khoi\TacPham; null khi không phải tác phẩm có lời */
+	public static function tac_pham( \WP_Post $bai ): ?array {
+		if ( KhaiBao::TAC_PHAM !== $bai->post_type ) {
+			return null;
+		}
+		$phan = self::phan( $bai );
+		$ho_so = array();
+		foreach ( array_merge( array( $phan['loi']['doi_chieu']['ho_so'] ?? 0 ), array_map( static fn( $c ) => $c['nguon']['ho_so'] ?? 0, $phan['chu_thich']['muc'] ?? array() ) ) as $id ) {
+			$hs = $id ? get_post( (int) $id ) : null;
+			if ( $hs && KhaiBao::HO_SO_NGUON === $hs->post_type && 'publish' === $hs->post_status ) {
+				$ho_so[ $hs->ID ] = $hs->post_title;
+			}
+		}
+		$hinh_thuc = self::term( $bai, 'hinh_thuc' );
+		$the_tho   = '';
+		foreach ( $hinh_thuc as $t ) {
+			if ( isset( TheTho::DS[ $t['ma'] ] ) ) {
+				$the_tho = $t['ma'];
+			}
+		}
+		return TrangTacPham::tu_phan(
+			$phan,
+			array(
+				'id'        => $bai->ID,
+				'tieu_de'   => $bai->post_title,
+				'url'       => (string) get_permalink( $bai ),
+				'the_loai'  => self::the_loai( $bai ),
+				'the_tho'   => $the_tho,
+				'hinh_thuc' => implode( ' · ', array_column( $hinh_thuc, 0 ) ),
+				'chu_de'    => self::term( $bai, 'chu_de' ),
+				'vung'      => self::term( $bai, 'vung' ),
+				'tuyen_tap' => self::tuyen_tap( $bai->ID ),
+				'ho_so'     => $ho_so,
+			)
+		);
+	}
+
+	/** Thẻ bài trong danh sách. */
+	public static function the( \WP_Post $bai ): ?array {
+		return TrangTacPham::the(
+			self::phan( $bai ),
+			array(
+				'id'       => $bai->ID,
+				'tieu_de'  => $bai->post_title,
+				'url'      => (string) get_permalink( $bai ),
+				'the_loai' => self::the_loai( $bai ),
+			)
+		);
+	}
+
+	public static function the_loai( \WP_Post $bai ): ?string {
+		$t = get_the_terms( $bai, KhaiBao::THE_LOAI );
+		return is_array( $t ) && $t ? $t[0]->slug : null;
+	}
+
+	/** Các phần hiển thị (bỏ nguon_may ngay từ đây). */
+	private static function phan( \WP_Post $bai ): array {
+		$ra = array();
+		foreach ( Phan::ds( $bai->post_type ) as $p ) {
+			if ( 'nguon_may' !== $p ) {
+				$ra[ $p ] = PhanBai::lay( $bai->ID, $p );
+			}
+		}
+		return $ra;
+	}
+
+	/** @return array<int,array{0:string,1:string,ma:string}> [tên, đường dẫn] mỗi mục phân loại */
+	private static function term( \WP_Post $bai, string $phan_loai ): array {
+		$ra = array();
+		foreach ( get_the_terms( $bai, $phan_loai ) ?: array() as $t ) {
+			if ( $t instanceof \WP_Term ) {
+				$url  = get_term_link( $t );
+				$ra[] = array( $t->name, is_string( $url ) ? $url : '', 'ma' => $t->slug );
+			}
+		}
+		return $ra;
+	}
+
+	/** Tuyển tập đã đăng có bài này (vài chục tuyển tập, đọc thẳng meta). */
+	private static function tuyen_tap( int $id ): array {
+		$ra = array();
+		foreach ( get_posts( array( 'post_type' => KhaiBao::TUYEN_TAP, 'post_status' => 'publish', 'numberposts' => 200, 'orderby' => 'title', 'order' => 'ASC' ) ) as $tt ) {
+			$muc = PhanBai::lay( $tt->ID, 'muc' )['muc'] ?? array();
+			if ( in_array( $id, array_map( 'intval', array_column( $muc, 'tac_pham_id' ) ), true ) ) {
+				$ra[] = array( $tt->post_title, (string) get_permalink( $tt ) );
+			}
+		}
+		return $ra;
+	}
+}
