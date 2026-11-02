@@ -2,6 +2,7 @@
 
 namespace Phongdao\HaTang;
 
+use Phongdao\DichVu\ChiMucTim\ChiMucTim;
 use Phongdao\KhoLuu\Viec;
 use Phongdao\MienDuLieu\TheLoai;
 
@@ -13,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class CaiDat implements Module {
 
-	public const PHIEN_BAN_CSDL = 2;
+	public const PHIEN_BAN_CSDL = 3;
 
 	/** Tuỳ chọn lưu phiên bản lược đồ đã cài. */
 	public const TUY_CHON = 'phongdao_csdl';
@@ -34,6 +35,9 @@ final class CaiDat implements Module {
 		if ( $da_cai < 2 ) {
 			self::buoc_2();
 		}
+		if ( $da_cai < 3 ) {
+			self::buoc_3();
+		}
 		update_option( self::TUY_CHON, self::PHIEN_BAN_CSDL, false );
 	}
 
@@ -49,5 +53,13 @@ final class CaiDat implements Module {
 			}
 		}
 		flush_rewrite_rules( false );
+	}
+
+	/** Bước 3: bảng chỉ mục tìm (cùng cấu trúc bảng MVP), dựng lại chỉ mục từ các phần đã lưu. */
+	private static function buoc_3(): void {
+		global $wpdb;
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		dbDelta( ChiMucTim::sql_tao( ChiMucTim::bang(), $wpdb->get_charset_collate() ) );
+		ChiMucTim::bat_dau_dung_lai();
 	}
 }

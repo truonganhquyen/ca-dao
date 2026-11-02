@@ -8,7 +8,7 @@ use Phongdao\HaTang\KhoiDong;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * REST phongdao/v1 cho Bàn biên tập (docs/26 mục 5). Mọi route kiểm quyền; route ghi kiểm thêm nonce.
+ * REST phongdao/v1 (docs/26 mục 5). Route biên tập kiểm quyền và nonce; route người đọc công khai, chỉ đọc hoặc chống rác.
  */
 final class Module implements \Phongdao\HaTang\Module {
 
@@ -30,6 +30,22 @@ final class Module implements \Phongdao\HaTang\Module {
 					'csdl'      => (int) get_option( CaiDat::TUY_CHON, 0 ),
 					'module'    => count( KhoiDong::MODULE ),
 				),
+			)
+		);
+		// Người đọc: kết quả tìm khi gõ (cùng HTML trang /tim/ in ra; công khai, chỉ đọc, không ghi gì)
+		register_rest_route(
+			self::KHONG_GIAN,
+			'/tim',
+			array(
+				'methods'             => 'GET',
+				'permission_callback' => '__return_true',
+				'args'                => array(
+					'q' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+				),
+				'callback'            => static fn( \WP_REST_Request $yc ): array => array( 'html' => \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( (string) $yc['q'] ) ),
 			)
 		);
 	}

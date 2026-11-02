@@ -18,8 +18,10 @@ final class KhoiDong {
 		CaiDat::class,
 		DichVu\LuuPhan\GanHinhThuc::class,
 		DichVu\DungTrang\DuLieuTrangChu::class,
+		DichVu\ChiMucTim\ChiMucTim::class,
 		GiaoTiep\Rest\Module::class,
 		GiaoTiep\Khoi\Module::class,
+		GiaoTiep\TrangCoDinh\Module::class,
 		GiaoTiep\Cli\Module::class,
 		GiaoTiep\QuanTri\Module::class,
 	);
