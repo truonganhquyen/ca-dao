@@ -32,7 +32,7 @@
 
   // Lời của bài: các câu (bỏ số dòng), câu lục thụt vào bằng khoảng trắng không ngắt
   const loiBai = (khung = document) => {
-    const v = $('.verse-card .verse', khung) || $('.read-title .verse');
+    const v = $('.verse-card .verse, .today-card .verse', khung) || $('.read-title .verse');
     if (!v) return [];
     const luc = v.classList.contains('lucbat');
     return $$('.line', v).map((l, i) => (luc && i % 2 === 0 ? '    ' : '') + [...l.childNodes].filter(n => !(n.classList && n.classList.contains('ln'))).map(n => n.textContent).join('').replace(/\s+/g, ' ').trim());
@@ -59,6 +59,15 @@
   const daLuu = () => doc('phongdao-da-luu') || [];
   $$('[data-action=save]').forEach(b => { if (daLuu().includes(b.dataset.id)) { b.setAttribute('aria-pressed', 'true'); $('.nhan', b).textContent = 'Đã lưu'; } });
 
+  // Bạn là: chỉ đổi thứ tự khối trang chủ, nhớ trên máy (D-087); tắt JavaScript thì thanh này ẩn sẵn
+  const THU_TU = { 'Phụ huynh': [4, 7, 5, 6, 8], 'Giáo viên': [5, 4, 7, 6, 8], 'Yêu văn hoá': [5, 7, 4, 6, 8] };
+  const vai = v => {
+    const goc = $('#role-sections'); if (!goc) return;
+    (THU_TU[v] || [4, 5, 6, 7, 8]).forEach(n => { const k = $(`[data-home-block="${n}"]`, goc); if (k) goc.append(k); });
+    $$('[data-action=role]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.value === v)));
+  };
+  const thanhVai = $('.role-bar'); if (thanhVai) { thanhVai.hidden = false; vai((doc('phongdao-vai') || {}).vai); }
+
   // Liên kết tới khối thu gọn (#di-ban, #tu-lieu…) thì mở khối
   const mo = id => { const t = id && document.getElementById(id); if (!t) return false; for (let d = t.closest('details'); d; d = d.parentElement.closest('details')) d.open = true; if (t.tagName === 'DETAILS') t.open = true; t.scrollIntoView({ block: 'start' }); return true; };
   if (location.hash) mo(location.hash.slice(1));
@@ -71,7 +80,12 @@
     const viec = b.dataset.action;
     if (viec === 'theme') datGiaoDien(dangToi() ? 'light' : 'dark');
     else if (viec === 'size') { coChu(+b.dataset.size); if (!ghi('phongdao-co-chu', +b.dataset.size)) bao('Không lưu được cỡ chữ trên trình duyệt này.'); }
-    else if (viec === 'copy-loi') chep(loiBai(b.closest('.verse-card') || document).join('\n') + '\n— ' + (($('.work-head .tag-pill') || {}).textContent || '').split('·')[0].trim() + ' · Thư viện Văn học Dân gian Việt Nam\n' + b.dataset.url, 'Đã sao chép lời và đường dẫn bài.');
+    else if (viec === 'copy-loi') {
+      const tl = b.dataset.theLoai || (($('.work-head .tag-pill') || {}).textContent || '').split('·')[0].trim();
+      chep(loiBai(b.closest('.verse-card, .today-card') || document).join('\n') + '\n— ' + (tl ? tl + ' · ' : '') + 'Thư viện Văn học Dân gian Việt Nam\n' + b.dataset.url, 'Đã sao chép lời và đường dẫn bài.');
+    }
+    else if (viec === 'role') { ghi('phongdao-vai', { vai: b.dataset.value }); vai(b.dataset.value); }
+    else if (viec === 'role-reset') { ghi('phongdao-vai', {}); vai(null); }
     else if (viec === 'copy-link') chep(b.dataset.url, 'Đã sao chép liên kết.');
     else if (viec === 'save') {
       const ds = daLuu(), co = ds.includes(b.dataset.id), moi = co ? ds.filter(x => x !== b.dataset.id) : [...ds, b.dataset.id];
