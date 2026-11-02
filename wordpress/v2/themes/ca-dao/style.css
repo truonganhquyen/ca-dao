@@ -1,0 +1,21 @@
+/*
+Theme Name:        Phongdao
+Description:       Theme khối V2 của Thư viện Văn học Dân gian Việt Nam: chỉ lo cách hiển thị; dữ liệu và khối cadao/* nằm ở plugin. Hình ảnh theo bộ thiết kế design/v2/ (D-092, D-093) trong repo ca-dao.
+Version:           0.1.0
+Requires at least: 6.8
+Requires PHP:      8.3
+Author:            Dự án Thư viện Văn học Dân gian Việt Nam
+Author URI:        https://github.com/truonganhquyen/ca-dao
+License:           MIT
+Text Domain:       ca-dao
+*/
+
+/* Khung trống (T-141). Token, thang chữ, đầu / chân trang, thanh thể loại, thanh dưới: T-146 theo design/v2/tokens. */
+body {
+	-webkit-text-size-adjust: 100%;
+}
+
+:where(.wp-site-blocks) :focus-visible {
+	outline: 3px solid var(--wp--preset--color--tim);
+	outline-offset: 3px;
+}

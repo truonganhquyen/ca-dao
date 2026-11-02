@@ -1,0 +1,41 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/theme.json",
+	"version": 3,
+	"settings": {
+		"appearanceTools": true,
+		"color": {
+			"defaultPalette": false,
+			"defaultGradients": false,
+			"palette": [
+				{ "slug": "giay", "color": "#FEFCF8", "name": "Giấy" },
+				{ "slug": "the", "color": "#FFFFFF", "name": "Thẻ" },
+				{ "slug": "muc", "color": "#14120F", "name": "Mực" },
+				{ "slug": "nhat", "color": "#5A5652", "name": "Chữ phụ" },
+				{ "slug": "tim", "color": "#5E3AAE", "name": "Tím" },
+				{ "slug": "luc", "color": "#1F6B4A", "name": "Lục" },
+				{ "slug": "to", "color": "#FFF3B0", "name": "Tô vàng" }
+			]
+		},
+		"layout": { "contentSize": "38em", "wideSize": "1040px" },
+		"typography": {
+			"defaultFontSizes": false,
+			"fontFamilies": [
+				{ "slug": "doc", "name": "Chữ đọc", "fontFamily": "Literata, Georgia, serif" },
+				{ "slug": "giao-dien", "name": "Chữ giao diện", "fontFamily": "\"Be Vietnam Pro\", system-ui, sans-serif" }
+			]
+		}
+	},
+	"styles": {
+		"color": { "background": "var(--wp--preset--color--giay)", "text": "var(--wp--preset--color--muc)" },
+		"typography": { "fontFamily": "var(--wp--preset--font-family--giao-dien)", "fontSize": "17px", "lineHeight": "1.65" },
+		"spacing": { "padding": { "left": "16px", "right": "16px" } },
+		"elements": {
+			"link": { "color": { "text": "var(--wp--preset--color--tim)" } },
+			"heading": { "typography": { "fontFamily": "var(--wp--preset--font-family--doc)", "fontWeight": "500" } }
+		}
+	},
+	"templateParts": [
+		{ "name": "dau-trang", "title": "Đầu trang", "area": "header" },
+		{ "name": "chan-trang", "title": "Chân trang", "area": "footer" }
+	]
+}

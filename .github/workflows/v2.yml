@@ -1,0 +1,50 @@
+name: V2
+
+# Khung V2 xây song song trong wordpress/v2/ (docs/26 mục 13): chỉ chạy khi chạm mã V2 hoặc lệnh kiểm của V2.
+on:
+  pull_request:
+    paths:
+      - 'wordpress/v2/**'
+      - 'scripts/test-v2.mjs'
+      - 'scripts/quet-v2.mjs'
+      - 'package.json'
+      - '.github/workflows/v2.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'wordpress/v2/**'
+      - 'scripts/test-v2.mjs'
+      - 'scripts/quet-v2.mjs'
+      - 'package.json'
+      - '.github/workflows/v2.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  v2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lấy mã nguồn
+        uses: actions/checkout@v4
+
+      - name: Cài Node.js (theo .node-version; Playground cần Node ≥ 24.18)
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      # Máy CI có sẵn PHP 8.3 (mức tối thiểu của V2); bộ kiểm thuần cần intl (Normalizer)
+      - name: PHP 8.3 có intl
+        run: |
+          php -v
+          php -r 'exit(class_exists("Normalizer") ? 0 : 1);' || sudo apt-get install -y php-intl
+
+      - name: Cài gói (axe-core, puppeteer-core cho bước quét)
+        run: npm ci
+
+      - name: Kiểm thử V2 (PHP thuần + Playground)
+        run: npm run test:v2
+
+      - name: Quét trợ năng, ngân sách V2 (WCAG 2.2 AA)
+        run: npm run quet:v2

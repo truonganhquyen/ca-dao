@@ -41,7 +41,7 @@ design/v2/                 bộ thiết kế UX/UI bản cuối (D-092): mã ngu
 - **Lúc chuyển** (`docs/29`): một PR chuyển `wordpress/v2/plugins/ca-dao` → `wordpress/plugins/ca-dao` (và theme tương tự), xoá mã MVP khỏi cây (lịch sử Git vẫn giữ), đổi lệnh npm mặc định sang V2, chuyển `docs/20`, `docs/24` vào `docs/luu-tru/`.
 - Tên thư mục giữ `ca-dao` để kịch bản máy chủ không phải đổi (AGENTS.md, KHÔNG BAO GIỜ 15). Tên hiển thị của plugin: "Phongdao — Thư viện Văn học Dân gian Việt Nam"; theme: "Phongdao".
 - Phiên bản: plugin và theme V2 bắt đầu `0.1.0`, tăng ở mỗi PR (AGENTS.md); PR chuyển đổi đặt `1.0.0`. Giữ hằng số `CADAO_PHIEN_BAN` và tệp `assets/ca-dao.js` (hoặc sửa `scripts/lib/phien-ban.mjs` trong PR chuyển đổi) để `npm run kiem-site-that` tiếp tục đúng.
-- PHP: đo phiên bản PHP của máy chủ ở T-141 (qua WP-CLI khi được đồng ý, hoặc người sáng lập xem FlashPanel); viết mã cho phiên bản đó, không thấp hơn 8.1.
+- PHP: đo phiên bản PHP của máy chủ ở T-141 (qua WP-CLI khi được đồng ý, hoặc người sáng lập xem FlashPanel); viết mã cho phiên bản đó, không thấp hơn 8.1. **Kết quả (T-141, 02/11/2026):** máy chủ chạy PHP 8.5 (người sáng lập chọn trong FlashPanel ở T-075, `docs/24` mục 6; tiêu đề HTTP không lộ số); V2 khai `Requires PHP: 8.3` — không dùng cú pháp chỉ có từ 8.4; máy CI có sẵn 8.3 cho bộ kiểm thuần, Playground kiểm ở 8.3.
 
 ## 3. Cấu trúc plugin V2
 
