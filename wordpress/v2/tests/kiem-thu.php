@@ -8,9 +8,18 @@ require_once '/wordpress/wp-load.php';
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
 use Phongdao\DichVu\DungTrang\DuLieuMau;
+use Phongdao\DichVu\LuuPhan\LuuPhan;
 use Phongdao\GiaoTiep\Khoi\TacPham;
 use Phongdao\HaTang\CaiDat;
+use Phongdao\HaTang\KhaiBao;
 use Phongdao\HaTang\KhoiDong;
+use Phongdao\KhoLuu\PhanBai;
+use Phongdao\KhoLuu\Viec;
+use Phongdao\MienDuLieu\CapChatLuong;
+use Phongdao\MienDuLieu\KiemPhan;
+use Phongdao\MienDuLieu\NguoiLam;
+use Phongdao\MienDuLieu\Phan;
+use Phongdao\MienDuLieu\TheLoai;
 
 // Playground không in đầu ra của bước runPHP: ghi từng dòng kết quả ra tệp (kể cả khi lỗi giữa chừng)
 const V2_TEP_KQ = '/repo/tests/.ket-qua.txt';
@@ -64,11 +73,83 @@ wp_set_current_user( $quan_tri ? $quan_tri->ID : 0 );
 $tl = rest_do_request( new WP_REST_Request( 'GET', '/phongdao/v1/suc-khoe' ) );
 kt( 'quản trị đọc được suc-khoe, đúng phiên bản', 200 === $tl->get_status() && CADAO_PHIEN_BAN === ( $tl->get_data()['phien_ban'] ?? null ), $tl->get_data() );
 
-// ---------- Bàn biên tập (menu) ----------
+// ---------- Menu Phongdao (Nguồn & cài đặt, D-094) ----------
 global $menu;
 $menu = is_array( $menu ) ? $menu : array();
 ( new \Phongdao\GiaoTiep\QuanTri\Module() )->them_menu();
 kt( 'menu quản trị có mục Phongdao', in_array( 'phongdao', array_column( $menu, 2 ), true ) );
+
+// ---------- Mô hình dữ liệu: loại bài, phân loại, phần của bài, bảng việc (D-094, docs/26 mục 4) ----------
+$thieu = array_values( array_filter( array( KhaiBao::TAC_PHAM, KhaiBao::TUYEN_TAP, KhaiBao::PHAN_TICH, KhaiBao::GOP_Y, KhaiBao::HO_SO_NGUON ), static fn( $l ) => ! post_type_exists( $l ) ) );
+kt( 'đủ loại bài: tác phẩm, tuyển tập, bài phân tích, góp ý, hồ sơ nguồn', array() === $thieu, $thieu );
+kt( 'tác phẩm: không trình soạn khối, không REST mặc định, không bản sửa (lịch sử ở bảng việc)', ! post_type_supports( KhaiBao::TAC_PHAM, 'editor' ) && ! get_post_type_object( KhaiBao::TAC_PHAM )->show_in_rest && ! post_type_supports( KhaiBao::TAC_PHAM, 'revisions' ) );
+kt( 'hồ sơ nguồn, góp ý không công khai', ! get_post_type_object( KhaiBao::HO_SO_NGUON )->public && ! get_post_type_object( KhaiBao::GOP_Y )->public );
+$thieu = array_values( array_filter( array_keys( KhaiBao::PHAN_LOAI ), static fn( $t ) => ! is_object_in_taxonomy( KhaiBao::TAC_PHAM, $t ) ) );
+kt( 'đủ 7 phân loại của tác phẩm (thể loại, chủ đề, vùng, mô-típ, hình thức, mục từ, trò chơi)', array() === $thieu, $thieu );
+$thieu = array_values( array_filter( array_keys( TheLoai::DS ), static fn( $ma ) => ! term_exists( $ma, KhaiBao::THE_LOAI ) ) );
+kt( 'đã tạo 5 thể loại cố định', array() === $thieu, $thieu );
+$meta  = get_registered_meta_keys( 'post', KhaiBao::TAC_PHAM );
+$thieu = array_values( array_filter( Phan::ds( 'tac_pham' ), static fn( $p ) => ! isset( $meta[ Phan::khoa( $p ) ] ) || false !== $meta[ Phan::khoa( $p ) ]['show_in_rest'] ) );
+kt( 'mọi phần của tác phẩm có khoá meta đã khai báo, không mở qua REST', array() === $thieu, $thieu );
+global $wpdb;
+$wpdb->suppress_errors( true );
+$dem_bang = $wpdb->get_var( 'SELECT COUNT(*) FROM ' . Viec::bang() );
+$wpdb->suppress_errors( false );
+kt( 'đã tạo bảng wp_cadao_viec', null !== $dem_bang, $wpdb->last_error );
+
+$id = wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_title' => 'Dòng mẫu một', 'post_name' => 'dong-mau-mot', 'post_status' => 'publish' ) );
+wp_set_object_terms( $id, 'ca-dao', KhaiBao::THE_LOAI );
+clean_post_cache( $id );
+$url = (string) get_permalink( $id );
+kt( 'đường dẫn tác phẩm /<thể loại>/<tên>/', str_ends_with( $url, '/ca-dao/dong-mau-mot/' ), $url );
+kt( 'đường dẫn tác phẩm mở đúng bài (luật viết lại)', $id === url_to_postid( $url ), url_to_postid( $url ) );
+
+$ai_ql  = $quan_tri ? $quan_tri->ID : 1;
+$nc     = array( 'nguoi' => $ai_ql, 'goi' => KiemPhan::GOI_NGUOI );
+$loi    = array( 'dong' => array( 'Dòng mẫu một của bài', 'Có "ngoặc" và \\ gạch, <b>thẻ</b>' ), 'nguoi_lam' => NguoiLam::NGUOI_VIET );
+$kq     = LuuPhan::luu( $id, 'loi', $loi, $nc );
+$da_luu = PhanBai::lay( $id, 'loi' );
+kt( 'lưu lời: vào bài, giữ đúng từng ký tự (cả ", \\, <)', $kq['ok'] && $kq['doi'] && $loi['dong'] === ( $da_luu['dong'] ?? null ), array( $kq, $da_luu ) );
+kt( 'lưu lời: ghi người sửa, giờ sửa', $ai_ql === ( $da_luu['sua_boi'] ?? null ) && (bool) preg_match( '/^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d$/', (string) ( $da_luu['sua_luc'] ?? '' ) ) );
+$nk = Viec::lay( $kq['viec'] );
+kt( 'mỗi lần lưu một dòng nhật ký: phần, trước (chưa có), sau, người', $nk && Viec::SUA === $nk['loai'] && Viec::XONG === $nk['trang_thai'] && 'loi' === $nk['phan'] && null === $nk['truoc'] && $loi['dong'] === $nk['sau']['dong'] && $ai_ql === $nk['nguoi_quyet'], $nk );
+$than = (string) get_post_field( 'post_content', $id );
+kt( 'bản chữ post_content có lời, chữ được thoát', str_contains( $than, 'Dòng mẫu một của bài' ) && ! str_contains( $than, '<b>' ), $than );
+
+$dem = count( Viec::lich_su( 'post', $id ) );
+$kq  = LuuPhan::luu( $id, 'loi', $loi, $nc );
+kt( 'lưu lại y như cũ: không ghi, không thêm nhật ký', $kq['ok'] && ! $kq['doi'] && count( Viec::lich_su( 'post', $id ) ) === $dem );
+$yn_ai = array( 'chu' => 'Ý nghĩa mẫu.', 'ai' => true, 'nguoi_lam' => NguoiLam::AI_DA_DUYET );
+$kq    = LuuPhan::luu( $id, 'y_nghia', $yn_ai, $nc );
+kt( 'ý nghĩa có hỗ trợ AI, không có quyền duyệt: không vào bài, không ghi nhật ký', ! $kq['ok'] && null === PhanBai::lay( $id, 'y_nghia' ) && count( Viec::lich_su( 'post', $id ) ) === $dem, $kq );
+$kq_duyet = LuuPhan::luu( $id, 'y_nghia', $yn_ai, array( 'duyet' => true ) + $nc );
+$yn       = PhanBai::lay( $id, 'y_nghia' );
+kt( 'người có quyền duyệt bấm: vào bài, ghi người duyệt và giờ duyệt', $kq_duyet['ok'] && $ai_ql === ( $yn['duyet_boi'] ?? null ) && ! empty( $yn['duyet_luc'] ), $yn );
+kt( 'cấp chất lượng: lời + thể loại + ý nghĩa = L2', 2 === CapChatLuong::tinh( PhanBai::tat_ca( $id, KhaiBao::TAC_PHAM ), 'ca-dao' ) );
+
+$kq = LuuPhan::luu( $id, 'y_nghia', array( 'chu' => 'Ý nghĩa sửa.', 'nguoi_lam' => NguoiLam::NGUOI_VIET ), $nc );
+$ht = LuuPhan::khoi_phuc( $kq['viec'], array( 'duyet' => true ) + $nc );
+kt( 'hoàn tác: về đúng bản trước (kể cả người duyệt), ghi thêm một dòng "khoi_phuc"', $ht['ok'] && $yn === PhanBai::lay( $id, 'y_nghia' ) && 'khoi_phuc' === ( Viec::lay( $ht['viec'] )['quyet'] ?? '' ), $ht );
+$kq = LuuPhan::luu( $id, 'y_nghia', array( 'chu' => 'Ý nghĩa sửa lần hai.', 'nguoi_lam' => NguoiLam::NGUOI_VIET ), $nc );
+$ht = LuuPhan::khoi_phuc( $kq['viec'], $nc );
+kt( 'khôi phục bản có hỗ trợ AI cũng cần quyền duyệt', ! $ht['ok'] && 'Ý nghĩa sửa lần hai.' === ( PhanBai::lay( $id, 'y_nghia' )['chu'] ?? '' ), $ht );
+$kq = LuuPhan::luu( $id, 'y_nghia', null, $nc );
+$nk = Viec::lay( $kq['viec'] );
+kt( 'xoá một phần: bỏ khỏi bài, nhật ký ghi "xoa" kèm bản trước', $kq['ok'] && null === PhanBai::lay( $id, 'y_nghia' ) && 'xoa' === $nk['quyet'] && 'Ý nghĩa sửa lần hai.' === ( $nk['truoc']['chu'] ?? '' ), $nk );
+
+$kq = LuuPhan::luu( $id, 'chu_thich', array( array( 'tu' => 'mẫu', 'loi_giai' => 'Lời giải mẫu.', 'nguoi_lam' => NguoiLam::MAY_CHEP, 'nguon' => array( 'ho_so' => 1, 'trang' => '3' ) ) ), array( 'nguoi' => 0, 'goi' => KiemPhan::GOI_MAY ) );
+kt( 'máy điền trang của nguồn → không lưu', ! $kq['ok'] && null === PhanBai::lay( $id, 'chu_thich' ), $kq );
+$kq = LuuPhan::luu( $id, 'nguon_may', array( 'nguon_id' => 'nguon-mau', 'url_goc' => 'https://example.org/goc' ), array( 'nguoi' => 0, 'goi' => KiemPhan::GOI_MAY ) );
+kt( 'máy ghi địa chỉ gốc đã lấy (nội bộ), không vào bản chữ', $kq['ok'] && ! str_contains( (string) get_post_field( 'post_content', $id ), 'example.org' ), $kq );
+kt( 'phần riêng của thể loại khác → không lưu (nghĩa đen cho ca dao)', ! LuuPhan::luu( $id, 'nghia_den', array( 'chu' => 'x', 'nguoi_lam' => NguoiLam::NGUOI_VIET ), $nc )['ok'] );
+$trang = wp_insert_post( array( 'post_type' => 'page', 'post_title' => 'Trang mẫu', 'post_status' => 'publish' ) );
+kt( 'trang tĩnh không có phần → không lưu', ! LuuPhan::luu( $trang, 'loi', $loi, $nc )['ok'] );
+
+kt( 'lần sửa trực tiếp không thành việc chờ', array() === Viec::ds_cho() );
+$v   = Viec::tao( array( 'loai' => 'nhap_y_nghia', 'doi_tuong_loai' => 'post', 'doi_tuong_id' => $id, 'phan' => 'y_nghia', 'noi_dung' => array( 'nhap' => 'Nháp “mẫu” \\ ổn' ), 'nguoi_tao' => 'may', 'uu_tien' => 5 ) );
+$cho = Viec::ds_cho();
+kt( 'việc chờ: thêm và đọc lại đúng (chữ có dấu, ngoặc, dấu \\)', $v > 0 && 1 === count( $cho ) && 'Nháp “mẫu” \\ ổn' === ( $cho[0]['noi_dung']['nhap'] ?? '' ), $cho );
+kt( 'nháp ở bảng việc không vào bài', null === PhanBai::lay( $id, 'y_nghia' ) );
 
 // ---------- Theme ----------
 $mau = array_map( static fn( $t ) => $t->slug, get_block_templates() );

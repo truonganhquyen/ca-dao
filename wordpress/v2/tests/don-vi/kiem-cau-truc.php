@@ -20,12 +20,13 @@ foreach ( array_merge( tep_php( $plugin ), tep_php( $theme ), tep_php( V2_GOC . 
 kt( 'mọi tệp PHP của plugin, theme, kiểm thử đúng cú pháp', array() === $loi_cu_phap, $loi_cu_phap );
 
 $thieu = array();
-foreach ( array( 'ca-dao.php', 'src/tu-nap.php', 'src/MienDuLieu', 'src/KhoLuu', 'src/DichVu', 'src/GiaoTiep/Rest', 'src/GiaoTiep/Khoi', 'src/GiaoTiep/Cli', 'src/GiaoTiep/QuanTri', 'src/HaTang', 'khoi', 'quan-tri/src', 'quan-tri/build', 'assets' ) as $duong ) {
+foreach ( array( 'ca-dao.php', 'src/tu-nap.php', 'src/MienDuLieu', 'src/KhoLuu', 'src/DichVu/LuuPhan', 'src/GiaoTiep/Rest', 'src/GiaoTiep/Khoi', 'src/GiaoTiep/Cli', 'src/GiaoTiep/QuanTri', 'src/HaTang', 'khoi', 'assets' ) as $duong ) {
 	if ( ! file_exists( "$plugin/$duong" ) ) {
 		$thieu[] = $duong;
 	}
 }
 kt( 'cây thư mục plugin đúng docs/26 mục 3', array() === $thieu, $thieu );
+kt( 'không còn thư mục ứng dụng React quan-tri/ (D-094: không bước dựng JavaScript)', ! file_exists( "$plugin/quan-tri" ) );
 $thieu = array_values( array_filter( array( 'style.css', 'theme.json', 'functions.php', 'templates/index.html', 'templates/page.html', 'templates/tac-pham-mau.html', 'parts/dau-trang.html', 'parts/chan-trang.html', 'assets/giao-dien.css', 'assets/fit.js', 'assets/doc.js', 'assets/fonts/literata-400-vietnamese.woff2', 'assets/fonts/OFL-literata.txt' ), static fn( $t ) => ! file_exists( "$theme/$t" ) ) );
 kt( 'theme khối có đủ tệp: mẫu trang, phần đầu / chân, giao diện, fit.js, doc.js, phông và giấy phép OFL', array() === $thieu, $thieu );
 

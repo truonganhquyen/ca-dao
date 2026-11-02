@@ -5,7 +5,7 @@ namespace Phongdao\GiaoTiep\QuanTri;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Mục menu "Phongdao" mở Bàn biên tập (ứng dụng React ở quan-tri/, T-152; docs/28 mục 4).
+ * Mục menu "Phongdao" trong wp-admin: trang Nguồn & cài đặt và đường tắt tới Hộp việc (D-094; docs/28 mục 4.7, T-155).
  */
 final class Module implements \Phongdao\HaTang\Module {
 
@@ -20,7 +20,7 @@ final class Module implements \Phongdao\HaTang\Module {
 	}
 
 	public function hien(): void {
-		echo '<div class="wrap"><h1>' . esc_html__( 'Bàn biên tập Phongdao', 'ca-dao' ) . '</h1>';
-		echo '<div id="phongdao-ung-dung"><p>' . esc_html__( 'Bàn biên tập đang được xây (đợt 3).', 'ca-dao' ) . '</p></div></div>';
+		echo '<div class="wrap"><h1>' . esc_html__( 'Nguồn & cài đặt', 'ca-dao' ) . '</h1>';
+		echo '<p>' . esc_html__( 'Trang này và Hộp việc đang được xây (đợt 3).', 'ca-dao' ) . '</p></div>';
 	}
 }

@@ -91,11 +91,26 @@ try {
       if (tl.status() !== 200) loi.push(`${duong} (${c.ten}): trả ${tl.status()}`);
       if (ngoai.size) loi.push(`${duong} (${c.ten}): gọi máy chủ ngoài ${[...ngoai].join(', ')}`);
       await tab.evaluate(() => document.querySelectorAll('details').forEach(d => { d.open = true; }));
-      const ngang = await tab.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
-      if (ngang > 1) loi.push(`${duong} (${c.ten}): trang tràn ngang ${ngang}px`);
+      // Tràn ngang: đo lúc vừa tải và sau khi phông nạp xong; báo phần tử vượt mép phải để biết chỗ sửa.
+      // Chờ hai khung hình rồi mới đo: fit.js co chữ trong requestAnimationFrame (trước khi vẽ), nên đo giữa hai
+      // khung hình là đo trạng thái không bao giờ hiện trên màn hình.
+      const tran = () => tab.evaluate(async () => {
+        await new Promise(ok => requestAnimationFrame(() => requestAnimationFrame(ok)));
+        const w = document.documentElement.clientWidth, du = document.documentElement.scrollWidth - w;
+        if (du <= 1) return null;
+        const ten = e => e.tagName.toLowerCase() + (typeof e.className === 'string' && e.className.trim() ? '.' + e.className.trim().split(/\s+/).join('.') : '');
+        // Bỏ phần tử nằm trong khung tự cuộn / cắt (thanh thể loại…): chúng không làm trang rộng ra
+        const trongKhung = e => { for (let p = e.parentElement; p && p !== document.body; p = p.parentElement) if (getComputedStyle(p).overflowX !== 'visible') return true; return false; };
+        const vuot = [...document.querySelectorAll('body *')].filter(e => e.getBoundingClientRect().right > w + 1 && !trongKhung(e) && ![...e.children].some(x => x.getBoundingClientRect().right > w + 1 && !trongKhung(x)));
+        return `${du}px — ${vuot.slice(0, 3).map(e => `${ten(e)} (${Math.round(e.getBoundingClientRect().right)}px)`).join(', ') || 'không rõ phần tử'}`;
+      });
+      const tranLucTai = await tran();
       // Mỗi câu một dòng: không khối lời nào phải xuống dòng dự phòng, không dòng nào bị gãy
       await tab.evaluate(() => document.fonts.ready);
       await new Promise(ok => setTimeout(ok, 150));
+      const tranSau = await tran();
+      if (tranLucTai) loi.push(`${duong} (${c.ten}): trang tràn ngang lúc vừa tải ${tranLucTai}`);
+      if (tranSau) loi.push(`${duong} (${c.ten}): trang tràn ngang sau khi nạp phông ${tranSau}`);
       const gay = await tab.evaluate(() => {
         const dong = el => { const s = new Set(); const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); let t; while ((t = w.nextNode())) { if (!t.textContent.trim() || t.parentElement.closest('.ln')) continue; const r = document.createRange(); r.selectNodeContents(t); for (const x of r.getClientRects()) if (x.width > 1) s.add(Math.round((x.top + x.height / 2) / 6)); } return s.size; };
         const o = [];
