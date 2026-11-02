@@ -3,6 +3,9 @@
 namespace Phongdao\HaTang;
 
 use Phongdao\DichVu\ChiMucTim\ChiMucTim;
+use Phongdao\DichVu\NhapNguon\NguonTuDong;
+use Phongdao\KhoLuu\HoSo;
+use Phongdao\KhoLuu\Kho;
 use Phongdao\KhoLuu\Viec;
 use Phongdao\MienDuLieu\TheLoai;
 
@@ -14,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class CaiDat implements Module {
 
-	public const PHIEN_BAN_CSDL = 3;
+	public const PHIEN_BAN_CSDL = 4;
 
 	/** Tuỳ chọn lưu phiên bản lược đồ đã cài. */
 	public const TUY_CHON = 'phongdao_csdl';
@@ -37,6 +40,9 @@ final class CaiDat implements Module {
 		}
 		if ( $da_cai < 3 ) {
 			self::buoc_3();
+		}
+		if ( $da_cai < 4 ) {
+			self::buoc_4();
 		}
 		update_option( self::TUY_CHON, self::PHIEN_BAN_CSDL, false );
 	}
@@ -61,5 +67,35 @@ final class CaiDat implements Module {
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( ChiMucTim::sql_tao( ChiMucTim::bang(), $wpdb->get_charset_collate() ) );
 		ChiMucTim::bat_dau_dung_lai();
+	}
+
+	/**
+	 * Bước 4: kho thu thập (cùng cấu trúc bảng MVP), hồ sơ nguồn Ca dao Mẹ, nguồn tự động Ca dao Mẹ (TẮT — người quản trị
+	 * tự bật; cấu hình MVP còn thì giữ). Chính sách hiện mặc định như hiện nay: nguồn chú thích chép ẩn (D-068, D-085);
+	 * xin phép: chưa (thư chưa gửi).
+	 */
+	private static function buoc_4(): void {
+		global $wpdb;
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		dbDelta( Kho::sql_tao( Kho::bang(), $wpdb->get_charset_collate() ) );
+		KhaiBao::khai_bao();
+		$ho_so = HoSo::tao(
+			'cadao-me',
+			'Ca dao Mẹ',
+			array(
+				'loai'            => 'web',
+				'url'             => 'https://cadao.me',
+				'ghi_cong'        => 'Ca dao Mẹ (cadao.me)',
+				'xin_phep'        => 'chua',
+				'chinh_sach_hien' => 'an',
+				'chep_chu_thich'  => true,
+			)
+		);
+		NguonTuDong::tao_mac_dinh( $ho_so );
+		$nguon = NguonTuDong::lay( 'cadao-me' );
+		if ( $nguon && empty( $nguon['ho_so'] ) ) {
+			$nguon['ho_so'] = $ho_so;
+			NguonTuDong::luu( $nguon );
+		}
 	}
 }

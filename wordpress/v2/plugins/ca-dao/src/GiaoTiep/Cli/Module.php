@@ -15,7 +15,30 @@ final class Module implements \Phongdao\HaTang\Module {
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			\WP_CLI::add_command( 'phongdao phien-ban', array( $this, 'phien_ban' ) );
 			\WP_CLI::add_command( 'phongdao tim', array( $this, 'tim' ) );
+			\WP_CLI::add_command( 'phongdao nguon', array( $this, 'nguon' ) );
 		}
+	}
+
+	/**
+	 * Liệt kê nguồn tự động, hoặc chạy một lượt đọc của một nguồn (cron thật của máy chủ gọi được).
+	 *
+	 * ## OPTIONS
+	 *
+	 * [<id>]
+	 * : Mã nguồn cần chạy một lượt (ví dụ cadao-me).
+	 */
+	public function nguon( array $doi ): void {
+		$id = (string) ( $doi[0] ?? '' );
+		if ( '' === $id ) {
+			foreach ( \Phongdao\DichVu\NhapNguon\NguonTuDong::tat_ca() as $ma => $n ) {
+				\WP_CLI::line( $ma . "\t" . ( empty( $n['bat'] ) ? 'tắt' : 'bật' ) . "\t" . ( $n['ten'] ?? '' ) );
+			}
+			$dem = \Phongdao\KhoLuu\Kho::dem();
+			\WP_CLI::line( 'Kho: ' . $dem['moi'] . ' mới · ' . $dem['da_tao_bai'] . ' đã thành tác phẩm · ' . $dem['da_gop'] . ' đã gộp · ' . $dem['bo_qua'] . ' bỏ qua' );
+			return;
+		}
+		$kq = \Phongdao\DichVu\NhapNguon\NguonTuDong::chay( $id );
+		\WP_CLI::line( wp_json_encode( $kq, JSON_UNESCAPED_UNICODE ) );
 	}
 
 	/**
