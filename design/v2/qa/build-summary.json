@@ -1,0 +1,12 @@
+{
+  "screens": 66,
+  "states": 203,
+  "static_issue_count": 0,
+  "contrast_fail_count": 0,
+  "artifacts": [
+    "PHONGDAO_V2_Prototype.html",
+    "PHONGDAO_V2_8_Man_Xem_Som.html",
+    "PHONGDAO_V2_Handoff.html"
+  ],
+  "date": "2026-11-02"
+}

@@ -181,6 +181,7 @@ Trong lúc xây: MVP đóng băng tính năng; người sáng lập vẫn viết
 | **27** | **Sản phẩm cho người đọc V2**: từng màn hình, SEO, đo lường, thiết kế | Task chạm trang người đọc |
 | **28** | **Luồng nội dung và Bàn biên tập V2** | Task chạm nguồn, kho, quản trị |
 | **29** | **Chuyển dữ liệu và chuyển đổi** | Công cụ nhập, ngày chuyển |
+| `design/v2/` | **Bộ thiết kế UX/UI V2** (D-092): bản mẫu 66 màn, token tím – lục, đặc tả từng màn | Mọi task chạm giao diện V2 |
 | `nghien-cuu/` | Khảo sát, kế hoạch, nghiên cứu V2 (căn cứ) | Khi cần lý do |
 | `huong-dan/` | Hướng dẫn cho người biên soạn | Viết hướng dẫn |
 | `luu-tru/` | Tài liệu không còn dùng hằng ngày (bản MVP của tài liệu này, v1.2) | Khi task trỏ tới |

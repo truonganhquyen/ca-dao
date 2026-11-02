@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Phiên bản | 2.5 · 27/10/2026 (xây mới V2: D-082..D-091) |
+| Phiên bản | 2.6 · 02/11/2026 (xây mới V2: D-082..D-091; bộ thiết kế V2 tím – lục: D-092) |
 | Mục đích | Trang tổng quan ngắn cho người sáng lập và AI agent |
 | Nguồn máy đọc | `du-an/trang-thai.json` (`npm run kiem-nhat-quan` đối chiếu với `docs/01`, `docs/22`) |
 
@@ -57,6 +57,7 @@
 - **Khảo sát đối thủ, kế hoạch thực hiện (D-080, 27/10/2026):** báo cáo 14 site ở `docs/nghien-cuu/khao-sat-doi-thu-2026-10-27.md`; kế hoạch theo ưu tiên ở `docs/nghien-cuu/ke-hoach-thuc-hien-2026-10-27.md`, việc mới T-129..T-138. Khối "Đọc tiếp" cuối bài đã sửa trình bày (plugin 0.33.1, theme 0.19.1).
 - **Kiểm site thật, E2E (T-129, T-130, D-080, 27/10/2026):** `npm run kiem-site-that` so phiên bản plugin, theme phongdao.com đang phục vụ với `main` (chỉ đọc; GitHub Action mở issue khi lệch); bộ E2E `tests/e2e/` (`npm run e2e`, `npm run e2e:quan-tri`) chạy được ở mọi nơi, kỳ vọng lỗi đã sửa đã cập nhật. Báo cáo gốc: `docs/e2e-review/REPORT.md` (có mục tình trạng từng lỗi).
 - **Tài liệu xây mới V2 (T-139, D-082..D-091, 27/10/2026):** tài liệu nền V2 (bản MVP lưu ở `docs/luu-tru/00-tai-lieu-nen-mvp.md`), `docs/26`–`29`, ba nghiên cứu V2 ở `docs/nghien-cuu/`; backlog có nhóm V2 (T-141..T-164); `npm run viec-tiep-theo` xét mốc hiện tại trước rồi tới V2.
+- **Bộ thiết kế V2 bản cuối (T-165, D-092, 02/11/2026):** `design/v2/` — 66 màn (31 người đọc, 21 Bàn biên tập, 10 đợt 5, 4 hệ thống), 203 trạng thái, bảng **tím – lục** sáng và tối theo bản mẫu người sáng lập chọn; trang chủ hai cột có 3 thẻ lối tìm, thanh thể loại, trang bài có cột công cụ, Trích dẫn nhanh, Thẻ chia sẻ; lục bát thụt câu lục; không có "Đọc theo tâm trạng". Kiểm: 0 lỗi kiểm tĩnh, 0 cặp màu dưới ngưỡng, 0 trang tràn ngang ở 320 / 390 / 1440. Dựng xem: `cd design/v2 && node source/build.mjs`, mở `exports/PHONGDAO_V2_Prototype.html`. Là chuẩn hình ảnh cho đợt 2 (T-146..T-151).
 - **Số bài trên site (đo 27/10/2026, chỉ đọc):** 191 bài đã đăng — 154 ca dao, 24 vè, 4 tục ngữ – thành ngữ, 4 đồng dao, 4 câu đố; site đúng bản plugin 0.33.2, theme 0.19.1; vẫn chặn Google.
 - GitHub (24/10/2026): repo công khai `truonganhquyen/ca-dao` (`main` = hướng v2; PR #1–#3 đã gộp) và repo riêng tư `truonganhquyen/ca-dao-kho-tho` (mã thu thập T-038; dữ liệu đổ dần bằng GitHub Actions hằng ngày sau khi PR của repo đó gộp). Commit dùng email ẩn của GitHub.
 
@@ -64,14 +65,14 @@
 
 Mở **Ca dao – Tục ngữ → Bàn biên tập** (hoặc ô "việc chờ bạn" trên Bảng tin): mọi hàng chờ dưới đây có số đếm và nút mở đúng trang; phần **"Làm trước"** là đủ cho mỗi tuần, phần "Khi rảnh" không gấp.
 
-- **An toàn tài khoản quản trị — làm ngay** (báo cáo khảo sát E2E 26/10/2026): đổi mật khẩu quản trị (mật khẩu dài, lưu trong trình quản lý mật khẩu — mật khẩu cũ đã đi qua kênh chữ thường); bật xác thực hai lớp; Hồ sơ → "Tên hiển thị công khai" chọn tên khác tên đăng nhập; FlashPanel → PHP bật OPcache; xóa bài mẫu "Hello world!" và bình luận mẫu. Nếu đăng nhập sai 5 lần, site tạm khoá tài khoản 15 phút — đợi, hoặc bấm "Quên mật khẩu?".
+- **An toàn tài khoản quản trị:** đổi mật khẩu, xác thực hai lớp, tên hiển thị công khai đã xong (người sáng lập báo 02/11/2026). Còn khi rảnh: FlashPanel → PHP bật OPcache; xóa bài mẫu "Hello world!" và bình luận mẫu. Nếu đăng nhập sai 5 lần, site tạm khoá tài khoản 15 phút — đợi, hoặc bấm "Quên mật khẩu?".
+- **Chọn bằng mắt trên bản xem trước V2** (khi tới đợt 2, D-092): tên khối cuối bài "Thông tin tư liệu" hay "Lời này từ đâu?"; nút Khám phá trên điện thoại mở trang riêng hay bảng trượt trên bài.
 - **Sao lưu FlashPanel:** đã bật hằng ngày (người sáng lập xác nhận 27/10/2026, D-090; không thử khôi phục theo quyết định của người sáng lập). Trước ngày chuyển sang V2: mở FlashPanel xác nhận có bản sao lưu đêm trước.
 - **Gợi ý mô-típ** (Ca dao – Tục ngữ → Gợi ý mô-típ; khi rảnh): mỗi nhóm bài cùng cụm mở đầu — sửa tên cho tự nhiên (ví dụ "Công cha… nghĩa mẹ…"), bỏ dấu bài không hợp, bấm "Tạo mô-típ"; viết vài dòng giới thiệu ở Mô-típ → Sửa → Mô tả nếu muốn.
 - **Gửi thư cho Ca dao Mẹ (T-034) — nên gửi tuần này, không chặn mở (D-077):** bản nháp ở `docs/12` mục 7. Từ khi bỏ dòng Nguồn dưới chú thích chép (D-068), thư càng cần trước khi mở cho Google.
 - **Viết Hiểu nhanh** (mục tiêu ≥ 50 bài, khoảng 10 bài mỗi tuần — không chặn mở từ D-077, nhưng bài chưa có Hiểu nhanh thì Google chưa lập chỉ mục): Ca dao – Tục ngữ → **Viết Hiểu nhanh**; ưu tiên câu trong SGK Ngữ văn và câu theo dịp (Tết, Vu Lan, 20/11). Muốn nhanh hơn: nhờ agent soạn nháp cho 10 bài, bạn chỉ đọc, sửa — `docs/huong-dan/viet-hieu-nhanh.md`. Bài chưa có Hiểu nhanh thì Google không lập chỉ mục.
 - **Chuyển hướng cadao.sdigi.net** (nếu chưa làm, D-070): Cloudflare → thêm bản ghi cho cadao.sdigi.net và quy tắc chuyển hướng 301 sang `https://phongdao.com/$1`.
 - **Ba trang Phương pháp, Nguồn, Về dự án** (đã đăng — thấy trên site 27/10/2026): đọc lại câu chữ khi rảnh; agent đề xuất sửa tên dự án trong các trang này lúc chuyển sang V2.
-- **Đổi tiêu đề site ngay** (1 phút, D-082): Cài đặt → Tổng quan → Tiêu đề trang = "Thư viện Văn học Dân gian Việt Nam". Mã MVP không đổi tên (đóng băng); V2 mang tên mới.
 - **Đọc lại trang Chính sách thu thập dữ liệu** (Trang → Chính sách thu thập dữ liệu): máy đã soạn và đăng (vì đây là nơi ghi nhận nguồn); sửa câu chữ nếu muốn.
 - **Chuyển 16 bài vè vừa nhập** (không còn bắt buộc — công cụ nhập V2 tách được lời trong khối Đoạn văn; làm thì trang MVP đủ nút ngay) (Ca dao – Tục ngữ → Lời chưa vào khối Thơ): lời đang nằm trong khối Đoạn văn nên trang thiếu nút Trích dẫn, Lưu, Trình chiếu và tìm theo lời chưa ra; xem đề xuất rồi bấm "Chuyển các bài đã chọn". Về sau khi dán lời, nếu ô bên cạnh báo "Lời đang nằm trong khối Đoạn văn" thì bấm "Đưa lời vào khối Thơ".
 - **Trò chơi cho đồng dao** (Ca dao – Tục ngữ → Trò chơi): thêm trò chơi (ví dụ Rồng rắn lên mây), bấm vào tên rồi bấm "Lấy mục Cách chơi từ Wikipedia" (hoặc tự viết), điền số người, độ tuổi, đồ dùng; trong trình soạn bài đồng dao, chọn trò chơi ở ô "Trò chơi".
@@ -94,7 +95,7 @@ Chạy `npm run viec-tiep-theo` — máy suy ra từ backlog (`docs/22`), luôn 
 
 ## Quyết định đang mở
 
-Q-006 (trình bày lục bát), Q-008 (tài trợ). Q-005 (tên miền) đã chốt: phongdao.com (D-070). Q-007 (đồng dao) đã chốt: làm ngay (D-059). Không câu nào chặn task kỹ thuật hiện tại.
+Q-008 (tài trợ). Q-006 (lục bát) đã chốt: thụt câu lục (D-092). Q-005 (tên miền) đã chốt: phongdao.com (D-070). Q-007 (đồng dao) đã chốt: làm ngay (D-059). Không câu nào chặn task kỹ thuật hiện tại.
 
 ## Lệnh điều hành
 

@@ -1,0 +1,201 @@
+{
+  "notice": "Bảng chuyển giao, không phải theme.json production có thể cài ngay. Dev nối vào cấu trúc theme mới theo docs/26.",
+  "settings.color.palette": [
+    {
+      "slug": "giay",
+      "color": "#FEFCF8",
+      "name": "giay"
+    },
+    {
+      "slug": "surface",
+      "color": "#FFFFFF",
+      "name": "surface"
+    },
+    {
+      "slug": "panel",
+      "color": "#F6F2EA",
+      "name": "panel"
+    },
+    {
+      "slug": "muc",
+      "color": "#14120F",
+      "name": "muc"
+    },
+    {
+      "slug": "nhat",
+      "color": "#5A5652",
+      "name": "nhat"
+    },
+    {
+      "slug": "tim",
+      "color": "#5E3AAE",
+      "name": "tim"
+    },
+    {
+      "slug": "tim-dam",
+      "color": "#4B2F8A",
+      "name": "tim-dam"
+    },
+    {
+      "slug": "tim-nhat",
+      "color": "#EDE6FB",
+      "name": "tim-nhat"
+    },
+    {
+      "slug": "tim-vien",
+      "color": "#D5C8F0",
+      "name": "tim-vien"
+    },
+    {
+      "slug": "tim-giay",
+      "color": "#F6F2FD",
+      "name": "tim-giay"
+    },
+    {
+      "slug": "luc",
+      "color": "#1F6B4A",
+      "name": "luc"
+    },
+    {
+      "slug": "luc-nhat",
+      "color": "#E6F2E9",
+      "name": "luc-nhat"
+    },
+    {
+      "slug": "luc-vien",
+      "color": "#A9D1B8",
+      "name": "luc-vien"
+    },
+    {
+      "slug": "to",
+      "color": "#FFF3B0",
+      "name": "to"
+    },
+    {
+      "slug": "to-vien",
+      "color": "#F0D97A",
+      "name": "to-vien"
+    },
+    {
+      "slug": "loi",
+      "color": "#A1201A",
+      "name": "loi"
+    },
+    {
+      "slug": "vang",
+      "color": "#7A5A12",
+      "name": "vang"
+    },
+    {
+      "slug": "xanh",
+      "color": "#2B5580",
+      "name": "xanh"
+    },
+    {
+      "slug": "nhan-co",
+      "color": "#5E5E5E",
+      "name": "nhan-co"
+    },
+    {
+      "slug": "line",
+      "color": "#E8E0D0",
+      "name": "line"
+    },
+    {
+      "slug": "control-line",
+      "color": "#8C8478",
+      "name": "control-line"
+    },
+    {
+      "slug": "tren-tim",
+      "color": "#FFFFFF",
+      "name": "tren-tim"
+    }
+  ],
+  "settings.typography.fontSizes": [
+    {
+      "slug": "15",
+      "size": "15px",
+      "name": "15"
+    },
+    {
+      "slug": "17",
+      "size": "17px",
+      "name": "17"
+    },
+    {
+      "slug": "22",
+      "size": "22px",
+      "name": "22"
+    },
+    {
+      "slug": "28",
+      "size": "28px",
+      "name": "28"
+    },
+    {
+      "slug": "36",
+      "size": "36px",
+      "name": "36"
+    },
+    {
+      "slug": "48",
+      "size": "48px",
+      "name": "48"
+    },
+    {
+      "slug": "64",
+      "size": "64px",
+      "name": "64"
+    }
+  ],
+  "settings.spacing.spacingSizes": [
+    {
+      "slug": "4",
+      "size": "4px",
+      "name": "4"
+    },
+    {
+      "slug": "8",
+      "size": "8px",
+      "name": "8"
+    },
+    {
+      "slug": "12",
+      "size": "12px",
+      "name": "12"
+    },
+    {
+      "slug": "16",
+      "size": "16px",
+      "name": "16"
+    },
+    {
+      "slug": "24",
+      "size": "24px",
+      "name": "24"
+    },
+    {
+      "slug": "32",
+      "size": "32px",
+      "name": "32"
+    },
+    {
+      "slug": "48",
+      "size": "48px",
+      "name": "48"
+    },
+    {
+      "slug": "64",
+      "size": "64px",
+      "name": "64"
+    }
+  ],
+  "settings.layout.contentSize": "38em",
+  "settings.layout.wideSize": "1168px",
+  "styles.color": {
+    "background": "var(--wp--preset--color--giay)",
+    "text": "var(--wp--preset--color--muc)"
+  },
+  "dark_mode": "CSS custom properties: bộ tối riêng trong tokens/phongdao.tokens.css (:root[data-theme=dark]); theme.json chỉ giữ bảng sáng."
+}

@@ -23,6 +23,7 @@ Tệp này dành cho mọi AI agent làm việc trong kho mã (Claude Code, Code
 | **V2 — kỹ thuật** (cấu trúc mã, dữ liệu, REST, quyền, kiểm thử) | `docs/26-kien-truc-v2.md` |
 | **V2 — trang người đọc** (từng màn hình, SEO, đo lường, thiết kế) | `docs/27-san-pham-v2.md` |
 | **V2 — nguồn, kho, Bàn biên tập** | `docs/28-ban-bien-tap-v2.md` |
+| **V2 — hình ảnh từng màn** (màu, bố cục, thành phần, trạng thái) | bộ thiết kế `design/v2/` (D-092; đọc `design/v2/README.txt`) |
 | **V2 — chuyển dữ liệu, ngày chuyển** | `docs/29-chuyen-doi-v2.md` |
 | **WordPress** (plugin, theme, nguồn tự động, kho, chuyển đổi, công cụ) | `docs/24-wordpress.md` |
 | **Gói nâng cấp 25/10/2026** (giao diện, nguồn nội dung, chống trùng, lượt đọc, người đọc góp phần, giọng đọc) | `docs/25-nang-cap-giao-dien-noi-dung.md` |

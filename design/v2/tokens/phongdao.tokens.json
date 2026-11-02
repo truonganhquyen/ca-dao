@@ -1,0 +1,145 @@
+{
+  "name": "Phongdao V2",
+  "version": "design-handoff-2.0",
+  "status": "Bảng màu và các lựa chọn D-092 đã chốt; còn tên khối tư liệu và cách mở Khám phá trên điện thoại chọn trên bản xem trước",
+  "date": "2026-11-02",
+  "colors": {
+    "light": {
+      "giay": "#FEFCF8",
+      "surface": "#FFFFFF",
+      "panel": "#F6F2EA",
+      "muc": "#14120F",
+      "nhat": "#5A5652",
+      "tim": "#5E3AAE",
+      "tim-dam": "#4B2F8A",
+      "tim-nhat": "#EDE6FB",
+      "tim-vien": "#D5C8F0",
+      "tim-giay": "#F6F2FD",
+      "luc": "#1F6B4A",
+      "luc-nhat": "#E6F2E9",
+      "luc-vien": "#A9D1B8",
+      "to": "#FFF3B0",
+      "to-vien": "#F0D97A",
+      "loi": "#A1201A",
+      "vang": "#7A5A12",
+      "xanh": "#2B5580",
+      "nhan-co": "#5E5E5E",
+      "line": "#E8E0D0",
+      "control-line": "#8C8478",
+      "tren-tim": "#FFFFFF"
+    },
+    "dark": {
+      "giay": "#17151B",
+      "surface": "#1F1C24",
+      "panel": "#24212A",
+      "muc": "#EFEBE4",
+      "nhat": "#B4AEA6",
+      "tim": "#BCA8F4",
+      "tim-dam": "#D4C7F8",
+      "tim-nhat": "#2E2648",
+      "tim-vien": "#4A3D72",
+      "tim-giay": "#221E2E",
+      "luc": "#86CFA8",
+      "luc-nhat": "#1B3328",
+      "luc-vien": "#2F5E46",
+      "to": "#4A3F12",
+      "to-vien": "#8C7426",
+      "loi": "#F2958B",
+      "vang": "#E0BE72",
+      "xanh": "#8DB6E3",
+      "nhan-co": "#B0B0B0",
+      "line": "#38343F",
+      "control-line": "#8E8799",
+      "tren-tim": "#17151B"
+    },
+    "share-image": {
+      "nen": "#4B2F8A",
+      "chu": "#FFFFFF",
+      "phu": "#E8DDFF",
+      "duong": "#7A62B8"
+    }
+  },
+  "color_roles": {
+    "tim": "Thương hiệu, nút chính, liên kết, mục đang chọn",
+    "luc": "Nghĩa (Hiểu nhanh) và nhãn “đã đối chiếu”",
+    "to": "Nền từ có chú thích trong lời",
+    "loi": "Lỗi, cảnh báo chặn",
+    "vang": "Nháp AI chưa duyệt trong Bàn biên tập",
+    "share-image": "Ảnh chia sẻ 1200×630: nền tím đậm cố định, không đổi theo sáng/tối"
+  },
+  "typography": {
+    "reading": "Literata",
+    "ui": "Be Vietnam Pro",
+    "scale_px": [
+      15,
+      17,
+      22,
+      28,
+      36,
+      48,
+      64
+    ],
+    "reading_preferences_px": [
+      22,
+      28,
+      34
+    ],
+    "reading_line_height": 1.7,
+    "ui_line_height": 1.65,
+    "font_loading": "Tự lưu trữ, không tải bên thứ ba"
+  },
+  "space_px": [
+    4,
+    8,
+    12,
+    16,
+    24,
+    32,
+    48,
+    64
+  ],
+  "layout": {
+    "reading_max": "38em",
+    "work_max_px": 1040,
+    "work_rail_px": 232,
+    "catalog_max_px": 1168,
+    "header_max_px": 1248,
+    "mobile_gutter_px": 20,
+    "tablet_gutter_px": 24,
+    "desktop_gutter_px": 32,
+    "breakpoints_px": [
+      768,
+      1024
+    ],
+    "test_widths_px": [
+      320,
+      360,
+      390,
+      768,
+      1024,
+      1440
+    ]
+  },
+  "controls": {
+    "primary_min_height_px": 48,
+    "other_min_target_px": 44,
+    "radius_px": 10,
+    "card_radius_px": 14,
+    "pill_radius": "999px",
+    "shadow": "0 1px 2px rgba(20,18,15,.04), 0 6px 20px rgba(20,18,15,.05)",
+    "focus_outline_px": 3,
+    "focus_offset_px": 4
+  },
+  "poetry": {
+    "indent_desktop": "1.6em",
+    "indent_mobile": ".9em",
+    "direction": "Câu lục thụt vào; câu bát ở ngoài (D-092, như sách in)",
+    "line_numbers": "Ngoài lề, aria-hidden, không chọn được; chỉ máy tính",
+    "wrap": "Giữ dòng nguồn; phần wrap thị giác có hanging indent 1em"
+  },
+  "motion": {
+    "reduced_motion": "Tắt animation, transition và smooth scroll",
+    "kid_beat": "Chỉ nhịp thị giác, không tự phát âm thanh"
+  },
+  "classification": "Bảng tím – lục, hai font, thụt câu lục ĐÃ CHỐT (D-092); kích thước, bo góc, bóng là ĐỀ XUẤT THỂ HIỆN"
+}

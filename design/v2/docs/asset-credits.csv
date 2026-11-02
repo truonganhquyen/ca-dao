@@ -1,0 +1,6 @@
+﻿Tài sản,Tác giả/nguồn,Giấy phép/trạng thái,URL,Ghi chú
+Literata,"The Literata Project Authors, 2017",SIL OFL 1.1,https://github.com/googlefonts/literata,assets/literata-OFL.txt; subset Latin + Vietnamese; giữ font gốc để tái xuất
+Be Vietnam Pro,"The Be Vietnam Pro Project Authors, 2021",SIL OFL 1.1,https://github.com/bettergui/BeVietnamPro,assets/bevietnampro-OFL.txt; Regular + SemiBold
+Bản đồ Việt Nam SVG,Tài sản có sẵn trong repo ca-dao tại commit ghim,Chưa thấy metadata tác giả/giấy phép riêng trong asset đã nhận,https://github.com/truonganhquyen/ca-dao/blob/main/wordpress/plugins/ca-dao/assets/ban-do-vn.svg,"Giữ nguyên hình bản đồ, Hoàng Sa và Trường Sa; không vẽ lại; cần xác nhận ghi công trước production"
+Nội dung thử,Fixture của dự án + chuỗi tổng hợp bổ sung nhận diện rõ,"Chỉ dữ liệu thử, không là tư liệu dân gian",https://github.com/truonganhquyen/ca-dao/blob/main/wordpress/tests/mau-giao-dien.php,Giữ lời mẫu; không gán sách/thời gian/tác giả thật
+Icon và social graphic,Tạo bằng SVG và mã bố cục trong gói này,Tài sản thiết kế của gói bàn giao,source/common.mjs; source/package-handoff.py,"Không ảnh kho bên thứ ba, không ảnh AI; social PNG có SVG chỉnh sửa được"

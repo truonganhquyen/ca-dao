@@ -2,13 +2,14 @@
 
 | | |
 |---|---|
-| Phiên bản | 1.0 · 27/10/2026 (D-084, D-085, D-087, D-088) |
+| Phiên bản | 1.1 · 02/11/2026 (D-084, D-085, D-087, D-088; bảng tím – lục và bộ thiết kế D-092) |
 | Trạng thái | **Đã duyệt.** Đổi hướng thẩm mỹ hay hành vi đã chốt là Human Gate H4, ghi D-xxx |
 | Đọc khi | Mọi task chạm trang người đọc (đợt 2, nhóm V2 trong `docs/22`) |
 | Đọc kèm | `26` (kỹ thuật: khối, mẫu, REST), `28` (nội dung đến từ đâu), `docs/20` mục 1, 10, 11 (token, câu chữ, trợ năng — vẫn áp dụng) |
 | Căn cứ | `docs/nghien-cuu/v2-ux-ui-2026-10-27.md`, khảo sát 27/10, báo cáo E2E 26/10, bản đề xuất *Phongdao Next Generation* mục 7–9 (S01–S18) |
+| Bộ thiết kế | **`design/v2/`** (D-092): 66 màn, 203 trạng thái, token, đặc tả từng màn. Dựng: `cd design/v2 && node source/build.mjs`, mở `exports/PHONGDAO_V2_Prototype.html`. Về hình ảnh, bộ thiết kế là chuẩn; về hành vi và nội dung, tài liệu này thắng khi hai bên lệch |
 
-Tinh thần: **"Một trang sách cổ được chăm chút, đặt trong một chiếc điện thoại hiện đại."** Hướng mỹ thuật **Sách Việt đương đại** (chữ, giấy nhẹ, son trầm, khoảng trắng, ít trang trí). Minh hoạ chọn lọc chỉ ở đồng dao, truyện, tuyển tập khi có ảnh có quyền; phong cách "atlas" chỉ ở bản đồ và chuyên đề vùng.
+Tinh thần: **"Một trang sách cổ được chăm chút, đặt trong một chiếc điện thoại hiện đại."** Hướng mỹ thuật **tím – lục** (D-092): giấy sáng, chữ Literata, tím cho thương hiệu và hành động, lục cho nghĩa và mức kiểm, thẻ trắng bo góc, khoảng trắng, ít trang trí. Minh hoạ chọn lọc chỉ ở đồng dao, truyện, tuyển tập khi có ảnh có quyền; phong cách "atlas" chỉ ở bản đồ và chuyên đề vùng.
 
 ## 1. Nguyên tắc
 
@@ -41,6 +42,10 @@ Cho lớp học  chỉ hiện khi ≥ 3 bài học có bộ câu SGK (đợt 5)
 Tra cứu ▾    Tìm · Từ điển · Hay bị nhầm là ca dao · Phương pháp & nguồn
 (Nghe)       chỉ khi giọng đọc sinh sẵn qua phiên nghe thử (đợt 5)
 
+Thanh thể loại (D-092; dưới đầu trang, viên thuốc, trượt ngang trên điện thoại, ẩn khi in)
+  Trang chủ · Tất cả · Ca dao · Tục ngữ – Thành ngữ · Đồng dao · Vè · Câu đố · Tuyển tập
+  — thể loại chưa qua cổng hoặc 0 bài tự ẩn như menu Đọc
+
 Thanh dưới (điện thoại, 56 px, không che focus, ẩn khi in)
   Trang chủ · Tìm · Khám phá · Đã lưu
 
@@ -70,11 +75,13 @@ Chân trang
 
 **Mục tiêu:** người mới chọn được lối vào trong 10 giây; đến một bài hữu ích trong ≤ 3 lần chạm.
 
+Bố cục (D-092): máy tính hai cột — trái là khối 1 và 2, phải là 3 thẻ lối tìm (Tìm khi nhớ vài chữ → Tìm, Tìm theo vùng → Bản đồ, Tìm theo chủ đề → Chủ đề); điện thoại một cột. Câu hôm nay là thẻ giữa trang. Không có "Đọc theo tâm trạng".
+
 Thứ tự (chỉ hiện khối có dữ liệu):
 1. Tên + khẩu hiệu + ô tìm ("Gõ câu bạn nhớ, gõ không dấu cũng được").
 2. **Bạn là:** (Học sinh) (Giáo viên) (Phụ huynh) (Yêu văn hoá) — chọn một lần, nhớ trên máy, bỏ qua được; không chọn = thứ tự mặc định.
 3. **Câu hôm nay:** một tác phẩm L2 (đổi mỗi ngày, không lặp trong 30 ngày): lời + nghĩa ngắn + "Đọc ›".
-4. **Lối vào:** Hiểu nghĩa tục ngữ · Theo dịp (dịp gần nhất: Tết, Rằm tháng Giêng, 8/3, Vu Lan, Trung thu, 20/11…) · Cùng bé chơi · Bộ câu cho tiết học (khi Cho lớp học mở).
+4. **Lối vào** ("Bắt đầu từ đâu?", thẻ có biểu tượng): Hiểu nghĩa tục ngữ · Theo dịp · Cùng bé chơi · Bộ câu cho tiết học (khi Cho lớp học mở); kèm lưới **Đọc theo dịp** (ô Tết, Rằm tháng Giêng, 8/3, Vu Lan, Trung thu, 20/11…, dịp gần nhất đầu; mỗi ô là tuyển tập loại dịp, có số câu).
 5. **Tuyển tập** nổi bật (3–5 thẻ: tên · số câu).
 6. **Bạn có biết?** (1–2 câu đã duyệt, liên kết về bài).
 7. **Đọc theo thể loại** (thẻ có số bài; ẩn thể loại 0 bài).
@@ -102,20 +109,20 @@ Dạng "đọc liền": mô tả do người viết (nếu có) → danh sách t
 
 ## 6. Trang tác phẩm theo thể loại (S04–S09)
 
-Thanh hành động chung: [❝ Trích dẫn] [↗ Chia sẻ] [☆ Lưu] [▣ Trình chiếu] [Aa]; Trích dẫn là hành động chính. Dưới tiêu đề: 👁 lượt đọc · ↗ chia sẻ · ❝ trích dẫn khi đủ ngưỡng (D-069).
+Bố cục chung (D-092): đầu trang căn giữa (nhãn thể loại, "Bản tham chiếu", số dị bản; tên; số liệu) → **thẻ lời** (số dòng ngoài lề trên máy tính, ẩn trên điện thoại; dòng mức kiểm dạng nhãn — "đã đối chiếu" nền lục; nghĩa nền lục nhạt) → các khối thẻ. Công cụ đọc là **cột dính bên phải** trên máy tính: [❝ Trích dẫn] [☆ Lưu] [↗ Chia sẻ] [▣ Trình chiếu] + cỡ chữ Vừa / Lớn / Rất lớn; trên điện thoại thành hàng 4 nút ngay dưới thẻ lời. Trích dẫn là hành động chính. Dưới tiêu đề: 👁 lượt đọc · ↗ chia sẻ · ❝ trích dẫn khi đủ ngưỡng (D-069).
 
-Phần cuối chung (theo thứ tự): Chủ đề · Vùng · Thuộc tuyển tập ("Câu này có trong: … ›") → **Thông tin tư liệu** (mục 6.7) → Biên soạn (bút danh khi có, liên kết Phương pháp) → Đọc tiếp (3–5 bài: cùng mô-típ, chủ đề, từ, địa danh, vùng; mỗi bài có lý do) → **Bạn muốn góp gì?** (mục 8.1) → Cảm nghĩ đã duyệt, bài phân tích đã duyệt.
+Phần cuối chung (theo thứ tự): Chủ đề · Vùng · Thuộc tuyển tập (nhãn liên kết) → **Thông tin tư liệu** (mục 6.7) → **Trích dẫn nhanh** (D-092: câu trích thông dụng hiện sẵn + nút sao chép, "Kiểu khác" mở hộp Trích dẫn; sự kiện `trich_dan_sao_chep`) → **Thẻ chia sẻ** (D-092: xem trước ảnh 1200×630 mục 10, nút Tải ảnh, Chia sẻ liên kết) → Biên soạn (bút danh khi có, liên kết Phương pháp) → Đọc tiếp (3–5 bài: cùng mô-típ, chủ đề, từ, địa danh, vùng; mỗi bài có lý do) → **Bạn muốn góp gì?** (mục 8.1) → Cảm nghĩ đã duyệt, bài phân tích đã duyệt.
 
 Bài thiếu phần: "Bài đang được bổ sung. Bạn biết thêm? Góp ý" — máy không tự điền.
 
 ### 6.1. Ca dao (S04)
 
-Lời (lục bát thụt câu lục — Q-006 mặc định; từ có chú thích là nút chạm, popover nghĩa + nguồn theo chính sách) → dòng mức kiểm ("Lời theo bản lưu truyền phổ biến · chưa đối chiếu sách · Vì sao?" hoặc "Lời đã đối chiếu với <sách>, tr. N") → **Hiểu nhanh** (≤ 2 câu; "Phần giải nghĩa có hỗ trợ của AI, đã được người biên soạn duyệt" khi có dấu) → thanh hành động → ▸ Dị bản (đánh số, tô chữ khác; nơi, người kể khi có) → ▸ Chú thích (danh sách từ – lời giải) → Bạn có biết? → phần cuối chung.
+Lời (lục bát thụt câu lục — D-092; từ có chú thích nền tô vàng; từ có chú thích là nút chạm, popover nghĩa + nguồn theo chính sách) → dòng mức kiểm ("Lời theo bản lưu truyền phổ biến · chưa đối chiếu sách · Vì sao?" hoặc "Lời đã đối chiếu với <sách>, tr. N") → **Hiểu nhanh** (≤ 2 câu, nền lục nhạt; "Phần giải nghĩa có hỗ trợ của AI, đã được người biên soạn duyệt" khi có dấu) → thanh hành động → **Từ khó** (chú thích dạng ô: từ – lời giải, liên kết mục từ) → ▸ Dị bản (đánh số, tô chữ khác; nơi, người kể khi có) → Bạn có biết? → phần cuối chung.
 **Nghiệm thu:** lời hiện đúng từng ký tự như lớp `loi`; trích dẫn đúng; tắt JavaScript vẫn đọc lời, chú thích ở cuối khối.
 
 ### 6.2. Tục ngữ – Thành ngữ (S05)
 
-Câu chữ to một dòng → dòng mức kiểm → **Nghĩa** (Hiểu nhanh, trong 10 giây) → ▸ Nghĩa đen · nghĩa bóng → ▸ Dùng khi (ví dụ đã biên tập) → ▸ Câu gần nghĩa / trái nghĩa (liên kết) → ▸ Giải nghĩa trong sách (đợt 5) → thanh hành động → phần cuối chung. Phần chép từ Wiktionary ghi "Nguồn: Wiktionary ↗ · CC BY-SA" ngay dưới. Thiếu nghĩa: dòng "Câu này chưa có giải nghĩa. Bạn giúp được? Góp ý".
+Câu chữ to một dòng → dòng mức kiểm → **Nghĩa** (Hiểu nhanh, trong 10 giây) → **Giải nghĩa**: hai ô Nghĩa đen | Nghĩa bóng → **Dùng khi** (ví dụ đã biên tập) → **Câu gần nghĩa · trái nghĩa** (liên kết) — ba khối mở sẵn vì ngắn (D-092) → ▸ Giải nghĩa trong sách (đợt 5) → thanh hành động → phần cuối chung. Phần chép từ Wiktionary ghi "Nguồn: Wiktionary ↗ · CC BY-SA" ngay dưới. Thiếu nghĩa: dòng "Câu này chưa có giải nghĩa. Bạn giúp được? Góp ý".
 
 ### 6.3. Vè và bài dài (S06)
 
@@ -245,11 +252,12 @@ Trang 404 riêng: ô tìm điền sẵn chữ từ đường dẫn, gợi ý tuy
 
 ## 9. Hệ thống thiết kế, trợ năng, ngân sách
 
-### 9.1. Token
+### 9.1. Token (D-092)
 
-- **Giữ** `--giay`, `--muc`, `--son`, `--nhat`, màu nhãn (`docs/20` mục 1.1, đã đo tương phản); Literata (lời, tiêu đề) + Be Vietnam Pro (giao diện) tự lưu trữ; bề rộng đọc 38em; chạm ≥ 44 px (nút chính ≥ 48 px).
-- **Thêm:** thang cỡ chữ 7 bậc (lời ca dao lớn hơn văn xuôi 1 bậc; câu tục ngữ 2 bậc); thang khoảng cách 8 bậc; màu nhãn từng thể loại (luôn chữ + biểu tượng).
-- **Biến thể "bảng màu đề xuất"** để so trên bản xem trước: #F4EDE1 nền, #332C25 chữ (11,8:1), #9F443A son (5,4:1), #398578 xanh trầm (**3,76:1 — không dùng cho chữ thường**, chỉ chữ ≥ 24 px hoặc thành phần ≥ 3:1, hoặc làm đậm hơn). Bản tối đo riêng. Người sáng lập chọn bằng mắt.
+- **Bảng tím – lục** (giá trị đầy đủ, bản tối và tỷ lệ tương phản: `design/v2/tokens/`, `design/v2/qa/contrast.json`): giấy `#FEFCF8`, thẻ `#FFFFFF`, mực `#14120F`, chữ phụ `#5A5652`; **tím** `#5E3AAE` (thương hiệu, nút chính, liên kết, mục đang chọn; nền nhạt `#EDE6FB`); **lục** `#1F6B4A` (Hiểu nhanh, nhãn "đã đối chiếu"; nền nhạt `#E6F2E9`); **tô vàng** `#FFF3B0` (từ có chú thích); lỗi `#A1201A`; viền điều khiển `#8C8478` (≥ 3:1). Mọi cặp chữ ≥ 4,5:1 ở cả sáng và tối. Ảnh chia sẻ nền tím đậm `#4B2F8A` cố định. Không dùng màu làm tín hiệu duy nhất.
+- **Giữ** Literata (lời, tiêu đề) + Be Vietnam Pro (giao diện) tự lưu trữ; bề rộng đọc 38em (trang tác phẩm 1040 px gồm cột công cụ 232 px); chạm ≥ 44 px (nút chính ≥ 48 px).
+- **Hình khối:** nút và ô nhập bo 10 px; thẻ bo 14 px, bóng nhẹ; nhãn, chip, thanh thể loại tròn hẳn; logo chữ P trắng trong ô vuông tím.
+- **Thang:** cỡ chữ 7 bậc (15 / 17 / 22 / 28 / 36 / 48 / 64; lời ca dao lớn hơn văn xuôi 1 bậc, câu tục ngữ 2 bậc); khoảng cách 8 bậc (4 … 64); màu nhãn từng thể loại (luôn chữ + biểu tượng).
 
 ### 9.2. Thành phần (khối)
 

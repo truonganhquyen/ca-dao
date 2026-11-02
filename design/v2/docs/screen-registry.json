@@ -1,0 +1,799 @@
+[
+  {
+    "id": "R01",
+    "title": "Trang chủ",
+    "route": "/",
+    "states": [
+      "full",
+      "missing",
+      "parent"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R02",
+    "title": "Tất cả tác phẩm",
+    "route": "/kho/",
+    "states": [
+      "full",
+      "filtered",
+      "empty",
+      "error",
+      "last"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R03",
+    "title": "Thể loại",
+    "route": "/the-loai/<the-loai>/",
+    "states": [
+      "ca-dao",
+      "tuc-ngu",
+      "dong-dao",
+      "cau-do",
+      "ve",
+      "missing"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R04",
+    "title": "Chủ đề · vùng · mô-típ · hình thức",
+    "route": "/chu-de/<ten>/ · /vung/<ten>/ · /mo-tip/<ten>/ · /hinh-thuc/<ten>/",
+    "states": [
+      "topic",
+      "region",
+      "motif",
+      "form"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R05",
+    "title": "Tác phẩm ca dao",
+    "route": "/ca-dao/<ten>/",
+    "states": [
+      "full",
+      "missing",
+      "checked",
+      "ai",
+      "variants",
+      "flag",
+      "warning",
+      "poem8",
+      "poem16",
+      "clipboard-error"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R06",
+    "title": "Tục ngữ – Thành ngữ",
+    "route": "/tuc-ngu/<ten>/",
+    "states": [
+      "full",
+      "missing",
+      "long",
+      "open-source"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R07",
+    "title": "Vè & bài dài",
+    "route": "/ve/<ten>/",
+    "states": [
+      "lines60",
+      "lines220",
+      "lines990",
+      "no-toc"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R08",
+    "title": "Đồng dao",
+    "route": "/dong-dao/<ten>/",
+    "states": [
+      "full",
+      "no-game",
+      "partial"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R09",
+    "title": "Câu đố",
+    "route": "/cau-do/<ten>/",
+    "states": [
+      "full",
+      "no-hint",
+      "image"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R10",
+    "title": "Danh mục tuyển tập",
+    "route": "/tuyen-tap/",
+    "states": [
+      "topic",
+      "occasion",
+      "situation",
+      "lesson",
+      "empty"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R11",
+    "title": "Tuyển tập đọc liền",
+    "route": "/tuyen-tap/<ten>/",
+    "states": [
+      "eight",
+      "thirty",
+      "missing",
+      "flag"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R12",
+    "title": "Tìm kiếm",
+    "route": "/tim/?q=...",
+    "states": [
+      "idle",
+      "match",
+      "groups",
+      "scattered",
+      "typo",
+      "empty",
+      "pending",
+      "error",
+      "loading"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R13",
+    "title": "Từ điển",
+    "route": "/tu-dien/",
+    "states": [
+      "full",
+      "empty",
+      "filtered"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R14",
+    "title": "Mục từ",
+    "route": "/tu-dien/<ten>/",
+    "states": [
+      "word",
+      "place",
+      "person",
+      "no-image",
+      "no-coordinate"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R15",
+    "title": "Vùng & Bản đồ",
+    "route": "/ban-do/",
+    "states": [
+      "full",
+      "missing"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R16",
+    "title": "Đố vui",
+    "route": "/do-vui/",
+    "states": [
+      "full",
+      "insufficient",
+      "complete"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R17",
+    "title": "Danh sách trò chơi",
+    "route": "/tro-choi/",
+    "states": [
+      "full",
+      "filtered",
+      "empty"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R18",
+    "title": "Chi tiết trò chơi",
+    "route": "/tro-choi/<ten>/",
+    "states": [
+      "full",
+      "partial"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R19",
+    "title": "Hay bị nhầm là ca dao",
+    "route": "/hay-bi-nham/",
+    "states": [
+      "full",
+      "under-gate"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R20",
+    "title": "Một câu ngẫu nhiên",
+    "route": "/ngau-nhien/",
+    "states": [
+      "full",
+      "empty"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R21",
+    "title": "Đã lưu",
+    "route": "/da-luu/",
+    "states": [
+      "full",
+      "empty",
+      "removed",
+      "blocked"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R22",
+    "title": "Góp tư liệu",
+    "route": "Đích góp cần nối route hiện hành",
+    "states": [
+      "full",
+      "validation",
+      "error",
+      "rate-limit",
+      "turnstile",
+      "success"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R23",
+    "title": "Cảm nhận – phân tích",
+    "route": "/phan-tich/<ten>/",
+    "states": [
+      "full",
+      "no-alias"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R24",
+    "title": "Phương pháp",
+    "route": "/phuong-phap/",
+    "states": [
+      "full"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R25",
+    "title": "Nguồn",
+    "route": "/nguon/",
+    "states": [
+      "full",
+      "empty"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R26",
+    "title": "Về dự án",
+    "route": "/ve-du-an/",
+    "states": [
+      "full"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R27",
+    "title": "Chính sách thu thập dữ liệu",
+    "route": "/chinh-sach-du-lieu/",
+    "states": [
+      "full"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R28",
+    "title": "Quyền riêng tư",
+    "route": "Cần nối route hiện hành",
+    "states": [
+      "full"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R29",
+    "title": "Không thấy trang",
+    "route": "404",
+    "states": [
+      "full"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R30",
+    "title": "Bảo trì & lỗi hệ thống",
+    "route": "503 · plugin",
+    "states": [
+      "maintenance",
+      "error"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "R31",
+    "title": "Khám phá trên mobile",
+    "route": "Bề mặt điều hướng; route chưa chốt",
+    "states": [
+      "full",
+      "eligible"
+    ],
+    "group": "Người đọc",
+    "source": "Brief §7–8; docs/27"
+  },
+  {
+    "id": "A01",
+    "title": "Hôm nay",
+    "route": "Phongdao / Hôm nay",
+    "states": [
+      "full",
+      "empty",
+      "error",
+      "missing"
+    ],
+    "group": "Bàn biên tập",
+    "source": "Brief §9; docs/28"
+  },
+  {
+    "id": "A02",
+    "title": "Duyệt nhanh",
+    "route": "Phongdao / Duyệt",
+    "states": [
+      "meaning",
+      "candidate",
+      "duplicate",
+      "taxonomy",
+      "wikidata",
+      "contribution",
+      "analysis",
+      "wish",
+      "report",
+      "error",
+      "conflict"
+    ],
+    "group": "Bàn biên tập",
+    "source": "Brief §9; docs/28"
+  },
+  {
+    "id": "A03",
+    "title": "Danh sách tác phẩm",
+    "route": "Phongdao / Tác phẩm",
+    "states": [
+      "full",
+      "empty"
+    ],
+    "group": "Bàn biên tập",
+    "source": "Brief §9; docs/28"
+  },
+  {
+    "id": "A04",
+    "title": "Soạn tác phẩm",
+    "route": "Phongdao / Tác phẩm / Soạn",
+    "states": [
+      "full",
+      "candidate",
+      "ve",
+      "dong-dao",
+      "cau-do",
+      "error",
+      "offline",
+      "expired",
+      "conflict"
+    ],
+    "group": "Bàn biên tập",
+    "source": "Brief §9; docs/28"
+  },
+  {
+    "id": "A05",
+    "title": "Quản lý tuyển tập",
+    "route": "Phongdao / Tuyển tập",
+    "states": [
+      "full",
+      "under-gate",
+      "thirty"
+    ],
+    "group": "Bàn biên tập",
+    "source": "Brief §9; docs/28"
+  },
+  {
+    "id": "A06",
+    "title": "Từ điển & Wikidata",
+    "route": "Phongdao / Từ điển",
+    "states": [
+      "full",
+      "unconfirmed"
+    ],
+    "group": "Bàn biên tập",
+    "source": "Brief §9; docs/28"
+  },
+  {
+    "id": "A07",
+    "title": "Quản lý trò chơi",
+    "route": "Phongdao / Trò chơi",
+    "states": [
+      "full",
+      "fetched"
+    ],
+    "group": "Bàn biên tập",
+    "source": "Brief §9; docs/28"
+  },
+  {
+    "id": "A08",
+    "title": "Mô-típ",
+    "route": "Phongdao / Phân loại / Mô-típ",
+    "states": [
+      "full",
+      "processed"
+    ],
+    "group": "Bàn biên tập",
+    "source": "Brief §9; docs/28"
+  },
+  {
+    "id": "A09",
+    "title": "Chủ đề & vùng",
+    "route": "Phongdao / Phân loại",
+    "states": [
+      "full",
+      "region"
+    ],
+    "group": "Bàn biên tập",
+    "source": "Brief §9; docs/28"
+  },
+  {
+    "id": "A10",
+    "title": "Quản lý thể loại",
+    "route": "Phongdao / Thể loại",
+    "states": [
+      "full",
+      "zero"
+    ],
+    "group": "Bàn biên tập",
+    "source": "Brief §9; docs/28"
+  },
+  {
+    "id": "A11",
+    "title": "Hồ sơ nguồn",
+    "route": "Phongdao / Nguồn / Hồ sơ",
+    "states": [
+      "hidden",
+      "inline",
+      "metadata",
+      "editor"
+    ],
+    "group": "Bàn biên tập",
+    "source": "Brief §9; docs/28"
+  },
+  {
+    "id": "A12",
+    "title": "Nguồn tự động",
+    "route": "Phongdao / Nguồn / Tự động",
+    "states": [
+      "full",
+      "error"
+    ],
+    "group": "Bàn biên tập",
+    "source": "Brief §9; docs/28"
+  },
+  {
+    "id": "A13",
+    "title": "Kho thu thập",
+    "route": "Phongdao / Nguồn / Kho",
+    "states": [
+      "full",
+      "merged"
+    ],
+    "group": "Bàn biên tập",
+    "source": "Brief §9; docs/28"
+  },
+  {
+    "id": "A14",
+    "title": "Máy đang làm",
+    "route": "Phongdao / Máy đang làm",
+    "states": [
+      "full",
+      "error"
+    ],
+    "group": "Bàn biên tập",
+    "source": "Brief §9; docs/28"
+  },
+  {
+    "id": "A15",
+    "title": "Người đọc gửi",
+    "route": "Phongdao / Người đọc gửi",
+    "states": [
+      "full",
+      "empty"
+    ],
+    "group": "Bàn biên tập",
+    "source": "Brief §9; docs/28"
+  },
+  {
+    "id": "A16",
+    "title": "Số liệu",
+    "route": "Phongdao / Số liệu",
+    "states": [
+      "full",
+      "empty"
+    ],
+    "group": "Bàn biên tập",
+    "source": "Brief §9; docs/28"
+  },
+  {
+    "id": "A17",
+    "title": "Cài đặt",
+    "route": "Phongdao / Cài đặt",
+    "states": [
+      "full",
+      "editor"
+    ],
+    "group": "Bàn biên tập",
+    "source": "Brief §9; docs/28"
+  },
+  {
+    "id": "A18",
+    "title": "Lịch sử",
+    "route": "Phongdao / Lịch sử",
+    "states": [
+      "full"
+    ],
+    "group": "Bàn biên tập",
+    "source": "Brief §9; docs/28"
+  },
+  {
+    "id": "A19",
+    "title": "Gộp hai tác phẩm",
+    "route": "Phongdao / Tác phẩm / Gộp",
+    "states": [
+      "full",
+      "confirmed"
+    ],
+    "group": "Bàn biên tập",
+    "source": "Brief §9; docs/28"
+  },
+  {
+    "id": "A20",
+    "title": "Cần xem sau chuyển dữ liệu",
+    "route": "Phongdao / Tác phẩm / Cần xem",
+    "states": [
+      "full",
+      "empty"
+    ],
+    "group": "Bàn biên tập",
+    "source": "Brief §9; docs/28"
+  },
+  {
+    "id": "A21",
+    "title": "Quyền & phiên quản trị",
+    "route": "WordPress capabilities / phiên",
+    "states": [
+      "admin",
+      "editor",
+      "contributor",
+      "expired",
+      "denied"
+    ],
+    "group": "Bàn biên tập",
+    "source": "Brief §9; docs/28"
+  },
+  {
+    "id": "F01",
+    "title": "Cho lớp học",
+    "route": "/lop-hoc/",
+    "states": [
+      "closed",
+      "eligible"
+    ],
+    "group": "Đợt 5",
+    "source": "Brief §10; D-091"
+  },
+  {
+    "id": "F02",
+    "title": "Bộ câu SGK",
+    "route": "/lop-hoc/<lop>/",
+    "states": [
+      "full",
+      "missing"
+    ],
+    "group": "Đợt 5",
+    "source": "Brief §10; D-091"
+  },
+  {
+    "id": "F03",
+    "title": "Phiếu in A4",
+    "route": "Bản in của bộ câu",
+    "states": [
+      "one",
+      "long"
+    ],
+    "group": "Đợt 5",
+    "source": "Brief §10; D-091"
+  },
+  {
+    "id": "F04",
+    "title": "Truyện & Kể cho bé",
+    "route": "/truyen/<ten>/",
+    "states": [
+      "full",
+      "warning"
+    ],
+    "group": "Đợt 5",
+    "source": "Brief §10; D-091"
+  },
+  {
+    "id": "F05",
+    "title": "Hát ru · hò · lý",
+    "route": "/<the-loai>/<ten>/",
+    "states": [
+      "hat-ru",
+      "ho",
+      "ly",
+      "closed"
+    ],
+    "group": "Đợt 5",
+    "source": "Brief §10; D-091"
+  },
+  {
+    "id": "F06",
+    "title": "Nghe giọng sinh sẵn",
+    "route": "Hub/route là đề xuất",
+    "states": [
+      "no-audio",
+      "player"
+    ],
+    "group": "Đợt 5",
+    "source": "Brief §10; D-091"
+  },
+  {
+    "id": "F07",
+    "title": "Đối chiếu sách",
+    "route": "Bàn biên tập / Đối chiếu",
+    "states": [
+      "full",
+      "no-scan"
+    ],
+    "group": "Đợt 5",
+    "source": "Brief §10; D-091"
+  },
+  {
+    "id": "F08",
+    "title": "Kiểm giọng 30 bài",
+    "route": "Bàn biên tập / Kiểm giọng",
+    "states": [
+      "full",
+      "failed"
+    ],
+    "group": "Đợt 5",
+    "source": "Brief §10; D-091"
+  },
+  {
+    "id": "F09",
+    "title": "Cổng thể loại mới",
+    "route": "Bàn biên tập / Thể loại",
+    "states": [
+      "closed",
+      "eligible"
+    ],
+    "group": "Đợt 5",
+    "source": "Brief §10; D-091"
+  },
+  {
+    "id": "F10",
+    "title": "Dữ liệu mở có phiên bản",
+    "route": "Trang tải công khai là đề xuất",
+    "states": [
+      "full",
+      "empty"
+    ],
+    "group": "Đợt 5",
+    "source": "Brief §10; D-091"
+  },
+  {
+    "id": "D01",
+    "title": "Token & thành phần",
+    "route": "Chỉ có trong công cụ duyệt thiết kế",
+    "states": [
+      "full",
+      "states"
+    ],
+    "group": "Hệ thống thiết kế",
+    "source": "Brief §5, §12, §16"
+  },
+  {
+    "id": "D02",
+    "title": "So màu & các lựa chọn",
+    "route": "Chỉ có trong công cụ duyệt thiết kế",
+    "states": [
+      "home",
+      "poem",
+      "proverb",
+      "decisions"
+    ],
+    "group": "Hệ thống thiết kế",
+    "source": "Brief §5, §12, §16"
+  },
+  {
+    "id": "D03",
+    "title": "Hướng dẫn duyệt & hành trình",
+    "route": "Chỉ có trong công cụ duyệt thiết kế",
+    "states": [
+      "full"
+    ],
+    "group": "Hệ thống thiết kế",
+    "source": "Brief §5, §12, §16"
+  },
+  {
+    "id": "D04",
+    "title": "Ảnh chia sẻ 1200×630",
+    "route": "Tài sản thiết kế; không là route sản phẩm",
+    "states": [
+      "poem",
+      "proverb",
+      "generic",
+      "flag"
+    ],
+    "group": "Hệ thống thiết kế",
+    "source": "Brief §5, §12, §16"
+  }
+]
