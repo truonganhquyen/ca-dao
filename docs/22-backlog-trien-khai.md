@@ -122,9 +122,9 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-139 | [V2] Quyết định xây mới, tài liệu nền V2, đặc tả `docs/26` kỹ thuật, `27` sản phẩm, `28` Bàn biên tập, `29` chuyển đổi | A | — | — | DONE |
 | T-165 | [V2] Bộ thiết kế UX/UI bản chốt ở `design/v2/`: bảng tím – lục, mỗi câu một dòng, 66 màn, token, đặc tả (D-092, D-093) | N+A | T-139 | — | DONE |
 | T-141 | [Đợt 1] Khung V2 ở `wordpress/v2/`: plugin (tự nạp `Phongdao\`, module), theme khối trống, lệnh `test:v2`, `quet:v2`, `xem-truoc:v2`, job CI, bộ kiểm PHP thuần | A | T-139 | — | DONE |
-| T-142 | [Đợt 1] Mô hình dữ liệu: loại bài, sáu phân loại, bảng lớp / hồ sơ nguồn / nhật ký / hàng đợi / tuyển tập / gợi ý, cấp chất lượng, ràng buộc lằn ranh | A | T-141 | — | READY |
-| T-143 | [Đợt 1] Nguồn vào: bộ đọc Ca dao Mẹ, kho, hồ sơ nguồn, chống trùng (chuyển kèm kiểm thử), ứng viên từ kho, gợi ý chủ đề / vùng / mô-típ / Wikidata | A | T-142 | — | READY |
-| T-144 | [Đợt 1] Tìm: chỉ mục từ lớp, bỏ dấu, gõ sai (gộp T-132), nhóm theo thể loại, "mong có câu này" | A | T-142 | — | READY |
+| T-142 | [Đợt 1] Mô hình dữ liệu (D-094): loại bài (gồm hồ sơ nguồn ẩn), sáu phân loại, các phần của bài trong post meta, bảng việc, cấp chất lượng, lưu một phần có kiểm lằn ranh và nhật ký | A | T-141 | — | READY |
+| T-143 | [Đợt 1] Nguồn vào: bộ đọc Ca dao Mẹ, kho, hồ sơ nguồn, chống trùng (chuyển kèm kiểm thử), câu mới từ kho thành việc chờ, gợi ý chủ đề / vùng / mô-típ / Wikidata thành việc chờ | A | T-142 | — | READY |
+| T-144 | [Đợt 1] Tìm: chỉ mục từ các phần của bài, bỏ dấu, gõ sai (gộp T-132), nhóm theo thể loại, "mong có câu này" | A | T-142 | — | READY |
 | T-145 | [Đợt 1] Công cụ nhập dữ liệu người làm: kiểm kê, chạy thử, nhập, hoàn tác, "Cần xem", kiểm "trước = sau" (`docs/29`) | A | T-143 | — | READY |
 | T-146 | [Đợt 2] Theme 1.0 và hệ thống thiết kế theo `design/v2/` (D-092): `theme.json`, token tím – lục sáng / tối, thang chữ và khoảng cách, đầu / chân trang, thanh thể loại, thanh dưới | A | T-141 | — | READY |
 | T-147 | [Đợt 2] Trang tác phẩm theo 5 thể loại: lời, chạm từ, dòng mức kiểm, nghĩa, dị bản, chú thích, bối cảnh, đoạn, đồng dao (Đọc cùng bé, cách chơi), câu đố (nút Hiện đáp án) | A | T-142, T-146 | — | READY |
@@ -132,11 +132,11 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-149 | [Đợt 2] Trang chủ lối vào, vai, menu và IA mới; Tất cả, thể loại, chủ đề / vùng / mô-típ đọc liền (gộp T-137); tuyển tập; Một câu ngẫu nhiên | A | T-148 | — | READY |
 | T-150 | [Đợt 2] Tra cứu: trang Tìm, Từ điển và mục từ, Bản đồ, Đố vui (gộp T-096), Trò chơi có lọc, Hay bị nhầm (gộp T-135 phần hiện) | A | T-144, T-148 | — | READY |
 | T-151 | [Đợt 2] Người đọc góp, Đã lưu, đo lường 5 sự kiện + lượt đọc, Đọc tiếp, SEO (L2, tiêu đề "nghĩa và cách dùng", JSON-LD, sitemap), an toàn, kiểm liên kết ra ngoài, 404 | A | T-149, T-150 | — | READY |
-| T-152 | [Đợt 3] REST quản trị `phongdao/v1`, quyền riêng, bước dựng React + CI so bản dựng, khung ứng dụng Phongdao | A | T-142 | — | READY |
-| T-153 | [Đợt 3] Hôm nay (Hộp việc, Tuần này, Kho đang có) và Duyệt nhanh trên điện thoại | A | T-143, T-152 | — | READY |
-| T-154 | [Đợt 3] Soạn tác phẩm có cấu trúc (nghĩa tục ngữ gộp T-098, bối cảnh gộp T-102, cờ nghi gộp T-135, SGK), báo trùng, lịch sử; nhập nháp AI theo lô | A | T-153 | — | READY |
-| T-155 | [Đợt 3] Quản lý: tuyển tập, từ điển và Wikidata, trò chơi, mô-típ, chủ đề / vùng, thể loại, Nguồn (hồ sơ, nguồn tự động, kho), Người đọc, Số liệu, Cài đặt | A | T-154 | — | READY |
-| T-156 | [Đợt 3] E2E V2 trên bản xem trước; người sáng lập dùng thử Bàn biên tập trên điện thoại; chạy thử công cụ nhập trên site thật (chỉ đọc) | N+A | T-145, T-151, T-155 | — | READY |
+| T-152 | [Đợt 3] Nền biên tập (D-094): REST `phongdao/v1` cho việc và phần của bài, quyền riêng, chế độ sửa trên trang đọc (nút Sửa, tấm sửa, dải Đang sửa, `bien-tap.js`), bốn trang `/bien-tap/…` có đăng nhập, không đệm cho người đăng nhập | A | T-142 | — | READY |
+| T-153 | [Đợt 3] Hộp việc: danh sách, lọc, Tuần này, Duyệt từng thẻ trên điện thoại, hoàn tác 10 giây | A | T-143, T-152 | — | READY |
+| T-154 | [Đợt 3] Sửa trang bài: tấm sửa lời và đối chiếu, ý nghĩa, nghĩa tục ngữ (gộp T-098), từ khó, dị bản, theo thể loại (bối cảnh gộp T-102), phân loại, cờ nghi (gộp T-135), SGK; Lịch sử; Tác phẩm và Thêm bài có báo trùng; nạp nháp AI theo lô thành việc chờ | A | T-153 | — | READY |
+| T-155 | [Đợt 3] Sửa tại chỗ trang tuyển tập, mục từ, trò chơi, mô-típ, chủ đề / vùng, thể loại; Số liệu tuần; Nguồn & cài đặt trong wp-admin (hồ sơ nguồn, nguồn tự động, kho, máy đang làm, cài đặt) | A | T-154 | — | READY |
+| T-156 | [Đợt 3] E2E V2 trên bản xem trước; người sáng lập dùng thử phần biên tập trên điện thoại; chạy thử công cụ nhập trên site thật (chỉ đọc) | N+A | T-145, T-151, T-155 | — | READY |
 | T-157 | [Đợt 4] Ngày chuyển (`docs/29` mục 5): PR chuyển đổi 1.0.0, nhập dữ liệu trên site thật, kiểm, người sáng lập kiểm trên điện thoại | N+A | T-156, T-140 | — | READY |
 | T-158 | [Đợt 5] Đối chiếu lời với sách có bản quét, bộ đọc Wikisource, giải nghĩa sách 1897 (gộp T-131, T-099) | N+A | T-157 | — | READY |
 | T-159 | [Đợt 5] Cho lớp học, bộ câu SGK, phiếu in (gộp T-133) | N+A | T-157 | — | READY |
@@ -158,7 +158,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-069 | Mời hội đồng cố vấn | N | T-053 | — | DEFERRED |
 | T-108 | Gắn cờ (không chặn) bài có từ tục; bỏ ô lọc thô tục của nguồn tự động (ý 21, để sau — D-060) | A | T-071 | — | DEFERRED |
 
-Không monorepo, không công cụ quản trị ngoài WordPress. Bảng riêng và trang quản trị React của V2 nằm trong plugin `ca-dao` (D-083, D-086). Task `DEFERRED` chỉ mở khi người sáng lập chọn ở nhịp hằng tháng sau Mốc C; task `DEFERRED` có ghi "gộp vào T-xxx" thì không mở lại — việc đó làm trong task V2 tương ứng (D-091).
+Không monorepo, không công cụ quản trị ngoài WordPress. Bảng việc và phần biên tập của V2 (sửa trên trang đọc, không React) nằm trong plugin `ca-dao` (D-083, D-094). Task `DEFERRED` chỉ mở khi người sáng lập chọn ở nhịp hằng tháng sau Mốc C; task `DEFERRED` có ghi "gộp vào T-xxx" thì không mở lại — việc đó làm trong task V2 tương ứng (D-091).
 
 **Nhóm V2** (`giai_doan_song_song` trong `du-an/trang-thai.json`): `npm run viec-tiep-theo` xét task của mốc hiện tại trước, rồi tới task V2. Mã V2 nằm ở `wordpress/v2/`, máy chủ chưa lấy tới ngày chuyển (T-157); **MVP đóng băng tính năng** — chỉ sửa lỗi bảo mật, mất dữ liệu (D-083). `docs/26`–`29` là đặc tả đã duyệt một lần cho đợt 1–4; đổi điều đã chốt thì ghi D-xxx (D-091).
 
@@ -637,28 +637,28 @@ Mọi task V2 đọc AGENTS.md và `docs/26`; task trang người đọc đọc 
 
 #### T-165 · Bộ thiết kế V2 — N+A
 **Chấp nhận:** người sáng lập chọn bảng màu và bản mẫu tham khảo (D-092); `design/v2/` có mã nguồn, token, đặc tả, `qa/`; `node source/build.mjs` và `python -X utf8 source/package-handoff.py` chạy được; 0 lỗi kiểm tĩnh, 0 cặp màu dưới ngưỡng tương phản, 0 trang tràn ngang ở 320 / 390 / 1440; bản dựng, ảnh chia sẻ và hai bản mẫu HTML không vào repo.
-**Tiến độ (02/11/2026):** xong — bản chốt 2.1 (D-092, D-093): mọi lựa chọn đã chốt; kiểm thêm "mỗi câu một dòng" và "nhãn nút không gãy" ở 320 / 360 / 390 / 768 / 1440 đạt, 13 luồng tương tác đạt.
+**Tiến độ (02/11/2026):** xong — bản chốt 2.1 (D-092, D-093): mọi lựa chọn đã chốt; kiểm thêm "mỗi câu một dòng" và "nhãn nút không gãy" ở 320 / 360 / 390 / 768 / 1440 đạt, 13 luồng tương tác đạt. **Bổ sung (02/11/2026, D-094):** nhóm màn biên tập B00–B05 thành bản chốt cho phần biên tập; 21 màn Bàn biên tập kiểu cũ (nhóm A) giữ để tham khảo, không làm.
 
 #### Đợt 1 · Nền (T-141..T-145)
 - **T-141 (xong 02/11/2026):** plugin `Phongdao — Thư viện Văn học Dân gian Việt Nam` 0.1.0 (tự nạp `Phongdao`, 5 module khung: cài đặt, REST `phongdao/v1/suc-khoe`, khối, `wp phongdao phien-ban`, menu Phongdao; lớp miền đầu tiên `MienDuLieuBoDau` chuyển từ MVP), theme khối `Phongdao` 0.1.0; `test:v2` (PHP thuần + Playground PHP 8.3), `quet:v2`, `xem-truoc:v2`, workflow `v2.yml`. Yêu cầu gốc: đo phiên bản PHP của máy chủ trước khi chọn cú pháp (`docs/26` mục 2); `npm run test:v2` chạy bộ kiểm PHP thuần < 5 giây và Playground; `xem-truoc:v2` mở được plugin + theme V2 với dữ liệu mẫu; job CI `v2`. **Chấp nhận:** cây thư mục đúng `docs/26` mục 3; MVP không đổi; CI xanh.
-- **T-142:** **Chấp nhận:** đủ loại bài, phân loại, bảng ở `docs/26` mục 4; kiểm thử khẳng định ràng buộc lằn ranh mục 4.3 và `docs/28` mục 6; `CapChatLuong` cho đúng L0–L3 (bài phân tích không tính); SQL chạy trên SQLite và MySQL.
-- **T-143:** **Chấp nhận:** bộ đọc Ca dao Mẹ và chống trùng cho cùng kết quả với MVP trên mọi ca kiểm thử của MVP; ứng viên theo `docs/28` mục 3.3; kho không ra trang người đọc.
+- **T-142:** **Chấp nhận:** đủ loại bài, phân loại, các phần của bài và bảng việc ở `docs/26` mục 4 (D-094); mọi lần ghi một phần đi qua `LuuPhan` + `KiemPhan`, ghi một dòng nhật ký, hoàn tác được; kiểm thử khẳng định ràng buộc lằn ranh mục 4.3 và `docs/28` mục 6 (nháp không vào bài, lời không nhận người làm AI, nguồn không tự điền, địa chỉ gốc máy không ra HTML khách); `CapChatLuong` cho đúng L0–L3 (bài phân tích không tính); SQL chạy trên SQLite và MySQL.
+- **T-143:** **Chấp nhận:** bộ đọc Ca dao Mẹ và chống trùng cho cùng kết quả với MVP trên mọi ca kiểm thử của MVP; câu mới theo `docs/28` mục 3.3; kho không ra trang người đọc.
 - **T-144:** **Chấp nhận:** bộ truy vấn có dấu / không dấu / sai một chữ (gồm L-09) đạt; câu không có trong kho không ra bài lạc đề; kho có câu thì hiện "đang chờ biên soạn" mà không lộ lời kho.
 - **T-145:** **Chấp nhận:** theo `docs/29` mục 2–4 — kiểm kê đối chiếu đủ với mã MVP; nhập → hoàn tác → nhập cho cùng kết quả trên dữ liệu mẫu; "trước = sau" từng ký tự; báo cáo không chép lời.
 
 #### Đợt 2 · Trang đọc (T-146..T-151)
 **Chấp nhận chung:** đúng `docs/27` và bộ thiết kế `design/v2/` (D-092) từng màn hình (thứ tự thành phần, trạng thái trống / lỗi); mỗi mẫu thể loại ≤ 200 KB, JavaScript trang bài ≤ 21 KB, tuyển tập 30 câu ≤ 300 KB; 0 lỗi axe; tắt JavaScript vẫn đọc được; câu đố có nút "Hiện đáp án" bằng `<details>` (D-087); Thông tin tư liệu mặc định đúng D-068 + D-078 + D-081 (liên kết nguồn ẩn không có trong HTML gửi người đọc); khối Biên soạn chỉ hiện khi có bút danh (T-136 cũ); trang chủ đề / vùng không có giới thiệu do máy viết (T-137 cũ); bối cảnh vè không do máy viết (T-102 cũ); nghĩa từ Wiktionary ghi "Nguồn: Wiktionary ↗ · CC BY-SA" ngay dưới (T-098 cũ); Đố vui 10 câu một lượt, nhớ trên máy, không chấm điểm (T-096 cũ); đúng 5 sự kiện đo (D-088); kiểm liên kết ra ngoài trong CI.
 
-**Tiến độ (02/11/2026) — khung giao diện người đọc:** theme V2 lấy CSS và `fit.js` từ `design/v2` bằng `npm run dong-bo:giao-dien-v2` (có chế độ tối theo cài đặt máy), phông woff2 cắt gọn của MVP; khối `cadao/dau-trang` (đầu trang + thanh thể loại), `cadao/chan-trang` (chân trang + thanh dưới), `cadao/tac-pham` (thẻ lời, nhãn mức kiểm, Ý nghĩa, công cụ đọc, Từ khó, Dị bản, giải nghĩa tục ngữ, Lời này từ đâu?, Ảnh để chia sẻ) đọc dữ liệu mẫu; `doc.js` (sáng / tối, cỡ chữ, sao chép, Lưu, Trích dẫn, Chia sẻ). Còn: nối dữ liệu thật (sau khi chốt cách lưu bài), trang chủ, danh sách, Đọc tiếp, Bạn muốn góp gì?, Trình chiếu, Đọc cùng bé, ảnh PNG.
+**Tiến độ (02/11/2026) — khung giao diện người đọc:** theme V2 lấy CSS và `fit.js` từ `design/v2` bằng `npm run dong-bo:giao-dien-v2` (có chế độ tối theo cài đặt máy), phông woff2 cắt gọn của MVP; khối `cadao/dau-trang` (đầu trang + thanh thể loại), `cadao/chan-trang` (chân trang + thanh dưới), `cadao/tac-pham` (thẻ lời, nhãn mức kiểm, Ý nghĩa, công cụ đọc, Từ khó, Dị bản, giải nghĩa tục ngữ, Lời này từ đâu?, Ảnh để chia sẻ) đọc dữ liệu mẫu; `doc.js` (sáng / tối, cỡ chữ, sao chép, Lưu, Trích dẫn, Chia sẻ). Còn: nối dữ liệu thật (cách lưu bài đã chốt — D-094, làm cùng T-142), trang chủ, danh sách, Đọc tiếp, Bạn muốn góp gì?, Trình chiếu, Đọc cùng bé, ảnh PNG.
 
-#### Đợt 3 · Bàn biên tập (T-152..T-156)
-**Chấp nhận chung:** đúng `docs/28`; bản dựng React khớp mã nguồn (CI); mọi route kiểm quyền + nonce; 6 lằn ranh của `docs/28` mục 6 có kiểm thử; máy chỉ gợi ý cờ nghi (T-135 cũ), không tự đánh dấu SGK (T-133 cũ); không còn trang quản trị con nào của MVP trong V2; Gutenberg không mở cho tác phẩm. **T-156:** người sáng lập dùng thử trên điện thoại và trả lời "Bàn biên tập dùng được" (agent không tự đánh `DONE` khi chưa có câu trả lời); `e2e:v2` đạt; `thu-nhap` trên site thật (được đồng ý) cho "trước = sau" đạt trừ "Cần xem" đã giải thích.
+#### Đợt 3 · Biên tập (T-152..T-156)
+**Chấp nhận chung:** đúng `docs/28` và màn mẫu nhóm B của `design/v2` (D-094); không bước dựng JavaScript, `bien-tap.js` chỉ nạp cho người có quyền biên tập (≤ 30 KB gzip); HTML gửi khách không có nút Sửa hay dòng nguồn gốc nội bộ; mọi route kiểm quyền + nonce; 6 lằn ranh của `docs/28` mục 6 có kiểm thử; máy chỉ gợi ý cờ nghi (T-135 cũ), không tự đánh dấu SGK (T-133 cũ); không còn trang quản trị con nào của MVP trong V2; Gutenberg không mở cho tác phẩm. **T-156:** người sáng lập dùng thử trên điện thoại và trả lời "phần biên tập dùng được" (agent không tự đánh `DONE` khi chưa có câu trả lời); `e2e:v2` đạt; `thu-nhap` trên site thật (được đồng ý) cho "trước = sau" đạt trừ "Cần xem" đã giải thích.
 
 #### T-157 · Ngày chuyển — N+A
 **Đọc:** `docs/29` mục 5. **Chấp nhận:** site thật chạy plugin, theme 1.0.0; số tác phẩm, Hiểu nhanh, lượt đọc, cảm nghĩ, phân tích, mục từ, trò chơi trước / sau khớp; 20 đường dẫn cũ ra 301 đúng; người sáng lập kiểm trên điện thoại; `docs/20`, `docs/24` vào `docs/luu-tru/`; lệnh npm mặc định trỏ V2.
 
 #### Đợt 5 · Sau khi mở (T-158..T-164)
-**Chấp nhận chung:** thể loại chỉ lên menu khi qua cổng (D-091); truyện chỉ từ sách hết bản quyền người sáng lập đã kiểm (H3); T-158 đạt tiêu chí cũ của T-131 (máy không tự điền "Lời đã đối chiếu với"; lời sách không vào repo công khai) và T-099; T-159 đạt tiêu chí cũ của T-133; T-160 đạt tiêu chí cũ của T-105 (nghe thử 30 bài trước khi sinh cả kho, ghi "Giọng đọc máy"); T-163 chỉ xuất lớp đã duyệt của tác phẩm đã đăng, nguồn có quyền; T-164 chỉ chạy khi người sáng lập đồng ý (H6).
+**Chấp nhận chung:** thể loại chỉ lên menu khi qua cổng (D-091); truyện chỉ từ sách hết bản quyền người sáng lập đã kiểm (H3); T-158 đạt tiêu chí cũ của T-131 (máy không tự điền "Lời đã đối chiếu với"; lời sách không vào repo công khai) và T-099; T-159 đạt tiêu chí cũ của T-133; T-160 đạt tiêu chí cũ của T-105 (nghe thử 30 bài trước khi sinh cả kho, ghi "Giọng đọc máy"); T-163 chỉ xuất các phần đã lưu của tác phẩm đã đăng, nguồn có quyền; T-164 chỉ chạy khi người sáng lập đồng ý (H6).
 
 ## 4. User story
 

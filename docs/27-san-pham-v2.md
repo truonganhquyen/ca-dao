@@ -22,7 +22,7 @@ Tinh thần: **"Một trang sách cổ được chăm chút, đặt trong một 
 7. **Không độn chữ.** Khối không có dữ liệu thì không hiện, kể cả tiêu đề; không ảnh khung trống; không trang đích rỗng.
 8. **Nhẹ và sạch là tính năng.** Mục 9.
 9. **Mỗi câu một dòng (D-093).** Ở mọi màn hình (trang bài, Câu hôm nay, tuyển tập, ảnh chia sẻ, trình chiếu, Đọc cùng bé), mỗi câu của lời nằm trên một dòng: cỡ chữ lời tự co cho vừa khung, trần là cỡ người đọc chọn, sàn 15 px (14 px khi màn hẹp hơn 360 px). Dưới sàn: tục ngữ ngắt theo vế (sau dấu phẩy, trước gạch ngang), thể khác xuống dòng có thụt treo. Các khổ cùng một bài dùng chung một cỡ. Nhãn nút không xuống dòng.
-10. **Tên gọi dễ hiểu.** "Hiểu nhanh" hiển thị là **Ý nghĩa** (D-093); trong mã và tài liệu kỹ thuật vẫn là lớp `hieu_nhanh`.
+10. **Tên gọi dễ hiểu.** "Hiểu nhanh" hiển thị là **Ý nghĩa** (D-093); trong mã là phần `y_nghia` (D-094; tài liệu cũ gọi lớp `hieu_nhanh`).
 
 ## 2. Tên, khẩu hiệu, câu chữ
 
@@ -118,14 +118,14 @@ Bố cục chung (D-092, D-093): đầu trang căn giữa (nhãn thể loại; "
 
 Phần cuối chung (theo thứ tự, D-093): Chủ đề · Vùng · Thuộc tuyển tập (nhãn liên kết) → **Lời này từ đâu?** (mục 6.7) → Biên soạn (bút danh khi có, liên kết Phương pháp) → **Đọc tiếp** (3–5 thẻ, nền theo thể loại: cùng mô-típ, chủ đề, từ, địa danh, vùng; mỗi thẻ có lý do) → **Ảnh để chia sẻ** (mục 10.1) → **Bạn muốn góp gì?** (mục 8.1, lưới 6 nút) → Cảm nghĩ đã duyệt, bài phân tích đã duyệt. Khối "Trích dẫn nhanh" bỏ (D-093): nút Sao chép trong thẻ lời và nút Trích dẫn (hộp thông dụng / APA / chỉ lời) thay.
 
-**Người biên soạn đăng nhập** (D-093): đầu trang có dải "Bạn đang xem với vai người biên soạn" + [Mở trong Bàn biên tập]; khối Ý nghĩa có nút **Sửa ý nghĩa** (hoặc **Thêm ý nghĩa**) sửa ngay tại chỗ: ô chữ, ô "Có hỗ trợ của AI", [Lưu] [Huỷ]; lưu qua REST `phongdao/v1` (quyền biên tập + nonce), ghi lịch sử. Người đọc không nhận nút này trong HTML.
+**Người biên soạn đăng nhập** (D-093, D-094): trang bài thành chế độ sửa — dải "Đang sửa" (trạng thái, [Xem như người đọc]), mỗi khối có nút **Sửa** mở tấm sửa (Ý nghĩa: ô chữ, ô "Có hỗ trợ của AI", ô "đã duyệt", [Lưu] [Huỷ]); lưu qua REST `phongdao/v1` (quyền biên tập + nonce), ghi lịch sử. Chi tiết: `docs/28` mục 4.2. Người đọc không nhận các nút này trong HTML.
 
 Bài thiếu phần: "Bài đang được bổ sung. Bạn biết thêm? Góp ý" — máy không tự điền.
 
 ### 6.1. Ca dao (S04)
 
 Lời (lục bát thụt câu lục — D-092; từ có chú thích nền tô vàng; từ có chú thích là nút chạm, popover nghĩa + nguồn theo chính sách) → nhãn mức kiểm (mục 6.0) → **Ý nghĩa** (2–3 câu ngắn, nền lục nhạt; "Có hỗ trợ của AI, đã được người biên soạn duyệt" khi có dấu) → thanh hành động → **Từ khó** (chú thích dạng ô: từ – lời giải, liên kết mục từ) → ▸ Dị bản (đánh số, tô chữ khác; nơi, người kể khi có) → Bạn có biết? → phần cuối chung.
-**Nghiệm thu:** lời hiện đúng từng ký tự như lớp `loi`; trích dẫn đúng; tắt JavaScript vẫn đọc lời, chú thích ở cuối khối.
+**Nghiệm thu:** lời hiện đúng từng ký tự như phần `loi`; trích dẫn đúng; tắt JavaScript vẫn đọc lời, chú thích ở cuối khối.
 
 ### 6.2. Tục ngữ – Thành ngữ (S05)
 
@@ -152,7 +152,7 @@ Tên → "Bản kể theo: <sách>, <năm>, tr. N · Kể lại: <bút danh>" �
 
 ### 6.7. Lời này từ đâu? (S18, D-085, tên chốt D-093)
 
-Khối thu gọn cuối bài, mỗi lớp một dòng; dòng nào hiện là theo chính sách hiện của hồ sơ nguồn (mặc định như hiện nay):
+Khối thu gọn cuối bài, mỗi phần một dòng; dòng nào hiện là theo chính sách hiện của hồ sơ nguồn (mặc định như hiện nay):
 
 ```text
 Lời       Bản lưu truyền phổ biến, chưa đối chiếu với sách in · Có sách? Gửi số trang
@@ -276,7 +276,7 @@ Trang 404 riêng: ô tìm điền sẵn chữ từ đường dẫn, gợi ý tuy
 | Thẻ bài | đủ / thiếu nghĩa / có cờ; 2 dòng đầu mỗi dòng một hàng, quá dài thì "…" |
 | Khối lời | thơ, câu một dòng, bài dài; có / không chú thích; mỗi câu một dòng (co chữ vừa khung); không JavaScript (CSS ước lượng theo độ dài dòng) |
 | Nhãn mức kiểm | bản lưu truyền phổ biến / đã đối chiếu sách / đã đối chiếu web; ⓘ mở, đóng |
-| Khối Ý nghĩa | chỉ Ý nghĩa / đủ lớp / có AI hỗ trợ / chưa có / người biên soạn đang sửa |
+| Khối Ý nghĩa | chỉ Ý nghĩa / đủ các phần nghĩa / có AI hỗ trợ / chưa có / người biên soạn đang sửa |
 | Nút Sao chép trong thẻ | máy tính có chữ / điện thoại chỉ biểu tượng / lỗi clipboard (chọn chữ để chép tay) |
 | Ảnh để chia sẻ | 3 khổ × 3 nền theo thể loại; kèm / không ý nghĩa; câu đố không lộ đáp án |
 | Khối dị bản | 1 / nhiều / có nơi, người kể |
