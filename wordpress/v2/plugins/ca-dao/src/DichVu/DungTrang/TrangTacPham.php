@@ -76,6 +76,7 @@ final class TrangTacPham {
 			'dap_an'       => (string) ( $phan['dap_an']['chu'] ?? '' ),
 			'goi_y'        => (string) ( $phan['goi_y']['chu'] ?? '' ),
 			'cau_hoi'      => (string) ( $phan['cau_hoi']['chu'] ?? '' ),
+			'co_nghi'      => (string) ( $phan['co_nghi']['ly_do'] ?? '' ),
 			'chu_de'       => $bai['chu_de'] ?? array(),
 			'vung'         => $bai['vung'] ?? array(),
 			'tuyen_tap'    => $bai['tuyen_tap'] ?? array(),

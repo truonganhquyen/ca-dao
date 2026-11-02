@@ -435,6 +435,69 @@ kt( 'kho đổi: phần người đã sửa giữ nguyên (máy không ghi đè)
 $bo_id = (int) $hv->id;
 kt( 'Bỏ câu mới: câu ở lại kho (bỏ qua), việc đóng', UngVien::bo( $bo_id, $ai_ql, 'không hợp' ) && 'bo_qua' === Kho::lay( $bo_id )->trang_thai && array() === Viec::mo( 'kho', $bo_id, 'cau_moi' ) );
 
+// ---------- Biên tập trên trang đọc (D-094): quyền, chế độ sửa, lưu qua REST, hoàn tác ----------
+$ql = get_role( 'administrator' );
+$bt = get_role( 'editor' );
+kt( 'quyền riêng: Quản trị đủ; Biên tập sửa, duyệt nhưng không quyền nguồn; có vai Cộng tác', $ql->has_cap( 'cadao_soan' ) && $ql->has_cap( 'cadao_duyet' ) && $ql->has_cap( 'cadao_nguon' ) && $bt->has_cap( 'cadao_soan' ) && $bt->has_cap( 'cadao_duyet' ) && ! $bt->has_cap( 'cadao_nguon' ) && (bool) get_role( 'cadao_cong_tac' ) );
+wp_set_current_user( 0 );
+$h = $xem( $tp1 );
+kt( 'khách: không có dải "Đang sửa", nút Sửa, tấm sửa, lịch sử, dòng nguồn gốc nội bộ', ! preg_match( '/dai-bien-tap|nut-sua|tam-sua|id="lich-su"|goc-nguon/', $h ) );
+$doc_gia = wp_insert_user( array( 'user_login' => 'docgia', 'user_pass' => wp_generate_password(), 'role' => 'subscriber' ) );
+wp_set_current_user( $doc_gia );
+kt( 'người đọc có tài khoản (không quyền biên tập): không thấy phần sửa', ! str_contains( $xem( $tp1 ), 'dai-bien-tap' ) );
+wp_set_current_user( $ai_ql );
+$h = $xem( $tp1 );
+kt( 'người biên soạn: dải "Đang sửa", nút Sửa trên khối, tấm sửa lời / ý nghĩa / từ khó / dị bản, lịch sử', str_contains( $h, 'class="dai-bien-tap' ) && str_contains( $h, 'data-tam="loi"' ) && str_contains( $h, 'id="tam-loi"' ) && str_contains( $h, 'id="tam-y_nghia"' ) && str_contains( $h, 'id="tam-chu_thich"' ) && str_contains( $h, 'id="tam-di_ban"' ) && str_contains( $h, 'id="lich-su"' ), substr( $h, 0, 300 ) );
+kt( 'người biên soạn: dòng nguồn gốc (máy chép từ…) và nguồn đã ẩn vẫn thấy trong tấm sửa', str_contains( $h, 'Lời: máy chép' ) && ! str_contains( $h, 'id="tam-nghia_den"' ) );
+$rest = static function ( string $duong, array $than ) {
+	$yc = new WP_REST_Request( 'POST', '/phongdao/v1' . $duong );
+	$yc->set_body_params( $than );
+	return rest_do_request( $yc );
+};
+$kq = $rest( "/tac-pham/$tp1/phan/y_nghia", array( 'chu' => 'Ý nghĩa nháp mẫu.', 'ai' => '1' ) );
+kt( 'lưu ý nghĩa chưa đánh "đã duyệt": thành nháp trong Hộp việc, bài chưa đổi', 200 === $kq->get_status() && ( $kq->get_data()['ok'] ?? false ) && null === PhanBai::lay( $tp1, 'y_nghia' ) && 1 === count( Viec::mo( 'post', $tp1, 'nhap_y_nghia' ) ), $kq->get_data() );
+$kq = $rest( "/tac-pham/$tp1/phan/y_nghia", array( 'chu' => 'Ý nghĩa đã duyệt mẫu.', 'ai' => '1', 'duyet' => '1' ) );
+$yn = PhanBai::lay( $tp1, 'y_nghia' );
+kt( 'lưu ý nghĩa đã duyệt (có hỗ trợ AI): vào bài, ghi người duyệt', ( $kq->get_data()['ok'] ?? false ) && 'Ý nghĩa đã duyệt mẫu.' === ( $yn['chu'] ?? '' ) && NguoiLam::AI_DA_DUYET === ( $yn['nguoi_lam'] ?? '' ) && $ai_ql === ( $yn['duyet_boi'] ?? 0 ), $kq->get_data() );
+$ct_cu = PhanBai::lay( $tp1, 'chu_thich' )['muc'];
+$hang  = array();
+foreach ( $ct_cu as $i => $m ) {
+	$hang[ $i ] = array( 'goc' => (string) $i, 'tu' => $m['tu'] ?? '', 'loi_giai' => $m['loi_giai'], 'nguon' => array( 'ho_so' => (string) ( $m['nguon']['ho_so'] ?? 0 ), 'trang' => '', 'url' => '' ) );
+}
+$kq = $rest( "/tac-pham/$tp1/phan/chu_thich", array( 'muc' => $hang ) );
+kt( 'gửi lại từ khó không đổi gì: "Không có gì thay đổi", mục máy chép giữ nguyên', ( $kq->get_data()['ok'] ?? false ) && ! ( $kq->get_data()['doi'] ?? true ) && $ct_cu === PhanBai::lay( $tp1, 'chu_thich' )['muc'], $kq->get_data() );
+$hang[0]['loi_giai'] = 'Lời giải người biên soạn sửa.';
+$hang[1]['xoa']      = '1';
+$hang['m1']          = array( 'goc' => '', 'tu' => 'mới', 'loi_giai' => 'Chú thích mới.', 'nguon' => array( 'ho_so' => '0', 'trang' => '', 'url' => '' ) );
+$kq = $rest( "/tac-pham/$tp1/phan/chu_thich", array( 'muc' => $hang ) );
+$ct = PhanBai::lay( $tp1, 'chu_thich' )['muc'] ?? array();
+kt( 'sửa một mục máy chép → người viết; xoá mục; thêm mục mới không tự điền nguồn', ( $kq->get_data()['ok'] ?? false ) && 2 === count( $ct ) && NguoiLam::NGUOI_VIET === $ct[0]['nguoi_lam'] && 'Lời giải người biên soạn sửa.' === $ct[0]['loi_giai'] && ! isset( $ct[1]['nguon'] ) && NguoiLam::NGUOI_VIET === $ct[1]['nguoi_lam'], $ct );
+HoSo::tao( 'sach-mau', 'Sách mẫu', array( 'loai' => 'sach' ) );
+$sach = HoSo::theo_khoa( 'sach-mau' );
+$kq   = $rest( "/tac-pham/$tp1/phan/loi", array( 'dong' => "Dòng một mẫu\nDòng hai mẫu", 'doi_chieu' => array( 'ho_so' => (string) $sach->ID, 'trang' => '12', 'url' => '' ) ) );
+$loi1 = PhanBai::lay( $tp1, 'loi' );
+wp_set_current_user( 0 );
+$h_khach = $xem( $tp1 );
+wp_set_current_user( $ai_ql );
+kt( 'thêm đối chiếu sách (người điền) mà không đổi lời: lời vẫn là "máy chép"; trang hiện "Đã đối chiếu: Sách mẫu, tr. 12"', ( $kq->get_data()['ok'] ?? false ) && NguoiLam::MAY_CHEP === $loi1['nguoi_lam'] && $sach->ID === ( $loi1['doi_chieu']['ho_so'] ?? 0 ) && str_contains( $h_khach, 'Đã đối chiếu: Sách mẫu, tr. 12' ), $kq->get_data() );
+$kq = $rest( "/tac-pham/$tp1/phan/loi", array( 'dong' => "Dòng một mẫu\nDòng hai mẫu sửa", 'doi_chieu' => array( 'ho_so' => (string) $sach->ID, 'trang' => '12', 'url' => '' ) ) );
+kt( 'sửa chữ trong lời: người làm thành "người viết"', ( $kq->get_data()['ok'] ?? false ) && NguoiLam::NGUOI_VIET === PhanBai::lay( $tp1, 'loi' )['nguoi_lam'] );
+$viec_sua = (int) ( $kq->get_data()['viec'] ?? 0 );
+$kq       = rest_do_request( new WP_REST_Request( 'POST', "/phongdao/v1/viec/$viec_sua/hoan-tac" ) );
+kt( 'hoàn tác qua REST: lời về bản trước', ( $kq->get_data()['ok'] ?? false ) && array( 'Dòng một mẫu', 'Dòng hai mẫu' ) === PhanBai::lay( $tp1, 'loi' )['dong'], $kq->get_data() );
+$kq = $rest( "/tac-pham/$tp1/trang-thai", array( 'trang_thai' => 'private' ) );
+kt( 'Ẩn bài: bài thôi hiện với người đọc, lịch sử ghi lại', ( $kq->get_data()['ok'] ?? false ) && 'private' === get_post_status( $tp1 ) && 'trang_thai' === ( Viec::lich_su( 'post', $tp1, 1 )[0]['phan'] ?? '' ) );
+$rest( "/tac-pham/$tp1/trang-thai", array( 'trang_thai' => 'publish' ) );
+kt( 'Đăng lại (cần quyền duyệt)', 'publish' === get_post_status( $tp1 ) );
+wp_set_current_user( $doc_gia );
+kt( 'người không có quyền biên tập: REST lưu phần bị chặn (403)', 403 === $rest( "/tac-pham/$tp1/phan/y_nghia", array( 'chu' => 'x', 'duyet' => '1' ) )->get_status() && 'Ý nghĩa đã duyệt mẫu.' === PhanBai::lay( $tp1, 'y_nghia' )['chu'] );
+wp_set_current_user( 0 );
+kt( 'khách: REST lưu phần bị chặn (401)', 401 === $rest( "/tac-pham/$tp1/phan/y_nghia", array( 'chu' => 'x', 'duyet' => '1' ) )->get_status() );
+$cong_tac = wp_insert_user( array( 'user_login' => 'congtac', 'user_pass' => wp_generate_password(), 'role' => 'cadao_cong_tac' ) );
+wp_set_current_user( $cong_tac );
+kt( 'vai Cộng tác: không sửa được tác phẩm trên trang', 403 === $rest( "/tac-pham/$tp1/phan/loi", array( 'dong' => 'x' ) )->get_status() );
+wp_set_current_user( $ai_ql );
+
 do_action( 'wp_enqueue_scripts' );
 kt( 'theme nạp giao-dien.css, fit.js, doc.js (hoãn, cuối trang)', wp_style_is( 'phongdao-giao-dien', 'enqueued' ) && wp_script_is( 'phongdao-fit', 'enqueued' ) && wp_script_is( 'phongdao-doc', 'enqueued' ) );
 

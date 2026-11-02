@@ -2,6 +2,8 @@
 
 namespace Phongdao\GiaoTiep\Khoi;
 
+use Phongdao\GiaoTiep\BienTap\CheDoSua;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -12,11 +14,17 @@ defined( 'ABSPATH' ) || exit;
  */
 final class TacPham {
 
-	/** @param array<string,mixed> $tp xem DichVu\DungTrang\DuLieuMau */
-	public static function hien( array $tp ): string {
+	/**
+	 * @param array<string,mixed>      $tp  xem DichVu\DungTrang\DuLieuMau
+	 * @param array<string,mixed>|null $sua chế độ sửa (GiaoTiep\BienTap\CheDoSua::ngu_canh) — chỉ khi người xem có quyền
+	 */
+	public static function hien( array $tp, ?array $sua = null ): string {
 		$tp['url'] = $tp['url'] ?? ( get_permalink() ?: home_url( '/' ) );
 		$tu        = array_values( array_filter( array_column( $tp['chu_thich'], 'tu' ) ) );
 		$tuc_ngu   = 'proverb' === $tp['kieu'];
+		$cau_do    = 'cau-do' === $tp['the_loai'];
+		$nut       = static fn( string $tam, string $nhan ): string => $sua ? CheDoSua::nut( $tam, $nhan ) : '';
+		$goc       = static fn( string $nhan, string $phan ): string => $sua ? CheDoSua::goc( $nhan, $sua['phan'][ $phan ] ?? null, $sua ) : '';
 		$nhan      = array( array( trim( $tp['ten_the_loai'] . ( $tp['hinh_thuc'] ? ' · ' . $tp['hinh_thuc'] : '' ) ) ) );
 		if ( $tp['di_ban'] ) {
 			$nhan[] = array( 'Bản tham chiếu · ' . count( $tp['di_ban'] ) . ' dị bản', true, '#di-ban' );
@@ -25,22 +33,30 @@ final class TacPham {
 			? str_replace( array( '<div', '</div>' ), array( '<span', '</span>' ), Ve::loi( $tp['loi'], 'proverb', array(), array( 'max' => '48' ) ) )
 			: esc_html( $tp['tieu_de'] );
 		$y = empty( $tp['y_nghia']['chu'] )
-			? '<div class="notice">Bài đang được bổ sung ý nghĩa. Bạn biết thêm? ' . Ve::lien_ket( 'gop', 'Góp ý' ) . '</div>'
-			: Ve::y_nghia( $tp['y_nghia']['chu'], ! empty( $tp['y_nghia']['ai'] ) );
-		$cau_do = 'cau-do' === $tp['the_loai'];
+			? ( $sua ? '<div class="meaning trong" data-chi-sua><div class="meaning-head"><h2>Ý nghĩa</h2>' . $nut( 'y_nghia', 'Thêm ý nghĩa' ) . '</div><p class="small muted">Chưa có ý nghĩa' . ( $sua['nhap'] ? ' · có ' . count( $sua['nhap'] ) . ' nháp chờ duyệt trong Hộp việc' : '' ) . '.</p></div>'
+				: '<div class="notice">Bài đang được bổ sung ý nghĩa. Bạn biết thêm? ' . Ve::lien_ket( 'gop', 'Góp ý' ) . '</div>' )
+			: Ve::y_nghia( $tp['y_nghia']['chu'], ! empty( $tp['y_nghia']['ai'] ), 'Ý nghĩa', $nut( 'y_nghia', 'Sửa' ) ) . $goc( 'Ý nghĩa', 'y_nghia' );
 		if ( $cau_do ) {
 			// Câu đố: đáp án thu gọn sau nút "Hiện đáp án", tắt JavaScript vẫn mở được (D-087)
-			$y = ( empty( $tp['goi_y'] ) ? '' : '<details class="disclosure"><summary>Gợi ý</summary><div class="detail-body"><p>' . esc_html( $tp['goi_y'] ) . '</p></div></details>' )
+			$y = ( $sua ? '<p class="row no-print">' . $nut( 'cau_hoi', 'Sửa câu hỏi' ) . $nut( 'goi_y', 'Sửa gợi ý' ) . $nut( 'dap_an', 'Sửa đáp án' ) . '</p>' : '' )
+				. ( empty( $tp['goi_y'] ) ? '' : '<details class="disclosure"><summary>Gợi ý</summary><div class="detail-body"><p>' . esc_html( $tp['goi_y'] ) . '</p></div></details>' )
 				. ( empty( $tp['dap_an'] ) ? '' : '<details class="answer"><summary>Hiện đáp án</summary><div class="detail-body"><h2>Đáp án</h2><p>' . esc_html( $tp['dap_an'] ) . '</p></div></details>' )
-				. ( empty( $tp['y_nghia']['chu'] ) ? '' : Ve::y_nghia( $tp['y_nghia']['chu'], ! empty( $tp['y_nghia']['ai'] ) ) );
+				. ( empty( $tp['y_nghia']['chu'] ) ? '' : Ve::y_nghia( $tp['y_nghia']['chu'], ! empty( $tp['y_nghia']['ai'] ), 'Ý nghĩa', $nut( 'y_nghia', 'Sửa' ) ) );
 		}
+		$muc_kiem = $sua ? '<div class="level-sua">' . Ve::muc_kiem( $tp['doi_chieu'] ) . $nut( 'loi', empty( $tp['doi_chieu'] ) ? 'Thêm đối chiếu sách' : 'Sửa đối chiếu' ) . '</div>' : Ve::muc_kiem( $tp['doi_chieu'] );
 		$than_loi = $tuc_ngu
-			? Ve::muc_kiem( $tp['doi_chieu'] ) . $y
+			? $goc( 'Lời', 'loi' ) . $muc_kiem . $y
 			: Ve::loi( $tp['loi'], $tp['kieu'], $tu, array( 'so_dong' => ! $cau_do, 'nhom' => $tp['ma'] ) )
 				. ( $cau_do && ! empty( $tp['cau_hoi'] ) ? '<p class="riddle-q">' . esc_html( $tp['cau_hoi'] ) . '</p>' : '' )
-				. Ve::muc_kiem( $tp['doi_chieu'] ) . $y;
+				. $goc( 'Lời', 'loi' ) . $muc_kiem . $y;
 
 		$sau = '';
+		if ( $sua ) {
+			$sau .= '<section class="block tint-dat no-print" data-chi-sua><div class="block-dau"><h2>Cờ “Nghi không phải dân gian”</h2>' . $nut( 'co_nghi', empty( $tp['co_nghi'] ) ? 'Gắn cờ' : 'Sửa' ) . '</div><p class="small muted">' . ( empty( $tp['co_nghi'] ) ? 'Chưa gắn cờ.' : esc_html( 'Đang gắn: ' . $tp['co_nghi'] ) ) . '</p></section>';
+			if ( ! $tp['chu_thich'] ) {
+				$sau .= '<section class="block tint-vang" id="chu-thich" data-chi-sua><div class="block-dau"><h2>Từ khó</h2>' . $nut( 'chu_thich', 'Thêm' ) . '</div><p class="small muted">Chưa có từ khó.</p></section>';
+			}
+		}
 		if ( $tp['chu_thich'] ) {
 			$o = '';
 			foreach ( $tp['chu_thich'] as $c ) {
@@ -48,7 +64,10 @@ final class TacPham {
 				$nguon = empty( $c['nguon'] ) ? '' : '<br><span class="small">Nguồn: ' . ( empty( $c['nguon']['url'] ) ? esc_html( $c['nguon']['chu'] ) : '<a href="' . esc_url( $c['nguon']['url'] ) . '" rel="nofollow">' . esc_html( $c['nguon']['chu'] ) . '</a>' ) . '</span>';
 				$o    .= '<div class="term"><dt>' . esc_html( '' !== $c['tu'] ? $c['tu'] : 'Chú thích chung' ) . '</dt><dd>' . esc_html( $c['giai'] ) . $nguon . '</dd></div>';
 			}
-			$sau .= Ve::khoi( 'Từ khó', '<dl class="terms">' . $o . '</dl>', 'tint-vang', 'chu-thich' );
+			$sau .= Ve::khoi( 'Từ khó', '<dl class="terms">' . $o . '</dl>' . $goc( 'Từ khó', 'chu_thich' ), 'tint-vang', 'chu-thich', $nut( 'chu_thich', 'Sửa' ) );
+		}
+		if ( $sua && ! $tp['di_ban'] ) {
+			$sau .= '<section class="block tint-tim" id="di-ban" data-chi-sua><div class="block-dau"><h2>Dị bản</h2>' . $nut( 'di_ban', 'Thêm' ) . '</div><p class="small muted">Chưa có dị bản.</p></section>';
 		}
 		if ( $tp['di_ban'] ) {
 			$o = '<p class="small muted">Các cách lưu truyền đặt cạnh Bản tham chiếu. Chữ gạch dưới là phần khác.</p>';
@@ -60,13 +79,13 @@ final class TacPham {
 				$noi = array_filter( array( $d['noi'], $d['nguoi_ke'], $d['nam'] ?? '' ) );
 				$o  .= '<div class="variant"><span class="tag">' . sprintf( '%02d', $i + 1 ) . ' · Dị bản</span>' . $v . '<p class="small muted">' . ( $noi ? esc_html( implode( ' · ', $noi ) ) : 'Chưa ghi nơi, người kể hoặc năm.' ) . '</p></div>';
 			}
-			$sau .= Ve::khoi_gon( 'Dị bản · ' . count( $tp['di_ban'] ), $o, 'di-ban', 'tim' );
+			$sau .= Ve::khoi_gon( 'Dị bản · ' . count( $tp['di_ban'] ), ( $sua ? '<p class="row no-print">' . $nut( 'di_ban', 'Sửa dị bản' ) . '</p>' . $goc( 'Dị bản', 'di_ban' ) : '' ) . $o, 'di-ban', 'tim' );
 		}
-		if ( $tuc_ngu && ! empty( $tp['nghia_den'] ) ) {
-			$sau .= Ve::khoi( 'Giải nghĩa chi tiết', '<div class="two-col"><div class="mini"><h3>Nghĩa đen</h3><p>' . esc_html( $tp['nghia_den'] ) . '</p></div><div class="mini"><h3>Nghĩa bóng</h3><p>' . esc_html( $tp['nghia_bong'] ?? '' ) . '</p></div></div>', 'tint-luc' );
+		if ( $tuc_ngu && ( ! empty( $tp['nghia_den'] ) || ! empty( $tp['nghia_bong'] ) || $sua ) ) {
+			$sau .= Ve::khoi( 'Giải nghĩa chi tiết', '<div class="two-col"><div class="mini"><h3>Nghĩa đen</h3><p>' . esc_html( $tp['nghia_den'] ?: ( $sua ? 'Chưa có.' : '' ) ) . '</p>' . $nut( 'nghia_den', 'Sửa nghĩa đen' ) . '</div><div class="mini"><h3>Nghĩa bóng</h3><p>' . esc_html( ( $tp['nghia_bong'] ?? '' ) ?: ( $sua ? 'Chưa có.' : '' ) ) . '</p>' . $nut( 'nghia_bong', 'Sửa nghĩa bóng' ) . '</div></div>', 'tint-luc' );
 		}
-		if ( ! empty( $tp['dung_khi'] ) ) {
-			$sau .= Ve::khoi( 'Dùng khi', '<ul class="uses">' . implode( '', array_map( static fn( string $x ): string => '<li>' . esc_html( $x ) . '</li>', $tp['dung_khi'] ) ) . '</ul>', 'tint-xanh' );
+		if ( ! empty( $tp['dung_khi'] ) || ( $sua && $tuc_ngu ) ) {
+			$sau .= Ve::khoi( 'Dùng khi', ( $tp['dung_khi'] ? '<ul class="uses">' . implode( '', array_map( static fn( string $x ): string => '<li>' . esc_html( $x ) . '</li>', $tp['dung_khi'] ) ) . '</ul>' : '<p class="small muted">Chưa có.</p>' ), 'tint-xanh', '', $nut( 'dung_khi', 'Sửa' ) );
 		}
 		$nhan_cuoi = '';
 		foreach ( $tp['chu_de'] as $c ) {
@@ -77,11 +96,15 @@ final class TacPham {
 		foreach ( $tp['tuyen_tap'] as $t ) {
 			$nhan_cuoi .= self::nhan_lien_ket( $t, 'tuyen-tap', 'Có trong tuyển tập: ', 'tag-pill plain' );
 		}
-		$sau .= '<div class="work-tags">' . $nhan_cuoi . '</div>' . self::tu_lieu( $tp ) . AnhChiaSe::hien( $tp );
+		$sau .= '<div class="work-tags">' . $nhan_cuoi . '</div>' . self::tu_lieu( $tp ) . AnhChiaSe::hien( $tp ) . ( $sua ? CheDoSua::lich_su( $sua ) : '' );
 
-		return '<nav aria-label="Đường dẫn" class="breadcrumbs">' . Ve::lien_ket( 'trang-chu', 'Trang chủ' ) . '<span aria-hidden="true">/</span>' . Ve::lien_ket( $tp['the_loai'], esc_html( $tp['ten_the_loai'] ) ) . '<span aria-hidden="true">/</span><span>' . esc_html( $tp['tieu_de'] ) . '</span></nav>'
-			. '<header class="work-head">' . Ve::nhan_dau( $nhan ) . '<h1 class="read-title">' . $tieu_de . '</h1><p class="read-sub">' . Ve::so_lieu( $tp['so_lieu'] ) . '</p></header>'
-			. '<div class="work-layout"><div class="work-main">' . Ve::the_loi( $than_loi, $tp['url'], $tuc_ngu ? 'Ý nghĩa' : 'Lời' ) . '</div>' . Ve::cong_cu( $tp ) . '<div class="work-rest">' . $sau . '</div></div>';
+		return ( $sua ? CheDoSua::dai( $sua ) : '' )
+			. '<nav aria-label="Đường dẫn" class="breadcrumbs">' . Ve::lien_ket( 'trang-chu', 'Trang chủ' ) . '<span aria-hidden="true">/</span>' . Ve::lien_ket( $tp['the_loai'], esc_html( $tp['ten_the_loai'] ) ) . '<span aria-hidden="true">/</span><span>' . esc_html( $tp['tieu_de'] ) . '</span></nav>'
+			. '<header class="work-head">' . Ve::nhan_dau( $nhan ) . '<h1 class="read-title">' . $tieu_de . '</h1>'
+			. ( empty( $tp['co_nghi'] ) ? '' : '<p class="flag">Nghi không phải dân gian</p>' )
+			. '<p class="read-sub">' . Ve::so_lieu( $tp['so_lieu'] ) . '</p></header>'
+			. '<div class="work-layout"><div class="work-main">' . Ve::the_loi( $than_loi, $tp['url'], $tuc_ngu ? 'Ý nghĩa' : 'Lời', 'Lời và ý nghĩa', $nut( 'loi', 'Sửa lời' ) ) . '</div>' . Ve::cong_cu( $tp ) . '<div class="work-rest">' . $sau . '</div></div>'
+			. ( $sua ? CheDoSua::tam( $sua, (string) $tp['the_loai'] ) : '' );
 	}
 
 	/** Nhãn dẫn tới trang phân loại: $muc là tên (dữ liệu mẫu) hoặc [tên, đường dẫn]. */
