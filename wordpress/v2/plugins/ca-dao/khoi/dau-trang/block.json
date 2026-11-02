@@ -1,0 +1,15 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cadao/dau-trang",
+	"title": "Đầu trang Phongdao",
+	"category": "theme",
+	"description": "Logo, Khám phá, Tra cứu, ô tìm, Đã lưu, sáng / tối, thanh thể loại (docs/27 mục 3).",
+	"textdomain": "ca-dao",
+	"supports": {
+		"html": false,
+		"inserter": false,
+		"reusable": false
+	},
+	"render": "file:./render.php"
+}

@@ -269,6 +269,7 @@ Cron thật của máy chủ gọi WP-Cron mỗi 5 phút (như MVP); `HaTang\Han
 | `npm run test:v2` | PHP thuần (`wordpress/v2/tests/don-vi/`, vài giây) + Playground (`wordpress/v2/tests/`) |
 | `npm run quet:v2` | axe WCAG 2.2 AA mọi mẫu thể loại, trang chủ, tuyển tập, tìm, từ điển, trang quản trị chính; ảnh chụp 390 px; đo ngân sách (trang bài ≤ 200 KB, JavaScript trang bài ≤ 21 KB, tuyển tập ≤ 300 KB); kiểm liên kết ra ngoài |
 | `npm run xem-truoc:v2` | link Playground của nhánh với plugin + theme V2 và dữ liệu mẫu |
+| `npm run dong-bo:giao-dien-v2` | chép CSS và `fit.js` từ bộ thiết kế `design/v2/source` sang theme (thêm chế độ tối theo cài đặt máy); `test:v2` báo lỗi khi theme lệch bộ thiết kế — sửa giao diện ở bộ thiết kế trước |
 | `npm run dung:quan-tri` | dựng ứng dụng React |
 | `npm run e2e:v2` | Playwright trên bản xem trước: luồng đọc, tìm, đố vui, góp ý, Duyệt nhanh, soạn |
 

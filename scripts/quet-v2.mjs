@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Quét V2 (docs/26 mục 13): dựng WordPress trong Playground với plugin, theme V2 và dữ liệu mẫu (wordpress/v2/blueprint.json),
 // rồi trên từng trang: axe-core WCAG 2.2 A/AA (điện thoại 360 px sáng, tối; máy tính 1280 px; mở mọi <details>), không tràn ngang,
-// không gọi máy chủ ngoài, ngân sách (trang ≤ 200 KB, JavaScript ≤ 21 KB). Cần Node ≥ 24.18 và Chrome/Chromium.
+// mỗi câu của lời một dòng (D-093), không gọi máy chủ ngoài, ngân sách (trang ≤ 200 KB, JavaScript ≤ 21 KB — tính theo
+// dung lượng nén gzip như khi qua Cloudflare; woff2 đã nén sẵn). Cần Node ≥ 24.18 và Chrome/Chromium.
 // Dùng:  npm run quet:v2 [-- --anh <thư-mục>]   (--anh: lưu ảnh chụp 390 px từng trang để xem bằng mắt)
 // Các đợt sau thêm trang vào DS_TRANG khi có mẫu: thể loại, tuyển tập, tìm, từ điển, Bàn biên tập.
 import fs from 'node:fs';
@@ -9,6 +10,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
+import { gzipSync } from 'node:zlib';
 import puppeteer from 'puppeteer-core';
 
 const CI = Boolean(process.env.CI);
@@ -31,7 +33,7 @@ const iAnh = process.argv.indexOf('--anh');
 const thuMucAnh = iAnh > 0 ? path.resolve(process.argv[iAnh + 1]) : null;
 if (thuMucAnh) fs.mkdirSync(thuMucAnh, { recursive: true });
 
-const DS_TRANG = ['/', '/trang-mau-v2/', '/bai-mau-v2/'];
+const DS_TRANG = ['/', '/trang-mau-v2/', '/bai-mau-ca-dao/', '/bai-mau-tuc-ngu/'];
 const NGAN_SACH = { trang: 200 * 1024, js: 21 * 1024 };
 const CHE_DO = [
   { ten: 'điện thoại · sáng', w: 360, h: 800, toi: false },
@@ -80,6 +82,8 @@ try {
     for (const c of CHE_DO) {
       const tab = await trinhDuyet.newPage();
       const ngoai = new Set();
+      const tai = [];
+      tab.on('response', async r => { try { const loai = r.request().resourceType(); const than = await r.buffer(); tai.push({ loai, nen: /woff2|png|jpe?g|webp/.test(r.url()) ? than.length : gzipSync(than).length }); } catch { /* chuyển hướng, không có thân */ } });
       tab.on('request', r => { const h = new URL(r.url()).hostname; if (!['127.0.0.1', 'localhost'].includes(h) && !r.url().startsWith('data:')) ngoai.add(h); });
       await tab.setViewport({ width: c.w, height: c.h, isMobile: c.w < 640, hasTouch: c.w < 640 });
       await tab.emulateMediaFeatures([{ name: 'prefers-color-scheme', value: c.toi ? 'dark' : 'light' }]);
@@ -89,15 +93,20 @@ try {
       await tab.evaluate(() => document.querySelectorAll('details').forEach(d => { d.open = true; }));
       const ngang = await tab.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
       if (ngang > 1) loi.push(`${duong} (${c.ten}): trang tràn ngang ${ngang}px`);
+      // Mỗi câu một dòng: không khối lời nào phải xuống dòng dự phòng, không dòng nào bị gãy
+      await tab.evaluate(() => document.fonts.ready);
+      await new Promise(ok => setTimeout(ok, 150));
+      const gay = await tab.evaluate(() => {
+        const dong = el => { const s = new Set(); const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); let t; while ((t = w.nextNode())) { if (!t.textContent.trim() || t.parentElement.closest('.ln')) continue; const r = document.createRange(); r.selectNodeContents(t); for (const x of r.getClientRects()) if (x.width > 1) s.add(Math.round((x.top + x.height / 2) / 6)); } return s.size; };
+        const o = [];
+        for (const v of document.querySelectorAll('[data-fit]')) { if (!v.offsetParent) continue; if (v.classList.contains('tran')) { o.push('dự phòng: ' + v.textContent.trim().slice(0, 30)); continue; } for (const l of v.classList.contains('theo-ve') ? v.querySelectorAll('.ve') : v.querySelectorAll('.line')) if (dong(l) > 1) o.push(l.textContent.trim().slice(0, 30)); }
+        return o;
+      });
+      for (const g of gay) loi.push(`${duong} (${c.ten}): lời xuống dòng — ${g}`);
       if (c.w === 1280) {
-        const cs = await tab.evaluate(() => {
-          const nav = performance.getEntriesByType('navigation')[0];
-          const tn = performance.getEntriesByType('resource');
-          const co = e => e.encodedBodySize || e.decodedBodySize || 0;
-          const jsNgoai = tn.filter(e => e.initiatorType === 'script').reduce((s, e) => s + co(e), 0);
-          const jsTrong = [...document.querySelectorAll('script:not([src])')].filter(s => !s.type || /javascript|module/.test(s.type)).reduce((s, e) => s + new Blob([e.textContent]).size, 0);
-          return { trang: co(nav) + tn.reduce((s, e) => s + co(e), 0), js: jsNgoai + jsTrong };
-        });
+        await new Promise(ok => setTimeout(ok, 300));
+        const jsTrong = await tab.evaluate(() => [...document.querySelectorAll('script:not([src])')].filter(s => !s.type || /javascript|module/.test(s.type)).map(s => s.textContent).join('\n'));
+        const cs = { trang: tai.reduce((s, x) => s + x.nen, 0), js: tai.filter(x => x.loai === 'script').reduce((s, x) => s + x.nen, 0) + gzipSync(Buffer.from(jsTrong)).length };
         console.log(`  ${duong}: trang ${kb(cs.trang)}, JavaScript ${kb(cs.js)}`);
         if (cs.trang > NGAN_SACH.trang) loi.push(`${duong}: trang ${kb(cs.trang)} vượt ngân sách ${kb(NGAN_SACH.trang)}`);
         if (cs.js > NGAN_SACH.js) loi.push(`${duong}: JavaScript ${kb(cs.js)} vượt ngân sách ${kb(NGAN_SACH.js)}`);
@@ -109,6 +118,7 @@ try {
       }
       if (thuMucAnh && c.w === 360 && !c.toi) {
         await tab.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
+        await new Promise(ok => setTimeout(ok, 300)); // fit.js co lại cỡ chữ sau khi đổi khổ
         const ten = (duong.replace(/\W+/g, '-').replace(/^-|-$/g, '') || 'trang-chu') + '-390.png';
         await tab.screenshot({ path: path.join(thuMucAnh, ten), fullPage: true });
       }
