@@ -387,13 +387,13 @@
   },
   {
     "id": "B00",
-    "title": "Tổng quan đề xuất",
-    "route": "Đề xuất 02/11/2026",
+    "title": "Tổng quan biên tập",
+    "route": "Chốt 02/11/2026 (D-094)",
     "states": [
       "full"
     ],
-    "group": "Biên tập mới · đề xuất chờ chốt",
-    "source": "Đề xuất 02/11/2026; docs/28 (chưa sửa)"
+    "group": "Biên tập · bản chốt",
+    "source": "D-094; docs/28 mục 4"
   },
   {
     "id": "B01",
@@ -404,8 +404,8 @@
       "tung-the",
       "trong"
     ],
-    "group": "Biên tập mới · đề xuất chờ chốt",
-    "source": "Đề xuất 02/11/2026; docs/28 (chưa sửa)"
+    "group": "Biên tập · bản chốt",
+    "source": "D-094; docs/28 mục 4"
   },
   {
     "id": "B02",
@@ -420,8 +420,8 @@
       "phan-loai",
       "nhap-ai"
     ],
-    "group": "Biên tập mới · đề xuất chờ chốt",
-    "source": "Đề xuất 02/11/2026; docs/28 (chưa sửa)"
+    "group": "Biên tập · bản chốt",
+    "source": "D-094; docs/28 mục 4"
   },
   {
     "id": "B03",
@@ -432,8 +432,8 @@
       "loc",
       "trong"
     ],
-    "group": "Biên tập mới · đề xuất chờ chốt",
-    "source": "Đề xuất 02/11/2026; docs/28 (chưa sửa)"
+    "group": "Biên tập · bản chốt",
+    "source": "D-094; docs/28 mục 4"
   },
   {
     "id": "B04",
@@ -445,8 +445,8 @@
       "trung",
       "da-luu"
     ],
-    "group": "Biên tập mới · đề xuất chờ chốt",
-    "source": "Đề xuất 02/11/2026; docs/28 (chưa sửa)"
+    "group": "Biên tập · bản chốt",
+    "source": "D-094; docs/28 mục 4"
   },
   {
     "id": "B05",
@@ -455,8 +455,8 @@
     "states": [
       "full"
     ],
-    "group": "Biên tập mới · đề xuất chờ chốt",
-    "source": "Đề xuất 02/11/2026; docs/28 (chưa sửa)"
+    "group": "Biên tập · bản chốt",
+    "source": "D-094; docs/28 mục 4"
   },
   {
     "id": "A01",
@@ -468,8 +468,8 @@
       "error",
       "missing"
     ],
-    "group": "Bàn biên tập (kế hoạch 27/10)",
-    "source": "Brief §9; docs/28"
+    "group": "Bàn biên tập kiểu cũ · không làm",
+    "source": "Brief §9 · thay bởi nhóm B (D-094)"
   },
   {
     "id": "A02",
@@ -488,8 +488,8 @@
       "error",
       "conflict"
     ],
-    "group": "Bàn biên tập (kế hoạch 27/10)",
-    "source": "Brief §9; docs/28"
+    "group": "Bàn biên tập kiểu cũ · không làm",
+    "source": "Brief §9 · thay bởi nhóm B (D-094)"
   },
   {
     "id": "A03",
@@ -499,8 +499,8 @@
       "full",
       "empty"
     ],
-    "group": "Bàn biên tập (kế hoạch 27/10)",
-    "source": "Brief §9; docs/28"
+    "group": "Bàn biên tập kiểu cũ · không làm",
+    "source": "Brief §9 · thay bởi nhóm B (D-094)"
   },
   {
     "id": "A04",
@@ -517,8 +517,8 @@
       "expired",
       "conflict"
     ],
-    "group": "Bàn biên tập (kế hoạch 27/10)",
-    "source": "Brief §9; docs/28"
+    "group": "Bàn biên tập kiểu cũ · không làm",
+    "source": "Brief §9 · thay bởi nhóm B (D-094)"
   },
   {
     "id": "A05",
@@ -529,8 +529,8 @@
       "under-gate",
       "thirty"
     ],
-    "group": "Bàn biên tập (kế hoạch 27/10)",
-    "source": "Brief §9; docs/28"
+    "group": "Bàn biên tập kiểu cũ · không làm",
+    "source": "Brief §9 · thay bởi nhóm B (D-094)"
   },
   {
     "id": "A06",
@@ -540,8 +540,8 @@
       "full",
       "unconfirmed"
     ],
-    "group": "Bàn biên tập (kế hoạch 27/10)",
-    "source": "Brief §9; docs/28"
+    "group": "Bàn biên tập kiểu cũ · không làm",
+    "source": "Brief §9 · thay bởi nhóm B (D-094)"
   },
   {
     "id": "A07",
@@ -551,8 +551,8 @@
       "full",
       "fetched"
     ],
-    "group": "Bàn biên tập (kế hoạch 27/10)",
-    "source": "Brief §9; docs/28"
+    "group": "Bàn biên tập kiểu cũ · không làm",
+    "source": "Brief §9 · thay bởi nhóm B (D-094)"
   },
   {
     "id": "A08",
@@ -562,8 +562,8 @@
       "full",
       "processed"
     ],
-    "group": "Bàn biên tập (kế hoạch 27/10)",
-    "source": "Brief §9; docs/28"
+    "group": "Bàn biên tập kiểu cũ · không làm",
+    "source": "Brief §9 · thay bởi nhóm B (D-094)"
   },
   {
     "id": "A09",
@@ -573,8 +573,8 @@
       "full",
       "region"
     ],
-    "group": "Bàn biên tập (kế hoạch 27/10)",
-    "source": "Brief §9; docs/28"
+    "group": "Bàn biên tập kiểu cũ · không làm",
+    "source": "Brief §9 · thay bởi nhóm B (D-094)"
   },
   {
     "id": "A10",
@@ -584,8 +584,8 @@
       "full",
       "zero"
     ],
-    "group": "Bàn biên tập (kế hoạch 27/10)",
-    "source": "Brief §9; docs/28"
+    "group": "Bàn biên tập kiểu cũ · không làm",
+    "source": "Brief §9 · thay bởi nhóm B (D-094)"
   },
   {
     "id": "A11",
@@ -597,8 +597,8 @@
       "metadata",
       "editor"
     ],
-    "group": "Bàn biên tập (kế hoạch 27/10)",
-    "source": "Brief §9; docs/28"
+    "group": "Bàn biên tập kiểu cũ · không làm",
+    "source": "Brief §9 · thay bởi nhóm B (D-094)"
   },
   {
     "id": "A12",
@@ -608,8 +608,8 @@
       "full",
       "error"
     ],
-    "group": "Bàn biên tập (kế hoạch 27/10)",
-    "source": "Brief §9; docs/28"
+    "group": "Bàn biên tập kiểu cũ · không làm",
+    "source": "Brief §9 · thay bởi nhóm B (D-094)"
   },
   {
     "id": "A13",
@@ -619,8 +619,8 @@
       "full",
       "merged"
     ],
-    "group": "Bàn biên tập (kế hoạch 27/10)",
-    "source": "Brief §9; docs/28"
+    "group": "Bàn biên tập kiểu cũ · không làm",
+    "source": "Brief §9 · thay bởi nhóm B (D-094)"
   },
   {
     "id": "A14",
@@ -630,8 +630,8 @@
       "full",
       "error"
     ],
-    "group": "Bàn biên tập (kế hoạch 27/10)",
-    "source": "Brief §9; docs/28"
+    "group": "Bàn biên tập kiểu cũ · không làm",
+    "source": "Brief §9 · thay bởi nhóm B (D-094)"
   },
   {
     "id": "A15",
@@ -641,8 +641,8 @@
       "full",
       "empty"
     ],
-    "group": "Bàn biên tập (kế hoạch 27/10)",
-    "source": "Brief §9; docs/28"
+    "group": "Bàn biên tập kiểu cũ · không làm",
+    "source": "Brief §9 · thay bởi nhóm B (D-094)"
   },
   {
     "id": "A16",
@@ -652,8 +652,8 @@
       "full",
       "empty"
     ],
-    "group": "Bàn biên tập (kế hoạch 27/10)",
-    "source": "Brief §9; docs/28"
+    "group": "Bàn biên tập kiểu cũ · không làm",
+    "source": "Brief §9 · thay bởi nhóm B (D-094)"
   },
   {
     "id": "A17",
@@ -663,8 +663,8 @@
       "full",
       "editor"
     ],
-    "group": "Bàn biên tập (kế hoạch 27/10)",
-    "source": "Brief §9; docs/28"
+    "group": "Bàn biên tập kiểu cũ · không làm",
+    "source": "Brief §9 · thay bởi nhóm B (D-094)"
   },
   {
     "id": "A18",
@@ -673,8 +673,8 @@
     "states": [
       "full"
     ],
-    "group": "Bàn biên tập (kế hoạch 27/10)",
-    "source": "Brief §9; docs/28"
+    "group": "Bàn biên tập kiểu cũ · không làm",
+    "source": "Brief §9 · thay bởi nhóm B (D-094)"
   },
   {
     "id": "A19",
@@ -684,8 +684,8 @@
       "full",
       "confirmed"
     ],
-    "group": "Bàn biên tập (kế hoạch 27/10)",
-    "source": "Brief §9; docs/28"
+    "group": "Bàn biên tập kiểu cũ · không làm",
+    "source": "Brief §9 · thay bởi nhóm B (D-094)"
   },
   {
     "id": "A20",
@@ -695,8 +695,8 @@
       "full",
       "empty"
     ],
-    "group": "Bàn biên tập (kế hoạch 27/10)",
-    "source": "Brief §9; docs/28"
+    "group": "Bàn biên tập kiểu cũ · không làm",
+    "source": "Brief §9 · thay bởi nhóm B (D-094)"
   },
   {
     "id": "A21",
@@ -709,8 +709,8 @@
       "expired",
       "denied"
     ],
-    "group": "Bàn biên tập (kế hoạch 27/10)",
-    "source": "Brief §9; docs/28"
+    "group": "Bàn biên tập kiểu cũ · không làm",
+    "source": "Brief §9 · thay bởi nhóm B (D-094)"
   },
   {
     "id": "F01",

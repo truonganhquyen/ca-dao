@@ -33,7 +33,7 @@ Người tìm văn học dân gian trên mạng gặp sáu vấn đề lặp l�
 
 | TIN | HIỂU | CẢM |
 |---|---|---|
-| Dòng "lời và mức kiểm" dưới lời; mỗi lớp nội dung có hồ sơ nguồn và người làm; không sửa âm thầm; lịch sử sửa | Trả lời trước (nghĩa trong 10 giây), chú thích chạm-là-hiện, nghĩa đen / bóng / dùng khi, dị bản, bối cảnh | Chữ đẹp, trang nhẹ, tuyển tập đọc liền, trò chơi, đố vui, trình chiếu, giọng đọc khi đủ chất lượng |
+| Dòng "lời và mức kiểm" dưới lời; mỗi phần nội dung có hồ sơ nguồn và người làm; không sửa âm thầm; lịch sử sửa | Trả lời trước (nghĩa trong 10 giây), chú thích chạm-là-hiện, nghĩa đen / bóng / dùng khi, dị bản, bối cảnh | Chữ đẹp, trang nhẹ, tuyển tập đọc liền, trò chơi, đố vui, trình chiếu, giọng đọc khi đủ chất lượng |
 
 - **Đơn vị nhỏ, tập hợp lớn.** Mỗi câu, mỗi bài một trang riêng, trích dẫn được. Mọi trang tập hợp (tuyển tập, chủ đề, vùng, lớp học, kết quả tìm) ghép từ trang đơn — nghĩa viết một lần, hiện ở mọi nơi. Đây là khác biệt với các trang "bài tổng hợp" viết tay (vanvn.net, trang văn mẫu).
 - **Quan hệ với Ca dao Mẹ (cadao.me):** nguồn đầu mối chính (D-046); dự án không cạnh tranh về số lượng; luôn ghi nhận ở trang Chính sách thu thập dữ liệu; thư xin phép dùng chú thích nên gửi trước khi mở (T-034).
@@ -56,7 +56,7 @@ Người tìm văn học dân gian trên mạng gặp sáu vấn đề lặp l�
 ## 4. Nguyên tắc trọng tài
 
 1. **Trung thực hơn hoàn hảo (D-039).** Xuất bản sớm, nói thật mức độ hoàn thiện; không chặn đăng vì lý do biên tập (D-054).
-2. **Mỗi lớp nội dung ghi rõ ai làm và theo nguồn nào.** Không biết thì để trống và nói "chưa rõ"; không đoán.
+2. **Mỗi phần nội dung ghi rõ ai làm và theo nguồn nào.** Không biết thì để trống và nói "chưa rõ"; không đoán.
 3. **Không có bản đúng duy nhất.** Lời chính là **Bản tham chiếu**; dị bản lưu riêng, ghi nơi, người kể khi có căn cứ.
 4. **Lời giữ nguyên như nguồn.** Chuẩn hoá chỉ diễn ra trong chỉ mục tìm. Không sửa âm thầm; mọi thay đổi vào nhật ký.
 5. **Máy làm nặng, người quyết nhanh.** Máy thu thập, tách lớp, chống trùng, gợi ý, soạn nháp; người biên soạn quyết. AI không bao giờ là nguồn.
@@ -105,21 +105,21 @@ Người tìm văn học dân gian trên mạng gặp sáu vấn đề lặp l�
 
 | Trục | MVP | V2 |
 |---|---|---|
-| **Luồng nội dung** | Một bài = một khối HTML; nguồn rải 6 chỗ; mỗi ngày máy tạo hàng loạt bài Chờ duyệt | **Tác phẩm nhiều lớp** (D-084): mỗi lớp có hồ sơ nguồn, người làm, trạng thái, lịch sử. Ứng viên từ kho là thẻ việc, bấm Đăng mới thành tác phẩm. Chính sách hiện nguồn là **cài đặt** (D-085) |
+| **Luồng nội dung** | Một bài = một khối HTML; nguồn rải 6 chỗ; mỗi ngày máy tạo hàng loạt bài Chờ duyệt | **Tác phẩm nhiều phần** (D-084, D-094): mỗi phần (lời, dị bản, ý nghĩa, chú thích…) lưu ngay trong bài, có hồ sơ nguồn, người làm, lịch sử. Câu mới từ kho là thẻ việc, bấm Đăng mới thành tác phẩm. Chính sách hiện nguồn là **cài đặt** (D-085) |
 | **Giao diện** | Một mẫu trang bài; phần riêng chèn bằng PHP; trang chủ là mã ngắn | **Trang đọc theo thể loại**; **lối vào theo nhu cầu** (Đọc · Khám phá · Cho lớp học · Tra cứu); tuyển tập đọc liền; Thông tin tư liệu (D-087) |
-| **Quản trị** | 13 trang con, Gutenberg trên điện thoại | **Một Bàn biên tập** React (D-086): Hôm nay, Duyệt nhanh, soạn có cấu trúc, quản lý nguồn, từ điển, tuyển tập |
+| **Quản trị** | 13 trang con, Gutenberg trên điện thoại | **Sửa ngay trên trang đọc + Hộp việc** (D-094): năm nơi — Hộp việc, Tác phẩm, Thêm bài, Số liệu tuần, Nguồn & cài đặt; mỗi khối trên trang bài có nút Sửa; không Gutenberg cho tác phẩm |
 
 ```text
 Nguồn (Ca dao Mẹ · Wikisource · người đọc · nhập tay)
   → Kho thu thập (riêng tư, không lên trang)
-  → Máy: chống trùng · gợi ý phân loại · tách lớp · tìm trang sách quét khớp lời
-  → Agent: nháp nghĩa theo lô (ai_nhap, chờ duyệt)
+  → Máy: chống trùng · gợi ý phân loại · tách phần · tìm trang sách quét khớp lời
+  → Agent: nháp ý nghĩa theo lô (việc chờ duyệt, chưa vào bài)
   → Hộp việc: mỗi thẻ một quyết định → người sáng lập Đăng · Sửa · Để sau
-  → Trang đọc dựng từ lớp đã duyệt
+  → Trang đọc dựng từ các phần đã lưu trong bài; người biên soạn sửa ngay trên trang đó
   → Hậu kiểm: góp ý, báo lỗi, "mong có câu này" → quay lại Hộp việc
 ```
 
-**Cấp chất lượng (nội bộ, máy tính, không hiện cho người đọc):** L0 có lời · L1 có thể loại và dòng mức kiểm · L2 có Hiểu nhanh hoặc bộ nghĩa đã duyệt · L3 có thêm đối chiếu sách, bối cảnh hoặc media có quyền. Dùng để xếp việc, chọn bài nổi bật và quyết lập chỉ mục (L2 trở lên). Bài phân tích của người đọc không tính cấp. Không chặn đăng.
+**Cấp chất lượng (nội bộ, máy tính, không hiện cho người đọc):** L0 có lời · L1 có thể loại và dòng mức kiểm · L2 có Ý nghĩa hoặc bộ nghĩa đã duyệt · L3 có thêm đối chiếu sách, bối cảnh hoặc media có quyền. Dùng để xếp việc, chọn bài nổi bật và quyết lập chỉ mục (L2 trở lên). Bài phân tích của người đọc không tính cấp. Không chặn đăng.
 
 ## 7. Lộ trình
 
@@ -127,9 +127,9 @@ Giả định khoảng 5 giờ/tuần của người sáng lập; mọi phần m
 
 | Đợt | Kết quả | Người sáng lập |
 |---|---|---|
-| **1 · Nền** | Khung V2, mô hình lớp, nguồn vào + kho + chống trùng, tìm, công cụ nhập dữ liệu chạy được trên bản mẫu | — |
+| **1 · Nền** | Khung V2, mô hình dữ liệu (phần của bài, bảng việc), nguồn vào + kho + chống trùng, tìm, công cụ nhập dữ liệu chạy được trên bản mẫu | — |
 | **2 · Trang đọc** | Theme 1.0, 5 mẫu thể loại, trang chủ lối vào, tuyển tập, tra cứu, người đọc góp, đo lường, SEO, an toàn | Xem bản xem trước (~1–2 giờ) |
-| **3 · Bàn biên tập** | Hôm nay, Duyệt nhanh, soạn có cấu trúc, quản lý; E2E trên bản xem trước | Dùng thử trên điện thoại (~1–2 giờ); thử với 5 người |
+| **3 · Biên tập** | Hộp việc, sửa trên trang đọc, Tác phẩm, Thêm bài, Số liệu tuần, Nguồn & cài đặt; E2E trên bản xem trước | Dùng thử trên điện thoại (~1–2 giờ); thử với 5 người |
 | **4 · Chuyển đổi và mở** | Thay plugin + theme, nhập dữ liệu trên site thật, kiểm, mở cho Google (H5) | Xác nhận sao lưu đêm trước, đọc báo cáo, kiểm trên điện thoại, bấm mở (~2 giờ) |
 | **5 · Mở rộng** | Đối chiếu sách Wikisource, Cho lớp học, giọng đọc, thể loại mới, truyện, dữ liệu mở, dọn dữ liệu cũ | Theo từng việc |
 
@@ -159,11 +159,11 @@ Trong lúc xây: MVP đóng băng tính năng; người sáng lập vẫn viết
 | Chuyển dữ liệu làm mất quyết định của người biên soạn | Cao | Kiểm kê dữ liệu người làm trước khi viết công cụ nhập; chạy thử, báo cáo, so từng ký tự lời; "Cần xem" thay vì đoán; dữ liệu cũ giữ nguyên tới khi được cho dọn; lệnh hoàn tác |
 | Xây mới kéo dài, site không mở được | Cao | Đợt 1–3 chỉ thay đúng tính năng MVP + lõi V2; mọi thứ khác để đợt 5; mỗi đợt có bản xem trước |
 | Bản sao lưu chưa từng khôi phục thử | TB | Người sáng lập đã chấp nhận (D-090); dữ liệu cũ không bị xoá khi chuyển; lệnh hoàn tác |
-| Người sáng lập kiệt sức | Cao | Duyệt nhanh trên điện thoại; máy xếp việc; lô 5–10 câu/tuần |
+| Người sáng lập kiệt sức | Cao | Duyệt từng thẻ trên điện thoại; sửa ngay chỗ đọc; máy xếp việc; lô 5–10 câu/tuần |
 | Ca dao Mẹ phản đối việc chép chú thích | TB | Gửi thư sớm (T-034); công tắc "Chép chú thích" tắt được ngay; chính sách hiện là cài đặt |
 | Duyệt qua loa vì quá dễ | TB | Thẻ luôn kèm chú thích, nguồn; nhãn AI rõ; báo lỗi đứng đầu hộp |
 | Mở thể loại làm loãng chất lượng | TB | Cổng thể loại; L2 làm thước đo |
-| Bản dựng React quên cập nhật | TB | CI so bản dựng với mã nguồn |
+| Lộ nút sửa hay nguồn ẩn cho khách | TB | Phần sửa chỉ in cho người có quyền, không vào bộ nhớ đệm của khách; quét tự động HTML khách |
 | Đổi tên làm lệch trích dẫn cũ | Thấp | Tên miền không đổi; trích dẫn mới mang tên mới, đường dẫn giữ nguyên |
 
 ## 10. Bản đồ tài liệu
@@ -179,7 +179,7 @@ Trong lúc xây: MVP đóng băng tính năng; người sáng lập vẫn viết
 | 25 | Gói nâng cấp 25/10/2026 | Task trỏ tới |
 | **26** | **Kỹ thuật V2**: nền tảng, cấu trúc mã, dữ liệu, REST, quyền, kiểm thử | Mọi task V2 |
 | **27** | **Sản phẩm cho người đọc V2**: từng màn hình, SEO, đo lường, thiết kế | Task chạm trang người đọc |
-| **28** | **Luồng nội dung và Bàn biên tập V2** | Task chạm nguồn, kho, quản trị |
+| **28** | **Luồng nội dung và biên tập V2** | Task chạm nguồn, kho, biên tập |
 | **29** | **Chuyển dữ liệu và chuyển đổi** | Công cụ nhập, ngày chuyển |
 | `design/v2/` | **Bộ thiết kế UX/UI V2** (D-092): bản mẫu 66 màn, token tím – lục, đặc tả từng màn | Mọi task chạm giao diện V2 |
 | `nghien-cuu/` | Khảo sát, kế hoạch, nghiên cứu V2 (căn cứ) | Khi cần lý do |

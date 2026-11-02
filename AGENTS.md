@@ -8,7 +8,7 @@ Tệp này dành cho mọi AI agent làm việc trong kho mã (Claude Code, Code
 
 **Hướng hiện tại — "Trung thực hơn hoàn hảo"** (D-039, chuyển WordPress D-054..D-056): xuất bản sớm, nội dung dày dần. Không chặn đăng vì lý do biên tập; nguồn không bắt buộc nhưng không được bịa. Site Astro cũ đã gỡ khỏi repo (D-071).
 
-**Xây mới V2** (D-082..D-091): giữ WordPress làm khung, viết mới toàn bộ plugin, theme, Bàn biên tập và mô hình dữ liệu (tác phẩm nhiều lớp). Mã V2 ở `wordpress/v2/` — máy chủ chưa lấy; chuyển một lần (T-157) rồi mở cho Google. **MVP (`wordpress/plugins/ca-dao`, `wordpress/themes/ca-dao`) đóng băng tính năng:** chỉ sửa lỗi bảo mật, lỗi mất dữ liệu; mọi tính năng mới làm trong V2.
+**Xây mới V2** (D-082..D-091): giữ WordPress làm khung, viết mới toàn bộ plugin, theme, phần biên tập (sửa ngay trên trang đọc + Hộp việc, D-094) và mô hình dữ liệu (mỗi phần của bài lưu trong bài). Mã V2 ở `wordpress/v2/` — máy chủ chưa lấy; chuyển một lần (T-157) rồi mở cho Google. **MVP (`wordpress/plugins/ca-dao`, `wordpress/themes/ca-dao`) đóng băng tính năng:** chỉ sửa lỗi bảo mật, lỗi mất dữ liệu; mọi tính năng mới làm trong V2.
 
 ## Đọc trước khi làm
 
@@ -22,7 +22,7 @@ Tệp này dành cho mọi AI agent làm việc trong kho mã (Claude Code, Code
 |---|---|
 | **V2 — kỹ thuật** (cấu trúc mã, dữ liệu, REST, quyền, kiểm thử) | `docs/26-kien-truc-v2.md` |
 | **V2 — trang người đọc** (từng màn hình, SEO, đo lường, thiết kế) | `docs/27-san-pham-v2.md` |
-| **V2 — nguồn, kho, Bàn biên tập** | `docs/28-ban-bien-tap-v2.md` |
+| **V2 — nguồn, kho, biên tập** | `docs/28-ban-bien-tap-v2.md` |
 | **V2 — hình ảnh từng màn** (màu, bố cục, thành phần, trạng thái) | bộ thiết kế `design/v2/` (D-092; đọc `design/v2/README.txt`) |
 | **V2 — chuyển dữ liệu, ngày chuyển** | `docs/29-chuyen-doi-v2.md` |
 | **WordPress** (plugin, theme, nguồn tự động, kho, chuyển đổi, công cụ) | `docs/24-wordpress.md` |

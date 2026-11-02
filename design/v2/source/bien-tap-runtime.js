@@ -1,4 +1,4 @@
-// Đề xuất biên tập mới (nhóm B, chưa chốt): mở / lưu tấm sửa, quyết thẻ trong Hộp việc, lọc, Thêm bài nhận thể thơ và báo trùng. Chỉ mô phỏng.
+// Biên tập (nhóm B, bản chốt D-094): mở / lưu tấm sửa, quyết thẻ trong Hộp việc, lọc, Thêm bài nhận thể thơ và báo trùng. Chỉ mô phỏng.
 (()=>{'use strict';const {$,$$,toast,go}=window.PD;
 const moTam=id=>{const d=document.getElementById('tam-'+id);if(!d)return;if(d.open)d.close();d.showModal();d.querySelector('textarea,input')?.focus()};
 document.querySelectorAll('dialog.tam-sua[data-mo-san]').forEach(d=>moTam(d.id.slice(4)));
