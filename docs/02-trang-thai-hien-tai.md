@@ -66,6 +66,7 @@
 
 Mở **Ca dao – Tục ngữ → Bàn biên tập** (hoặc ô "việc chờ bạn" trên Bảng tin): mọi hàng chờ dưới đây có số đếm và nút mở đúng trang; phần **"Làm trước"** là đủ cho mỗi tuần, phần "Khi rảnh" không gấp.
 
+- **Xem và chốt đề xuất quản trị V2** (02/11/2026): trong bản mẫu (https://claude.ai/artifact/GiUmgtSkvoAVEf8SW8m2fj), nhóm "Biên tập mới · đề xuất chờ chốt" — sửa ngay trên trang đọc + Hộp việc (5 nơi thay ứng dụng 21 màn) và cách lưu bài gọn hơn (mỗi phần lưu trong bài, 2 bảng riêng thay 6). Chốt xong mới viết phần lưu dữ liệu.
 - **An toàn tài khoản quản trị:** đã xong cả (đổi mật khẩu, xác thực hai lớp, tên hiển thị công khai, OPcache, xóa bài mẫu "Hello world!" — người sáng lập báo 02/11/2026). Nếu đăng nhập sai 5 lần, site tạm khoá tài khoản 15 phút — đợi, hoặc bấm "Quên mật khẩu?".
 - **Sao lưu FlashPanel:** đã bật hằng ngày (người sáng lập xác nhận 27/10/2026, D-090; không thử khôi phục theo quyết định của người sáng lập). Trước ngày chuyển sang V2: mở FlashPanel xác nhận có bản sao lưu đêm trước.
 - **Gợi ý mô-típ** (Ca dao – Tục ngữ → Gợi ý mô-típ; khi rảnh): mỗi nhóm bài cùng cụm mở đầu — sửa tên cho tự nhiên (ví dụ "Công cha… nghĩa mẹ…"), bỏ dấu bài không hợp, bấm "Tạo mô-típ"; viết vài dòng giới thiệu ở Mô-típ → Sửa → Mô tả nếu muốn.
