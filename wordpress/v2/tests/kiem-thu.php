@@ -73,8 +73,8 @@ kt( 'menu quản trị có mục Phongdao', in_array( 'phongdao', array_column( 
 // ---------- Theme ----------
 $mau = array_map( static fn( $t ) => $t->slug, get_block_templates() );
 kt( 'theme có mẫu index và page', in_array( 'index', $mau, true ) && in_array( 'page', $mau, true ), $mau );
-$dau = do_blocks( '<!-- wp:template-part {"slug":"dau-trang","theme":"ca-dao"} /-->' );
-kt( 'phần đầu trang hiện tên site', str_contains( $dau, esc_html( get_bloginfo( 'name' ) ) ), substr( $dau, 0, 300 ) );
+$dau = do_blocks( '<!-- wp:template-part {"slug":"dau-trang","theme":"ca-dao","tagName":"div"} /-->' );
+kt( 'phần đầu trang (template part) hiện logo Phongdao, không lồng hai thẻ header', str_contains( $dau, '<span>Phongdao</span>' ) && 1 === substr_count( $dau, '<header' ), substr( $dau, 0, 200 ) );
 kt( 'không in mã emoji (không gọi máy chủ ngoài)', false === has_action( 'wp_head', 'print_emoji_detection_script' ) );
 
 // ---------- Giao diện người đọc: khối cadao/* ----------
@@ -85,7 +85,7 @@ kt( 'theme có mẫu tác phẩm (tac-pham-mau)', in_array( 'tac-pham-mau', arra
 
 wp_set_current_user( 0 );
 $h    = do_blocks( '<!-- wp:cadao/tac-pham {"mau":"ca-dao"} /-->' );
-$chinh = (string) strstr( (string) strstr( $h, 'class="work-main"' ), 'class="work-rail"', true );
+$chinh = (string) strstr( (string) strstr( $h, 'class="work-main"' ), 'class="work-rail', true );
 kt( 'trang ca dao: một h1 đúng tên bài', 1 === substr_count( $h, '<h1' ) && str_contains( $h, '<h1 class="read-title">Dòng mẫu một của bài</h1>' ) );
 kt( 'thẻ lời: 4 câu, mỗi câu một .line, có data-fit và --dai (mỗi câu một dòng)', 4 === substr_count( $chinh, 'class="line"' ) && str_contains( $chinh, 'data-fit' ) && str_contains( $chinh, '--dai:' ) );
 kt( 'từ có chú thích “chút” là liên kết tới khối Từ khó', str_contains( $chinh, '<a class="word" href="#chu-thich"' ) );
