@@ -3,6 +3,7 @@
 namespace Phongdao\HaTang;
 
 use Phongdao\DichVu\ChiMucTim\ChiMucTim;
+use Phongdao\DichVu\ChongTrung\ChongTrung;
 use Phongdao\DichVu\NhapNguon\NguonTuDong;
 use Phongdao\KhoLuu\HoSo;
 use Phongdao\KhoLuu\Kho;
@@ -17,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class CaiDat implements Module {
 
-	public const PHIEN_BAN_CSDL = 4;
+	public const PHIEN_BAN_CSDL = 5;
 
 	/** Tuỳ chọn lưu phiên bản lược đồ đã cài. */
 	public const TUY_CHON = 'phongdao_csdl';
@@ -43,6 +44,9 @@ final class CaiDat implements Module {
 		}
 		if ( $da_cai < 4 ) {
 			self::buoc_4();
+		}
+		if ( $da_cai < 5 ) {
+			self::buoc_5();
 		}
 		update_option( self::TUY_CHON, self::PHIEN_BAN_CSDL, false );
 	}
@@ -96,6 +100,15 @@ final class CaiDat implements Module {
 		if ( $nguon && empty( $nguon['ho_so'] ) ) {
 			$nguon['ho_so'] = $ho_so;
 			NguonTuDong::luu( $nguon );
+		}
+	}
+
+	/** Bước 5: ba bảng chống trùng (cùng cấu trúc MVP: vân tay, cặp âm tiết, các cặp và quyết định). */
+	private static function buoc_5(): void {
+		global $wpdb;
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		foreach ( ChongTrung::sql_tao( $wpdb->get_charset_collate() ) as $sql ) {
+			dbDelta( $sql );
 		}
 	}
 }

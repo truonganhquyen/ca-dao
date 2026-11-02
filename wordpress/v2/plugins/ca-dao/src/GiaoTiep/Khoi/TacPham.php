@@ -36,7 +36,9 @@ final class TacPham {
 		}
 		$than_loi = $tuc_ngu
 			? Ve::muc_kiem( $tp['doi_chieu'] ) . $y
-			: Ve::loi( $tp['loi'], $tp['kieu'], $tu, array( 'so_dong' => ! $cau_do, 'nhom' => $tp['ma'] ) ) . Ve::muc_kiem( $tp['doi_chieu'] ) . $y;
+			: Ve::loi( $tp['loi'], $tp['kieu'], $tu, array( 'so_dong' => ! $cau_do, 'nhom' => $tp['ma'] ) )
+				. ( $cau_do && ! empty( $tp['cau_hoi'] ) ? '<p class="riddle-q">' . esc_html( $tp['cau_hoi'] ) . '</p>' : '' )
+				. Ve::muc_kiem( $tp['doi_chieu'] ) . $y;
 
 		$sau = '';
 		if ( $tp['chu_thich'] ) {

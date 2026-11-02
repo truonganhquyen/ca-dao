@@ -20,6 +20,8 @@ final class KhoiDong {
 		DichVu\DungTrang\DuLieuTrangChu::class,
 		DichVu\ChiMucTim\ChiMucTim::class,
 		DichVu\NhapNguon\NguonTuDong::class,
+		DichVu\ChongTrung\ChongTrung::class,
+		DichVu\UngVien\UngVien::class,
 		GiaoTiep\Rest\Module::class,
 		GiaoTiep\Khoi\Module::class,
 		GiaoTiep\TrangCoDinh\Module::class,

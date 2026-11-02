@@ -16,6 +16,15 @@ final class TheLoai {
 		'cau-do'   => 'Câu đố',
 	);
 
+	/** Loại trên nguồn (kho) → thể loại của thư viện; thành ngữ – tục ngữ gộp một mục (D-079). */
+	public const TU_LOAI_GOC = array(
+		'ca_dao'            => 'ca-dao',
+		'thanh_ngu_tuc_ngu' => 'tuc-ngu',
+		'dong_dao'          => 'dong-dao',
+		've'                => 've',
+		'cau_do'            => 'cau-do',
+	);
+
 	public static function co( ?string $ma ): bool {
 		return null !== $ma && isset( self::DS[ $ma ] );
 	}

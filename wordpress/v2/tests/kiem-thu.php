@@ -386,6 +386,55 @@ kt( 'kho không ra trang người đọc: tìm không thấy lời chỉ có tro
 remove_all_filters( 'pre_http_request' );
 remove_all_filters( 'phongdao_nhip_giay' );
 
+// ---------- Câu mới, Đăng từ kho, chống trùng (ca kiểm MVP T-110, D-074) ----------
+use Phongdao\DichVu\ChongTrung\ChongTrung;
+use Phongdao\DichVu\UngVien\UngVien;
+
+$me_thu = NguonTuDong::lay( 'me-thu' );
+$so_moi = UngVien::chon( $me_thu, 10 );
+$cho_cd = Viec::mo( 'kho', (int) $h1->id, 'cau_moi' );
+kt( 'câu mới: máy chọn câu đã đọc trang thành việc "Câu mới" (không tạo bài), xoay vòng có cả câu đố', $so_moi >= 3 && 1 === count( $cho_cd ) && (bool) Viec::mo( 'kho', (int) $hd->id, 'cau_moi' ) && 'moi' === Kho::lay( (int) $h1->id )->trang_thai, $so_moi );
+kt( 'chọn lại: câu đã có việc đang mở thì không thêm lần nữa', 0 === UngVien::chon( $me_thu, 10 ) );
+$dang = UngVien::dang( (int) $h1->id, array( 'nguoi' => $ai_ql ) );
+$tp1  = $dang['bai'];
+$p1   = PhanBai::tat_ca( $tp1, KhaiBao::TAC_PHAM );
+kt( 'Đăng: tác phẩm đã đăng, đúng thể loại, kho ghi "đã thành tác phẩm", việc đóng', $dang['ok'] && 'publish' === get_post_status( $tp1 ) && has_term( 'ca-dao', KhaiBao::THE_LOAI, $tp1 ) && 'da_tao_bai' === Kho::lay( (int) $h1->id )->trang_thai && (int) Kho::lay( (int) $h1->id )->post_id === $tp1 && array() === Viec::mo( 'kho', (int) $h1->id, 'cau_moi' ), $dang );
+kt( 'Đăng: lời đúng từng ký tự như kho, người làm "máy chép"; dị bản, chú thích chép (nguồn bật Chép chú thích)', array( 'Dòng một mẫu', 'Dòng hai mẫu' ) === ( $p1['loi']['dong'] ?? null ) && NguoiLam::MAY_CHEP === ( $p1['loi']['nguoi_lam'] ?? '' ) && 1 === count( $p1['di_ban']['muc'] ?? array() ) && 2 === count( $p1['chu_thich']['muc'] ?? array() ), $p1 );
+kt( 'Đăng: máy không điền nguồn (trang, đường dẫn); địa chỉ gốc giữ nội bộ', ! isset( $p1['loi']['nguon']['trang'] ) && ! isset( $p1['loi']['nguon']['url'] ) && "$G/cd-1/" === ( $p1['nguon_may']['url_goc'] ?? '' ) );
+$h = $xem( $tp1 );
+kt( 'trang bài từ kho: khách không thấy địa chỉ trang gốc; chú thích chép ghi "nguồn đã ẩn"', ! str_contains( $h, 'mau.example' ) && str_contains( $h, 'mục chép từ nguồn tham khảo · nguồn đã ẩn' ), substr( $h, 0, 300 ) );
+$dang_do = UngVien::dang( (int) $hd->id, array( 'nguoi' => $ai_ql ) );
+$h       = $xem( $dang_do['bai'] );
+kt( 'Đăng câu đố: câu hỏi, đáp án (lời giải) thu gọn sau "Hiện đáp án"', $dang_do['ok'] && str_contains( $h, '<p class="riddle-q">Là cái gì?</p>' ) && str_contains( $h, 'Hiện đáp án' ) && str_contains( $h, 'Cái mẫu' ), $dang_do );
+NguonTuDong::luu( array( 'id' => 'khong-chep', 'ten' => 'Không chép', 'url' => 'https://khac.example', 'chep_chu_thich' => false ) + NguonTuDong::mac_dinh() );
+Kho::luu( 'khong-chep', array( 'ma_goc' => 9, 'doc_trang' => '2026-10-25', 'url' => 'https://khac.example/9/', 'loai' => 'ca_dao', 'tieu_de' => 'Không chép', 'loi' => "Câu nguồn khác dòng một riêng\nCâu nguồn khác dòng hai riêng nhé", 'chu_thich' => array( array( 'ma' => 1, 'tu' => 'riêng', 'noi_dung' => 'Giải mẫu.' ) ) ) );
+$kc  = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . Kho::bang() . ' WHERE nguon_id = %s', 'khong-chep' ) );
+$dkc = UngVien::dang( (int) $kc->id, array( 'nguoi' => $ai_ql ) );
+kt( 'nguồn tắt "Chép chú thích": Đăng không chép chú thích (D-055)', $dkc['ok'] && null === PhanBai::lay( $dkc['bai'], 'chu_thich' ), $dkc );
+
+Kho::luu( 'me-thu', array( 'ma_goc' => 901, 'doc_trang' => '2026-10-26', 'url' => "$G/trung/", 'loai' => 'ca_dao', 'tieu_de' => 'Trùng', 'loi' => "Dòng một mẫu,\nDÒNG HAI MẪU!", 'di_ban' => array( "Dị bản từ nguồn khác\nDị bản dòng hai" ) ) );
+$tr = $k( "$G/trung/" );
+kt( 'chống trùng: lời y hệt (khác dấu câu, chữ hoa), cùng thể loại → tự gắn vào tác phẩm có sẵn', 'da_gop' === $tr->trang_thai && 'bai:' . $tp1 === $tr->gop_vao, $tr );
+kt( 'tự gắn: dị bản mới của câu kia vào tác phẩm (phần dị bản còn do máy chép)', 2 === count( PhanBai::lay( $tp1, 'di_ban' )['muc'] ?? array() ) );
+ChongTrung::tach( (int) $tr->id );
+kt( 'Tách ra: câu về "mới", cặp ghi "là bài khác", dị bản đã thêm rút lại', 'moi' === $k( "$G/trung/" )->trang_thai && in_array( 'bai:' . $tp1, ChongTrung::da_khac( 'kho:' . $tr->id ), true ) && 1 === count( PhanBai::lay( $tp1, 'di_ban' )['muc'] ?? array() ) );
+Kho::luu( 'me-thu', array( 'ma_goc' => 902, 'doc_trang' => '2026-10-26', 'url' => "$G/la-di-ban/", 'loai' => 've', 'tieu_de' => 'Là dị bản', 'loi' => "Dị một mẫu\nDị hai mẫu" ) );
+kt( 'chống trùng: lời trùng 100% một dị bản đã ghi (khác thể loại vẫn được) → tự gắn làm dị bản (D-074)', 'da_gop' === $k( "$G/la-di-ban/" )->trang_thai && 'di_ban' === $k( "$G/la-di-ban/" )->gop_lam );
+Kho::luu( 'me-thu', array( 'ma_goc' => 903, 'doc_trang' => '2026-10-26', 'url' => "$G/gan/", 'loai' => 'ca_dao', 'tieu_de' => 'Gần', 'loi' => "Dòng một mẫu thêm\nDòng hai mẫu" ) );
+$gan  = $k( "$G/gan/" );
+$vgan = Viec::mo( 'kho', (int) $gan->id, 'co_the_trung' );
+kt( 'chống trùng: giống một phần → việc "Có thể trùng" trong Hộp việc, câu vẫn ở kho', 'moi' === $gan->trang_thai && 1 === count( $vgan ) && 'bai:' . $tp1 === ( $vgan[0]['noi_dung']['b'] ?? '' ) && ChongTrung::dang_cho( (int) $gan->id ), $vgan );
+kt( 'câu đang chờ quyết trùng không được chọn làm câu mới', ! in_array( (int) $gan->id, array_map( static fn( $v ) => $v['doi_tuong_id'], Viec::mo( 'kho', (int) $gan->id, 'cau_moi' ) ), true ) && 0 === UngVien::chon( array( 'loai_lay' => array( 'ca_dao' ) ) + $me_thu, 10 ) );
+Kho::luu( 'me-thu', array( 'ma_goc' => 1, 'di_ban' => array( "Dị một mẫu\nDị hai mẫu", "Dị ba mới\nDị bốn mới" ) ) );
+kt( 'kho đổi: tác phẩm nhận dị bản mới (phần còn do máy chép)', 2 === count( PhanBai::lay( $tp1, 'di_ban' )['muc'] ?? array() ) );
+$db_nguoi = PhanBai::lay( $tp1, 'di_ban' )['muc'];
+$db_nguoi[] = array( 'dong' => array( 'Dị bản người biên soạn thêm' ), 'nguoi_lam' => NguoiLam::NGUOI_VIET );
+LuuPhan::luu( $tp1, 'di_ban', $db_nguoi, array( 'nguoi' => $ai_ql, 'goi' => KiemPhan::GOI_NGUOI ) );
+Kho::luu( 'me-thu', array( 'ma_goc' => 1, 'di_ban' => array( "Dị một mẫu\nDị hai mẫu" ) ) );
+kt( 'kho đổi: phần người đã sửa giữ nguyên (máy không ghi đè)', 3 === count( PhanBai::lay( $tp1, 'di_ban' )['muc'] ?? array() ) );
+$bo_id = (int) $hv->id;
+kt( 'Bỏ câu mới: câu ở lại kho (bỏ qua), việc đóng', UngVien::bo( $bo_id, $ai_ql, 'không hợp' ) && 'bo_qua' === Kho::lay( $bo_id )->trang_thai && array() === Viec::mo( 'kho', $bo_id, 'cau_moi' ) );
+
 do_action( 'wp_enqueue_scripts' );
 kt( 'theme nạp giao-dien.css, fit.js, doc.js (hoãn, cuối trang)', wp_style_is( 'phongdao-giao-dien', 'enqueued' ) && wp_script_is( 'phongdao-fit', 'enqueued' ) && wp_script_is( 'phongdao-doc', 'enqueued' ) );
 
