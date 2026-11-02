@@ -1,0 +1,19 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"meta": {
+		"title": "Phongdao V2 (thử tại máy)",
+		"description": "WordPress + plugin, theme V2 và dữ liệu mẫu tổng hợp, tiếng Việt, đường dẫn đẹp. Xem docs/26 mục 13.",
+		"author": "truonganhquyen"
+	},
+	"landingPage": "/",
+	"preferredVersions": { "php": "8.3", "wp": "latest" },
+	"features": { "networking": true },
+	"login": true,
+	"steps": [
+		{ "step": "setSiteLanguage", "language": "vi" },
+		{ "step": "setSiteOptions", "options": { "blogname": "Thư viện Văn học Dân gian Việt Nam", "blogdescription": "Đọc một câu. Hiểu một đời sống.", "timezone_string": "Asia/Ho_Chi_Minh" } },
+		{ "step": "activatePlugin", "pluginPath": "/wordpress/wp-content/plugins/ca-dao/ca-dao.php" },
+		{ "step": "activateTheme", "themeFolderName": "ca-dao" },
+		{ "step": "runPHP", "code": "<?php require '/wordpress/wp-load.php'; update_option('permalink_structure', '/%postname%/'); foreach (get_posts(array('post_type' => array('post', 'page'), 'post_status' => 'any', 'numberposts' => -1)) as $p) { wp_delete_post($p->ID, true); } $mau = '<!-- wp:paragraph --><p>Dữ liệu thử: Dòng mẫu một của bài này. Dòng mẫu hai dài hơn chút cho vừa.</p><!-- /wp:paragraph -->'; wp_insert_post(array('post_type' => 'page', 'post_status' => 'publish', 'post_name' => 'trang-mau-v2', 'post_title' => 'Trang mẫu V2', 'post_content' => $mau)); wp_insert_post(array('post_type' => 'post', 'post_status' => 'publish', 'post_name' => 'bai-mau-v2', 'post_title' => 'Bài mẫu V2', 'post_content' => $mau)); flush_rewrite_rules(); ?>" }
+	]
+}

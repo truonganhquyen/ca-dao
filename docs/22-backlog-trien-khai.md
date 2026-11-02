@@ -121,7 +121,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | **V2 · Xây mới song song, chuyển một lần (D-082..D-091)** ||||||
 | T-139 | [V2] Quyết định xây mới, tài liệu nền V2, đặc tả `docs/26` kỹ thuật, `27` sản phẩm, `28` Bàn biên tập, `29` chuyển đổi | A | — | — | DONE |
 | T-165 | [V2] Bộ thiết kế UX/UI bản chốt ở `design/v2/`: bảng tím – lục, mỗi câu một dòng, 66 màn, token, đặc tả (D-092, D-093) | N+A | T-139 | — | DONE |
-| T-141 | [Đợt 1] Khung V2 ở `wordpress/v2/`: plugin (tự nạp `Phongdao\`, module), theme khối trống, lệnh `test:v2`, `quet:v2`, `xem-truoc:v2`, job CI, bộ kiểm PHP thuần | A | T-139 | — | READY |
+| T-141 | [Đợt 1] Khung V2 ở `wordpress/v2/`: plugin (tự nạp `Phongdao\`, module), theme khối trống, lệnh `test:v2`, `quet:v2`, `xem-truoc:v2`, job CI, bộ kiểm PHP thuần | A | T-139 | — | DONE |
 | T-142 | [Đợt 1] Mô hình dữ liệu: loại bài, sáu phân loại, bảng lớp / hồ sơ nguồn / nhật ký / hàng đợi / tuyển tập / gợi ý, cấp chất lượng, ràng buộc lằn ranh | A | T-141 | — | READY |
 | T-143 | [Đợt 1] Nguồn vào: bộ đọc Ca dao Mẹ, kho, hồ sơ nguồn, chống trùng (chuyển kèm kiểm thử), ứng viên từ kho, gợi ý chủ đề / vùng / mô-típ / Wikidata | A | T-142 | — | READY |
 | T-144 | [Đợt 1] Tìm: chỉ mục từ lớp, bỏ dấu, gõ sai (gộp T-132), nhóm theo thể loại, "mong có câu này" | A | T-142 | — | READY |
@@ -640,7 +640,7 @@ Mọi task V2 đọc AGENTS.md và `docs/26`; task trang người đọc đọc 
 **Tiến độ (02/11/2026):** xong — bản chốt 2.1 (D-092, D-093): mọi lựa chọn đã chốt; kiểm thêm "mỗi câu một dòng" và "nhãn nút không gãy" ở 320 / 360 / 390 / 768 / 1440 đạt, 13 luồng tương tác đạt.
 
 #### Đợt 1 · Nền (T-141..T-145)
-- **T-141:** đo phiên bản PHP của máy chủ trước khi chọn cú pháp (`docs/26` mục 2); `npm run test:v2` chạy bộ kiểm PHP thuần < 5 giây và Playground; `xem-truoc:v2` mở được plugin + theme V2 với dữ liệu mẫu; job CI `v2`. **Chấp nhận:** cây thư mục đúng `docs/26` mục 3; MVP không đổi; CI xanh.
+- **T-141 (xong 02/11/2026):** plugin `Phongdao — Thư viện Văn học Dân gian Việt Nam` 0.1.0 (tự nạp `Phongdao`, 5 module khung: cài đặt, REST `phongdao/v1/suc-khoe`, khối, `wp phongdao phien-ban`, menu Phongdao; lớp miền đầu tiên `MienDuLieuBoDau` chuyển từ MVP), theme khối `Phongdao` 0.1.0; `test:v2` (PHP thuần + Playground PHP 8.3), `quet:v2`, `xem-truoc:v2`, workflow `v2.yml`. Yêu cầu gốc: đo phiên bản PHP của máy chủ trước khi chọn cú pháp (`docs/26` mục 2); `npm run test:v2` chạy bộ kiểm PHP thuần < 5 giây và Playground; `xem-truoc:v2` mở được plugin + theme V2 với dữ liệu mẫu; job CI `v2`. **Chấp nhận:** cây thư mục đúng `docs/26` mục 3; MVP không đổi; CI xanh.
 - **T-142:** **Chấp nhận:** đủ loại bài, phân loại, bảng ở `docs/26` mục 4; kiểm thử khẳng định ràng buộc lằn ranh mục 4.3 và `docs/28` mục 6; `CapChatLuong` cho đúng L0–L3 (bài phân tích không tính); SQL chạy trên SQLite và MySQL.
 - **T-143:** **Chấp nhận:** bộ đọc Ca dao Mẹ và chống trùng cho cùng kết quả với MVP trên mọi ca kiểm thử của MVP; ứng viên theo `docs/28` mục 3.3; kho không ra trang người đọc.
 - **T-144:** **Chấp nhận:** bộ truy vấn có dấu / không dấu / sai một chữ (gồm L-09) đạt; câu không có trong kho không ra bài lạc đề; kho có câu thì hiện "đang chờ biên soạn" mà không lộ lời kho.
