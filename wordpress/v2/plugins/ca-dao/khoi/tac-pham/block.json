@@ -1,0 +1,21 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cadao/tac-pham",
+	"title": "Trang tác phẩm",
+	"category": "theme",
+	"description": "Trang tác phẩm đủ phần (docs/27 mục 6). Tạm đọc dữ liệu mẫu theo thuộc tính mau.",
+	"textdomain": "ca-dao",
+	"attributes": {
+		"mau": {
+			"type": "string",
+			"default": "ca-dao"
+		}
+	},
+	"supports": {
+		"html": false,
+		"inserter": false,
+		"reusable": false
+	},
+	"render": "file:./render.php"
+}

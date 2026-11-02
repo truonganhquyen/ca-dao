@@ -12,6 +12,11 @@ const CI = Boolean(process.env.CI);
 const goc = path.resolve('wordpress', 'v2');
 let hong = false;
 
+// ---------- 0. Giao diện theme khớp bộ thiết kế design/v2 ----------
+const dongBo = spawnSync(process.execPath, [path.resolve('scripts', 'dong-bo-giao-dien-v2.mjs'), '--kiem'], { encoding: 'utf8' });
+process.stdout.write(dongBo.stdout + dongBo.stderr);
+if (dongBo.status !== 0) hong = true;
+
 // ---------- 1. PHP thuần ----------
 const php = process.env.PHP_BIN || 'php';
 const coPhp = spawnSync(php, ['-v'], { encoding: 'utf8' }).status === 0;

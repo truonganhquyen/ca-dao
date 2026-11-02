@@ -7,6 +7,8 @@ on:
       - 'wordpress/v2/**'
       - 'scripts/test-v2.mjs'
       - 'scripts/quet-v2.mjs'
+      - 'scripts/dong-bo-giao-dien-v2.mjs'
+      - 'design/v2/source/**'
       - 'package.json'
       - '.github/workflows/v2.yml'
   push:
@@ -15,6 +17,8 @@ on:
       - 'wordpress/v2/**'
       - 'scripts/test-v2.mjs'
       - 'scripts/quet-v2.mjs'
+      - 'scripts/dong-bo-giao-dien-v2.mjs'
+      - 'design/v2/source/**'
       - 'package.json'
       - '.github/workflows/v2.yml'
 
@@ -47,4 +51,14 @@ jobs:
         run: npm run test:v2
 
       - name: Quét trợ năng, ngân sách V2 (WCAG 2.2 AA)
-        run: npm run quet:v2
+        run: npm run quet:v2 -- --anh qa-anh-v2
+
+      # Ảnh chụp 390 px từng trang để xem bằng mắt (tải ở trang lần chạy CI)
+      - name: Lưu ảnh chụp
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: anh-chup-v2
+          path: qa-anh-v2/
+          if-no-files-found: ignore
+          retention-days: 14

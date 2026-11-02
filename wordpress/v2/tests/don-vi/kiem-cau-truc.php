@@ -26,8 +26,22 @@ foreach ( array( 'ca-dao.php', 'src/tu-nap.php', 'src/MienDuLieu', 'src/KhoLuu',
 	}
 }
 kt( 'cây thư mục plugin đúng docs/26 mục 3', array() === $thieu, $thieu );
-$thieu = array_values( array_filter( array( 'style.css', 'theme.json', 'functions.php', 'templates/index.html', 'parts/dau-trang.html', 'parts/chan-trang.html' ), static fn( $t ) => ! file_exists( "$theme/$t" ) ) );
-kt( 'theme khối có style.css, theme.json, functions.php, templates/index.html, phần đầu / chân trang', array() === $thieu, $thieu );
+$thieu = array_values( array_filter( array( 'style.css', 'theme.json', 'functions.php', 'templates/index.html', 'templates/page.html', 'templates/tac-pham-mau.html', 'parts/dau-trang.html', 'parts/chan-trang.html', 'assets/giao-dien.css', 'assets/fit.js', 'assets/doc.js', 'assets/fonts/literata-400-vietnamese.woff2', 'assets/fonts/OFL-literata.txt' ), static fn( $t ) => ! file_exists( "$theme/$t" ) ) );
+kt( 'theme khối có đủ tệp: mẫu trang, phần đầu / chân, giao diện, fit.js, doc.js, phông và giấy phép OFL', array() === $thieu, $thieu );
+
+// Khối cadao/*: mỗi thư mục khoi/<tên> có block.json tên cadao/<tên>, apiVersion 3, render.php
+$khoi_hong = array();
+foreach ( glob( "$plugin/khoi/*", GLOB_ONLYDIR ) ?: array() as $thu_muc ) {
+	$ten  = basename( $thu_muc );
+	$khai = json_decode( (string) @file_get_contents( "$thu_muc/block.json" ), true );
+	if ( ! is_array( $khai ) || "cadao/$ten" !== ( $khai['name'] ?? '' ) || 3 !== ( $khai['apiVersion'] ?? 0 ) || 'file:./render.php' !== ( $khai['render'] ?? '' ) || ! is_file( "$thu_muc/render.php" ) ) {
+		$khoi_hong[] = $ten;
+	}
+}
+kt( 'mỗi khối khoi/<tên> có block.json (cadao/<tên>, apiVersion 3) và render.php', array() === $khoi_hong && count( glob( "$plugin/khoi/*", GLOB_ONLYDIR ) ?: array() ) >= 3, $khoi_hong );
+$doc_js = (string) file_get_contents( "$theme/assets/doc.js" ) . (string) file_get_contents( "$theme/assets/fit.js" );
+kt( 'JavaScript trang người đọc (doc.js + fit.js) dưới 21 KB chưa nén', strlen( $doc_js ) < 21 * 1024, strlen( $doc_js ) );
+kt( 'JavaScript người đọc không gọi máy chủ ngoài, không cookie', ! preg_match( '/https?:\/\/|document\.cookie|fetch\(|XMLHttpRequest|sendBeacon/', $doc_js ) );
 
 // PSR-4: Phongdao\A\B nằm ở src/A/B.php, mỗi tệp một khai báo cùng tên tệp
 $lech = array();
