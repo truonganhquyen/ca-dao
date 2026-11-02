@@ -279,6 +279,38 @@ set_transient( 'phongdao_cau_hom_nay_ds', array( 1 ), HOUR_IN_SECONDS );
 LuuPhan::luu( $mau_id['cau-mau-thu-hai'], 'loi', array( 'dong' => array( 'Câu mẫu thứ hai sáu chữ', 'Câu tám chữ mẫu viết cho đủ dòng', 'Thêm dòng mẫu' ), 'nguoi_lam' => NguoiLam::NGUOI_VIET ), array( 'nguoi' => $ai_ql, 'goi' => KiemPhan::GOI_NGUOI ) );
 kt( 'lưu lời thì danh sách Câu hôm nay được làm mới', false === get_transient( 'phongdao_cau_hom_nay_ds' ) );
 
+// ---------- Tìm ----------
+global $wp_rewrite;
+kt( 'đường dẫn /tim/ là trang cố định của plugin (không cần trang trong cơ sở dữ liệu)', isset( $wp_rewrite->wp_rewrite_rules()['^(tim)/?$'] ) && null === get_page_by_path( 'tim' ) );
+$mau = array_map( static fn( $t ) => $t->slug, get_block_templates() );
+kt( 'theme có mẫu trang Tìm và trang 404', in_array( 'trang-tim', $mau, true ) && in_array( '404', $mau, true ) );
+$tim_id = static fn( string $q ): array => array_column( \Phongdao\DichVu\ChiMucTim\ChiMucTim::tim( $q )['ds'], 'id' );
+kt( 'chỉ mục dựng từ các phần đã lưu: gõ không dấu ra bài, khớp cả cụm', $mau_id['dong-mau-mot-cua-bai'] === ( $tim_id( 'dong mau mot cua bai nay' )[0] ?? 0 ) && ( \Phongdao\DichVu\ChiMucTim\ChiMucTim::tim( 'dong mau mot cua bai nay' )['ds'][0]['lien'] ?? false ) );
+kt( 'tìm cả trong chú thích và ý nghĩa', in_array( $mau_id['dong-mau-mot-cua-bai'], $tim_id( 'chu thich tong hop' ), true ) && in_array( $mau_id['tuc-ngu-mau-ngan'], $tim_id( 'giai nghia tong hop' ), true ) );
+wp_update_post( array( 'ID' => $mau_id['cau-do-mau'], 'post_status' => 'draft' ) );
+$an = ! in_array( $mau_id['cau-do-mau'], $tim_id( 'cau do mau dong hai' ), true );
+wp_update_post( array( 'ID' => $mau_id['cau-do-mau'], 'post_status' => 'publish' ) );
+kt( 'bài thôi đăng ra khỏi kết quả; đăng lại thì có', $an && in_array( $mau_id['cau-do-mau'], $tim_id( 'cau do mau dong hai' ), true ) );
+wp_set_current_user( 0 );
+$h = \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 'dong mau mot cua bai nay' );
+kt( 'trang Tìm: khớp cả câu thì thẻ lớn đầu trang, có Đọc bài', str_contains( $h, 'result-primary' ) && str_contains( $h, 'Khớp cả câu · Ca dao' ) && str_contains( $h, esc_url( (string) get_permalink( $mau_id['dong-mau-mot-cua-bai'] ) ) ) );
+$h = \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 'mau' );
+kt( 'trang Tìm: kết quả nhóm theo thể loại, có số bài', str_contains( $h, '<h2>Ca dao <span class="count">' ) && str_contains( $h, '<h2>Câu đố <span class="count">' ) && (bool) preg_match( '/id="search-status"[^>]*>\d+ bài</', $h ), substr( $h, 0, 400 ) );
+$h = \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 'cau do mau dong haj' );
+kt( 'gõ sai một chữ cái: "Có phải bạn tìm …?" dẫn tới truy vấn đã sửa', str_contains( $h, 'Có phải bạn tìm' ) && str_contains( $h, 'q=cau%20do%20mau%20dong%20hai' ) && str_contains( $h, 'Chưa tìm thấy câu phù hợp' ), $h );
+kt( 'trang Tìm chưa gõ: lối bắt đầu; truy vấn lạ: báo rõ, có lối sang Tất cả, Góp', str_contains( \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( '' ), 'Bạn có thể bắt đầu từ đây' ) && str_contains( \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 'zzqxw' ), 'Góp câu đang tìm' ) );
+kt( 'chữ lạ trong truy vấn được thoát', ! str_contains( \Phongdao\GiaoTiep\Khoi\Tim::trang( '"><script>alert(1)</script>' ), '<script>alert' ) );
+$yc = new WP_REST_Request( 'GET', '/phongdao/v1/tim' );
+$yc->set_param( 'q', 'tuc ngu mau' );
+$tl = rest_do_request( $yc );
+kt( 'REST tìm khi gõ: khách gọi được, trả cùng HTML kết quả', 200 === $tl->get_status() && str_contains( (string) ( $tl->get_data()['html'] ?? '' ), 'Tục ngữ mẫu ngắn' ), $tl->get_status() );
+\Phongdao\DichVu\ChiMucTim\ChiMucTim::bat_dau_dung_lai();
+$so_lo = \Phongdao\DichVu\ChiMucTim\ChiMucTim::dung_lai_lo();
+kt( 'dựng lại chỉ mục theo lô: đủ mọi tác phẩm đã đăng, sau đó vẫn tìm ra', (int) wp_count_posts( KhaiBao::TAC_PHAM )->publish === $so_lo && in_array( $mau_id['ve-mau'], $tim_id( 've mau dong mot' ), true ), $so_lo );
+$_SERVER['REQUEST_URI'] = '/ca-dao/cong-thu-nhu-nui/';
+$h404 = do_blocks( '<!-- wp:cadao/khong-thay /-->' );
+kt( 'trang 404: ô tìm gửi tới /tim/ điền sẵn chữ từ đường dẫn, lối sang Tất cả', str_contains( $h404, 'action="' . esc_url( home_url( '/tim/' ) ) . '"' ) && str_contains( $h404, 'value="cong thu nhu nui"' ) && str_contains( $h404, esc_url( home_url( '/kho/' ) ) ), $h404 );
+
 do_action( 'wp_enqueue_scripts' );
 kt( 'theme nạp giao-dien.css, fit.js, doc.js (hoãn, cuối trang)', wp_style_is( 'phongdao-giao-dien', 'enqueued' ) && wp_script_is( 'phongdao-fit', 'enqueued' ) && wp_script_is( 'phongdao-doc', 'enqueued' ) );
 

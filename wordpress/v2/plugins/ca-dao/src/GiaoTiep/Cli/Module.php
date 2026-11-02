@@ -14,6 +14,35 @@ final class Module implements \Phongdao\HaTang\Module {
 	public function dang_ky(): void {
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			\WP_CLI::add_command( 'phongdao phien-ban', array( $this, 'phien_ban' ) );
+			\WP_CLI::add_command( 'phongdao tim', array( $this, 'tim' ) );
+		}
+	}
+
+	/**
+	 * Tìm thử, hoặc dựng lại toàn bộ chỉ mục tìm.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [<cau>]
+	 * : Câu cần tìm.
+	 *
+	 * [--dung-lai]
+	 * : Dựng lại chỉ mục từ các phần đã lưu của mọi tác phẩm đã đăng.
+	 */
+	public function tim( array $doi, array $tuy ): void {
+		if ( isset( $tuy['dung-lai'] ) ) {
+			\Phongdao\DichVu\ChiMucTim\ChiMucTim::bat_dau_dung_lai();
+			$tong = 0;
+			do {
+				$so    = \Phongdao\DichVu\ChiMucTim\ChiMucTim::dung_lai_lo();
+				$tong += $so;
+			} while ( $so > 0 && (int) get_option( \Phongdao\DichVu\ChiMucTim\ChiMucTim::SAU, -1 ) >= 0 );
+			wp_clear_scheduled_hook( \Phongdao\DichVu\ChiMucTim\ChiMucTim::VIEC_NEN );
+			\WP_CLI::success( "Đã dựng lại chỉ mục cho $tong bài." );
+			return;
+		}
+		foreach ( \Phongdao\DichVu\ChiMucTim\ChiMucTim::tim( (string) ( $doi[0] ?? '' ) )['ds'] as $x ) {
+			\WP_CLI::line( $x['id'] . "\t" . $x['diem'] . ( $x['roi'] ? "\trời" : '' ) . "\t" . get_the_title( $x['id'] ) );
 		}
 	}
 

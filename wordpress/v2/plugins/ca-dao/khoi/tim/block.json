@@ -1,0 +1,17 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cadao/tim",
+	"title": "Tìm",
+	"category": "theme",
+	"description": "Trang Tìm (/tim/?q=, docs/26 mục 8): tắt JavaScript vẫn tìm được; có JavaScript thì kết quả hiện khi gõ.",
+	"textdomain": "ca-dao",
+	"version": "1",
+	"supports": {
+		"html": false,
+		"inserter": false,
+		"reusable": false
+	},
+	"viewScript": "file:./view.js",
+	"render": "file:./render.php"
+}

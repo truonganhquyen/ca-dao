@@ -1,0 +1,15 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cadao/khong-thay",
+	"title": "Không tìm thấy trang",
+	"category": "theme",
+	"description": "Trang 404: ô tìm điền sẵn chữ lấy từ đường dẫn, lối sang Tất cả tác phẩm, Tìm.",
+	"textdomain": "ca-dao",
+	"supports": {
+		"html": false,
+		"inserter": false,
+		"reusable": false
+	},
+	"render": "file:./render.php"
+}

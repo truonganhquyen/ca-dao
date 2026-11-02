@@ -32,8 +32,21 @@ final class KhaiBao implements Module {
 		'tro_choi'  => array( 'tro-choi', 'Trò chơi' ),
 	);
 
+	/** Tăng khi thêm / đổi luật đường dẫn (trang cố định, loại bài…): lần nạp sau tự làm mới luật viết lại. */
+	public const PHIEN_BAN_DUONG_DAN = 2;
+
 	public function dang_ky(): void {
 		add_action( 'init', array( self::class, 'khai_bao' ), 0 );
+		add_action(
+			'init',
+			static function (): void {
+				if ( (int) get_option( 'phongdao_duong_dan' ) !== self::PHIEN_BAN_DUONG_DAN ) {
+					flush_rewrite_rules( false );
+					update_option( 'phongdao_duong_dan', self::PHIEN_BAN_DUONG_DAN );
+				}
+			},
+			99
+		);
 		add_filter( 'post_type_link', array( self::class, 'duong_dan' ), 10, 2 );
 		add_action( 'template_redirect', array( self::class, 've_duong_dan_chuan' ) );
 		add_action( 'pre_get_posts', array( self::class, 'truy_van_danh_sach' ) );
