@@ -18,6 +18,8 @@ final class AnToan implements Module {
 
 	public function dang_ky(): void {
 		add_filter( 'wp_headers', array( self::class, 'dau_bao_ve' ) );
+		// Quy tắc tải trước của WordPress là mã nội tuyến (CSP chặn, Chrome không nhận 'inline-speculation-rules' ở đây): tắt
+		add_filter( 'wp_speculation_rules_configuration', '__return_null' );
 		add_filter( 'xmlrpc_enabled', '__return_false' );
 		add_filter( 'xmlrpc_methods', '__return_empty_array' );
 		add_filter( 'pings_open', '__return_false' );
@@ -101,7 +103,7 @@ final class AnToan implements Module {
 	 */
 	public static function csp(): string {
 		// 'report-sample': trình duyệt kèm 40 ký tự đầu của mã bị chặn (quet:v2 in ra để biết chỗ sửa)
-		$ma = array_merge( array( "'self'", "'inline-speculation-rules'", "'report-sample'", 'https://challenges.cloudflare.com' ), (array) apply_filters( 'phongdao_csp_script', array() ) );
+		$ma = array_merge( array( "'self'", "'report-sample'", 'https://challenges.cloudflare.com' ), (array) apply_filters( 'phongdao_csp_script', array() ) );
 		return implode(
 			'; ',
 			array(
