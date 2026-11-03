@@ -29,7 +29,7 @@ final class DocBai {
 			}
 		}
 		$hinh_thuc = self::term( $bai, 'hinh_thuc' );
-		return array( 'cam_nghi' => self::cam_nghi( $bai->ID ) ) + TrangTacPham::tu_phan(
+		$tp = TrangTacPham::tu_phan(
 			$phan,
 			array(
 				'id'        => $bai->ID,
@@ -45,6 +45,20 @@ final class DocBai {
 				'ho_so'     => $ho_so,
 			)
 		);
+		if ( ! $tp ) {
+			return null;
+		}
+		// Từ khó nối mục từ: lối sang Từ điển (số bài), ảnh, bản đồ của địa danh đã xác nhận; đáp án câu đố có ảnh
+		foreach ( $tp['chu_thich'] as $i => $c ) {
+			$t = $c['muc'] ? get_term( $c['muc'], 'muc_tu' ) : null;
+			if ( $t instanceof \WP_Term ) {
+				$tp['chu_thich'][ $i ]['muc'] = array( 'url' => (string) get_term_link( $t ), 'so_bai' => (int) $t->count, 'them' => \Phongdao\GiaoTiep\Khoi\DiaDanh::html( \Phongdao\GiaoTiep\Khoi\DiaDanh::cua_muc_tu( (int) $t->term_id ) ?? array() ) );
+			} else {
+				$tp['chu_thich'][ $i ]['muc'] = null;
+			}
+		}
+		$tp['dap_an_them'] = '' === $tp['dap_an'] ? '' : \Phongdao\GiaoTiep\Khoi\DiaDanh::html( \Phongdao\GiaoTiep\Khoi\DiaDanh::cua_dap_an( $tp['dap_an'] ) ?? array() );
+		return array( 'cam_nghi' => self::cam_nghi( $bai->ID ) ) + $tp;
 	}
 
 	/**

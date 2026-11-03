@@ -41,7 +41,7 @@ final class TacPham {
 			// Câu đố: đáp án thu gọn sau nút "Hiện đáp án", tắt JavaScript vẫn mở được (D-087)
 			$y = ( $sua ? '<p class="row no-print">' . $nut( 'cau_hoi', 'Sửa câu hỏi' ) . $nut( 'goi_y', 'Sửa gợi ý' ) . $nut( 'dap_an', 'Sửa đáp án' ) . '</p>' : '' )
 				. ( empty( $tp['goi_y'] ) ? '' : '<details class="disclosure"><summary>Gợi ý</summary><div class="detail-body"><p>' . esc_html( $tp['goi_y'] ) . '</p></div></details>' )
-				. ( empty( $tp['dap_an'] ) ? '' : '<details class="answer"><summary>Hiện đáp án</summary><div class="detail-body"><h2>Đáp án</h2><p>' . esc_html( $tp['dap_an'] ) . '</p></div></details>' )
+				. ( empty( $tp['dap_an'] ) ? '' : '<details class="answer"><summary>Hiện đáp án</summary><div class="detail-body"><h2>Đáp án</h2><p>' . esc_html( $tp['dap_an'] ) . '</p>' . ( $tp['dap_an_them'] ?? '' ) . '</div></details>' )
 				. ( empty( $tp['y_nghia']['chu'] ) ? '' : Ve::y_nghia( $tp['y_nghia']['chu'], ! empty( $tp['y_nghia']['ai'] ), 'Ý nghĩa', $nut( 'y_nghia', 'Sửa' ) ) );
 		}
 		$muc_kiem = $sua ? '<div class="level-sua">' . Ve::muc_kiem( $tp['doi_chieu'] ) . $nut( 'loi', empty( $tp['doi_chieu'] ) ? 'Thêm đối chiếu sách' : 'Sửa đối chiếu' ) . '</div>' : Ve::muc_kiem( $tp['doi_chieu'] );
@@ -73,7 +73,8 @@ final class TacPham {
 			foreach ( $tp['chu_thich'] as $c ) {
 				// Nguồn người biên soạn điền thì hiện (D-081); nguồn của chú thích máy chép ẩn theo chính sách (D-068)
 				$nguon = empty( $c['nguon'] ) ? '' : '<br><span class="small">Nguồn: ' . ( empty( $c['nguon']['url'] ) ? esc_html( $c['nguon']['chu'] ) : '<a href="' . esc_url( $c['nguon']['url'] ) . '" rel="nofollow">' . esc_html( $c['nguon']['chu'] ) . '</a>' ) . '</span>';
-				$o    .= '<div class="term"><dt>' . esc_html( '' !== $c['tu'] ? $c['tu'] : 'Chú thích chung' ) . '</dt><dd>' . esc_html( $c['giai'] ) . $nguon . '</dd></div>';
+				$muc   = is_array( $c['muc'] ?? null ) ? '<br><a class="small" href="' . esc_url( $c['muc']['url'] ) . '">Xem trong Từ điển · ' . (int) $c['muc']['so_bai'] . ' bài</a>' . $c['muc']['them'] : '';
+				$o    .= '<div class="term"><dt>' . esc_html( '' !== $c['tu'] ? $c['tu'] : 'Chú thích chung' ) . '</dt><dd>' . esc_html( $c['giai'] ) . $nguon . $muc . '</dd></div>';
 			}
 			$sau .= Ve::khoi( 'Từ khó', '<dl class="terms">' . $o . '</dl>' . $goc( 'Từ khó', 'chu_thich' ), 'tint-vang', 'chu-thich', $nut( 'chu_thich', 'Sửa' ) );
 		}
