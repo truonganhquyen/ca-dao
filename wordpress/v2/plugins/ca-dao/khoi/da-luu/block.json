@@ -1,0 +1,17 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cadao/da-luu",
+	"title": "Đã lưu",
+	"category": "theme",
+	"description": "Trang /da-luu/ (bộ thiết kế R21): bài người đọc đã lưu, đọc từ bộ nhớ trình duyệt — không gửi gì về máy chủ.",
+	"textdomain": "ca-dao",
+	"version": "1",
+	"supports": {
+		"html": false,
+		"inserter": false,
+		"reusable": false
+	},
+	"viewScript": "file:./view.js",
+	"render": "file:./render.php"
+}

@@ -88,6 +88,14 @@ final class GopTuLieu {
 			$h .= '<a class="gop-nut" href="' . esc_url( add_query_arg( array( 'loai' => $loai, 'bai' => $bai_id ), $goc ) . '#gop-form' ) . '">' . Ve::icon( $icon ) . '<span>' . esc_html( $chu ) . '</span></a>';
 		}
 		$h .= '</div></section>';
+		$pt = PhanTich::cua_bai( $bai_id );
+		if ( $pt ) {
+			$h .= '<section class="section" id="cam-nhan" aria-labelledby="cam-nhan-tieu-de"><h2 id="cam-nhan-tieu-de">Cảm nhận – phân tích</h2>';
+			foreach ( $pt as $p ) {
+				$h .= '<div class="list-row"><div><h3><a href="' . esc_url( (string) get_permalink( $p ) ) . '">' . esc_html( $p->post_title ) . '</a></h3><p class="small muted">' . esc_html( PhanTich::nguoi_viet( $p ) ) . '</p></div></div>';
+			}
+			$h .= '</section>';
+		}
 		if ( $cam_nghi ) {
 			$h .= '<section class="section" id="cam-nghi" aria-labelledby="cam-nghi-tieu-de"><h2 id="cam-nghi-tieu-de">Cảm nghĩ của bạn đọc</h2>';
 			foreach ( $cam_nghi as $c ) {

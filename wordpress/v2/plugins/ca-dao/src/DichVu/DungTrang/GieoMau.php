@@ -96,7 +96,26 @@ final class GieoMau {
 			LuuPhan::luu( $id, 'loi_dan', array( 'chu' => 'Lời dẫn tổng hợp để xem bố cục tuyển tập đọc liền.', 'nguoi_lam' => NguoiLam::NGUOI_VIET ), $nc );
 			LuuPhan::luu( $id, 'muc', array_map( static fn( int $b ): array => array( 'tac_pham_id' => $b, 'ghi_chu' => 'Ghi chú mẫu cho câu này.' ), array_values( $bai ) ), $nc );
 		}
-		return array( 'muc_tu' => $mt, 'tuyen_tap' => $id );
+		// Một bài cảm nhận đã duyệt (trang R23, danh sách cuối trang bài)
+		$pt = get_page_by_path( 'mot-cach-doc-mau', OBJECT, KhaiBao::PHAN_TICH );
+		$pt = $pt ? $pt->ID : (int) wp_insert_post(
+			wp_slash(
+				array(
+					'post_type'    => KhaiBao::PHAN_TICH,
+					'post_status'  => 'publish',
+					'post_name'    => 'mot-cach-doc-mau',
+					'post_title'   => 'Một cách đọc bài mẫu',
+					'post_content' => \Phongdao\MienDuLieu\GopNguoiDoc::van_ban( "Nội dung tổng hợp để xem cách trình bày bài cảm nhận đã duyệt.\n\n> Dòng mẫu một của bài này\n\nPhần người viết bàn luận được tách rõ khỏi lời tác phẩm." ),
+					'post_author'  => $nguoi,
+					'meta_input'   => array(
+						'_cadao_bai'      => $bai['dong-mau-mot-cua-bai'] ?? 0,
+						'_cadao_but_danh' => 'Bút danh mẫu',
+						'_cadao_vai_tro'  => 'giao_vien',
+					),
+				)
+			)
+		);
+		return array( 'muc_tu' => $mt, 'tuyen_tap' => $id, 'phan_tich' => $pt );
 	}
 
 	/** @return array<string,int> tên đường dẫn => ID các tác phẩm mẫu (đã có thì giữ) */

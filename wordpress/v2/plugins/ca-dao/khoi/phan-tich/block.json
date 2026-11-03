@@ -1,0 +1,16 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cadao/phan-tich",
+	"title": "Bài cảm nhận",
+	"category": "theme",
+	"description": "Một bài cảm nhận – phân tích đã duyệt (bộ thiết kế R23): người viết, nội dung, tác phẩm đang bàn.",
+	"textdomain": "ca-dao",
+	"version": "1",
+	"supports": {
+		"html": false,
+		"inserter": false,
+		"reusable": false
+	},
+	"render": "file:./render.php"
+}

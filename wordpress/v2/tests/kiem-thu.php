@@ -594,6 +594,17 @@ $h = TacPham::hien( (array) \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_pos
 kt( 'người biên soạn bấm Hiện → cảm nghĩ lên trang kèm tên hiển thị và "Báo vi phạm"', $kq['ok'] && str_contains( $h, 'Cảm nghĩ mẫu của bạn đọc.' ) && str_contains( $h, 'Bút danh mẫu' ) && str_contains( $h, 'loai=vi_pham' ), $kq );
 kt( 'mã ngắn [cadao_viet_phan_tich] của trang "Viết cảm nhận" (mang từ MVP) hiện form với loại bài cảm nhận chọn sẵn', str_contains( do_shortcode( '[cadao_viet_phan_tich]' ), 'value="phan_tich" required checked' ) );
 
+// ---------- Đã lưu, bài cảm nhận ----------
+$h = do_blocks( '<!-- wp:cadao/da-luu /-->' );
+kt( 'trang Đã lưu: khung cho danh sách trên máy người đọc, báo khi tắt JavaScript, lọc 5 thể loại; mã trang chỉ nạp ở trang này', str_contains( $h, 'data-da-luu' ) && str_contains( $h, '<noscript>' ) && 6 === substr_count( $h, '<option' ) && wp_script_is( 'cadao-da-luu-view-script', 'enqueued' ), $h );
+$vj = (string) file_get_contents( WP_PLUGIN_DIR . '/ca-dao/khoi/da-luu/view.js' );
+kt( 'Đã lưu đọc khoá "cadao-da-luu" của MVP (bài lưu trước khi chuyển vẫn còn), không gọi máy chủ, không dùng innerHTML', str_contains( $vj, "'cadao-da-luu'" ) && ! preg_match( '/fetch\(|XMLHttpRequest|sendBeacon|innerHTML|document\.cookie/', $vj ) );
+$pt = get_post( $tc2 = \Phongdao\DichVu\DungTrang\GieoMau::gieo_tra_cuu( $ai_ql )['phan_tich'] );
+$h  = \Phongdao\GiaoTiep\Khoi\PhanTich::hien( $pt );
+kt( 'trang bài cảm nhận: người viết (bút danh · vai), nội dung có trích lời, tác phẩm đang bàn, Báo vi phạm', str_contains( $h, 'Bút danh mẫu · Giáo viên' ) && str_contains( $h, '<blockquote' ) && str_contains( $h, 'Tác phẩm đang bàn' ) && str_contains( $h, 'loai=vi_pham' ), $h );
+$h = TacPham::hien( (array) \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_post( $bai_g ) ) );
+kt( 'trang bài liệt kê bài cảm nhận đã duyệt (bài chờ duyệt thì không)', str_contains( $h, 'Cảm nhận – phân tích' ) && str_contains( $h, 'Một cách đọc bài mẫu' ) && ! str_contains( $h, 'Cảm nhận mẫu</a>' ) );
+
 do_action( 'wp_enqueue_scripts' );
 kt( 'theme nạp giao-dien.css, fit.js, doc.js (hoãn, cuối trang)', wp_style_is( 'phongdao-giao-dien', 'enqueued' ) && wp_script_is( 'phongdao-fit', 'enqueued' ) && wp_script_is( 'phongdao-doc', 'enqueued' ) );
 
