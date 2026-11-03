@@ -74,7 +74,9 @@ final class TuyenTap {
 		$so      = count( $muc );
 		$h       = '<nav aria-label="Đường dẫn" class="breadcrumbs">' . Ve::lien_ket( 'trang-chu', 'Trang chủ' ) . '<span aria-hidden="true">/</span>' . Ve::lien_ket( 'tuyen-tap', 'Tuyển tập' ) . '<span aria-hidden="true">/</span><span>' . esc_html( $tt->post_title ) . '</span></nav>'
 			. '<p class="eyebrow">Tuyển tập · ' . esc_html( self::LOAI[ $loai ] ) . '</p><h1>' . esc_html( $tt->post_title ) . '</h1>'
-			. '<p class="muted">' . $so . ' câu · ' . max( 1, (int) ceil( $so / 2 ) ) . ' phút đọc</p>';
+			. '<p class="muted">' . $so . ' câu · ' . max( 1, (int) ceil( $so / 2 ) ) . ' phút đọc</p>'
+			// Trình chiếu cả bộ (hành động chính của tuyển tập, docs/27 mục 7.1): doc.js lấy các câu ngay trên trang
+			. ( $so ? '<div class="actions no-print"><button type="button" class="btn primary" data-action="present-set" data-chi-js hidden>' . Ve::icon( 'present' ) . 'Trình chiếu cả bộ</button></div>' : '' );
 		foreach ( '' === $loi_dan ? array() : preg_split( '/\n\s*\n/u', $loi_dan ) as $doan ) {
 			$h .= '<p>' . nl2br( esc_html( trim( $doan ) ) ) . '</p>';
 		}

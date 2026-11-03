@@ -73,8 +73,17 @@
   };
   const thanhVai = $('.role-bar'); if (thanhVai) { thanhVai.hidden = false; vai((doc('phongdao-vai') || {}).vai); }
 
-  // "Mong có câu này" (trang Tìm): nút chỉ có tác dụng khi có JavaScript nên HTML để ẩn
-  $$('[data-action=mong-co-cau][hidden]').forEach(b => { b.hidden = false; });
+  // Nút chỉ có tác dụng khi có JavaScript ("Mong có câu này", Trình chiếu, Đọc cùng bé): HTML để ẩn
+  $$('[data-action=mong-co-cau][hidden], [data-chi-js][hidden]').forEach(b => { b.hidden = false; });
+
+  // Trình chiếu, Đọc cùng bé: che.js tải khi người đọc bấm lần đầu (không tính vào JavaScript mỗi trang bài)
+  const goc = (document.currentScript || {}).src || '';
+  const che = viec => {
+    if (window.PDche) { window.PDche(viec); return; }
+    const t = document.createElement('script');
+    t.src = goc.replace(/doc\.js(?=\?|$)/, 'che.js'); t.onload = () => window.PDche && window.PDche(viec);
+    t.onerror = () => bao('Chưa mở được, xin thử lại.'); document.head.append(t);
+  };
 
   // Bài dài (như MVP): đoạn sau dòng 30 thu gọn sau "Đọc toàn bài"; nhớ đoạn đang đọc trên máy, cùng khoá với MVP
   const dai = $('.bai-dai');
@@ -153,9 +162,10 @@
       });
     }
     else if (viec === 'aa') {
-      const d = hop('Cỡ chữ và sáng tối', `<p>Cỡ chữ lời</p><div class="size-group" role="group" aria-label="Cỡ chữ lời">${[[22, 'Vừa'], [28, 'Lớn'], [34, 'Rất lớn']].map(([n, t]) => `<button type="button" data-action="size" data-size="${n}" aria-pressed="${String(getComputedStyle(document.documentElement).getPropertyValue('--reading-size').trim() === n + 'px')}">${t}</button>`).join('')}</div><p class="small muted">Lời luôn giữ mỗi câu một dòng; trên màn hẹp cỡ lớn tự co cho vừa.</p><div class="actions"><button type="button" class="btn" data-action="theme">Đổi sáng / tối</button></div>`);
+      const d = hop('Cỡ chữ và sáng tối', `<p>Cỡ chữ lời</p><div class="size-group" role="group" aria-label="Cỡ chữ lời">${[[22, 'Vừa'], [28, 'Lớn'], [34, 'Rất lớn']].map(([n, t]) => `<button type="button" data-action="size" data-size="${n}" aria-pressed="${String(getComputedStyle(document.documentElement).getPropertyValue('--reading-size').trim() === n + 'px')}">${t}</button>`).join('')}</div><p class="small muted">Lời luôn giữ mỗi câu một dòng; trên màn hẹp cỡ lớn tự co cho vừa.</p><div class="actions"><button type="button" class="btn" data-action="theme">Đổi sáng / tối</button>${$('.verse-card') ? '<button type="button" class="btn" data-action="present">Trình chiếu</button>' : ''}</div>`);
       d.querySelector('[data-action=size]')?.focus();
     }
+    else if (['present', 'present-set', 'kids'].includes(viec)) { const d = $('dialog[open]'); if (d) d.close(); che(viec); }
     else if (viec === 'mong-co-cau') { su('mong_co_cau', { kho: b.dataset.kho }); b.disabled = true; b.textContent = 'Đã ghi nhận, cảm ơn bạn'; }
     else if (viec === 'download-card') bao('Máy chủ chưa vẽ được ảnh. Hãy chụp màn hình phần xem trước.');
   });

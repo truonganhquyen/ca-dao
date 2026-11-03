@@ -75,7 +75,7 @@ final class DanhSach {
 			. '<h3><a href="' . esc_url( $c['url'] ) . '">' . esc_html( $c['tieu_de'] ) . '</a></h3>'
 			. '<p class="serif dong-wrap">' . $dong . '</p>'
 			. ( '' === $c['y_nghia'] ? '' : '<p class="muted">' . esc_html( $c['y_nghia'] ) . '</p>' )
-			. '<div class="row between"><span></span><a class="btn compact ghost" href="' . esc_url( $c['url'] ) . '" aria-label="' . esc_attr( 'Đọc: ' . $c['tieu_de'] ) . '">Đọc ' . Ve::icon( 'arrow' ) . '</a></div></article>';
+			. '<div class="row between"><span class="small muted">' . esc_html( (string) ( $c['ly_do'] ?? '' ) ) . '</span><a class="btn compact ghost" href="' . esc_url( $c['url'] ) . '" aria-label="' . esc_attr( 'Đọc: ' . $c['tieu_de'] ) . '">Đọc ' . Ve::icon( 'arrow' ) . '</a></div></article>';
 	}
 
 	private static function duong_dan( string $ten ): string {

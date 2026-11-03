@@ -87,6 +87,8 @@ Báo cáo không chép lời vào repo; chỉ mã bài, số lượng, lý do. C
 
 **Lần 1 (03/11/2026, người sáng lập đồng ý):** 631 bài (611 đăng, 20 chờ duyệt máy tạo không mang); "trước = sau" không lệch bài nào (chỉ khác khoảng trắng: lời 9, dị bản 11, chú thích 16, ý nghĩa 3). Phát hiện: 7 bài vè nhiều phần không tìm được lời, 3 bài vè có dòng chú bối cảnh, 2 bài có dòng "(Nguồn: …)", 1 bài có "Dị bản" chèn trên tiêu đề phụ → thêm các quy tắc ở mục 3.2. Còn "Cần xem" đúng ý: nguồn bài không gắn chú thích nào (2), thể loại "thơ truyền tụng" không còn ở V2 (1), ca dao có dòng in đậm và đáp án (1).
 
+**Lần 2 (03/11/2026, chiều, người sáng lập đồng ý; sau các quy tắc mới):** 631 bài, đều đã đăng (20 bài chờ duyệt lần 1 đã được đăng trong ngày). Cả 631 bài có lời; 7 bài có phần Đoạn, 3 bài có Bối cảnh — đúng các bài đã biết, quy tắc mới không bắt nhầm bài khác. "Trước = sau" không lệch bài nào (kể cả đoạn, bối cảnh). "Cần xem" còn 7 bài, đúng danh sách đã giải thích: 28, 709, 407, 409, 103, 382, 1105. Chạy lần cuối ít nhất 2 ngày trước ngày chuyển (bước 0).
+
 ## 5. Ngày chuyển (T-157)
 
 | Bước | Ai | Việc | Thời gian |

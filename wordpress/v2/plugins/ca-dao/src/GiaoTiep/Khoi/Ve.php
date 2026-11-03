@@ -68,6 +68,7 @@ final class Ve {
 		'calendar' => '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4m8-4v4"/>',
 		'kids'     => '<circle cx="9" cy="7" r="3"/><circle cx="17" cy="9" r="2"/><path d="M3 21v-2a6 6 0 0 1 12 0v2m0-6a4 4 0 0 1 6 3.5V21"/>',
 		'layers'   => '<path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/>',
+		'present'  => '<rect x="3" y="4" width="18" height="12" rx="1"/><path d="M8 20h8M12 16v4"/>',
 		'spark'    => '<path d="M12 3v4m0 10v4M3 12h4m10 0h4M6 6l2.5 2.5m7 7L18 18M6 18l2.5-2.5m7-7L18 6"/>',
 	);
 
@@ -239,6 +240,7 @@ final class Ve {
 			. self::nut( 'cite', 'quote', 'Trích dẫn', 'primary', $du )
 			. self::nut( 'save', 'save', 'Lưu', '', $du . ' aria-pressed="false"' )
 			. self::nut( 'share', 'share', 'Chia sẻ', '', $du )
+			. self::nut( 'present', 'present', 'Trình chiếu', 'chi-rong', $du )
 			. self::nut( 'aa', 'aa', 'Cỡ chữ', 'chi-hep', ' aria-label="Cỡ chữ và sáng tối"' )
 			. '<p class="rail-label chi-rong" id="co-chu-' . esc_attr( $tp['ma'] ) . '">Cỡ chữ lời</p><div class="size-group chi-rong" role="group" aria-labelledby="co-chu-' . esc_attr( $tp['ma'] ) . '">' . $co . '</div>'
 			. '<p class="rail-note chi-rong">Lời luôn giữ mỗi câu một dòng; cỡ lớn tự co cho vừa màn hình.</p></div></aside>';

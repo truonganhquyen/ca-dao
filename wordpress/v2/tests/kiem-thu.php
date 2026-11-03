@@ -179,7 +179,7 @@ kt( 'khối Ý nghĩa có ghi chú hỗ trợ AI đã duyệt', str_contains( $c
 $moi_id = array_map( static fn( $id ) => substr_count( $h, 'id="' . $id . '"' ), array( 'chu-thich' => 'chu-thich', 'di-ban' => 'di-ban', 'tu-lieu' => 'tu-lieu', 'anh-chia-se' => 'anh-chia-se' ) );
 kt( 'có đúng một khối Từ khó, Dị bản, Lời này từ đâu?, Ảnh để chia sẻ', array( 1, 1, 1, 1 ) === array_values( $moi_id ), $moi_id );
 kt( 'ảnh chia sẻ: 3 khổ, 3 nền, có ô Kèm ý nghĩa', 3 === substr_count( $h, 'name="kho-mau-ca-dao"' ) && 3 === substr_count( $h, 'name="nen-mau-ca-dao"' ) && str_contains( $h, 'name="yn-mau-ca-dao"' ) );
-kt( 'công cụ đọc: Trích dẫn, Lưu, Chia sẻ, Cỡ chữ; không có nút chưa chạy (Trình chiếu)', str_contains( $h, 'data-action="cite"' ) && str_contains( $h, 'data-action="save"' ) && str_contains( $h, 'data-action="share"' ) && ! str_contains( $h, 'data-action="present"' ) );
+kt( 'công cụ đọc: Trích dẫn, Lưu, Chia sẻ, Trình chiếu, Cỡ chữ', str_contains( $h, 'data-action="cite"' ) && str_contains( $h, 'data-action="save"' ) && str_contains( $h, 'data-action="share"' ) && str_contains( $h, 'data-action="present"' ) );
 kt( 'người đọc không nhận giao diện sửa, không thấy nguồn đã ẩn', ! preg_match( '/nut-sua|editor-strip|dai-bien-tap|tam-sua|Nguồn đã ẩn:/', $h ) );
 
 $tn = do_blocks( '<!-- wp:cadao/tac-pham {"mau":"tuc-ngu"} /-->' );
@@ -505,6 +505,10 @@ kt(
 );
 kt( 'vè dài: chỉ đoạn bắt đầu sau dòng 30 có dấu thu gọn; số dòng mỗi 5 dòng; chỗ ngắt khổ giữ lại', 1 === substr_count( $h_ve, 'data-sau' ) && str_contains( $h_ve, '<span class="ln" aria-hidden="true">05</span>' ) && ! str_contains( $h_ve, '<span class="ln" aria-hidden="true">04</span>' ) && 4 === substr_count( $h_ve, '<div class="kho">' ) );
 kt( 'vè dài: lời đủ 48 dòng (không dòng nào bị bỏ; khối Ảnh để chia sẻ bên dưới chỉ lấy 4 dòng đầu)', 48 === substr_count( (string) strstr( $h_ve, 'id="anh-chia-se"', true ), '<span class="line">' ) );
+$h_dd = $xem( $mau_id['dong-dao-mau'] );
+$h_cd = $xem( $mau_id['dong-mau-mot-cua-bai'] );
+kt( 'Đọc cùng bé chỉ ở bài đồng dao (nút ẩn khi không có JavaScript); Trình chiếu ở cột công cụ đọc', str_contains( $h_dd, 'data-action="kids" data-chi-js hidden' ) && ! str_contains( $h_cd, 'data-action="kids"' ) && str_contains( $h_cd, 'data-action="present"' ) );
+kt( 'Đọc tiếp: bài cùng chủ đề kèm lý do, đủ tối thiểu 3 bài (thêm bài cùng thể loại), không có chính bài này', str_contains( $h_cd, 'id="doc-tiep"' ) && str_contains( $h_cd, 'Cùng chủ đề Lao động' ) && str_contains( $h_cd, '/ca-dao/cau-mau-thu-hai/' ) && 3 <= substr_count( (string) strstr( (string) strstr( $h_cd, 'id="doc-tiep"' ), 'id="anh-chia-se"', true ), '<article class="card' ) && ! str_contains( (string) strstr( (string) strstr( $h_cd, 'id="doc-tiep"' ), 'id="anh-chia-se"', true ), 'dong-mau-mot-cua-bai/"' ), substr( (string) strstr( $h_cd, 'id="doc-tiep"' ), 0, 800 ) );
 wp_set_current_user( $ai_ql );
 $h_ve = $xem( $ve );
 kt( 'người biên soạn mở vè: nút và tấm "Chia đoạn", "Bối cảnh"; bài ca dao không có hai tấm này', str_contains( $h_ve, 'id="tam-doan"' ) && str_contains( $h_ve, 'id="tam-boi_canh"' ) && str_contains( $h_ve, 'lời hiện có 48 dòng' ) && ! str_contains( $xem( $tp1 ), 'id="tam-doan"' ) );
@@ -596,6 +600,7 @@ $tc = \Phongdao\DichVu\DungTrang\GieoMau::gieo_tra_cuu( $ai_ql );
 $tt = get_post( $tc['tuyen_tap'] );
 kt( 'tuyển tập mẫu loại Tình huống: có lời dẫn, đủ ngưỡng 2 câu → công khai', $tt && \Phongdao\GiaoTiep\Khoi\TuyenTap::cong_khai( $tt ) );
 $h = \Phongdao\GiaoTiep\Khoi\TuyenTap::hien( $tt );
+kt( 'tuyển tập: nút Trình chiếu cả bộ (hành động chính; ẩn khi không có JavaScript)', str_contains( $h, 'data-action="present-set" data-chi-js hidden' ) );
 kt( 'trang tuyển tập: lời dẫn, số câu, mỗi câu có lời, ghi chú "Hợp khi", nút sao chép, Xem bài', str_contains( $h, 'Tuyển tập · Tình huống' ) && str_contains( $h, 'Lời dẫn tổng hợp' ) && substr_count( $h, 'class="collection-item' ) >= 5 && str_contains( $h, 'Hợp khi:' ) && str_contains( $h, 'data-action="copy-loi"' ) && str_contains( $h, 'Xem bài' ), $h );
 $tt2 = wp_insert_post( array( 'post_type' => KhaiBao::TUYEN_TAP, 'post_status' => 'publish', 'post_title' => 'Tuyển tập thiếu', 'post_name' => 'tuyen-tap-thieu' ) );
 LuuPhan::luu( $tt2, 'muc', array( array( 'tac_pham_id' => $tp1 ) ), array( 'nguoi' => $ai_ql, 'goi' => KiemPhan::GOI_NGUOI ) );

@@ -89,7 +89,9 @@ final class NhapThu {
 			'wikidata'    => count( $pl['wikidata'] ),
 		);
 		foreach ( $pl['ghi_chu'] as [ $l, $id ] ) {
-			$bc['ghi_chu'][ self::nhom( $l ) ][] = $id;
+			if ( ! in_array( $id, $bc['ghi_chu'][ self::nhom( $l ) ] ?? array(), true ) ) { // bài có nhiều câu thừa: ghi mã một lần
+				$bc['ghi_chu'][ self::nhom( $l ) ][] = $id;
+			}
 		}
 		return $bc;
 	}
