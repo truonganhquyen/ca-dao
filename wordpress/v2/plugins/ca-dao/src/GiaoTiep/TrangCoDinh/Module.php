@@ -20,6 +20,7 @@ final class Module implements \Phongdao\HaTang\Module {
 		'tu-dien'           => 'Từ điển',
 		'gop'               => 'Góp tư liệu',
 		'da-luu'            => 'Đã lưu',
+		'ban-do'            => 'Bản đồ',
 		'bien-tap'          => 'Hộp việc',
 		'bien-tap/tac-pham' => 'Tác phẩm',
 		'bien-tap/them'     => 'Thêm bài',
