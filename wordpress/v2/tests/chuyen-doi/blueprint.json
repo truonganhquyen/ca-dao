@@ -1,0 +1,13 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"preferredVersions": { "php": "8.3", "wp": "latest" },
+	"features": { "networking": false },
+	"steps": [
+		{ "step": "setSiteLanguage", "language": "vi" },
+		{ "step": "runPHP", "code": "<?php require '/wordpress/wp-load.php'; update_option('permalink_structure', '/%postname%/'); ?>" },
+		{ "step": "activatePlugin", "pluginPath": "/wordpress/wp-content/plugins/ca-dao-cu/ca-dao.php" },
+		{ "step": "runPHP", "code": "<?php require '/repo/tests/chuyen-doi/gieo-mvp.php';" },
+		{ "step": "runPHP", "code": "<?php require '/wordpress/wp-load.php'; update_option('active_plugins', array('ca-dao/ca-dao.php')); switch_theme('ca-dao'); ?>" },
+		{ "step": "runPHP", "code": "<?php require '/repo/tests/chuyen-doi/kiem.php';" }
+	]
+}

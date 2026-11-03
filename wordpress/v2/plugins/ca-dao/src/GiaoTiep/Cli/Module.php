@@ -17,6 +17,34 @@ final class Module implements \Phongdao\HaTang\Module {
 			\WP_CLI::add_command( 'phongdao tim', array( $this, 'tim' ) );
 			\WP_CLI::add_command( 'phongdao nguon', array( $this, 'nguon' ) );
 			\WP_CLI::add_command( 'phongdao cau-moi', array( $this, 'cau_moi' ) );
+			\WP_CLI::add_command( 'phongdao kiem-ke', array( $this, 'kiem_ke' ) );
+			\WP_CLI::add_command( 'phongdao nhap', array( $this, 'nhap' ) );
+		}
+	}
+
+	/**
+	 * Kiểm kê dữ liệu người làm trên MVP (docs/29 mục 2): đếm từng dòng, liệt kê khoá lạ. Không ghi gì.
+	 */
+	public function kiem_ke(): void {
+		foreach ( \Phongdao\DichVu\NhapDuLieuCu\KiemKe::in() as $dong ) {
+			\WP_CLI::line( $dong );
+		}
+	}
+
+	/**
+	 * Nhập dữ liệu MVP sang V2 (docs/29 mục 3, 4).
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--thu]
+	 * : Chạy mọi quy tắc trong bộ nhớ, in báo cáo; không ghi gì.
+	 */
+	public function nhap( array $doi, array $tuy ): void {
+		if ( ! isset( $tuy['thu'] ) ) {
+			\WP_CLI::error( 'Bước nhập thật chưa có ở bản này; dùng --thu.' );
+		}
+		foreach ( \Phongdao\DichVu\NhapDuLieuCu\NhapThu::in( \Phongdao\DichVu\NhapDuLieuCu\NhapThu::chay() ) as $dong ) {
+			\WP_CLI::line( $dong );
 		}
 	}
 

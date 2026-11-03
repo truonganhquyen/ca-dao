@@ -5,6 +5,7 @@ on:
   pull_request:
     paths:
       - 'wordpress/v2/**'
+      - 'wordpress/plugins/ca-dao/**'
       - 'scripts/test-v2.mjs'
       - 'scripts/quet-v2.mjs'
       - 'scripts/dong-bo-giao-dien-v2.mjs'
@@ -15,6 +16,7 @@ on:
     branches: [main]
     paths:
       - 'wordpress/v2/**'
+      - 'wordpress/plugins/ca-dao/**'
       - 'scripts/test-v2.mjs'
       - 'scripts/quet-v2.mjs'
       - 'scripts/dong-bo-giao-dien-v2.mjs'

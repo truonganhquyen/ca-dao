@@ -40,20 +40,26 @@ if (chinh < 24 || (chinh === 24 && phu < 18)) {
 } else {
   // Playground để lại thư mục site tạm (~175 MB) khi bị tắt: dọn thư mục do chính lần chạy này tạo
   const SITE_TAM = /^node-playground-cli-site-/;
-  const tamTruoc = new Set(fs.readdirSync(os.tmpdir()).filter(t => SITE_TAM.test(t)));
-  const tepKq = path.join(goc, 'tests', '.ket-qua.txt');
-  fs.rmSync(tepKq, { force: true });
-  const r = spawnSync('npx', [
-    '-y', '@wp-playground/cli@3.1.57', 'run-blueprint', '--verbosity=quiet',
-    `--blueprint=${path.join(goc, 'tests', 'blueprint-kiem-thu.json')}`,
-    '--mount-dir', path.join(goc, 'plugins', 'ca-dao'), '/wordpress/wp-content/plugins/ca-dao',
-    '--mount-dir', path.join(goc, 'themes', 'ca-dao'), '/wordpress/wp-content/themes/ca-dao',
-    '--mount-dir', goc, '/repo',
-  ], { stdio: ['ignore', 'ignore', 'inherit'], shell: process.platform === 'win32', env: { ...process.env, MSYS_NO_PATHCONV: '1' } });
-  for (const t of fs.readdirSync(os.tmpdir())) if (SITE_TAM.test(t) && !tamTruoc.has(t)) fs.rmSync(path.join(os.tmpdir(), t), { recursive: true, force: true });
-  const kq = fs.existsSync(tepKq) ? fs.readFileSync(tepKq, 'utf8') : '';
-  process.stdout.write('\n' + (kq || `LỖI      [v2 · Playground] không chạy được kiểm thử (mã thoát ${r.status}).\n`));
-  if (r.status !== 0 || !kq.includes('KẾT QUẢ: ĐẠT')) hong = true;
+  const chay = (nhan, blueprint, tepKq, gan = []) => {
+    const tamTruoc = new Set(fs.readdirSync(os.tmpdir()).filter(t => SITE_TAM.test(t)));
+    fs.rmSync(tepKq, { force: true });
+    const r = spawnSync('npx', [
+      '-y', '@wp-playground/cli@3.1.57', 'run-blueprint', '--verbosity=quiet',
+      `--blueprint=${blueprint}`,
+      '--mount-dir', path.join(goc, 'plugins', 'ca-dao'), '/wordpress/wp-content/plugins/ca-dao',
+      '--mount-dir', path.join(goc, 'themes', 'ca-dao'), '/wordpress/wp-content/themes/ca-dao',
+      '--mount-dir', goc, '/repo',
+      ...gan,
+    ], { stdio: ['ignore', 'ignore', 'inherit'], shell: process.platform === 'win32', env: { ...process.env, MSYS_NO_PATHCONV: '1' } });
+    for (const t of fs.readdirSync(os.tmpdir())) if (SITE_TAM.test(t) && !tamTruoc.has(t)) fs.rmSync(path.join(os.tmpdir(), t), { recursive: true, force: true });
+    const kq = fs.existsSync(tepKq) ? fs.readFileSync(tepKq, 'utf8') : '';
+    process.stdout.write('\n' + (kq || `LỖI      [${nhan}] không chạy được kiểm thử (mã thoát ${r.status}).\n`));
+    if (r.status !== 0 || !kq.includes('KẾT QUẢ: ĐẠT')) hong = true;
+  };
+  chay('v2 · Playground', path.join(goc, 'tests', 'blueprint-kiem-thu.json'), path.join(goc, 'tests', '.ket-qua.txt'));
+  // Chuyển đổi (docs/29): plugin MVP tạo dữ liệu mẫu, rồi V2 thay chỗ trên cùng cơ sở dữ liệu như ngày chuyển
+  chay('v2 · chuyển đổi', path.join(goc, 'tests', 'chuyen-doi', 'blueprint.json'), path.join(goc, 'tests', '.ket-qua-chuyen-doi.txt'),
+    ['--mount-dir', path.resolve('wordpress', 'plugins', 'ca-dao'), '/wordpress/wp-content/plugins/ca-dao-cu']);
 }
 
 process.exit(hong ? 1 : 0);
