@@ -83,7 +83,10 @@ $h = $tay(
 $i1 = $tay( 'Câu trùng tên mẫu', "<!-- wp:verse -->\n<pre class=\"wp-block-verse\">Câu trùng tên mẫu<br>Dòng sau thứ nhất</pre>\n<!-- /wp:verse -->", 'ca-dao' );
 $i2 = $tay( 'Câu trùng tên mẫu', "<!-- wp:verse -->\n<pre class=\"wp-block-verse\">Câu trùng tên mẫu<br>Dòng sau phân biệt</pre>\n<!-- /wp:verse -->", 'ca-dao' );
 
-$GLOBALS['cd']['id'] = compact( 'a', 'b', 'c', 'd', 'n', 'e', 'g', 'h', 'i1', 'i2' );
+// Bài có khối máy không tách được (ảnh) → thẻ Cần xem, phần chắc chắn vẫn nhập
+$k = $tay( 'Bài có ảnh mẫu', "<!-- wp:verse -->\n<pre class=\"wp-block-verse\">Bài có ảnh mẫu<br>Dòng hai có ảnh</pre>\n<!-- /wp:verse -->\n\n<!-- wp:image -->\n<figure class=\"wp-block-image\"><img src=\"https://example.org/a.jpg\" alt=\"\"/></figure>\n<!-- /wp:image -->", 'ca-dao' );
+
+$GLOBALS['cd']['id'] = compact( 'a', 'b', 'c', 'd', 'n', 'e', 'g', 'h', 'i1', 'i2', 'k' );
 $GLOBALS['cd']['ten_i2'] = get_post_field( 'post_name', $i2 );
 
 // Chạy thử như trên site thật: đếm dòng mọi bảng trước / sau

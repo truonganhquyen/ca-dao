@@ -64,7 +64,7 @@ Việc đầu tiên của T-145: agent đọc toàn bộ mã MVP (`wordpress/plu
 4. **"Cần xem"**: bài vẫn được nhập với những phần chắc chắn, giữ trạng thái đăng, thêm một thẻ "Cần xem" vào Hộp việc; báo cáo ghi mã bài, lý do, đường dẫn sửa. Người sáng lập sửa ngay trên trang bài khi rảnh.
 5. **Đường dẫn:** giữ tên đường dẫn, trừ đuôi `-2`, `-3`… (người sáng lập cho phép, D-089) → tên mới thêm chữ phân biệt; thể loại, tình huống, thể thơ đổi tiền tố như `docs/27` mục 3. Mọi đường dẫn đổi ghi vào bảng chuyển hướng 301, kể cả các 301 đã có ở MVP.
 6. **Trạng thái duyệt:** mỗi phần mang đúng trạng thái người sáng lập đã đặt trên MVP (Hiểu nhanh đã lên trang = đã duyệt, vào bài; dấu AI giữ nguyên; nháp máy thành việc chờ); không phần nào được nâng trạng thái khi nhập.
-7. Mọi bước ghi nhật ký (bảng việc, người tạo `nhap_du_lieu_cu`); bảng tạm `wp_cadao_chuyen_doi` ghi giá trị cũ của mọi thứ bị đổi tại chỗ (loại bài, tên đường dẫn, phân loại) để hoàn tác.
+7. Mọi bước ghi nhật ký (bảng việc, người tạo `nhap_cu`); bảng tạm `wp_cadao_chuyen_doi` ghi giá trị cũ của mọi thứ bị đổi tại chỗ (loại bài, tên đường dẫn, phân loại) để hoàn tác.
 
 ## 4. Công cụ
 
@@ -92,7 +92,7 @@ Báo cáo không chép lời vào repo; chỉ mã bài, số lượng, lý do. C
 | 5 | Người sáng lập | Trên điện thoại: trang chủ, 1 bài mỗi thể loại, một tuyển tập (tình huống cũ), tìm 3 câu, Từ điển, Hộp việc (quyết 3 thẻ), sửa một phần trên trang bài, thêm và đăng thử 1 bài | 20–30 phút |
 | 6 | Người sáng lập | **Mở** (H5): Cài đặt → Đọc → bỏ chọn "Ngăn các công cụ tìm kiếm…" — ngay hoặc khi sẵn sàng | 1 phút |
 
-**Nếu hỏng ở bước 3–5:** agent chạy `wp phongdao nhap --hoan-tac`, rồi gộp PR hoàn lại mã MVP; site về như trước chuyển. Hỏng nặng hơn: khôi phục bản sao lưu đêm trước bằng FlashPanel (người sáng lập).
+**Nếu hỏng ở bước 3–5:** agent chạy `wp phongdao nhap --hoan-tac`, rồi gộp PR hoàn lại mã MVP; site về như trước chuyển. Sau khi mã MVP chạy lại: `wp option delete cadao_tim_phien_ban cadao_trung_phien_ban` để MVP tự dựng lại chỉ mục tìm và chỉ mục chống trùng (V2 đã ghi đè các dòng chỉ mục của bài cùng cấu trúc; các quyết định trùng không mất). Hỏng nặng hơn: khôi phục bản sao lưu đêm trước bằng FlashPanel (người sáng lập).
 
 ## 6. Sau khi chuyển
 

@@ -148,10 +148,16 @@ try {
   const DS_BIEN_TAP = ['/bien-tap/', '/bien-tap/tac-pham/', '/bien-tap/them/', '/bien-tap/so-lieu/', '/ca-dao/dong-mau-mot-cua-bai/'];
   const bt = await trinhDuyet.newPage();
   await bt.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
-  await bt.goto(G + '/wp-login.php', { waitUntil: 'load', timeout: 120_000 });
-  await bt.type('#user_login', 'admin');
-  await bt.type('#user_pass', 'password');
-  await Promise.all([bt.waitForNavigation({ waitUntil: 'load', timeout: 120_000 }), bt.click('#wp-submit')]);
+  // Đăng nhập đôi khi hụt ở lần đầu (Playground vừa khởi động): kiểm cookie đăng nhập, thử lại tối đa 3 lần
+  for (let lan = 0; lan < 3; lan++) {
+    await bt.goto(G + '/wp-login.php', { waitUntil: 'networkidle0', timeout: 120_000 });
+    await bt.$eval('#user_login', o => { o.value = ''; });
+    await bt.type('#user_login', 'admin');
+    await bt.type('#user_pass', 'password');
+    await Promise.all([bt.waitForNavigation({ waitUntil: 'load', timeout: 120_000 }), bt.click('#wp-submit')]);
+    if ((await bt.cookies()).some(c => c.name.startsWith('wordpress_logged_in'))) break;
+    console.log(`NHẮC     [quét v2] đăng nhập lần ${lan + 1} chưa được, thử lại`);
+  }
   const axeBt = async (nhan) => {
     await bt.addScriptTag({ content: axeNguon });
     const kq = await bt.evaluate(the => window.axe.run({ exclude: [['#wpadminbar']] }, { runOnly: { type: 'tag', values: the } }), THE_WCAG);

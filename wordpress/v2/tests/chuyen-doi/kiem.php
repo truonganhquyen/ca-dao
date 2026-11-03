@@ -7,9 +7,17 @@
 
 require_once '/wordpress/wp-load.php';
 
+use Phongdao\DichVu\DungTrang\DocBai;
+use Phongdao\DichVu\NhapDuLieuCu\DuLieuCu;
 use Phongdao\DichVu\NhapDuLieuCu\KiemKe;
+use Phongdao\DichVu\NhapDuLieuCu\NhapLam;
 use Phongdao\DichVu\NhapDuLieuCu\NhapThu;
+use Phongdao\GiaoTiep\Khoi\TacPham;
 use Phongdao\KhoLuu\HoSo;
+use Phongdao\KhoLuu\Kho;
+use Phongdao\KhoLuu\PhanBai;
+use Phongdao\KhoLuu\Viec;
+use Phongdao\MienDuLieu\KiemPhan;
 
 const CD_TEP_KQ = '/repo/tests/.ket-qua-chuyen-doi.txt';
 file_put_contents( CD_TEP_KQ, '' );
@@ -45,8 +53,9 @@ function doan( string $bc, string $tu, string $den ): string {
 global $wpdb;
 $mvp = json_decode( (string) file_get_contents( '/repo/tests/.chuyen-doi-mvp.json' ), true ) ?: array();
 $id  = $mvp['id'] ?? array();
-kt( 'bước 1: tạo dữ liệu mẫu bằng mã MVP không lỗi', array() === ( $mvp['loi'] ?? array( 'không có tệp kết quả bước 1' ) ) && 10 === count( $id ), $mvp['loi'] ?? null );
+kt( 'bước 1: tạo dữ liệu mẫu bằng mã MVP không lỗi', array() === ( $mvp['loi'] ?? array( 'không có tệp kết quả bước 1' ) ) && 11 === count( $id ), $mvp['loi'] ?? null );
 kt( 'V2 đã thay chỗ MVP: plugin V2 chạy, bài MVP còn nguyên loại bài cũ', class_exists( \Phongdao\HaTang\KhoiDong::class ) && ! function_exists( 'cadao_kho_luu' ) && 'cdtn' === get_post_type( $id['a'] ?? 0 ) );
+kt( 'chưa nhập xong: khách thấy trang "Thư viện đang được nâng cấp"', NhapLam::dang_nang_cap() );
 
 // ---------- Tệp chạy thử trên site MVP ----------
 $tn = (string) ( $mvp['thu_nhap'] ?? '' );
@@ -61,11 +70,11 @@ foreach ( $kk['dong'] as [ , $viec, $n ] ) {
 	$so[ $viec ] = $n;
 }
 $mong = array(
-	'đã đăng'                                   => 9,
+	'đã đăng'                                   => 10,
 	'chờ duyệt (máy tạo)'                       => 1,
 	'bài có dấu băm, chưa sửa tay'              => 5,
 	'bài có dấu băm, đã sửa tay'                => 1,
-	'bài không có dấu băm (nhập tay, site cũ)'  => 4,
+	'bài không có dấu băm (nhập tay, site cũ)'  => 5,
 	'bài còn trong khối Đoạn văn (chưa có khối Thơ)' => 1,
 	'câu đã gộp vào bài'                        => 1,
 	'Hiểu nhanh đã lên trang'                   => 1,
@@ -92,7 +101,7 @@ $dem = static function () use ( $wpdb ): array {
 $truoc = $dem();
 $bc    = NhapThu::chay( true );
 kt( 'nhập thử không ghi gì vào cơ sở dữ liệu', $truoc === $dem(), array_diff_assoc( $dem(), $truoc ) );
-kt( 'cách nhập: 4 từ kho chưa sửa, 1 đã sửa tay, 4 không có câu trong kho, 1 chờ duyệt máy tạo không mang', array( 'kho_chua_sua' => 4, 'sua_tay' => 1, 'khong_kho' => 4, 'khong_mang' => 1 ) === $bc['cach'], $bc['cach'] );
+kt( 'cách nhập: 4 từ kho chưa sửa, 1 đã sửa tay, 5 không có câu trong kho, 1 chờ duyệt máy tạo không mang', array( 'kho_chua_sua' => 4, 'sua_tay' => 1, 'khong_kho' => 5, 'khong_mang' => 1 ) === $bc['cach'], $bc['cach'] );
 $cadao_me = (int) ( HoSo::theo_khoa( 'cadao-me' )?->ID ?? 0 );
 $a        = $bc['bai'][ $id['a'] ] ?? array();
 kt(
@@ -114,6 +123,90 @@ kt( 'tên đường dẫn đuôi số → tên mới thêm chữ của dòng sau
 $in = implode( "\n", NhapThu::in( $bc ) );
 kt( 'nhập thử khi MVP còn bật và khi V2 đã thay chỗ cho cùng kết quả', doan( $tn, 'Cách nhập:', '-- Cần xem' ) === doan( $in, 'Cách nhập:', '-- Cần xem' ) && '' !== doan( $in, 'Cách nhập:', '-- Cần xem' ), array( doan( $tn, 'Cách nhập:', '-- Cần xem' ), doan( $in, 'Cách nhập:', '-- Cần xem' ) ) );
 ra( "THÔNG TIN [chuyển đổi] báo cáo nhập thử:\n" . $in );
+
+// ---------- Nhập thật → hoàn tác → nhập lại ----------
+/** Mọi giá trị hồ sơ nguồn (ID) đổi thành khoá hồ sơ: hồ sơ tạo lại sau hoàn tác có ID mới. */
+function cd_khoa_ho_so( mixed $v ): mixed {
+	if ( ! is_array( $v ) ) {
+		return $v;
+	}
+	foreach ( $v as $k => $x ) {
+		$v[ $k ] = 'ho_so' === $k && is_int( $x ) ? (string) get_post_field( 'post_name', $x ) : cd_khoa_ho_so( $x );
+	}
+	return $v;
+}
+// Phía MVP: những gì bước nhập đổi tại chỗ phải trở về đúng như cũ sau hoàn tác
+$mvp_anh = static function () use ( $wpdb, $id ): array {
+	$ra = array();
+	foreach ( $id as $k => $pid ) {
+		clean_post_cache( $pid );
+		$p        = get_post( $pid );
+		$ra[ $k ] = array( $p->post_type, $p->post_status, $p->post_name, md5( $p->post_content ), $p->post_excerpt, $p->post_date_gmt, $p->post_modified_gmt, DuLieuCu::the( $pid, 'the_loai' ), DuLieuCu::the( $pid, 'hinh_thuc' ), get_post_meta( $pid, '_wp_old_slug' ), count( preg_grep( '/^_phongdao_/', array_keys( get_post_meta( $pid ) ) ) ) );
+	}
+	$ra['kho']   = $wpdb->get_results( 'SELECT id, trang_thai, post_id, gop_vao FROM ' . Kho::bang() . ' ORDER BY id', ARRAY_A );
+	$ra['viec']  = (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . Viec::bang() );
+	$ra['ho_so'] = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'ho_so_nguon'" );
+	return $ra;
+};
+// Phía V2: kết quả nhập (phần, phân loại, việc, nhật ký) — so giữa hai lần nhập
+$v2_anh = static function () use ( $wpdb, $id ): array {
+	$ra = array();
+	foreach ( $id as $k => $pid ) {
+		clean_post_cache( $pid );
+		$p        = get_post( $pid );
+		$ra[ $k ] = array( $p->post_type, $p->post_status, $p->post_name, DuLieuCu::the( $pid, 'the_loai' ), DuLieuCu::the( $pid, 'hinh_thuc' ), cd_khoa_ho_so( PhanBai::tat_ca( $pid, 'tac_pham' ) ) );
+	}
+	$ra['viec'] = array_map(
+		static fn( $r ) => cd_khoa_ho_so( array( $r['loai'], $r['trang_thai'], $r['doi_tuong_id'], $r['phan'], $r['nguoi_tao'], $r['quyet'], json_decode( (string) $r['noi_dung'], true ), json_decode( (string) $r['truoc'], true ), json_decode( (string) $r['sau'], true ) ) ),
+		$wpdb->get_results( 'SELECT * FROM ' . Viec::bang() . ' ORDER BY doi_tuong_id, loai, phan, id', ARRAY_A )
+	);
+	return $ra;
+};
+$s0  = $mvp_anh();
+$kq  = NhapLam::chay();
+kt( 'nhập thật: 10 bài nhập, 1 chờ duyệt máy tạo không mang, 1 bài có thẻ Cần xem, không lỗi, không còn bài', 10 === $kq['nhap'] && 1 === $kq['khong_mang'] && 1 === $kq['can_xem'] && array() === $kq['loi'] && 0 === $kq['con'], $kq );
+kt( 'bài giữ ID, thành tác phẩm, giữ trạng thái; bài chờ duyệt máy tạo không mang', 'tac_pham' === get_post_type( $id['a'] ) && 'publish' === get_post_status( $id['a'] ) && 'cdtn' === get_post_type( $id['e'] ) );
+$lech = array();
+foreach ( $id as $k => $pid ) {
+	if ( 'e' === $k ) {
+		continue;
+	}
+	$mong = array_map( static fn( $p ) => cd_khoa_ho_so( $p ), $bc['bai'][ $pid ]['phan'] );
+	$co   = array_filter( array_map( static fn( $p ) => null === $p ? null : cd_khoa_ho_so( KiemPhan::noi_dung( $p ) ), PhanBai::tat_ca( $pid, 'tac_pham' ) ) );
+	array_walk_recursive( $mong, static function ( &$x, $kk ) { $x = 'ho_so' === $kk ? '·' : $x; } );
+	array_walk_recursive( $co, static function ( &$x, $kk ) { $x = 'ho_so' === $kk ? '·' : $x; } );
+	if ( $mong != $co ) { // phpcs:ignore Universal.Operators.StrictComparisons -- thứ tự khoá không quan trọng
+		$lech[ $k ] = array( $mong, $co );
+	}
+}
+kt( 'các phần đã lưu đúng kế hoạch của bước nhập thử', array() === $lech, $lech );
+$so_phan = array_sum( array_map( static fn( $k ) => 'e' === $k ? 0 : count( $bc['bai'][ $id[ $k ] ]['phan'] ), array_keys( $id ) ) );
+kt( 'mỗi phần một dòng nhật ký, người tạo là bước nhập', $so_phan === (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . Viec::bang() . " WHERE loai = 'sua' AND nguoi_tao = %s", NhapLam::NGUOI_TAO ) ) );
+kt( 'ý nghĩa có dấu AI giữ đúng người đã duyệt trên MVP', 'ai_da_duyet' === ( PhanBai::lay( $id['d'], 'y_nghia' )['nguoi_lam'] ?? '' ) && ( PhanBai::lay( $id['d'], 'y_nghia' )['duyet_boi'] ?? 0 ) > 0 );
+kt( 'nháp ý nghĩa thành việc chờ; bài có khối ảnh có thẻ Cần xem kèm lý do', 1 === count( Viec::mo( 'post', $id['n'], 'nhap_y_nghia' ) ) && in_array( 'có khối «core/image»', Viec::mo( 'post', $id['k'], 'can_xem' )[0]['noi_dung']['ly_do'] ?? array(), true ) );
+$m_e = $wpdb->get_row( $wpdb->prepare( 'SELECT trang_thai, post_id FROM ' . Kho::bang() . ' WHERE post_id = 0 AND tieu_de = %s', 'Dòng chờ duyệt mẫu' ) );
+kt( 'câu của bài chờ duyệt máy tạo trở lại kho "mới" để thành thẻ Câu mới', $m_e && 'moi' === $m_e->trang_thai );
+kt( 'tên đường dẫn đuôi số đổi tên mới, tên cũ vẫn chuyển hướng', 'cau-trung-ten-mau-dong' === get_post_field( 'post_name', $id['i2'] ) && in_array( (string) $mvp['ten_i2'], get_post_meta( $id['i2'], '_wp_old_slug' ), true ) );
+kt( 'hồ sơ nguồn người điền và sách đối chiếu đã tạo', null !== HoSo::theo_khoa( NhapThu::khoa_ho_so( 'web', 'Sách mẫu người điền' ) ) && null !== HoSo::theo_khoa( NhapThu::khoa_ho_so( 'sach', 'Tuyển tập mẫu' ) ) );
+$h_a = (string) preg_replace( '/\s+/u', ' ', wp_strip_all_tags( TacPham::hien( (array) DocBai::tac_pham( get_post( $id['a'] ) ) ) ) ); // từ có chú thích, chữ khác của dị bản được bọc thẻ
+kt( 'trang tác phẩm hiện lời, dị bản, chú thích đã nhập; đường dẫn /ca-dao/<tên>/ như cũ', str_contains( $h_a, 'Dòng mẫu một của bài' ) && str_contains( $h_a, 'Dòng gộp vào bài một' ) && str_contains( $h_a, 'Lời giải mẫu.' ) && str_contains( (string) get_permalink( $id['a'] ), '/ca-dao/' . get_post_field( 'post_name', $id['a'] ) . '/' ), $h_a );
+kt( 'cảm nghĩ vẫn nối đúng bài (giữ ID)', 1 === (int) get_comments( array( 'post_id' => $id['a'], 'count' => true ) ) );
+kt( 'nhập xong: khách không còn thấy trang nâng cấp', 'xong' === get_option( NhapLam::TRANG_THAI ) && ! NhapLam::dang_nang_cap() );
+wp_set_current_user( 1 );
+$hv = do_blocks( '<!-- wp:cadao/hop-viec /-->' );
+kt( 'Hộp việc có thẻ Cần xem với nút "Đã xem, ổn rồi" và đường mở bài', str_contains( $hv, 'data-loai="can_xem"' ) && str_contains( $hv, 'Đã xem, ổn rồi' ) && str_contains( $hv, 'có khối «core/image»' ), $hv );
+wp_set_current_user( 0 );
+$s1 = $v2_anh();
+$kq = NhapLam::chay();
+kt( 'chạy lại khi đã nhập xong: không đổi gì', 0 === $kq['nhap'] && $v2_anh() === $s1 );
+$ht = NhapLam::hoan_tac();
+kt( 'hoàn tác: 10 bài, 1 câu kho, 2 hồ sơ nguồn', array( 'bai' => 10, 'kho' => 1, 'ho_so' => 2 ) === $ht, $ht );
+$s0b = $mvp_anh();
+kt( 'hoàn tác: dữ liệu MVP trở về đúng như trước khi nhập (bài, thể loại, câu kho, không còn phần, việc, hồ sơ mới)', $s0b === $s0, array_filter( array_map( null, $s0, $s0b ), static fn( $c ) => $c[0] !== $c[1] ) );
+kt( 'hoàn tác xong: khách lại thấy trang nâng cấp', NhapLam::dang_nang_cap() );
+NhapLam::chay();
+$s1b = $v2_anh();
+kt( 'nhập → hoàn tác → nhập cho cùng kết quả', $s1b === $s1, array_filter( array_map( null, $s1, $s1b ), static fn( $c ) => $c[0] !== $c[1] ) );
 
 $tong = $GLOBALS['cd_dat'] + $GLOBALS['cd_hong'];
 ra( "\nKẾT QUẢ: " . ( $GLOBALS['cd_hong'] ? "HỎNG {$GLOBALS['cd_hong']} / $tong" : "ĐẠT $tong" ) );
