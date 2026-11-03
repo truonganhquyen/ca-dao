@@ -54,6 +54,26 @@ final class SoLieuTuan {
 			. '<li><strong>Thêm câu người đọc cần</strong> — <a href="' . esc_url( home_url( '/bien-tap/them/' ) ) . '">Thêm bài</a></li></ol></section>'
 			. '<section class="section"><h2>Theo thể loại</h2><table class="bang-so"><tbody>' . $the_loai . '</tbody></table></section>'
 			. '<section class="section"><h2>Theo cấp chất lượng</h2><table class="bang-so"><tbody>' . $bang_cap . '</tbody></table><p class="small muted">Cấp tính tự động, chỉ người biên soạn thấy, không chặn đăng.</p></section>'
-			. '<p class="small muted">Lượt đọc, câu tìm không ra, sao chép, chia sẻ sẽ hiện ở đây khi bật đo lường. Số liệu không định danh người đọc: không cookie, không IP.</p>';
+			. self::doc_7_ngay()
+			. '<p class="small muted">Lượt đọc đếm khi trang bài hiện 5 giây, mỗi máy một lần mỗi ngày; lượt người biên soạn đang đăng nhập không tính. Không định danh người đọc: không cookie, không lưu địa chỉ mạng.</p>';
+	}
+
+	/** Đọc 7 ngày: tổng theo ngày, bài đọc nhiều, người đọc đến từ, câu tìm không ra (gợi ý biên soạn tiếp). */
+	private static function doc_7_ngay(): string {
+		$dl   = \Phongdao\DichVu\DoLuong\DoLuong::class;
+		$ngay = $dl::theo_ngay( 7 );
+		$h    = '<section class="section"><h2>Lượt đọc 7 ngày: ' . number_format( array_sum( $ngay ), 0, ',', '.' ) . '</h2><p class="small muted">'
+			. esc_html( implode( ' · ', array_map( static fn( $d, $so ) => wp_date( 'd/m', (int) strtotime( $d ) ) . ': ' . $so, array_keys( $ngay ), $ngay ) ) ) . '</p>';
+		$bai  = $dl::doc_nhieu( 7, 5 );
+		if ( $bai ) {
+			$h .= '<h3>Bài đọc nhiều</h3><ol>' . implode( '', array_map( static fn( $id, $so ) => '<li><a href="' . esc_url( (string) get_permalink( $id ) ) . '">' . esc_html( get_the_title( $id ) ) . '</a> — ' . (int) $so . '</li>', array_keys( $bai ), $bai ) ) . '</ol>';
+		}
+		foreach ( array( 'gioi_thieu' => 'Người đọc đến từ', 'tim_khong_ket_qua' => 'Tìm mà chưa có (nên biên soạn)' ) as $loai => $tieu ) {
+			$ds = $dl::nhieu_nhat( $loai, 7, 8 );
+			if ( $ds ) {
+				$h .= '<h3>' . esc_html( $tieu ) . '</h3><ul>' . implode( '', array_map( static fn( $k, $so ) => '<li>' . esc_html( (string) $k ) . ' — ' . (int) $so . '</li>', array_keys( $ds ), $ds ) ) . '</ul>';
+			}
+		}
+		return $h . '</section>';
 	}
 }

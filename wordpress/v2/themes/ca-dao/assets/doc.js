@@ -6,6 +6,8 @@
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const doc = k => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } };
   const ghi = (k, v) => { try { localStorage.setItem(k, typeof v === 'string' ? v : JSON.stringify(v)); return true; } catch { return false; } };
+  // Sự kiện đo lường: chỉ phát trong trang; mã đo lường của plugin (nếu có, chỉ cho khách) nhận và gửi
+  const su = (loai, du) => document.dispatchEvent(new CustomEvent('phongdao:su-kien', { detail: { loai, ...du } }));
   const fit = () => window.PDfit && window.PDfit();
 
   let hen;
@@ -74,6 +76,7 @@
   if (location.hash) mo(location.hash.slice(1));
 
   document.addEventListener('click', e => {
+    const w = e.target.closest('a.word'); if (w) su('chu_giai_mo', { muc: w.textContent });
     const a = e.target.closest('a[href^="#"]');
     if (a && a.getAttribute('href').length > 1 && mo(a.getAttribute('href').slice(1))) { e.preventDefault(); const v = a.closest('details.vi-sao'); if (v) v.open = false; return; }
     const b = e.target.closest('[data-action]');
@@ -97,16 +100,20 @@
     }
     else if (viec === 'cite') {
       const d = hop('Trích dẫn', `<div class="tabs" role="group" aria-label="Kiểu trích dẫn"><button type="button" class="chip" data-kieu="thuong" aria-pressed="true">Thông dụng</button><button type="button" class="chip" data-kieu="apa" aria-pressed="false">APA 7</button><button type="button" class="chip" data-kieu="loi" aria-pressed="false">Chỉ lời</button></div><label for="trich-dan-chu">Chữ để sao chép</label><textarea id="trich-dan-chu" class="citation-preview" readonly></textarea><div class="actions"><button type="button" class="btn primary" data-chep>Sao chép</button></div>`);
-      const o = $('textarea', d), dat = k => { o.value = trichDan(b, k); $$('[data-kieu]', d).forEach(x => x.setAttribute('aria-pressed', String(x.dataset.kieu === k))); };
+      let kieu = 'thuong';
+      const o = $('textarea', d), dat = k => { kieu = k; o.value = trichDan(b, k); $$('[data-kieu]', d).forEach(x => x.setAttribute('aria-pressed', String(x.dataset.kieu === k))); };
       dat('thuong');
-      d.addEventListener('click', ev => { const k = ev.target.closest('[data-kieu]'); if (k) dat(k.dataset.kieu); if (ev.target.closest('[data-chep]')) chep(o.value, 'Đã sao chép trích dẫn.'); });
+      d.addEventListener('click', ev => {
+        const k = ev.target.closest('[data-kieu]'); if (k) dat(k.dataset.kieu);
+        if (ev.target.closest('[data-chep]')) { chep(o.value, 'Đã sao chép trích dẫn.'); su('trich_dan_sao_chep', { bai: b.dataset.id, kieu: { thuong: 'thong_dung', apa: 'apa', loi: 'chi_loi' }[kieu] }); }
+      });
     }
     else if (viec === 'share') {
       const anh = $('#anh-chia-se');
       const d = hop('Chia sẻ bài này', `<div class="share-list"><button type="button" class="btn primary" data-chep>Sao chép liên kết</button>${navigator.share ? '<button type="button" class="btn" data-ung-dung>Chia sẻ qua ứng dụng…</button>' : ''}${anh ? '<a class="btn" href="#anh-chia-se" data-tao-anh>Tạo ảnh để chia sẻ</a>' : ''}</div><label for="chia-se-url">Liên kết</label><textarea id="chia-se-url" readonly>${esc(b.dataset.url)}</textarea>`);
       d.addEventListener('click', async ev => {
-        if (ev.target.closest('[data-chep]')) chep(b.dataset.url, 'Đã sao chép liên kết.');
-        if (ev.target.closest('[data-ung-dung]')) { try { await navigator.share({ title: b.dataset.tieuDe, url: b.dataset.url }); } catch (err) { if (err.name !== 'AbortError') bao('Máy này chưa cho chia sẻ qua ứng dụng. Hãy sao chép liên kết.'); } }
+        if (ev.target.closest('[data-chep]')) { chep(b.dataset.url, 'Đã sao chép liên kết.'); su('chia_se', { bai: b.dataset.id, kieu: 'sao_chep_lien_ket' }); }
+        if (ev.target.closest('[data-ung-dung]')) { try { await navigator.share({ title: b.dataset.tieuDe, url: b.dataset.url }); su('chia_se', { bai: b.dataset.id, kieu: 'web_share' }); } catch (err) { if (err.name !== 'AbortError') bao('Máy này chưa cho chia sẻ qua ứng dụng. Hãy sao chép liên kết.'); } }
         if (ev.target.closest('[data-tao-anh]')) { ev.preventDefault(); d.close(); setTimeout(() => { $('input', anh)?.focus({ preventScroll: true }); anh.scrollIntoView({ block: 'start' }); }, 30); }
       });
     }

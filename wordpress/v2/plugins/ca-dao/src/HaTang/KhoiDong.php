@@ -16,6 +16,7 @@ final class KhoiDong {
 	public const MODULE = array(
 		KhaiBao::class,
 		CaiDat::class,
+		AnToan::class,
 		ChuyenHuong::class,
 		DichVu\LuuPhan\GanHinhThuc::class,
 		DichVu\DungTrang\DuLieuTrangChu::class,
@@ -25,6 +26,7 @@ final class KhoiDong {
 		DichVu\UngVien\UngVien::class,
 		DichVu\NhapDuLieuCu\Module::class,
 		DichVu\NguoiDoc\Module::class,
+		DichVu\DoLuong\Module::class,
 		GiaoTiep\Rest\Module::class,
 		GiaoTiep\Khoi\Module::class,
 		GiaoTiep\TrangCoDinh\Module::class,

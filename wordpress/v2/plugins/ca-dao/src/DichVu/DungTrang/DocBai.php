@@ -47,6 +47,7 @@ final class DocBai {
 				'chu_de'    => self::term( $bai, 'chu_de' ),
 				'vung'      => self::term( $bai, 'vung' ),
 				'tuyen_tap' => self::tuyen_tap( $bai->ID ),
+				'so_lieu'   => \Phongdao\DichVu\DoLuong\DoLuong::so_lieu( $bai->ID ),
 				'ho_so'     => $ho_so,
 			)
 		);
