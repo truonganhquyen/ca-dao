@@ -147,6 +147,26 @@ try {
       await tab.close();
     }
   }
+  // Trình chiếu, Đọc cùng bé (che.js tải khi bấm): mở được, axe đạt trong khung, Esc đóng và trả tiêu điểm về nút
+  for (const [duong, nut] of [['/dong-dao/dong-dao-mau/', 'kids'], ['/ca-dao/dong-mau-mot-cua-bai/', 'present'], ['/tuyen-tap/gui-mot-loi-nhan-mau/', 'present-set']]) {
+    const tab = await trinhDuyet.newPage();
+    await tab.setViewport({ width: 1280, height: 900 });
+    await tab.evaluateOnNewDocument(() => { window.__csp = []; document.addEventListener('securitypolicyviolation', e => window.__csp.push(e.violatedDirective + ' ' + (e.blockedURI || 'nội tuyến'))); });
+    await tab.goto(G + duong, { waitUntil: 'load', timeout: 120_000 });
+    const b = await tab.$(`[data-action=${nut}]:not([hidden])`);
+    if (!b) { loi.push(`${duong}: không thấy nút ${nut}`); await tab.close(); continue; }
+    await b.click();
+    try { await tab.waitForSelector('.fullscreen-mode .line, .fullscreen-mode .kid-line', { timeout: 15_000 }); } catch { loi.push(`${duong}: bấm ${nut} không mở khung toàn màn hình`); await tab.close(); continue; }
+    await tab.evaluate(axeNguon);
+    const kq = await tab.evaluate(the => window.axe.run('.fullscreen-mode', { runOnly: { type: 'tag', values: the } }), THE_WCAG);
+    for (const v of kq.violations) loi.push(`${duong} (${nut}): ${v.id} — ${v.help}`);
+    await tab.keyboard.press('ArrowRight');
+    await tab.keyboard.press('Escape');
+    const dong = await tab.evaluate(n => !document.querySelector('.fullscreen-mode') && document.activeElement?.dataset.action === n, nut);
+    if (!dong) loi.push(`${duong} (${nut}): Esc không đóng khung hoặc không trả tiêu điểm về nút`);
+    for (const v of new Set(await tab.evaluate(() => window.__csp || []))) loi.push(`${duong} (${nut}): CSP chặn ${v}`);
+    await tab.close();
+  }
   // Người biên soạn (D-094): đăng nhập rồi quét các trang biên tập và trang bài ở chế độ sửa (trợ năng, tràn ngang;
   // không tính ngân sách — mã sửa chỉ nạp cho người biên soạn). Bỏ qua thanh quản trị của WordPress khi chạy axe.
   const DS_BIEN_TAP = ['/bien-tap/', '/bien-tap/tac-pham/', '/bien-tap/them/', '/bien-tap/so-lieu/', '/ca-dao/dong-mau-mot-cua-bai/', '/ve/ve-mau/'];
