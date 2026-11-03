@@ -70,6 +70,18 @@ const san = new Promise((ok, hong) => {
 // Tắt cả cây tiến trình (npx → node Playground); đồng bộ để không để lại máy chủ giữ cổng
 const tat = () => { try { process.platform === 'win32' ? spawnSync('taskkill', ['/pid', String(mayChu.pid), '/T', '/F']) : process.kill(-mayChu.pid); } catch { mayChu.kill(); } };
 
+// Tràn ngang của một trang: null khi không tràn; có thì "N px — phần tử vượt mép phải"
+const doTran = trang => trang.evaluate(async () => {
+  await new Promise(ok => requestAnimationFrame(() => requestAnimationFrame(ok)));
+  const w = document.documentElement.clientWidth, du = document.documentElement.scrollWidth - w;
+  if (du <= 1) return null;
+  const ten = e => e.tagName.toLowerCase() + (typeof e.className === 'string' && e.className.trim() ? '.' + e.className.trim().split(/\s+/).join('.') : '');
+  // Bỏ phần tử nằm trong khung tự cuộn / cắt (thanh thể loại…): chúng không làm trang rộng ra
+  const trongKhung = e => { for (let p = e.parentElement; p && p !== document.body; p = p.parentElement) if (getComputedStyle(p).overflowX !== 'visible') return true; return false; };
+  const vuot = [...document.querySelectorAll('body *')].filter(e => e.getBoundingClientRect().right > w + 1 && !trongKhung(e) && ![...e.children].some(x => x.getBoundingClientRect().right > w + 1 && !trongKhung(x)));
+  return `${du}px — ${vuot.slice(0, 3).map(e => `${ten(e)} (${Math.round(e.getBoundingClientRect().right)}px)`).join(', ') || 'không rõ phần tử'}`;
+});
+
 const axeNguon = fs.readFileSync(createRequire(import.meta.url).resolve('axe-core/axe.min.js'), 'utf8');
 const THE_WCAG = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 const loi = [];
@@ -94,16 +106,7 @@ try {
       // Tràn ngang: đo lúc vừa tải và sau khi phông nạp xong; báo phần tử vượt mép phải để biết chỗ sửa.
       // Chờ hai khung hình rồi mới đo: fit.js co chữ trong requestAnimationFrame (trước khi vẽ), nên đo giữa hai
       // khung hình là đo trạng thái không bao giờ hiện trên màn hình.
-      const tran = () => tab.evaluate(async () => {
-        await new Promise(ok => requestAnimationFrame(() => requestAnimationFrame(ok)));
-        const w = document.documentElement.clientWidth, du = document.documentElement.scrollWidth - w;
-        if (du <= 1) return null;
-        const ten = e => e.tagName.toLowerCase() + (typeof e.className === 'string' && e.className.trim() ? '.' + e.className.trim().split(/\s+/).join('.') : '');
-        // Bỏ phần tử nằm trong khung tự cuộn / cắt (thanh thể loại…): chúng không làm trang rộng ra
-        const trongKhung = e => { for (let p = e.parentElement; p && p !== document.body; p = p.parentElement) if (getComputedStyle(p).overflowX !== 'visible') return true; return false; };
-        const vuot = [...document.querySelectorAll('body *')].filter(e => e.getBoundingClientRect().right > w + 1 && !trongKhung(e) && ![...e.children].some(x => x.getBoundingClientRect().right > w + 1 && !trongKhung(x)));
-        return `${du}px — ${vuot.slice(0, 3).map(e => `${ten(e)} (${Math.round(e.getBoundingClientRect().right)}px)`).join(', ') || 'không rõ phần tử'}`;
-      });
+      const tran = () => doTran(tab);
       const tranLucTai = await tran();
       // Mỗi câu một dòng: không khối lời nào phải xuống dòng dự phòng, không dòng nào bị gãy
       await tab.evaluate(() => document.fonts.ready);
@@ -140,7 +143,38 @@ try {
       await tab.close();
     }
   }
-  console.log(`Quét V2: ${DS_TRANG.length} trang × ${CHE_DO.length} chế độ (axe ${THE_WCAG.join(', ')}) — ${loi.length} lỗi.`);
+  // Người biên soạn (D-094): đăng nhập rồi quét các trang biên tập và trang bài ở chế độ sửa (trợ năng, tràn ngang;
+  // không tính ngân sách — mã sửa chỉ nạp cho người biên soạn). Bỏ qua thanh quản trị của WordPress khi chạy axe.
+  const DS_BIEN_TAP = ['/bien-tap/', '/bien-tap/tac-pham/', '/bien-tap/them/', '/bien-tap/so-lieu/', '/ca-dao/dong-mau-mot-cua-bai/'];
+  const bt = await trinhDuyet.newPage();
+  await bt.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
+  await bt.goto(G + '/wp-login.php', { waitUntil: 'load', timeout: 120_000 });
+  await bt.type('#user_login', 'admin');
+  await bt.type('#user_pass', 'password');
+  await Promise.all([bt.waitForNavigation({ waitUntil: 'load', timeout: 120_000 }), bt.click('#wp-submit')]);
+  const axeBt = async (nhan) => {
+    await bt.addScriptTag({ content: axeNguon });
+    const kq = await bt.evaluate(the => window.axe.run({ exclude: [['#wpadminbar']] }, { runOnly: { type: 'tag', values: the } }), THE_WCAG);
+    for (const v of kq.violations) for (const n of v.nodes.slice(0, 3)) loi.push(`${nhan} (biên tập): [${v.id}] ${v.help} — ${n.target.join(' ')}`);
+  };
+  for (const duong of DS_BIEN_TAP) {
+    const tl = await bt.goto(G + duong, { waitUntil: 'load', timeout: 120_000 });
+    if (tl.status() !== 200) loi.push(`${duong} (biên tập): trả ${tl.status()}`);
+    await bt.evaluate(() => document.fonts.ready);
+    const t = await doTran(bt);
+    if (t) loi.push(`${duong} (biên tập): trang tràn ngang ${t}`);
+    if (!(await bt.$('.dai-bien-tap, .hv-dau, .ds-tp, .empty, [data-them-bai], .so-lieu'))) loi.push(`${duong} (biên tập): không thấy giao diện biên tập — đăng nhập hỏng?`);
+    await axeBt(duong);
+    if (thuMucAnh) await bt.screenshot({ path: path.join(thuMucAnh, (duong.replace(/\W+/g, '-').replace(/^-|-$/g, '')) + '-bien-tap-390.png'), fullPage: true });
+  }
+  // Một tấm sửa đang mở (trang bài cuối danh sách)
+  await bt.click('[data-action="mo-tam"][data-tam="y_nghia"]');
+  await new Promise(ok => setTimeout(ok, 300));
+  if (!(await bt.$('dialog#tam-y_nghia[open]'))) loi.push('trang bài (biên tập): bấm "Sửa ý nghĩa" không mở tấm sửa');
+  await axeBt('tấm sửa ý nghĩa');
+  if (thuMucAnh) await bt.screenshot({ path: path.join(thuMucAnh, 'tam-sua-y-nghia-390.png') });
+  await bt.close();
+  console.log(`Quét V2: ${DS_TRANG.length} trang × ${CHE_DO.length} chế độ + ${DS_BIEN_TAP.length} trang biên tập (axe ${THE_WCAG.join(', ')}) — ${loi.length} lỗi.`);
 } catch (e) {
   loi.push(String(e.message ?? e));
 } finally {
