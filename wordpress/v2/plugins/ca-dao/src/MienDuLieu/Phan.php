@@ -37,7 +37,7 @@ final class Phan {
 			'dap_an'      => array( 'dang' => self::MOT, 'the_loai' => array( 'cau-do' ), 'nguoi_lam' => array( NguoiLam::MAY_CHEP, NguoiLam::NGUOI_VIET ), 'may' => true, 'truong' => array( 'chu' => 'chu!' ) ),
 			'goi_y'       => array( 'dang' => self::MOT, 'the_loai' => array( 'cau-do' ), 'nguoi_lam' => self::NGHIA, 'may' => false, 'truong' => array( 'chu' => 'chu!', 'ai' => 'bool' ) ),
 			'doan'        => array( 'dang' => self::DS, 'the_loai' => array( 've' ), 'nguoi_lam' => null, 'may' => false, 'truong' => array( 'tieu_de' => 'chu_ngan', 'tu_dong' => 'so!', 'den_dong' => 'so!' ) ),
-			'boi_canh'    => array( 'dang' => self::MOT, 'the_loai' => array( 've' ), 'nguoi_lam' => self::NGUOI, 'may' => false, 'truong' => array( 'su_kien' => 'chu', 'nam' => 'chu_ngan', 'noi' => 'chu_ngan', 'nhan_vat' => 'ds_id' ) ),
+			'boi_canh'    => array( 'dang' => self::MOT, 'the_loai' => array( 've' ), 'nguoi_lam' => self::NGUOI, 'may' => false, 'truong' => array( 'chu' => 'chu', 'su_kien' => 'chu', 'nam' => 'chu_ngan', 'noi' => 'chu_ngan', 'nhan_vat' => 'ds_id' ) ),
 			'media'       => array( 'dang' => self::DS, 'the_loai' => null, 'nguoi_lam' => null, 'may' => false, 'truong' => array( 'attachment_id' => 'id!', 'loai' => 'chon:anh|giong_may|giong_nguoi!' ) ),
 			'ban_co_biet' => array( 'dang' => self::MOT, 'the_loai' => null, 'nguoi_lam' => self::NGHIA, 'may' => false, 'truong' => array( 'chu' => 'chu!', 'ai' => 'bool' ) ),
 			'co_nghi'     => array( 'dang' => self::MOT, 'the_loai' => null, 'nguoi_lam' => self::NGUOI, 'may' => false, 'truong' => array( 'ly_do' => 'chu!' ) ),

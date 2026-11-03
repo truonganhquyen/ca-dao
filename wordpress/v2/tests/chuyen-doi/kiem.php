@@ -53,7 +53,7 @@ function doan( string $bc, string $tu, string $den ): string {
 global $wpdb;
 $mvp = json_decode( (string) file_get_contents( '/repo/tests/.chuyen-doi-mvp.json' ), true ) ?: array();
 $id  = $mvp['id'] ?? array();
-kt( 'bước 1: tạo dữ liệu mẫu bằng mã MVP không lỗi', array() === ( $mvp['loi'] ?? array( 'không có tệp kết quả bước 1' ) ) && 12 === count( $id ) && ! empty( $mvp['the']['tu'] ), $mvp['loi'] ?? null );
+kt( 'bước 1: tạo dữ liệu mẫu bằng mã MVP không lỗi', array() === ( $mvp['loi'] ?? array( 'không có tệp kết quả bước 1' ) ) && 14 === count( $id ) && ! empty( $mvp['the']['tu'] ), $mvp['loi'] ?? null );
 kt( 'V2 đã thay chỗ MVP: plugin V2 chạy, bài MVP còn nguyên loại bài cũ', class_exists( \Phongdao\HaTang\KhoiDong::class ) && ! function_exists( 'cadao_kho_luu' ) && 'cdtn' === get_post_type( $id['a'] ?? 0 ) );
 kt( 'chưa nhập xong: khách thấy trang "Thư viện đang được nâng cấp"', NhapLam::dang_nang_cap() );
 
@@ -70,11 +70,12 @@ foreach ( $kk['dong'] as [ , $viec, $n ] ) {
 	$so[ $viec ] = $n;
 }
 $mong = array(
-	'đã đăng'                                   => 11,
+	'đã đăng'                                   => 13,
 	'chờ duyệt (máy tạo)'                       => 1,
 	'bài có dấu băm, chưa sửa tay'              => 5,
 	'bài có dấu băm, đã sửa tay'                => 1,
-	'bài không có dấu băm (nhập tay, site cũ)'  => 6,
+	'bài không có dấu băm (nhập tay, site cũ)'  => 8,
+	'dị bản thêm tay (_cadao_di_ban_them)'      => 1,
 	'bài còn trong khối Đoạn văn (chưa có khối Thơ)' => 1,
 	'câu đã gộp vào bài'                        => 1,
 	'Hiểu nhanh đã lên trang'                   => 1,
@@ -101,7 +102,7 @@ $dem = static function () use ( $wpdb ): array {
 $truoc = $dem();
 $bc    = NhapThu::chay( true );
 kt( 'nhập thử không ghi gì vào cơ sở dữ liệu', $truoc === $dem(), array_diff_assoc( $dem(), $truoc ) );
-kt( 'cách nhập: 4 từ kho chưa sửa, 1 đã sửa tay, 6 không có câu trong kho, 1 chờ duyệt máy tạo không mang', array( 'kho_chua_sua' => 4, 'sua_tay' => 1, 'khong_kho' => 6, 'khong_mang' => 1 ) === $bc['cach'], $bc['cach'] );
+kt( 'cách nhập: 4 từ kho chưa sửa, 1 đã sửa tay, 8 không có câu trong kho, 1 chờ duyệt máy tạo không mang', array( 'kho_chua_sua' => 4, 'sua_tay' => 1, 'khong_kho' => 8, 'khong_mang' => 1 ) === $bc['cach'], $bc['cach'] );
 $cadao_me = (int) ( HoSo::theo_khoa( 'cadao-me' )?->ID ?? 0 );
 $a        = $bc['bai'][ $id['a'] ] ?? array();
 kt(
@@ -120,6 +121,21 @@ kt( 'vè còn trong khối Đoạn văn → lời lấy theo dòng, đúng từn
 $h = $bc['bai'][ $id['h'] ] ?? array();
 kt( 'nguồn người điền → hồ sơ mới + nguồn của chú thích người viết; đối chiếu → hồ sơ sách + trang', 'nguoi_viet' === ( $h['phan']['chu_thich']['muc'][0]['nguoi_lam'] ?? '' ) && 'https://example.org/sach-mau' === ( $h['phan']['chu_thich']['muc'][0]['nguon']['url'] ?? '' ) && '12' === ( $h['phan']['loi']['doi_chieu']['trang'] ?? '' ) && in_array( array( 'web', 'Sách mẫu người điền' ), $bc['ho_so_moi'], true ) && in_array( array( 'sach', 'Tuyển tập mẫu' ), $bc['ho_so_moi'], true ), $h );
 kt( 'tên đường dẫn đuôi số → tên mới thêm chữ của dòng sau; bài cùng tên kia giữ tên', str_ends_with( (string) ( $mvp['ten_i2'] ?? '' ), '-2' ) && 'cau-trung-ten-mau-dong' === ( $bc['bai'][ $id['i2'] ]['ten_moi'] ?? null ) && array_key_exists( 'ten_moi', $bc['bai'][ $id['i1'] ] ?? array() ) && null === $bc['bai'][ $id['i1'] ]['ten_moi'], $bc['doi_ten'] );
+$vp = $bc['bai'][ $id['vp'] ] ?? array();
+kt(
+	'vè nhiều phần: lời gồm mọi phần, mỗi tiêu đề phụ một đoạn, dòng chú đầu bài thành bối cảnh; dòng "(Nguồn: …)" cần xem, không gắn vào lời',
+	array( 'Vè phần một dòng một', 'Vè phần một dòng hai', '', 'Vè phần hai dòng một', 'Vè phần hai dòng hai' ) === ( $vp['phan']['loi']['dong'] ?? null )
+		&& array( array( 'tieu_de' => 'Vè mẫu (I)', 'tu_dong' => 1, 'den_dong' => 2 ), array( 'tieu_de' => 'Vè mẫu (II)', 'tu_dong' => 3, 'den_dong' => 4 ) ) === ( $vp['phan']['doan']['muc'] ?? null )
+		&& '(Bối cảnh mẫu của vè)' === ( $vp['phan']['boi_canh']['chu'] ?? '' ) && ! isset( $vp['phan']['loi']['nguon'] ) && array( 'dòng «(Nguồn: Sách mẫu cuối bài)» không mang sang: nếu là sách đã đối chiếu, ghi ở Sửa lời' ) === ( $vp['can_xem'] ?? null ),
+	$vp
+);
+$vd = $bc['bai'][ $id['vd'] ] ?? array();
+kt(
+	'vè được MVP chèn "Dị bản" lên trên tiêu đề phụ đầu: dị bản đúng là câu đã thêm, các phần vẫn là lời, cần xem',
+	array( array( 'Dị bản gộp vào mẫu', 'Dòng hai dị bản gộp' ) ) === array_column( $vd['phan']['di_ban']['muc'] ?? array(), 'dong' ) && 2 === count( $vd['phan']['doan']['muc'] ?? array() ) && 'Vè đầu phần một' === ( $vd['phan']['loi']['dong'][0] ?? '' )
+		&& in_array( 'tiêu đề «Dị bản» đứng trước lời: khối Thơ ngay dưới nhập làm dị bản', $vd['can_xem'] ?? array(), true ),
+	$vd
+);
 $in = implode( "\n", NhapThu::in( $bc ) );
 kt( 'nhập thử khi MVP còn bật và khi V2 đã thay chỗ cho cùng kết quả', doan( $tn, 'Cách nhập:', '-- Cần xem' ) === doan( $in, 'Cách nhập:', '-- Cần xem' ) && '' !== doan( $in, 'Cách nhập:', '-- Cần xem' ), array( doan( $tn, 'Cách nhập:', '-- Cần xem' ), doan( $in, 'Cách nhập:', '-- Cần xem' ) ) );
 ra( "THÔNG TIN [chuyển đổi] báo cáo nhập thử:\n" . $in );
@@ -197,7 +213,7 @@ $v2_anh = static function () use ( $wpdb, $id ): array {
 };
 $s0  = $mvp_anh();
 $kq  = NhapLam::chay();
-kt( 'nhập thật: 11 bài nhập, 1 chờ duyệt máy tạo không mang, 1 bài có thẻ Cần xem, không lỗi, không còn bài', 11 === $kq['nhap'] && 1 === $kq['khong_mang'] && 1 === $kq['can_xem'] && array() === $kq['loi'] && 0 === $kq['con'], $kq );
+kt( 'nhập thật: 13 bài nhập, 1 chờ duyệt máy tạo không mang, 3 bài có thẻ Cần xem, không lỗi, không còn bài', 13 === $kq['nhap'] && 1 === $kq['khong_mang'] && 3 === $kq['can_xem'] && array() === $kq['loi'] && 0 === $kq['con'], $kq );
 kt( 'bài giữ ID, thành tác phẩm, giữ trạng thái; bài chờ duyệt máy tạo không mang', 'tac_pham' === get_post_type( $id['a'] ) && 'publish' === get_post_status( $id['a'] ) && 'cdtn' === get_post_type( $id['e'] ) );
 $lech = array();
 foreach ( $id as $k => $pid ) {
@@ -223,6 +239,8 @@ kt( 'tên đường dẫn đuôi số đổi tên mới, tên cũ vẫn chuyển
 kt( 'hồ sơ nguồn người điền và sách đối chiếu đã tạo', null !== HoSo::theo_khoa( NhapThu::khoa_ho_so( 'web', 'Sách mẫu người điền' ) ) && null !== HoSo::theo_khoa( NhapThu::khoa_ho_so( 'sach', 'Tuyển tập mẫu' ) ) );
 $h_a = (string) preg_replace( '/\s+/u', ' ', wp_strip_all_tags( TacPham::hien( (array) DocBai::tac_pham( get_post( $id['a'] ) ) ) ) ); // từ có chú thích, chữ khác của dị bản được bọc thẻ
 kt( 'trang tác phẩm hiện lời, dị bản, chú thích đã nhập; đường dẫn /ca-dao/<tên>/ như cũ', str_contains( $h_a, 'Dòng mẫu một của bài' ) && str_contains( $h_a, 'Dòng gộp vào bài một' ) && str_contains( $h_a, 'Lời giải mẫu.' ) && str_contains( (string) get_permalink( $id['a'] ), '/ca-dao/' . get_post_field( 'post_name', $id['a'] ) . '/' ), $h_a );
+$h_vp = (string) preg_replace( '/\s+/u', ' ', wp_strip_all_tags( TacPham::hien( (array) DocBai::tac_pham( get_post( $id['vp'] ) ) ) ) );
+kt( 'trang vè nhiều phần: bối cảnh, tiêu đề hai phần, đủ dòng như trang MVP', str_contains( $h_vp, '(Bối cảnh mẫu của vè)' ) && str_contains( $h_vp, 'Vè mẫu (I)' ) && str_contains( $h_vp, 'Vè mẫu (II)' ) && str_contains( $h_vp, 'Vè phần hai dòng hai' ), $h_vp );
 kt( 'cảm nghĩ vẫn nối đúng bài (giữ ID)', 1 === (int) get_comments( array( 'post_id' => $id['a'], 'count' => true ) ) );
 kt( 'nhập xong: khách không còn thấy trang nâng cấp', 'xong' === get_option( NhapLam::TRANG_THAI ) && ! NhapLam::dang_nang_cap() );
 wp_set_current_user( 1 );
@@ -265,7 +283,7 @@ $s1 = $v2_anh();
 $kq = NhapLam::chay();
 kt( 'chạy lại khi đã nhập xong: không đổi gì', 0 === $kq['nhap'] && $v2_anh() === $s1 );
 $ht = NhapLam::hoan_tac();
-kt( 'hoàn tác: 11 bài, 1 câu kho, 3 hồ sơ nguồn (sách, nguồn người điền, Wikipedia)', array( 'bai' => 11, 'kho' => 1, 'ho_so' => 3 ) === $ht, $ht );
+kt( 'hoàn tác: 13 bài, 1 câu kho, 3 hồ sơ nguồn (sách, nguồn người điền, Wikipedia)', array( 'bai' => 13, 'kho' => 1, 'ho_so' => 3 ) === $ht, $ht );
 $s0b = $mvp_anh();
 kt( 'hoàn tác: dữ liệu MVP trở về đúng như trước khi nhập (bài, thể loại, câu kho, không còn phần, việc, hồ sơ mới)', $s0b === $s0, cd_khac( $s0, $s0b ) );
 kt( 'hoàn tác xong: khách lại thấy trang nâng cấp', NhapLam::dang_nang_cap() );

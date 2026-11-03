@@ -54,11 +54,12 @@ final class NhapThu {
 			if ( 'khong_mang' === $kh['cach'] ) {
 				continue;
 			}
-			foreach ( $kh['can_xem'] as $l ) {
-				$bc['can_xem'][ self::nhom( $l ) ][] = $id;
+			// Một bài có nhiều lý do cùng nhóm (vd. nhiều tiêu đề lạ) chỉ ghi mã bài một lần
+			foreach ( array_unique( array_map( array( self::class, 'nhom' ), $kh['can_xem'] ) ) as $l ) {
+				$bc['can_xem'][ $l ][] = $id;
 			}
-			foreach ( $kh['ghi_chu'] as $l ) {
-				$bc['ghi_chu'][ self::nhom( $l ) ][] = $id;
+			foreach ( array_unique( array_map( array( self::class, 'nhom' ), $kh['ghi_chu'] ) ) as $l ) {
+				$bc['ghi_chu'][ $l ][] = $id;
 			}
 			foreach ( $kh['so_sanh'] as $p => $kq ) {
 				$bc['so_sanh'][ $p ][ $kq ] = ( $bc['so_sanh'][ $p ][ $kq ] ?? 0 ) + 1;
@@ -87,8 +88,8 @@ final class NhapThu {
 			'ban_co_biet' => count( $pl['ban_co_biet'] ),
 			'wikidata'    => count( $pl['wikidata'] ),
 		);
-		foreach ( $pl['ghi_chu'] as $l ) {
-			$bc['ghi_chu'][ self::nhom( $l ) ][] = 0;
+		foreach ( $pl['ghi_chu'] as [ $l, $id ] ) {
+			$bc['ghi_chu'][ self::nhom( $l ) ][] = $id;
 		}
 		return $bc;
 	}
@@ -173,9 +174,9 @@ final class NhapThu {
 		return null === $ma ? 0 : (int) ( $nc['ho_so_nguon'][ $ma ] ?? 0 );
 	}
 
-	/** Khoá (tên đường dẫn) của hồ sơ nguồn người điền: loại + tên. */
+	/** Khoá (tên đường dẫn) của hồ sơ nguồn người điền: loại + tên (loại chưa rõ: "nguon-"). */
 	public static function khoa_ho_so( string $loai, string $ten ): string {
-		return substr( $loai . '-' . sanitize_title( $ten ), 0, 190 );
+		return substr( ( '' === $loai ? 'nguon' : $loai ) . '-' . sanitize_title( $ten ), 0, 190 );
 	}
 
 	/** Tên đường dẫn đang dùng của bài MVP và tác phẩm V2 (tránh trùng khi đặt tên mới). */
@@ -219,7 +220,7 @@ final class NhapThu {
 		}
 		$ra[] = '-- Hồ sơ nguồn sẽ tạo: ' . count( $bc['ho_so_moi'] ) . ' --';
 		foreach ( $bc['ho_so_moi'] as [ $loai, $ten ] ) {
-			$ra[] = "  $loai: $ten";
+			$ra[] = '  ' . ( '' === $loai ? 'chưa rõ loại' : $loai ) . ": $ten";
 		}
 		$pl   = $bc['phan_loai'];
 		$ra[] = "-- Sau các bài: {$pl['muc_tu']} mục từ (giữ ID), {$pl['tro_choi']} trò chơi có cách chơi, {$pl['mo_tip']} mô-típ, {$pl['tinh_huong']} tình huống → tuyển tập ({$pl['muc']} mục), {$pl['ban_co_biet']} câu \"Bạn có biết\" đã duyệt, {$pl['wikidata']} quyết định Wikidata --";

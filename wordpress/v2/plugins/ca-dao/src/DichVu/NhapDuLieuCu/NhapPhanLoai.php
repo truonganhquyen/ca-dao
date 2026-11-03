@@ -32,7 +32,8 @@ final class NhapPhanLoai {
 	/**
 	 * Kế hoạch — chỉ đọc (bước nhập thử dùng để in, bước nhập thật làm đúng theo đây).
 	 *
-	 * @return array{muc_tu:int[], tro_choi:int[], mo_tip:int[], tinh_huong:list<array>, ban_co_biet:list<array>, wikidata:list<array>, ghi_chu:string[]}
+	 * @return array{muc_tu:int[], tro_choi:int[], mo_tip:int[], tinh_huong:list<array>, ban_co_biet:list<array>, wikidata:list<array>, ghi_chu:list<array{0:string,1:int}>}
+	 *         ghi_chu: [lý do, mã bài]
 	 */
 	public static function ke_hoach(): array {
 		global $wpdb;
@@ -71,7 +72,7 @@ final class NhapPhanLoai {
 			}
 			$b = (int) $x['bai'];
 			if ( isset( $co_bai[ $b ] ) ) {
-				$kh['ghi_chu'][] = "bài $b có hơn một câu \"Bạn có biết\" đã duyệt: mang câu đầu, câu sau giữ ở dữ liệu MVP";
+				$kh['ghi_chu'][] = array( 'có hơn một câu "Bạn có biết" đã duyệt: mang câu đầu, câu sau giữ ở dữ liệu MVP', $b );
 				continue;
 			}
 			$co_bai[ $b ]          = true;

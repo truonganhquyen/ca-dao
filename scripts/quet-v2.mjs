@@ -33,7 +33,7 @@ const iAnh = process.argv.indexOf('--anh');
 const thuMucAnh = iAnh > 0 ? path.resolve(process.argv[iAnh + 1]) : null;
 if (thuMucAnh) fs.mkdirSync(thuMucAnh, { recursive: true });
 
-const DS_TRANG = ['/', '/trang-mau-v2/', '/tim/', '/tim/?q=dong%20mau', '/ca-dao/dong-mau-mot-cua-bai/', '/tuc-ngu/tuc-ngu-mau-ngan/', '/cau-do/cau-do-mau/', '/kho/', '/the-loai/ca-dao/', '/tuyen-tap/', '/tuyen-tap/gui-mot-loi-nhan-mau/', '/tu-dien/', '/tu-dien/?chu=C', '/tu-dien/chut/', '/gop/', '/da-luu/', '/phan-tich/mot-cach-doc-mau/', '/ban-do/'];
+const DS_TRANG = ['/', '/trang-mau-v2/', '/tim/', '/tim/?q=dong%20mau', '/ca-dao/dong-mau-mot-cua-bai/', '/tuc-ngu/tuc-ngu-mau-ngan/', '/cau-do/cau-do-mau/', '/ve/ve-mau/', '/kho/', '/the-loai/ca-dao/', '/tuyen-tap/', '/tuyen-tap/gui-mot-loi-nhan-mau/', '/tu-dien/', '/tu-dien/?chu=C', '/tu-dien/chut/', '/gop/', '/da-luu/', '/phan-tich/mot-cach-doc-mau/', '/ban-do/'];
 const NGAN_SACH = { trang: 200 * 1024, js: 21 * 1024 };
 const CHE_DO = [
   { ten: 'điện thoại · sáng', w: 360, h: 800, toi: false },
@@ -145,7 +145,7 @@ try {
   }
   // Người biên soạn (D-094): đăng nhập rồi quét các trang biên tập và trang bài ở chế độ sửa (trợ năng, tràn ngang;
   // không tính ngân sách — mã sửa chỉ nạp cho người biên soạn). Bỏ qua thanh quản trị của WordPress khi chạy axe.
-  const DS_BIEN_TAP = ['/bien-tap/', '/bien-tap/tac-pham/', '/bien-tap/them/', '/bien-tap/so-lieu/', '/ca-dao/dong-mau-mot-cua-bai/'];
+  const DS_BIEN_TAP = ['/bien-tap/', '/bien-tap/tac-pham/', '/bien-tap/them/', '/bien-tap/so-lieu/', '/ca-dao/dong-mau-mot-cua-bai/', '/ve/ve-mau/'];
   const bt = await trinhDuyet.newPage();
   await bt.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
   // Đăng nhập đôi khi hụt ở lần đầu (Playground vừa khởi động): kiểm cookie đăng nhập, thử lại tối đa 3 lần

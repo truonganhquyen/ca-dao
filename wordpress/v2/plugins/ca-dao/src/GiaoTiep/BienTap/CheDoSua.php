@@ -35,10 +35,12 @@ final class CheDoSua {
 				$sach[ $hs->ID ] = $hs->post_title;
 			}
 		}
+		$phan = PhanBai::tat_ca( $bai->ID, $bai->post_type );
 		return array(
 			'id'         => $bai->ID,
 			'trang_thai' => $bai->post_status,
-			'phan'       => PhanBai::tat_ca( $bai->ID, $bai->post_type ),
+			'phan'       => $phan,
+			'so_dong'    => count( array_filter( $phan['loi']['dong'] ?? array(), static fn( $d ): bool => '' !== trim( (string) $d ) ) ),
 			'ho_so'      => $ho_so,
 			'sach'       => $sach,
 			'duyet'      => current_user_can( 'cadao_duyet' ),
@@ -84,7 +86,7 @@ final class CheDoSua {
 
 	/** Khối Lịch sử (chỉ người biên soạn thấy). */
 	public static function lich_su( array $sua ): string {
-		$ten = array( 'loi' => 'Lời', 'y_nghia' => 'Ý nghĩa', 'chu_thich' => 'Từ khó', 'di_ban' => 'Dị bản', 'nghia_den' => 'Nghĩa đen', 'nghia_bong' => 'Nghĩa bóng', 'dung_khi' => 'Dùng khi', 'cau_hoi' => 'Câu hỏi', 'dap_an' => 'Đáp án', 'goi_y' => 'Gợi ý', 'co_nghi' => 'Cờ nghi', 'nguon_may' => 'Địa chỉ gốc', 'trang_thai' => 'Trạng thái', 'ten' => 'Tên bài' );
+		$ten = array( 'loi' => 'Lời', 'y_nghia' => 'Ý nghĩa', 'chu_thich' => 'Từ khó', 'di_ban' => 'Dị bản', 'nghia_den' => 'Nghĩa đen', 'nghia_bong' => 'Nghĩa bóng', 'dung_khi' => 'Dùng khi', 'cau_hoi' => 'Câu hỏi', 'dap_an' => 'Đáp án', 'goi_y' => 'Gợi ý', 'co_nghi' => 'Cờ nghi', 'boi_canh' => 'Bối cảnh', 'doan' => 'Đoạn', 'nguon_may' => 'Địa chỉ gốc', 'trang_thai' => 'Trạng thái', 'ten' => 'Tên bài' );
 		$viec = array( 'luu' => 'sửa', 'xoa' => 'gỡ', 'khoi_phuc' => 'khôi phục bản trước', 'dang' => 'đăng', 'an' => 'ẩn', 'nhap' => 'về nháp' );
 		$o    = '';
 		foreach ( $sua['lich_su'] as $r ) {
@@ -99,7 +101,7 @@ final class CheDoSua {
 	public static function tam( array $sua, string $the_loai ): string {
 		$o = '';
 		foreach ( array_keys( TamSua::TAM ) as $phan ) {
-			$rieng = array( 'nghia_den' => 'tuc-ngu', 'nghia_bong' => 'tuc-ngu', 'dung_khi' => 'tuc-ngu', 'cau_hoi' => 'cau-do', 'dap_an' => 'cau-do', 'goi_y' => 'cau-do' )[ $phan ] ?? null;
+			$rieng = array( 'nghia_den' => 'tuc-ngu', 'nghia_bong' => 'tuc-ngu', 'dung_khi' => 'tuc-ngu', 'cau_hoi' => 'cau-do', 'dap_an' => 'cau-do', 'goi_y' => 'cau-do', 'boi_canh' => 've', 'doan' => 've' )[ $phan ] ?? null;
 			if ( null === $rieng || $rieng === $the_loai ) {
 				$o .= TamSua::ve( $phan, $sua['phan'][ $phan ] ?? null, $sua );
 			}

@@ -91,6 +91,40 @@ kt( 'nhiều khối Thơ: lời nối thành khổ; dòng chú xen giữa → c�
 $r = DungPhan::dung( nc_bai( array( nc_tho( 'Lời' ), nc_khoi( 'core/image', '<figure><img src="a.jpg"></figure>' ) ) ), $nc );
 kt( 'khối lạ (ảnh) → cần xem, phần chắc chắn vẫn nhập', isset( $r['phan']['loi'] ) && in_array( 'có khối «core/image»', $r['can_xem'], true ) );
 
+// Vè nhiều phần (tiêu đề phụ ngay trên mỗi khối Thơ), bối cảnh, dòng nguồn trong bài, "Dị bản" đứng đầu bài
+$h3     = static fn( string $chu ): array => nc_khoi( 'core/heading', '<h3 class="wp-block-heading">' . $chu . '</h3>', array( 'level' => 3 ) );
+$nhieu  = array(
+	nc_khoi( 'core/paragraph', '<p><em>(Bối cảnh mẫu của bài vè)</em></p>' ),
+	$h3( 'Phần mẫu (I)' ),
+	nc_tho( 'Phần một dòng một<br>Phần một dòng hai' ),
+	$h3( 'Phần mẫu (II)' ),
+	nc_tho( 'Phần hai dòng một<br><br>Phần hai dòng hai<br>Phần hai dòng ba' ),
+	nc_khoi( 'core/paragraph', '<p><em>(Nguồn:&nbsp;Sách mẫu cuối bài, Nhà xuất bản Mẫu)</em></p>' ),
+);
+$t = TachBai::tach( $nhieu );
+kt(
+	'vè nhiều phần: các khối Thơ nối thành lời, mỗi tiêu đề phụ thành một đoạn (đếm dòng có chữ); không báo "xen giữa"',
+	"Phần một dòng một\nPhần một dòng hai\n\nPhần hai dòng một\n\nPhần hai dòng hai\nPhần hai dòng ba" === $t['loi'] && array( array( 'tieu_de' => 'Phần mẫu (I)', 'tu_dong' => 1, 'den_dong' => 2 ), array( 'tieu_de' => 'Phần mẫu (II)', 'tu_dong' => 3, 'den_dong' => 5 ) ) === $t['doan'] && ! in_array( 'có khối khác xen giữa các khổ của lời', $t['can_xem'], true ),
+	$t
+);
+kt( 'dòng chú in nghiêng đứng trước lời → bối cảnh, đúng từng chữ', array( '(Bối cảnh mẫu của bài vè)' ) === $t['boi_canh'] );
+kt( 'dòng "(Nguồn: …)" trong bài → cần xem, kèm đủ chữ; không tự gắn vào lời', array( 'dòng «(Nguồn: Sách mẫu cuối bài, Nhà xuất bản Mẫu)» không mang sang: nếu là sách đã đối chiếu, ghi ở Sửa lời' ) === $t['can_xem'], $t['can_xem'] );
+$r = DungPhan::dung( nc_bai( $nhieu, array( 'the_loai' => array( 've' ) ) ), $nc );
+kt(
+	'vè: phần Đoạn và Bối cảnh (người viết, không điền năm, nơi); trước = sau',
+	2 === count( $r['phan']['doan']['muc'] ?? array() ) && array( 'chu' => '(Bối cảnh mẫu của bài vè)', 'nguoi_lam' => 'nguoi_viet' ) === ( $r['phan']['boi_canh'] ?? null ) && 'khop' === $r['so_sanh']['doan'] && 'khop' === $r['so_sanh']['boi_canh'] && 'khop' === $r['so_sanh']['loi'],
+	$r
+);
+$r = DungPhan::dung( nc_bai( $nhieu, array( 'the_loai' => array( 'ca-dao' ) ) ), $nc );
+kt( 'bài không phải vè: không có Đoạn, Bối cảnh; tiêu đề phụ và dòng chú → cần xem', ! isset( $r['phan']['doan'] ) && ! isset( $r['phan']['boi_canh'] ) && in_array( 'có tiêu đề phụ trong lời nhưng bài không phải vè: tiêu đề không mang sang', $r['can_xem'], true ) && in_array( 'có đoạn văn «(Bối cảnh mẫu của bài vè)»', $r['can_xem'], true ), $r['can_xem'] );
+$t = TachBai::tach( array( nc_tho( 'Khổ đầu không tiêu đề' ), $h3( 'Phần sau' ), nc_tho( 'Dòng của phần sau' ), nc_tho( 'Khổ tiếp của phần sau' ) ) );
+kt( 'khối Thơ không tiêu đề: đầu bài thành đoạn không tiêu đề, sau một phần thì là khổ tiếp của phần đó', array( array( 'tu_dong' => 1, 'den_dong' => 1 ), array( 'tieu_de' => 'Phần sau', 'tu_dong' => 2, 'den_dong' => 3 ) ) === $t['doan'], $t['doan'] );
+$t = TachBai::tach( array( nc_tieu_de( 'Dị bản' ), nc_tho( 'Dị bản đứng đầu' ), $h3( 'Phần một' ), nc_tho( 'Lời phần một' ), $h3( 'Phần hai' ), nc_tho( 'Lời phần hai' ) ) );
+kt( '"Dị bản" đứng đầu bài, sau là các phần có tiêu đề: khối Thơ dưới "Dị bản" là dị bản, các phần là lời, cần xem', array( 'Dị bản đứng đầu' ) === $t['di_ban'] && "Lời phần một\n\nLời phần hai" === $t['loi'] && 2 === count( $t['doan'] ) && in_array( 'tiêu đề «Dị bản» đứng trước lời: khối Thơ ngay dưới nhập làm dị bản', $t['can_xem'], true ), $t );
+$t = TachBai::tach( array( nc_tho( 'Lời' ), $h3( 'Tiêu đề lạ' ), nc_khoi( 'core/paragraph', '<p>Đoạn văn</p>' ) ) );
+kt( 'tiêu đề không đứng trên khối Thơ: vẫn cần xem như cũ, lời không có đoạn', in_array( 'có tiêu đề «Tiêu đề lạ»', $t['can_xem'], true ) && array() === $t['doan'] );
+kt( 'bài một khối Thơ: không có đoạn, không có bối cảnh', array() === TachBai::tach( array( nc_tho( 'Lời' ) ) )['doan'] && array() === TachBai::tach( array( nc_tho( 'Lời' ) ) )['boi_canh'] );
+
 // Hiểu nhanh, dấu AI, nháp
 $r = DungPhan::dung( nc_bai( array( nc_tho( 'Lời' ) ), array( 'tom_tat' => 'Ý nghĩa mẫu.', 'meta' => array( '_cadao_ho_tro_ai' => '1', '_cadao_nhap_hieu_nhanh' => 'Nháp khác.' ) ) ), $nc );
 kt( 'Hiểu nhanh có dấu AI → ý nghĩa ai_da_duyet (đúng trạng thái MVP)', array( 'chu' => 'Ý nghĩa mẫu.', 'ai' => true, 'nguoi_lam' => 'ai_da_duyet' ) === $r['phan']['y_nghia'], $r['phan']['y_nghia'] );
@@ -117,8 +151,10 @@ $r               = DungPhan::dung( nc_bai( array( nc_tho( 'Lời' ), nc_tieu_de(
 kt( 'chú thích nối với mục từ MVP tạo từ nó (cùng từ + lời giải); không có mục từ thì không gắn', 77 === ( $r['phan']['chu_thich']['muc'][0]['muc_tu_id'] ?? 0 ) && ! isset( $r['phan']['chu_thich']['muc'][1]['muc_tu_id'] ), $r['phan']['chu_thich'] );
 $r = DungPhan::dung( nc_bai( array( nc_tho( 'Lời' ) ) ), $nc );
 kt( 'bài không có ô nguồn → không phần nào có nguồn (không tự điền)', ! isset( $r['phan']['loi']['nguon'] ) && ! isset( $r['phan']['nguon_may'] ) );
+$GLOBALS['nc_ho_so_goi'] = array();
 $r = DungPhan::dung( nc_bai( array( nc_tho( 'Lời' ) ), array( 'meta' => array( 'nguon_ten' => 'Nguồn lẻ', 'doi_chieu_ten' => 'Sách', 'ngay_truy_cap' => 'hôm qua' ) ) ), $nc );
 kt( 'nguồn bài không có chú thích người viết, đối chiếu thiếu trang, ngày lạ → cần xem, không gắn bừa', 3 === count( $r['can_xem'] ) && ! isset( $r['phan']['loi']['doi_chieu'] ), $r['can_xem'] );
+kt( 'ô Nguồn không có đường dẫn → hồ sơ loại "chưa rõ" (không đoán là trang web)', in_array( array( '', 'Nguồn lẻ', '' ), $GLOBALS['nc_ho_so_goi'], true ), $GLOBALS['nc_ho_so_goi'] );
 
 // Thể loại, chuẩn hoá, độ dài
 $r = DungPhan::dung( nc_bai( array( nc_tho( 'Lời' ) ), array( 'the_loai' => array( 'thanh-ngu' ) ) ), $nc );

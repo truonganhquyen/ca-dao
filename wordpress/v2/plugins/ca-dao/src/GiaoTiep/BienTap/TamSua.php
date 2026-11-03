@@ -29,6 +29,8 @@ final class TamSua {
 		'co_nghi'     => array( 'Cờ "Nghi không phải dân gian"', 'co_nghi' ),
 		'chu_thich'   => array( 'Sửa từ khó', 'chu_thich' ),
 		'di_ban'      => array( 'Sửa dị bản', 'di_ban' ),
+		'boi_canh'    => array( 'Bối cảnh của bài vè', 'boi_canh' ),
+		'doan'        => array( 'Chia đoạn', 'doan' ),
 	);
 
 	// ---------- Dựng form ----------
@@ -46,6 +48,10 @@ final class TamSua {
 			'co_nghi'   => self::vung( "s-$phan", 'ly_do', 'Lý do (để trống = gỡ cờ)', (string) ( $cu['ly_do'] ?? '' ) ) . self::nguon( "s-$phan", 'nguon', $cu['nguon'] ?? array(), $ctx ),
 			'chu_thich' => self::form_ds( $phan, $cu, $ctx ),
 			'di_ban'    => self::form_ds( $phan, $cu, $ctx ),
+			'boi_canh'  => self::vung( 's-bc-chu', 'chu', 'Lời giới thiệu', (string) ( $cu['chu'] ?? '' ), 'hiện ngay trên lời', 3 )
+				. '<div class="field-grid">' . self::o( 's-bc-su-kien', 'su_kien', 'Sự kiện', (string) ( $cu['su_kien'] ?? '' ), 'không bắt buộc' ) . self::o( 's-bc-nam', 'nam', 'Năm', (string) ( $cu['nam'] ?? '' ) ) . self::o( 's-bc-noi', 'noi', 'Nơi', (string) ( $cu['noi'] ?? '' ) ) . '</div>'
+				. self::nguon( 's-bc', 'nguon', $cu['nguon'] ?? array(), $ctx ) . '<p class="small muted">Để trống hết = gỡ bối cảnh.</p>',
+			'doan'      => self::form_doan( $cu, $ctx ),
 		};
 		$id = 'tam-' . $phan;
 		return '<dialog class="tam-sua" id="' . $id . '" aria-labelledby="' . $id . '-tieu-de"><form method="post" class="tam-khung" data-phan="' . esc_attr( $phan ) . '">'
@@ -59,6 +65,7 @@ final class TamSua {
 		$sach = array( 0 => '— Chưa đối chiếu —' ) + $ctx['sach'];
 		return self::vung( 's-loi', 'dong', 'Lời · mỗi dòng một câu', implode( "\n", $cu['dong'] ?? array() ), 'dòng trống = ngắt khổ', 8 )
 			. ( $cu ? '<div class="notice">Lời đang đăng: sửa sẽ ghi lịch sử, phần lời thành "người viết". Không sửa theo trí nhớ; cần có nguồn.</div>' : '' )
+			. ( empty( $ctx['phan']['doan'] ) ? '' : '<p class="small muted">Bài đã chia ' . count( $ctx['phan']['doan']['muc'] ?? array() ) . ' đoạn theo số dòng: thêm hay bớt dòng thì sửa lại ở "Sửa đoạn".</p>' )
 			. '<fieldset class="nhom-o"><legend>Lời đã đối chiếu với <span class="small muted">chỉ người điền, máy không tự điền</span></legend>'
 			. self::chon( 's-dc-sach', 'doi_chieu[ho_so]', 'Sách', $sach, (int) ( $dc['ho_so'] ?? 0 ) )
 			. ( $ctx['sach'] ? '' : '<p class="small muted">Chưa có hồ sơ sách nào. Thêm ở Nguồn &amp; cài đặt.</p>' )
@@ -71,6 +78,25 @@ final class TamSua {
 			. self::hop( 's-y-nghia-ai', 'ai', 'Có hỗ trợ của AI', ! empty( $cu['ai'] ) )
 			. ( $ctx['duyet'] ? self::hop( 's-y-nghia-duyet', 'duyet', 'Tôi đã đọc và duyệt phần này', false ) : '' )
 			. '<p class="small muted">Lưu khi chưa đánh "đã duyệt" thì ý nghĩa ở dạng nháp trong Hộp việc, người đọc chưa thấy. Để trống và đánh "đã duyệt" = gỡ ý nghĩa.</p>';
+	}
+
+	/** Đoạn của bài vè dài: tiêu đề + từ dòng, đến dòng (đếm dòng có chữ). */
+	private static function form_doan( ?array $cu, array $ctx ): string {
+		$o = '';
+		foreach ( array_values( $cu['muc'] ?? array() ) as $i => $m ) {
+			$o .= self::muc_doan( (string) $i, $m );
+		}
+		return '<p class="small muted">Dòng đếm từ 1, chỉ đếm dòng có chữ — lời hiện có ' . (int) ( $ctx['so_dong'] ?? 0 ) . ' dòng. Dòng nằm ngoài mọi đoạn vẫn hiện (thành đoạn không tiêu đề). Bài từ 41 dòng mà không chia thì tự chia theo khổ.</p>'
+			. '<ol class="ds-sua" data-ds>' . $o . '</ol><template data-mau>' . self::muc_doan( '__i__', array() ) . '</template>'
+			. '<button type="button" class="btn" data-action="them-muc">+ Thêm đoạn</button>';
+	}
+
+	private static function muc_doan( string $i, array $m ): string {
+		$p  = "muc[$i]";
+		$id = 's-doan-' . $i;
+		return '<li class="muc-sua">' . self::o( "$id-ten", $p . '[tieu_de]', 'Tiêu đề đoạn', (string) ( $m['tieu_de'] ?? '' ), 'không bắt buộc' )
+			. '<div class="field-grid">' . self::o( "$id-tu", $p . '[tu_dong]', 'Từ dòng', (string) ( $m['tu_dong'] ?? '' ), '', 'number' ) . self::o( "$id-den", $p . '[den_dong]', 'Đến dòng', (string) ( $m['den_dong'] ?? '' ), '', 'number' ) . '</div>'
+			. self::hop( "$id-xoa", $p . '[xoa]', 'Xoá đoạn này', false ) . '</li>';
 	}
 
 	/** Danh sách mục (từ khó, dị bản): mỗi mục một khối; thêm bằng mẫu, xoá bằng ô đánh dấu. */
@@ -175,6 +201,27 @@ final class TamSua {
 			case 'chu_thich':
 			case 'di_ban':
 				return array( 'gia_tri' => self::doc_ds( $phan, (array) ( $f['muc'] ?? array() ), $cu ), 'nhap' => null );
+			case 'boi_canh':
+				$v = array_filter( array( 'chu' => $chu( $f['chu'] ?? '' ), 'su_kien' => $chu( $f['su_kien'] ?? '' ), 'nam' => $chu( $f['nam'] ?? '' ), 'noi' => $chu( $f['noi'] ?? '' ) ), 'strlen' );
+				if ( ! $v ) {
+					return array( 'gia_tri' => null, 'nhap' => null );
+				}
+				$v += array_filter( array( 'nhan_vat' => $cu['nhan_vat'] ?? null, 'nguon' => self::doc_nguon( $f['nguon'] ?? array() ) ) );
+				$so = array_filter( array_intersect_key( $cu ?? array(), array_flip( array( 'chu', 'su_kien', 'nam', 'noi', 'nhan_vat' ) ) ) ) + array_filter( array( 'nguon' => isset( $cu['nguon'] ) ? self::doc_nguon( array_intersect_key( $cu['nguon'], array( 'ho_so' => 1, 'trang' => 1, 'url' => 1 ) ) ) : null ) );
+				return array( 'gia_tri' => $cu && $v == $so ? $cu : $v + array( 'nguoi_lam' => NguoiLam::NGUOI_VIET ), 'nhap' => null ); // phpcs:ignore Universal.Operators.StrictComparisons -- thứ tự khoá không quan trọng
+			case 'doan':
+				$ra = array();
+				foreach ( (array) ( $f['muc'] ?? array() ) as $k => $h ) {
+					if ( '__i__' === (string) $k || ! is_array( $h ) || ! empty( $h['xoa'] ) ) {
+						continue;
+					}
+					$m = array_filter( array( 'tieu_de' => $chu( $h['tieu_de'] ?? '' ), 'tu_dong' => $chu( $h['tu_dong'] ?? '' ), 'den_dong' => $chu( $h['den_dong'] ?? '' ) ), 'strlen' );
+					if ( $m ) {
+						$ra[] = $m;
+					}
+				}
+				usort( $ra, static fn( $a, $b ): int => (int) ( $a['tu_dong'] ?? 0 ) <=> (int) ( $b['tu_dong'] ?? 0 ) );
+				return array( 'gia_tri' => $ra ?: null, 'nhap' => null );
 		}
 		return array( 'gia_tri' => $cu, 'nhap' => null );
 	}

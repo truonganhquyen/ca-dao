@@ -44,9 +44,18 @@ final class TacPham {
 				. ( empty( $tp['y_nghia']['chu'] ) ? '' : Ve::y_nghia( $tp['y_nghia']['chu'], ! empty( $tp['y_nghia']['ai'] ), 'Ý nghĩa', $nut( 'y_nghia', 'Sửa' ) ) );
 		}
 		$muc_kiem = $sua ? '<div class="level-sua">' . Ve::muc_kiem( $tp['doi_chieu'] ) . $nut( 'loi', empty( $tp['doi_chieu'] ) ? 'Thêm đối chiếu sách' : 'Sửa đối chiếu' ) . '</div>' : Ve::muc_kiem( $tp['doi_chieu'] );
+		// Vè: bối cảnh trên lời; bài dài, bài nhiều phần chia đoạn (tiêu đề, mục lục, "Đọc toàn bài")
+		$bc       = $tp['boi_canh'] ?? null;
+		$boi_canh = empty( $bc ) ? '' : '<div class="boi-canh">' . ( '' === $bc['chu'] ? '' : '<p>' . nl2br( esc_html( $bc['chu'] ) ) . '</p>' ) . ( '' === $bc['them'] ? '' : '<p class="small muted">' . esc_html( $bc['them'] ) . '</p>' ) . '</div>';
+		$sua_ve   = $sua && 've' === $tp['the_loai']
+			? '<p class="row no-print">' . $nut( 'boi_canh', empty( $sua['phan']['boi_canh'] ) ? 'Thêm bối cảnh' : 'Sửa bối cảnh' ) . $nut( 'doan', empty( $sua['phan']['doan'] ) ? 'Chia đoạn' : 'Sửa đoạn' ) . '</p>'
+			: '';
 		$than_loi = $tuc_ngu
 			? $goc( 'Lời', 'loi' ) . $muc_kiem . $y
-			: Ve::loi( $tp['loi'], $tp['kieu'], $tu, array( 'so_dong' => ! $cau_do, 'nhom' => $tp['ma'] ) )
+			: $sua_ve . $boi_canh
+				. ( empty( $tp['doan'] )
+					? Ve::loi( $tp['loi'], $tp['kieu'], $tu, array( 'so_dong' => ! $cau_do, 'nhom' => $tp['ma'] ) )
+					: Ve::loi_doan( $tp['doan'], $tp['kieu'], $tu, array( 'so_dong' => ! $cau_do, 'nhom' => $tp['ma'], 'bai' => $tp['ma'] ) ) )
 				. ( $cau_do && ! empty( $tp['cau_hoi'] ) ? '<p class="riddle-q">' . esc_html( $tp['cau_hoi'] ) . '</p>' : '' )
 				. $goc( 'Lời', 'loi' ) . $muc_kiem . $y;
 
