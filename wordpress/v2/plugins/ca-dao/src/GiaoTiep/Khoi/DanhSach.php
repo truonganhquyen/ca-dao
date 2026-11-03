@@ -52,7 +52,9 @@ final class DanhSach {
 		} else {
 			$mo_ta = trim( wp_strip_all_tags( (string) $term->description ) );
 			$dau   = self::duong_dan( $term->name ) . '<p class="eyebrow">' . esc_html( self::DAU[ $term->taxonomy ] ) . '</p><h1>' . esc_html( $term->name ) . '</h1>'
-				. ( '' === $mo_ta ? '' : '<p class="muted">' . esc_html( $mo_ta ) . '</p>' );
+				. ( '' === $mo_ta ? '' : '<p class="muted">' . esc_html( $mo_ta ) . '</p>' )
+				// Mục từ: ảnh Commons, bản đồ nhỏ, Wikipedia của địa danh đã xác nhận (như MVP)
+				. ( 'muc_tu' === $term->taxonomy ? DiaDanh::html( DiaDanh::cua_muc_tu( (int) $term->term_id ) ?? array() ) : '' );
 		}
 		$dem = (int) $q->found_posts;
 		$giua = '<p class="small muted">' . number_format( $dem, 0, ',', '.' ) . ' tác phẩm' . ( $q->max_num_pages > 1 ? ' · 30 bài mỗi trang' : '' ) . '</p>';

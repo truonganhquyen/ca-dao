@@ -41,6 +41,7 @@ final class TrangTacPham {
 			$chu_thich[] = array(
 				'tu'    => (string) ( $c['tu'] ?? '' ),
 				'giai'  => (string) ( $c['loi_giai'] ?? '' ),
+				'muc'   => (int) ( $c['muc_tu_id'] ?? 0 ),
 				'may'   => $may,
 				'nguon' => $may ? null : self::nguon( $c['nguon'] ?? null, $ho_so ),
 			);
