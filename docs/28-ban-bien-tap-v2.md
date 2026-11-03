@@ -115,7 +115,7 @@ Khi đăng nhập: đầu trang có nút **Hộp việc (số việc)** thay "Đ
 | Nháp ý nghĩa, nháp nghĩa (nghĩa đen / bóng / dùng khi, gợi ý câu đố, Bạn có biết) | lời, chú thích, nháp, dấu AI | Duyệt (chép vào bài, giữ dấu AI) · Sửa · Để sau · Bỏ nháp |
 | Có thể trùng | hai lời đặt cạnh nhau, chỗ khác tô | Cùng một bài · Gộp làm dị bản · Là bài khác · Để sau |
 | Gộp tác phẩm (hai bài đã đăng trùng) | hai bài, số lượt đọc, cảm nghĩ, tuyển tập của mỗi bài | Chọn bài giữ lại → xác nhận · Là bài khác |
-| Gợi ý chủ đề / vùng / mô-típ / đối chiếu sách | bài, gợi ý, lý do | Đồng ý · Sửa · Bỏ |
+| Gợi ý chủ đề / vùng / mô-típ / đối chiếu sách | bài, gợi ý, lý do — chủ đề, vùng: mỗi gợi ý (một mục cho một bài) một thẻ, đã làm (`DichVu\GoiY`); Bỏ thì máy không gợi ý lại | Đồng ý · Sửa · Bỏ (chủ đề, vùng: Đồng ý · Để sau · Bỏ) |
 | Wikidata | từ, thực thể, mô tả, ảnh | Đúng · Sai · Bỏ qua |
 | Người đọc gửi (dị bản, góp ý, số trang, báo lỗi) | nội dung, bài liên quan | Áp dụng (mở đúng tấm sửa trên trang bài) · Đã xử lý · Rác |
 | Cảm nghĩ, bài phân tích | nội dung | Đăng · Bỏ |

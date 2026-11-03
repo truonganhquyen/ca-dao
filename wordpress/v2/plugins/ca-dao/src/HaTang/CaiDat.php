@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class CaiDat implements Module {
 
-	public const PHIEN_BAN_CSDL = 8;
+	public const PHIEN_BAN_CSDL = 9;
 
 	/** Tuỳ chọn lưu phiên bản lược đồ đã cài. */
 	public const TUY_CHON = 'phongdao_csdl';
@@ -61,6 +61,9 @@ final class CaiDat implements Module {
 			foreach ( \Phongdao\DichVu\DoLuong\DoLuong::sql_tao( $wpdb->get_charset_collate() ) as $sql ) {
 				dbDelta( $sql );
 			}
+		}
+		if ( $da_cai < 9 ) {
+			self::buoc_9();
 		}
 		update_option( self::TUY_CHON, self::PHIEN_BAN_CSDL, false );
 	}
@@ -147,6 +150,32 @@ final class CaiDat implements Module {
 		if ( $co && ! get_option( \Phongdao\DichVu\NhapDuLieuCu\NhapLam::TRANG_THAI ) ) {
 			update_option( \Phongdao\DichVu\NhapDuLieuCu\NhapLam::TRANG_THAI, 'cho' );
 		}
+	}
+
+	/**
+	 * Bước 9: bộ vùng, chủ đề của dự án (cùng tên đường dẫn MVP — site thật đã có, chỉ tạo mục thiếu) và một lượt gợi ý
+	 * chủ đề, vùng cho mọi bài đã đăng (thẻ trong Hộp việc).
+	 */
+	private static function buoc_9(): void {
+		KhaiBao::khai_bao();
+		foreach ( \Phongdao\MienDuLieu\GoiY::VUNG as $ma => $ten ) {
+			if ( ! term_exists( $ma, 'vung' ) ) {
+				wp_insert_term( $ten, 'vung', array( 'slug' => $ma ) );
+			}
+		}
+		foreach ( \Phongdao\MienDuLieu\GoiY::CHU_DE as $nhom => $ds ) {
+			$cha = 0;
+			if ( '' !== $nhom ) {
+				$co  = term_exists( $nhom, 'chu_de' );
+				$cha = (int) ( $co ? $co['term_id'] : ( wp_insert_term( \Phongdao\MienDuLieu\GoiY::NHOM_CHU_DE[ $nhom ], 'chu_de', array( 'slug' => $nhom ) )['term_id'] ?? 0 ) );
+			}
+			foreach ( $ds as $ma => $ten ) {
+				if ( ! term_exists( $ma, 'chu_de' ) ) {
+					wp_insert_term( $ten, 'chu_de', array( 'slug' => $ma, 'parent' => $cha ) );
+				}
+			}
+		}
+		\Phongdao\DichVu\GoiY\GoiY::bat_dau();
 	}
 
 	/** Bước 5: ba bảng chống trùng (cùng cấu trúc MVP: vân tay, cặp âm tiết, các cặp và quyết định). */

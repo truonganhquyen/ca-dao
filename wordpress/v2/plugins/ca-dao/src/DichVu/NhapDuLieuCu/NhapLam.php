@@ -125,6 +125,7 @@ final class NhapLam {
 		}
 		if ( ! $bc['con'] && ! $bc['loi'] ) {
 			update_option( self::TRANG_THAI, 'xong' );
+			\Phongdao\DichVu\GoiY\GoiY::bat_dau(); // gợi ý chủ đề, vùng một lượt cho các bài vừa nhập
 		}
 		return $bc;
 	}
@@ -213,6 +214,22 @@ final class NhapLam {
 				)
 			);
 		}
+		// Bài người sáng lập đã duyệt gợi ý vùng, chủ đề trên MVP: việc gợi ý đã quyết cho cả bài, máy không gợi ý lại
+		if ( ! empty( $bai['meta']['_cadao_goi_y_xong'] ) && ! Viec::cua( 'post', $id, 'goi_y' ) ) {
+			Viec::tao(
+				array(
+					'loai'           => 'goi_y',
+					'trang_thai'     => Viec::XONG,
+					'doi_tuong_loai' => 'post',
+					'doi_tuong_id'   => $id,
+					'phan'           => 'goi_y',
+					'noi_dung'       => array( 'loai' => '*', 'ma' => '*', 'ly_do' => 'đã duyệt gợi ý vùng, chủ đề trên bản cũ' ),
+					'nguoi_tao'      => self::NGUOI_TAO,
+					'quyet'          => 'da_duyet_mvp',
+					'quyet_luc'      => $bai['ngay'],
+				)
+			);
+		}
 		if ( $kh['can_xem'] && ! Viec::mo( 'post', $id, 'can_xem' ) ) {
 			Viec::tao(
 				array(
@@ -298,7 +315,7 @@ final class NhapLam {
 				}
 				wp_set_object_terms( $id, $truoc['the_loai'], KhaiBao::THE_LOAI );
 				wp_delete_object_term_relationships( $id, 'hinh_thuc' );
-				$wpdb->query( $wpdb->prepare( 'DELETE FROM ' . Viec::bang() . " WHERE doi_tuong_loai = 'post' AND doi_tuong_id = %d AND nguoi_tao = %s", $id, self::NGUOI_TAO ) );
+				$wpdb->query( $wpdb->prepare( 'DELETE FROM ' . Viec::bang() . " WHERE doi_tuong_loai = 'post' AND doi_tuong_id = %d AND ( nguoi_tao = %s OR ( loai = 'goi_y' AND nguoi_tao = 'may' ) )", $id, self::NGUOI_TAO ) ); // cả thẻ gợi ý máy tạo sau khi nhập
 				clean_post_cache( $id );
 				++$bc['bai'];
 			} elseif ( 'kho' === $r->loai && is_array( $truoc ) ) {
@@ -312,6 +329,7 @@ final class NhapLam {
 			$wpdb->delete( self::bang(), array( 'id' => (int) $r->id ) );
 		}
 		update_option( self::TRANG_THAI, 'cho' );
+		update_option( \Phongdao\DichVu\GoiY\GoiY::SAU, -1, false ); // dừng lượt gợi ý cho bài đã trả về MVP
 		return $bc;
 	}
 

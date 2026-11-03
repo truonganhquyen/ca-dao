@@ -232,6 +232,8 @@ kt( 'các phần đã lưu đúng kế hoạch của bước nhập thử', arra
 $so_phan = array_sum( array_map( static fn( $k ) => 'e' === $k ? 0 : count( $bc['bai'][ $id[ $k ] ]['phan'] ), array_keys( $id ) ) );
 kt( 'mỗi phần một dòng nhật ký, người tạo là bước nhập (+1 Bạn có biết, +3 phần tuyển tập)', $so_phan + 4 === (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . Viec::bang() . " WHERE loai = 'sua' AND nguoi_tao = %s", NhapLam::NGUOI_TAO ) ) );
 kt( 'ý nghĩa có dấu AI giữ đúng người đã duyệt trên MVP', 'ai_da_duyet' === ( PhanBai::lay( $id['d'], 'y_nghia' )['nguoi_lam'] ?? '' ) && ( PhanBai::lay( $id['d'], 'y_nghia' )['duyet_boi'] ?? 0 ) > 0 );
+$gy = Viec::cua( 'post', $id['b'], 'goi_y' );
+kt( 'bài đã duyệt gợi ý vùng, chủ đề trên MVP → việc gợi ý đã quyết cho cả bài (máy không gợi ý lại); bài khác không có', 1 === count( $gy ) && '*' === ( $gy[0]['noi_dung']['ma'] ?? '' ) && 'xong' === $gy[0]['trang_thai'] && array() === Viec::cua( 'post', $id['a'], 'goi_y' ) && 0 === \Phongdao\DichVu\GoiY\GoiY::ghi( $id['b'] ), $gy );
 kt( 'nháp ý nghĩa thành việc chờ; bài có khối ảnh có thẻ Cần xem kèm lý do', 1 === count( Viec::mo( 'post', $id['n'], 'nhap_y_nghia' ) ) && in_array( 'có khối «core/image»', Viec::mo( 'post', $id['k'], 'can_xem' )[0]['noi_dung']['ly_do'] ?? array(), true ) );
 $m_e = $wpdb->get_row( $wpdb->prepare( 'SELECT trang_thai, post_id FROM ' . Kho::bang() . ' WHERE post_id = 0 AND tieu_de = %s', 'Dòng chờ duyệt mẫu' ) );
 kt( 'câu của bài chờ duyệt máy tạo trở lại kho "mới" để thành thẻ Câu mới', $m_e && 'moi' === $m_e->trang_thai );
@@ -286,7 +288,7 @@ $ht = NhapLam::hoan_tac();
 kt( 'hoàn tác: 13 bài, 1 câu kho, 3 hồ sơ nguồn (sách, nguồn người điền, Wikipedia)', array( 'bai' => 13, 'kho' => 1, 'ho_so' => 3 ) === $ht, $ht );
 $s0b = $mvp_anh();
 kt( 'hoàn tác: dữ liệu MVP trở về đúng như trước khi nhập (bài, thể loại, câu kho, không còn phần, việc, hồ sơ mới)', $s0b === $s0, cd_khac( $s0, $s0b ) );
-kt( 'hoàn tác xong: khách lại thấy trang nâng cấp', NhapLam::dang_nang_cap() );
+kt( 'hoàn tác xong: khách lại thấy trang nâng cấp; lượt gợi ý dừng', NhapLam::dang_nang_cap() && -1 === (int) get_option( \Phongdao\DichVu\GoiY\GoiY::SAU ) );
 NhapLam::chay();
 $s1b = $v2_anh();
 kt( 'nhập → hoàn tác → nhập cho cùng kết quả', $s1b === $s1, cd_khac( $s1, $s1b ) );

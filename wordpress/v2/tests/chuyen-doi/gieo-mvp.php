@@ -54,6 +54,7 @@ wp_insert_comment( array( 'comment_post_ID' => $a, 'comment_content' => 'Cảm n
 $luu( 2, array( 'loai' => 'ca_dao', 'tieu_de' => 'Dòng sửa tay gốc', 'loi' => "Dòng sửa tay gốc\nDòng thứ hai giữ nguyên" ) );
 $b = $tao( 2 );
 wp_update_post( wp_slash( array( 'ID' => $b, 'post_content' => str_replace( 'Dòng sửa tay gốc<br>', 'Dòng đã sửa tay<br>', get_post_field( 'post_content', $b ) ) ) ) );
+cadao_duyet_goi_y( $b, array(), array() ); // người sáng lập đã duyệt gợi ý vùng, chủ đề của bài này
 
 // Câu đố có câu hỏi, đáp án chép
 $luu( 3, array( 'loai' => 'cau_do', 'tieu_de' => 'Cái gì mẫu tròn tròn', 'loi' => "Cái gì mẫu tròn tròn\nCó hai dòng để đố", 'cau_hoi' => 'Là cái gì?', 'dap_an' => 'Cái mẫu' ) );

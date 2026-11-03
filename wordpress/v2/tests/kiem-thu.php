@@ -551,6 +551,28 @@ kt( 'quyết "Là bài khác": cặp ghi lại, câu kho hết chờ, việc đ�
 $v_cd2 = Viec::mo( 'kho', (int) $h2->id, 'cau_moi' )[0] ?? null;
 $q     = $v_cd2 ? QuyetViec::quyet( $v_cd2['id'], 'sua', $ai_ql, true ) : array( 'ok' => false );
 kt( 'quyết "Sửa rồi đăng" câu mới: tạo bản nháp, mở trang bài để sửa tiếp', $q['ok'] && 'draft' === get_post_status( (int) Kho::lay( (int) $h2->id )->post_id ) && str_contains( (string) $q['chuyen'], 'preview' ), $q );
+// Gợi ý chủ đề, vùng (thẻ Hộp việc): máy gợi ý kèm lý do khi lưu lời, chú thích; Đồng ý gắn; Bỏ thì không gợi ý lại
+kt( 'bộ vùng, chủ đề của dự án có sẵn (bước cài đặt 9)', (bool) term_exists( 'nam-bo', 'vung' ) && (bool) term_exists( 'hat-ru', 'chu_de' ) && (bool) term_exists( 'kn-thoi-tiet', 'chu_de' ) );
+$nc_gy  = array( 'nguoi' => $ai_ql, 'goi' => KiemPhan::GOI_NGUOI, 'duyet' => true );
+$gy_bai = wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'post_title' => 'Ví dầu mẫu gợi ý', 'post_name' => 'vi-dau-mau-goi-y' ) );
+wp_set_object_terms( $gy_bai, 'ca-dao', KhaiBao::THE_LOAI );
+LuuPhan::luu( $gy_bai, 'loi', array( 'dong' => array( 'Ví dầu mẫu dòng một', 'Dòng hai mẫu gợi ý' ), 'nguoi_lam' => NguoiLam::NGUOI_VIET ), $nc_gy );
+LuuPhan::luu( $gy_bai, 'chu_thich', array( array( 'tu' => 'bến mẫu', 'loi_giai' => 'Bến sông mẫu ở Cần Thơ.', 'nguoi_lam' => NguoiLam::NGUOI_VIET ) ), $nc_gy );
+$gy_v  = Viec::mo( 'post', $gy_bai, 'goi_y' );
+$gy_ma = array_map( static fn( $v ) => $v['noi_dung']['loai'] . ':' . $v['noi_dung']['ma'], $gy_v );
+kt( 'lưu lời, chú thích → thẻ gợi ý: Hát ru (lời có "ví dầu"), vùng Nam Bộ (chú thích nhắc Cần Thơ); mỗi gợi ý một thẻ', array( 'chu_de:hat-ru', 'vung:nam-bo' ) === $gy_ma, $gy_ma );
+$the_gy = \Phongdao\GiaoTiep\BienTap\HopViec::the( $gy_v[1] ?? array( 'id' => 0, 'loai' => 'x' ) );
+kt( 'thẻ gợi ý: "Vùng: Nam Bộ — tên bài", lời, lý do máy gợi ý, nút Đồng ý', str_contains( $the_gy, 'Vùng: Nam Bộ — Ví dầu mẫu gợi ý' ) && str_contains( $the_gy, 'Cần Thơ' ) && str_contains( $the_gy, 'Đồng ý' ), $the_gy );
+$q1 = QuyetViec::quyet( (int) ( $gy_v[1]['id'] ?? 0 ), 'dong_y', $ai_ql, true );
+$q2 = QuyetViec::quyet( (int) ( $gy_v[0]['id'] ?? 0 ), 'bo', $ai_ql, true );
+kt( 'Đồng ý → gắn vùng; Bỏ → không gắn; tính lại không tạo lại thẻ đã quyết', $q1['ok'] && $q2['ok'] && has_term( 'nam-bo', 'vung', $gy_bai ) && ! has_term( 'hat-ru', 'chu_de', $gy_bai ) && 0 === \Phongdao\DichVu\GoiY\GoiY::ghi( $gy_bai ) && array() === Viec::mo( 'post', $gy_bai, 'goi_y' ), array( $q1, $q2 ) );
+$gy_bai2 = wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'post_title' => 'Ví dầu đã duyệt mẫu', 'post_name' => 'vi-dau-da-duyet-mau' ) );
+wp_set_object_terms( $gy_bai2, 'ca-dao', KhaiBao::THE_LOAI );
+Viec::tao( array( 'loai' => 'goi_y', 'trang_thai' => Viec::XONG, 'doi_tuong_loai' => 'post', 'doi_tuong_id' => $gy_bai2, 'noi_dung' => array( 'loai' => '*', 'ma' => '*' ), 'nguoi_tao' => 'nhap_cu', 'quyet' => 'da_duyet_mvp' ) );
+LuuPhan::luu( $gy_bai2, 'loi', array( 'dong' => array( 'Ví dầu mẫu đã duyệt', 'Dòng hai mẫu' ), 'nguoi_lam' => NguoiLam::NGUOI_VIET ), $nc_gy );
+kt( 'bài đã duyệt gợi ý trên bản cũ (việc đã quyết "*"): không gợi ý lại', array() === Viec::mo( 'post', $gy_bai2, 'goi_y' ) );
+wp_delete_post( $gy_bai, true );
+wp_delete_post( $gy_bai2, true );
 $h = do_blocks( '<!-- wp:cadao/ds-tac-pham /-->' );
 kt( 'trang Tác phẩm: có cả bản nháp, lọc theo thiếu ý nghĩa / bản nháp / có cờ, ô tìm', str_contains( $h, 'Bản nháp' ) && str_contains( $h, 'Thiếu ý nghĩa' ) && str_contains( $h, 'name="q"' ) && str_contains( $h, esc_html( get_the_title( $tp1 ) ) ) );
 $_GET['loc'] = 'ban-nhap';

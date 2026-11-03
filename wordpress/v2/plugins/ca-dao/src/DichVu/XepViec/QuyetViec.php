@@ -25,6 +25,7 @@ final class QuyetViec {
 		// Bài nhập từ bản cũ có chỗ máy không tách chắc chắn (docs/29 mục 3): người sửa trên trang bài rồi đánh dấu xong
 		'can_xem'      => array( 'Cần xem', array( 'xong' => array( 'Đã xem, ổn rồi', 'primary' ), 'de_sau' => array( 'Để sau', 'ghost' ) ) ),
 		// Người đọc gửi: cảm nghĩ, bài cảm nhận thì Hiện (cần quyền duyệt); góp ý thì người biên soạn sửa bài rồi đánh dấu xong
+		'goi_y'        => array( 'Gợi ý chủ đề, vùng', array( 'dong_y' => array( 'Đồng ý', 'primary' ), 'de_sau' => array( 'Để sau', 'ghost' ), 'bo' => array( 'Bỏ', 'ghost' ) ) ),
 		'nguoi_doc'    => array( 'Người đọc gửi', array( 'duyet' => array( 'Hiện trên trang', 'primary' ), 'xong' => array( 'Đã xử lý', 'primary' ), 'de_sau' => array( 'Để sau', 'ghost' ), 'bo' => array( 'Bỏ', 'ghost' ) ) ),
 	);
 
@@ -89,6 +90,16 @@ final class QuyetViec {
 			case 'can_xem':
 				Viec::dong( $id, Viec::XONG, 'xong', $nguoi );
 				return self::kq( true, 'Đã đánh dấu xem xong.' );
+			case 'goi_y':
+				if ( 'bo' === $quyet ) {
+					Viec::dong( $id, Viec::BO, 'bo', $nguoi );
+					return self::kq( true, 'Đã bỏ gợi ý; máy không gợi ý lại.' );
+				}
+				if ( ! \Phongdao\DichVu\GoiY\GoiY::dong_y( $v ) ) {
+					return self::kq( false, 'Chưa gắn được (bài hoặc mục phân loại không còn).' );
+				}
+				Viec::dong( $id, Viec::XONG, 'dong_y', $nguoi );
+				return self::kq( true, 'Đã gắn ' . mb_strtolower( \Phongdao\DichVu\GoiY\GoiY::ten( $v['noi_dung'] ) ) . '.' );
 			case 'nguoi_doc':
 				if ( ! isset( self::nut_nguoi_doc( $v )[ $quyet ] ) ) {
 					return self::kq( false, 'Không có lựa chọn này cho việc này.' );

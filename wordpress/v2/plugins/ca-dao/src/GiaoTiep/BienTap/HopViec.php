@@ -116,6 +116,14 @@ final class HopViec {
 			$than    = '<blockquote class="small">' . nl2br( esc_html( mb_strlen( $chu ) > 800 ? mb_substr( $chu, 0, 799 ) . '…' : $chu ) ) . '</blockquote>'
 				. ( $them ? '<p class="small muted">' . esc_html( implode( ' · ', $them ) ) . '</p>' : '' );
 			$ly_do   = 'chờ duyệt, người đọc chưa thấy';
+		} elseif ( 'goi_y' === $v['loai'] ) {
+			$bai = get_post( (int) $v['doi_tuong_id'] );
+			if ( $bai ) {
+				$tieu_de = \Phongdao\DichVu\GoiY\GoiY::ten( $v['noi_dung'] ) . ' — ' . $bai->post_title;
+				$mo      = (string) get_permalink( $bai );
+				$than    = Ve::loi( array_slice( PhanBai::lay( $bai->ID, 'loi' )['dong'] ?? array(), 0, 4 ), '', array(), array( 'nhom' => 'hv-' . $v['id'] ) );
+				$ly_do   = 'máy gợi ý: ' . (string) ( $v['noi_dung']['ly_do'] ?? '' );
+			}
 		} elseif ( 'can_xem' === $v['loai'] ) {
 			$bai = get_post( (int) $v['doi_tuong_id'] );
 			if ( $bai ) {
