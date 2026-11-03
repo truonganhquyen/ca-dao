@@ -35,7 +35,7 @@ final class DocBai {
 				$the_tho = $t['ma'];
 			}
 		}
-		return TrangTacPham::tu_phan(
+		return array( 'cam_nghi' => self::cam_nghi( $bai->ID ) ) + TrangTacPham::tu_phan(
 			$phan,
 			array(
 				'id'        => $bai->ID,
@@ -49,6 +49,19 @@ final class DocBai {
 				'tuyen_tap' => self::tuyen_tap( $bai->ID ),
 				'ho_so'     => $ho_so,
 			)
+		);
+	}
+
+	/** Cảm nghĩ đã duyệt của bài (cũ trước). @return list<array{id:int,ten:string,chu:string,ngay:string}> */
+	public static function cam_nghi( int $id ): array {
+		return array_map(
+			static fn( \WP_Comment $c ): array => array(
+				'id'   => (int) $c->comment_ID,
+				'ten'  => (string) $c->comment_author ?: 'Một bạn đọc',
+				'chu'  => (string) $c->comment_content,
+				'ngay' => (string) mysql2date( 'd/m/Y', $c->comment_date ),
+			),
+			get_comments( array( 'post_id' => $id, 'status' => 'approve', 'type' => 'comment', 'order' => 'ASC', 'number' => 50 ) ) ?: array()
 		);
 	}
 

@@ -24,7 +24,15 @@ final class QuyetViec {
 		'co_the_trung' => array( 'Có thể trùng', array( 'cung' => array( 'Cùng một bài', 'primary' ), 'di_ban' => array( 'Gộp làm dị bản', '' ), 'khac' => array( 'Là bài khác', '' ), 'de_sau' => array( 'Để sau', 'ghost' ) ) ),
 		// Bài nhập từ bản cũ có chỗ máy không tách chắc chắn (docs/29 mục 3): người sửa trên trang bài rồi đánh dấu xong
 		'can_xem'      => array( 'Cần xem', array( 'xong' => array( 'Đã xem, ổn rồi', 'primary' ), 'de_sau' => array( 'Để sau', 'ghost' ) ) ),
+		// Người đọc gửi: cảm nghĩ, bài cảm nhận thì Hiện (cần quyền duyệt); góp ý thì người biên soạn sửa bài rồi đánh dấu xong
+		'nguoi_doc'    => array( 'Người đọc gửi', array( 'duyet' => array( 'Hiện trên trang', 'primary' ), 'xong' => array( 'Đã xử lý', 'primary' ), 'de_sau' => array( 'Để sau', 'ghost' ), 'bo' => array( 'Bỏ', 'ghost' ) ) ),
 	);
+
+	/** Nút hợp với một việc "Người đọc gửi": cảm nghĩ, bài cảm nhận có Hiện; góp ý có Đã xử lý. */
+	public static function nut_nguoi_doc( array $v ): array {
+		$hien = 'comment' === $v['doi_tuong_loai'] || 'phan_tich' === ( $v['noi_dung']['loai'] ?? '' );
+		return array_diff_key( self::LOAI['nguoi_doc'][1], array( $hien ? 'xong' : 'duyet' => 1 ) );
+	}
 
 	/**
 	 * @return array{ok:bool,loi:string[],thong_bao:string,chuyen:string} chuyen: đường dẫn nên mở tiếp (rỗng = về Hộp việc)
@@ -81,6 +89,26 @@ final class QuyetViec {
 			case 'can_xem':
 				Viec::dong( $id, Viec::XONG, 'xong', $nguoi );
 				return self::kq( true, 'Đã đánh dấu xem xong.' );
+			case 'nguoi_doc':
+				if ( ! isset( self::nut_nguoi_doc( $v )[ $quyet ] ) ) {
+					return self::kq( false, 'Không có lựa chọn này cho việc này.' );
+				}
+				$dt = (int) $v['doi_tuong_id'];
+				if ( 'duyet' === $quyet ) {
+					if ( ! $duyet ) {
+						return self::kq( false, 'Cần quyền duyệt để hiện nội dung người đọc gửi.' );
+					}
+					$ok = 'comment' === $v['doi_tuong_loai'] ? (bool) wp_set_comment_status( $dt, 'approve' ) : ! is_wp_error( wp_update_post( array( 'ID' => $dt, 'post_status' => 'publish' ), true ) );
+				} elseif ( 'bo' === $quyet ) {
+					$ok = 'comment' === $v['doi_tuong_loai'] ? (bool) wp_set_comment_status( $dt, 'trash' ) : (bool) wp_trash_post( $dt );
+				} else {
+					$ok = ! is_wp_error( wp_update_post( array( 'ID' => $dt, 'post_status' => 'private' ), true ) ); // góp ý đã xử lý: giữ lại, không công khai
+				}
+				if ( ! $ok ) {
+					return self::kq( false, 'Không làm được; nội dung này có thể đã bị xoá.' );
+				}
+				Viec::dong( $id, 'bo' === $quyet ? Viec::BO : Viec::XONG, $quyet, $nguoi );
+				return self::kq( true, 'duyet' === $quyet ? 'Đã hiện trên trang.' : ( 'bo' === $quyet ? 'Đã bỏ.' : 'Đã đánh dấu xử lý xong.' ) );
 			case 'co_the_trung':
 				$a = (string) $v['noi_dung']['a'];
 				$b = (string) $v['noi_dung']['b'];

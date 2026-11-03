@@ -46,6 +46,8 @@ final class Ve {
 		'search'   => '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/>',
 		'arrow'    => '<path d="M4 12h16m-6-6 6 6-6 6"/>',
 		'book'     => '<path d="M12 5v15M3 4c4-1 6 0 9 2 3-2 5-3 9-2v15c-4-1-6 0-9 2-3-2-5-3-9-2z"/>',
+		'heart'    => '<path d="M12 20s-7-4.4-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.6-9 9-9 9z"/>',
+		'pen'      => '<path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4"/>',
 		'save'     => '<path d="M6 3h12v18l-6-4-6 4z"/>',
 		'home'     => '<path d="m3 10 9-7 9 7M5 9v12h5v-7h4v7h5V9"/>',
 		'compass'  => '<circle cx="12" cy="12" r="9"/><path d="m16 8-2.5 5.5L8 16l2.5-5.5z"/>',

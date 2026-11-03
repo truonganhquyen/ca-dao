@@ -46,7 +46,7 @@ Việc đầu tiên của T-145: agent đọc toàn bộ mã MVP (`wordpress/plu
 | Gộp tác phẩm đã đăng (đường dẫn cũ) | `_wp_old_slug`, `_cadao_gop_vao` | giữ + bảng chuyển hướng |
 | Cấu hình nguồn tự động ("Chép chú thích", "Ghi nguồn cho chú thích", lịch) | tuỳ chọn `cadao_nguon_tu_dong` | hồ sơ nguồn + Nguồn tự động V2 |
 | Góp ý, dị bản, số trang, báo lỗi của người đọc | bài `gop_y` + meta | giữ `gop_y` |
-| Cảm nghĩ | bình luận | giữ |
+| Cảm nghĩ | bình luận | giữ (V2 nhận cảm nghĩ qua form riêng, không ghi địa chỉ mạng; cảm nghĩ gửi qua form bình luận MVP có địa chỉ mạng WordPress tự ghi — xoá các địa chỉ đó khi dọn dữ liệu cũ, cần người sáng lập đồng ý) |
 | Bài phân tích, bút danh | bài `phan_tich`, `_cadao_but_danh` | giữ |
 | Lượt đọc, sự kiện | `wp_cadao_luot_doc`, `wp_cadao_su_kien` | giữ bảng |
 | Trang tĩnh (Phương pháp, Nguồn, Về dự án, Chính sách thu thập dữ liệu, …) | `page` | giữ; agent đề xuất sửa tên dự án, người sáng lập duyệt |

@@ -1,0 +1,16 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cadao/gop",
+	"title": "Góp tư liệu",
+	"category": "theme",
+	"description": "Trang /gop/ (bộ thiết kế R22): một form cho mọi loại người đọc góp; chạy không cần JavaScript, vào chờ duyệt.",
+	"textdomain": "ca-dao",
+	"version": "1",
+	"supports": {
+		"html": false,
+		"inserter": false,
+		"reusable": false
+	},
+	"render": "file:./render.php"
+}
