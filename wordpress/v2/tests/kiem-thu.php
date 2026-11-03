@@ -608,8 +608,8 @@ kt( 'Bản đồ: địa danh đã xác nhận có toạ độ trong khung, có 
 $dd2 = (int) wp_insert_term( 'nơi ngoài khung', 'muc_tu' )['term_id'];
 wp_set_object_terms( $mau_id['ve-mau'], $dd2, 'muc_tu', true );
 update_term_meta( $dd2, '_phongdao_wikidata', array( 'wd' => 'Q00', 'toa_do' => array( 48.8, 2.3 ) ) );
-$h = \Phongdao\GiaoTiep\Khoi\BanDo::hien();
-kt( 'Bản đồ: điểm ngoài khung Việt Nam bị bỏ; ảnh bản đồ tự lưu có Hoàng Sa, Trường Sa; điểm là liên kết tới danh sách; ghi rõ "nhắc đến", không phải nơi lưu truyền', 1 === count( \Phongdao\GiaoTiep\Khoi\BanDo::diem() ) && str_contains( $h, 'ban-do-vn.svg' ) && str_contains( $h, 'Hoàng Sa và Trường Sa' ) && str_contains( $h, 'href="#dd-' ) && str_contains( $h, 'không đồng nghĩa là nơi lưu truyền' ) && ! preg_match( '#https?://(?!' . preg_quote( (string) wp_parse_url( home_url(), PHP_URL_HOST ), '#' ) . ')#', str_replace( 'https://www.w3.org', '', $h ) ), $h );
+$hbd = \Phongdao\GiaoTiep\Khoi\BanDo::hien();
+kt( 'Bản đồ: điểm ngoài khung Việt Nam bị bỏ; ảnh bản đồ tự lưu có Hoàng Sa, Trường Sa; điểm là liên kết tới danh sách; ghi rõ "nhắc đến", không phải nơi lưu truyền', 1 === count( \Phongdao\GiaoTiep\Khoi\BanDo::diem() ) && str_contains( $hbd, 'ban-do-vn.svg' ) && str_contains( $hbd, 'Hoàng Sa và Trường Sa' ) && str_contains( $hbd, 'href="#dd-' ) && str_contains( $hbd, 'không đồng nghĩa là nơi lưu truyền' ) && ! preg_match( '#https?://(?!' . preg_quote( (string) wp_parse_url( home_url(), PHP_URL_HOST ), '#' ) . ')#', str_replace( 'https://www.w3.org', '', $hbd ) ), $hbd );
 kt( 'trang bài liệt kê bài cảm nhận đã duyệt (bài chờ duyệt thì không)', str_contains( $h, 'Cảm nhận – phân tích' ) && str_contains( $h, 'Một cách đọc bài mẫu' ) && ! str_contains( $h, 'Cảm nhận mẫu</a>' ) );
 
 do_action( 'wp_enqueue_scripts' );
