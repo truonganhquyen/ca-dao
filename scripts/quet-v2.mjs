@@ -169,7 +169,7 @@ try {
   }
   // Người biên soạn (D-094): đăng nhập rồi quét các trang biên tập và trang bài ở chế độ sửa (trợ năng, tràn ngang;
   // không tính ngân sách — mã sửa chỉ nạp cho người biên soạn). Bỏ qua thanh quản trị của WordPress khi chạy axe.
-  const DS_BIEN_TAP = ['/bien-tap/', '/bien-tap/tac-pham/', '/bien-tap/them/', '/bien-tap/so-lieu/', '/ca-dao/dong-mau-mot-cua-bai/', '/ve/ve-mau/', '/tu-dien/ben-mau-bac/'];
+  const DS_BIEN_TAP = ['/bien-tap/', '/bien-tap/tac-pham/', '/bien-tap/them/', '/bien-tap/so-lieu/', '/tu-dien/ben-mau-bac/', '/ca-dao/dong-mau-mot-cua-bai/', '/ve/ve-mau/']; // trang bài để cuối: bước sau mở tấm sửa trên trang cuối
   const bt = await trinhDuyet.newPage();
   await bt.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
   // Đăng nhập đôi khi hụt ở lần đầu (Playground vừa khởi động): kiểm cookie đăng nhập, thử lại tối đa 3 lần
