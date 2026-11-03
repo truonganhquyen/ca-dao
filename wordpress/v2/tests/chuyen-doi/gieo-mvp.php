@@ -22,6 +22,8 @@ register_shutdown_function(
 
 global $wpdb;
 wp_set_current_user( 1 );
+// Lỗi khi tạo dữ liệu (kể cả lỗi nghiêm trọng của PHP 8) được ghi vào kết quả để bước 2 in ra, không làm hỏng cả lượt
+try {
 $ma_kho = static fn( int $ma ): int => (int) $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM ' . cadao_kho_bang() . " WHERE nguon_id = 'cadao-me' AND ma_goc = %s", (string) $ma ) );
 $luu    = static fn( int $ma, array $muc ): string => cadao_kho_luu( 'cadao-me', $muc + array( 'ma_goc' => $ma, 'doc_trang' => '2026-10-25', 'url' => "https://example.org/bai-$ma/", 'co' => array() ) );
 $tao    = static function ( int $ma, string $trang_thai = 'publish' ) use ( $ma_kho ): int {
@@ -86,8 +88,42 @@ $i2 = $tay( 'Câu trùng tên mẫu', "<!-- wp:verse -->\n<pre class=\"wp-block-
 // Bài có khối máy không tách được (ảnh) → thẻ Cần xem, phần chắc chắn vẫn nhập
 $k = $tay( 'Bài có ảnh mẫu', "<!-- wp:verse -->\n<pre class=\"wp-block-verse\">Bài có ảnh mẫu<br>Dòng hai có ảnh</pre>\n<!-- /wp:verse -->\n\n<!-- wp:image -->\n<figure class=\"wp-block-image\"><img src=\"https://example.org/a.jpg\" alt=\"\"/></figure>\n<!-- /wp:image -->", 'ca-dao' );
 
-$GLOBALS['cd']['id'] = compact( 'a', 'b', 'c', 'd', 'n', 'e', 'g', 'h', 'i1', 'i2', 'k' );
+// Đồng dao có trò chơi (cách chơi chép từ Wikipedia bằng nút của MVP), mô-típ, tình huống có "Hợp khi…"
+$dd = $tay( 'Đồng dao có trò chơi mẫu', "<!-- wp:verse -->\n<pre class=\"wp-block-verse\">Đồng dao có trò chơi mẫu<br>Dòng hai chơi chung</pre>\n<!-- /wp:verse -->", 'dong-dao' );
+$tc = (int) wp_insert_term( 'Trò chơi mẫu', 'tro_choi' )['term_id'];
+foreach ( array( 'so_nguoi' => '6–10 bạn', 'do_tuoi' => '4–10 tuổi', 'buoc' => "Bước một mẫu\nBước hai mẫu", 'nguon_ten' => 'Wikipedia — Trò chơi mẫu', 'nguon_url' => 'https://vi.wikipedia.org/wiki/Tro_choi_mau', 'giay_phep' => 'CC BY-SA 4.0' ) as $o => $v ) {
+	update_term_meta( $tc, '_cadao_cc_' . $o, $v );
+}
+wp_set_object_terms( $dd, $tc, 'tro_choi' );
+$mt = (int) wp_insert_term( 'Mô-típ mẫu', 'mo_tip' )['term_id'];
+update_term_meta( $mt, '_cadao_mo_tip_dau', 'dau-mau' );
+wp_set_object_terms( $b, $mt, 'mo_tip' );
+$th = (int) wp_insert_term( 'Tình huống mẫu', 'tinh_huong', array( 'slug' => 'tinh-huong-mau', 'description' => 'Lời dẫn mẫu của tình huống.' ) )['term_id'];
+wp_set_object_terms( $a, $th, 'tinh_huong' );
+wp_set_object_terms( $c, $th, 'tinh_huong' );
+update_post_meta( $a, 'hop_khi', 'Hợp khi mẫu.' );
+
+// Mục từ MVP tạo từ chú thích của bài từ kho; nguồn lời giải trùng tên nguồn tự động; Wikidata đã xác nhận
+$mu = cadao_muc_tu( array( 'tu' => 'mẫu', 'noi_dung' => 'Lời giải mẫu.' ), false );
+$tu = $mu ? (int) $mu->term_id : 0;
+update_term_meta( $tu, '_cadao_nguon_ten', 'Ca dao Mẹ' );
+update_term_meta( $tu, '_cadao_wd', array( 'wd' => 'Q1', 'nhan' => 'mẫu' ) );
+$wpdb->insert( $wpdb->prefix . 'cadao_xac_nhan', array( 'khoa' => 'tu:' . $tu, 'nhan' => 'mẫu', 'wd' => 'Q1', 'du_lieu' => '{}', 'trang_thai' => 'dung', 'ngay' => current_time( 'mysql' ) ) );
+// "Bạn có biết": một câu đã duyệt (bài từ kho), một câu đang chờ (không mang)
+cadao_bcb_luu(
+	array(
+		array( 'id' => 'bcb1', 'chu' => '… "mẫu" là lời giải mẫu, và có trong câu này?', 'tu_kho' => $tu, 'bai' => $a, 'nguon_ten' => '', 'nguon_url' => '', 'trang_thai' => 'duyet', 'luc' => current_time( 'mysql' ) ),
+		array( 'id' => 'bcb2', 'chu' => '… câu chờ duyệt mẫu?', 'tu_kho' => $tu, 'bai' => $b, 'nguon_ten' => '', 'nguon_url' => '', 'trang_thai' => 'cho', 'luc' => current_time( 'mysql' ) ),
+	)
+);
+$GLOBALS['cd']['the'] = compact( 'tc', 'mt', 'th', 'tu' );
+
+$GLOBALS['cd']['id'] = compact( 'a', 'b', 'c', 'd', 'n', 'e', 'g', 'h', 'i1', 'i2', 'k', 'dd' );
 $GLOBALS['cd']['ten_i2'] = get_post_field( 'post_name', $i2 );
+
+} catch ( Throwable $e ) {
+	$GLOBALS['cd']['loi'][] = get_class( $e ) . ': ' . $e->getMessage() . ' (' . basename( $e->getFile() ) . ':' . $e->getLine() . ')';
+}
 
 // Chạy thử như trên site thật: đếm dòng mọi bảng trước / sau
 $dem = static function () use ( $wpdb ): array {

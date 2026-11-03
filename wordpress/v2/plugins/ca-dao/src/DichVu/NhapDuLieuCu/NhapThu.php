@@ -3,6 +3,7 @@
 namespace Phongdao\DichVu\NhapDuLieuCu;
 
 use Phongdao\KhoLuu\HoSo;
+use Phongdao\MienDuLieu\BoDau;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -76,6 +77,19 @@ final class NhapThu {
 				$bc['bai'][ $id ] = $kh;
 			}
 		}
+		$pl              = NhapPhanLoai::ke_hoach();
+		$bc['phan_loai'] = array(
+			'muc_tu'      => count( $pl['muc_tu'] ),
+			'tro_choi'    => count( $pl['tro_choi'] ),
+			'mo_tip'      => count( $pl['mo_tip'] ),
+			'tinh_huong'  => count( $pl['tinh_huong'] ),
+			'muc'         => array_sum( array_map( static fn( $t ) => count( $t['bai'] ), $pl['tinh_huong'] ) ),
+			'ban_co_biet' => count( $pl['ban_co_biet'] ),
+			'wikidata'    => count( $pl['wikidata'] ),
+		);
+		foreach ( $pl['ghi_chu'] as $l ) {
+			$bc['ghi_chu'][ self::nhom( $l ) ][] = 0;
+		}
 		return $bc;
 	}
 
@@ -108,7 +122,9 @@ final class NhapThu {
 
 	/** Hồ sơ nguồn theo mã nguồn tự động, và bộ tìm / cấp hồ sơ cho nguồn người điền (chạy thử: không tạo). */
 	public static function ngu_canh( array &$bc ): array {
+		global $wpdb;
 		$nguon = array();
+		$ten   = array();
 		foreach ( (array) get_option( 'cadao_nguon_tu_dong', array() ) as $ma => $n ) {
 			$ma           = (string) ( $n['id'] ?? $ma );
 			$hs           = (int) ( $n['ho_so'] ?? 0 ) ?: (int) ( HoSo::theo_khoa( $ma )?->ID ?? 0 );
@@ -116,24 +132,45 @@ final class NhapThu {
 			if ( ! $hs ) {
 				$bc['ho_so_moi'][] = array( 'nguồn tự động', $ma );
 			}
-		}
-		$da = array();
-		return array(
-			'ho_so_nguon' => $nguon,
-			'ho_so'       => static function ( string $loai, string $ten, string $url ) use ( &$bc, &$da ): int {
-				$khoa = self::khoa_ho_so( $loai, $ten );
-				if ( ! isset( $da[ $khoa ] ) ) {
-					$co = HoSo::theo_khoa( $khoa );
-					if ( $co ) {
-						$da[ $khoa ] = $co->ID;
-					} else {
-						$da[ $khoa ]       = self::ID_TAM + count( $bc['ho_so_moi'] );
-						$bc['ho_so_moi'][] = array( $loai, $ten );
-					}
+			// Tên nguồn người điền trùng tên nguồn tự động (vd. "Ca dao Mẹ") → dùng hồ sơ có sẵn, không tạo hồ sơ thứ hai
+			foreach ( array( $n['ten'] ?? '', $n['dong_ghi_nguon'] ?? '' ) as $t ) {
+				if ( '' !== trim( (string) $t ) ) {
+					$ten[ mb_strtolower( trim( (string) $t ) ) ] = $ma;
 				}
-				return $da[ $khoa ];
-			},
+			}
+		}
+		// Mục từ theo khoá MVP (từ + lời giải): nối chú thích với mục từ của nó
+		$muc_tu = array();
+		foreach ( $wpdb->get_results( "SELECT m.term_id, m.meta_value FROM {$wpdb->termmeta} m JOIN {$wpdb->term_taxonomy} tt ON tt.term_id = m.term_id WHERE m.meta_key = '_cadao_khoa' AND tt.taxonomy IN ('tu_kho', 'muc_tu')" ) as $r ) {
+			$muc_tu[ (string) $r->meta_value ] = (int) $r->term_id;
+		}
+		$nc = array(
+			'ho_so_nguon' => $nguon,
+			'ho_so_ten'   => $ten,
+			'muc_tu'      => static fn( string $tu, string $loi_giai ): int => $muc_tu[ md5( mb_strtolower( BoDau::nfc( trim( $tu ) ) ) . '|' . BoDau::nfc( trim( $loi_giai ) ) ) ] ?? 0,
 		);
+		$da          = array();
+		$nguon_nc    = $nc;
+		$nc['ho_so'] = static function ( string $loai, string $ten, string $url ) use ( &$bc, &$da, $nguon_nc ): int {
+			$khoa = self::khoa_ho_so( $loai, $ten );
+			if ( ! isset( $da[ $khoa ] ) ) {
+				$co = self::hs_theo_ten( $nguon_nc, $ten ) ?: (int) ( HoSo::theo_khoa( $khoa )?->ID ?? 0 );
+				if ( $co ) {
+					$da[ $khoa ] = $co;
+				} else {
+					$da[ $khoa ]       = self::ID_TAM + count( $bc['ho_so_moi'] );
+					$bc['ho_so_moi'][] = array( $loai, $ten );
+				}
+			}
+			return $da[ $khoa ];
+		};
+		return $nc;
+	}
+
+	/** Hồ sơ của nguồn tự động có tên này (0 = không có). */
+	public static function hs_theo_ten( array $nc, string $ten ): int {
+		$ma = $nc['ho_so_ten'][ mb_strtolower( trim( $ten ) ) ] ?? null;
+		return null === $ma ? 0 : (int) ( $nc['ho_so_nguon'][ $ma ] ?? 0 );
 	}
 
 	/** Khoá (tên đường dẫn) của hồ sơ nguồn người điền: loại + tên. */
@@ -184,6 +221,8 @@ final class NhapThu {
 		foreach ( $bc['ho_so_moi'] as [ $loai, $ten ] ) {
 			$ra[] = "  $loai: $ten";
 		}
+		$pl   = $bc['phan_loai'];
+		$ra[] = "-- Sau các bài: {$pl['muc_tu']} mục từ (giữ ID), {$pl['tro_choi']} trò chơi có cách chơi, {$pl['mo_tip']} mô-típ, {$pl['tinh_huong']} tình huống → tuyển tập ({$pl['muc']} mục), {$pl['ban_co_biet']} câu \"Bạn có biết\" đã duyệt, {$pl['wikidata']} quyết định Wikidata --";
 		return $ra;
 	}
 }

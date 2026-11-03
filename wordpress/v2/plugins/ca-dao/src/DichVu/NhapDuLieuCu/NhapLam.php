@@ -107,10 +107,44 @@ final class NhapLam {
 			}
 		}
 		$bc['con'] = count( self::con_lai() );
+		// Mọi bài đã nhập: tới mục từ, trò chơi, mô-típ, tình huống, Bạn có biết, Wikidata (một lần)
+		if ( ! $bc['con'] && ! $bc['loi'] && ! self::da_co( 'phan_loai_xong' ) ) {
+			$wpdb->query( 'START TRANSACTION' );
+			try {
+				$loi = NhapPhanLoai::lam( $nc['ho_so'], self::quan_tri() );
+				if ( $loi ) {
+					throw new \RuntimeException( implode( ' · ', $loi ) );
+				}
+				$wpdb->query( 'COMMIT' );
+			} catch ( \Throwable $e ) {
+				$wpdb->query( 'ROLLBACK' );
+				clean_taxonomy_cache( 'muc_tu' );
+				clean_taxonomy_cache( 'tu_kho' );
+				$bc['loi'][] = 'phân loại: ' . $e->getMessage();
+			}
+		}
 		if ( ! $bc['con'] && ! $bc['loi'] ) {
 			update_option( self::TRANG_THAI, 'xong' );
 		}
 		return $bc;
+	}
+
+	/** Lúc sửa cuối (GMT) của bài trên MVP, đọc từ giá trị cũ đã ghi khi nhập; rỗng khi bài chưa nhập. */
+	public static function sua_luc_mvp( int $id ): string {
+		global $wpdb;
+		$truoc = json_decode( (string) $wpdb->get_var( $wpdb->prepare( 'SELECT truoc FROM ' . self::bang() . " WHERE loai = 'bai' AND doi_tuong = %d ORDER BY id DESC LIMIT 1", $id ) ), true );
+		return (string) ( $truoc['sua_luc'][1] ?? '' );
+	}
+
+	private static function da_co( string $loai ): bool {
+		global $wpdb;
+		return (bool) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . self::bang() . ' WHERE loai = %s', $loai ) );
+	}
+
+	/** Người ghi nhật ký cho phần không thuộc bài nào: người chạy lệnh, hoặc quản trị đầu tiên. */
+	private static function quan_tri(): int {
+		$ds = get_users( array( 'role' => 'administrator', 'number' => 1, 'orderby' => 'ID', 'fields' => 'ID' ) );
+		return get_current_user_id() ?: (int) ( $ds[0] ?? 0 );
 	}
 
 	/** Bài MVP chưa nhập (bỏ bài đã ghi là không mang). */
@@ -236,6 +270,10 @@ final class NhapLam {
 		foreach ( $wpdb->get_results( 'SELECT * FROM ' . self::bang() . ' ORDER BY id DESC' ) as $r ) {
 			$id    = (int) $r->doi_tuong;
 			$truoc = json_decode( (string) $r->truoc, true );
+			if ( NhapPhanLoai::hoan_tac_dong( $r ) ) {
+				$wpdb->delete( self::bang(), array( 'id' => (int) $r->id ) );
+				continue;
+			}
 			if ( 'bai' === $r->loai && is_array( $truoc ) ) {
 				$wpdb->update(
 					$wpdb->posts,
@@ -287,9 +325,10 @@ final class NhapLam {
 			}
 		}
 		$da          = array();
-		$nc['ho_so'] = static function ( string $loai, string $ten, string $url ) use ( &$da ): int {
+		$nguon       = $nc;
+		$nc['ho_so'] = static function ( string $loai, string $ten, string $url ) use ( &$da, $nguon ): int {
 			$khoa = NhapThu::khoa_ho_so( $loai, $ten );
-			return $da[ $khoa ] ??= self::ho_so( $loai, $khoa, $ten, $url );
+			return $da[ $khoa ] ??= ( NhapThu::hs_theo_ten( $nguon, $ten ) ?: self::ho_so( $loai, $khoa, $ten, $url ) );
 		};
 		return $nc;
 	}
@@ -304,7 +343,7 @@ final class NhapLam {
 		return $id;
 	}
 
-	private static function ghi_doi( string $loai, int $doi_tuong, ?array $truoc ): void {
+	public static function ghi_doi( string $loai, int $doi_tuong, ?array $truoc ): void {
 		global $wpdb;
 		$wpdb->insert(
 			self::bang(),

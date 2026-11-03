@@ -137,7 +137,14 @@ final class DungPhan {
 			$co_nguoi_viet = false;
 			$phan['chu_thich'] = array();
 			foreach ( $t['chu_thich'] as $c ) {
-				$muc = array_filter( array( 'tu' => $c['tu'], 'loi_giai' => $c['noi_dung'] ) );
+				$muc = array_filter(
+					array(
+						'tu'        => $c['tu'],
+						'loi_giai'  => $c['noi_dung'],
+						// Mục từ MVP tạo từ chú thích này (cùng từ + lời giải): chạm từ trên trang mở đúng mục từ
+						'muc_tu_id' => '' !== $c['tu'] && isset( $nc['muc_tu'] ) ? ( $nc['muc_tu'] )( $c['tu'], $c['noi_dung'] ) : 0,
+					)
+				);
 				if ( $c['chep'] ) {
 					$muc += array( 'nguoi_lam' => NguoiLam::MAY_CHEP ) + $ho_so( $kho_ct[ self::khoa_ct( $c['tu'], $c['noi_dung'] ) ] ?? $nguon_chinh );
 				} else {
