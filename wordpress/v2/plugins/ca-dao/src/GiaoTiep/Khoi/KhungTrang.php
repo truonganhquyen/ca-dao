@@ -41,6 +41,11 @@ final class KhungTrang {
 		return is_post_type_archive( KhaiBao::TUYEN_TAP ) || is_singular( KhaiBao::TUYEN_TAP ) ? 'tuyen-tap' : '';
 	}
 
+	/** Người xem có quyền biên tập (đầu trang, thanh dưới đổi theo màn mẫu nhóm B). */
+	private static function bien_tap(): bool {
+		return current_user_can( 'cadao_soan' );
+	}
+
 	public static function dau_trang(): string {
 		$dang  = self::dang_xem();
 		$menu  = '';
@@ -63,7 +68,9 @@ final class KhungTrang {
 			. '<header class="site-header">' . Ve::brand()
 			. '<nav class="desktop-nav" aria-label="Điều hướng chính">' . $menu . '</nav>'
 			. '<form class="header-search" role="search" action="' . esc_url( Ve::url( 'tim' ) ) . '"><label class="sr-only" for="header-q">Tìm trong thư viện</label><input id="header-q" name="q" placeholder="Tìm câu, từ…" type="search"></form>'
-			. Ve::lien_ket( 'da-luu', Ve::icon( 'save' ) . ' Đã lưu', 'btn compact ghost header-saved' )
+			. ( self::bien_tap()
+				? Ve::lien_ket( 'bien-tap', Ve::icon( 'check' ) . ' Hộp việc <span class="dem">' . \Phongdao\KhoLuu\Viec::dem_cho() . '</span>', 'btn compact ghost header-saved' )
+				: Ve::lien_ket( 'da-luu', Ve::icon( 'save' ) . ' Đã lưu', 'btn compact ghost header-saved' ) )
 			. Ve::lien_ket( 'tim', Ve::icon( 'search' ) . ' Tìm', 'btn compact ghost mobile-search' )
 			. '<button type="button" class="btn compact" data-action="theme" aria-label="Đổi sáng tối">' . Ve::icon( 'sun' ) . '</button>'
 			. '</header><nav class="genre-bar" aria-label="Thể loại"><div class="genre-bar-inner">' . $thanh . '</div></nav>';
@@ -76,7 +83,12 @@ final class KhungTrang {
 		}
 		$dang = self::dang_xem();
 		$duoi = '';
-		foreach ( array( 'trang-chu' => array( 'Trang chủ', 'home' ), 'tim' => array( 'Tìm', 'search' ), 'kham-pha' => array( 'Khám phá', 'compass' ), 'da-luu' => array( 'Đã lưu', 'save' ) ) as $ma => [ $chu, $hinh ] ) {
+		// Người biên soạn ở trang biên tập / trang bài: thanh dưới Đọc · Hộp việc · Tác phẩm · Thêm (màn mẫu B01–B04)
+		$muc = self::bien_tap() && ( \Phongdao\GiaoTiep\TrangCoDinh\Module::la_bien_tap() || is_singular( KhaiBao::TAC_PHAM ) )
+			? array( 'trang-chu' => array( 'Đọc', 'home' ), 'bien-tap' => array( 'Hộp việc', 'check' ), 'bt-tac-pham' => array( 'Tác phẩm', 'book' ), 'bt-them' => array( 'Thêm', 'edit' ) )
+			: array( 'trang-chu' => array( 'Trang chủ', 'home' ), 'tim' => array( 'Tìm', 'search' ), 'kham-pha' => array( 'Khám phá', 'compass' ), 'da-luu' => array( 'Đã lưu', 'save' ) );
+		$dang = array( 'bien-tap' => 'bien-tap', 'bien-tap/tac-pham' => 'bt-tac-pham', 'bien-tap/them' => 'bt-them' )[ \Phongdao\GiaoTiep\TrangCoDinh\Module::dang_xem() ] ?? $dang;
+		foreach ( $muc as $ma => [ $chu, $hinh ] ) {
 			$duoi .= Ve::lien_ket( $ma, Ve::icon( $hinh ) . '<span>' . $chu . '</span>', $ma === $dang ? 'active' : '', $ma === $dang ? ' aria-current="page"' : '' );
 		}
 		return '<footer class="site-footer"><p>' . Ve::brand() . '</p><p>Thư viện Văn học Dân gian Việt Nam<br>Mỗi câu ghi rõ lấy từ đâu, và đã được kiểm đến mức nào.</p>'

@@ -93,6 +93,12 @@ final class Viec {
 		return array_map( array( self::class, 'doc' ), $ds ?: array() );
 	}
 
+	/** Số việc đang chờ. */
+	public static function dem_cho(): int {
+		global $wpdb;
+		return (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . self::bang() . ' WHERE trang_thai = %s', self::CHO ) );
+	}
+
 	/** Việc còn mở (chờ, để sau) của một đối tượng, theo loại việc (rỗng = mọi loại). */
 	public static function mo( string $doi_tuong_loai, int $doi_tuong_id, string $loai = '' ): array {
 		global $wpdb;

@@ -3,9 +3,9 @@
 (() => {
   'use strict';
   const cfg = window.phongdaoBienTap;
+  if (!cfg) return;
   const dai = document.querySelector('.dai-bien-tap');
-  if (!cfg || !dai) return;
-  const bai = dai.dataset.bai;
+  const bai = dai ? dai.dataset.bai : '';
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
   const goi = async (duong, than) => {
@@ -39,6 +39,7 @@
 
   // Xem như người đọc: ẩn mọi phần chỉ người biên soạn thấy (nhớ trên máy)
   const xem = bat => {
+    if (!dai) return;
     $$('.nut-sua, .goc-nguon, #lich-su, [data-chi-sua]').forEach(x => { x.hidden = bat; });
     const n = dai.querySelector('[data-action="xem-nhu-doc-gia"]');
     if (n) n.setAttribute('aria-pressed', String(bat));
@@ -76,6 +77,27 @@
       else { b.disabled = false; bao((d.loi || []).join(' ')); }
     }
   });
+
+  // Thêm bài: máy nhận thể thơ, báo trùng khi dán lời (chỉ báo, không chặn); tên tự lấy dòng đầu nếu người chưa gõ
+  const them = document.querySelector('form[data-them-bai]');
+  if (them) {
+    const o = them.querySelector('[name=loi]'), ten = them.querySelector('[name=ten]'), ra = document.getElementById('them-phan-tich');
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+    let hen, ten_tu_go = false;
+    ten.addEventListener('input', () => { ten_tu_go = true; });
+    o.addEventListener('input', () => {
+      if (!ten_tu_go) ten.value = (o.value.split('\n').find(d => d.trim()) || '').trim();
+      clearTimeout(hen);
+      hen = setTimeout(async () => {
+        const f = new FormData();
+        f.append('loi', o.value);
+        const d = await goi('/trung/kiem', f);
+        if (!d.so_dong) { ra.innerHTML = '<p class="small muted">Dán lời để máy nhận thể thơ và kiểm trùng.</p>'; return; }
+        ra.innerHTML = '<p class="nhan-may">Máy nhận: ' + esc(d.the_tho) + ' · ' + d.so_dong + ' dòng</p>'
+          + (d.trung || []).map(t => '<div class="notice"><strong>' + esc(t.muc) + '</strong> (' + t.giong + '%) với ' + (t.url ? '<a href="' + esc(t.url) + '">' + esc(t.ten) + '</a>' : esc(t.ten)) + '. Vẫn lưu được; nếu là cùng bài, thêm làm dị bản ở trang bài đó.</div>').join('');
+      }, 400);
+    });
+  }
 
   document.addEventListener('submit', async e => {
     const f = e.target.closest('dialog.tam-sua form');

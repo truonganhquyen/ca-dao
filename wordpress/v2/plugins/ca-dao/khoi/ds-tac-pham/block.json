@@ -1,0 +1,15 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cadao/ds-tac-pham",
+	"title": "Tác phẩm (biên tập)",
+	"category": "theme",
+	"description": "Danh sách tác phẩm cho người biên soạn /bien-tap/tac-pham/. Chỉ người có quyền biên tập.",
+	"textdomain": "ca-dao",
+	"supports": {
+		"html": false,
+		"inserter": false,
+		"reusable": false
+	},
+	"render": "file:./render.php"
+}

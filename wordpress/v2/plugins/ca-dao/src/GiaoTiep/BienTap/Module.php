@@ -28,11 +28,13 @@ final class Module implements \Phongdao\HaTang\Module {
 			}
 		);
 		add_action( 'wp_enqueue_scripts', array( self::class, 'nap_ma' ) );
+		HopViec::dang_ky();
+		ThemBai::dang_ky();
 	}
 
-	/** Mã sửa (JavaScript thuần, không bước dựng) chỉ cho người biên soạn, chỉ ở trang bài. */
+	/** Mã sửa (JavaScript thuần, không bước dựng) chỉ cho người biên soạn, ở trang bài và các trang biên tập. */
 	public static function nap_ma(): void {
-		if ( ! CheDoSua::co_quyen() || ! is_singular( KhaiBao::TAC_PHAM ) ) {
+		if ( ! CheDoSua::co_quyen() || ! ( is_singular( KhaiBao::TAC_PHAM ) || \Phongdao\GiaoTiep\TrangCoDinh\Module::la_bien_tap() ) ) {
 			return;
 		}
 		$tep = dirname( __DIR__, 3 ) . '/ca-dao.php';
@@ -67,6 +69,15 @@ final class Module implements \Phongdao\HaTang\Module {
 				'methods'             => 'POST',
 				'permission_callback' => $sua_bai,
 				'callback'            => array( self::class, 'trang_thai' ),
+			)
+		);
+		register_rest_route(
+			Rest::KHONG_GIAN,
+			'/trung/kiem',
+			array(
+				'methods'             => 'POST',
+				'permission_callback' => static fn(): bool => current_user_can( 'cadao_soan' ),
+				'callback'            => static fn( \WP_REST_Request $yc ): array => ThemBai::kiem( mb_substr( (string) $yc['loi'], 0, 20000 ) ),
 			)
 		);
 		register_rest_route(

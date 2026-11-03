@@ -11,10 +11,21 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Module implements \Phongdao\HaTang\Module {
 
-	/** Mã (= đường dẫn) => tên trang. Thêm trang: thêm vào đây, thêm mẫu theme, tăng KhaiBao::PHIEN_BAN_DUONG_DAN. */
+	/**
+	 * Mã (= đường dẫn) => tên trang. Thêm trang: thêm vào đây, thêm mẫu theme `trang-<mã, / thành ->.html`, tăng
+	 * KhaiBao::PHIEN_BAN_DUONG_DAN. Trang `bien-tap…` (D-094) phải đăng nhập với quyền biên tập, không lập chỉ mục.
+	 */
 	public const TRANG = array(
-		'tim' => 'Tìm',
+		'tim'               => 'Tìm',
+		'bien-tap'          => 'Hộp việc',
+		'bien-tap/tac-pham' => 'Tác phẩm',
+		'bien-tap/them'     => 'Thêm bài',
+		'bien-tap/so-lieu'  => 'Số liệu tuần',
 	);
+
+	public static function la_bien_tap(): bool {
+		return str_starts_with( self::dang_xem(), 'bien-tap' );
+	}
 
 	public const BIEN = 'phongdao_trang';
 
@@ -23,7 +34,23 @@ final class Module implements \Phongdao\HaTang\Module {
 		add_filter( 'query_vars', static fn( array $v ): array => array_merge( $v, array( self::BIEN ) ) );
 		add_action( 'parse_query', array( self::class, 'danh_dau' ) );
 		add_filter( 'pre_handle_404', static fn( bool $co ): bool => $co || '' !== self::dang_xem() );
-		add_filter( 'index_template_hierarchy', static fn( array $mau ): array => '' === self::dang_xem() ? $mau : array_merge( array( 'trang-' . self::dang_xem() ), $mau ) );
+		add_filter( 'index_template_hierarchy', static fn( array $mau ): array => '' === self::dang_xem() ? $mau : array_merge( array( 'trang-' . str_replace( '/', '-', self::dang_xem() ) ), $mau ) );
+		// Trang biên tập: chưa đăng nhập → trang đăng nhập rồi quay lại; không đủ quyền → 403
+		add_action(
+			'template_redirect',
+			static function (): void {
+				if ( ! self::la_bien_tap() ) {
+					return;
+				}
+				if ( ! is_user_logged_in() ) {
+					auth_redirect();
+				}
+				if ( ! current_user_can( 'cadao_soan' ) ) {
+					wp_die( esc_html__( 'Trang này dành cho người biên soạn của thư viện.', 'ca-dao' ), esc_html__( 'Không có quyền', 'ca-dao' ), array( 'response' => 403 ) );
+				}
+			},
+			1
+		);
 		add_filter(
 			'document_title_parts',
 			static function ( array $phan ): array {
@@ -37,7 +64,7 @@ final class Module implements \Phongdao\HaTang\Module {
 		add_filter(
 			'wp_robots',
 			static function ( array $r ): array {
-				if ( 'tim' === self::dang_xem() && '' !== trim( (string) ( $_GET['q'] ?? '' ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+				if ( self::la_bien_tap() || ( 'tim' === self::dang_xem() && '' !== trim( (string) ( $_GET['q'] ?? '' ) ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 					$r['noindex'] = true;
 				}
 				return $r;
