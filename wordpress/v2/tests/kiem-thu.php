@@ -502,7 +502,7 @@ kt(
 	substr( $h_ve, 0, 600 )
 );
 kt( 'vè dài: chỉ đoạn bắt đầu sau dòng 30 có dấu thu gọn; số dòng mỗi 5 dòng; chỗ ngắt khổ giữ lại', 1 === substr_count( $h_ve, 'data-sau' ) && str_contains( $h_ve, '<span class="ln" aria-hidden="true">05</span>' ) && ! str_contains( $h_ve, '<span class="ln" aria-hidden="true">04</span>' ) && 4 === substr_count( $h_ve, '<div class="kho">' ) );
-kt( 'vè dài: đủ 48 dòng trên trang (không dòng nào bị bỏ)', 48 === substr_count( $h_ve, '<span class="line">' ) );
+kt( 'vè dài: lời đủ 48 dòng (không dòng nào bị bỏ; khối Ảnh để chia sẻ bên dưới chỉ lấy 4 dòng đầu)', 48 === substr_count( (string) strstr( $h_ve, 'id="anh-chia-se"', true ), '<span class="line">' ) );
 wp_set_current_user( $ai_ql );
 $h_ve = $xem( $ve );
 kt( 'người biên soạn mở vè: nút và tấm "Chia đoạn", "Bối cảnh"; bài ca dao không có hai tấm này', str_contains( $h_ve, 'id="tam-doan"' ) && str_contains( $h_ve, 'id="tam-boi_canh"' ) && str_contains( $h_ve, 'lời hiện có 48 dòng' ) && ! str_contains( $xem( $tp1 ), 'id="tam-doan"' ) );
