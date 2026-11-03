@@ -18,13 +18,13 @@ add_action(
 );
 
 // Sáng / tối người đọc đã chọn: đặt trước khi vẽ trang để không nháy màu. Không chọn thì theo cài đặt máy (CSS).
-add_action(
-	'wp_head',
-	static function (): void {
-		echo '<script>try{var t=localStorage.getItem("phongdao-giao-dien");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>' . "\n";
-	},
-	1
-);
+// CSP của plugin không cho mã nội tuyến: đoạn mã cố định này được phép bằng dấu băm (bộ lọc phongdao_csp_script).
+const PHONGDAO_MA_GIAO_DIEN = 'try{var t=localStorage.getItem("phongdao-giao-dien");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}';
+add_action( 'wp_head', static fn() => print( '<script>' . PHONGDAO_MA_GIAO_DIEN . "</script>\n" ), 1 ); // phpcs:ignore WordPress.Security.EscapeOutput -- hằng cố định
+add_filter( 'phongdao_csp_script', static fn( array $ds ): array => array_merge( $ds, array( "'sha256-" . base64_encode( hash( 'sha256', PHONGDAO_MA_GIAO_DIEN, true ) ) . "'" ) ) );
+// Theme đã có liên kết "Bỏ qua điều hướng"; liên kết của WordPress là mã nội tuyến (trùng, CSP chặn). WordPress gắn nó
+// khi chọn khuôn trang (sau khi tệp này nạp): bỏ đoạn mã đã xếp hàng, trước khi in đầu trang.
+add_action( 'wp_enqueue_scripts', static fn() => wp_dequeue_script( 'wp-block-template-skip-link' ), 100 );
 
 // Không tải emoji từ máy chủ ngoài (không dịch vụ bên thứ ba khi người đọc chưa mở — AGENTS.md).
 remove_action( 'wp_head', 'print_emoji_detection_script', 7 );

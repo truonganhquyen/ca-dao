@@ -1,11 +1,13 @@
 /**
  * Đo lường không cookie (chỉ nạp cho khách chưa đăng nhập): gửi một lượt đọc khi trang bài đã hiện trên màn hình 5 giây
  * (máy không chạy JavaScript thì không tính), mỗi máy một lần mỗi ngày; gửi các sự kiện doc.js phát trong trang
- * ("phongdao:su-kien": sao chép trích dẫn, chia sẻ, mở chú giải). Chỉ gửi tên miền trang giới thiệu, không gửi đường dẫn.
+ * ("phongdao:su-kien": sao chép trích dẫn, chia sẻ, mở chú giải, mong có câu này). Chỉ gửi tên miền trang giới thiệu, không gửi đường dẫn.
  * Đánh dấu "đã gửi hôm nay" trong bộ nhớ trình duyệt (không cookie); máy chủ cũng chặn gửi lặp.
  */
 (() => {
-  const ch = window.phongdaoDoLuong;
+  // Cấu hình ở khối JSON (không chạy) để CSP không phải cho phép mã nội tuyến
+  let ch = null;
+  try { ch = JSON.parse(document.getElementById('phongdao-do-luong').textContent); } catch { /* không có khối cấu hình */ }
   if (!ch || !window.fetch) return;
   const hom = new Date().toISOString().slice(0, 10);
   const da = k => { try { const d = JSON.parse(localStorage.getItem('cadao-da-gui') || '{}'); return d.ngay === hom && d.ds.includes(k); } catch { return false; } };
@@ -18,7 +20,7 @@
 
   document.addEventListener('phongdao:su-kien', e => {
     const d = e.detail || {};
-    gui(ch.suKien, d, 'sk:' + d.loai + ':' + (d.bai || '') + ':' + (d.kieu || d.muc || ''));
+    gui(ch.suKien, d, 'sk:' + d.loai + ':' + (d.bai || '') + ':' + (d.kieu || d.muc || d.kho || ''));
   });
 
   if (!ch.luotDoc) return;

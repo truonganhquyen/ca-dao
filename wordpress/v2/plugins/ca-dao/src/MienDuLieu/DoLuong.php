@@ -14,6 +14,7 @@ final class DoLuong {
 		'trich_dan_sao_chep' => array( 'thong_dung', 'apa', 'chi_loi' ),
 		'chu_giai_mo'        => null,
 		'chia_se'            => array( 'web_share', 'sao_chep_lien_ket', 'tai_anh' ),
+		'mong_co_cau'        => null, // khoá: câu trong kho (kho:<id>) người đọc mong được biên soạn
 	);
 
 	/** Máy dò, trình xem trước liên kết: không tính. */
@@ -54,6 +55,10 @@ final class DoLuong {
 		if ( 'chu_giai_mo' === $loai ) {
 			$m = mb_substr( trim( (string) preg_replace( '/\s+/u', ' ', strip_tags( (string) ( $du['muc'] ?? '' ) ) ) ), 0, 60 );
 			return mb_strlen( $m ) >= 1 && ! str_contains( $m, '@' ) ? mb_strtolower( $m ) : '';
+		}
+		if ( 'mong_co_cau' === $loai ) {
+			$kho = (int) ( $du['kho'] ?? 0 );
+			return $kho > 0 ? 'kho:' . $kho : '';
 		}
 		$bai  = (int) ( $du['bai'] ?? 0 );
 		$kieu = (string) ( $du['kieu'] ?? '' );

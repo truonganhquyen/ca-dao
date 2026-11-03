@@ -74,6 +74,11 @@ final class SoLieuTuan {
 				$h .= '<h3>' . esc_html( $tieu ) . '</h3><ul>' . implode( '', array_map( static fn( $k, $so ) => '<li>' . esc_html( (string) $k ) . ' — ' . (int) $so . '</li>', array_keys( $ds ), $ds ) ) . '</ul>';
 			}
 		}
+		// Câu trong kho người đọc bấm "Mong có câu này" (tên câu kho chỉ người biên soạn thấy ở trang này)
+		$mong = $dl::nhieu_nhat( 'mong_co_cau', 7, 8 );
+		if ( $mong ) {
+			$h .= '<h3>Người đọc mong có (câu đang chờ trong kho)</h3><ul>' . implode( '', array_map( static fn( $k, $so ) => '<li>' . esc_html( (string) ( \Phongdao\KhoLuu\Kho::lay( (int) substr( (string) $k, 4 ) )?->tieu_de ?? $k ) ) . ' — ' . (int) $so . '</li>', array_keys( $mong ), $mong ) ) . '</ul>';
+		}
 		return $h . '</section>';
 	}
 }

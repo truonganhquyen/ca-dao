@@ -3,6 +3,7 @@
 namespace Phongdao\GiaoTiep\Khoi;
 
 use Phongdao\DichVu\ChiMucTim\ChiMucTim;
+use Phongdao\DichVu\ChongTrung\ChongTrung;
 use Phongdao\DichVu\DungTrang\DocBai;
 use Phongdao\HaTang\KhaiBao;
 use Phongdao\MienDuLieu\ChiMuc;
@@ -13,7 +14,8 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Trang Tìm (docs/26 mục 8, bộ thiết kế R12): form gửi /tim/?q= (tắt JavaScript vẫn tìm được; có JavaScript thì
  * kết quả hiện khi gõ, cùng HTML này qua REST). Khớp cả cụm ở bài đầu → thẻ lớn; còn lại nhóm theo thể loại;
- * mục từ; bài có đủ chữ nhưng rời rạc ở nhóm riêng. Không ra kết quả → gợi ý sửa một chữ cái.
+ * mục từ; bài có đủ chữ nhưng rời rạc ở nhóm riêng. Không ra kết quả → gợi ý sửa một chữ cái; kho có câu chứa cụm
+ * này thì báo "đang chờ biên soạn" + nút Mong có câu này (sự kiện mong_co_cau).
  */
 final class Tim {
 
@@ -41,8 +43,11 @@ final class Tim {
 		$tong = $kq['tong'];
 		if ( ! $kq['ds'] && ! $muc ) {
 			$sua = ChiMucTim::goi_y( $q );
+			$kho = ChongTrung::kho_co( $q );
 			return '<p id="search-status" class="small muted" aria-live="polite">0 kết quả</p><div id="search-results">'
 				. ( $sua ? '<div class="notice">Có phải bạn tìm <a class="btn ghost compact" href="' . esc_url( add_query_arg( 'q', rawurlencode( $sua ), Ve::url( 'tim' ) ) ) . '">' . esc_html( $sua ) . '</a>?</div>' : '' )
+				// Kho có câu chứa cụm này: báo đang chờ biên soạn (không hiện lời kho); nút chỉ hiện khi có JavaScript (doc.js)
+				. ( $kho ? '<div class="notice cho-bien-soan"><p><strong>Câu này đang chờ biên soạn.</strong> Thư viện đang kiểm lời, chú thích trước khi đăng.</p><button type="button" class="btn compact" data-action="mong-co-cau" data-kho="' . $kho . '" hidden>Mong có câu này</button></div>' : '' )
 				. '<div class="empty">' . Ve::icon( 'book' ) . '<h2>Chưa tìm thấy câu phù hợp</h2><p class="muted">Thử gõ ít chữ hơn — vài chữ liền nhau trong câu là đủ, có dấu hay không dấu đều được. Kho đang được bổ sung dần.</p>'
 				. Ve::lien_ket( 'kho', 'Xem tất cả tác phẩm', 'btn' ) . ' ' . Ve::lien_ket( 'gop', 'Góp câu đang tìm', 'btn ghost' ) . '</div></div>';
 		}

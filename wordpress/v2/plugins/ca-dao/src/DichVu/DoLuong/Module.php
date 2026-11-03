@@ -62,6 +62,9 @@ final class Module implements \Phongdao\HaTang\Module {
 		if ( in_array( $loai, array( 'trich_dan_sao_chep', 'chia_se' ), true ) && KhaiBao::TAC_PHAM !== get_post_type( (int) $yc->get_param( 'bai' ) ) ) {
 			return new \WP_REST_Response( array( 'ghi' => false ), 200 );
 		}
+		if ( 'mong_co_cau' === $loai && ! \Phongdao\KhoLuu\Kho::lay( (int) $yc->get_param( 'kho' ) ) ) {
+			return new \WP_REST_Response( array( 'ghi' => false ), 200 );
+		}
 		if ( ! DoLuong::lan_dau_trong_ngay( $loai . ':' . $khoa ) ) {
 			return new \WP_REST_Response( array( 'ghi' => false ), 200 );
 		}
@@ -84,16 +87,18 @@ final class Module implements \Phongdao\HaTang\Module {
 		}
 		$bai = is_singular( KhaiBao::TAC_PHAM ) ? get_queried_object_id() : 0;
 		wp_enqueue_script( 'phongdao-do-luong', plugins_url( 'assets/do-luong.js', KhoiDong::thu_muc() . '/ca-dao.php' ), array(), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
-		wp_add_inline_script(
-			'phongdao-do-luong',
-			'window.phongdaoDoLuong=' . wp_json_encode(
-				array(
-					'luotDoc' => $bai ? rest_url( 'phongdao/v1/luot-doc/' . $bai ) : '',
-					'bai'     => (string) $bai,
-					'suKien'  => rest_url( 'phongdao/v1/su-kien' ),
-				)
-			) . ';',
-			'before'
+		// Cấu hình là khối dữ liệu JSON (trình duyệt không chạy), không phải mã nội tuyến: CSP không cần cho phép
+		$du = array(
+			'luotDoc' => $bai ? rest_url( 'phongdao/v1/luot-doc/' . $bai ) : '',
+			'bai'     => (string) $bai,
+			'suKien'  => rest_url( 'phongdao/v1/su-kien' ),
+		);
+		add_action(
+			'wp_footer',
+			static function () use ( $du ): void {
+				echo '<script type="application/json" id="phongdao-do-luong">' . wp_json_encode( $du, JSON_HEX_TAG | JSON_UNESCAPED_SLASHES ) . "</script>\n"; // phpcs:ignore WordPress.Security.EscapeOutput -- JSON, JSON_HEX_TAG chặn </script>
+			},
+			5
 		);
 	}
 }

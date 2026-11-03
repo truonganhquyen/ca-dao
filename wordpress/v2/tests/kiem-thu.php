@@ -384,6 +384,8 @@ kt( 'chạy lại khi không có gì mới: không đọc lại trang; nhật k�
 Kho::luu( 'me-thu', array( 'ma_goc' => 3, 'ngay_sua_goc' => '2026-02-01' ) );
 kt( 'nguồn sửa bài: đọc lại trang ở lượt sau', '' === $k( "$G/cd-3/" )->doc_trang );
 kt( 'kho không ra trang người đọc: tìm không thấy lời chỉ có trong kho', array() === \Phongdao\DichVu\ChiMucTim\ChiMucTim::tim( 'minh tron mau' )['ds'] && ! str_contains( \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 'Mình tròn mẫu' ), 'Mình tròn' ) );
+$h_cho = \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 'Mình tròn mẫu' );
+kt( 'tìm không ra mà kho có câu chứa cụm: "Câu này đang chờ biên soạn" + nút Mong có câu này (ẩn khi không có JavaScript); không hiện lời kho', str_contains( $h_cho, 'Câu này đang chờ biên soạn' ) && 1 === preg_match( '/data-action="mong-co-cau" data-kho="\d+" hidden/', $h_cho ) && ! str_contains( $h_cho, 'Đố là' ) && ! str_contains( \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 'zzqxw mẫu lạ' ), 'chờ biên soạn' ), $h_cho );
 remove_all_filters( 'pre_http_request' );
 remove_all_filters( 'phongdao_nhip_giay' );
 
@@ -666,6 +668,18 @@ $kq_dn = \Phongdao\HaTang\AnToan::xac_thuc( null, 'admin' );
 delete_transient( \Phongdao\HaTang\AnToan::khoa( 'admin' ) );
 kt( 'đăng nhập sai 5 lần → tạm khoá 15 phút (đếm theo tài khoản, không theo địa chỉ mạng); sai mật khẩu → câu báo chung', is_wp_error( $kq_dn ) && 'cadao_tam_khoa' === $kq_dn->get_error_code() && 'cadao_dang_nhap_sai' === \Phongdao\HaTang\AnToan::xac_thuc( new WP_Error( 'incorrect_password', 'x' ), 'admin' )->get_error_code() );
 kt( 'XML-RPC tắt; khách không thấy danh sách người dùng qua REST', ! apply_filters( 'xmlrpc_enabled', true ) && ! array_filter( array_keys( rest_get_server()->get_routes() ), static fn( $r ) => str_starts_with( $r, '/wp/v2/users' ) ) );
+
+$dau_kh = apply_filters( 'wp_headers', array(), $GLOBALS['wp'] );
+wp_set_current_user( $ai_ql );
+$dau_bt = apply_filters( 'wp_headers', array(), $GLOBALS['wp'] );
+wp_set_current_user( 0 );
+$csp = (string) ( $dau_kh['Content-Security-Policy'] ?? '' );
+kt(
+	'đầu trả lời: Referrer-Policy, nosniff; khách có CSP không cho mã nội tuyến (chỉ đoạn sáng / tối của theme theo dấu băm), không máy chủ ngoài trừ Turnstile; người biên soạn không nhận CSP',
+	'strict-origin-when-cross-origin' === ( $dau_kh['Referrer-Policy'] ?? '' ) && 'nosniff' === ( $dau_kh['X-Content-Type-Options'] ?? '' ) && str_contains( $csp, "script-src 'self'" ) && ! str_contains( $csp, "'unsafe-inline' https" ) && ! preg_match( "/script-src[^;]*'unsafe-inline'/", $csp )
+		&& str_contains( $csp, "'sha256-" . base64_encode( hash( 'sha256', PHONGDAO_MA_GIAO_DIEN, true ) ) . "'" ) && str_contains( $csp, "object-src 'none'" ) && ! isset( $dau_bt['Content-Security-Policy'] ) && isset( $dau_bt['Referrer-Policy'] ),
+	$csp
+);
 
 // ---------- SEO ----------
 $SEO  = \Phongdao\GiaoTiep\Seo\Module::class;

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Quét V2 (docs/26 mục 13): dựng WordPress trong Playground với plugin, theme V2 và dữ liệu mẫu (wordpress/v2/blueprint.json),
 // rồi trên từng trang: axe-core WCAG 2.2 A/AA (điện thoại 360 px sáng, tối; máy tính 1280 px; mở mọi <details>), không tràn ngang,
-// mỗi câu của lời một dòng (D-093), không gọi máy chủ ngoài, ngân sách (trang ≤ 200 KB, JavaScript ≤ 21 KB — tính theo
+// mỗi câu của lời một dòng (D-093), không gọi máy chủ ngoài, có đầu CSP và không bị CSP chặn gì, ngân sách (trang ≤ 200 KB, JavaScript ≤ 21 KB — tính theo
 // dung lượng nén gzip như khi qua Cloudflare; woff2 đã nén sẵn). Cần Node ≥ 24.18 và Chrome/Chromium.
 // Dùng:  npm run quet:v2 [-- --anh <thư-mục>]   (--anh: lưu ảnh chụp 390 px từng trang để xem bằng mắt)
 // Các đợt sau thêm trang vào DS_TRANG khi có mẫu: tuyển tập, tìm, từ điển, trang biên tập.
@@ -99,8 +99,11 @@ try {
       tab.on('request', r => { const h = new URL(r.url()).hostname; if (!['127.0.0.1', 'localhost'].includes(h) && !r.url().startsWith('data:')) ngoai.add(h); });
       await tab.setViewport({ width: c.w, height: c.h, isMobile: c.w < 640, hasTouch: c.w < 640 });
       await tab.emulateMediaFeatures([{ name: 'prefers-color-scheme', value: c.toi ? 'dark' : 'light' }]);
+      // CSP (docs/26 mục 11): ghi mọi lần trình duyệt chặn, từ trước khi trang chạy mã đầu tiên
+      await tab.evaluateOnNewDocument(() => { window.__csp = []; document.addEventListener('securitypolicyviolation', e => window.__csp.push(e.violatedDirective + ' ' + (e.blockedURI || 'nội tuyến') + (e.sample ? ' «' + e.sample.slice(0, 40) + '»' : ''))); });
       const tl = await tab.goto(G + duong, { waitUntil: 'load', timeout: 120_000 });
       if (tl.status() !== 200) loi.push(`${duong} (${c.ten}): trả ${tl.status()}`);
+      if (!tl.headers()['content-security-policy']) loi.push(`${duong} (${c.ten}): thiếu đầu Content-Security-Policy`);
       if (ngoai.size) loi.push(`${duong} (${c.ten}): gọi máy chủ ngoài ${[...ngoai].join(', ')}`);
       await tab.evaluate(() => document.querySelectorAll('details').forEach(d => { d.open = true; }));
       // Tràn ngang: đo lúc vừa tải và sau khi phông nạp xong; báo phần tử vượt mép phải để biết chỗ sửa.
@@ -121,6 +124,7 @@ try {
         return o;
       });
       for (const g of gay) loi.push(`${duong} (${c.ten}): lời xuống dòng — ${g}`);
+      for (const v of new Set(await tab.evaluate(() => window.__csp || []))) loi.push(`${duong} (${c.ten}): CSP chặn ${v}`);
       if (c.w === 1280) {
         await new Promise(ok => setTimeout(ok, 300));
         const jsTrong = await tab.evaluate(() => [...document.querySelectorAll('script:not([src])')].filter(s => !s.type || /javascript|module/.test(s.type)).map(s => s.textContent).join('\n'));
@@ -129,7 +133,7 @@ try {
         if (cs.trang > NGAN_SACH.trang) loi.push(`${duong}: trang ${kb(cs.trang)} vượt ngân sách ${kb(NGAN_SACH.trang)}`);
         if (cs.js > NGAN_SACH.js) loi.push(`${duong}: JavaScript ${kb(cs.js)} vượt ngân sách ${kb(NGAN_SACH.js)}`);
       }
-      await tab.addScriptTag({ content: axeNguon });
+      await tab.evaluate(axeNguon); // không qua thẻ <script>: CSP của trang khách không chặn công cụ quét
       const kq = await tab.evaluate(the => window.axe.run(document, { runOnly: { type: 'tag', values: the } }), THE_WCAG);
       for (const v of kq.violations) {
         for (const n of v.nodes.slice(0, 3)) loi.push(`${duong} (${c.ten}): [${v.id}] ${v.help} — ${n.target.join(' ')}`);
