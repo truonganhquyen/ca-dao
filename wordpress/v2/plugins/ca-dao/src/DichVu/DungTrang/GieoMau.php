@@ -60,9 +60,7 @@ final class GieoMau {
 		've-mau'               => array(
 			'the_loai' => 've',
 			'tieu_de'  => 'Vè mẫu',
-			'phan'     => array(
-				'loi' => array( 'dong' => array( 'Vè mẫu dòng một kể chuyện', 'Vè mẫu dòng hai kể tiếp', 'Vè mẫu dòng ba kể nữa', 'Vè mẫu dòng bốn kết lại' ), 'nguoi_lam' => NguoiLam::NGUOI_VIET ),
-			),
+			'phan'     => array(), // vè dài: dựng ở ve_dai()
 		),
 		'cau-do-mau'           => array(
 			'the_loai' => 'cau-do',
@@ -125,6 +123,29 @@ final class GieoMau {
 		return array( 'muc_tu' => $mt, 'tuyen_tap' => $id, 'phan_tich' => $pt );
 	}
 
+	/**
+	 * Vè mẫu dài: 48 dòng đánh số, ba đoạn có tiêu đề, một chỗ ngắt khổ, bối cảnh — xem cách hiện bài dài (tóm tắt, mục
+	 * lục, "Đọc toàn bài"). Chữ mẫu tự đặt, không phải lời vè thật.
+	 */
+	private static function ve_dai(): array {
+		$dong = array( 'Vè mẫu dòng một kể chuyện', 'Vè mẫu dòng hai kể tiếp', 'Vè mẫu dòng ba kể nữa', 'Vè mẫu dòng bốn kết lại' );
+		for ( $i = 5; $i <= 48; $i++ ) {
+			$dong[] = "Dòng mẫu $i kể tiếp chuyện";
+			if ( 8 === $i ) {
+				$dong[] = '';
+			}
+		}
+		return array(
+			'loi'      => array( 'dong' => $dong, 'nguoi_lam' => NguoiLam::NGUOI_VIET ),
+			'boi_canh' => array( 'chu' => 'Bối cảnh tổng hợp để xem cách hiện một bài vè dài.', 'nguoi_lam' => NguoiLam::NGUOI_VIET ),
+			'doan'     => array(
+				array( 'tieu_de' => 'Phần mẫu thứ nhất', 'tu_dong' => 1, 'den_dong' => 16 ),
+				array( 'tieu_de' => 'Phần mẫu thứ hai', 'tu_dong' => 17, 'den_dong' => 32 ),
+				array( 'tieu_de' => 'Phần mẫu thứ ba', 'tu_dong' => 33, 'den_dong' => 48 ),
+			),
+		);
+	}
+
 	/** @return array<string,int> tên đường dẫn => ID các tác phẩm mẫu (đã có thì giữ) */
 	public static function gieo( int $nguoi ): array {
 		$ra = array();
@@ -150,7 +171,7 @@ final class GieoMau {
 			}
 			wp_set_object_terms( $id, $bai['the_loai'], KhaiBao::THE_LOAI );
 			wp_set_object_terms( $id, $bai['chu_de'] ?? array(), 'chu_de' );
-			foreach ( $bai['phan'] as $phan => $gia_tri ) {
+			foreach ( ( 've-mau' === $ten ? self::ve_dai() : $bai['phan'] ) as $phan => $gia_tri ) {
 				LuuPhan::luu( $id, $phan, $gia_tri, array( 'nguoi' => $nguoi, 'goi' => KiemPhan::GOI_NGUOI, 'duyet' => true ) );
 			}
 			$ra[ $ten ] = $id;

@@ -96,35 +96,91 @@ final class Ve {
 	 * @param array{so_dong?:bool,nhom?:string,max?:string,san?:string} $tuy
 	 */
 	public static function loi( array $dong, string $kieu = 'lucbat', array $tu = array(), array $tuy = array() ): string {
-		$so  = ! empty( $tuy['so_dong'] );
 		$dai = 0;
 		foreach ( array_values( $dong ) as $i => $d ) {
 			$dai = max( $dai, mb_strlen( $d ) + ( 'lucbat' === $kieu && 0 === $i % 2 ? 3 : 0 ) );
 		}
-		$dai += $so ? 5 : 0;
-		$max  = (string) ( $tuy['max'] ?? '' );
+		$html = self::khung_loi( $kieu, $dai, $tuy );
+		foreach ( array_values( $dong ) as $i => $d ) {
+			$html .= self::dong( $d, $kieu, $tu, empty( $tuy['so_dong'] ) ? 0 : $i + 1 );
+		}
+		return $html . '</div></div>';
+	}
+
+	/**
+	 * Lời chia đoạn (MienDuLieu\ChiaDoan) trong một khối lời: tiêu đề đoạn, khổ, số dòng nối tiếp. Bài dài thêm dòng
+	 * tóm tắt, mục lục, số dòng mỗi 5 dòng; đoạn sau dòng 30 thu gọn sau nút "Đọc toàn bài" (doc.js — tắt JavaScript
+	 * thì hiện đủ). Mốc #cadao-doan-N như MVP.
+	 *
+	 * @param array{dai:bool,so_dong:int,phut:int,con_lai:int,doan:list<array>} $cd
+	 * @param array{so_dong?:bool,nhom?:string,bai?:string} $tuy
+	 */
+	public static function loi_doan( array $cd, string $kieu, array $tu = array(), array $tuy = array() ): string {
+		$dai = 0;
+		foreach ( $cd['doan'] as $d ) {
+			foreach ( $d['kho'] as $kho ) {
+				foreach ( $kho as $i => $l ) {
+					$dai = max( $dai, mb_strlen( $l ) + ( 'lucbat' === $kieu && 0 === $i % 2 ? 3 : 0 ) );
+				}
+			}
+		}
+		$so   = ! empty( $tuy['so_dong'] );
+		$moi  = $cd['dai'] ? 5 : 1;
+		$dem  = 0;
+		$than = '';
+		$muc  = '';
+		foreach ( $cd['doan'] as $d ) {
+			$id = 'cadao-doan-' . (int) $d['so'];
+			$o  = '' === $d['tieu_de'] ? '' : '<h2 class="doan-ten">' . esc_html( $d['tieu_de'] ) . '</h2>';
+			foreach ( $d['kho'] as $kho ) {
+				$o .= '<div class="kho">';
+				foreach ( $kho as $l ) {
+					++$dem;
+					$o .= self::dong( $l, $kieu, $tu, $so && 0 === $dem % $moi ? $dem : 0 );
+				}
+				$o .= '</div>';
+			}
+			$than .= '<div class="doan" id="' . $id . '" data-so-doan="' . (int) $d['so'] . '"' . ( $d['sau'] ? ' data-sau' : '' ) . '>' . $o . '</div>';
+			$muc  .= '<li><a href="#' . $id . '">' . esc_html( '' === $d['tieu_de'] ? 'Đoạn ' . (int) $d['so'] : $d['tieu_de'] ) . '</a> <span class="small muted">· dòng ' . (int) $d['tu'] . '–' . (int) $d['den'] . '</span></li>';
+		}
+		$loi = self::khung_loi( $kieu, $dai, $tuy, 'loi-doan' ) . $than . '</div></div>';
+		if ( ! $cd['dai'] ) {
+			return $loi;
+		}
+		return '<div class="bai-dai" data-bai="' . esc_attr( (string) ( $tuy['bai'] ?? '' ) ) . '" data-con-lai="' . (int) $cd['con_lai'] . '">'
+			. '<p class="bai-dai-tom small muted">' . number_format( (int) $cd['so_dong'], 0, ',', '.' ) . ' dòng · ' . count( $cd['doan'] ) . ' đoạn · khoảng ' . (int) $cd['phut'] . ' phút đọc</p>'
+			. '<details class="disclosure muc-luc no-print"><summary>Mục lục</summary><div class="detail-body"><ol>' . $muc . '</ol></div></details>'
+			. $loi . '</div>';
+	}
+
+	/** Mở khung lời: verse-box + verse (data-fit). $dai: độ dài dòng dài nhất, chưa tính chỗ số dòng. */
+	private static function khung_loi( string $kieu, int $dai, array $tuy, string $lop = '' ): string {
+		$so       = ! empty( $tuy['so_dong'] );
+		$dai     += $so ? 5 : 0;
+		$max      = (string) ( $tuy['max'] ?? '' );
 		$kieu_css = '--dai:' . $dai . ( ctype_digit( $max ) ? ';--max:' . $max . 'px' : '' );
-		$html = '<div class="verse-box"><div class="verse ' . esc_attr( $kieu ) . ( $so ? ' numbered' : '' ) . '" data-fit'
+		return '<div class="verse-box"><div class="verse ' . esc_attr( trim( $kieu . ' ' . $lop ) ) . ( $so ? ' numbered' : '' ) . '" data-fit'
 			. ( empty( $tuy['nhom'] ) ? '' : ' data-nhom="' . esc_attr( $tuy['nhom'] ) . '"' )
 			. ( '' === $max ? '' : ' data-max="' . esc_attr( $max ) . '"' )
 			. ( empty( $tuy['san'] ) ? '' : ' data-san="' . esc_attr( $tuy['san'] ) . '"' )
 			. ' style="' . esc_attr( $kieu_css ) . '">';
-		foreach ( array_values( $dong ) as $i => $d ) {
-			$chu = 'proverb' === $kieu
-				? implode( ' ', array_map( static fn( string $v ): string => '<span class="ve">' . esc_html( $v ) . '</span>', preg_split( '/(?<=,)\s+|\s+(?=—)/u', $d ) ?: array( $d ) ) )
-				: esc_html( $d );
-			foreach ( array_filter( $tu ) as $t ) {
-				$t   = esc_html( $t );
-				$chu = (string) preg_replace_callback(
-					'/(?<![\p{L}])' . preg_quote( $t, '/' ) . '(?![\p{L}])/u',
-					static fn( array $m ): string => '<a class="word" href="#chu-thich" aria-label="Xem chú thích từ ' . $m[0] . '">' . $m[0] . '</a>',
-					$chu,
-					1
-				);
-			}
-			$html .= '<span class="line">' . ( $so ? '<span class="ln" aria-hidden="true">' . sprintf( '%02d', $i + 1 ) . '</span>' : '' ) . $chu . '</span>';
+	}
+
+	/** Một dòng lời; $so > 0 thì ghi số dòng bên lề. Từ có chú thích (lần đầu trong dòng) thành liên kết. */
+	private static function dong( string $d, string $kieu, array $tu, int $so ): string {
+		$chu = 'proverb' === $kieu
+			? implode( ' ', array_map( static fn( string $v ): string => '<span class="ve">' . esc_html( $v ) . '</span>', preg_split( '/(?<=,)\s+|\s+(?=—)/u', $d ) ?: array( $d ) ) )
+			: esc_html( $d );
+		foreach ( array_filter( $tu ) as $t ) {
+			$t   = esc_html( $t );
+			$chu = (string) preg_replace_callback(
+				'/(?<![\p{L}])' . preg_quote( $t, '/' ) . '(?![\p{L}])/u',
+				static fn( array $m ): string => '<a class="word" href="#chu-thich" aria-label="Xem chú thích từ ' . $m[0] . '">' . $m[0] . '</a>',
+				$chu,
+				1
+			);
 		}
-		return $html . '</div></div>';
+		return '<span class="line">' . ( $so ? '<span class="ln" aria-hidden="true">' . sprintf( '%02d', $so ) . '</span>' : '' ) . $chu . '</span>';
 	}
 
 	/**

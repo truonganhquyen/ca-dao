@@ -34,7 +34,7 @@ final class KiemKe {
 		'cadao_du_lieu_phien_ban', 'cadao_kho_phien_ban', 'cadao_luot_doc_phien_ban', 'cadao_su_kien_phien_ban', 'cadao_tim_phien_ban',
 		'cadao_trung_phien_ban', 'cadao_wd_phien_ban', 'cadao_ten_xep_phien_ban', 'cadao_quy_tac_duong_dan', 'cadao_goi_y_sau',
 		'cadao_the_tho_sau', 'cadao_tim_sau', 'cadao_tu_dien_sau', 'cadao_trung_lam_dan', 'cadao_trung_tu_gan', 'cadao_trung_tu_gan_sau',
-		'cadao_wiktionary',
+		'cadao_wiktionary', 'cadao_theme_da_bat',
 	);
 
 	/**
@@ -170,7 +170,7 @@ final class KiemKe {
 				$ra[] = "-- $n --";
 				$nhom = $n;
 			}
-			$ra[] = sprintf( '  %-55s %s', $viec, $so < 0 ? 'không có bảng' : (string) $so );
+			$ra[] = '  ' . $viec . str_repeat( ' ', max( 1, 56 - mb_strlen( $viec ) ) ) . ( $so < 0 ? 'không có bảng' : (string) $so ); // canh theo ký tự, không theo byte
 		}
 		$ra[] = '-- Khoá chưa có trong bảng kiểm kê (docs/29 mục 2) --';
 		foreach ( $kk['la'] as $loai => $ds ) {

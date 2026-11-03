@@ -11,10 +11,12 @@ use Phongdao\MienDuLieu\TheLoai;
  * Dựng các phần V2 cho một bài MVP (docs/29 mục 2, 3) — PHP thuần, không ghi gì. Bước nhập thử in kết quả này,
  * bước nhập thật ghi đúng kết quả này qua LuuPhan (gọi nhap_cu).
  *
- * - Lời, dị bản, câu hỏi, đáp án, chú thích tách từ nội dung bài (TachBai) — đúng thứ trang MVP đang hiện.
+ * - Lời, dị bản, câu hỏi, đáp án, chú thích tách từ nội dung bài (TachBai) — đúng thứ trang MVP đang hiện. Vè nhiều
+ *   phần: tiêu đề phụ thành phần "Đoạn"; dòng chú trước lời thành "Bối cảnh" (người viết; năm, nơi không điền).
  * - Người làm không đoán: lời / dị bản / câu hỏi / đáp án trùng từng chữ với câu trong kho (câu chính hoặc câu đã gộp)
  *   là máy chép, còn lại người viết; chú thích giữ đúng cách MVP đã đánh dấu (danh sách cadao-chep = máy chép).
- * - Nguồn chỉ lấy từ chỗ người đã điền (ô Nguồn của bài, ô "Lời đã đối chiếu với"); không ô nào được tự điền.
+ * - Nguồn chỉ lấy từ chỗ người đã điền (ô Nguồn của bài, ô "Lời đã đối chiếu với"); không ô nào được tự điền, kể cả
+ *   loại hồ sơ (ô Nguồn không có đường dẫn → loại "chưa rõ").
  * - Ý nghĩa = Hiểu nhanh đã lên trang, giữ dấu "có hỗ trợ của AI"; nháp máy thành việc chờ, không vào bài.
  * - So "trước = sau" từng ký tự; khác chữ → "Cần xem", khác khoảng trắng / dạng Unicode → ghi chú.
  */
@@ -90,7 +92,7 @@ final class DungPhan {
 		if ( '' !== $ten_nguon ) {
 			$nguon_bai = array_filter(
 				array(
-					'ho_so'         => ( $nc['ho_so'] )( 'web', $ten_nguon, (string) ( $meta['nguon_url'] ?? '' ) ),
+					'ho_so'         => ( $nc['ho_so'] )( '' === trim( (string) ( $meta['nguon_url'] ?? '' ) ) ? '' : 'web', $ten_nguon, (string) ( $meta['nguon_url'] ?? '' ) ),
 					'url'           => trim( (string) ( $meta['nguon_url'] ?? '' ) ),
 					'ngay_truy_cap' => self::ngay( (string) ( $meta['ngay_truy_cap'] ?? '' ) ),
 				)
@@ -122,6 +124,22 @@ final class DungPhan {
 		}
 		if ( $t['di_ban'] ) {
 			$phan['di_ban'] = array_map( static fn( string $l ): array => array( 'dong' => explode( "\n", $l ) ) + $may_hay_nguoi( 'loi', $l ), $t['di_ban'] );
+		}
+		$ve = 've' === $chinh; // Đoạn, Bối cảnh chỉ có ở vè
+		if ( $t['doan'] && $ve ) {
+			$phan['doan'] = $t['doan'];
+		} elseif ( $t['doan'] ) {
+			$can_xem[] = 'có tiêu đề phụ trong lời nhưng bài không phải vè: tiêu đề không mang sang';
+		}
+		if ( $t['boi_canh'] && $ve ) {
+			$phan['boi_canh'] = array(
+				'chu'       => implode( "\n", $t['boi_canh'] ),
+				'nguoi_lam' => NguoiLam::NGUOI_VIET,
+			);
+		} else {
+			foreach ( $t['boi_canh'] as $c ) {
+				$can_xem[] = 'có đoạn văn «' . TachBai::ngan( $c ) . '»';
+			}
 		}
 		foreach ( array( 'cau_hoi', 'dap_an' ) as $k ) {
 			if ( null === $t[ $k ] ) {
@@ -222,6 +240,11 @@ final class DungPhan {
 			$so_sanh['cau_hoi'] = self::so( $t['cau_hoi'], $phan['cau_hoi']['chu'] ?? null );
 			$so_sanh['dap_an']  = self::so( $t['dap_an'], $phan['dap_an']['chu'] ?? null );
 		}
+		if ( $ve ) {
+			$doan                = static fn( array $d ): string => ( $d['tieu_de'] ?? '' ) . '|' . $d['tu_dong'] . '|' . $d['den_dong'];
+			$so_sanh['doan']     = self::so_ds( array_map( $doan, $t['doan'] ), array_map( $doan, $phan['doan']['muc'] ?? array() ) );
+			$so_sanh['boi_canh'] = self::so( $t['boi_canh'] ? implode( "\n", $t['boi_canh'] ) : null, $phan['boi_canh']['chu'] ?? null );
+		}
 		$ten_phan = array(
 			'loi'       => 'lời',
 			'di_ban'    => 'dị bản',
@@ -229,6 +252,8 @@ final class DungPhan {
 			'y_nghia'   => 'ý nghĩa',
 			'cau_hoi'   => 'câu hỏi',
 			'dap_an'    => 'đáp án',
+			'doan'      => 'đoạn',
+			'boi_canh'  => 'bối cảnh',
 		);
 		foreach ( $so_sanh as $k => $kq ) {
 			if ( 'lech' === $kq ) {

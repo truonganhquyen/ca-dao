@@ -32,12 +32,14 @@
   };
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 
-  // Lời của bài: các câu (bỏ số dòng), câu lục thụt vào bằng khoảng trắng không ngắt
+  // Lời của bài: các câu (bỏ số dòng), câu lục thụt vào bằng khoảng trắng không ngắt; bài chia đoạn: các khổ cách một dòng trống
   const loiBai = (khung = document) => {
     const v = $('.verse-card .verse, .today-card .verse', khung) || $('.read-title .verse');
     if (!v) return [];
     const luc = v.classList.contains('lucbat');
-    return $$('.line', v).map((l, i) => (luc && i % 2 === 0 ? '    ' : '') + [...l.childNodes].filter(n => !(n.classList && n.classList.contains('ln'))).map(n => n.textContent).join('').replace(/\s+/g, ' ').trim());
+    const cau = n => $$('.line', n).map((l, i) => (luc && i % 2 === 0 ? '    ' : '') + [...l.childNodes].filter(x => !(x.classList && x.classList.contains('ln'))).map(x => x.textContent).join('').replace(/\s+/g, ' ').trim());
+    const kho = $$('.kho', v);
+    return kho.length ? kho.flatMap((k, i) => i ? ['', ...cau(k)] : cau(k)) : cau(v);
   };
   const ngay = new Date();
   const trichDan = (b, kieu) => {
@@ -71,8 +73,38 @@
   };
   const thanhVai = $('.role-bar'); if (thanhVai) { thanhVai.hidden = false; vai((doc('phongdao-vai') || {}).vai); }
 
-  // Liên kết tới khối thu gọn (#di-ban, #tu-lieu…) thì mở khối
-  const mo = id => { const t = id && document.getElementById(id); if (!t) return false; for (let d = t.closest('details'); d; d = d.parentElement.closest('details')) d.open = true; if (t.tagName === 'DETAILS') t.open = true; t.scrollIntoView({ block: 'start' }); return true; };
+  // Bài dài (như MVP): đoạn sau dòng 30 thu gọn sau "Đọc toàn bài"; nhớ đoạn đang đọc trên máy, cùng khoá với MVP
+  const dai = $('.bai-dai');
+  const moDai = () => {
+    if (!dai || !dai.classList.contains('thu-gon')) return;
+    dai.classList.remove('thu-gon'); $('.doc-toan-bai', dai)?.remove(); fit();
+  };
+  if (dai) {
+    const doan = $$('.doan', dai);
+    if ($('.doan[data-sau]', dai)) {
+      dai.classList.add('thu-gon');
+      const nut = document.createElement('button');
+      nut.type = 'button'; nut.className = 'btn doc-toan-bai';
+      nut.textContent = 'Đọc toàn bài' + (+dai.dataset.conLai ? ` (còn ${dai.dataset.conLai} dòng)` : '');
+      nut.addEventListener('click', () => { const dau = $('.doan[data-sau]', dai); moDai(); if (dau) { dau.tabIndex = -1; dau.focus(); } });
+      dai.append(nut);
+    }
+    const khoa = 'cadao-doc-den-' + (dai.dataset.bai || '');
+    const den = Number(doc(khoa)) || 0;
+    if (den > 1 && doan[den - 1]) {
+      const a = document.createElement('a');
+      a.href = '#' + doan[den - 1].id; a.className = 'doc-tiep-doan';
+      a.textContent = 'Đọc tiếp từ đoạn ' + den;
+      dai.prepend(a);
+    }
+    if (window.IntersectionObserver) {
+      const thay = new IntersectionObserver(ds => ds.forEach(x => { if (x.isIntersecting) ghi(khoa, x.target.dataset.soDoan); }), { rootMargin: '0px 0px -60% 0px' });
+      doan.forEach(x => thay.observe(x));
+    }
+  }
+
+  // Liên kết tới khối thu gọn (#di-ban, #tu-lieu…, đoạn của bài dài) thì mở khối
+  const mo = id => { const t = id && document.getElementById(id); if (!t) return false; if (t.closest('.thu-gon')) moDai(); for (let d = t.closest('details'); d; d = d.parentElement.closest('details')) d.open = true; if (t.tagName === 'DETAILS') t.open = true; t.scrollIntoView({ block: 'start' }); return true; };
   if (location.hash) mo(location.hash.slice(1));
 
   document.addEventListener('click', e => {

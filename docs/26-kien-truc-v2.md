@@ -135,8 +135,8 @@ Mỗi phần (hoặc mỗi mục trong phần dạng danh sách) mang:
 | `cau_hoi` | `{chu}` — dòng hỏi nguồn tách khỏi lời ("Là cái gì?") | câu đố | `may_chep`, `nguoi_viet` |
 | `dap_an` | `{chu}` | câu đố | `may_chep`, `nguoi_viet` |
 | `goi_y` | `{chu, ai}` | câu đố | `nguoi_viet`, `ai_da_duyet` |
-| `doan` | danh sách `{tieu_de?, tu_dong, den_dong}` | vè dài, truyện | `nguoi_viet` |
-| `boi_canh` | `{su_kien?, nam?, noi?, nhan_vat?: [muc_tu_id]}` | vè, truyện | `nguoi_viet` |
+| `doan` | danh sách `{tieu_de?, tu_dong, den_dong}` — dòng đếm theo dòng có chữ của lời, từ 1; dòng ngoài mọi đoạn hiện thành đoạn không tiêu đề. Bài từ 41 dòng không có phần này thì tự chia theo khổ (`MienDuLieu\ChiaDoan`, như MVP) | vè dài, truyện | `nguoi_viet` |
+| `boi_canh` | `{chu?, su_kien?, nam?, noi?, nhan_vat?: [muc_tu_id]}` — `chu`: lời giới thiệu ngắn hiện ngay trên lời | vè, truyện | `nguoi_viet` |
 | `media` | danh sách `{attachment_id, loai: anh / giong_may / giong_nguoi}` | mọi | `nguoi_viet` |
 | `ban_co_biet` | `{chu, ai}` | mọi | `nguoi_viet`, `ai_da_duyet` (máy ghép từ chú thích) |
 | `co_nghi` | `{ly_do}` | mọi | `nguoi_viet` (máy chỉ gợi ý) |

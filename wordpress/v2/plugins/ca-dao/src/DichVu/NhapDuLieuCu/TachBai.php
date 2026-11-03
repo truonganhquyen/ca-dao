@@ -8,7 +8,9 @@ namespace Phongdao\DichVu\NhapDuLieuCu;
  *
  * Đọc đúng như trang MVP đang hiện (theme MVP, cadao_chuan_bi_bai): khối Thơ đầu là lời, khối Thơ sau tiêu đề
  * "Dị bản" là dị bản, danh sách lớp cadao-chu-thich là chú thích (lớp cadao-chep = máy chép), khối Chi tiết "Đáp án"
- * là đáp án. Thứ gì không nhận ra được ghi vào can_xem kèm lý do — không đoán, không bỏ im lặng.
+ * là đáp án. Vè nhiều phần (tiêu đề phụ ngay trên mỗi khối Thơ): các khối Thơ nối thành lời, mỗi tiêu đề thành một
+ * đoạn; dòng chú (in nghiêng, trong ngoặc) đứng trước lời là bối cảnh. Thứ gì không nhận ra được ghi vào can_xem kèm
+ * lý do — không đoán, không bỏ im lặng.
  */
 final class TachBai {
 
@@ -17,7 +19,8 @@ final class TachBai {
 
 	/**
 	 * @param array<int,array> $khoi các khối cấp ngoài cùng
-	 * @return array{loi:?string, di_ban:string[], cau_hoi:?string, dap_an:?string, chu_thich:list<array{tu:string,noi_dung:string,chep:bool}>, dong_nguon:bool, can_xem:string[]}
+	 * @return array{loi:?string, di_ban:string[], cau_hoi:?string, dap_an:?string, chu_thich:list<array{tu:string,noi_dung:string,chep:bool}>, doan:list<array{tieu_de?:string,tu_dong:int,den_dong:int}>, boi_canh:string[], dong_nguon:bool, doan_van:bool, can_xem:string[]}
+	 *         doan: chỉ khi lời có tiêu đề phụ (dòng đếm theo dòng có chữ, từ 1)
 	 */
 	public static function tach( array $khoi ): array {
 		$ra   = array(
@@ -26,6 +29,8 @@ final class TachBai {
 			'cau_hoi'    => null,
 			'dap_an'     => null,
 			'chu_thich'  => array(),
+			'doan'       => array(),
+			'boi_canh'   => array(),
 			'dong_nguon' => false,
 			'doan_van'   => false,
 			'can_xem'    => array(),
@@ -36,20 +41,23 @@ final class TachBai {
 			$khoi           = $tho;
 			$ra['doan_van'] = true;
 		}
+		$khoi    = array_values( array_filter( $khoi, static fn( $k ) => null !== ( $k['blockName'] ?? null ) || '' !== trim( (string) ( $k['innerHTML'] ?? '' ) ) ) );
 		$vung    = 'loi'; // loi | di_ban | chu_thich | khac
 		$xen     = false; // có khối khác xen sau khối Thơ của lời
 		$vua_loi = false; // khối ngay trước là khối Thơ của lời
-		foreach ( $khoi as $k ) {
+		$phan    = array(); // các phần của lời: [tiêu đề, dòng đầu, dòng cuối]
+		$cho     = null;    // tiêu đề phần đang chờ khối Thơ của nó
+		$db_dau  = false;   // có dị bản đứng trước lời ("Dị bản" ở đầu bài)
+		foreach ( $khoi as $i => $k ) {
 			$ten  = $k['blockName'] ?? null;
 			$html = (string) ( $k['innerHTML'] ?? '' );
 			if ( null === $ten ) {
-				if ( '' !== trim( $html ) ) {
-					$ra['can_xem'][] = 'có nội dung không ở dạng khối';
-				}
+				$ra['can_xem'][] = 'có nội dung không ở dạng khối';
 				continue;
 			}
 			$truoc   = $vua_loi;
 			$vua_loi = false;
+			$la_phan = false;
 			switch ( $ten ) {
 				case 'core/heading':
 					$tieu_de = self::chu( $html );
@@ -57,6 +65,11 @@ final class TachBai {
 						$vung = 'di_ban';
 					} elseif ( 'Chú thích' === $tieu_de ) {
 						$vung = 'chu_thich';
+					} elseif ( 'core/verse' === ( $khoi[ $i + 1 ]['blockName'] ?? null ) && 'chu_thich' !== $vung && ( null === $ra['loi'] || 'loi' === $vung ) ) {
+						// Tiêu đề phụ ngay trên khối Thơ (vè nhiều phần): khối Thơ đó là một phần của lời
+						$cho     = $tieu_de;
+						$vung    = 'loi';
+						$la_phan = true;
 					} else {
 						$vung            = 'khac';
 						$ra['can_xem'][] = "có tiêu đề «{$tieu_de}»";
@@ -71,10 +84,18 @@ final class TachBai {
 						if ( null !== $ra['loi'] && $xen ) {
 							$ra['can_xem'][] = 'có khối khác xen giữa các khổ của lời';
 						}
+						$dau       = self::so_dong( $ra['loi'] );
 						$ra['loi'] = null === $ra['loi'] ? $loi : $ra['loi'] . "\n\n" . $loi;
-						$vua_loi   = true;
+						if ( null !== $cho || ! $phan ) {
+							$phan[] = array( (string) $cho, $dau + 1, self::so_dong( $ra['loi'] ) );
+						} else { // khối Thơ không tiêu đề: khổ tiếp của phần trước
+							$phan[ count( $phan ) - 1 ][2] = self::so_dong( $ra['loi'] );
+						}
+						$cho     = null;
+						$vua_loi = true;
 					} elseif ( 'di_ban' === $vung ) {
 						$ra['di_ban'][] = $loi;
+						$db_dau         = $db_dau || null === $ra['loi'];
 					} else {
 						$ra['can_xem'][] = 'có khối Thơ ngoài lời và dị bản';
 					}
@@ -91,6 +112,14 @@ final class TachBai {
 					}
 					if ( $truoc && null === $ra['cau_hoi'] && preg_match( '~^\s*<p\b[^>]*>\s*<strong>(.*?)</strong>\s*</p>\s*$~is', $html ) ) {
 						$ra['cau_hoi'] = $chu;
+						break;
+					}
+					if ( preg_match( '/^\(?[\s\x{00A0}]*Nguồn[\s\x{00A0}]*:/u', $chu ) ) {
+						$ra['can_xem'][] = 'dòng «' . mb_substr( (string) preg_replace( '/[\s\x{00A0}]+/u', ' ', $chu ), 0, 160 ) . '» không mang sang: nếu là sách đã đối chiếu, ghi ở Sửa lời';
+						break;
+					}
+					if ( null === $ra['loi'] && 'loi' === $vung && null === $cho && 'chu' === self::loai_dong( (string) preg_replace( '~^\s*<p\b[^>]*>|</p>\s*$~i', '', trim( $html ) ) ) ) {
+						$ra['boi_canh'][] = $chu; // dòng chú đứng trước lời: bối cảnh (vè)
 						break;
 					}
 					$ra['can_xem'][] = 'có đoạn văn «' . self::ngan( $chu ) . '»';
@@ -144,12 +173,19 @@ final class TachBai {
 				default:
 					$ra['can_xem'][] = "có khối «{$ten}»";
 			}
-			if ( null !== $ra['loi'] && ! $vua_loi && 'core/verse' !== $ten ) {
+			if ( null !== $ra['loi'] && ! $vua_loi && ! $la_phan && 'core/verse' !== $ten ) {
 				$xen = true;
 			}
 		}
 		if ( null === $ra['loi'] ) {
 			$ra['can_xem'][] = 'không thấy lời (khối Thơ)';
+		} elseif ( $db_dau ) {
+			$ra['can_xem'][] = 'tiêu đề «Dị bản» đứng trước lời: khối Thơ ngay dưới nhập làm dị bản';
+		}
+		if ( array_filter( array_column( $phan, 0 ), 'strlen' ) ) {
+			foreach ( $phan as [ $tieu_de, $tu, $den ] ) {
+				$ra['doan'][] = ( '' === $tieu_de ? array() : array( 'tieu_de' => $tieu_de ) ) + array( 'tu_dong' => $tu, 'den_dong' => $den );
+			}
 		}
 		$ra['can_xem'] = array_values( array_unique( $ra['can_xem'] ) );
 		return $ra;
@@ -268,7 +304,12 @@ final class TachBai {
 		return strip_tags( (string) preg_replace( '@<(script|style)[^>]*?>.*?</\1>@si', '', $h ) );
 	}
 
-	private static function ngan( string $s ): string {
+	/** Số dòng có chữ của lời. */
+	private static function so_dong( ?string $loi ): int {
+		return null === $loi ? 0 : count( array_filter( explode( "\n", $loi ), static fn( string $d ): bool => '' !== trim( $d ) ) );
+	}
+
+	public static function ngan( string $s ): string {
 		$s = (string) preg_replace( '/\s+/u', ' ', $s );
 		return mb_strlen( $s ) > 40 ? mb_substr( $s, 0, 40 ) . '…' : $s;
 	}

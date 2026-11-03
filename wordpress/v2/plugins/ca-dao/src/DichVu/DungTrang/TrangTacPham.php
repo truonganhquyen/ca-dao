@@ -2,6 +2,7 @@
 
 namespace Phongdao\DichVu\DungTrang;
 
+use Phongdao\MienDuLieu\ChiaDoan;
 use Phongdao\MienDuLieu\NguoiLam;
 use Phongdao\MienDuLieu\TheLoai;
 use Phongdao\MienDuLieu\ToChoKhac;
@@ -66,6 +67,9 @@ final class TrangTacPham {
 			'kieu'         => 'tuc-ngu' === $the_loai ? 'proverb' : ( 'luc-bat' === $the_tho ? 'lucbat' : '' ),
 			'tieu_de'      => (string) $bai['tieu_de'],
 			'loi'          => $dong,
+			// Bài dài, bài nhiều phần: chia đoạn (null = hiện lời như thường)
+			'doan'         => ChiaDoan::chia( $phan['loi']['dong'] ?? array(), $phan['doan']['muc'] ?? array() ),
+			'boi_canh'     => self::boi_canh( $phan['boi_canh'] ?? null ),
 			'doi_chieu'    => $doi_chieu,
 			'y_nghia'      => empty( $phan['y_nghia']['chu'] ) ? array() : array( 'chu' => $phan['y_nghia']['chu'], 'ai' => ! empty( $phan['y_nghia']['ai'] ) ),
 			'chu_thich'    => $chu_thich,
@@ -107,6 +111,16 @@ final class TrangTacPham {
 			'y_nghia'      => mb_strlen( $y ) > 160 ? rtrim( mb_substr( $y, 0, 159 ) ) . '…' : $y,
 			'co_nghi'      => ! empty( $phan['co_nghi'] ),
 		);
+	}
+
+	/** Bối cảnh của vè: lời giới thiệu + dòng "sự kiện · năm · nơi". Trống thì null. @return array{chu:string,them:string}|null */
+	private static function boi_canh( ?array $bc ): ?array {
+		if ( ! $bc ) {
+			return null;
+		}
+		$chu  = trim( (string) ( $bc['chu'] ?? '' ) );
+		$them = implode( ' · ', array_filter( array_map( static fn( $k ) => trim( (string) ( $bc[ $k ] ?? '' ) ), array( 'su_kien', 'nam', 'noi' ) ) ) );
+		return '' === $chu && '' === $them ? null : array( 'chu' => $chu, 'them' => $them );
 	}
 
 	/** Nguồn người biên soạn điền: "Tên sách, tr. 12 · ghi chú" + đường dẫn (nếu có). Trống thì null. */

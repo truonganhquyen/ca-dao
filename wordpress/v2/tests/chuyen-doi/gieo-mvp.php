@@ -85,6 +85,14 @@ $h = $tay(
 $i1 = $tay( 'Câu trùng tên mẫu', "<!-- wp:verse -->\n<pre class=\"wp-block-verse\">Câu trùng tên mẫu<br>Dòng sau thứ nhất</pre>\n<!-- /wp:verse -->", 'ca-dao' );
 $i2 = $tay( 'Câu trùng tên mẫu', "<!-- wp:verse -->\n<pre class=\"wp-block-verse\">Câu trùng tên mẫu<br>Dòng sau phân biệt</pre>\n<!-- /wp:verse -->", 'ca-dao' );
 
+// Vè nhiều phần (tiêu đề phụ trên mỗi khối Thơ) có dòng chú bối cảnh ở đầu, dòng nguồn ở cuối; vè nhiều phần được
+// thêm dị bản bằng nút của MVP (MVP chèn "Dị bản" lên trên tiêu đề phụ đầu tiên)
+$h3 = static fn( string $chu ): string => "<!-- wp:heading {\"level\":3} -->\n<h3 class=\"wp-block-heading\">$chu</h3>\n<!-- /wp:heading -->\n\n";
+$th = static fn( string $l ): string => "<!-- wp:verse -->\n<pre class=\"wp-block-verse\">$l</pre>\n<!-- /wp:verse -->\n\n";
+$vp = $tay( 'Vè nhiều phần mẫu', "<!-- wp:paragraph -->\n<p><em>(Bối cảnh mẫu của vè)</em></p>\n<!-- /wp:paragraph -->\n\n" . $h3( 'Vè mẫu (I)' ) . $th( 'Vè phần một dòng một<br>Vè phần một dòng hai' ) . $h3( 'Vè mẫu (II)' ) . $th( 'Vè phần hai dòng một<br>Vè phần hai dòng hai' ) . "<!-- wp:paragraph -->\n<p><em>(Nguồn: Sách mẫu cuối bài)</em></p>\n<!-- /wp:paragraph -->", 've' );
+$vd = $tay( 'Vè có dị bản đứng đầu', $h3( 'Vè đầu (I)' ) . $th( 'Vè đầu phần một<br>Dòng hai phần một' ) . $h3( 'Vè đầu (II)' ) . $th( 'Vè đầu phần hai<br>Dòng hai phần hai' ), 've' );
+cadao_them_di_ban( $vd, "Dị bản gộp vào mẫu\nDòng hai dị bản gộp" );
+
 // Bài có khối máy không tách được (ảnh) → thẻ Cần xem, phần chắc chắn vẫn nhập
 $k = $tay( 'Bài có ảnh mẫu', "<!-- wp:verse -->\n<pre class=\"wp-block-verse\">Bài có ảnh mẫu<br>Dòng hai có ảnh</pre>\n<!-- /wp:verse -->\n\n<!-- wp:image -->\n<figure class=\"wp-block-image\"><img src=\"https://example.org/a.jpg\" alt=\"\"/></figure>\n<!-- /wp:image -->", 'ca-dao' );
 
@@ -118,7 +126,7 @@ cadao_bcb_luu(
 );
 $GLOBALS['cd']['the'] = compact( 'tc', 'mt', 'th', 'tu' );
 
-$GLOBALS['cd']['id'] = compact( 'a', 'b', 'c', 'd', 'n', 'e', 'g', 'h', 'i1', 'i2', 'k', 'dd' );
+$GLOBALS['cd']['id'] = compact( 'a', 'b', 'c', 'd', 'n', 'e', 'g', 'h', 'i1', 'i2', 'k', 'dd', 'vp', 'vd' );
 $GLOBALS['cd']['ten_i2'] = get_post_field( 'post_name', $i2 );
 
 } catch ( Throwable $e ) {

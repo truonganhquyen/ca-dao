@@ -490,6 +490,31 @@ $kq = $rest( "/tac-pham/$tp1/trang-thai", array( 'trang_thai' => 'private' ) );
 kt( 'Ẩn bài: bài thôi hiện với người đọc, lịch sử ghi lại', ( $kq->get_data()['ok'] ?? false ) && 'private' === get_post_status( $tp1 ) && 'trang_thai' === ( Viec::lich_su( 'post', $tp1, 1 )[0]['phan'] ?? '' ) );
 $rest( "/tac-pham/$tp1/trang-thai", array( 'trang_thai' => 'publish' ) );
 kt( 'Đăng lại (cần quyền duyệt)', 'publish' === get_post_status( $tp1 ) );
+
+// Vè dài: đoạn có tiêu đề, bối cảnh, mục lục, "Đọc toàn bài"; tấm Chia đoạn / Bối cảnh chỉ ở bài vè
+$ve = $mau_id['ve-mau'];
+wp_set_current_user( 0 );
+$h_ve = $xem( $ve );
+kt(
+	'vè dài: bối cảnh trên lời, tóm tắt "48 dòng · 3 đoạn", mục lục, tiêu đề đoạn, mốc #cadao-doan-N như MVP',
+	str_contains( $h_ve, 'class="boi-canh"' ) && str_contains( $h_ve, 'Bối cảnh tổng hợp để xem cách hiện một bài vè dài.' ) && str_contains( $h_ve, '48 dòng · 3 đoạn · khoảng 2 phút đọc' ) && str_contains( $h_ve, '<summary>Mục lục</summary>' )
+		&& 3 === substr_count( $h_ve, '<h2 class="doan-ten">' ) && str_contains( $h_ve, 'id="cadao-doan-3"' ) && str_contains( $h_ve, 'data-bai="' . $ve . '"' ) && str_contains( $h_ve, '· dòng 17–32' ),
+	substr( $h_ve, 0, 600 )
+);
+kt( 'vè dài: chỉ đoạn bắt đầu sau dòng 30 có dấu thu gọn; số dòng mỗi 5 dòng; chỗ ngắt khổ giữ lại', 1 === substr_count( $h_ve, 'data-sau' ) && str_contains( $h_ve, '<span class="ln" aria-hidden="true">05</span>' ) && ! str_contains( $h_ve, '<span class="ln" aria-hidden="true">04</span>' ) && 4 === substr_count( $h_ve, '<div class="kho">' ) );
+kt( 'vè dài: lời đủ 48 dòng (không dòng nào bị bỏ; khối Ảnh để chia sẻ bên dưới chỉ lấy 4 dòng đầu)', 48 === substr_count( (string) strstr( $h_ve, 'id="anh-chia-se"', true ), '<span class="line">' ) );
+wp_set_current_user( $ai_ql );
+$h_ve = $xem( $ve );
+kt( 'người biên soạn mở vè: nút và tấm "Chia đoạn", "Bối cảnh"; bài ca dao không có hai tấm này', str_contains( $h_ve, 'id="tam-doan"' ) && str_contains( $h_ve, 'id="tam-boi_canh"' ) && str_contains( $h_ve, 'lời hiện có 48 dòng' ) && ! str_contains( $xem( $tp1 ), 'id="tam-doan"' ) );
+$kq = $rest( "/tac-pham/$ve/phan/doan", array( 'muc' => array( array( 'tieu_de' => 'Phần sau', 'tu_dong' => '25', 'den_dong' => '48' ), array( 'tieu_de' => 'Phần đầu', 'tu_dong' => '1', 'den_dong' => '24' ), '__i__' => array( 'tieu_de' => '', 'tu_dong' => '', 'den_dong' => '' ) ) ) );
+kt( 'sửa đoạn: xếp theo dòng đầu, bỏ hàng mẫu; trang hiện đúng hai đoạn', ( $kq->get_data()['ok'] ?? false ) && array( 'Phần đầu', 'Phần sau' ) === array_column( PhanBai::lay( $ve, 'doan' )['muc'] ?? array(), 'tieu_de' ) && 2 === substr_count( $xem( $ve ), '<h2 class="doan-ten">' ), $kq->get_data() );
+$kq = $rest( "/tac-pham/$ve/phan/doan", array( 'muc' => array( array( 'tieu_de' => 'Lệch', 'tu_dong' => '9', 'den_dong' => '3' ) ) ) );
+kt( 'đoạn có dòng cuối trước dòng đầu: không lưu, báo lỗi', ! ( $kq->get_data()['ok'] ?? true ) && 2 === count( PhanBai::lay( $ve, 'doan' )['muc'] ?? array() ), $kq->get_data() );
+$bc_cu = PhanBai::lay( $ve, 'boi_canh' );
+$kq    = $rest( "/tac-pham/$ve/phan/boi_canh", array( 'chu' => $bc_cu['chu'] ?? '', 'su_kien' => '', 'nam' => '', 'noi' => '', 'nguon' => array( 'ho_so' => '0', 'trang' => '', 'url' => '' ) ) );
+kt( 'gửi lại bối cảnh không đổi gì: "Không có gì thay đổi"', ( $kq->get_data()['ok'] ?? false ) && ! ( $kq->get_data()['doi'] ?? true ), $kq->get_data() );
+$kq = $rest( "/tac-pham/$ve/phan/boi_canh", array( 'chu' => $bc_cu['chu'] ?? '', 'nam' => '1900', 'noi' => 'Nơi mẫu' ) );
+kt( 'thêm năm, nơi cho bối cảnh: lưu, trang hiện "1900 · Nơi mẫu"', ( $kq->get_data()['ok'] ?? false ) && '1900' === ( PhanBai::lay( $ve, 'boi_canh' )['nam'] ?? '' ) && str_contains( $xem( $ve ), '1900 · Nơi mẫu' ), $kq->get_data() );
 wp_set_current_user( $doc_gia );
 kt( 'người không có quyền biên tập: REST lưu phần bị chặn (403)', 403 === $rest( "/tac-pham/$tp1/phan/y_nghia", array( 'chu' => 'x', 'duyet' => '1' ) )->get_status() && 'Ý nghĩa đã duyệt mẫu.' === PhanBai::lay( $tp1, 'y_nghia' )['chu'] );
 wp_set_current_user( 0 );

@@ -60,6 +60,11 @@ Việc đầu tiên của T-145: agent đọc toàn bộ mã MVP (`wordpress/plu
 
 1. **Bài có câu trong kho và chưa sửa tay** (`md5(post_content) = _cadao_bam`): dựng các phần từ hàng kho có `post_id` = bài, cộng các hàng `gop_vao` bài đó (dị bản, chú thích theo cách đã gộp ở MVP).
 2. **Bài đã sửa tay hoặc không có câu trong kho** (nhập tay, 16 bài vè, 2 bài từ site Astro): tách từ HTML — khối Thơ đầu = lời; khối Thơ sau "Dị bản" = dị bản; danh sách `cadao-chu-thich` = chú thích (`cadao-chep` → `may_chep`, còn lại `nguoi_viet`); khối Chi tiết "Đáp án" = đáp án. Lời trong khối Đoạn văn (bài chưa chuyển sang khối Thơ) tách theo dòng.
+   - **Vè nhiều phần** (tiêu đề phụ ngay trên mỗi khối Thơ, ví dụ "Vè cá (…)" bảy phần): các khối Thơ nối thành lời, mỗi tiêu đề thành một mục của phần `doan` (chỉ ở vè; thể loại khác → "Cần xem"). Trang MVP chỉ coi khối Thơ đầu là lời; trang V2 hiện đủ các phần, có tiêu đề, mục lục.
+   - **Dòng chú đứng trước lời** (in nghiêng hoặc trong ngoặc, ví dụ "(Bài vè tả trận đánh ở …)") → `boi_canh.chu`, người viết; năm, nơi, sự kiện không điền.
+   - **Dòng "(Nguồn: …)" trong nội dung bài** → "Cần xem" kèm đủ chữ; không tự gắn vào lời (D-057). Người sáng lập ghi ở "Lời đã đối chiếu với" nếu đúng.
+   - **"Dị bản" đứng đầu bài, trên tiêu đề phụ đầu tiên** (nút thêm dị bản của MVP chèn nhầm chỗ ở bài nhiều phần): khối Thơ dưới "Dị bản" là dị bản (trùng ô `_cadao_di_ban_them`), các phần là lời; "Cần xem".
+   - Ô Nguồn của bài không có đường dẫn → hồ sơ nguồn loại "chưa rõ" (không đoán là trang web).
 3. **Kiểm "trước = sau"** với mọi bài: lời dựng từ phần `loi` khớp **từng ký tự** lời đang hiện trên trang MVP (`cadao_loi_tu_html_tho`), số dị bản, số chú thích, đáp án, Hiểu nhanh khớp. Không khớp → "Cần xem".
 4. **"Cần xem"**: bài vẫn được nhập với những phần chắc chắn, giữ trạng thái đăng, thêm một thẻ "Cần xem" vào Hộp việc; báo cáo ghi mã bài, lý do, đường dẫn sửa. Người sáng lập sửa ngay trên trang bài khi rảnh.
 5. **Đường dẫn:** giữ tên đường dẫn, trừ đuôi `-2`, `-3`… (người sáng lập cho phép, D-089) → tên mới thêm chữ phân biệt; thể loại, tình huống, thể thơ đổi tiền tố như `docs/27` mục 3. Mọi đường dẫn đổi ghi vào bảng chuyển hướng 301, kể cả các 301 đã có ở MVP.
@@ -79,6 +84,8 @@ Việc đầu tiên của T-145: agent đọc toàn bộ mã MVP (`wordpress/plu
 Báo cáo không chép lời vào repo; chỉ mã bài, số lượng, lý do. Công cụ chạy được trong Playground trên bộ dữ liệu mẫu của kiểm thử MVP (bài mẫu, mọi ca: chưa sửa tay, sửa tay, gộp, vè trong khối Đoạn văn, câu đố, đồng dao có trò chơi, tục ngữ có Hiểu nhanh và dấu AI, tình huống, mục từ có Wikidata). Kiểm thử bắt buộc: nhập → hoàn tác → nhập cho cùng kết quả.
 
 **Chạy thử trên site thật trước ngày chuyển:** bản V2 chưa có trên máy chủ, nên công cụ `--thu` và `kiem-ke` cũng có dạng tệp chạy một lần chỉ đọc (`wordpress/v2/cong-cu/thu-nhap.php`, `wp eval-file`), agent chạy trên máy chủ khi người sáng lập đồng ý cho lần đó.
+
+**Lần 1 (03/11/2026, người sáng lập đồng ý):** 631 bài (611 đăng, 20 chờ duyệt máy tạo không mang); "trước = sau" không lệch bài nào (chỉ khác khoảng trắng: lời 9, dị bản 11, chú thích 16, ý nghĩa 3). Phát hiện: 7 bài vè nhiều phần không tìm được lời, 3 bài vè có dòng chú bối cảnh, 2 bài có dòng "(Nguồn: …)", 1 bài có "Dị bản" chèn trên tiêu đề phụ → thêm các quy tắc ở mục 3.2. Còn "Cần xem" đúng ý: nguồn bài không gắn chú thích nào (2), thể loại "thơ truyền tụng" không còn ở V2 (1), ca dao có dòng in đậm và đáp án (1).
 
 ## 5. Ngày chuyển (T-157)
 
