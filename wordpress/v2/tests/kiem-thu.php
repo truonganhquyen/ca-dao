@@ -612,6 +612,28 @@ $hbd = \Phongdao\GiaoTiep\Khoi\BanDo::hien();
 kt( 'Bản đồ: điểm ngoài khung Việt Nam bị bỏ; ảnh bản đồ tự lưu có Hoàng Sa, Trường Sa; điểm là liên kết tới danh sách; ghi rõ "nhắc đến", không phải nơi lưu truyền', 1 === count( \Phongdao\GiaoTiep\Khoi\BanDo::diem() ) && str_contains( $hbd, 'ban-do-vn.svg' ) && str_contains( $hbd, 'Hoàng Sa và Trường Sa' ) && str_contains( $hbd, 'href="#dd-' ) && str_contains( $hbd, 'không đồng nghĩa là nơi lưu truyền' ) && ! preg_match( '#https?://(?!' . preg_quote( (string) wp_parse_url( home_url(), PHP_URL_HOST ), '#' ) . ')#', str_replace( 'https://www.w3.org', '', $hbd ) ), $hbd );
 kt( 'trang bài liệt kê bài cảm nhận đã duyệt (bài chờ duyệt thì không)', str_contains( $h, 'Cảm nhận – phân tích' ) && str_contains( $h, 'Một cách đọc bài mẫu' ) && ! str_contains( $h, 'Cảm nhận mẫu</a>' ) );
 
+// ---------- Nguồn & cài đặt (wp-admin) ----------
+$NC  = \Phongdao\GiaoTiep\QuanTri\NguonCaiDat::class;
+$cu  = \Phongdao\DichVu\NhapNguon\NguonTuDong::lay( 'cadao-me' );
+$NC::luu_nguon( 'cadao-me', array( 'bat' => '1', 'so_bai_moi_ngay' => '99', 'loai_lay' => array( 'ca_dao', 'la' ), 'bo_tho_tuc' => '1' ) );
+$moi = \Phongdao\DichVu\NhapNguon\NguonTuDong::lay( 'cadao-me' );
+kt( 'Nguồn tự động: bật / tắt, số câu mỗi ngày giới hạn 1–50, chỉ nhận loại đã biết, tắt chép chú thích, bỏ câu thô tục', true === $moi['bat'] && 50 === $moi['so_bai_moi_ngay'] && array( 'ca_dao' ) === $moi['loai_lay'] && false === $moi['chep_chu_thich'] && array( 'tho_tuc' ) === $moi['bo_qua_co'], $moi );
+\Phongdao\DichVu\NhapNguon\NguonTuDong::luu( $cu );
+$hs_id = (int) \Phongdao\KhoLuu\HoSo::theo_khoa( 'cadao-me' )->ID;
+$hs_cu = \Phongdao\KhoLuu\HoSo::truong( $hs_id );
+$NC::luu_ho_so( $hs_id, array( 'ten' => 'Ca dao Mẹ', 'loai' => 'web', 'url' => 'javascript:alert(1)', 'xin_phep' => 'tu_dat', 'chinh_sach_hien' => 'tu_lieu', 'giay_phep' => 'Chưa rõ' ) );
+$hs = \Phongdao\KhoLuu\HoSo::truong( $hs_id );
+kt( 'Hồ sơ nguồn: lựa chọn ngoài danh sách thành trống ("chưa rõ"), đường dẫn lạ bị bỏ, không thêm giá trị mặc định', '' === $hs['xin_phep'] && '' === $hs['url'] && 'tu_lieu' === $hs['chinh_sach_hien'] && false === $hs['chep_chu_thich'], $hs );
+update_post_meta( $hs_id, \Phongdao\KhoLuu\HoSo::META, wp_slash( $hs_cu ) );
+$NC::luu_turnstile( array( 'site' => 'khoa-site-mau', 'bi_mat' => 'khoa-bi-mat-mau' ) );
+$NC::luu_turnstile( array( 'site' => 'khoa-site-mau', 'bi_mat' => '' ) );
+$giu = get_option( 'cadao_turnstile_bi_mat' );
+$NC::luu_turnstile( array( 'site' => '' ) );
+kt( 'Chống rác: khoá bí mật để trống thì giữ; xoá Site key thì tắt cả hai (tên tuỳ chọn giữ của MVP)', 'khoa-bi-mat-mau' === $giu && '' === get_option( 'cadao_turnstile_site' ) && '' === get_option( 'cadao_turnstile_bi_mat' ) );
+$h = $NC::hien( 'nguon', 0, '' ) . $NC::hien( 'ho_so', 0, '' ) . $NC::hien( 'chong_rac', 0, '' );
+kt( 'trang Nguồn & cài đặt: ba thẻ, form có nonce, danh sách hồ sơ, không hiện khoá bí mật', str_contains( $h, 'Số câu mới mỗi ngày' ) && str_contains( $h, 'Ca dao Mẹ' ) && str_contains( $h, 'Không gửi khoá bí mật cho ai' ) && substr_count( $h, 'name="_wpnonce"' ) >= 2 && ! str_contains( $h, 'khoa-bi-mat-mau' ) );
+kt( 'chỉ Quản trị có quyền Nguồn & cài đặt; Biên tập không', get_role( 'administrator' )->has_cap( 'cadao_nguon' ) && ! get_role( 'editor' )->has_cap( 'cadao_nguon' ) );
+
 do_action( 'wp_enqueue_scripts' );
 kt( 'theme nạp giao-dien.css, fit.js, doc.js (hoãn, cuối trang)', wp_style_is( 'phongdao-giao-dien', 'enqueued' ) && wp_script_is( 'phongdao-fit', 'enqueued' ) && wp_script_is( 'phongdao-doc', 'enqueued' ) );
 
