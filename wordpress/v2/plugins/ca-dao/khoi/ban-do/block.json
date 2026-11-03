@@ -1,0 +1,16 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cadao/ban-do",
+	"title": "Bản đồ",
+	"category": "theme",
+	"description": "Trang /ban-do/ (bộ thiết kế R15): địa danh đã xác nhận, Bắc → Nam, và bản đồ Việt Nam tự lưu; không gọi dịch vụ bản đồ.",
+	"textdomain": "ca-dao",
+	"version": "1",
+	"supports": {
+		"html": false,
+		"inserter": false,
+		"reusable": false
+	},
+	"render": "file:./render.php"
+}

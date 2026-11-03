@@ -96,6 +96,13 @@ final class GieoMau {
 			LuuPhan::luu( $id, 'loi_dan', array( 'chu' => 'Lời dẫn tổng hợp để xem bố cục tuyển tập đọc liền.', 'nguoi_lam' => NguoiLam::NGUOI_VIET ), $nc );
 			LuuPhan::luu( $id, 'muc', array_map( static fn( int $b ): array => array( 'tac_pham_id' => $b, 'ghi_chu' => 'Ghi chú mẫu cho câu này.' ), array_values( $bai ) ), $nc );
 		}
+		// Một địa danh tổng hợp đã "xác nhận" có toạ độ (trang Bản đồ); toạ độ tự đặt, không phải dữ liệu Wikidata thật
+		$dd = term_exists( 'ben-mau-bac', 'muc_tu' );
+		$dd = $dd ? (int) $dd['term_id'] : (int) ( wp_insert_term( 'bến Mẫu Bắc', 'muc_tu', array( 'slug' => 'ben-mau-bac', 'description' => 'Địa danh tổng hợp ở phía bắc để xem bản đồ.' ) )['term_id'] ?? 0 );
+		if ( $dd && isset( $bai['dong-dao-mau'] ) ) {
+			wp_set_object_terms( $bai['dong-dao-mau'], $dd, 'muc_tu', true );
+			update_term_meta( $dd, '_phongdao_wikidata', array( 'wd' => 'Q0', 'nhan' => 'bến Mẫu Bắc', 'mo_ta' => 'địa danh tổng hợp để xem giao diện', 'toa_do' => array( 21.0, 105.8 ) ) );
+		}
 		// Một bài cảm nhận đã duyệt (trang R23, danh sách cuối trang bài)
 		$pt = get_page_by_path( 'mot-cach-doc-mau', OBJECT, KhaiBao::PHAN_TICH );
 		$pt = $pt ? $pt->ID : (int) wp_insert_post(

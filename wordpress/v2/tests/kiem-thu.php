@@ -603,6 +603,13 @@ $pt = get_post( $tc2 = \Phongdao\DichVu\DungTrang\GieoMau::gieo_tra_cuu( $ai_ql 
 $h  = \Phongdao\GiaoTiep\Khoi\PhanTich::hien( $pt );
 kt( 'trang bài cảm nhận: người viết (bút danh · vai), nội dung có trích lời, tác phẩm đang bàn, Báo vi phạm', str_contains( $h, 'Bút danh mẫu · Giáo viên' ) && str_contains( $h, '<blockquote' ) && str_contains( $h, 'Tác phẩm đang bàn' ) && str_contains( $h, 'loai=vi_pham' ), $h );
 $h = TacPham::hien( (array) \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_post( $bai_g ) ) );
+$bd = \Phongdao\GiaoTiep\Khoi\BanDo::diem();
+kt( 'Bản đồ: địa danh đã xác nhận có toạ độ trong khung, có bài đang đăng; toạ độ đổi thành vị trí trên ảnh', 1 === count( $bd ) && 'bến Mẫu Bắc' === $bd[0]['muc']->name && $bd[0]['x'] > 0 && $bd[0]['x'] < 100 && $bd[0]['y'] > 0 && $bd[0]['y'] < 100, $bd );
+$dd2 = (int) wp_insert_term( 'nơi ngoài khung', 'muc_tu' )['term_id'];
+wp_set_object_terms( $mau_id['ve-mau'], $dd2, 'muc_tu', true );
+update_term_meta( $dd2, '_phongdao_wikidata', array( 'wd' => 'Q00', 'toa_do' => array( 48.8, 2.3 ) ) );
+$hbd = \Phongdao\GiaoTiep\Khoi\BanDo::hien();
+kt( 'Bản đồ: điểm ngoài khung Việt Nam bị bỏ; ảnh bản đồ tự lưu có Hoàng Sa, Trường Sa; điểm là liên kết tới danh sách; ghi rõ "nhắc đến", không phải nơi lưu truyền', 1 === count( \Phongdao\GiaoTiep\Khoi\BanDo::diem() ) && str_contains( $hbd, 'ban-do-vn.svg' ) && str_contains( $hbd, 'Hoàng Sa và Trường Sa' ) && str_contains( $hbd, 'href="#dd-' ) && str_contains( $hbd, 'không đồng nghĩa là nơi lưu truyền' ) && ! preg_match( '#https?://(?!' . preg_quote( (string) wp_parse_url( home_url(), PHP_URL_HOST ), '#' ) . ')#', str_replace( 'https://www.w3.org', '', $hbd ) ), $hbd );
 kt( 'trang bài liệt kê bài cảm nhận đã duyệt (bài chờ duyệt thì không)', str_contains( $h, 'Cảm nhận – phân tích' ) && str_contains( $h, 'Một cách đọc bài mẫu' ) && ! str_contains( $h, 'Cảm nhận mẫu</a>' ) );
 
 do_action( 'wp_enqueue_scripts' );
