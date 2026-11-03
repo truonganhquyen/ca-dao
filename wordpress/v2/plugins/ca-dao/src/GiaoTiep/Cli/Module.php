@@ -19,6 +19,7 @@ final class Module implements \Phongdao\HaTang\Module {
 			\WP_CLI::add_command( 'phongdao cau-moi', array( $this, 'cau_moi' ) );
 			\WP_CLI::add_command( 'phongdao kiem-ke', array( $this, 'kiem_ke' ) );
 			\WP_CLI::add_command( 'phongdao nhap', array( $this, 'nhap' ) );
+			\WP_CLI::add_command( 'phongdao doi-chieu', array( $this, 'doi_chieu' ) );
 		}
 	}
 
@@ -145,6 +146,39 @@ final class Module implements \Phongdao\HaTang\Module {
 		}
 		foreach ( \Phongdao\DichVu\ChiMucTim\ChiMucTim::tim( (string) ( $doi[0] ?? '' ) )['ds'] as $x ) {
 			\WP_CLI::line( $x['id'] . "\t" . $x['diem'] . ( $x['roi'] ? "\trời" : '' ) . "\t" . get_the_title( $x['id'] ) );
+		}
+	}
+
+	/**
+	 * Đối chiếu trước / sau ngày chuyển (docs/29 mục 5, bước 4): số liệu MVP lưu lúc bắt đầu nhập cạnh số liệu sau khi
+	 * nhập, cùng định nghĩa. Chỉ đọc.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--duong-dan]
+	 * : Thử thêm tối đa 20 đường dẫn cũ (bài đổi tên, đổi thể loại; tình huống cũ) có ra 301 về đúng chỗ mới.
+	 */
+	public function doi_chieu( array $doi, array $tuy ): void {
+		$khac = 0;
+		foreach ( \Phongdao\DichVu\NhapDuLieuCu\DoiChieu::so() as [ $viec, $truoc, $sau ] ) {
+			$kq    = null === $truoc ? 'chưa có số trước' : ( $truoc === $sau ? 'khớp' : 'KHÁC' );
+			$khac += 'KHÁC' === $kq ? 1 : 0;
+			\WP_CLI::line( '  ' . $viec . str_repeat( ' ', max( 1, 32 - mb_strlen( $viec ) ) ) . ( null === $truoc ? '?' : $truoc ) . ' → ' . $sau . '  ' . $kq );
+		}
+		if ( isset( $tuy['duong-dan'] ) ) {
+			foreach ( \Phongdao\DichVu\NhapDuLieuCu\DoiChieu::duong_dan() as [ $cu, $moi ] ) {
+				$r     = wp_remote_head( $cu, array( 'redirection' => 0, 'timeout' => 15 ) );
+				$ma    = (int) wp_remote_retrieve_response_code( $r );
+				$toi   = (string) wp_remote_retrieve_header( $r, 'location' );
+				$dung  = 301 === $ma && untrailingslashit( $toi ) === untrailingslashit( $moi );
+				$khac += $dung ? 0 : 1;
+				\WP_CLI::line( ( $dung ? '  ĐÚNG ' : '  SAI  ' ) . "$cu → $ma $toi" );
+			}
+		}
+		if ( $khac ) {
+			\WP_CLI::warning( "$khac dòng khác — xem lại trước khi mở cho người đọc." );
+		} else {
+			\WP_CLI::success( 'Trước = sau.' );
 		}
 	}
 

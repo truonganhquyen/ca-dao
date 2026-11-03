@@ -16,6 +16,7 @@ assert.deepEqual(maQuyetDinhTrung(fs.readFileSync('docs/01-nhat-ky-quyet-dinh.md
 const mau = '<link href="https://phongdao.com/wp-content/themes/ca-dao/style.css?ver=0.19.1"><script src="https://phongdao.com/wp-content/plugins/ca-dao/assets/ca-dao.js?ver=0.33.1"></script>';
 assert.deepEqual(phienBanTrang(mau), { plugin: '0.33.1', theme: '0.19.1' }, 'đọc phiên bản từ ?ver= của tệp plugin, theme');
 assert.deepEqual(phienBanTrang('<p>không có tệp</p>'), { plugin: null, theme: null }, 'trang không có tệp thì không đoán số');
+assert.deepEqual(phienBanTrang('<link href="https://phongdao.com/wp-content/themes/ca-dao/assets/giao-dien.css?ver=1.0.0"><script src="https://phongdao.com/wp-content/plugins/ca-dao/assets/do-luong.js?ver=1.0.0"></script>'), { plugin: '1.0.0', theme: '1.0.0' }, 'V2 (sau ngày chuyển): đọc do-luong.js, giao-dien.css');
 assert.deepEqual(chenhLech({ plugin: '0.33.1', theme: '0.19.1' }, { plugin: '0.33.1', theme: '0.19.1' }), [], 'khớp thì không báo');
 assert.deepEqual(chenhLech({ plugin: '0.33.1', theme: '0.19.1' }, { plugin: '0.28.0', theme: '0.19.1' }), ['plugin: repo 0.33.1, site 0.28.0'], 'plugin cũ thì báo (lần kẹt 0.28.0 ngày 26–27/10)');
 assert.equal(chenhLech({ plugin: '0.33.1', theme: '0.19.1' }, { plugin: null, theme: null }).length, 2, 'không đọc được số trên site cũng là lệch');
