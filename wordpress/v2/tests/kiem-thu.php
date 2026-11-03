@@ -561,6 +561,39 @@ kt( 'chữ cái đầu tiếng Việt: bỏ dấu thanh, giữ ă â ê ô ơ ư
 $h = do_shortcode( '[cadao_nguon]' );
 kt( 'mã ngắn [cadao_nguon] của trang Nguồn (mang từ MVP) hiện danh sách nguồn, không còn chữ mã thô', ! str_contains( $h, '[cadao_nguon]' ) && '' !== trim( wp_strip_all_tags( $h ) ), $h );
 
+// ---------- Người đọc góp ----------
+wp_set_current_user( 0 );
+$_SERVER['REMOTE_ADDR'] = '203.0.113.5';
+$bai_g = $mau_id['dong-mau-mot-cua-bai'];
+$NG    = \Phongdao\DichVu\NguoiDoc\NhanGui::class;
+$g1    = $NG::luu( array( 'loai' => 'di_ban', 'bai' => $bai_g, 'noi_dung' => "Dòng quê mẫu một\nDòng quê mẫu hai", 'noi_nghe' => 'Làng mẫu', 'dong_y' => '1' ) );
+$gy    = get_post( $g1['id'] );
+kt( 'góp "ở quê nói khác" → góp ý chờ duyệt, khoá meta như MVP, thẻ Người đọc gửi trong Hộp việc', $g1['ok'] && $gy && 'gop_y' === $gy->post_type && 'pending' === $gy->post_status && 'di_ban' === get_post_meta( $gy->ID, '_cadao_loai', true ) && $bai_g === (int) get_post_meta( $gy->ID, '_cadao_bai', true ) && 1 === count( Viec::mo( 'post', $gy->ID, 'nguoi_doc' ) ), $g1 );
+$g2 = $NG::luu( array( 'loai' => 'cam_nghi', 'bai' => $bai_g, 'noi_dung' => 'Cảm nghĩ mẫu của bạn đọc.', 'ten' => 'Bút danh mẫu', 'dong_y' => '1' ) );
+$bl = get_comment( $g2['id'] );
+kt( 'cảm nghĩ → bình luận chờ duyệt, không ghi địa chỉ mạng, trình duyệt, email', $g2['ok'] && $bl && '0' === (string) $bl->comment_approved && '' === $bl->comment_author_IP && '' === $bl->comment_agent && '' === $bl->comment_author_email && 'Bút danh mẫu' === $bl->comment_author, $bl );
+kt( 'bài cảm nhận ngắn quá → chưa gửi; đủ dài → bài chờ duyệt', 'thieu_pt' === $NG::luu( array( 'loai' => 'phan_tich', 'bai' => $bai_g, 'tieu_de' => 'T', 'noi_dung' => 'ngắn', 'tu_viet' => 1, 'dong_y' => 1 ) )['ma'] && 'pending' === get_post_status( $NG::luu( array( 'loai' => 'phan_tich', 'bai' => $bai_g, 'tieu_de' => 'Cảm nhận mẫu', 'noi_dung' => str_repeat( 'Chữ cái mẫu ', 30 ), 'tu_viet' => 1, 'dong_y' => 1 ) )['id'] ) );
+kt( 'ô bẫy có chữ → không lưu', 'bay' === $NG::luu( array( 'loai' => 'bao_loi', 'noi_dung' => 'x', 'dong_y' => 1, 'web' => 'http://rac' ) )['ma'] );
+$NG::luu( array( 'loai' => 'bao_loi', 'noi_dung' => 'Lỗi mẫu bốn', 'dong_y' => 1 ) );
+$NG::luu( array( 'loai' => 'bao_loi', 'noi_dung' => 'Lỗi mẫu năm', 'dong_y' => 1 ) );
+kt( 'quá 5 lần gửi trong giờ từ một địa chỉ → chặn; địa chỉ khác vẫn gửi được', 'nhieu' === $NG::luu( array( 'loai' => 'bao_loi', 'noi_dung' => 'Lỗi mẫu sáu', 'dong_y' => 1 ) )['ma'] && ( $_SERVER['REMOTE_ADDR'] = '203.0.113.6' ) && $NG::luu( array( 'loai' => 'bao_loi', 'noi_dung' => 'Lỗi mẫu khác máy', 'dong_y' => 1 ) )['ok'] );
+kt( 'đường bình luận mặc định của WordPress đóng với tác phẩm (cảm nghĩ chỉ qua form của thư viện)', ! comments_open( $bai_g ) );
+$h = \Phongdao\GiaoTiep\Khoi\GopTuLieu::hien( 'so_trang', $bai_g, '', '', 0 );
+kt( 'trang Góp: form gửi admin-post có nonce, chọn sẵn loại, ô bẫy, thông báo riêng tư, có Cảm nghĩ khi gắn bài', str_contains( $h, 'name="_wpnonce"' ) && str_contains( $h, 'value="so_trang" required checked' ) && str_contains( $h, 'name="web"' ) && str_contains( $h, 'không lưu địa chỉ mạng' ) && str_contains( $h, 'value="cam_nghi"' ) && ! str_contains( $h, 'value="vi_pham"' ), $h );
+kt( 'trang Góp không gắn bài: không có Cảm nghĩ; lời báo lỗi tra theo mã (mã lạ → lời chung)', ! str_contains( \Phongdao\GiaoTiep\Khoi\GopTuLieu::hien( '', 0, '', '', 0 ), 'value="cam_nghi"' ) && str_contains( \Phongdao\GiaoTiep\Khoi\GopTuLieu::hien( '', 0, 'loi', '<b>tu-che</b>', 0 ), 'Chưa gửi được, xin thử lại.' ) );
+$h = TacPham::hien( (array) \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_post( $bai_g ) ) );
+kt( 'trang bài: khối "Bạn muốn góp gì?" có 6 lối góp; cảm nghĩ chưa duyệt không hiện', 6 === substr_count( $h, 'class="gop-nut"' ) && ! str_contains( $h, 'Cảm nghĩ mẫu của bạn đọc.' ) );
+wp_set_current_user( $ai_ql );
+$v_bl = Viec::mo( 'comment', $g2['id'], 'nguoi_doc' )[0] ?? array();
+$hv   = \Phongdao\GiaoTiep\BienTap\HopViec::the( $v_bl );
+$hv2  = \Phongdao\GiaoTiep\BienTap\HopViec::the( Viec::mo( 'post', $gy->ID, 'nguoi_doc' )[0] ?? array( 'id' => 0, 'loai' => 'x' ) );
+kt( 'Hộp việc: thẻ cảm nghĩ có "Hiện trên trang"; thẻ góp ý có "Đã xử lý", không có "Hiện"', str_contains( $hv, 'Hiện trên trang' ) && str_contains( $hv, 'Cảm nghĩ mẫu của bạn đọc.' ) && str_contains( $hv2, 'Đã xử lý' ) && ! str_contains( $hv2, 'Hiện trên trang' ), array( $hv, $hv2 ) );
+$kq = \Phongdao\DichVu\XepViec\QuyetViec::quyet( (int) $v_bl['id'], 'duyet', $ai_ql, true );
+wp_set_current_user( 0 );
+$h = TacPham::hien( (array) \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_post( $bai_g ) ) );
+kt( 'người biên soạn bấm Hiện → cảm nghĩ lên trang kèm tên hiển thị và "Báo vi phạm"', $kq['ok'] && str_contains( $h, 'Cảm nghĩ mẫu của bạn đọc.' ) && str_contains( $h, 'Bút danh mẫu' ) && str_contains( $h, 'loai=vi_pham' ), $kq );
+kt( 'mã ngắn [cadao_viet_phan_tich] của trang "Viết cảm nhận" (mang từ MVP) hiện form với loại bài cảm nhận chọn sẵn', str_contains( do_shortcode( '[cadao_viet_phan_tich]' ), 'value="phan_tich" required checked' ) );
+
 do_action( 'wp_enqueue_scripts' );
 kt( 'theme nạp giao-dien.css, fit.js, doc.js (hoãn, cuối trang)', wp_style_is( 'phongdao-giao-dien', 'enqueued' ) && wp_script_is( 'phongdao-fit', 'enqueued' ) && wp_script_is( 'phongdao-doc', 'enqueued' ) );
 

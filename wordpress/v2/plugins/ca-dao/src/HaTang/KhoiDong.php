@@ -24,6 +24,7 @@ final class KhoiDong {
 		DichVu\ChongTrung\ChongTrung::class,
 		DichVu\UngVien\UngVien::class,
 		DichVu\NhapDuLieuCu\Module::class,
+		DichVu\NguoiDoc\Module::class,
 		GiaoTiep\Rest\Module::class,
 		GiaoTiep\Khoi\Module::class,
 		GiaoTiep\TrangCoDinh\Module::class,

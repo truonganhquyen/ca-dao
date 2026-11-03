@@ -96,7 +96,10 @@ final class TacPham {
 		foreach ( $tp['tuyen_tap'] as $t ) {
 			$nhan_cuoi .= self::nhan_lien_ket( $t, 'tuyen-tap', 'Có trong tuyển tập: ', 'tag-pill plain' );
 		}
-		$sau .= '<div class="work-tags">' . $nhan_cuoi . '</div>' . self::tu_lieu( $tp ) . AnhChiaSe::hien( $tp ) . ( $sua ? CheDoSua::lich_su( $sua ) : '' );
+		$sau .= '<div class="work-tags">' . $nhan_cuoi . '</div>' . self::tu_lieu( $tp ) . AnhChiaSe::hien( $tp )
+			// phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc lời báo sau khi gửi
+			. ( ctype_digit( (string) $tp['ma'] ) ? GopTuLieu::cuoi_bai( (int) $tp['ma'], $tp['cam_nghi'] ?? array(), 'da_gui' === ( $_GET['gop'] ?? '' ) ) : '' )
+			. ( $sua ? CheDoSua::lich_su( $sua ) : '' );
 
 		return ( $sua ? CheDoSua::dai( $sua ) : '' )
 			. '<nav aria-label="Đường dẫn" class="breadcrumbs">' . Ve::lien_ket( 'trang-chu', 'Trang chủ' ) . '<span aria-hidden="true">/</span>' . Ve::lien_ket( $tp['the_loai'], esc_html( $tp['ten_the_loai'] ) ) . '<span aria-hidden="true">/</span><span>' . esc_html( $tp['tieu_de'] ) . '</span></nav>'

@@ -5,6 +5,7 @@ namespace Phongdao\GiaoTiep\BienTap;
 use Phongdao\DichVu\ChongTrung\ChongTrung;
 use Phongdao\DichVu\XepViec\QuyetViec;
 use Phongdao\GiaoTiep\Khoi\Ve;
+use Phongdao\HaTang\KhaiBao;
 use Phongdao\KhoLuu\Kho;
 use Phongdao\KhoLuu\PhanBai;
 use Phongdao\KhoLuu\Viec;
@@ -97,6 +98,24 @@ final class HopViec {
 					. '<div class="nhap-ai"><span class="tag">' . ( empty( $v['noi_dung']['ai'] ) ? 'Nháp · chưa duyệt' : 'AI · chưa duyệt' ) . '</span><p>' . esc_html( (string) ( $v['noi_dung']['chu'] ?? '' ) ) . '</p></div>';
 				$ly_do   = 'người đọc chưa thấy';
 			}
+		} elseif ( 'nguoi_doc' === $v['loai'] ) {
+			$nut  = QuyetViec::nut_nguoi_doc( $v );
+			$loai = (string) ( $v['noi_dung']['loai'] ?? '' );
+			$bai  = get_post( (int) ( $v['noi_dung']['bai'] ?? 0 ) );
+			$mo   = $bai ? (string) get_permalink( $bai ) : '';
+			if ( 'comment' === $v['doi_tuong_loai'] ) {
+				$c    = get_comment( (int) $v['doi_tuong_id'] );
+				$chu  = $c ? (string) $c->comment_content : '';
+				$them = $c ? array( (string) $c->comment_author ) : array();
+			} else {
+				$p    = get_post( (int) $v['doi_tuong_id'] );
+				$chu  = $p ? trim( wp_strip_all_tags( str_replace( array( '<br>', '</p>' ), array( "\n", "\n\n" ), (string) $p->post_content ) ) ) : '';
+				$them = $p ? array_filter( array( $p->post_type === KhaiBao::PHAN_TICH ? $p->post_title : '', (string) get_post_meta( $p->ID, '_cadao_noi_nghe', true ), (string) get_post_meta( $p->ID, '_cadao_nguoi_ke', true ), (string) get_post_meta( $p->ID, '_cadao_ten', true ) ?: (string) get_post_meta( $p->ID, '_cadao_but_danh', true ) ) ) : array();
+			}
+			$tieu_de = ( \Phongdao\MienDuLieu\GopNguoiDoc::LOAI[ $loai ][0] ?? 'Người đọc gửi' ) . ( $bai ? ' — ' . $bai->post_title : '' );
+			$than    = '<blockquote class="small">' . nl2br( esc_html( mb_strlen( $chu ) > 800 ? mb_substr( $chu, 0, 799 ) . '…' : $chu ) ) . '</blockquote>'
+				. ( $them ? '<p class="small muted">' . esc_html( implode( ' · ', $them ) ) . '</p>' : '' );
+			$ly_do   = 'chờ duyệt, người đọc chưa thấy';
 		} elseif ( 'can_xem' === $v['loai'] ) {
 			$bai = get_post( (int) $v['doi_tuong_id'] );
 			if ( $bai ) {
