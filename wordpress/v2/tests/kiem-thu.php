@@ -687,6 +687,23 @@ update_term_meta( $t_bmb->term_id, '_phongdao_wikidata', $wd_cu );
 Viec::tao( array( 'loai' => 'wikidata', 'trang_thai' => Viec::XONG, 'quyet' => 'dung', 'doi_tuong_loai' => 'post', 'doi_tuong_id' => 0, 'noi_dung' => array( 'khoa' => 'dap:' . md5( \Phongdao\MienDuLieu\VanTay::chuan_loi( 'Đáp án mẫu' ) ), 'nhan' => 'đáp án mẫu', 'wd' => 'Q0', 'du_lieu' => $anh_wd + array( 'toa_do' => array( 21.0, 105.8 ) ) ), 'nguoi_tao' => 'nhap_cu' ) );
 $tp_do = \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_post( $mau_id['cau-do-mau'] ) );
 kt( 'đáp án câu đố đã xác nhận trên Wikidata (khoá như MVP): ảnh trong khối đáp án, không bản đồ', str_contains( (string) $tp_do['dap_an_them'], 'Tác giả mẫu' ) && ! str_contains( (string) $tp_do['dap_an_them'], 'ban-do-nho' ) && str_contains( \Phongdao\GiaoTiep\Khoi\TacPham::hien( (array) $tp_do ), 'Tác giả mẫu' ), $tp_do['dap_an_them'] ?? null );
+kt( 'nút Nghe giọng máy (D-095) trên thẻ lời: ẩn sẵn, chỉ hiện khi máy có giọng tiếng Việt', str_contains( $h_tk, 'data-action="nghe" aria-pressed="false" hidden' ) );
+// Sửa mục từ trên trang mục từ (thay trang Sửa mục từ của MVP)
+$SMT = \Phongdao\GiaoTiep\BienTap\SuaMucTu::class;
+$u_cu = get_current_user_id();
+wp_set_current_user( 0 );
+$smt_khach = $SMT::form( $t_bmb );
+wp_set_current_user( $ai_ql );
+kt( 'khối Sửa mục từ chỉ người biên soạn thấy', '' === $smt_khach && str_contains( $SMT::form( $t_bmb ), 'id="sua-muc-tu"' ) && str_contains( $SMT::form( $t_bmb ), 'name="giai"' ) );
+$hs_smt = \Phongdao\KhoLuu\HoSo::theo_khoa( 'sach-mau' );
+$bao1   = $SMT::luu( $t_bmb->term_id, array( 'giai' => 'Lời giải người biên soạn viết lại.', 'ho_so' => (string) ( $hs_smt ? $hs_smt->ID : 0 ), 'url' => '', 'anh' => '', 'ghi_cong' => '', 'an' => '1' ), $ai_ql );
+$lg_smt = get_term_meta( $t_bmb->term_id, '_phongdao_loi_giai', true );
+clean_term_cache( $t_bmb->term_id, 'muc_tu' );
+kt( 'sửa lời giải → người viết, nguồn người điền, ẩn ảnh Wikidata; ghi lịch sử', 'Đã lưu mục từ.' === $bao1 && 'Lời giải người biên soạn viết lại.' === get_term( $t_bmb->term_id )->description && 'nguoi_viet' === ( $lg_smt['nguoi_lam'] ?? '' ) && ( $hs_smt ? $hs_smt->ID : 0 ) === ( $lg_smt['nguon']['ho_so'] ?? 0 ) && ! empty( get_term_meta( $t_bmb->term_id, '_phongdao_anh', true )['an'] ) && 1 === count( Viec::lich_su( 'term', $t_bmb->term_id ) ), array( $bao1, $lg_smt ) );
+kt( 'gửi lại không đổi gì: không ghi; ảnh riêng không phải ảnh trong Thư viện ảnh: báo, không lưu', 'Không có gì thay đổi.' === $SMT::luu( $t_bmb->term_id, array( 'giai' => 'Lời giải người biên soạn viết lại.', 'ho_so' => (string) ( $hs_smt ? $hs_smt->ID : 0 ), 'an' => '1' ), $ai_ql ) && str_starts_with( $SMT::luu( $t_bmb->term_id, array( 'giai' => 'x', 'anh' => 'https://example.org/la.jpg' ), $ai_ql ), 'Chưa lưu' ) && 'Lời giải người biên soạn viết lại.' === get_term( $t_bmb->term_id )->description );
+$h_smt = \Phongdao\GiaoTiep\Khoi\DanhSach::hien( new WP_Query( array( 'muc_tu' => 'ben-mau-bac' ) ) );
+kt( 'trang mục từ: nguồn lời giải người điền hiện; ảnh Wikidata đã ẩn', ! $hs_smt || str_contains( $h_smt, 'Nguồn lời giải: ' . $hs_smt->post_title ), substr( $h_smt, 0, 500 ) );
+wp_set_current_user( $u_cu );
 kt( 'trang bài liệt kê bài cảm nhận đã duyệt (bài chờ duyệt thì không)', str_contains( $h, 'Cảm nhận – phân tích' ) && str_contains( $h, 'Một cách đọc bài mẫu' ) && ! str_contains( $h, 'Cảm nhận mẫu</a>' ) );
 
 // ---------- Đo lường, an toàn ----------

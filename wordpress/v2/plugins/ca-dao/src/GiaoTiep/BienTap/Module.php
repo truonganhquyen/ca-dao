@@ -29,6 +29,7 @@ final class Module implements \Phongdao\HaTang\Module {
 		);
 		add_action( 'wp_enqueue_scripts', array( self::class, 'nap_ma' ) );
 		HopViec::dang_ky();
+		SuaMucTu::dang_ky();
 		ThemBai::dang_ky();
 	}
 

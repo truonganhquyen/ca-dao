@@ -73,6 +73,22 @@
   };
   const thanhVai = $('.role-bar'); if (thanhVai) { thanhVai.hidden = false; vai((doc('phongdao-vai') || {}).vai); }
 
+  // Nghe (D-095, như MVP): giọng tiếng Việt có sẵn trên máy người đọc; không có thì nút không hiện; không tự phát
+  const nutNghe = $('[data-action=nghe]');
+  let giong = null;
+  if (nutNghe && window.speechSynthesis && window.SpeechSynthesisUtterance) {
+    const tim = () => { giong = speechSynthesis.getVoices().find(v => /^vi([-_]|$)/i.test(v.lang)) || null; if (giong) nutNghe.hidden = false; };
+    tim(); if (!giong) speechSynthesis.addEventListener('voiceschanged', tim);
+    addEventListener('pagehide', () => speechSynthesis.cancel());
+  }
+  const nghe = b => {
+    if (speechSynthesis.speaking) { speechSynthesis.cancel(); return; } // bấm lại để dừng
+    const xong = () => { b.setAttribute('aria-pressed', 'false'); $('.nhan', b).textContent = 'Nghe'; };
+    const dong = loiBai().map(d => d.trim()).filter(Boolean);
+    b.setAttribute('aria-pressed', 'true'); $('.nhan', b).textContent = 'Dừng';
+    dong.forEach((d, i) => { const u = new SpeechSynthesisUtterance(d); u.voice = giong; u.lang = giong.lang; u.rate = 0.9; if (i === dong.length - 1) u.onend = xong; u.onerror = xong; speechSynthesis.speak(u); });
+  };
+
   // Nút chỉ có tác dụng khi có JavaScript ("Mong có câu này", Trình chiếu, Đọc cùng bé): HTML để ẩn
   $$('[data-action=mong-co-cau][hidden], [data-chi-js][hidden]').forEach(b => { b.hidden = false; });
 
@@ -120,7 +136,13 @@
   if (location.hash) mo(location.hash.slice(1));
 
   document.addEventListener('click', e => {
-    const w = e.target.closest('a.word'); if (w) su('chu_giai_mo', { muc: w.textContent });
+    const w = e.target.closest('a.word');
+    if (w) {
+      su('chu_giai_mo', { muc: w.textContent });
+      // Ô chú thích ngay chỗ đọc (như MVP): nội dung lấy từ khối Từ khó; tắt JavaScript thì liên kết nhảy xuống khối đó
+      const tu = w.textContent.trim().toLowerCase(), m = $$('#chu-thich .term').find(t => ($('dt', t) || {}).textContent.trim().toLowerCase() === tu);
+      if (m && window.HTMLDialogElement) { e.preventDefault(); const d = hop(esc(w.textContent.trim()), `<div class="small">${$('dd', m).innerHTML}</div>`); d.classList.add('word-dialog'); return; }
+    }
     const a = e.target.closest('a[href^="#"]');
     if (a && a.getAttribute('href').length > 1 && mo(a.getAttribute('href').slice(1))) { e.preventDefault(); const v = a.closest('details.vi-sao'); if (v) v.open = false; return; }
     const b = e.target.closest('[data-action]');
@@ -166,6 +188,7 @@
       d.querySelector('[data-action=size]')?.focus();
     }
     else if (['present', 'present-set', 'kids'].includes(viec)) { const d = $('dialog[open]'); if (d) d.close(); che(viec); }
+    else if (viec === 'nghe') nghe(b);
     else if (viec === 'mong-co-cau') { su('mong_co_cau', { kho: b.dataset.kho }); b.disabled = true; b.textContent = 'Đã ghi nhận, cảm ơn bạn'; }
     else if (viec === 'download-card') bao('Máy chủ chưa vẽ được ảnh. Hãy chụp màn hình phần xem trước.');
   });

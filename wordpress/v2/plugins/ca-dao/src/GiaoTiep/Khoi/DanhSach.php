@@ -54,7 +54,7 @@ final class DanhSach {
 			$dau   = self::duong_dan( $term->name ) . '<p class="eyebrow">' . esc_html( self::DAU[ $term->taxonomy ] ) . '</p><h1>' . esc_html( $term->name ) . '</h1>'
 				. ( '' === $mo_ta ? '' : '<p class="muted">' . esc_html( $mo_ta ) . '</p>' )
 				// Mục từ: ảnh Commons, bản đồ nhỏ, Wikipedia của địa danh đã xác nhận (như MVP)
-				. ( 'muc_tu' === $term->taxonomy ? DiaDanh::html( DiaDanh::cua_muc_tu( (int) $term->term_id ) ?? array() ) : '' );
+				. ( 'muc_tu' === $term->taxonomy ? self::nguon_loi_giai( $term ) . DiaDanh::html( DiaDanh::cua_muc_tu( (int) $term->term_id ) ?? array() ) . \Phongdao\GiaoTiep\BienTap\SuaMucTu::form( $term ) : '' );
 		}
 		$dem = (int) $q->found_posts;
 		$giua = '<p class="small muted">' . number_format( $dem, 0, ',', '.' ) . ' tác phẩm' . ( $q->max_num_pages > 1 ? ' · 30 bài mỗi trang' : '' ) . '</p>';
@@ -66,6 +66,21 @@ final class DanhSach {
 			$giua .= '<div class="grid">' . $the . '</div>' . self::phan_trang( $q );
 		}
 		return $dau . '<section class="section" aria-labelledby="ds-tieu-de"><h2 class="sr-only" id="ds-tieu-de">Các tác phẩm</h2>' . $giua . '</section>';
+	}
+
+	/** Nguồn lời giải của mục từ: người biên soạn điền thì hiện (D-081); lời giải máy chép thì ẩn nguồn theo chính sách (D-068). */
+	private static function nguon_loi_giai( \WP_Term $t ): string {
+		$lg = get_term_meta( $t->term_id, '_phongdao_loi_giai', true );
+		if ( ! is_array( $lg ) || \Phongdao\MienDuLieu\NguoiLam::NGUOI_VIET !== ( $lg['nguoi_lam'] ?? '' ) || empty( $lg['nguon'] ) ) {
+			return '';
+		}
+		$hs  = empty( $lg['nguon']['ho_so'] ) ? null : get_post( (int) $lg['nguon']['ho_so'] );
+		$ten = $hs instanceof \WP_Post && 'publish' === $hs->post_status ? $hs->post_title : '';
+		$url = (string) ( $lg['nguon']['url'] ?? '' );
+		if ( '' === $ten && '' === $url ) {
+			return '';
+		}
+		return '<p class="small muted">Nguồn lời giải: ' . ( '' === $url ? esc_html( $ten ) : '<a href="' . esc_url( $url ) . '" rel="nofollow">' . esc_html( '' === $ten ? $url : $ten ) . '</a>' ) . '</p>';
 	}
 
 	/** Thẻ bài (bộ thiết kế: card trong common.mjs). */

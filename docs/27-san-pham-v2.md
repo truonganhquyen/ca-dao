@@ -41,7 +41,7 @@ Tinh thần: **"Một trang sách cổ được chăm chút, đặt trong một 
 Khám phá ▾   Tuyển tập · Chủ đề · Theo dịp · Vùng & Bản đồ · Mô-típ · Một câu ngẫu nhiên
 Cho lớp học  chỉ hiện khi ≥ 3 bài học có bộ câu SGK (đợt 5)
 Tra cứu ▾    Tìm · Từ điển · Hay bị nhầm là ca dao · Phương pháp & nguồn
-(Nghe)       chỉ khi giọng đọc sinh sẵn qua phiên nghe thử (đợt 5)
+(Nghe)       mục Nghe khi giọng đọc sinh sẵn qua phiên nghe thử (đợt 5); trước đó trang bài có nút Nghe giọng máy (D-095)
 
 Thanh thể loại (D-092; dưới đầu trang, viên thuốc, trượt ngang trên điện thoại, ẩn khi in)
   Trang chủ · Tất cả · Ca dao · Tục ngữ – Thành ngữ · Đồng dao · Vè · Câu đố · (Truyện) · Tuyển tập
