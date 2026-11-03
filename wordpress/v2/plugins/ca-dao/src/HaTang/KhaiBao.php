@@ -33,7 +33,7 @@ final class KhaiBao implements Module {
 	);
 
 	/** Tăng khi thêm / đổi luật đường dẫn (trang cố định, loại bài…): lần nạp sau tự làm mới luật viết lại. */
-	public const PHIEN_BAN_DUONG_DAN = 2;
+	public const PHIEN_BAN_DUONG_DAN = 3;
 
 	public function dang_ky(): void {
 		add_action( 'init', array( self::class, 'khai_bao' ), 0 );

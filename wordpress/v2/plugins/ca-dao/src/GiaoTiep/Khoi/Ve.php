@@ -36,6 +36,10 @@ final class Ve {
 		'rieng-tu'    => '/quyen-rieng-tu/',
 		'gop'         => '/gop/',
 		'da-luu'      => '/da-luu/',
+		'bien-tap'    => '/bien-tap/',
+		'bt-tac-pham' => '/bien-tap/tac-pham/',
+		'bt-them'     => '/bien-tap/them/',
+		'bt-so-lieu'  => '/bien-tap/so-lieu/',
 	);
 
 	private const HINH = array(
