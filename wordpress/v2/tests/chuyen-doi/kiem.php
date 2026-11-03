@@ -188,7 +188,7 @@ $m_e = $wpdb->get_row( $wpdb->prepare( 'SELECT trang_thai, post_id FROM ' . Kho:
 kt( 'câu của bài chờ duyệt máy tạo trở lại kho "mới" để thành thẻ Câu mới', $m_e && 'moi' === $m_e->trang_thai );
 kt( 'tên đường dẫn đuôi số đổi tên mới, tên cũ vẫn chuyển hướng', 'cau-trung-ten-mau-dong' === get_post_field( 'post_name', $id['i2'] ) && in_array( (string) $mvp['ten_i2'], get_post_meta( $id['i2'], '_wp_old_slug' ), true ) );
 kt( 'hồ sơ nguồn người điền và sách đối chiếu đã tạo', null !== HoSo::theo_khoa( NhapThu::khoa_ho_so( 'web', 'Sách mẫu người điền' ) ) && null !== HoSo::theo_khoa( NhapThu::khoa_ho_so( 'sach', 'Tuyển tập mẫu' ) ) );
-$h_a = TacPham::hien( (array) DocBai::tac_pham( get_post( $id['a'] ) ) );
+$h_a = (string) preg_replace( '/\s+/u', ' ', wp_strip_all_tags( TacPham::hien( (array) DocBai::tac_pham( get_post( $id['a'] ) ) ) ) ); // từ có chú thích, chữ khác của dị bản được bọc thẻ
 kt( 'trang tác phẩm hiện lời, dị bản, chú thích đã nhập; đường dẫn /ca-dao/<tên>/ như cũ', str_contains( $h_a, 'Dòng mẫu một của bài' ) && str_contains( $h_a, 'Dòng gộp vào bài một' ) && str_contains( $h_a, 'Lời giải mẫu.' ) && str_contains( (string) get_permalink( $id['a'] ), '/ca-dao/' . get_post_field( 'post_name', $id['a'] ) . '/' ), $h_a );
 kt( 'cảm nghĩ vẫn nối đúng bài (giữ ID)', 1 === (int) get_comments( array( 'post_id' => $id['a'], 'count' => true ) ) );
 kt( 'nhập xong: khách không còn thấy trang nâng cấp', 'xong' === get_option( NhapLam::TRANG_THAI ) && ! NhapLam::dang_nang_cap() );
