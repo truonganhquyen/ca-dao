@@ -97,6 +97,15 @@ final class HopViec {
 					. '<div class="nhap-ai"><span class="tag">' . ( empty( $v['noi_dung']['ai'] ) ? 'Nháp · chưa duyệt' : 'AI · chưa duyệt' ) . '</span><p>' . esc_html( (string) ( $v['noi_dung']['chu'] ?? '' ) ) . '</p></div>';
 				$ly_do   = 'người đọc chưa thấy';
 			}
+		} elseif ( 'can_xem' === $v['loai'] ) {
+			$bai = get_post( (int) $v['doi_tuong_id'] );
+			if ( $bai ) {
+				$tieu_de = $bai->post_title;
+				$mo      = (string) get_permalink( $bai );
+				$than    = '<ul class="small">' . implode( '', array_map( static fn( $l ) => '<li>' . esc_html( (string) $l ) . '</li>', (array) ( $v['noi_dung']['ly_do'] ?? array() ) ) ) . '</ul>'
+					. '<p class="small muted">Bài đã chuyển sang với những phần chắc chắn. Mở bài, sửa phần cần sửa, rồi đánh dấu đã xem.</p>';
+				$ly_do   = 'từ bản cũ';
+			}
 		} elseif ( 'co_the_trung' === $v['loai'] ) {
 			$n     = $v['noi_dung'];
 			$lua   = self::loi_muc( (string) $n['a'] );

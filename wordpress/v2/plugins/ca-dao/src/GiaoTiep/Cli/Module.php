@@ -38,10 +38,40 @@ final class Module implements \Phongdao\HaTang\Module {
 	 *
 	 * [--thu]
 	 * : Chạy mọi quy tắc trong bộ nhớ, in báo cáo; không ghi gì.
+	 *
+	 * [--lam]
+	 * : Nhập thật theo lô (giữ ID bài, ghi giá trị cũ để hoàn tác). Dừng giữa chừng chạy lại được.
+	 *
+	 * [--hoan-tac]
+	 * : Đặt lại mọi thứ bước nhập đã đổi; dữ liệu MVP trở về như trước khi nhập.
+	 *
+	 * [--lo=<so>]
+	 * : Số bài mỗi lô khi --lam. Mặc định: 50.
 	 */
 	public function nhap( array $doi, array $tuy ): void {
+		if ( isset( $tuy['hoan-tac'] ) ) {
+			$kq = \Phongdao\DichVu\NhapDuLieuCu\NhapLam::hoan_tac();
+			\WP_CLI::success( "Đã hoàn tác: {$kq['bai']} bài, {$kq['kho']} câu kho, {$kq['ho_so']} hồ sơ nguồn." );
+			return;
+		}
+		if ( isset( $tuy['lam'] ) ) {
+			$lo   = max( 1, (int) ( $tuy['lo'] ?? 50 ) );
+			$tong = array( 'nhap' => 0, 'khong_mang' => 0, 'can_xem' => 0 );
+			do {
+				$kq = \Phongdao\DichVu\NhapDuLieuCu\NhapLam::chay( $lo );
+				foreach ( $tong as $k => $v ) {
+					$tong[ $k ] = $v + $kq[ $k ];
+				}
+				foreach ( $kq['loi'] as $loi ) {
+					\WP_CLI::warning( $loi );
+				}
+				\WP_CLI::line( "… đã nhập {$tong['nhap']} bài, còn {$kq['con']}" );
+			} while ( $kq['con'] && ! $kq['loi'] && ( $kq['nhap'] + $kq['khong_mang'] ) > 0 );
+			$kq['loi'] ? \WP_CLI::error( 'Dừng vì có lỗi; sửa rồi chạy lại (bài đã nhập giữ nguyên, bài hỏng chưa đổi gì).' ) : \WP_CLI::success( "Xong: {$tong['nhap']} bài nhập ({$tong['can_xem']} bài có thẻ Cần xem), {$tong['khong_mang']} bài chờ duyệt máy tạo không mang." );
+			return;
+		}
 		if ( ! isset( $tuy['thu'] ) ) {
-			\WP_CLI::error( 'Bước nhập thật chưa có ở bản này; dùng --thu.' );
+			\WP_CLI::error( 'Chọn --thu, --lam hoặc --hoan-tac.' );
 		}
 		foreach ( \Phongdao\DichVu\NhapDuLieuCu\NhapThu::in( \Phongdao\DichVu\NhapDuLieuCu\NhapThu::chay() ) as $dong ) {
 			\WP_CLI::line( $dong );

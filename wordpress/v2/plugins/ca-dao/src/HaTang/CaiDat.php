@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class CaiDat implements Module {
 
-	public const PHIEN_BAN_CSDL = 6;
+	public const PHIEN_BAN_CSDL = 7;
 
 	/** Tuỳ chọn lưu phiên bản lược đồ đã cài. */
 	public const TUY_CHON = 'phongdao_csdl';
@@ -50,6 +50,9 @@ final class CaiDat implements Module {
 		}
 		if ( $da_cai < 6 ) {
 			self::buoc_6();
+		}
+		if ( $da_cai < 7 ) {
+			self::buoc_7();
 		}
 		update_option( self::TUY_CHON, self::PHIEN_BAN_CSDL, false );
 	}
@@ -123,6 +126,18 @@ final class CaiDat implements Module {
 		}
 		if ( ! get_role( 'cadao_cong_tac' ) ) {
 			add_role( 'cadao_cong_tac', 'Cộng tác', array( 'read' => true, 'cadao_cong_tac' => true ) );
+		}
+	}
+
+	/**
+	 * Bước 7 (docs/29 mục 5): V2 vừa thay chỗ MVP trên site có bài MVP đã đăng → đánh dấu "chờ nhập" để khách thấy trang
+	 * nâng cấp tới khi `wp phongdao nhap --lam` xong. Site mới (bản xem trước, kiểm thử) không có bài MVP: không đánh dấu.
+	 */
+	private static function buoc_7(): void {
+		global $wpdb;
+		$co = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status = 'publish'", \Phongdao\DichVu\NhapDuLieuCu\DuLieuCu::LOAI_BAI ) );
+		if ( $co && ! get_option( \Phongdao\DichVu\NhapDuLieuCu\NhapLam::TRANG_THAI ) ) {
+			update_option( \Phongdao\DichVu\NhapDuLieuCu\NhapLam::TRANG_THAI, 'cho' );
 		}
 	}
 

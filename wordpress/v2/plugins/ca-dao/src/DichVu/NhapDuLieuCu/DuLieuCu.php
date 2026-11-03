@@ -39,7 +39,10 @@ final class DuLieuCu {
 			'ten'        => (string) $p->post_name,
 			'trang_thai' => (string) $p->post_status,
 			'tac_gia'    => (int) $p->post_author,
-			'ngay'       => (string) $p->post_date_gmt,
+			// Lúc người làm sửa bài lần cuối trên MVP (nháp chưa có ngày đăng GMT) — giờ của nhật ký khi nhập
+			'ngay'       => str_starts_with( (string) $p->post_modified_gmt, '0000' ) ? (string) $p->post_date_gmt : (string) $p->post_modified_gmt,
+			'sua_luc'    => array( (string) $p->post_modified, (string) $p->post_modified_gmt ),
+			'ngay_tao'   => array( (string) $p->post_date, (string) $p->post_date_gmt ),
 			'sua_cuoi'   => (int) ( $meta['_edit_last'] ?? 0 ),
 			'noi_dung'   => (string) $p->post_content,
 			'bam_khop'   => '' !== $bam && md5( $p->post_content ) === $bam,

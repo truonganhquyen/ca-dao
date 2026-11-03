@@ -22,6 +22,8 @@ final class QuyetViec {
 		'cau_moi'      => array( 'Câu mới từ nguồn', array( 'dang' => array( 'Đăng', 'primary' ), 'sua' => array( 'Sửa rồi đăng', '' ), 'de_sau' => array( 'Để sau', 'ghost' ), 'bo' => array( 'Bỏ', 'ghost' ) ) ),
 		'nhap_y_nghia' => array( 'Nháp ý nghĩa', array( 'duyet' => array( 'Duyệt', 'primary' ), 'bo' => array( 'Bỏ nháp', 'ghost' ) ) ),
 		'co_the_trung' => array( 'Có thể trùng', array( 'cung' => array( 'Cùng một bài', 'primary' ), 'di_ban' => array( 'Gộp làm dị bản', '' ), 'khac' => array( 'Là bài khác', '' ), 'de_sau' => array( 'Để sau', 'ghost' ) ) ),
+		// Bài nhập từ bản cũ có chỗ máy không tách chắc chắn (docs/29 mục 3): người sửa trên trang bài rồi đánh dấu xong
+		'can_xem'      => array( 'Cần xem', array( 'xong' => array( 'Đã xem, ổn rồi', 'primary' ), 'de_sau' => array( 'Để sau', 'ghost' ) ) ),
 	);
 
 	/**
@@ -76,6 +78,9 @@ final class QuyetViec {
 				}
 				Viec::dong( $id, Viec::XONG, 'duyet', $nguoi );
 				return self::kq( true, 'Đã duyệt; người đọc thấy ý nghĩa ngay.' );
+			case 'can_xem':
+				Viec::dong( $id, Viec::XONG, 'xong', $nguoi );
+				return self::kq( true, 'Đã đánh dấu xem xong.' );
 			case 'co_the_trung':
 				$a = (string) $v['noi_dung']['a'];
 				$b = (string) $v['noi_dung']['b'];
