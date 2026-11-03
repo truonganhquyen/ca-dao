@@ -39,6 +39,13 @@ if ( VeAnh::duoc() ) {
 	}
 	kt( 'có vẽ lời (nhiều điểm sáng ở vùng giữa)', $sang > 300, $sang );
 	kt( 'khổ, nền lạ hoặc bài không có lời: không vẽ', null === VeAnh::ve( $nd, 'tron', 'tim' ) && null === VeAnh::ve( $nd, 'ngang', 'cam' ) && null === VeAnh::ve( array( 'dong' => array() ) + $nd, 'ngang', 'tim' ) );
+	// CI (ANH_MAU): lưu ảnh mẫu vào thư mục ảnh chụp để người sáng lập xem bằng mắt (D-035)
+	$mau = (string) getenv( 'ANH_MAU' );
+	if ( '' !== $mau && ( is_dir( $mau ) || mkdir( $mau, 0777, true ) ) ) {
+		file_put_contents( "$mau/anh-chia-se-ngang-tim.png", $ngang );
+		file_put_contents( "$mau/anh-chia-se-vuong-giay-kem-y-nghia.png", (string) VeAnh::ve( $nd, 'vuong', 'giay', true ) );
+		file_put_contents( "$mau/anh-chia-se-doc-dem-cau-do.png", (string) VeAnh::ve( $nd_do, 'doc', 'dem' ) );
+	}
 	$dai = str_repeat( 'Dòng rất dài ', 30 );
 	$cat = VeAnh::cat( $dai, VeAnh::phong( 'literata-400' ), 40, 1000 );
 	kt( 'dòng quá dài bị cắt "…" cho vừa bề rộng', str_ends_with( $cat, '…' ) && VeAnh::rong( $cat, VeAnh::phong( 'literata-400' ), 40 ) <= 1000 && null !== VeAnh::ve( VeAnh::noi_dung( $tp( array( 'loi' => array( $dai ) ) ) ), 'ngang', 'tim' ) );
