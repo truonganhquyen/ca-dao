@@ -29,12 +29,6 @@ final class DocBai {
 			}
 		}
 		$hinh_thuc = self::term( $bai, 'hinh_thuc' );
-		$the_tho   = '';
-		foreach ( $hinh_thuc as $t ) {
-			if ( isset( TheTho::DS[ $t['ma'] ] ) ) {
-				$the_tho = $t['ma'];
-			}
-		}
 		return array( 'cam_nghi' => self::cam_nghi( $bai->ID ) ) + TrangTacPham::tu_phan(
 			$phan,
 			array(
@@ -42,7 +36,7 @@ final class DocBai {
 				'tieu_de'   => $bai->post_title,
 				'url'       => (string) get_permalink( $bai ),
 				'the_loai'  => self::the_loai( $bai ),
-				'the_tho'   => $the_tho,
+				'the_tho'   => self::the_tho( $hinh_thuc ),
 				'hinh_thuc' => implode( ' · ', array_column( $hinh_thuc, 0 ) ),
 				'chu_de'    => self::term( $bai, 'chu_de' ),
 				'vung'      => self::term( $bai, 'vung' ),
@@ -51,6 +45,41 @@ final class DocBai {
 				'ho_so'     => $ho_so,
 			)
 		);
+	}
+
+	/**
+	 * Dữ liệu nhẹ cho ảnh chia sẻ (DichVu\AnhChiaSe): chỉ lời, ý nghĩa, cờ nghi, thể loại, thể thơ — không đọc cảm nghĩ, số liệu,
+	 * tuyển tập. @return array<string,mixed>|null như tac_pham()
+	 */
+	public static function cho_anh( \WP_Post $bai ): ?array {
+		if ( KhaiBao::TAC_PHAM !== $bai->post_type ) {
+			return null;
+		}
+		return TrangTacPham::tu_phan(
+			array(
+				'loi'     => PhanBai::lay( $bai->ID, 'loi' ),
+				'y_nghia' => PhanBai::lay( $bai->ID, 'y_nghia' ),
+				'co_nghi' => PhanBai::lay( $bai->ID, 'co_nghi' ),
+			),
+			array(
+				'id'       => $bai->ID,
+				'tieu_de'  => $bai->post_title,
+				'url'      => (string) get_permalink( $bai ),
+				'the_loai' => self::the_loai( $bai ),
+				'the_tho'  => self::the_tho( self::term( $bai, 'hinh_thuc' ) ),
+			)
+		);
+	}
+
+	/** Thể thơ trong các hình thức của bài ('' = không rõ). */
+	private static function the_tho( array $hinh_thuc ): string {
+		$ra = '';
+		foreach ( $hinh_thuc as $t ) {
+			if ( isset( TheTho::DS[ $t['ma'] ] ) ) {
+				$ra = $t['ma'];
+			}
+		}
+		return $ra;
 	}
 
 	/** Cảm nghĩ đã duyệt của bài (cũ trước). @return list<array{id:int,ten:string,chu:string,ngay:string}> */

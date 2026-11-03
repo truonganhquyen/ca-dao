@@ -40,11 +40,12 @@ jobs:
           node-version-file: .node-version
           cache: npm
 
-      # Máy CI có sẵn PHP 8.3 (mức tối thiểu của V2); bộ kiểm thuần cần intl (Normalizer)
-      - name: PHP 8.3 có intl
+      # Máy CI có sẵn PHP 8.3 (mức tối thiểu của V2); bộ kiểm thuần cần intl (Normalizer) và GD có FreeType (ảnh chia sẻ)
+      - name: PHP 8.3 có intl, GD
         run: |
           php -v
           php -r 'exit(class_exists("Normalizer") ? 0 : 1);' || sudo apt-get install -y php-intl
+          php -r 'exit(function_exists("imagettftext") ? 0 : 1);' || sudo apt-get install -y php-gd
 
       - name: Cài gói (axe-core, puppeteer-core cho bước quét)
         run: npm ci

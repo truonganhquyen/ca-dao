@@ -685,6 +685,22 @@ ob_start();
 $SEO::dau_trang();
 $dau = (string) ob_get_clean();
 kt( 'đầu trang tác phẩm: mô tả từ Ý nghĩa, thẻ chia sẻ og:*, dữ liệu có cấu trúc CreativeWork + đường dẫn', str_contains( $dau, '<meta name="description" content="Một câu giải nghĩa tổng hợp' ) && str_contains( $dau, 'og:title' ) && str_contains( $dau, '"@type":"CreativeWork"' ) && str_contains( $dau, '"BreadcrumbList"' ) && ! str_contains( $dau, 'isBasedOn' ), $dau );
+// Ảnh chia sẻ: PHP của Playground không vẽ được chữ (GD không FreeType) → không có thẻ og:image, nút Tải ảnh chỉ nhắc
+$ANH  = \Phongdao\DichVu\AnhChiaSe\Module::class;
+$ve_d = \Phongdao\DichVu\AnhChiaSe\VeAnh::duoc();
+kt( 'ảnh chia sẻ: thẻ og:image, twitter:card chỉ khi máy vẽ được ' . ( $ve_d ? '(máy này vẽ được)' : '(máy này không)' ), $ve_d === str_contains( $dau, 'property="og:image"' ) && $ve_d === str_contains( $dau, 'name="twitter:card"' ) );
+[ $ma404 ]                      = $ANH::phan_hoi( array( 'phongdao_anh' => '999999' ) );
+$nhap_anh                       = wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'draft', 'post_title' => 'Nháp ảnh' ) );
+[ $ma_nhap ]                    = $ANH::phan_hoi( array( 'phongdao_anh' => (string) $nhap_anh ) );
+[ $ma_anh, $dau_tl, $than_anh ] = $ANH::phan_hoi( array( 'phongdao_anh' => (string) $l2, "kho-$l2" => 'vuong', "nen-$l2" => 'khong-co', "yn-$l2" => '1' ) );
+kt(
+	'tải ảnh: bài không có, bài nháp → 404; bài đã đăng → tệp PNG tải về (máy vẽ được) hoặc 503 nhắc chụp màn hình',
+	404 === $ma404 && 404 === $ma_nhap && ( $ve_d ? 200 === $ma_anh && 'image/png' === $dau_tl['Content-Type'] && str_contains( $dau_tl['Content-Disposition'], '-vuong.png' ) && str_starts_with( $than_anh, "\x89PNG" ) : 503 === $ma_anh && str_contains( $than_anh, 'chụp màn hình' ) ) && 'noindex' === $dau_tl['X-Robots-Tag'],
+	array( $ma404, $ma_nhap, $ma_anh, $dau_tl )
+);
+wp_delete_post( $nhap_anh, true );
+$acs = \Phongdao\GiaoTiep\Khoi\TacPham::hien( (array) \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_post( $l2 ) ) );
+kt( 'khối Ảnh để chia sẻ: máy vẽ được → form GET tới máy chủ (chạy cả khi tắt JavaScript); không → nút nhắc', $ve_d ? str_contains( $acs, '<form class="acs-chon" method="get"' ) && str_contains( $acs, 'name="phongdao_anh" value="' . $l2 . '"' ) : str_contains( $acs, 'data-action="download-card"' ) && ! str_contains( $acs, 'name="phongdao_anh"' ) );
 kt( 'mô tả bài chưa có ý nghĩa: hai dòng đầu + thể loại, không hứa điều trang không có', str_ends_with( $SEO::mo_ta_tac_pham( $mau_id['ve-mau'] ), '— Vè.' ) && mb_strlen( $SEO::cat( str_repeat( 'chữ ', 80 ) ) ) <= 160 );
 $t_chut = get_term_by( 'slug', 'chut', 'muc_tu' );
 $tl_ca  = get_term_by( 'slug', 'ca-dao', KhaiBao::THE_LOAI );
