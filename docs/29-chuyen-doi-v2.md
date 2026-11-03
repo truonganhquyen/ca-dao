@@ -104,7 +104,7 @@ Báo cáo không chép lời vào repo; chỉ mã bài, số lượng, lý do. C
 ## 6. Sau khi chuyển
 
 - **2 tuần quan sát:** agent theo dõi `kiem-site-that`, lỗi PHP (nếu được xem nhật ký), số liệu, các thẻ "Cần xem".
-- **T-164 · Dọn dữ liệu cũ** (H6, người sáng lập đồng ý): `wp phongdao don-dep --thu` liệt kê thứ sẽ xoá; `--lam` sau khi đồng ý; gỡ module `NhapDuLieuCu` và bảng `wp_cadao_chuyen_doi`.
+- **T-164 · Dọn dữ liệu cũ** (H6, người sáng lập đồng ý): `wp phongdao don-dep --thu` liệt kê thứ sẽ xoá; `--lam` sau khi đồng ý; gỡ module `NhapDuLieuCu` và bảng `wp_cadao_chuyen_doi`. Gồm cả thư mục ảnh chia sẻ của MVP `uploads/cadao-anh/` (V2 vẽ lại ở `uploads/phongdao-anh/`).
 - `docs/20`, `docs/24` chuyển vào `docs/luu-tru/` trong PR chuyển đổi; `docs/26`–`29` thành tài liệu chính.
 
 ## 7. Rủi ro

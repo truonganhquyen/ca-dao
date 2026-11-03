@@ -40,17 +40,21 @@ jobs:
           node-version-file: .node-version
           cache: npm
 
-      # Máy CI có sẵn PHP 8.3 (mức tối thiểu của V2); bộ kiểm thuần cần intl (Normalizer)
-      - name: PHP 8.3 có intl
+      # Máy CI có sẵn PHP 8.3 (mức tối thiểu của V2); bộ kiểm thuần cần intl (Normalizer) và GD có FreeType (ảnh chia sẻ)
+      - name: PHP 8.3 có intl, GD
         run: |
           php -v
           php -r 'exit(class_exists("Normalizer") ? 0 : 1);' || sudo apt-get install -y php-intl
+          php -r 'exit(function_exists("imagettftext") ? 0 : 1);' || sudo apt-get install -y php-gd
 
       - name: Cài gói (axe-core, puppeteer-core cho bước quét)
         run: npm ci
 
+      # ANH_MAU: bộ kiểm thuần lưu vài ảnh chia sẻ mẫu vào thư mục ảnh chụp (xem bằng mắt — Playground không vẽ được chữ)
       - name: Kiểm thử V2 (PHP thuần + Playground)
         run: npm run test:v2
+        env:
+          ANH_MAU: qa-anh-v2
 
       - name: Quét trợ năng, ngân sách V2 (WCAG 2.2 AA)
         run: npm run quet:v2 -- --anh qa-anh-v2

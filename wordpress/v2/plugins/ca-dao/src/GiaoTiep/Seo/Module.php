@@ -2,6 +2,7 @@
 
 namespace Phongdao\GiaoTiep\Seo;
 
+use Phongdao\DichVu\AnhChiaSe\Module as AnhChiaSe;
 use Phongdao\DichVu\DungTrang\DocBai;
 use Phongdao\GiaoTiep\Khoi\TuyenTap;
 use Phongdao\HaTang\KhaiBao;
@@ -226,6 +227,19 @@ final class Module implements \Phongdao\HaTang\Module {
 		if ( '' !== $mo_ta ) {
 			array_unshift( $the, array( 'name', 'description', $mo_ta ) );
 			$the[] = array( 'property', 'og:description', $mo_ta );
+		}
+		// Ảnh chia sẻ (Zalo, Facebook): ảnh lời của bài; trang khác ảnh chung. Máy không vẽ được thì không có thẻ
+		$bai = is_singular( KhaiBao::TAC_PHAM ) ? get_queried_object() : null;
+		$anh = $bai instanceof \WP_Post ? AnhChiaSe::og( $bai ) : ( is_singular() || is_404() ? null : AnhChiaSe::og_chung() );
+		if ( $anh ) {
+			array_push(
+				$the,
+				array( 'property', 'og:image', $anh['url'] ),
+				array( 'property', 'og:image:width', (string) $anh['rong'] ),
+				array( 'property', 'og:image:height', (string) $anh['cao'] ),
+				array( 'property', 'og:image:alt', $bai instanceof \WP_Post ? 'Lời “' . $bai->post_title . '” — ' . get_bloginfo( 'name' ) : get_bloginfo( 'name' ) ),
+				array( 'name', 'twitter:card', 'summary_large_image' )
+			);
 		}
 		foreach ( $the as [ $k, $ten, $gia_tri ] ) {
 			echo '<meta ' . esc_attr( $k ) . '="' . esc_attr( $ten ) . '" content="' . esc_attr( $gia_tri ) . '">' . "\n";

@@ -153,8 +153,11 @@
       const d = hop('Cỡ chữ và sáng tối', `<p>Cỡ chữ lời</p><div class="size-group" role="group" aria-label="Cỡ chữ lời">${[[22, 'Vừa'], [28, 'Lớn'], [34, 'Rất lớn']].map(([n, t]) => `<button type="button" data-action="size" data-size="${n}" aria-pressed="${String(getComputedStyle(document.documentElement).getPropertyValue('--reading-size').trim() === n + 'px')}">${t}</button>`).join('')}</div><p class="small muted">Lời luôn giữ mỗi câu một dòng; trên màn hẹp cỡ lớn tự co cho vừa.</p><div class="actions"><button type="button" class="btn" data-action="theme">Đổi sáng / tối</button></div>`);
       d.querySelector('[data-action=size]')?.focus();
     }
-    else if (viec === 'download-card') bao('Tải ảnh sẽ có khi máy chủ sinh ảnh PNG theo khổ và nền đã chọn.');
+    else if (viec === 'download-card') bao('Máy chủ chưa vẽ được ảnh. Hãy chụp màn hình phần xem trước.');
   });
+
+  // Tải ảnh: form gửi máy chủ (chạy cả khi tắt JavaScript); tính vào chia_se, không thêm sự kiện mới
+  document.addEventListener('submit', e => { const f = e.target.closest('form.acs-chon'); if (f) su('chia_se', { bai: f.elements.phongdao_anh?.value, kieu: 'tai_anh' }); });
 
   // Ảnh để chia sẻ: đổi nền (khổ, kèm ý nghĩa đổi bằng CSS, chạy cả khi tắt JavaScript)
   document.addEventListener('change', e => {

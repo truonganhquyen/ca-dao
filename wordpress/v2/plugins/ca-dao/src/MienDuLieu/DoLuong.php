@@ -13,7 +13,7 @@ final class DoLuong {
 		'tim_khong_ket_qua'  => null,
 		'trich_dan_sao_chep' => array( 'thong_dung', 'apa', 'chi_loi' ),
 		'chu_giai_mo'        => null,
-		'chia_se'            => array( 'web_share', 'sao_chep_lien_ket' ),
+		'chia_se'            => array( 'web_share', 'sao_chep_lien_ket', 'tai_anh' ),
 	);
 
 	/** Máy dò, trình xem trước liên kết: không tính. */
