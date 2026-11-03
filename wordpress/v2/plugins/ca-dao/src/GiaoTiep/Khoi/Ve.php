@@ -57,6 +57,7 @@ final class Ve {
 		'check'    => '<path d="m4 12 5 5L20 6"/>',
 		'info'     => '<circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/>',
 		'eye'      => '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+		'nghe'     => '<path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/>',
 		'copy'     => '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
 		'aa'       => '<path d="M3 19 8 5l5 14M5 14h6M15 19l3-8 3 8m-5-2.5h4"/>',
 		'download' => '<path d="M12 3v12m-5-5 5 5 5-5M4 20h16"/>',
@@ -218,7 +219,12 @@ final class Ve {
 	}
 
 	public static function the_loi( string $than, string $url, string $nhan = 'Lời', string $aria = 'Lời và ý nghĩa', string $nut = '' ): string {
-		return '<section class="verse-card' . ( '' === $nut ? '' : ' dang-sua' ) . '" aria-label="' . esc_attr( $aria ) . '"><div class="the-dau"><span class="eyebrow">' . esc_html( $nhan ) . '</span>' . ( '' === $nut ? self::nut_chep( $url ) : '<span class="row">' . $nut . self::nut_chep( $url ) . '</span>' ) . '</div>' . $than . '</section>';
+		return '<section class="verse-card' . ( '' === $nut ? '' : ' dang-sua' ) . '" aria-label="' . esc_attr( $aria ) . '"><div class="the-dau"><span class="eyebrow">' . esc_html( $nhan ) . '</span><span class="row">' . $nut . self::nut_nghe() . self::nut_chep( $url ) . '</span></div>' . $than . '</section>';
+	}
+
+	/** Nút Nghe giọng máy (D-095): doc.js chỉ cho hiện khi máy người đọc có giọng tiếng Việt; không tự phát. */
+	public static function nut_nghe(): string {
+		return '<button type="button" class="nut-chep no-print" data-action="nghe" aria-pressed="false" hidden aria-label="Nghe lời bằng giọng đọc có sẵn trên máy" title="Nghe lời bằng giọng đọc có sẵn trên máy">' . self::icon( 'nghe' ) . '<span class="nhan">Nghe</span></button>';
 	}
 
 	private static function nut( string $viec, string $hinh, string $nhan, string $lop = '', string $them = '' ): string {
