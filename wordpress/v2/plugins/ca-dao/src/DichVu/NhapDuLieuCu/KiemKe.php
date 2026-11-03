@@ -23,7 +23,7 @@ final class KiemKe {
 	/** Khoá term meta MVP đã biết. */
 	public const META_THE = array(
 		'_cadao_khoa', '_cadao_nguon_ten', '_cadao_nguon_url', '_cadao_chep', '_cadao_wd', '_cadao_wd_xet', '_cadao_anh_rieng',
-		'_cadao_anh_ghi_cong', '_cadao_an_anh', '_cadao_loai', '_cadao_mo_tip_dau', '_cadao_cc_wiki', '_cadao_cc_buoc',
+		'_cadao_anh_ghi_cong', '_cadao_an_anh', '_cadao_mo_tip_dau', '_cadao_cc_so_nguoi', '_cadao_cc_do_tuoi', '_cadao_cc_do_dung', '_cadao_cc_wiki', '_cadao_cc_buoc',
 		'_cadao_cc_nguon_ten', '_cadao_cc_nguon_url', '_cadao_cc_giay_phep',
 	);
 

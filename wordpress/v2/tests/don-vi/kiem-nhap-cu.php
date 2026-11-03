@@ -111,6 +111,10 @@ $r = DungPhan::dung( nc_bai( array( nc_tho( 'Lời' ), nc_tieu_de( 'Chú thích'
 kt( 'nguồn người điền → hồ sơ + nguồn của chú thích người viết (trang, đường dẫn, ngày giữ đúng)', array( 'ho_so' => 40, 'url' => 'https://example.org/sach', 'ngay_truy_cap' => '2026-10-20' ) === ( $r['phan']['chu_thich']['muc'][0]['nguon'] ?? null ) && 'nguoi_viet' === $r['phan']['chu_thich']['muc'][0]['nguoi_lam'], $r['phan']['chu_thich'] );
 kt( 'đối chiếu → hồ sơ loại sách + trang', array( 'ho_so' => 41, 'trang' => '12' ) === ( $r['phan']['loi']['doi_chieu'] ?? null ) && in_array( array( 'sach', 'Tuyển tập mẫu', '' ), $GLOBALS['nc_ho_so_goi'], true ), $r['phan']['loi'] );
 kt( 'địa chỉ gốc máy đã lấy → phần nội bộ nguon_may', array( 'nguon_id' => 'cadao-me', 'url_goc' => 'https://example.org/bai-1/', 'ma_goc' => '1', 'ngay_lay' => '2026-10-01' ) === ( $r['phan']['nguon_may'] ?? null ) );
+$nc_mt           = $nc;
+$nc_mt['muc_tu'] = static fn( string $tu, string $giai ): int => 'từ' === $tu && 'Người viết giải.' === $giai ? 77 : 0;
+$r               = DungPhan::dung( nc_bai( array( nc_tho( 'Lời' ), nc_tieu_de( 'Chú thích' ), nc_ds_ct( array( '<strong>từ</strong>: Người viết giải.', '<strong>khác</strong>: Không có mục từ.' ), false ) ) ), $nc_mt );
+kt( 'chú thích nối với mục từ MVP tạo từ nó (cùng từ + lời giải); không có mục từ thì không gắn', 77 === ( $r['phan']['chu_thich']['muc'][0]['muc_tu_id'] ?? 0 ) && ! isset( $r['phan']['chu_thich']['muc'][1]['muc_tu_id'] ), $r['phan']['chu_thich'] );
 $r = DungPhan::dung( nc_bai( array( nc_tho( 'Lời' ) ) ), $nc );
 kt( 'bài không có ô nguồn → không phần nào có nguồn (không tự điền)', ! isset( $r['phan']['loi']['nguon'] ) && ! isset( $r['phan']['nguon_may'] ) );
 $r = DungPhan::dung( nc_bai( array( nc_tho( 'Lời' ) ), array( 'meta' => array( 'nguon_ten' => 'Nguồn lẻ', 'doi_chieu_ten' => 'Sách', 'ngay_truy_cap' => 'hôm qua' ) ) ), $nc );

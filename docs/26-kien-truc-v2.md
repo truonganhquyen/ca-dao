@@ -112,6 +112,8 @@ Cảm nghĩ ngắn của người đọc: bình luận WordPress, luôn chờ du
 
 Bỏ phân loại `tinh_huong` (thành tuyển tập loại `tinh_huong`) và `the_tho` (thành `hinh_thuc`).
 
+**Term meta (03/11/2026, đặt khi viết công cụ nhập — `docs/29`):** mục từ: lời giải là mô tả của term; `_phongdao_loi_giai` `{nguoi_lam: may_chep | nguoi_viet, nguon?: {ho_so, url?}}`, `_phongdao_wikidata` (bản đã xác nhận, dạng MVP), `_phongdao_anh` `{rieng?: ID ảnh, ghi_cong?, an?}`, `_phongdao_khoa` (khoá từ + lời giải để nối chú thích). Trò chơi: `_phongdao_cach_choi` `{so_nguoi?, do_tuoi?, do_dung?, buoc: [], nguoi_lam, nguon?: {ho_so, url?, ghi_chu?}, giay_phep?, wiki?}`. Mô-típ: `_phongdao_mo_tip_dau` (dấu nhóm của máy; tên do người đặt là tên term). Bộ chủ đề, bảng ánh xạ chủ đề, mô-típ đã đặt / bỏ qua giữ ở các tuỳ chọn MVP cùng tên (`cadao_bo_chu_de`, `cadao_anh_xa_chu_de`, `cadao_mo_tip_bo`, `cadao_mo_tip_bo_qua`).
+
 ### 4.3. Phần của bài
 
 Mỗi phần của tác phẩm là **một khoá post meta** `_phongdao_<phần>` (D-094), khai báo bằng `register_post_meta` trong `HaTang\KhaiBao` (danh mục phần ở `MienDuLieu\Phan`), không mở qua REST mặc định của WordPress. Giá trị là mảng PHP; hình dạng và lằn ranh kiểm ở `MienDuLieu\KiemPhan` (PHP thuần, có kiểm thử) mỗi lần lưu.
