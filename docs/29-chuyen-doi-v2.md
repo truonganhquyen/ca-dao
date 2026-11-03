@@ -54,7 +54,7 @@ Việc đầu tiên của T-145: agent đọc toàn bộ mã MVP (`wordpress/plu
 | Người dùng, khoá Turnstile, cài đặt WordPress | bảng WordPress, tuỳ chọn `cadao_turnstile_*` | giữ |
 | Mã bài cũ của site Astro, đường dẫn `/thanh-ngu/` | `_cadao_ma_site_cu`, tuỳ chọn `cadao_site_cu` | bảng chuyển hướng 301 |
 
-**Không mang** (máy tạo lại hoặc không còn dùng): bài `cdtn` trạng thái Chờ duyệt do máy tạo (câu trong kho thành ứng viên); gợi ý chưa duyệt (`_cadao_goi_y`, máy gợi ý lại); dấu băm `_cadao_bam`; `loai_tach` trong kho; tuỳ chọn số phiên bản bảng cũ; chỉ mục tìm (dựng lại); ảnh chia sẻ (sinh lại); trang sinh bởi mã (`cadao_trang_*` trỏ trang — khai báo lại theo trang có sẵn).
+**Không mang** (máy tạo lại hoặc không còn dùng): bài `cdtn` trạng thái Chờ duyệt do máy tạo (câu trong kho thành ứng viên); gợi ý chưa duyệt (`_cadao_goi_y`, máy gợi ý lại — lượt gợi ý chạy khi nhập xong; bài đã duyệt gợi ý `_cadao_goi_y_xong` chuyển thành việc gợi ý đã quyết cho cả bài, không bị gợi ý lại); dấu băm `_cadao_bam`; `loai_tach` trong kho; tuỳ chọn số phiên bản bảng cũ; chỉ mục tìm (dựng lại); ảnh chia sẻ (sinh lại); trang sinh bởi mã (`cadao_trang_*` trỏ trang — khai báo lại theo trang có sẵn).
 
 ## 3. Quy tắc nhập
 

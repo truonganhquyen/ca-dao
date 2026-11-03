@@ -107,6 +107,13 @@ final class Viec {
 		return array_map( array( self::class, 'doc' ), $ds ?: array() );
 	}
 
+	/** Mọi việc một loại của một đối tượng, mọi trạng thái (để không tạo lại việc người đã quyết). */
+	public static function cua( string $doi_tuong_loai, int $doi_tuong_id, string $loai ): array {
+		global $wpdb;
+		$ds = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . self::bang() . ' WHERE doi_tuong_loai = %s AND doi_tuong_id = %d AND loai = %s ORDER BY id ASC', $doi_tuong_loai, $doi_tuong_id, $loai ), ARRAY_A );
+		return array_map( array( self::class, 'doc' ), $ds ?: array() );
+	}
+
 	/** Đóng một việc: trạng thái xong / bỏ / để sau, hành động đã chọn, người quyết, lúc quyết. */
 	public static function dong( int $id, string $trang_thai, string $quyet, int $nguoi ): bool {
 		global $wpdb;

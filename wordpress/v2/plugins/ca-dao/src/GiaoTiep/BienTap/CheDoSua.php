@@ -86,8 +86,8 @@ final class CheDoSua {
 
 	/** Khối Lịch sử (chỉ người biên soạn thấy). */
 	public static function lich_su( array $sua ): string {
-		$ten = array( 'loi' => 'Lời', 'y_nghia' => 'Ý nghĩa', 'chu_thich' => 'Từ khó', 'di_ban' => 'Dị bản', 'nghia_den' => 'Nghĩa đen', 'nghia_bong' => 'Nghĩa bóng', 'dung_khi' => 'Dùng khi', 'cau_hoi' => 'Câu hỏi', 'dap_an' => 'Đáp án', 'goi_y' => 'Gợi ý', 'co_nghi' => 'Cờ nghi', 'boi_canh' => 'Bối cảnh', 'doan' => 'Đoạn', 'nguon_may' => 'Địa chỉ gốc', 'trang_thai' => 'Trạng thái', 'ten' => 'Tên bài' );
-		$viec = array( 'luu' => 'sửa', 'xoa' => 'gỡ', 'khoi_phuc' => 'khôi phục bản trước', 'dang' => 'đăng', 'an' => 'ẩn', 'nhap' => 'về nháp' );
+		$ten = array( 'loi' => 'Lời', 'y_nghia' => 'Ý nghĩa', 'chu_thich' => 'Từ khó', 'di_ban' => 'Dị bản', 'nghia_den' => 'Nghĩa đen', 'nghia_bong' => 'Nghĩa bóng', 'dung_khi' => 'Dùng khi', 'cau_hoi' => 'Câu hỏi', 'dap_an' => 'Đáp án', 'goi_y' => 'Gợi ý', 'co_nghi' => 'Cờ nghi', 'boi_canh' => 'Bối cảnh', 'doan' => 'Đoạn', 'chu_de' => 'Chủ đề', 'vung' => 'Vùng', 'goi_y' => 'Gợi ý', 'nguon_may' => 'Địa chỉ gốc', 'trang_thai' => 'Trạng thái', 'ten' => 'Tên bài' );
+		$viec = array( 'luu' => 'sửa', 'xoa' => 'gỡ', 'khoi_phuc' => 'khôi phục bản trước', 'dang' => 'đăng', 'an' => 'ẩn', 'nhap' => 'về nháp', 'dong_y' => 'đồng ý gợi ý', 'da_co' => 'đã có', 'da_duyet_mvp' => 'đã duyệt trên bản cũ' );
 		$o    = '';
 		foreach ( $sua['lich_su'] as $r ) {
 			$nd = (int) $r['nguoi_quyet'] ? get_userdata( (int) $r['nguoi_quyet'] ) : null;
