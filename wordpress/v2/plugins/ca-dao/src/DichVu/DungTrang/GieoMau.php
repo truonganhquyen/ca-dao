@@ -75,6 +75,30 @@ final class GieoMau {
 		),
 	);
 
+	/**
+	 * Mục từ và tuyển tập mẫu (trang Từ điển, Tuyển tập) — gọi sau gieo(). Tuyển tập mẫu loại Tình huống (ngưỡng công
+	 * khai 2 câu, bộ mẫu chỉ có 6 tác phẩm). @return array{muc_tu:int,tuyen_tap:int}
+	 */
+	public static function gieo_tra_cuu( int $nguoi ): array {
+		$bai = self::gieo( $nguoi );
+		$co  = term_exists( 'chut', 'muc_tu' );
+		$mt  = $co ? (int) $co['term_id'] : (int) ( wp_insert_term( 'chút', 'muc_tu', array( 'slug' => 'chut', 'description' => 'Chú thích tổng hợp để xem giao diện (từ có trong lời: chạm để xem).' ) )['term_id'] ?? 0 );
+		foreach ( array( 'dong-mau-mot-cua-bai', 'tuc-ngu-mau-ngan' ) as $ten ) {
+			if ( $mt && isset( $bai[ $ten ] ) ) {
+				wp_set_object_terms( $bai[ $ten ], $mt, 'muc_tu', true );
+			}
+		}
+		$tt = get_page_by_path( 'gui-mot-loi-nhan-mau', OBJECT, KhaiBao::TUYEN_TAP );
+		$id = $tt ? $tt->ID : (int) wp_insert_post( wp_slash( array( 'post_type' => KhaiBao::TUYEN_TAP, 'post_status' => 'publish', 'post_name' => 'gui-mot-loi-nhan-mau', 'post_title' => 'Gửi một lời nhắn (mẫu)', 'post_author' => $nguoi ) ) );
+		if ( $id && ! $tt ) {
+			$nc = array( 'nguoi' => $nguoi, 'goi' => KiemPhan::GOI_NGUOI, 'duyet' => true );
+			LuuPhan::luu( $id, 'thong_tin', array( 'loai' => 'tinh_huong' ), $nc );
+			LuuPhan::luu( $id, 'loi_dan', array( 'chu' => 'Lời dẫn tổng hợp để xem bố cục tuyển tập đọc liền.', 'nguoi_lam' => NguoiLam::NGUOI_VIET ), $nc );
+			LuuPhan::luu( $id, 'muc', array_map( static fn( int $b ): array => array( 'tac_pham_id' => $b, 'ghi_chu' => 'Ghi chú mẫu cho câu này.' ), array_values( $bai ) ), $nc );
+		}
+		return array( 'muc_tu' => $mt, 'tuyen_tap' => $id );
+	}
+
 	/** @return array<string,int> tên đường dẫn => ID các tác phẩm mẫu (đã có thì giữ) */
 	public static function gieo( int $nguoi ): array {
 		$ra = array();

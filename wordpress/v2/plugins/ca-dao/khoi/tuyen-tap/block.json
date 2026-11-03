@@ -1,0 +1,16 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cadao/tuyen-tap",
+	"title": "Tuyển tập",
+	"category": "theme",
+	"description": "Một tuyển tập đọc liền (bộ thiết kế R11): lời dẫn, các câu kèm ý nghĩa, mức kiểm, ghi chú; tuyển tập khác.",
+	"textdomain": "ca-dao",
+	"version": "1",
+	"supports": {
+		"html": false,
+		"inserter": false,
+		"reusable": false
+	},
+	"render": "file:./render.php"
+}
