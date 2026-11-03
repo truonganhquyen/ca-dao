@@ -17,6 +17,9 @@ if ( '' !== $ma ) {
 	$bai = get_queried_object();
 	$bai = $bai instanceof WP_Post ? $bai : get_post();
 	$tp  = $bai instanceof WP_Post ? \Phongdao\DichVu\DungTrang\DocBai::tac_pham( $bai ) : null;
+	if ( $tp ) {
+		$tp['doc_tiep'] = \Phongdao\DichVu\DungTrang\DocTiep::cho( $bai ); // chỉ trang bài (không tính cho từng câu trong tuyển tập)
+	}
 	$sua = $tp ? \Phongdao\GiaoTiep\BienTap\CheDoSua::ngu_canh( $bai ) : null;
 }
 if ( $tp ) {

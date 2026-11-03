@@ -10,7 +10,8 @@ defined( 'ABSPATH' ) || exit;
  * Trang tác phẩm (docs/27 mục 6, bộ thiết kế R05–R09): đầu trang căn giữa → thẻ lời (lời, nhãn mức kiểm, ý nghĩa)
  * + công cụ đọc → từ khó, dị bản, (tục ngữ: giải nghĩa chi tiết, dùng khi, câu gần nghĩa) → chủ đề / vùng / tuyển tập
  * → Lời này từ đâu? → Ảnh để chia sẻ. Khối không có dữ liệu thì không hiện, kể cả tiêu đề (docs/27 mục 1).
- * Đọc tiếp, Bạn muốn góp gì?, Cảm nghĩ, Trình chiếu làm khi có dữ liệu thật.
+ * → Đọc tiếp (3–5 bài gần, kèm lý do) → Ảnh để chia sẻ → Bạn muốn góp gì?, Cảm nghĩ. Đồng dao: nút Đọc cùng bé trên lời;
+ * Trình chiếu ở cột công cụ đọc (doc.js — nút chỉ hiện khi có JavaScript).
  */
 final class TacPham {
 
@@ -50,9 +51,10 @@ final class TacPham {
 		$sua_ve   = $sua && 've' === $tp['the_loai']
 			? '<p class="row no-print">' . $nut( 'boi_canh', empty( $sua['phan']['boi_canh'] ) ? 'Thêm bối cảnh' : 'Sửa bối cảnh' ) . $nut( 'doan', empty( $sua['phan']['doan'] ) ? 'Chia đoạn' : 'Sửa đoạn' ) . '</p>'
 			: '';
+		$be       = 'dong-dao' === $tp['the_loai'] ? '<p class="row no-print"><button type="button" class="btn" data-action="kids" data-chi-js hidden>' . Ve::icon( 'kids' ) . 'Đọc cùng bé</button></p>' : '';
 		$than_loi = $tuc_ngu
 			? $goc( 'Lời', 'loi' ) . $muc_kiem . $y
-			: $sua_ve . $boi_canh
+			: $sua_ve . $boi_canh . $be
 				. ( empty( $tp['doan'] )
 					? Ve::loi( $tp['loi'], $tp['kieu'], $tu, array( 'so_dong' => ! $cau_do, 'nhom' => $tp['ma'] ) )
 					: Ve::loi_doan( $tp['doan'], $tp['kieu'], $tu, array( 'so_dong' => ! $cau_do, 'nhom' => $tp['ma'], 'bai' => $tp['ma'] ) ) )
@@ -105,7 +107,9 @@ final class TacPham {
 		foreach ( $tp['tuyen_tap'] as $t ) {
 			$nhan_cuoi .= self::nhan_lien_ket( $t, 'tuyen-tap', 'Có trong tuyển tập: ', 'tag-pill plain' );
 		}
-		$sau .= '<div class="work-tags">' . $nhan_cuoi . '</div>' . self::tu_lieu( $tp ) . AnhChiaSe::hien( $tp )
+		$sau .= '<div class="work-tags">' . $nhan_cuoi . '</div>' . self::tu_lieu( $tp )
+			. ( empty( $tp['doc_tiep'] ) ? '' : Ve::khoi( 'Đọc tiếp', '<div class="grid two doc-tiep">' . implode( '', array_map( array( DanhSach::class, 'the' ), $tp['doc_tiep'] ) ) . '</div>', '', 'doc-tiep' ) )
+			. AnhChiaSe::hien( $tp )
 			// phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc lời báo sau khi gửi
 			. ( ctype_digit( (string) $tp['ma'] ) ? GopTuLieu::cuoi_bai( (int) $tp['ma'], $tp['cam_nghi'] ?? array(), 'da_gui' === ( $_GET['gop'] ?? '' ) ) : '' )
 			. ( $sua ? CheDoSua::lich_su( $sua ) : '' );
