@@ -55,9 +55,10 @@
     fit();
   };
   const daChon = doc('phongdao-co-chu'); if ([22, 28, 34].includes(daChon)) coChu(daChon);
-  // Đã lưu: danh sách mã bài trên máy người đọc
-  const daLuu = () => doc('phongdao-da-luu') || [];
-  $$('[data-action=save]').forEach(b => { if (daLuu().includes(b.dataset.id)) { b.setAttribute('aria-pressed', 'true'); $('.nhan', b).textContent = 'Đã lưu'; } });
+  // Đã lưu: trên máy người đọc, cùng khoá và dạng {id, ten, url, loai, dong} với MVP — bài lưu trước khi chuyển vẫn còn
+  const daLuu = () => { const d = doc('cadao-da-luu'); return Array.isArray(d) ? d : []; };
+  const coLuu = id => daLuu().some(x => x && String(x.id) === id);
+  $$('[data-action=save]').forEach(b => { if (coLuu(b.dataset.id)) { b.setAttribute('aria-pressed', 'true'); $('.nhan', b).textContent = 'Đã lưu'; } });
 
   // Bạn là: chỉ đổi thứ tự khối trang chủ, nhớ trên máy (D-087); tắt JavaScript thì thanh này ẩn sẵn
   const THU_TU = { 'Phụ huynh': [4, 7, 5, 6, 8], 'Giáo viên': [5, 4, 7, 6, 8], 'Yêu văn hoá': [5, 7, 4, 6, 8] };
@@ -88,8 +89,9 @@
     else if (viec === 'role-reset') { ghi('phongdao-vai', {}); vai(null); }
     else if (viec === 'copy-link') chep(b.dataset.url, 'Đã sao chép liên kết.');
     else if (viec === 'save') {
-      const ds = daLuu(), co = ds.includes(b.dataset.id), moi = co ? ds.filter(x => x !== b.dataset.id) : [...ds, b.dataset.id];
-      if (!ghi('phongdao-da-luu', moi)) { bao('Trình duyệt đang chặn bộ nhớ nên chưa lưu được.'); return; }
+      const id = b.dataset.id, co = coLuu(id), ds = daLuu().filter(x => x && String(x.id) !== id);
+      const moi = co ? ds : [{ id, ten: b.dataset.tieuDe, url: b.dataset.url, loai: b.dataset.theLoai, dong: loiBai(document)[0] || '' }, ...ds].slice(0, 500);
+      if (!ghi('cadao-da-luu', moi)) { bao('Trình duyệt đang chặn bộ nhớ nên chưa lưu được.'); return; }
       b.setAttribute('aria-pressed', String(!co)); $('.nhan', b).textContent = co ? 'Lưu' : 'Đã lưu';
       bao(co ? 'Đã bỏ lưu.' : 'Đã lưu trên máy này. Xem ở mục Đã lưu.');
     }
