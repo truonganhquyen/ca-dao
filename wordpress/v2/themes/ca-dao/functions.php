@@ -22,8 +22,9 @@ add_action(
 const PHONGDAO_MA_GIAO_DIEN = 'try{var t=localStorage.getItem("phongdao-giao-dien");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}';
 add_action( 'wp_head', static fn() => print( '<script>' . PHONGDAO_MA_GIAO_DIEN . "</script>\n" ), 1 ); // phpcs:ignore WordPress.Security.EscapeOutput -- hằng cố định
 add_filter( 'phongdao_csp_script', static fn( array $ds ): array => array_merge( $ds, array( "'sha256-" . base64_encode( hash( 'sha256', PHONGDAO_MA_GIAO_DIEN, true ) ) . "'" ) ) );
-// Theme đã có liên kết "Bỏ qua điều hướng"; liên kết của WordPress là mã nội tuyến (trùng, CSP chặn)
-remove_action( 'wp_enqueue_scripts', 'wp_enqueue_block_template_skip_link' );
+// Theme đã có liên kết "Bỏ qua điều hướng"; liên kết của WordPress là mã nội tuyến (trùng, CSP chặn). WordPress gắn nó
+// khi chọn khuôn trang (sau khi tệp này nạp), nên gỡ ngay trong lượt wp_enqueue_scripts, trước thứ tự 10 của nó.
+add_action( 'wp_enqueue_scripts', static fn() => remove_action( 'wp_enqueue_scripts', 'wp_enqueue_block_template_skip_link' ), 1 );
 
 // Không tải emoji từ máy chủ ngoài (không dịch vụ bên thứ ba khi người đọc chưa mở — AGENTS.md).
 remove_action( 'wp_head', 'print_emoji_detection_script', 7 );

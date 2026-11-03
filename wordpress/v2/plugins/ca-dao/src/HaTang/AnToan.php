@@ -100,7 +100,8 @@ final class AnToan implements Module {
 	 * kiểu toàn cục và lời dùng style="--dai".
 	 */
 	public static function csp(): string {
-		$ma = array_merge( array( "'self'", "'inline-speculation-rules'", 'https://challenges.cloudflare.com' ), (array) apply_filters( 'phongdao_csp_script', array() ) );
+		// 'report-sample': trình duyệt kèm 40 ký tự đầu của mã bị chặn (quet:v2 in ra để biết chỗ sửa)
+		$ma = array_merge( array( "'self'", "'inline-speculation-rules'", "'report-sample'", 'https://challenges.cloudflare.com' ), (array) apply_filters( 'phongdao_csp_script', array() ) );
 		return implode(
 			'; ',
 			array(

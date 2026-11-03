@@ -133,7 +133,7 @@ try {
         if (cs.trang > NGAN_SACH.trang) loi.push(`${duong}: trang ${kb(cs.trang)} vượt ngân sách ${kb(NGAN_SACH.trang)}`);
         if (cs.js > NGAN_SACH.js) loi.push(`${duong}: JavaScript ${kb(cs.js)} vượt ngân sách ${kb(NGAN_SACH.js)}`);
       }
-      await tab.addScriptTag({ content: axeNguon });
+      await tab.evaluate(axeNguon); // không qua thẻ <script>: CSP của trang khách không chặn công cụ quét
       const kq = await tab.evaluate(the => window.axe.run(document, { runOnly: { type: 'tag', values: the } }), THE_WCAG);
       for (const v of kq.violations) {
         for (const n of v.nodes.slice(0, 3)) loi.push(`${duong} (${c.ten}): [${v.id}] ${v.help} — ${n.target.join(' ')}`);
