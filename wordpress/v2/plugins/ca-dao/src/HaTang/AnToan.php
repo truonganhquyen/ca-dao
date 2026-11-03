@@ -17,6 +17,7 @@ final class AnToan implements Module {
 	public const KHOA_GIAY = 15 * MINUTE_IN_SECONDS;
 
 	public function dang_ky(): void {
+		add_filter( 'wp_headers', array( self::class, 'dau_bao_ve' ) );
 		add_filter( 'xmlrpc_enabled', '__return_false' );
 		add_filter( 'xmlrpc_methods', '__return_empty_array' );
 		add_filter( 'pings_open', '__return_false' );
@@ -78,6 +79,44 @@ final class AnToan implements Module {
 		add_action( 'wp_login_failed', array( self::class, 'ghi_sai' ) );
 		add_action( 'wp_login', static fn( $ten ) => delete_transient( self::khoa( (string) $ten ) ) );
 		add_filter( 'authenticate', array( self::class, 'xac_thuc' ), 99, 2 );
+	}
+
+	/**
+	 * Đầu trả lời bảo vệ trang người đọc (docs/26 mục 11): Referrer-Policy, nosniff; khách thêm Content-Security-Policy.
+	 * Người biên soạn đăng nhập không nhận CSP (thanh quản trị, tấm sửa có mã nội tuyến của WordPress).
+	 */
+	public static function dau_bao_ve( array $dau ): array {
+		$dau['Referrer-Policy']        = 'strict-origin-when-cross-origin';
+		$dau['X-Content-Type-Options'] = 'nosniff';
+		if ( ! is_user_logged_in() ) {
+			$dau['Content-Security-Policy'] = self::csp();
+		}
+		return $dau;
+	}
+
+	/**
+	 * CSP: không mã nội tuyến (mã nội tuyến cố định như đoạn sáng / tối của theme khai dấu băm qua bộ lọc
+	 * phongdao_csp_script), không máy chủ ngoài trừ Turnstile của form góp; kiểu nội tuyến được phép vì WordPress in
+	 * kiểu toàn cục và lời dùng style="--dai".
+	 */
+	public static function csp(): string {
+		$ma = array_merge( array( "'self'", "'inline-speculation-rules'", 'https://challenges.cloudflare.com' ), (array) apply_filters( 'phongdao_csp_script', array() ) );
+		return implode(
+			'; ',
+			array(
+				"default-src 'self'",
+				'script-src ' . implode( ' ', array_unique( array_map( 'strval', $ma ) ) ),
+				"style-src 'self' 'unsafe-inline'",
+				"img-src 'self' data:",
+				"font-src 'self'",
+				"connect-src 'self'",
+				'frame-src https://challenges.cloudflare.com',
+				"frame-ancestors 'self'",
+				"form-action 'self'",
+				"base-uri 'self'",
+				"object-src 'none'",
+			)
+		);
 	}
 
 	/** Khoá đếm lần sai: theo tài khoản nếu chữ gõ là tên hoặc email của một tài khoản, không thì theo chính chữ đó. */

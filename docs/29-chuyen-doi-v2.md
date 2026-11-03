@@ -95,7 +95,7 @@ Báo cáo không chép lời vào repo; chỉ mã bài, số lượng, lý do. C
 | 1 | Người sáng lập | Đọc báo cáo (số bài, số "Cần xem", đường dẫn đổi); chọn giờ chuyển; mở FlashPanel xác nhận có bản sao lưu đêm trước (D-090) | 15 phút |
 | 2 | Agent | Gộp PR chuyển đổi (V2 vào `wordpress/plugins/ca-dao`, `wordpress/themes/ca-dao`, phiên bản 1.0.0). Máy chủ tự cập nhật trong ~5 phút. Khi chưa nhập xong, plugin V2 trả trang "Thư viện đang được nâng cấp" (503, `Retry-After`) cho khách chưa đăng nhập | — |
 | 3 | Agent | `wp phongdao nhap --lam` (được đồng ý), theo dõi hàng đợi tới xong | 10–30 phút |
-| 4 | Agent | `npm run kiem-site-that` (đúng 1.0.0), bộ kiểm chỉ đọc trên site thật (`e2e:v2` phần không ghi), so số liệu: số tác phẩm, ý nghĩa, lượt đọc, cảm nghĩ, phân tích, mục từ, trò chơi trước / sau; thử 20 đường dẫn cũ ra 301 đúng | 15 phút |
+| 4 | Agent | `npm run kiem-site-that` (đúng 1.0.0), bộ kiểm chỉ đọc trên site thật (`e2e:v2` phần không ghi), so số liệu: số tác phẩm, ý nghĩa, lượt đọc, cảm nghĩ, phân tích, mục từ, trò chơi trước / sau; thử 20 đường dẫn cũ ra 301 đúng; mở vài trang bằng trình duyệt khách, console không có lỗi CSP (nếu có: Cloudflare đang chèn mã — tắt Rocket Loader / Web Analytics) | 15 phút |
 | 5 | Người sáng lập | Trên điện thoại: trang chủ, 1 bài mỗi thể loại, một tuyển tập (tình huống cũ), tìm 3 câu, Từ điển, Hộp việc (quyết 3 thẻ), sửa một phần trên trang bài, thêm và đăng thử 1 bài | 20–30 phút |
 | 6 | Người sáng lập | **Mở** (H5): Cài đặt → Đọc → bỏ chọn "Ngăn các công cụ tìm kiếm…" — ngay hoặc khi sẵn sàng | 1 phút |
 

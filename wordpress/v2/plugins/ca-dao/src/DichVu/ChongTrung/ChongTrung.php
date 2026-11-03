@@ -202,6 +202,26 @@ final class ChongTrung implements Module {
 		);
 	}
 
+	/**
+	 * Câu trong kho chưa thành bài có chứa cụm người đọc tìm: đủ mọi cặp âm tiết liền nhau của cụm (cụm từ 3 âm tiết).
+	 * Trang Tìm hiện "Câu này đang chờ biên soạn" mà không đọc lời kho ra (docs/26 mục 8). 0 = không có.
+	 */
+	public static function kho_co( string $q ): int {
+		global $wpdb;
+		$cap = VanTay::cua( $q )['cap'];
+		if ( count( $cap ) < 2 ) {
+			return 0;
+		}
+		$ds = $wpdb->get_col( 'SELECT t.muc FROM ' . self::bang( 'cap_am' ) . ' c JOIN ' . self::bang( 'van_tay' ) . ' t ON t.id = c.van_tay_id WHERE c.cap IN (' . implode( ',', array_map( 'intval', $cap ) ) . ") AND t.muc LIKE 'kho:%' GROUP BY c.van_tay_id HAVING COUNT(*) >= " . count( $cap ) . ' LIMIT 20' ); // phpcs:ignore WordPress.DB.PreparedSQL -- chỉ số nguyên
+		foreach ( $ds ?: array() as $muc ) {
+			$m = Kho::lay( self::tach_muc( (string) $muc )[1] );
+			if ( $m && 'moi' === $m->trang_thai && ! (int) $m->post_id ) {
+				return (int) $m->id;
+			}
+		}
+		return 0;
+	}
+
 	// ---------- Mục ----------
 
 	/** @return array{0:string,1:int} ['bai'|'kho', id] */

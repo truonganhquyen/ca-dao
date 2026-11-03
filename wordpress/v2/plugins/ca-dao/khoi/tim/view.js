@@ -13,6 +13,7 @@
       const cu = document.getElementById(id), moi = t.querySelector('#' + id);
       if (cu && moi) cu.innerHTML = moi.innerHTML;
     }
+    document.querySelectorAll('[data-action=mong-co-cau][hidden]').forEach(b => { b.hidden = false; });
     if (window.PDfit) window.PDfit();
   };
   o.addEventListener('input', () => {
