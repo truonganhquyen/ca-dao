@@ -541,6 +541,26 @@ kt( 'trang Thêm bài: form gửi admin-post có nonce, 5 thể loại, Lưu nh�
 $h = do_blocks( '<!-- wp:cadao/so-lieu-tuan /-->' );
 kt( 'Số liệu tuần: số bài, việc chờ, theo thể loại, theo cấp L0–L3, việc nên làm', str_contains( $h, 'tác phẩm đã đăng' ) && str_contains( $h, 'việc đang chờ' ) && str_contains( $h, 'Theo cấp chất lượng' ) && str_contains( $h, 'Nên làm tuần này' ) );
 
+// ---------- Tuyển tập, Từ điển, Nguồn ----------
+wp_set_current_user( 0 );
+$tc = \Phongdao\DichVu\DungTrang\GieoMau::gieo_tra_cuu( $ai_ql );
+$tt = get_post( $tc['tuyen_tap'] );
+kt( 'tuyển tập mẫu loại Tình huống: có lời dẫn, đủ ngưỡng 2 câu → công khai', $tt && \Phongdao\GiaoTiep\Khoi\TuyenTap::cong_khai( $tt ) );
+$h = \Phongdao\GiaoTiep\Khoi\TuyenTap::hien( $tt );
+kt( 'trang tuyển tập: lời dẫn, số câu, mỗi câu có lời, ghi chú "Hợp khi", nút sao chép, Xem bài', str_contains( $h, 'Tuyển tập · Tình huống' ) && str_contains( $h, 'Lời dẫn tổng hợp' ) && substr_count( $h, 'class="collection-item' ) >= 5 && str_contains( $h, 'Hợp khi:' ) && str_contains( $h, 'data-action="copy-loi"' ) && str_contains( $h, 'Xem bài' ), $h );
+$tt2 = wp_insert_post( array( 'post_type' => KhaiBao::TUYEN_TAP, 'post_status' => 'publish', 'post_title' => 'Tuyển tập thiếu', 'post_name' => 'tuyen-tap-thieu' ) );
+LuuPhan::luu( $tt2, 'muc', array( array( 'tac_pham_id' => $tp1 ) ), array( 'nguoi' => $ai_ql, 'goi' => KiemPhan::GOI_NGUOI ) );
+kt( 'tuyển tập thiếu lời dẫn hoặc chưa đủ 8 câu: chưa công khai, không có trong danh mục', ! \Phongdao\GiaoTiep\Khoi\TuyenTap::cong_khai( get_post( $tt2 ) ) && ! str_contains( \Phongdao\GiaoTiep\Khoi\TuyenTap::danh_muc( '' ), 'Tuyển tập thiếu' ) );
+$h = \Phongdao\GiaoTiep\Khoi\TuyenTap::danh_muc( '' );
+kt( 'danh mục tuyển tập: lọc theo loại bằng đường dẫn, thẻ tuyển tập công khai', str_contains( $h, 'Gửi một lời nhắn (mẫu)' ) && str_contains( $h, '?loai=dip' ) && str_contains( $h, 'Cho một tình huống' ) );
+kt( 'danh mục lọc loại chưa có tuyển tập: trạng thái trống có lối sang kho', str_contains( \Phongdao\GiaoTiep\Khoi\TuyenTap::danh_muc( 'dip' ), 'Chưa có tuyển tập ở đây' ) );
+$h = \Phongdao\GiaoTiep\Khoi\TuDien::hien( '', '' );
+kt( 'Từ điển: form tìm GET, 29 chữ cái, mục từ hay gặp có đường dẫn /tu-dien/<tên>/', str_contains( $h, 'name="q"' ) && 29 === substr_count( $h, 'name="chu"' ) && str_contains( $h, '/tu-dien/chut/' ) && str_contains( $h, 'Hay gặp trong lời' ), $h );
+kt( 'Từ điển: tìm không dấu ra mục từ; theo chữ cái C ra "chút"; chữ cái khác thì trống có lối sang Tìm', str_contains( \Phongdao\GiaoTiep\Khoi\TuDien::hien( 'chut', '' ), '/tu-dien/chut/' ) && str_contains( \Phongdao\GiaoTiep\Khoi\TuDien::hien( '', 'C' ), '/tu-dien/chut/' ) && str_contains( \Phongdao\GiaoTiep\Khoi\TuDien::hien( '', 'Ư' ), 'Chưa có mục từ phù hợp' ) );
+kt( 'chữ cái đầu tiếng Việt: bỏ dấu thanh, giữ ă â ê ô ơ ư đ', array( 'A', 'Ă', 'Â', 'Đ', 'Ơ', 'U' ) === array_map( array( \Phongdao\GiaoTiep\Khoi\TuDien::class, 'chu_dau' ), array( 'ánh', 'ắt', 'ấm', 'đò', 'ở', 'ủ' ) ) );
+$h = do_shortcode( '[cadao_nguon]' );
+kt( 'mã ngắn [cadao_nguon] của trang Nguồn (mang từ MVP) hiện danh sách nguồn, không còn chữ mã thô', ! str_contains( $h, '[cadao_nguon]' ) && '' !== trim( wp_strip_all_tags( $h ) ), $h );
+
 do_action( 'wp_enqueue_scripts' );
 kt( 'theme nạp giao-dien.css, fit.js, doc.js (hoãn, cuối trang)', wp_style_is( 'phongdao-giao-dien', 'enqueued' ) && wp_script_is( 'phongdao-fit', 'enqueued' ) && wp_script_is( 'phongdao-doc', 'enqueued' ) );
 

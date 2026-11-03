@@ -1,0 +1,16 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cadao/tu-dien",
+	"title": "Từ điển",
+	"category": "theme",
+	"description": "Trang /tu-dien/ (bộ thiết kế R13): tìm, theo chữ cái, mục từ hay gặp — form GET, tắt JavaScript vẫn tra được.",
+	"textdomain": "ca-dao",
+	"version": "1",
+	"supports": {
+		"html": false,
+		"inserter": false,
+		"reusable": false
+	},
+	"render": "file:./render.php"
+}

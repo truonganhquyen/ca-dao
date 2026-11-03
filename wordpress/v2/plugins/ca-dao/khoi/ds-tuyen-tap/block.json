@@ -1,0 +1,16 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cadao/ds-tuyen-tap",
+	"title": "Danh mục tuyển tập",
+	"category": "theme",
+	"description": "Trang /tuyen-tap/ (bộ thiết kế R10): lọc theo loại bằng đường dẫn, chỉ tuyển tập đã công khai.",
+	"textdomain": "ca-dao",
+	"version": "1",
+	"supports": {
+		"html": false,
+		"inserter": false,
+		"reusable": false
+	},
+	"render": "file:./render.php"
+}

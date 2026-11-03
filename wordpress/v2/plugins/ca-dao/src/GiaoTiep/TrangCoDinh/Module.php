@@ -17,6 +17,7 @@ final class Module implements \Phongdao\HaTang\Module {
 	 */
 	public const TRANG = array(
 		'tim'               => 'Tìm',
+		'tu-dien'           => 'Từ điển',
 		'bien-tap'          => 'Hộp việc',
 		'bien-tap/tac-pham' => 'Tác phẩm',
 		'bien-tap/them'     => 'Thêm bài',
@@ -64,7 +65,7 @@ final class Module implements \Phongdao\HaTang\Module {
 		add_filter(
 			'wp_robots',
 			static function ( array $r ): array {
-				if ( self::la_bien_tap() || ( 'tim' === self::dang_xem() && '' !== trim( (string) ( $_GET['q'] ?? '' ) ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+				if ( self::la_bien_tap() || ( in_array( self::dang_xem(), array( 'tim', 'tu-dien' ), true ) && '' !== trim( (string) ( $_GET['q'] ?? '' ) ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 					$r['noindex'] = true;
 				}
 				return $r;
