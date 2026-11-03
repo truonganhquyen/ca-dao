@@ -78,6 +78,7 @@ final class NhapPhanLoai {
 			$kh['ban_co_biet'][] = array(
 				'bai' => $b,
 				'chu' => trim( (string) $x['chu'] ),
+				'luc' => (string) ( $x['luc'] ?? '' ),
 			);
 		}
 		$wd = $wpdb->prefix . 'cadao_xac_nhan';
@@ -220,8 +221,10 @@ final class NhapPhanLoai {
 			if ( '' !== trim( $th['mo_dau'] ) ) {
 				$phan['loi_dan'] = array( 'chu' => $th['mo_dau'], 'nguoi_lam' => NguoiLam::NGUOI_VIET );
 			}
+			// Giờ nhật ký: lúc sửa cuối trên MVP mới nhất trong các bài của tình huống (nhập lại sau hoàn tác cho cùng kết quả)
+			$luc = (string) max( array_map( array( NhapLam::class, 'sua_luc_mvp' ), $th['bai'] ) );
 			foreach ( $phan as $p => $v ) {
-				$kq = LuuPhan::luu( (int) $id, $p, $v, $nc );
+				$kq = LuuPhan::luu( (int) $id, $p, $v, $nc + array( 'luc' => $luc ) );
 				if ( ! $kq['ok'] ) {
 					$loi[] = "tuyển tập {$th['slug']} phần $p: " . implode( ' ', $kq['loi'] );
 				}
@@ -241,7 +244,7 @@ final class NhapPhanLoai {
 					'ai'        => false,
 					'nguoi_lam' => NguoiLam::NGUOI_VIET,
 				),
-				$nc
+				$nc + array( 'luc' => '' === $x['luc'] ? '' : get_gmt_from_date( $x['luc'] ) ) // lúc câu được ghép trên MVP
 			);
 			if ( ! $kq['ok'] ) {
 				$loi[] = "Bạn có biết của bài {$x['bai']}: " . implode( ' ', $kq['loi'] );

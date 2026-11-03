@@ -129,6 +129,13 @@ final class NhapLam {
 		return $bc;
 	}
 
+	/** Lúc sửa cuối (GMT) của bài trên MVP, đọc từ giá trị cũ đã ghi khi nhập; rỗng khi bài chưa nhập. */
+	public static function sua_luc_mvp( int $id ): string {
+		global $wpdb;
+		$truoc = json_decode( (string) $wpdb->get_var( $wpdb->prepare( 'SELECT truoc FROM ' . self::bang() . " WHERE loai = 'bai' AND doi_tuong = %d ORDER BY id DESC LIMIT 1", $id ) ), true );
+		return (string) ( $truoc['sua_luc'][1] ?? '' );
+	}
+
 	private static function da_co( string $loai ): bool {
 		global $wpdb;
 		return (bool) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . self::bang() . ' WHERE loai = %s', $loai ) );

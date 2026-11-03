@@ -125,6 +125,20 @@ kt( 'nhập thử khi MVP còn bật và khi V2 đã thay chỗ cho cùng kết 
 ra( "THÔNG TIN [chuyển đổi] báo cáo nhập thử:\n" . $in );
 
 // ---------- Nhập thật → hoàn tác → nhập lại ----------
+/** Các chỗ khác nhau giữa hai mảng: "đường.dẫn: trước ≠ sau" (tối đa 12). */
+function cd_khac( mixed $a, mixed $b, string $duong = '' ): array {
+	if ( is_array( $a ) && is_array( $b ) ) {
+		$ra = array();
+		foreach ( array_unique( array_merge( array_keys( $a ), array_keys( $b ) ) ) as $k ) {
+			$ra = array_merge( $ra, cd_khac( $a[ $k ] ?? '(không có)', $b[ $k ] ?? '(không có)', $duong . '.' . $k ) );
+			if ( count( $ra ) >= 12 ) {
+				break;
+			}
+		}
+		return array_slice( $ra, 0, 12 );
+	}
+	return $a === $b ? array() : array( ltrim( $duong, '.' ) . ': ' . wp_json_encode( $a, JSON_UNESCAPED_UNICODE ) . ' ≠ ' . wp_json_encode( $b, JSON_UNESCAPED_UNICODE ) );
+}
 /** Mọi giá trị hồ sơ nguồn (ID) đổi thành khoá hồ sơ: hồ sơ tạo lại sau hoàn tác có ID mới. */
 function cd_khoa_ho_so( mixed $v ): mixed {
 	if ( ! is_array( $v ) ) {
@@ -253,11 +267,11 @@ kt( 'chạy lại khi đã nhập xong: không đổi gì', 0 === $kq['nhap'] &&
 $ht = NhapLam::hoan_tac();
 kt( 'hoàn tác: 11 bài, 1 câu kho, 3 hồ sơ nguồn (sách, nguồn người điền, Wikipedia)', array( 'bai' => 11, 'kho' => 1, 'ho_so' => 3 ) === $ht, $ht );
 $s0b = $mvp_anh();
-kt( 'hoàn tác: dữ liệu MVP trở về đúng như trước khi nhập (bài, thể loại, câu kho, không còn phần, việc, hồ sơ mới)', $s0b === $s0, array_filter( array_map( null, $s0, $s0b ), static fn( $c ) => $c[0] !== $c[1] ) );
+kt( 'hoàn tác: dữ liệu MVP trở về đúng như trước khi nhập (bài, thể loại, câu kho, không còn phần, việc, hồ sơ mới)', $s0b === $s0, cd_khac( $s0, $s0b ) );
 kt( 'hoàn tác xong: khách lại thấy trang nâng cấp', NhapLam::dang_nang_cap() );
 NhapLam::chay();
 $s1b = $v2_anh();
-kt( 'nhập → hoàn tác → nhập cho cùng kết quả', $s1b === $s1, array_filter( array_map( null, $s1, $s1b ), static fn( $c ) => $c[0] !== $c[1] ) );
+kt( 'nhập → hoàn tác → nhập cho cùng kết quả', $s1b === $s1, cd_khac( $s1, $s1b ) );
 
 $tong = $GLOBALS['cd_dat'] + $GLOBALS['cd_hong'];
 ra( "\nKẾT QUẢ: " . ( $GLOBALS['cd_hong'] ? "HỎNG {$GLOBALS['cd_hong']} / $tong" : "ĐẠT $tong" ) );
