@@ -65,6 +65,7 @@ final class NhapLam {
 	public static function chay( int $so = 0 ): array {
 		global $wpdb;
 		self::tao_bang();
+		DoiChieu::luu_truoc(); // bản kiểm kê MVP lúc bắt đầu nhập, để so trước / sau (wp phongdao doi-chieu)
 		update_option( self::TRANG_THAI, 'dang' );
 		$bc  = array(
 			'nhap'       => 0,
@@ -329,6 +330,7 @@ final class NhapLam {
 			$wpdb->delete( self::bang(), array( 'id' => (int) $r->id ) );
 		}
 		update_option( self::TRANG_THAI, 'cho' );
+		delete_option( DoiChieu::TRUOC );
 		update_option( \Phongdao\DichVu\GoiY\GoiY::SAU, -1, false ); // dừng lượt gợi ý cho bài đã trả về MVP
 		return $bc;
 	}

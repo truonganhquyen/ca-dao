@@ -273,6 +273,11 @@ kt(
 );
 $bcb = PhanBai::lay( $id['a'], 'ban_co_biet' );
 kt( '"Bạn có biết" đã duyệt → phần của bài, người viết, không gắn dấu AI; câu đang chờ không mang', 'nguoi_viet' === ( $bcb['nguoi_lam'] ?? '' ) && false === ( $bcb['ai'] ?? null ) && str_contains( (string) ( $bcb['chu'] ?? '' ), 'lời giải mẫu' ) && null === PhanBai::lay( $id['b'], 'ban_co_biet' ), $bcb );
+$dc   = \Phongdao\DichVu\NhapDuLieuCu\DoiChieu::so();
+$khac = array_values( array_filter( $dc, static fn( $d ) => $d[1] !== $d[2] ) );
+kt( 'đối chiếu trước / sau (wp phongdao doi-chieu): bản kiểm kê lưu lúc bắt đầu nhập, mọi dòng khớp (tác phẩm, ý nghĩa, phân loại, mục từ, cảm nghĩ, lượt đọc…)', array() === $khac && count( $dc ) >= 15 && null !== $dc[0][1], $khac ?: $dc );
+$dd = \Phongdao\DichVu\NhapDuLieuCu\DoiChieu::duong_dan();
+kt( 'đường dẫn cũ để thử 301: bài đổi tên đuôi số, tình huống cũ → chỗ mới; bài giữ đường dẫn không cần thử', in_array( array( home_url( '/ca-dao/' . $mvp['ten_i2'] . '/' ), (string) get_permalink( $id['i2'] ) ), $dd, true ) && in_array( array( home_url( '/tinh-huong/tinh-huong-mau/' ), (string) get_permalink( $tt ) ), $dd, true ) && ! in_array( (string) get_permalink( $id['a'] ), array_column( $dd, 1 ), true ), $dd );
 $wdv = $wpdb->get_row( "SELECT * FROM " . Viec::bang() . " WHERE loai = 'wikidata'", ARRAY_A );
 kt( 'quyết định Wikidata → việc đã quyết trong bảng việc', $wdv && 'xong' === $wdv['trang_thai'] && 'dung' === $wdv['quyet'] && 'term' === $wdv['doi_tuong_loai'] && $the['tu'] === (int) $wdv['doi_tuong_id'], $wdv );
 kt(
@@ -288,7 +293,7 @@ $ht = NhapLam::hoan_tac();
 kt( 'hoàn tác: 13 bài, 1 câu kho, 3 hồ sơ nguồn (sách, nguồn người điền, Wikipedia)', array( 'bai' => 13, 'kho' => 1, 'ho_so' => 3 ) === $ht, $ht );
 $s0b = $mvp_anh();
 kt( 'hoàn tác: dữ liệu MVP trở về đúng như trước khi nhập (bài, thể loại, câu kho, không còn phần, việc, hồ sơ mới)', $s0b === $s0, cd_khac( $s0, $s0b ) );
-kt( 'hoàn tác xong: khách lại thấy trang nâng cấp; lượt gợi ý dừng', NhapLam::dang_nang_cap() && -1 === (int) get_option( \Phongdao\DichVu\GoiY\GoiY::SAU ) );
+kt( 'hoàn tác xong: khách lại thấy trang nâng cấp; lượt gợi ý dừng; bản kiểm kê "trước" xoá (nhập lại thì lưu lại)', NhapLam::dang_nang_cap() && -1 === (int) get_option( \Phongdao\DichVu\GoiY\GoiY::SAU ) && false === get_option( \Phongdao\DichVu\NhapDuLieuCu\DoiChieu::TRUOC ) );
 NhapLam::chay();
 $s1b = $v2_anh();
 kt( 'nhập → hoàn tác → nhập cho cùng kết quả', $s1b === $s1, cd_khac( $s1, $s1b ) );
