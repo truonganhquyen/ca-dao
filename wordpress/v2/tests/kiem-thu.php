@@ -642,6 +642,35 @@ delete_transient( \Phongdao\HaTang\AnToan::khoa( 'admin' ) );
 kt( 'đăng nhập sai 5 lần → tạm khoá 15 phút (đếm theo tài khoản, không theo địa chỉ mạng); sai mật khẩu → câu báo chung', is_wp_error( $kq_dn ) && 'cadao_tam_khoa' === $kq_dn->get_error_code() && 'cadao_dang_nhap_sai' === \Phongdao\HaTang\AnToan::xac_thuc( new WP_Error( 'incorrect_password', 'x' ), 'admin' )->get_error_code() );
 kt( 'XML-RPC tắt; khách không thấy danh sách người dùng qua REST', ! apply_filters( 'xmlrpc_enabled', true ) && ! array_filter( array_keys( rest_get_server()->get_routes() ), static fn( $r ) => str_starts_with( $r, '/wp/v2/users' ) ) );
 
+// ---------- SEO ----------
+$SEO  = \Phongdao\GiaoTiep\Seo\Module::class;
+$l2   = $mau_id['dong-mau-mot-cua-bai'];
+$xem  = static function ( array $q ): void { // giả lập trang đang xem
+	$GLOBALS['wp_query']     = new WP_Query( $q );
+	$GLOBALS['wp_the_query'] = $GLOBALS['wp_query'];
+};
+kt( 'tác phẩm có Ý nghĩa là L2 (lập chỉ mục); chưa có ý nghĩa thì không', $SEO::l2( $l2 ) && ! $SEO::l2( $mau_id['ve-mau'] ) && in_array( $l2, $SEO::ds_l2(), true ) && ! in_array( $mau_id['ve-mau'], $SEO::ds_l2(), true ) );
+$xem( array( 'p' => $mau_id['ve-mau'], 'post_type' => KhaiBao::TAC_PHAM ) );
+$r_ko = $SEO::robots( array() );
+$xem( array( 'p' => $l2, 'post_type' => KhaiBao::TAC_PHAM ) );
+$r_co = $SEO::robots( array() );
+$td   = $SEO::tieu_de( array( 'title' => 'x' ) );
+kt( 'tác phẩm chưa L2 → noindex, follow; L2 → lập chỉ mục, tiêu đề "— nghĩa và cách dùng"', ! empty( $r_ko['noindex'] ) && empty( $r_co['noindex'] ) && str_ends_with( $td['title'], '— nghĩa và cách dùng' ), array( $r_ko, $r_co, $td ) );
+ob_start();
+$SEO::dau_trang();
+$dau = (string) ob_get_clean();
+kt( 'đầu trang tác phẩm: mô tả từ Ý nghĩa, thẻ chia sẻ og:*, dữ liệu có cấu trúc CreativeWork + đường dẫn', str_contains( $dau, '<meta name="description" content="Một câu giải nghĩa tổng hợp' ) && str_contains( $dau, 'og:title' ) && str_contains( $dau, '"@type":"CreativeWork"' ) && str_contains( $dau, '"BreadcrumbList"' ) && ! str_contains( $dau, 'isBasedOn' ), $dau );
+kt( 'mô tả bài chưa có ý nghĩa: hai dòng đầu + thể loại, không hứa điều trang không có', str_ends_with( $SEO::mo_ta_tac_pham( $mau_id['ve-mau'] ), '— Vè.' ) && mb_strlen( $SEO::cat( str_repeat( 'chữ ', 80 ) ) ) <= 160 );
+$t_chut = get_term_by( 'slug', 'chut', 'muc_tu' );
+$tl_ca  = get_term_by( 'slug', 'ca-dao', KhaiBao::THE_LOAI );
+$t_ld   = get_term_by( 'name', 'Lao động', 'chu_de' );
+$truoc  = $SEO::term_lap( $t_chut );
+update_term_meta( $t_chut->term_id, '_phongdao_loi_giai', array( 'nguoi_lam' => 'nguoi_viet' ) );
+kt( 'phân loại: thể loại có bài → lập chỉ mục; mục từ chỉ khi lời giải do dự án viết; chủ đề cần ≥ 3 tác phẩm L2', $SEO::term_lap( $tl_ca ) && ! $truoc && $SEO::term_lap( get_term( $t_chut->term_id ) ) && ! $SEO::term_lap( $t_ld ) );
+$sd = $SEO::so_do_bai( array(), KhaiBao::TAC_PHAM );
+kt( 'sơ đồ trang: tác phẩm chỉ gồm bài L2; mục từ chỉ gồm mục lập chỉ mục được', $sd['post__in'] === $SEO::ds_l2() && in_array( $t_chut->term_id, $SEO::so_do_phan_loai( array(), 'muc_tu' )['include'], true ) );
+$xem( array( 'post_type' => KhaiBao::TAC_PHAM ) );
+
 // ---------- Nguồn & cài đặt (wp-admin) ----------
 $NC  = \Phongdao\GiaoTiep\QuanTri\NguonCaiDat::class;
 $cu  = \Phongdao\DichVu\NhapNguon\NguonTuDong::lay( 'cadao-me' );
