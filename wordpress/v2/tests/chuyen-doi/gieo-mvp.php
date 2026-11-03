@@ -91,8 +91,8 @@ $k = $tay( 'Bài có ảnh mẫu', "<!-- wp:verse -->\n<pre class=\"wp-block-ver
 // Đồng dao có trò chơi (cách chơi chép từ Wikipedia bằng nút của MVP), mô-típ, tình huống có "Hợp khi…"
 $dd = $tay( 'Đồng dao có trò chơi mẫu', "<!-- wp:verse -->\n<pre class=\"wp-block-verse\">Đồng dao có trò chơi mẫu<br>Dòng hai chơi chung</pre>\n<!-- /wp:verse -->", 'dong-dao' );
 $tc = (int) wp_insert_term( 'Trò chơi mẫu', 'tro_choi' )['term_id'];
-foreach ( array( 'so_nguoi' => '6–10 bạn', 'do_tuoi' => '4–10 tuổi', 'buoc' => "Bước một mẫu\nBước hai mẫu", 'nguon_ten' => 'Wikipedia — Trò chơi mẫu', 'nguon_url' => 'https://vi.wikipedia.org/wiki/Tro_choi_mau', 'giay_phep' => 'CC BY-SA 4.0' ) as $k => $v ) {
-	update_term_meta( $tc, '_cadao_cc_' . $k, $v );
+foreach ( array( 'so_nguoi' => '6–10 bạn', 'do_tuoi' => '4–10 tuổi', 'buoc' => "Bước một mẫu\nBước hai mẫu", 'nguon_ten' => 'Wikipedia — Trò chơi mẫu', 'nguon_url' => 'https://vi.wikipedia.org/wiki/Tro_choi_mau', 'giay_phep' => 'CC BY-SA 4.0' ) as $o => $v ) {
+	update_term_meta( $tc, '_cadao_cc_' . $o, $v );
 }
 wp_set_object_terms( $dd, $tc, 'tro_choi' );
 $mt = (int) wp_insert_term( 'Mô-típ mẫu', 'mo_tip' )['term_id'];
