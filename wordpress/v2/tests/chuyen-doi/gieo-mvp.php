@@ -22,6 +22,8 @@ register_shutdown_function(
 
 global $wpdb;
 wp_set_current_user( 1 );
+// Lỗi khi tạo dữ liệu (kể cả lỗi nghiêm trọng của PHP 8) được ghi vào kết quả để bước 2 in ra, không làm hỏng cả lượt
+try {
 $ma_kho = static fn( int $ma ): int => (int) $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM ' . cadao_kho_bang() . " WHERE nguon_id = 'cadao-me' AND ma_goc = %s", (string) $ma ) );
 $luu    = static fn( int $ma, array $muc ): string => cadao_kho_luu( 'cadao-me', $muc + array( 'ma_goc' => $ma, 'doc_trang' => '2026-10-25', 'url' => "https://example.org/bai-$ma/", 'co' => array() ) );
 $tao    = static function ( int $ma, string $trang_thai = 'publish' ) use ( $ma_kho ): int {
@@ -118,6 +120,10 @@ $GLOBALS['cd']['the'] = compact( 'tc', 'mt', 'th', 'tu' );
 
 $GLOBALS['cd']['id'] = compact( 'a', 'b', 'c', 'd', 'n', 'e', 'g', 'h', 'i1', 'i2', 'k', 'dd' );
 $GLOBALS['cd']['ten_i2'] = get_post_field( 'post_name', $i2 );
+
+} catch ( Throwable $e ) {
+	$GLOBALS['cd']['loi'][] = get_class( $e ) . ': ' . $e->getMessage() . ' (' . basename( $e->getFile() ) . ':' . $e->getLine() . ')';
+}
 
 // Chạy thử như trên site thật: đếm dòng mọi bảng trước / sau
 $dem = static function () use ( $wpdb ): array {
