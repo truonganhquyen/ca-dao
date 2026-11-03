@@ -39,7 +39,7 @@ Việc đầu tiên của T-145: agent đọc toàn bộ mã MVP (`wordpress/plu
 | Thể thơ | phân loại `the_tho` | `hinh_thuc` (máy nhận lại; lối hát người đã gán giữ) |
 | Mục từ (lời giải, nguồn lời giải, loại, Wikidata đã xác nhận, ảnh riêng, ẩn ảnh, ghi công) | phân loại `tu_kho` + term meta (`_cadao_nguon_*`, `_cadao_wd`, `_cadao_wd_xet`, `_cadao_anh_*`, `_cadao_an_anh`), bảng `wp_cadao_xac_nhan` | `muc_tu` + term meta; quyết định Đúng / Sai thành việc Wikidata đã quyết trong `wp_cadao_viec` |
 | Trò chơi | phân loại `tro_choi` + term meta `_cadao_cc_*` | `tro_choi` + term meta |
-| Bạn có biết đã duyệt | bảng `wp_cadao_gioi_thieu`, tuỳ chọn `cadao_ban_co_biet` | phần `ban_co_biet` — người làm `nguoi_viet`, không dấu AI (máy ghép theo khuôn từ lời giải có sẵn, không dùng AI; người sáng lập đã duyệt); mỗi bài một câu, câu thứ hai trở đi giữ ở dữ liệu MVP và ghi trong báo cáo |
+| Bạn có biết đã duyệt | tuỳ chọn `cadao_ban_co_biet` | phần `ban_co_biet` — người làm `nguoi_viet`, không dấu AI (máy ghép theo khuôn từ lời giải có sẵn, không dùng AI; người sáng lập đã duyệt); mỗi bài một câu, câu thứ hai trở đi giữ ở dữ liệu MVP và ghi trong báo cáo |
 | Giới thiệu thể loại, mô tả chủ đề / vùng | mô tả phân loại | giữ |
 | Bộ chủ đề, bảng ánh xạ chủ đề nguồn → dự án | tuỳ chọn `cadao_bo_chu_de`, `cadao_anh_xa_chu_de` | cài đặt V2 |
 | Quyết định trùng ("Là bài khác", "Để sau"), cặp âm tiết | `wp_cadao_trung`, `wp_cadao_van_tay`, `wp_cadao_cap_am` | giữ bảng |
@@ -48,7 +48,7 @@ Việc đầu tiên của T-145: agent đọc toàn bộ mã MVP (`wordpress/plu
 | Góp ý, dị bản, số trang, báo lỗi của người đọc | bài `gop_y` + meta | giữ `gop_y` |
 | Cảm nghĩ | bình luận | giữ (V2 nhận cảm nghĩ qua form riêng, không ghi địa chỉ mạng; cảm nghĩ gửi qua form bình luận MVP có địa chỉ mạng WordPress tự ghi — xoá các địa chỉ đó khi dọn dữ liệu cũ, cần người sáng lập đồng ý) |
 | Bài phân tích, bút danh | bài `phan_tich`, `_cadao_but_danh` | giữ |
-| Lượt đọc, sự kiện | `wp_cadao_luot_doc`, `wp_cadao_su_kien` | giữ bảng |
+| Lượt đọc, trang giới thiệu, sự kiện | `wp_cadao_luot_doc`, `wp_cadao_gioi_thieu`, `wp_cadao_su_kien` | giữ bảng |
 | Trang tĩnh (Phương pháp, Nguồn, Về dự án, Chính sách thu thập dữ liệu, …) | `page` | giữ; agent đề xuất sửa tên dự án, người sáng lập duyệt |
 | Ảnh đã tải lên | thư viện ảnh | giữ |
 | Người dùng, khoá Turnstile, cài đặt WordPress | bảng WordPress, tuỳ chọn `cadao_turnstile_*` | giữ |

@@ -612,6 +612,35 @@ $hbd = \Phongdao\GiaoTiep\Khoi\BanDo::hien();
 kt( 'Bản đồ: điểm ngoài khung Việt Nam bị bỏ; ảnh bản đồ tự lưu có Hoàng Sa, Trường Sa; điểm là liên kết tới danh sách; ghi rõ "nhắc đến", không phải nơi lưu truyền', 1 === count( \Phongdao\GiaoTiep\Khoi\BanDo::diem() ) && str_contains( $hbd, 'ban-do-vn.svg' ) && str_contains( $hbd, 'Hoàng Sa và Trường Sa' ) && str_contains( $hbd, 'href="#dd-' ) && str_contains( $hbd, 'không đồng nghĩa là nơi lưu truyền' ) && ! preg_match( '#https?://(?!' . preg_quote( (string) wp_parse_url( home_url(), PHP_URL_HOST ), '#' ) . ')#', str_replace( 'https://www.w3.org', '', $hbd ) ), $hbd );
 kt( 'trang bài liệt kê bài cảm nhận đã duyệt (bài chờ duyệt thì không)', str_contains( $h, 'Cảm nhận – phân tích' ) && str_contains( $h, 'Một cách đọc bài mẫu' ) && ! str_contains( $h, 'Cảm nhận mẫu</a>' ) );
 
+// ---------- Đo lường, an toàn ----------
+wp_set_current_user( 0 );
+$_SERVER['REMOTE_ADDR'] = '203.0.113.20';
+$rest = static function ( string $duong, array $tham, string $ua = 'Mozilla/5.0 (iPhone)' ) {
+	$yc = new WP_REST_Request( 'POST', '/phongdao/v1' . $duong );
+	$yc->set_header( 'user_agent', $ua );
+	$yc->set_body_params( $tham );
+	return rest_do_request( $yc )->get_data();
+};
+$dl1 = $mau_id['ve-mau'];
+kt( 'lượt đọc: lần đầu trong ngày tính, gửi lại không tính, máy dò không tính; chỉ ghi tên miền giới thiệu', true === ( $rest( '/luot-doc/' . $dl1, array( 'tu' => 'www.facebook.com' ) )['tinh'] ?? null ) && false === ( $rest( '/luot-doc/' . $dl1, array() )['tinh'] ?? null ) && false === ( $rest( '/luot-doc/' . $mau_id['cau-do-mau'], array(), 'Googlebot/2.1' )['tinh'] ?? null ) && 1 === \Phongdao\DichVu\DoLuong\DoLuong::so_lieu( $dl1 )['doc'] && isset( \Phongdao\DichVu\DoLuong\DoLuong::nhieu_nhat( 'gioi_thieu' )['facebook.com'] ) );
+kt( 'sự kiện: sao chép trích dẫn ghi theo bài + kiểu; kiểu lạ, bài không phải tác phẩm → không ghi', true === ( $rest( '/su-kien', array( 'loai' => 'trich_dan_sao_chep', 'bai' => $dl1, 'kieu' => 'apa' ) )['ghi'] ?? null ) && false === ( $rest( '/su-kien', array( 'loai' => 'trich_dan_sao_chep', 'bai' => $dl1, 'kieu' => 'x' ) )['ghi'] ?? null ) && false === ( $rest( '/su-kien', array( 'loai' => 'chia_se', 'bai' => $tt2, 'kieu' => 'web_share' ) )['ghi'] ?? null ) && 1 === \Phongdao\DichVu\DoLuong\DoLuong::so_lieu( $dl1 )['trich'] );
+\Phongdao\DichVu\DoLuong\Module::tim_khong_ra( 'câu chưa có mẫu' );
+\Phongdao\DichVu\DoLuong\Module::tim_khong_ra( 'ten@mien.vn' );
+kt( 'tìm không ra: ghi chuỗi tìm (bỏ chuỗi giống email) để biết nên biên soạn câu nào', array( 'câu chưa có mẫu' ) === array_keys( \Phongdao\DichVu\DoLuong\DoLuong::nhieu_nhat( 'tim_khong_ket_qua' ) ) );
+$rest( '/luot-doc/' . $mau_id['dong-dao-mau'], array() );
+$rest( '/luot-doc/' . $mau_id['cau-do-mau'], array() );
+kt( 'trang chủ: "Đọc nhiều tuần này" hiện khi đã có từ 3 bài được đọc trong 7 ngày', str_contains( do_blocks( '<!-- wp:cadao/trang-chu /-->' ), 'Đọc nhiều tuần này' ) );
+kt( 'Số liệu tuần: lượt đọc 7 ngày, bài đọc nhiều, người đọc đến từ, câu tìm chưa có', str_contains( $h_sl = \Phongdao\GiaoTiep\BienTap\SoLieuTuan::hien(), 'Lượt đọc 7 ngày: 3' ) && str_contains( $h_sl, 'facebook.com' ) && str_contains( $h_sl, 'câu chưa có mẫu' ), $h_sl );
+\Phongdao\DichVu\DoLuong\Module::nap();
+kt( 'mã đo lường nạp cho khách; mã đọc trang (doc.js) không gọi máy chủ, chỉ phát sự kiện trong trang', wp_script_is( 'phongdao-do-luong', 'enqueued' ) && ! preg_match( '/fetch\(|sendBeacon|XMLHttpRequest/', (string) file_get_contents( get_theme_file_path( 'assets/doc.js' ) ) ) && str_contains( (string) file_get_contents( get_theme_file_path( 'assets/doc.js' ) ), 'phongdao:su-kien' ) );
+for ( $i = 0; $i < 5; $i++ ) {
+	\Phongdao\HaTang\AnToan::ghi_sai( 'admin' );
+}
+$kq_dn = \Phongdao\HaTang\AnToan::xac_thuc( null, 'admin' );
+delete_transient( \Phongdao\HaTang\AnToan::khoa( 'admin' ) );
+kt( 'đăng nhập sai 5 lần → tạm khoá 15 phút (đếm theo tài khoản, không theo địa chỉ mạng); sai mật khẩu → câu báo chung', is_wp_error( $kq_dn ) && 'cadao_tam_khoa' === $kq_dn->get_error_code() && 'cadao_dang_nhap_sai' === \Phongdao\HaTang\AnToan::xac_thuc( new WP_Error( 'incorrect_password', 'x' ), 'admin' )->get_error_code() );
+kt( 'XML-RPC tắt; khách không thấy danh sách người dùng qua REST', ! apply_filters( 'xmlrpc_enabled', true ) && ! array_filter( array_keys( rest_get_server()->get_routes() ), static fn( $r ) => str_starts_with( $r, '/wp/v2/users' ) ) );
+
 // ---------- Nguồn & cài đặt (wp-admin) ----------
 $NC  = \Phongdao\GiaoTiep\QuanTri\NguonCaiDat::class;
 $cu  = \Phongdao\DichVu\NhapNguon\NguonTuDong::lay( 'cadao-me' );

@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class CaiDat implements Module {
 
-	public const PHIEN_BAN_CSDL = 7;
+	public const PHIEN_BAN_CSDL = 8;
 
 	/** Tuỳ chọn lưu phiên bản lược đồ đã cài. */
 	public const TUY_CHON = 'phongdao_csdl';
@@ -53,6 +53,14 @@ final class CaiDat implements Module {
 		}
 		if ( $da_cai < 7 ) {
 			self::buoc_7();
+		}
+		if ( $da_cai < 8 ) {
+			// Bước 8: ba bảng đo lường, cùng cấu trúc MVP (site thật đã có: dbDelta giữ nguyên dữ liệu)
+			global $wpdb;
+			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+			foreach ( \Phongdao\DichVu\DoLuong\DoLuong::sql_tao( $wpdb->get_charset_collate() ) as $sql ) {
+				dbDelta( $sql );
+			}
 		}
 		update_option( self::TUY_CHON, self::PHIEN_BAN_CSDL, false );
 	}

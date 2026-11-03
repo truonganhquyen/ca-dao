@@ -110,9 +110,18 @@ final class TrangChu {
 		return '<section class="section" data-home-block="7"><h2>Đọc theo thể loại</h2><div class="tiles five">' . $o . '</div></section>';
 	}
 
-	/** Khối 8: Vừa bổ sung (Đọc nhiều tuần này thêm khi có lượt đọc). */
+	/** Khối 8: Vừa bổ sung; Đọc nhiều tuần này khi đã có từ 3 bài được đọc trong 7 ngày (như MVP). */
 	private static function vua_bo_sung(): string {
 		$the = array_map( array( DanhSach::class, 'the' ), DuLieuTrangChu::vua_bo_sung( 2 ) );
-		return $the ? '<section class="section" data-home-block="8"><h2>Vừa bổ sung</h2><div class="grid two">' . implode( '', $the ) . '</div></section>' : '';
+		$h   = $the ? '<section class="section" data-home-block="8"><h2>Vừa bổ sung</h2><div class="grid two">' . implode( '', $the ) . '</div></section>' : '';
+		$doc = \Phongdao\DichVu\DoLuong\DoLuong::doc_nhieu( 7, 5 );
+		if ( count( $doc ) >= 3 ) {
+			$li = '';
+			foreach ( array_keys( $doc ) as $id ) {
+				$li .= '<li><a href="' . esc_url( (string) get_permalink( $id ) ) . '">' . esc_html( get_the_title( $id ) ) . '</a></li>';
+			}
+			$h .= '<section class="section" aria-labelledby="doc-nhieu"><h2 id="doc-nhieu">Đọc nhiều tuần này</h2><ol class="uses">' . $li . '</ol></section>';
+		}
+		return $h;
 	}
 }
