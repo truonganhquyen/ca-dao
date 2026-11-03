@@ -3,6 +3,7 @@
 namespace Phongdao\DichVu\NhapDuLieuCu;
 
 use Phongdao\KhoLuu\HoSo;
+use Phongdao\MienDuLieu\BoDau;
 
 defined( 'ABSPATH' ) || exit;
 
