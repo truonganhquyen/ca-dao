@@ -296,12 +296,12 @@ try {
     const loiMoi = 'Câu thử đầu cuối không có thật';
     await thu('Thêm bài: dán lời, máy nhận thể thơ, đăng ngay', async () => {
       await di(bt, '/bien-tap/them/');
-      await bam(bt, 'input[name=the_loai][value="tuc-ngu"]');
+      await bam(bt, 'label.chip-chon:has(input[name=the_loai][value="tuc-ngu"])');
+      chac(await bt.$eval('input[name=the_loai][value="tuc-ngu"]', o => o.checked), 'chọn thể loại không được');
       await bt.type('form[data-them-bai] [name=loi]', loiMoi);
       await doi(bt, () => /Máy nhận/.test(document.getElementById('them-phan-tich')?.textContent || ''), null, 'máy không nhận thể thơ');
       chac(await bt.$eval('form[data-them-bai] [name=ten]', o => o.value) === loiMoi, 'tên không tự lấy dòng đầu');
-      await bam(bt, 'form[data-them-bai] [name=dang]');
-      await bamDoiTrang(bt, 'form[data-them-bai] [type=submit]');
+      await bamDoiTrang(bt, 'form[data-them-bai] button[name=dang][value="1"]');
       baiMoi = new URL(bt.url()).pathname;
       chac(baiMoi.startsWith('/tuc-ngu/') && await coChu(bt, loiMoi), `không mở bài vừa đăng (${baiMoi})`);
       await di(k, baiMoi);
