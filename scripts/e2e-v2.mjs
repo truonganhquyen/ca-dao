@@ -114,6 +114,23 @@ try {
     await bam(k, '[data-action=role-reset]');
   });
 
+  await thu('Liên kết trong menu, chân trang, thanh dưới, trang chủ, Khám phá, trang bài không hỏng', async () => {
+    const ds = new Set();
+    for (const p of ['/', '/kham-pha/', ...(caDao ? [caDao] : [])]) {
+      await di(k, p);
+      for (const h of await k.$$eval('a[href]', (as, g) => as.map(a => a.href).filter(h => h.startsWith(g)), G)) {
+        const u = new URL(h); u.hash = '';
+        if (!/^\/(bien-tap|wp-admin|wp-login)/.test(u.pathname) && !u.searchParams.has('phongdao_anh')) ds.add(u.pathname + u.search);
+      }
+    }
+    const hong = [];
+    for (const p of [...ds].slice(0, 150)) {
+      const ma = await k.evaluate(async u => { try { return (await fetch(u, { redirect: 'follow' })).status; } catch { return 0; } }, G + p);
+      if (ma >= 400 || ma === 0) hong.push(`${p} (${ma})`);
+    }
+    chac(!hong.length, `${hong.length}/${ds.size} liên kết hỏng: ${hong.slice(0, 8).join(', ')}`);
+  });
+
   if (!caDao) boQua('các bước trang bài', 'không tìm thấy bài ca dao nào');
   else {
     await di(k, caDao);
