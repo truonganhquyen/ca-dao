@@ -103,13 +103,13 @@ Báo cáo không chép lời vào repo; chỉ mã bài, số lượng, lý do. C
 | 5 | Người sáng lập | Trên điện thoại: trang chủ, 1 bài mỗi thể loại, một tuyển tập (tình huống cũ), tìm 3 câu, Từ điển, Hộp việc (quyết 3 thẻ), sửa một phần trên trang bài, thêm và đăng thử 1 bài | 20–30 phút |
 | 6 | Người sáng lập | **Mở** (H5): Cài đặt → Đọc → bỏ chọn "Ngăn các công cụ tìm kiếm…" — ngay hoặc khi sẵn sàng | 1 phút |
 
-**Nếu hỏng ở bước 3–5:** agent chạy `wp phongdao nhap --hoan-tac`, rồi gộp PR hoàn lại PR chuyển đổi (xoá tệp `wordpress/nguon-trien-khai` là máy chủ lấy lại MVP); site về như trước chuyển. Sau khi mã MVP chạy lại: `wp option delete cadao_tim_phien_ban cadao_trung_phien_ban` để MVP tự dựng lại chỉ mục tìm và chỉ mục chống trùng (V2 đã ghi đè các dòng chỉ mục của bài cùng cấu trúc; các quyết định trùng không mất). Hỏng nặng hơn: khôi phục bản sao lưu đêm trước bằng FlashPanel (người sáng lập).
+**Nếu hỏng ở bước 3–5:** agent chạy `wp phongdao nhap --hoan-tac`, rồi gộp PR hoàn lại PR chuyển đổi (xoá tệp `wordpress/nguon-trien-khai` là máy chủ lấy lại MVP); site về như trước chuyển. Script cập nhật tự làm mới quy tắc đường dẫn sau khi thay mã (kiểm thêm: `wp rewrite flush`, rồi mở một trang bài cũ). Sau khi mã MVP chạy lại: `wp option delete cadao_tim_phien_ban cadao_trung_phien_ban` để MVP tự dựng lại chỉ mục tìm và chỉ mục chống trùng (V2 đã ghi đè các dòng chỉ mục của bài cùng cấu trúc; các quyết định trùng không mất). Hỏng nặng hơn: khôi phục bản sao lưu đêm trước bằng FlashPanel (người sáng lập).
 
 ## 6. Sau khi chuyển
 
 - **2 tuần quan sát:** agent theo dõi `kiem-site-that`, lỗi PHP (nếu được xem nhật ký), số liệu, các thẻ "Cần xem".
 - **T-164 · Dọn dữ liệu cũ** (H6, người sáng lập đồng ý): `wp phongdao don-dep --thu` liệt kê thứ sẽ xoá; `--lam` sau khi đồng ý; gỡ module `NhapDuLieuCu` và bảng `wp_cadao_chuyen_doi`. Gồm cả thư mục ảnh chia sẻ của MVP `uploads/cadao-anh/` (V2 vẽ lại ở `uploads/phongdao-anh/`).
-- `docs/20`, `docs/24` chuyển vào `docs/luu-tru/` trong PR chuyển đổi; `docs/26`–`29` thành tài liệu chính.
+- Cùng việc dọn dữ liệu cũ: đưa `wordpress/v2/` lên chỗ `wordpress/`, bỏ `wordpress/nguon-trien-khai`, xoá mã MVP, đổi lệnh npm mặc định sang V2; `docs/20`, `docs/24` chuyển vào `docs/luu-tru/`; `docs/26`–`29` thành tài liệu chính (PR chuyển đổi để lại các việc này để ngày chuyển chỉ đổi một chỗ, hoàn lại dễ).
 
 ## 7. Rủi ro
 

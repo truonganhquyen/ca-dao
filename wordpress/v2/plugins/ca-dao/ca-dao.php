@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       Phongdao — Thư viện Văn học Dân gian Việt Nam
- * Description:       Bản V2 xây mới (D-083, D-094): mỗi phần của bài lưu trong bài, trang đọc theo thể loại, sửa ngay trên trang đọc + Hộp việc. Đang xây trong wordpress/v2/; máy chủ chưa lấy (docs/26).
+ * Description:       Bản V2 xây mới (D-083, D-094): mỗi phần của bài lưu trong bài, trang đọc theo thể loại, sửa ngay trên trang đọc + Hộp việc. Mã ở wordpress/v2/; máy chủ lấy từ đây kể từ ngày chuyển (docs/29).
  * Version:           1.0.0
  * Requires at least: 6.8
  * Requires PHP:      8.3

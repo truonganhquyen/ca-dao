@@ -27,7 +27,13 @@ rm -rf "$T/wordpress"
 mkdir -p "$T/plugins" "$T/themes"
 for loai in plugins themes; do [ -d "$T/$loai-ca-dao" ] && mv "$T/$loai-ca-dao" "$T/$loai/ca-dao"; done
 test -f "$T/plugins/ca-dao/ca-dao.php"
+test -f "$T/themes/ca-dao/style.css"                  # thiếu theme thì dừng: không để plugin mới chạy với theme cũ
 find "$T" -name '*.php' -print0 | xargs -0 -n1 "$PHP" -l >/dev/null
+
+# Quy tắc đường dẫn lưu trong cơ sở dữ liệu: MVP và V2 khác nhau (V2: ca-dao/<tên> → tac_pham), mỗi bên chỉ tự làm mới
+# khi số phiên bản quy tắc của chính nó đổi — nên sau mỗi lần thay mã (cả khi trả lại bản cũ) làm mới bằng mã đang chạy.
+# Không --hard (không ghi .htaccess); lỗi ở đây không chặn bước kiểm trang chủ.
+lam_moi_duong_dan() { wp rewrite flush >/dev/null 2>&1 || echo "NHẮC: chưa làm mới được quy tắc đường dẫn." >&2; }
 
 trang_chu() { curl -s -o "$T/trang-chu.html" -w '%{http_code}' -m 30 --resolve phongdao.com:443:127.0.0.1 https://phongdao.com/; }
 # Trang chủ ổn: 200; hoặc V2 vừa thay chỗ MVP mà chưa nhập dữ liệu cũ — khách nhận trang "đang được nâng cấp" (503, đúng ý,
@@ -48,6 +54,7 @@ for loai in plugins themes; do
 	mv "$T/$loai/ca-dao" "$d/ca-dao"
 	thay+=("$loai")
 done
+lam_moi_duong_dan
 if [ -d "$WP/wp-content/themes/ca-dao" ] && [ -z "$(wp option get cadao_theme_da_bat 2>/dev/null)" ]; then
 	wp theme activate ca-dao >/dev/null && wp option update cadao_theme_da_bat "$(date +%F)" >/dev/null && moi_bat=1
 	echo "Đã bật theme ca-dao (lần đầu)."
@@ -58,6 +65,7 @@ if ! trang_on; then
 		[ -d "$d/.ca-dao-cu" ] && mv "$d/ca-dao" "$T/hong-$loai" && mv "$d/.ca-dao-cu" "$d/ca-dao"
 	done
 	if [ -n "$moi_bat" ]; then wp theme activate twentytwentyfive >/dev/null; wp option delete cadao_theme_da_bat >/dev/null; fi
+	lam_moi_duong_dan
 	echo "LỖI: trang chủ không trả 200 (hay trang đang nâng cấp) với bản $NHANH — đã trả lại bản cũ." >&2
 	exit 1
 fi

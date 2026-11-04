@@ -27,7 +27,7 @@ tail -n 5 /home/cadao/.cap-nhat-lich-su
 cd /home/cadao && sudo -u cadao NHANH=<mã commit của bản muốn quay về> bash bin/cap-nhat-plugin.sh
 ```
 
-Từ ngày chuyển sang V2: quay về một bản MVP (commit không có tệp `wordpress/nguon-trien-khai`) thì trước hết chạy `wp phongdao nhap --hoan-tac` để dữ liệu trở về dạng MVP (docs/29 mục 5); quay giữa các bản V2 thì không cần.
+Từ ngày chuyển sang V2: quay về một bản MVP (commit không có tệp `wordpress/nguon-trien-khai`) thì trước hết chạy `wp phongdao nhap --hoan-tac` để dữ liệu trở về dạng MVP; khi MVP chạy lại: `wp option delete cadao_tim_phien_ban cadao_trung_phien_ban` (MVP dựng lại chỉ mục tìm, chống trùng) và mở thử một trang bài — script đã tự làm mới quy tắc đường dẫn, hỏng thì chạy `wp rewrite flush` (docs/29 mục 5). Quay giữa các bản V2 thì không cần.
 
 Site giữ bản đó tới khi `main` có commit mới. Sau đó vẫn phải sửa lỗi trên GitHub (cách 1 hoặc PR sửa), nếu không lần gộp tiếp theo sẽ đưa lỗi trở lại.
 
