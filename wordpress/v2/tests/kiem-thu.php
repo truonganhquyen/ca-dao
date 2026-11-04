@@ -79,6 +79,8 @@ global $menu;
 $menu = is_array( $menu ) ? $menu : array();
 ( new \Phongdao\GiaoTiep\QuanTri\Module() )->them_menu();
 kt( 'menu quản trị có mục Phongdao', in_array( 'phongdao', array_column( $menu, 2 ), true ) );
+// Hộp việc trong wp-admin: chuyển sang /bien-tap/ ở bước load-… (trước khi in đầu trang), không trong hàm hiện trang
+kt( 'mục Hộp việc trong wp-admin chuyển trang trước khi in đầu trang (không "headers already sent")', false !== has_action( 'load-' . get_plugin_page_hookname( 'phongdao-hop-viec', 'phongdao' ), array( \Phongdao\GiaoTiep\QuanTri\Module::class, 'toi_hop_viec' ) ) );
 
 // ---------- Mô hình dữ liệu: loại bài, phân loại, phần của bài, bảng việc (D-094, docs/26 mục 4) ----------
 $thieu = array_values( array_filter( array( KhaiBao::TAC_PHAM, KhaiBao::TUYEN_TAP, KhaiBao::PHAN_TICH, KhaiBao::GOP_Y, KhaiBao::HO_SO_NGUON ), static fn( $l ) => ! post_type_exists( $l ) ) );

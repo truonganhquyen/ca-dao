@@ -19,10 +19,19 @@ final class Module implements \Phongdao\HaTang\Module {
 
 	public function them_menu(): void {
 		add_menu_page( 'Phongdao', 'Phongdao', 'cadao_soan', self::TRANG, array( $this, 'hien' ), 'dashicons-book-alt', 3 );
-		add_submenu_page( self::TRANG, 'Hộp việc', 'Hộp việc', 'cadao_soan', 'phongdao-hop-viec', static function (): void {
-			wp_safe_redirect( home_url( '/bien-tap/' ) );
-			exit;
+		// Đường tắt tới Hộp việc: chuyển ở bước load-… (trước khi wp-admin in đầu trang) — chuyển trong hàm hiện trang thì
+		// đầu trang đã gửi, trình duyệt chỉ thấy cảnh báo "headers already sent". Hàm hiện trang chỉ còn là liên kết dự phòng.
+		$moc = add_submenu_page( self::TRANG, 'Hộp việc', 'Hộp việc', 'cadao_soan', 'phongdao-hop-viec', static function (): void {
+			echo '<div class="wrap"><h1>Hộp việc</h1><p><a href="' . esc_url( home_url( '/bien-tap/' ) ) . '">' . esc_html__( 'Mở Hộp việc', 'ca-dao' ) . '</a></p></div>';
 		} );
+		if ( $moc ) {
+			add_action( 'load-' . $moc, array( self::class, 'toi_hop_viec' ) );
+		}
+	}
+
+	public static function toi_hop_viec(): void {
+		wp_safe_redirect( home_url( '/bien-tap/' ) );
+		exit;
 	}
 
 	public function hien(): void {
