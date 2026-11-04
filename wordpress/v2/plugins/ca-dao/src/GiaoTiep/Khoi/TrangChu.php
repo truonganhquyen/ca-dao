@@ -27,7 +27,7 @@ final class TrangChu {
 		array( 'dong-dao', 'kids', 'Cùng bé chơi', 'Đồng dao kèm trò chơi, lọc theo tuổi và số bé.', 'dong-dao' ),
 	);
 
-	private const HINH_THE_LOAI = array(
+	public const HINH_THE_LOAI = array(
 		'ca-dao'   => 'book',
 		'tuc-ngu'  => 'quote',
 		'dong-dao' => 'kids',

@@ -69,7 +69,7 @@ final class GopTuLieu {
 			// Ô bẫy: người không thấy, máy tự động hay điền
 			. '<p style="position:absolute;left:-9999px" aria-hidden="true"><label>Đừng điền ô này <input type="text" name="web" tabindex="-1" autocomplete="off"></label></p>'
 			. ( '' !== $ts ? '<div class="cf-turnstile" data-sitekey="' . esc_attr( $ts ) . '" data-language="vi"></div>' : '' )
-			. '<p class="small muted">Nội dung chỉ người biên soạn đọc trước, lưu trên máy chủ của thư viện, chỉ dùng để sửa và bổ sung thư viện (Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15). Thư viện không lưu địa chỉ mạng của bạn. Muốn gỡ điều đã gửi: gửi một "Báo lỗi" ghi "xin gỡ" và ngày gửi. ' . Ve::lien_ket( 'rieng-tu', 'Quyền riêng tư' ) . '</p>'
+			. '<p class="small muted">Nội dung chỉ người biên soạn đọc trước, lưu trên máy chủ của thư viện, chỉ dùng để sửa và bổ sung thư viện (Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15). Thư viện không lưu địa chỉ mạng của bạn. Muốn gỡ điều đã gửi: gửi một "Báo lỗi" ghi "xin gỡ" và ngày gửi. ' . ( Ve::co( 'rieng-tu' ) ? Ve::lien_ket( 'rieng-tu', 'Quyền riêng tư' ) : '' ) . '</p>'
 			. '<div class="actions"><button type="submit" class="btn primary">Gửi</button></div></form>';
 		return $h;
 	}

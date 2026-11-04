@@ -25,6 +25,11 @@ final class Module implements \Phongdao\HaTang\Module {
 		'bien-tap/tac-pham' => 'Tác phẩm',
 		'bien-tap/them'     => 'Thêm bài',
 		'bien-tap/so-lieu'  => 'Số liệu tuần',
+		'kham-pha'          => 'Khám phá',
+		'chu-de'            => 'Chủ đề',
+		'mo-tip'            => 'Mô-típ',
+		'ngau-nhien'        => 'Một câu ngẫu nhiên',
+		'hay-bi-nham'       => 'Hay bị nhầm là ca dao',
 	);
 
 	public static function la_bien_tap(): bool {
@@ -39,6 +44,22 @@ final class Module implements \Phongdao\HaTang\Module {
 		add_action( 'parse_query', array( self::class, 'danh_dau' ) );
 		add_filter( 'pre_handle_404', static fn( bool $co ): bool => $co || '' !== self::dang_xem() );
 		add_filter( 'index_template_hierarchy', static fn( array $mau ): array => '' === self::dang_xem() ? $mau : array_merge( array( 'trang-' . str_replace( '/', '-', self::dang_xem() ) ), $mau ) );
+		// Một câu ngẫu nhiên: không để đệm giữ một bài; Hay bị nhầm dưới 5 câu: khách nhận 404 (docs/27 mục 7.8)
+		add_action(
+			'template_redirect',
+			static function (): void {
+				if ( 'ngau-nhien' === self::dang_xem() ) {
+					nocache_headers();
+				}
+				if ( 'hay-bi-nham' === self::dang_xem() && ! \Phongdao\GiaoTiep\Khoi\KhamPha::hay_bi_nham_cong_khai() && ! current_user_can( 'cadao_soan' ) ) {
+					global $wp_query;
+					$wp_query->set_404();
+					status_header( 404 );
+					nocache_headers();
+				}
+			},
+			2
+		);
 		// Trang biên tập: chưa đăng nhập → trang đăng nhập rồi quay lại; không đủ quyền → 403
 		add_action(
 			'template_redirect',
@@ -68,7 +89,7 @@ final class Module implements \Phongdao\HaTang\Module {
 		add_filter(
 			'wp_robots',
 			static function ( array $r ): array {
-				if ( self::la_bien_tap() || in_array( self::dang_xem(), array( 'gop', 'da-luu' ), true ) || ( in_array( self::dang_xem(), array( 'tim', 'tu-dien' ), true ) && '' !== trim( (string) ( $_GET['q'] ?? '' ) ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+				if ( self::la_bien_tap() || in_array( self::dang_xem(), array( 'gop', 'da-luu', 'ngau-nhien' ), true ) || ( in_array( self::dang_xem(), array( 'tim', 'tu-dien' ), true ) && '' !== trim( (string) ( $_GET['q'] ?? '' ) ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 					$r['noindex'] = true;
 				}
 				return $r;

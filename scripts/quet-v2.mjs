@@ -18,7 +18,7 @@ const iAnh = process.argv.indexOf('--anh');
 const thuMucAnh = iAnh > 0 ? path.resolve(process.argv[iAnh + 1]) : null;
 if (thuMucAnh) fs.mkdirSync(thuMucAnh, { recursive: true });
 
-const DS_TRANG = ['/', '/trang-mau-v2/', '/tim/', '/tim/?q=dong%20mau', '/ca-dao/dong-mau-mot-cua-bai/', '/tuc-ngu/tuc-ngu-mau-ngan/', '/cau-do/cau-do-mau/', '/ve/ve-mau/', '/dong-dao/dong-dao-mau/', '/kho/', '/the-loai/ca-dao/', '/tuyen-tap/', '/tuyen-tap/gui-mot-loi-nhan-mau/', '/tu-dien/', '/tu-dien/?chu=C', '/tu-dien/chut/', '/tu-dien/ben-mau-bac/', '/gop/', '/da-luu/', '/phan-tich/mot-cach-doc-mau/', '/ban-do/'];
+const DS_TRANG = ['/', '/trang-mau-v2/', '/tim/', '/tim/?q=dong%20mau', '/ca-dao/dong-mau-mot-cua-bai/', '/tuc-ngu/tuc-ngu-mau-ngan/', '/cau-do/cau-do-mau/', '/ve/ve-mau/', '/dong-dao/dong-dao-mau/', '/kho/', '/the-loai/ca-dao/', '/tuyen-tap/', '/tuyen-tap/gui-mot-loi-nhan-mau/', '/tu-dien/', '/tu-dien/?chu=C', '/tu-dien/chut/', '/tu-dien/ben-mau-bac/', '/gop/', '/da-luu/', '/phan-tich/mot-cach-doc-mau/', '/ban-do/', '/kham-pha/', '/chu-de/', '/mo-tip/', '/ngau-nhien/'];
 const NGAN_SACH = { trang: 200 * 1024, js: 21 * 1024 };
 const CHE_DO = [
   { ten: 'điện thoại · sáng', w: 360, h: 800, toi: false },

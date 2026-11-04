@@ -77,6 +77,27 @@ final class Ve {
 		return '<svg class="icon" aria-hidden="true" viewBox="0 0 24 24">' . ( self::HINH[ $ten ] ?? '<circle cx="12" cy="12" r="8"/>' ) . '</svg>';
 	}
 
+	/** Trang tĩnh người sáng lập viết (trang WordPress, mang từ MVP): mã => đường dẫn trang. */
+	private const TRANG_TINH = array(
+		'phuong-phap' => 'phuong-phap',
+		'nguon'       => 'nguon',
+		've-du-an'    => 've-du-an',
+		'chinh-sach'  => 'chinh-sach-du-lieu',
+		'rieng-tu'    => 'quyen-rieng-tu',
+	);
+
+	/** Đích của liên kết đã có chưa: trang tĩnh đã đăng; Hay bị nhầm đủ câu. Chưa có thì menu, chân trang không hiện liên kết. */
+	public static function co( string $ma ): bool {
+		if ( 'hay-bi-nham' === $ma ) {
+			return KhamPha::hay_bi_nham_cong_khai();
+		}
+		if ( ! isset( self::TRANG_TINH[ $ma ] ) ) {
+			return true;
+		}
+		$p = get_page_by_path( self::TRANG_TINH[ $ma ] );
+		return $p instanceof \WP_Post && 'publish' === $p->post_status;
+	}
+
 	public static function url( string $ma ): string {
 		return home_url( self::DUONG[ $ma ] ?? '/' );
 	}

@@ -56,7 +56,7 @@ final class KhungTrang {
 		foreach ( $nhom as $ten => $muc ) {
 			$menu .= '<details class="nav-item"><summary>' . $ten . '</summary><div class="nav-panel">';
 			foreach ( $muc as $ma => $chu ) {
-				$menu .= Ve::lien_ket( $ma, $chu );
+				$menu .= Ve::co( $ma ) ? Ve::lien_ket( $ma, $chu ) : '';
 			}
 			$menu .= '</div></details>';
 		}
@@ -79,7 +79,7 @@ final class KhungTrang {
 	public static function chan_trang(): string {
 		$lien = '';
 		foreach ( array( 've-du-an' => 'Về dự án', 'phuong-phap' => 'Phương pháp', 'nguon' => 'Nguồn', 'chinh-sach' => 'Chính sách thu thập dữ liệu', 'rieng-tu' => 'Quyền riêng tư', 'gop' => 'Góp tư liệu' ) as $ma => $chu ) {
-			$lien .= Ve::lien_ket( $ma, $chu );
+			$lien .= Ve::co( $ma ) ? Ve::lien_ket( $ma, $chu ) : '';
 		}
 		$dang = self::dang_xem();
 		$duoi = '';

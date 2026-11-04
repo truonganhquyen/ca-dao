@@ -1,0 +1,16 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cadao/kham-pha",
+	"title": "Khám phá",
+	"category": "theme",
+	"description": "Các trang lối đọc của menu Khám phá (bộ thiết kế R31, R04, R20, R19): /kham-pha/, /chu-de/, /mo-tip/, /ngau-nhien/, /hay-bi-nham/ — trang nào theo đường dẫn đang xem.",
+	"textdomain": "ca-dao",
+	"version": "1",
+	"supports": {
+		"html": false,
+		"inserter": false,
+		"reusable": false
+	},
+	"render": "file:./render.php"
+}

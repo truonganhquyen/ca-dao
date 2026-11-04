@@ -664,6 +664,21 @@ kt( 'Bản đồ: địa danh đã xác nhận có toạ độ trong khung, có 
 $dd2 = (int) wp_insert_term( 'nơi ngoài khung', 'muc_tu' )['term_id'];
 wp_set_object_terms( $mau_id['ve-mau'], $dd2, 'muc_tu', true );
 update_term_meta( $dd2, '_phongdao_wikidata', array( 'wd' => 'Q00', 'toa_do' => array( 48.8, 2.3 ) ) );
+// Trang lối đọc của menu Khám phá (từng 404 trên site thật): có đường dẫn, mẫu theme, nội dung; liên kết tới trang chưa có thì ẩn
+$KP = \Phongdao\GiaoTiep\Khoi\KhamPha::class;
+$thieu_kp = array_values( array_filter( array( 'kham-pha', 'chu-de', 'mo-tip', 'ngau-nhien', 'hay-bi-nham' ), static fn( $m ) => ! isset( \Phongdao\GiaoTiep\TrangCoDinh\Module::TRANG[ $m ] ) || ! file_exists( get_theme_file_path( 'templates/trang-' . $m . '.html' ) ) ) );
+kt( 'Khám phá, Chủ đề, Mô-típ, Một câu ngẫu nhiên, Hay bị nhầm: có đường dẫn và mẫu theme', array() === $thieu_kp, $thieu_kp );
+$h_kp = $KP::hien( 'kham-pha' );
+kt( 'trang Khám phá: ô tìm gửi /tim/, lối đọc tới Chủ đề, Mô-típ, Một câu ngẫu nhiên', str_contains( $h_kp, 'Bạn muốn đọc gì?' ) && str_contains( $h_kp, 'action="' . esc_url( home_url( '/tim/' ) ) . '"' ) && str_contains( $h_kp, home_url( '/chu-de/' ) ) && str_contains( $h_kp, home_url( '/mo-tip/' ) ) && str_contains( $h_kp, home_url( '/ngau-nhien/' ) ), substr( $h_kp, 0, 600 ) );
+kt( 'trang Chủ đề liệt kê chủ đề có bài, kèm số bài', str_contains( $KP::hien( 'chu-de' ), 'Lao động' ) && str_contains( $KP::hien( 'chu-de' ), (string) get_term_link( 'lao-dong', 'chu_de' ) ) );
+$h_nn = $KP::hien( 'ngau-nhien' );
+kt( 'Một câu ngẫu nhiên: một thẻ bài, "Câu khác", "Xem đầy đủ"', str_contains( $h_nn, 'class="card' ) && str_contains( $h_nn, 'Câu khác' ) && str_contains( $h_nn, 'Xem đầy đủ' ), substr( $h_nn, 0, 400 ) );
+kt( 'Hay bị nhầm dưới 5 câu: không công khai, menu không có liên kết', ! $KP::hay_bi_nham_cong_khai() && ! \Phongdao\GiaoTiep\Khoi\Ve::co( 'hay-bi-nham' ) && ! str_contains( \Phongdao\GiaoTiep\Khoi\KhungTrang::dau_trang(), '/hay-bi-nham/' ) );
+$rt_truoc = \Phongdao\GiaoTiep\Khoi\Ve::co( 'rieng-tu' ) || str_contains( \Phongdao\GiaoTiep\Khoi\KhungTrang::chan_trang(), '/quyen-rieng-tu/' ) || str_contains( $h_kp, '/quyen-rieng-tu/' );
+$rt_id    = wp_insert_post( array( 'post_type' => 'page', 'post_name' => 'quyen-rieng-tu', 'post_title' => 'Quyền riêng tư', 'post_status' => 'publish', 'post_content' => 'Trang thử.' ) );
+$rt_sau   = \Phongdao\GiaoTiep\Khoi\Ve::co( 'rieng-tu' ) && str_contains( \Phongdao\GiaoTiep\Khoi\KhungTrang::chan_trang(), '/quyen-rieng-tu/' );
+wp_delete_post( $rt_id, true );
+kt( 'chưa có trang Quyền riêng tư: chân trang, Khám phá không trỏ tới; đăng trang rồi thì có', ! $rt_truoc && $rt_sau );
 $hbd = \Phongdao\GiaoTiep\Khoi\BanDo::hien();
 kt( 'Bản đồ: điểm ngoài khung Việt Nam bị bỏ; ảnh bản đồ tự lưu có Hoàng Sa, Trường Sa; điểm là liên kết tới danh sách; ghi rõ "nhắc đến", không phải nơi lưu truyền', 1 === count( \Phongdao\GiaoTiep\Khoi\BanDo::diem() ) && str_contains( $hbd, 'ban-do-vn.svg' ) && str_contains( $hbd, 'Hoàng Sa và Trường Sa' ) && str_contains( $hbd, 'href="#dd-' ) && str_contains( $hbd, 'không đồng nghĩa là nơi lưu truyền' ) && ! preg_match( '#https?://(?!' . preg_quote( (string) wp_parse_url( home_url(), PHP_URL_HOST ), '#' ) . ')#', str_replace( 'https://www.w3.org', '', $hbd ) ), $hbd );
 
