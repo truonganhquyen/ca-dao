@@ -106,7 +106,9 @@ foreach ( array( 'so_nguoi' => '6–10 bạn', 'do_tuoi' => '4–10 tuổi', 'bu
 wp_set_object_terms( $dd, $tc, 'tro_choi' );
 $mt = (int) wp_insert_term( 'Mô-típ mẫu', 'mo_tip' )['term_id'];
 update_term_meta( $mt, '_cadao_mo_tip_dau', 'dau-mau' );
-wp_set_object_terms( $b, $mt, 'mo_tip' );
+// Hai mô-típ trên một bài: "bài gắn" của kiểm kê đếm lần gắn (2), không phải số bài (1) — đối chiếu phải đếm cùng cách
+$mt2 = (int) wp_insert_term( 'Mô-típ mẫu thứ hai', 'mo_tip' )['term_id'];
+wp_set_object_terms( $b, array( $mt, $mt2 ), 'mo_tip' );
 $th = (int) wp_insert_term( 'Tình huống mẫu', 'tinh_huong', array( 'slug' => 'tinh-huong-mau', 'description' => 'Lời dẫn mẫu của tình huống.' ) )['term_id'];
 wp_set_object_terms( $a, $th, 'tinh_huong' );
 wp_set_object_terms( $c, $th, 'tinh_huong' );
