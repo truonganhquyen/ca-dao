@@ -33,7 +33,7 @@ find "$T" -name '*.php' -print0 | xargs -0 -n1 "$PHP" -l >/dev/null
 # Quy tắc đường dẫn lưu trong cơ sở dữ liệu: MVP và V2 khác nhau (V2: ca-dao/<tên> → tac_pham), mỗi bên chỉ tự làm mới
 # khi số phiên bản quy tắc của chính nó đổi — nên sau mỗi lần thay mã (cả khi trả lại bản cũ) làm mới bằng mã đang chạy.
 # Không --hard (không ghi .htaccess); lỗi ở đây không chặn bước kiểm trang chủ.
-lam_moi_duong_dan() { wp rewrite flush >/dev/null 2>&1 || echo "NHẮC: chưa làm mới được quy tắc đường dẫn." >&2; }
+lam_moi_duong_dan() { wp rewrite flush >/dev/null || echo "NHẮC: chưa làm mới được quy tắc đường dẫn." >&2; }
 
 trang_chu() { curl -s -o "$T/trang-chu.html" -w '%{http_code}' -m 30 --resolve phongdao.com:443:127.0.0.1 https://phongdao.com/; }
 # Trang chủ ổn: 200; hoặc V2 vừa thay chỗ MVP mà chưa nhập dữ liệu cũ — khách nhận trang "đang được nâng cấp" (503, đúng ý,
