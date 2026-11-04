@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { maQuyetDinhTrung } from './lib/backlog.mjs';
-import { phienBanRepo, phienBanTrang, chenhLech, baiDauTien } from './lib/phien-ban.mjs';
+import { phienBanRepo, phienBanTrang, chenhLech, baiDauTien, thuMucTrienKhai } from './lib/phien-ban.mjs';
 
 const bang = ids => ids.map(id => `| ${id} | Quyết định | Lý do | Nguồn |`).join('\n');
 assert.deepEqual(maQuyetDinhTrung(bang(['D-001', 'D-002', 'D-050'])), [], 'không trùng thì không báo');
@@ -24,5 +24,5 @@ assert.equal(baiDauTien('<a href="https://phongdao.com/tu-dien/">x</a><a href="h
 const rp = phienBanRepo();
 assert.match(rp.plugin ?? '', /^\d+\.\d+\.\d+$/, 'đọc được CADAO_PHIEN_BAN trong repo');
 assert.match(rp.theme ?? '', /^\d+\.\d+\.\d+$/, 'đọc được Version: của theme trong repo');
-assert.equal(rp.plugin, fs.readFileSync('wordpress/plugins/ca-dao/ca-dao.php', 'utf8').match(/\* Version:\s*([0-9.]+)/)[1], 'CADAO_PHIEN_BAN khớp dòng Version: của plugin');
+assert.equal(rp.plugin, fs.readFileSync(`${thuMucTrienKhai()}/plugins/ca-dao/ca-dao.php`, 'utf8').match(/\* Version:\s*([0-9.]+)/)[1], 'CADAO_PHIEN_BAN khớp dòng Version: của plugin');
 console.log('Kiểm thử kiểm nhất quán: đạt.');

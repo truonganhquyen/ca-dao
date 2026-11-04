@@ -33,7 +33,7 @@ jobs:
           echo "$ket_qua"
           echo "ket_qua<<HET" >> "$GITHUB_OUTPUT"; echo "$ket_qua" >> "$GITHUB_OUTPUT"; echo "HET" >> "$GITHUB_OUTPUT"
           # Bỏ qua nếu lần đổi plugin/theme gần nhất trên main mới hơn 30 phút (máy chủ còn đang cập nhật)
-          moi=$(( $(date +%s) - $(git log -1 --format=%ct -- wordpress/plugins/ca-dao wordpress/themes/ca-dao) ))
+          moi=$(( $(date +%s) - $(git log -1 --format=%ct -- wordpress/plugins/ca-dao wordpress/themes/ca-dao wordpress/v2/plugins/ca-dao wordpress/v2/themes/ca-dao wordpress/nguon-trien-khai) ))
           echo "lech=$([ $ma -ne 0 ] && [ $moi -gt 1800 ] && echo 1 || echo 0)" >> "$GITHUB_OUTPUT"
 
       - name: Mở hoặc đóng issue

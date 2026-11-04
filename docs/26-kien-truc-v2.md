@@ -37,10 +37,10 @@ wordpress/
 design/v2/                 bộ thiết kế UX/UI bản cuối (D-092): mã nguồn bản mẫu, token, đặc tả, qa — không chạy trên site
 ```
 
-- Máy chủ (`cap-nhat-plugin.sh`) chỉ chép `wordpress/plugins/ca-dao` và `wordpress/themes/ca-dao`, nên gộp PR V2 vào `main` không đụng site thật.
-- **Lúc chuyển** (`docs/29`): một PR chuyển `wordpress/v2/plugins/ca-dao` → `wordpress/plugins/ca-dao` (và theme tương tự), xoá mã MVP khỏi cây (lịch sử Git vẫn giữ), đổi lệnh npm mặc định sang V2, chuyển `docs/20`, `docs/24` vào `docs/luu-tru/`.
+- Máy chủ (`cap-nhat-plugin.sh`) chép `wordpress/plugins/ca-dao` và `wordpress/themes/ca-dao` — trừ khi commit có tệp `wordpress/nguon-trien-khai` ghi `v2`, khi đó chép `wordpress/v2/plugins/ca-dao` và `wordpress/v2/themes/ca-dao`. Trước ngày chuyển gộp PR V2 vào `main` không đụng site thật.
+- **Lúc chuyển** (`docs/29` mục 5 bước 2): PR chuyển đổi chỉ thêm tệp đánh dấu và đặt 1.0.0; mã MVP để nguyên (bộ kiểm thử chuyển đổi cần nó, quay về commit cũ vẫn ra MVP). **Khi dọn dữ liệu cũ** (`docs/29` mục 6): chuyển `wordpress/v2/…` lên chỗ `wordpress/…`, bỏ tệp đánh dấu, xoá mã MVP (lịch sử Git vẫn giữ), đổi lệnh npm mặc định sang V2, chuyển `docs/20`, `docs/24` vào `docs/luu-tru/`. Mỗi lần thay mã, script làm mới quy tắc đường dẫn (`wp rewrite flush`) vì MVP và V2 lưu quy tắc khác nhau trong cơ sở dữ liệu.
 - Tên thư mục giữ `ca-dao` để kịch bản máy chủ không phải đổi (AGENTS.md, KHÔNG BAO GIỜ 15). Tên hiển thị của plugin: "Phongdao — Thư viện Văn học Dân gian Việt Nam"; theme: "Phongdao".
-- Phiên bản: plugin và theme V2 bắt đầu `0.1.0`, tăng ở mỗi PR (AGENTS.md); PR chuyển đổi đặt `1.0.0`. Giữ hằng số `CADAO_PHIEN_BAN` và tệp `assets/ca-dao.js` (hoặc sửa `scripts/lib/phien-ban.mjs` trong PR chuyển đổi) để `npm run kiem-site-that` tiếp tục đúng.
+- Phiên bản: plugin và theme V2 bắt đầu `0.1.0`, tăng ở mỗi PR (AGENTS.md); PR chuyển đổi đặt `1.0.0` và thêm `wordpress/nguon-trien-khai` (`v2`): máy chủ và `scripts/lib/phien-ban.mjs` (`kiem-site-that`) cùng đọc tệp này để biết lấy plugin, theme ở `wordpress/v2/`; trang V2 lộ số phiên bản qua `do-luong.js?ver=` và `giao-dien.css?ver=`.
 - PHP: đo phiên bản PHP của máy chủ ở T-141 (qua WP-CLI khi được đồng ý, hoặc người sáng lập xem FlashPanel); viết mã cho phiên bản đó, không thấp hơn 8.1. **Kết quả (T-141, 02/11/2026):** máy chủ chạy PHP 8.5 (người sáng lập chọn trong FlashPanel ở T-075, `docs/24` mục 6; tiêu đề HTTP không lộ số); V2 khai `Requires PHP: 8.3` — không dùng cú pháp chỉ có từ 8.4; máy CI có sẵn 8.3 cho bộ kiểm thuần, Playground kiểm ở 8.3.
 
 ## 3. Cấu trúc plugin V2
