@@ -89,6 +89,8 @@ Báo cáo không chép lời vào repo; chỉ mã bài, số lượng, lý do. C
 
 **Lần 2 (03/11/2026, chiều, người sáng lập đồng ý; sau các quy tắc mới):** 631 bài, đều đã đăng (20 bài chờ duyệt lần 1 đã được đăng trong ngày). Cả 631 bài có lời; 7 bài có phần Đoạn, 3 bài có Bối cảnh — đúng các bài đã biết, quy tắc mới không bắt nhầm bài khác. "Trước = sau" không lệch bài nào (kể cả đoạn, bối cảnh). "Cần xem" còn 7 bài, đúng danh sách đã giải thích: 28, 709, 407, 409, 103, 382, 1105. Chạy lần cuối ít nhất 2 ngày trước ngày chuyển (bước 0).
 
+**Lần 3 — lần cuối trước ngày chuyển (04/11/2026, người sáng lập đồng ý; công cụ từ `main` sau PR #97):** giống hệt lần 2: 631 bài đã đăng, 631 có lời, "trước = sau" không lệch bài nào (chỉ khác khoảng trắng / dạng chữ Unicode: lời 10, dị bản 11, chú thích 18, ý nghĩa 3, bối cảnh 1); "Cần xem" vẫn đúng 7 bài đã biết (28, 709, 407, 409, 103, 382, 1105); 15 đường dẫn đuôi số đổi tên (tên cũ chuyển hướng 301), 4 hồ sơ nguồn sẽ tạo, 1049 mục từ giữ ID. Khác lần 2 chỉ ở số đo lường tăng tự nhiên (lượt đọc 186 dòng, sự kiện 42) và ghi chú "Bạn có biết" không còn lặp mã bài. Thư mục tạm trên máy chủ đã xoá. Bước 0 đạt; ngày chuyển sớm nhất theo bước 0 là 06/11/2026.
+
 ## 5. Ngày chuyển (T-157)
 
 | Bước | Ai | Việc | Thời gian |
