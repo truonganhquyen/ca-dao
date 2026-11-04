@@ -40,7 +40,8 @@ final class DoiChieu {
 		$q     = static fn( string $sql, ...$a ): int => (int) $wpdb->get_var( $a ? $wpdb->prepare( $sql, ...$a ) : $sql ); // phpcs:ignore WordPress.DB.PreparedSQL
 		$phan  = static fn( string $ten ): int => $q( "SELECT COUNT(*) FROM {$wpdb->postmeta} m JOIN $p b ON b.ID = m.post_id WHERE b.post_type IN (%s, %s) AND b.post_status <> 'trash' AND m.meta_key = %s", ...array_merge( $tp, array( '_phongdao_' . $ten ) ) );
 		$the   = static fn( string $tax ): int => $q( "SELECT COUNT(*) FROM {$wpdb->term_taxonomy} WHERE taxonomy = %s", $tax );
-		$gan   = static fn( string $tax ): int => $q( "SELECT COUNT(DISTINCT r.object_id) FROM {$wpdb->term_relationships} r JOIN {$wpdb->term_taxonomy} t ON t.term_taxonomy_id = r.term_taxonomy_id JOIN $p b ON b.ID = r.object_id WHERE t.taxonomy = %s AND b.post_type IN (%s, %s) AND b.post_status <> 'trash'", $tax, ...$tp );
+		// Như KiemKe: số lần gắn (một bài gắn ba mục từ tính ba), không phải số bài
+		$gan   = static fn( string $tax ): int => $q( "SELECT COUNT(*) FROM {$wpdb->term_relationships} r JOIN {$wpdb->term_taxonomy} t ON t.term_taxonomy_id = r.term_taxonomy_id JOIN $p b ON b.ID = r.object_id WHERE t.taxonomy = %s AND b.post_type IN (%s, %s) AND b.post_status <> 'trash'", $tax, ...$tp );
 		$bang  = static fn( string $ten ): int => $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->prefix . $ten ) ) ? $q( "SELECT COUNT(*) FROM {$wpdb->prefix}$ten" ) : -1;
 		$sau   = array(
 			'đã đăng'                       => $q( "SELECT COUNT(*) FROM $p WHERE post_type IN (%s, %s) AND post_status = 'publish'", ...$tp ),
