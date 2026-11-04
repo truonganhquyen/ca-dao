@@ -59,6 +59,12 @@ jobs:
       - name: Quét trợ năng, ngân sách V2 (WCAG 2.2 AA)
         run: npm run quet:v2 -- --anh qa-anh-v2
 
+      # Đi từng thao tác như người dùng thật: người đọc (tìm, sao chép, lưu, trích dẫn, cỡ chữ, vè dài, câu đố, góp) và
+      # người biên soạn (tấm sửa, Hộp việc, Hoàn tác, Thêm bài, Ẩn bài, sửa mục từ); ảnh chụp bước hỏng vào qa-anh-v2
+      - name: Kiểm thử đầu-cuối V2
+        if: always()
+        run: npm run e2e:v2 -- --anh qa-anh-v2
+
       # Ảnh chụp 390 px từng trang để xem bằng mắt (tải ở trang lần chạy CI)
       - name: Lưu ảnh chụp
         if: always()
