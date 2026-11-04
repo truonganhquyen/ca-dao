@@ -1,10 +1,18 @@
 // Phiên bản plugin, theme: đọc trong repo và trên trang của site thật (T-129, D-080).
 import fs from 'node:fs';
 
-/** Phiên bản trong repo: plugin (CADAO_PHIEN_BAN) và theme (dòng Version: của style.css). */
+/** Thư mục máy chủ lấy plugin, theme (như wordpress/may-chu/cap-nhat-plugin.sh): wordpress/v2 khi wordpress/nguon-trien-khai ghi "v2". */
+export function thuMucTrienKhai(goc = '.') {
+  let nguon = '';
+  try { nguon = fs.readFileSync(`${goc}/wordpress/nguon-trien-khai`, 'utf8').trim(); } catch { /* chưa có: MVP */ }
+  return nguon === 'v2' ? 'wordpress/v2' : 'wordpress';
+}
+
+/** Phiên bản trong repo của bản máy chủ đang lấy: plugin (CADAO_PHIEN_BAN) và theme (dòng Version: của style.css). */
 export function phienBanRepo(goc = '.') {
-  const plugin = fs.readFileSync(`${goc}/wordpress/plugins/ca-dao/ca-dao.php`, 'utf8').match(/CADAO_PHIEN_BAN\s*=\s*'([0-9.]+)'/)?.[1] ?? null;
-  const theme = fs.readFileSync(`${goc}/wordpress/themes/ca-dao/style.css`, 'utf8').match(/^Version:\s*([0-9.]+)/m)?.[1] ?? null;
+  const d = `${goc}/${thuMucTrienKhai(goc)}`;
+  const plugin = fs.readFileSync(`${d}/plugins/ca-dao/ca-dao.php`, 'utf8').match(/CADAO_PHIEN_BAN\s*=\s*'([0-9.]+)'/)?.[1] ?? null;
+  const theme = fs.readFileSync(`${d}/themes/ca-dao/style.css`, 'utf8').match(/^Version:\s*([0-9.]+)/m)?.[1] ?? null;
   return { plugin, theme };
 }
 
