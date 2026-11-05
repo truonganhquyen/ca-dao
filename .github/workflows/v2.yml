@@ -1,27 +1,35 @@
 name: V2
 
-# Khung V2 xây song song trong wordpress/v2/ (docs/26 mục 13): chỉ chạy khi chạm mã V2 hoặc lệnh kiểm của V2.
+# Chạy khi mã V2, công cụ kiểm hoặc đường triển khai V2 thay đổi.
 on:
   pull_request:
     paths:
       - 'wordpress/v2/**'
       - 'wordpress/plugins/ca-dao/**'
-      - 'scripts/test-v2.mjs'
-      - 'scripts/quet-v2.mjs'
-      - 'scripts/dong-bo-giao-dien-v2.mjs'
+      - 'wordpress/nguon-trien-khai'
+      - 'wordpress/may-chu/**'
+      - 'scripts/**'
+      - 'tests/e2e-v2/**'
+      - 'tests/deploy-rollback.sh'
       - 'design/v2/source/**'
       - 'package.json'
+      - 'package-lock.json'
+      - '.node-version'
       - '.github/workflows/v2.yml'
   push:
     branches: [main]
     paths:
       - 'wordpress/v2/**'
       - 'wordpress/plugins/ca-dao/**'
-      - 'scripts/test-v2.mjs'
-      - 'scripts/quet-v2.mjs'
-      - 'scripts/dong-bo-giao-dien-v2.mjs'
+      - 'wordpress/nguon-trien-khai'
+      - 'wordpress/may-chu/**'
+      - 'scripts/**'
+      - 'tests/e2e-v2/**'
+      - 'tests/deploy-rollback.sh'
       - 'design/v2/source/**'
       - 'package.json'
+      - 'package-lock.json'
+      - '.node-version'
       - '.github/workflows/v2.yml'
 
 permissions:
@@ -49,6 +57,9 @@ jobs:
 
       - name: Cài gói (axe-core, puppeteer-core cho bước quét)
         run: npm ci
+
+      - name: Diễn tập quay lại bản cũ trên bản sao
+        run: bash tests/deploy-rollback.sh
 
       # ANH_MAU: bộ kiểm thuần lưu vài ảnh chia sẻ mẫu vào thư mục ảnh chụp (xem bằng mắt — Playground không vẽ được chữ)
       - name: Kiểm thử V2 (PHP thuần + Playground)
