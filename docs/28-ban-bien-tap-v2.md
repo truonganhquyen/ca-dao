@@ -2,10 +2,10 @@
 
 | | |
 |---|---|
-| Phiên bản | 1.1 · 02/11/2026 (D-084, D-085, D-086; sửa trên trang đọc + Hộp việc: D-094) |
+| Phiên bản | 1.2 · 05/11/2026 (hướng quản trị admin chính: D-096; dữ liệu và lằn ranh giữ D-094) |
 | Trạng thái | **Đã duyệt.** Đổi hành vi đã chốt phải ghi D-xxx |
 | Đọc khi | Mọi task chạm nguồn, kho, chống trùng, biên tập (đợt 1 và 3) |
-| Đọc kèm | `26` (dữ liệu, REST, quyền), `12` (chính sách nguồn), `design/v2` nhóm B (màn mẫu), AGENTS.md (lằn ranh) |
+| Đọc kèm | `26` (dữ liệu, REST, quyền), `12` (chính sách nguồn), `30` (đích quản trị D-096), `design/v2` nhóm B (giao diện D-094 hiện có), AGENTS.md (lằn ranh) |
 | Người dùng chính | Người sáng lập — người biên soạn duy nhất, dưới 10 giờ/tuần, chủ yếu trên điện thoại, không đọc mã |
 
 ## 1. Nguyên tắc
@@ -15,7 +15,7 @@
 3. **Không chặn vì lý do biên tập (D-054).** Chế độ sửa nhắc (thiếu nghĩa, nghi trùng, thiếu nguồn), không chặn Đăng — trừ lỗi kỹ thuật và lằn ranh.
 4. **Lằn ranh trong mã, không trong lời dặn** (mục 6).
 5. **Điện thoại trước.** Mọi màn hình dùng được một tay ở 390 px; máy tính có phím tắt.
-6. **Sửa ở chỗ đọc.** Người biên soạn sửa trên chính trang người đọc thấy; không có màn quản lý riêng cho từng loại nội dung (D-094).
+6. **Sửa có ngữ cảnh.** Người biên soạn có thể sửa nhanh trên trang người đọc thấy; quản lý toàn kho và sửa có cấu trúc trong wp-admin theo D-096. Hai lối dùng chung quy tắc lưu.
 
 ## 2. Vòng đời nội dung
 
@@ -68,9 +68,9 @@ Giữ thuật toán MVP (dấu vân tay cả lời, cặp âm tiết, bốn mứ
 - Mỗi nháp thành **một việc chờ** trong bảng việc (người tạo `may`, dấu AI bật); chỉ cho tác phẩm đã đăng; không đụng phần đã có trong bài; không bao giờ cho lời, dị bản. Nháp chỉ vào bài khi người có quyền bấm Duyệt (thành `ai_da_duyet`).
 - Agent không tự khẳng định câu có trong SGK, không viết lời dẫn tuyển tập, không viết sự kiện bối cảnh, cách chơi, lý do cờ nghi.
 
-## 4. Biên tập — năm nơi và sửa tại chỗ (D-094)
+## 4. Biên tập — hiện trạng D-094 và đích D-096
 
-Không có ứng dụng quản trị riêng. Người biên soạn đăng nhập thì **trang người đọc thành chỗ sửa**; phần riêng chỉ còn năm nơi, cùng giao diện tím – lục của trang đọc. Màn mẫu: nhóm B của `design/v2` (B00 tổng quan, B01 Hộp việc, B02 trang bài ở chế độ sửa, B03 Tác phẩm, B04 Thêm bài, B05 Số liệu tuần). Kỹ thuật: `docs/26` mục 7.
+**Giao diện đang chạy:** người biên soạn đăng nhập sửa ngay trên trang đọc; phần riêng có năm nơi dưới đây (D-094). Màn mẫu nhóm B của `design/v2` (B00–B05) mô tả giao diện này. **Đích nâng cấp:** wp-admin là nơi quản lý kho và biên tập chính, Hộp việc là hàng chờ trong đó; sửa trên trang đọc là lối nhanh (D-096). Đặc tả đích, thao tác lô và thứ tự chuyển ở `docs/30`; kỹ thuật ở `docs/26` mục 7. Các mục 4.1–4.7 tiếp tục mô tả luồng đang chạy cho tới khi từng chặng admin được nghiệm thu.
 
 | Nơi | Đường dẫn | Việc |
 |---|---|---|
@@ -80,11 +80,11 @@ Không có ứng dụng quản trị riêng. Người biên soạn đăng nhập
 | Số liệu tuần | `/bien-tap/so-lieu/` | một trang số liệu kèm việc nên làm (mục 4.6) |
 | Nguồn & cài đặt | wp-admin → Phongdao | ít dùng: hồ sơ nguồn, nguồn tự động, kho, máy đang làm, cài đặt (mục 4.7) |
 
-Khi đăng nhập: đầu trang có nút **Hộp việc (số việc)** thay "Đã lưu"; trên điện thoại, ở các trang biên tập và trang bài đang sửa, thanh dưới là **Đọc · Hộp việc · Tác phẩm · Thêm**. Bốn trang `/bien-tap/…` phải đăng nhập, `noindex`.
+Hiện tại khi đăng nhập: đầu trang có nút **Hộp việc (số việc)** thay "Đã lưu"; trên điện thoại, ở các trang biên tập và trang bài đang sửa, thanh dưới là **Đọc · Hộp việc · Tác phẩm · Thêm**. Bốn trang `/bien-tap/…` phải đăng nhập, `noindex`. Sau khi chuyển lối vào theo D-096, các liên kết này phải mở đúng trang admin tương ứng, không mất vị trí bộ lọc hoặc việc đang xử lý.
 
 > **Tên gọi (D-093):** phần `y_nghia` (trước gọi `hieu_nhanh`) hiển thị là **"Ý nghĩa"** ở mọi nơi ("Nháp ý nghĩa", "Bài thiếu ý nghĩa").
 
-### 4.1. Hộp việc
+### 4.1. Hộp việc hiện tại
 
 ```text
 ┌──────────────────────────────┐
@@ -146,9 +146,11 @@ Trang bài người đọc thấy, thêm:
 
 "Lời này từ đâu?" hiện đúng như người đọc thấy, theo chính sách hiện của hồ sơ nguồn. Nhắc (không chặn Đăng): thiếu ý nghĩa, thiếu chủ đề, nghi trùng, chú thích không neo được vào lời.
 
-### 4.3. Tác phẩm
+### 4.3. Tác phẩm hiện tại
 
 Danh sách mọi tác phẩm: ô tìm (gõ không dấu được), lọc Tất cả · Thiếu ý nghĩa · Nháp AI · Chưa chủ đề · Có cờ · Bản nháp, xếp theo đọc nhiều tuần này; mỗi dòng: thể loại, tên, hai dòng đầu, trạng thái, lượt đọc. Bấm một dòng mở trang bài ở chế độ sửa. Không còn trình soạn Gutenberg cho tác phẩm (D-086).
+
+Đích D-096: danh sách Tác phẩm trong wp-admin phải bao phủ mọi trạng thái và cả bài không có việc chờ; có ID, nguồn, phần thiếu, phân trang, chọn nhiều bài và trang sửa có cấu trúc. Chi tiết thao tác lô ở `docs/30` mục 3.
 
 ### 4.4. Thêm bài
 
@@ -194,12 +196,14 @@ Nhật ký (bảng việc) ghi mọi lần sửa một phần, quyết một th�
 5. Kho thô và lời từ kho không ra trang người đọc (kể cả kết quả tìm) khi chưa thành tác phẩm đã đăng; nút sửa, dòng nguồn gốc nội bộ, địa chỉ gốc máy đã lấy không có trong HTML gửi khách.
 6. Không thu email, số điện thoại, IP của người đọc; người gửi không bắt buộc tên.
 
-## 7. Nghiệm thu chung (đợt 3)
+## 7. Nghiệm thu hiện có và nâng cấp D-096
 
 - Người sáng lập duyệt một nháp ý nghĩa ≤ 60 giây trên điện thoại của mình (đo khi dùng thử).
-- Mọi việc chờ nằm ở Hộp việc; không còn trang quản trị con nào của MVP; ngoài Nguồn & cài đặt, không màn quản trị riêng nào.
+- Mọi việc chờ nằm ở Hộp việc; không còn trang quản trị con nào của MVP. Đích D-096 bổ sung danh sách và biểu mẫu trong wp-admin theo `docs/30`.
 - Sửa một phần (ý nghĩa, từ khó, dị bản) ngay trên trang bài từ điện thoại; lưu xong thấy khối mới đúng như người đọc thấy; hoàn tác được.
 - Đăng một tác phẩm nhập tay từ điện thoại trong vài phút (điều kiện Mốc A giữ nguyên).
 - HTML gửi khách không có nút Sửa, dải "Đang sửa", dòng nguồn gốc nội bộ hay địa chỉ gốc máy đã lấy.
 - Kiểm thử khẳng định đủ 6 lằn ranh ở mục 6.
 - `quet:v2` đạt trên Hộp việc (danh sách và từng thẻ), trang bài ở chế độ sửa (có tấm sửa mở), Tác phẩm, Thêm bài, Số liệu tuần; `e2e:v2` chạy luồng câu mới → đăng, nháp → duyệt, có thể trùng → gộp, người đọc gửi → áp dụng, sửa một phần trên trang → hoàn tác.
+
+**Nghiệm thu đích D-096:** thêm ca kiểm cho danh sách admin toàn kho, Hộp việc mọi trạng thái, biểu mẫu dùng chung dịch vụ, sửa/duyệt/ẩn theo lô, lịch sử và khôi phục có xung đột. Chỉ chuyển các lối vào chính sau khi người sáng lập dùng thử ba kịch bản trong `docs/30` mục 5 trên máy tính và điện thoại.

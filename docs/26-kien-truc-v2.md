@@ -2,10 +2,10 @@
 
 | | |
 |---|---|
-| Phiên bản | 2.1 · 02/11/2026 (xây mới: D-083..D-086, D-088, D-089; quản trị và lưu bài: D-094) |
+| Phiên bản | 2.2 · 05/11/2026 (hướng quản trị admin chính: D-096; dữ liệu giữ D-094) |
 | Trạng thái | **Đã duyệt.** Đổi điều đã chốt ở đây phải ghi D-xxx; chi tiết kỹ thuật trong phạm vi do agent tự chọn và ghi trong PR |
 | Đọc khi | Mọi task V2 (`docs/22`, nhóm V2) |
-| Đọc kèm | `27` (sản phẩm cho người đọc), `28` (luồng nội dung, Bàn biên tập), `29` (chuyển dữ liệu, chuyển đổi), AGENTS.md |
+| Đọc kèm | `27` (sản phẩm cho người đọc), `28` (luồng nội dung, Bàn biên tập), `29` (chuyển dữ liệu, chuyển đổi), `30` (kế hoạch nâng cấp quản trị), AGENTS.md |
 | Căn cứ | `docs/nghien-cuu/v2-backend-plugin-theme-2026-10-27.md` (đo trên plugin 0.33.2, theme 0.19.1) |
 
 ## 1. Quyết định gốc
@@ -17,7 +17,7 @@
 | Tài sản giữ | Thuật toán đã kiểm chứng được chuyển sang cấu trúc mới kèm kiểm thử (mục 12) |
 | Dữ liệu | Mỗi phần của bài lưu trong bài (post meta có schema), kèm người làm và nguồn; một bảng mới `wp_cadao_viec` cho việc chờ và nhật ký (D-084, D-094) |
 | Trang người đọc | Theme khối 1.0 + khối động `cadao/*` render trên máy chủ + JavaScript thuần nhỏ |
-| Quản trị | Sửa ngay trên trang đọc + bốn trang `/bien-tap/…` + Nguồn & cài đặt trong wp-admin; JavaScript thuần, không bước dựng; không Gutenberg cho tác phẩm (D-086, D-094) |
+| Quản trị | Hiện có D-094: sửa trên trang đọc + bốn trang `/bien-tap/…`. Đích D-096: wp-admin quản lý Tác phẩm và Hộp việc, sửa trên trang đọc là lối nhanh; một đường kiểm/lưu; không Gutenberg cho tác phẩm (`docs/30`) |
 | Việc nền | WP-Cron theo lô (như MVP) + cron thật của máy chủ |
 | Không làm | Headless, Next.js, Astro, Meilisearch / Elasticsearch, Action Scheduler, React / bước dựng JavaScript, thư viện JavaScript ngoài, tài khoản người đọc |
 
@@ -210,17 +210,21 @@ Mọi route biên tập: `permission_callback` kiểm quyền riêng + nonce RES
 - **Khối động** (`cadao/*`, render trên máy chủ, khối không có dữ liệu không in gì, CSS nạp khi khối có mặt): `loi`, `muc-kiem`, `nghia`, `chu-thich`, `di-ban`, `boi-canh`, `doan`, `thuc-hanh` (câu đố, trò chơi), `hanh-dong`, `tu-lieu`, `bien-soan`, `doc-tiep`, `gop`, `thuoc-tuyen-tap`, `the-bai`, `danh-sach`, `bo-loc`, `tuyen-tap`, `loi-vao`, `cau-hom-nay`, `ban-co-biet`, `ban-do`, `tim`, `do-vui`, `vai`.
 - **JavaScript thuần**, mô-đun nhỏ nạp theo trang: chạm từ (popover), lưu, chia sẻ, sao chép trích dẫn, trình chiếu, cỡ chữ / sáng tối, đọc cùng bé, tìm khi gõ, đố vui (nhớ tiến độ), vai, nhớ chỗ đọc. Tổng trên trang bài ≤ 21 KB; mọi thứ hoạt động cơ bản khi tắt JavaScript (`<details>`, form, liên kết).
 
-## 7. Biên tập: sửa trên trang đọc, bốn trang biên tập, Nguồn & cài đặt
+## 7. Biên tập: hiện trạng và hướng nâng cấp admin
 
-Không có ứng dụng quản trị riêng (D-094). Màn mẫu: nhóm B của `design/v2` (B01–B05). Màn hình và hành vi: `docs/28` mục 4.
+**Hiện trạng D-094:** không có ứng dụng quản trị riêng. Màn mẫu nhóm B của `design/v2` (B01–B05) mô tả các đường đang dùng; chi tiết ở `docs/28` mục 4. Các dòng dưới đây mô tả hiện trạng, không phải màn admin đích của D-096.
 
 - **Chế độ sửa trên trang đọc.** Khi người xem có quyền `cadao_soan`, các khối `cadao/*` in thêm nút **Sửa** và dải "Đang sửa" (trạng thái bài, "Xem như người đọc", Ẩn / Đăng); khách không bao giờ nhận các phần này trong HTML. Nút Sửa mở **tấm sửa** (`<dialog>`: trượt từ dưới lên trên điện thoại, cột phải trên máy tính), lưu một phần qua `PUT /tac-pham/{id}/phan/{phan}`, rồi khối được vẽ lại từ máy chủ — người biên soạn thấy đúng như người đọc sẽ thấy. Trang tuyển tập, mục từ, trò chơi, mô-típ, chủ đề, vùng, thể loại làm cùng cách.
 - **Bốn trang biên tập** do plugin đăng ký đường dẫn và mẫu khối (`register_block_template`): `/bien-tap/` (Hộp việc), `/bien-tap/tac-pham/`, `/bien-tap/them/`, `/bien-tap/so-lieu/`; khối `cadao/hop-viec`, `cadao/ds-tac-pham`, `cadao/them-bai`, `cadao/so-lieu-tuan`. Chưa đăng nhập → chuyển tới trang đăng nhập rồi quay lại; không đủ quyền → 403 tiếng Việt. Luôn `noindex`, không có trong sitemap.
 - **Mã sửa:** một tệp JavaScript thuần `bien-tap.js` (không bước dựng, không thư viện), chỉ nạp khi người xem có quyền `cadao_soan`; ngân sách riêng ≤ 30 KB gzip, không tính vào ngân sách trang bài của người đọc. Không có JavaScript thì các trang biên tập vẫn đọc được và các quyết định chính của Hộp việc vẫn gửi được bằng form.
 - **Bộ nhớ đệm:** trang của người đăng nhập trả `Cache-Control: private, no-store`; đệm transient của khối chỉ dùng cho khách; lưu một phần xoá đệm của bài đó.
 - **Nguồn & cài đặt:** một trang PHP trong wp-admin (menu "Phongdao"), form gửi qua `admin-post.php` có nonce và kiểm quyền: hồ sơ nguồn, nguồn tự động, kho (tìm, Đã gộp, "Tách ra"), máy đang làm, cài đặt. Menu "Phongdao" còn có đường tắt tới Hộp việc.
-- **wp-admin còn lại:** ẩn với vai Biên tập các menu không cần (Bài viết, Bình luận gốc, Công cụ…); liên kết "Sửa" của tác phẩm trong WordPress (thanh quản trị, `get_edit_post_link`) trỏ về trang bài; `post.php` của `tac_pham` chuyển hướng về trang bài.
+- **wp-admin hiện tại:** ẩn với vai Biên tập các menu không cần (Bài viết, Bình luận gốc, Công cụ…); liên kết "Sửa" của tác phẩm trong WordPress (thanh quản trị, `get_edit_post_link`) trỏ về trang bài; `post.php` của `tac_pham` chuyển hướng về trang bài.
 - Điện thoại trước (390 px), dùng một tay; máy tính có phím tắt ở Hộp việc. Đạt WCAG 2.2 AA như trang người đọc (cùng `quet:v2`).
+
+**Đích D-096 (`docs/30`, chưa triển khai):** menu Phongdao trong wp-admin có Tác phẩm, Hộp việc, Nguồn và các danh mục. `tac_pham` đã có `show_ui`, nhưng `show_in_menu` đang tắt; bật danh sách phải kèm cột, lọc, phân trang, kiểm quyền và biểu mẫu riêng. Không mở sửa trực tiếp post meta mảng qua ô Trường tuỳ chỉnh hay REST mặc định. Trang sửa có cấu trúc gọi cùng `LuuPhan`/`KiemPhan` với lối sửa trên trang đọc. Hộp việc truy mọi trạng thái của `wp_cadao_viec`, có đếm đúng, lọc và phân trang; các thao tác lô gọi cùng dịch vụ quyết việc hoặc lưu phần, kiểm quyền/phiên bản từng mục và ghi kết quả từng mục. Lịch sử cho phép so sánh, khôi phục bằng sự kiện mới. Các đường `/bien-tap/…` giữ tới khi admin đạt tương đương trên điện thoại rồi mới chuyển lối vào.
+
+Việc tạo trang admin **không đòi chuyển dữ liệu** từ bảng việc sang bài WordPress. Nếu cần chỉ mục hoặc bản ghi tiến độ lô, đo trước trên bản thử và bổ sung bằng bước nâng cấp CSDL có thể chạy lại; không thay loại bài, URL, khoá meta hay hồ sơ nguồn chỉ để dựng giao diện. Kiểm thử vai và quyền từng đối tượng, tác phẩm đã sửa đồng thời, chạy lại lô, khách không thấy dữ liệu nội bộ, bộ lọc toàn kho và trang điện thoại nằm trong tiêu chí T-167..T-172.
 
 ## 8. Tìm
 

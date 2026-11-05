@@ -1,5 +1,6 @@
 PHONGDAO V2 — BỘ THIẾT KẾ UX/UI BẢN CHỐT 2.1 — 02/11/2026
 Bản 1.0 (28/10/2026) đổi lớp nhìn theo D-092 (bảng tím – lục, bỏ "Đọc theo tâm trạng", thụt câu lục) và chốt theo D-093 (mỗi câu một dòng, Ý nghĩa, nhãn mức kiểm, Sao chép, Ảnh để chia sẻ, Khám phá là trang riêng).
+Từ D-096 (05/11/2026), nhóm màn biên tập B00–B05 là mẫu tham khảo cho giao diện đang chạy D-094. Kế hoạch nâng cấp quản trị chính trong wp-admin ở docs/30; cần duyệt bản xem trước admin riêng trước khi chuyển lối vào, không coi nhóm B là đặc tả admin mới.
 
 DỰNG VÀ MỞ
 Chạy từ thư mục design/v2 (Node, không cần npm install):

@@ -2,13 +2,13 @@
 
 | | |
 |---|---|
-| Phiên bản | 3.0 · 27/10/2026 (đại tu V2, xây mới: D-082..D-091) |
+| Phiên bản | 3.2 · 05/11/2026 (kế hoạch cải tiến tổng thể sau review V2) |
 | Trạng thái | **Ổn định.** Đổi nội dung phải ghi vào `01-nhat-ky-quyet-dinh.md` |
 | Đọc khi | Trước mọi việc khác. Người mới và AI agent đọc tài liệu này đầu tiên |
 | Thay cho | Bản 2.0 (MVP, 23/10/2026) — lưu ở `docs/luu-tru/00-tai-lieu-nen-mvp.md` |
 | Căn cứ | Bản đề xuất *Phongdao Next Generation v1.0* (27/10/2026); `docs/nghien-cuu/v2-*-2026-10-27.md`; khảo sát đối thủ 27/10; báo cáo E2E 26/10 |
 
-Tài liệu này trả lời: làm gì, cho ai, theo nguyên tắc nào, trong phạm vi nào, đo bằng gì. Chi tiết "làm thế nào": kỹ thuật ở `26`, sản phẩm cho người đọc ở `27`, luồng nội dung và Bàn biên tập ở `28`, chuyển dữ liệu và chuyển đổi ở `29`, task ở `22`.
+Tài liệu này trả lời: làm gì, cho ai, theo nguyên tắc nào, trong phạm vi nào, đo bằng gì. Chi tiết "làm thế nào": kỹ thuật ở `26`, sản phẩm cho người đọc ở `27`, luồng nội dung và Bàn biên tập ở `28`, chuyển dữ liệu và chuyển đổi ở `29`, kế hoạch nâng cấp quản trị ở `30`, kế hoạch cải tiến tổng thể sau review ở `31`, task ở `22`.
 
 ---
 
@@ -107,7 +107,7 @@ Người tìm văn học dân gian trên mạng gặp sáu vấn đề lặp l�
 |---|---|---|
 | **Luồng nội dung** | Một bài = một khối HTML; nguồn rải 6 chỗ; mỗi ngày máy tạo hàng loạt bài Chờ duyệt | **Tác phẩm nhiều phần** (D-084, D-094): mỗi phần (lời, dị bản, ý nghĩa, chú thích…) lưu ngay trong bài, có hồ sơ nguồn, người làm, lịch sử. Câu mới từ kho là thẻ việc, bấm Đăng mới thành tác phẩm. Chính sách hiện nguồn là **cài đặt** (D-085) |
 | **Giao diện** | Một mẫu trang bài; phần riêng chèn bằng PHP; trang chủ là mã ngắn | **Trang đọc theo thể loại**; **lối vào theo nhu cầu** (Đọc · Khám phá · Cho lớp học · Tra cứu); tuyển tập đọc liền; Thông tin tư liệu (D-087) |
-| **Quản trị** | 13 trang con, Gutenberg trên điện thoại | **Sửa ngay trên trang đọc + Hộp việc** (D-094): năm nơi — Hộp việc, Tác phẩm, Thêm bài, Số liệu tuần, Nguồn & cài đặt; mỗi khối trên trang bài có nút Sửa; không Gutenberg cho tác phẩm |
+| **Quản trị** | 13 trang con, Gutenberg trên điện thoại | **Hướng nâng cấp D-096:** wp-admin là nơi quản lý Tác phẩm và Hộp việc; sửa nhanh trên trang đọc dùng chung nghiệp vụ. D-094 vẫn là giao diện đang chạy cho tới khi từng bước nâng cấp đạt nghiệm thu. Không dùng Gutenberg cho tác phẩm |
 
 ```text
 Nguồn (Ca dao Mẹ · Wikisource · người đọc · nhập tay)
@@ -115,7 +115,8 @@ Nguồn (Ca dao Mẹ · Wikisource · người đọc · nhập tay)
   → Máy: chống trùng · gợi ý phân loại · tách phần · tìm trang sách quét khớp lời
   → Agent: nháp ý nghĩa theo lô (việc chờ duyệt, chưa vào bài)
   → Hộp việc: mỗi thẻ một quyết định → người sáng lập Đăng · Sửa · Để sau
-  → Trang đọc dựng từ các phần đã lưu trong bài; người biên soạn sửa ngay trên trang đó
+  → Tác phẩm trong wp-admin: tìm, lọc, sửa có cấu trúc, xử lý lô; trang đọc vẫn có lối sửa nhanh
+  → Trang đọc dựng từ các phần đã lưu trong bài
   → Hậu kiểm: góp ý, báo lỗi, "mong có câu này" → quay lại Hộp việc
 ```
 
@@ -129,7 +130,7 @@ Giả định khoảng 5 giờ/tuần của người sáng lập; mọi phần m
 |---|---|---|
 | **1 · Nền** | Khung V2, mô hình dữ liệu (phần của bài, bảng việc), nguồn vào + kho + chống trùng, tìm, công cụ nhập dữ liệu chạy được trên bản mẫu | — |
 | **2 · Trang đọc** | Theme 1.0, 5 mẫu thể loại, trang chủ lối vào, tuyển tập, tra cứu, người đọc góp, đo lường, SEO, an toàn | Xem bản xem trước (~1–2 giờ) |
-| **3 · Biên tập** | Hộp việc, sửa trên trang đọc, Tác phẩm, Thêm bài, Số liệu tuần, Nguồn & cài đặt; E2E trên bản xem trước | Dùng thử trên điện thoại (~1–2 giờ); thử với 5 người |
+| **3 · Biên tập** | Giao diện D-094 đã có; nâng cấp admin chính theo `docs/30` bằng các bước độc lập, giữ Hộp việc và sửa nhanh | Dùng thử trên máy tính và điện thoại với danh sách, hàng chờ, sửa và xử lý lô |
 | **4 · Chuyển đổi và mở** | Thay plugin + theme, nhập dữ liệu trên site thật, kiểm, mở cho Google (H5) | Xác nhận sao lưu đêm trước, đọc báo cáo, kiểm trên điện thoại, bấm mở (~2 giờ) |
 | **5 · Mở rộng** | Đối chiếu sách Wikisource, Cho lớp học, giọng đọc, thể loại mới, truyện, dữ liệu mở, dọn dữ liệu cũ | Theo từng việc |
 
@@ -181,6 +182,7 @@ Trong lúc xây: MVP đóng băng tính năng; người sáng lập vẫn viết
 | **27** | **Sản phẩm cho người đọc V2**: từng màn hình, SEO, đo lường, thiết kế | Task chạm trang người đọc |
 | **28** | **Luồng nội dung và biên tập V2** | Task chạm nguồn, kho, biên tập |
 | **29** | **Chuyển dữ liệu và chuyển đổi** | Công cụ nhập, ngày chuyển |
+| **30** | **Kế hoạch quản trị và biên tập V2** | Danh sách tác phẩm, Hộp việc, sửa có cấu trúc, xử lý hàng loạt |
 | `design/v2/` | **Bộ thiết kế UX/UI V2** (D-092): bản mẫu 66 màn, token tím – lục, đặc tả từng màn | Mọi task chạm giao diện V2 |
 | `nghien-cuu/` | Khảo sát, kế hoạch, nghiên cứu V2 (căn cứ) | Khi cần lý do |
 | `huong-dan/` | Hướng dẫn cho người biên soạn | Viết hướng dẫn |
