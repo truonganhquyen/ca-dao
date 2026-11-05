@@ -18,8 +18,8 @@ final class BanDo {
 	/** Khung bản đồ: kinh độ tây, đông; vĩ độ bắc, nam (như MVP CADAO_BAN_DO_KHUNG). */
 	public const KHUNG = array( 102.0, 117.6, 23.6, 8.0 );
 
-	/** Điểm cách nhau dưới 7% chiều rộng gộp làm một (vùng chạm đủ lớn trên điện thoại). */
-	private const GAN = 7.0;
+	/** 18% của ảnh rộng tối thiểu 256 px ở màn 320 px: hai vùng chạm 44 px không đè nhau. */
+	private const GAN = 18.0;
 
 	/**
 	 * Địa danh đã xác nhận có toạ độ trong khung và có bài đang đăng; từ Bắc vào Nam.
@@ -58,6 +58,23 @@ final class BanDo {
 		return $ds;
 	}
 
+	/** Gom các điểm theo vùng chạm 44 px; giữ điểm trong mép ảnh ở màn hẹp. */
+	public static function nhom_diem( array $diem ): array {
+		$nhom = array();
+		foreach ( $diem as $d ) {
+			$x = min( 90.0, max( 10.0, (float) $d['x'] ) );
+			$y = min( 90.0, max( 10.0, (float) $d['y'] ) );
+			foreach ( array_keys( $nhom ) as $i ) {
+				if ( abs( $nhom[ $i ]['x'] - $x ) < self::GAN && abs( $nhom[ $i ]['y'] - $y ) < self::GAN ) {
+					$nhom[ $i ]['ds'][] = $d;
+					continue 2;
+				}
+			}
+			$nhom[] = array( 'x' => $x, 'y' => $y, 'ds' => array( $d ) );
+		}
+		return $nhom;
+	}
+
 	public static function hien(): string {
 		$h    = '<nav aria-label="Đường dẫn" class="breadcrumbs">' . Ve::lien_ket( 'trang-chu', 'Trang chủ' ) . '<span aria-hidden="true">/</span><span>Bản đồ</span></nav>'
 			. '<p class="eyebrow">Vùng &amp; địa danh</p><h1>Lần theo những địa danh.</h1>';
@@ -77,22 +94,13 @@ final class BanDo {
 				. ( '' === $d['mo_ta'] ? '' : '<p class="small muted">' . esc_html( $d['mo_ta'] ) . '</p>' ) . '<ul>' . $bai . '</ul></div></div>';
 		}
 		// Điểm trên bản đồ: vị trí theo phần trăm khung ảnh; điểm gần nhau gộp, ghi số địa danh
-		$nhom = array();
-		foreach ( $diem as $d ) {
-			foreach ( array_keys( $nhom ) as $i ) {
-				if ( abs( $nhom[ $i ]['x'] - $d['x'] ) < self::GAN && abs( $nhom[ $i ]['y'] - $d['y'] ) < self::GAN ) {
-					$nhom[ $i ]['ds'][] = $d;
-					continue 2;
-				}
-			}
-			$nhom[] = array( 'x' => $d['x'], 'y' => $d['y'], 'ds' => array( $d ) );
-		}
+		$nhom = self::nhom_diem( $diem );
 		$cham = '';
 		foreach ( $nhom as $n ) {
 			$ten   = implode( ', ', array_map( static fn( $d ) => $d['muc']->name, $n['ds'] ) );
 			$so    = array_sum( array_map( static fn( $d ) => count( $d['bai'] ), $n['ds'] ) );
-			$cham .= '<a href="#dd-' . (int) $n['ds'][0]['muc']->term_id . '" style="position:absolute;left:' . $n['x'] . '%;top:' . $n['y'] . '%;width:28px;height:28px;margin:-14px 0 0 -14px;border-radius:50%;background:var(--tim);border:3px solid var(--white);color:var(--white);font-size:12px;font-weight:700;display:grid;place-items:center;text-decoration:none">'
-				. ( count( $n['ds'] ) > 1 ? '<span aria-hidden="true">' . count( $n['ds'] ) . '</span>' : '' )
+			$cham .= '<a href="#dd-' . (int) $n['ds'][0]['muc']->term_id . '" style="position:absolute;left:' . $n['x'] . '%;top:' . $n['y'] . '%;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;display:grid;place-items:center;text-decoration:none">'
+				. '<span aria-hidden="true" style="width:28px;height:28px;border-radius:50%;background:var(--tim);border:3px solid var(--white);color:var(--white);font-size:12px;font-weight:700;display:grid;place-items:center">' . ( count( $n['ds'] ) > 1 ? count( $n['ds'] ) : '' ) . '</span>'
 				. '<span class="sr-only">' . esc_html( $ten . ' — ' . $so . ' bài' ) . '</span></a>';
 		}
 		$anh = plugins_url( 'assets/ban-do-vn.svg', KhoiDong::thu_muc() . '/ca-dao.php' );
