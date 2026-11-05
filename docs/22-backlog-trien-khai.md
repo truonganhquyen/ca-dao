@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Phiên bản | 2.4 · 02/11/2026 (bộ thiết kế V2 T-165, D-092; gói nâng cấp D-059..D-065, `docs/25`; T-118..T-138 sau các báo cáo review, khảo sát đối thủ D-080; nhóm V2 T-139..T-164, D-082..D-091) |
+| Phiên bản | 2.5 · 05/11/2026 (kế hoạch nâng cấp quản trị D-096, T-166..T-172; `docs/30`) |
 | Trạng thái | **Sống.** Cập nhật cột trạng thái ở mục 1 sau mỗi task/PR; enum: `READY`, `IN_PROGRESS`, `REVIEW`, `BLOCKED`, `DONE`, `DEFERRED` |
 | Đọc khi | Nhận việc. Mỗi task ghi rõ cần đọc tài liệu nào |
 | Ai làm | **N** = người sáng lập · **A** = AI agent hoặc dev · **N+A** = A làm, N duyệt và quyết định |
@@ -145,6 +145,14 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-162 | [Đợt 5] Truyện dân gian: mẫu trang, lớp đoạn, nhân vật; chỉ từ sách hết bản quyền người sáng lập đã kiểm | N+A | T-161 | — | READY |
 | T-163 | [Đợt 5] Xuất dữ liệu mở có phiên bản (nền cho T-066) | A | T-157 | — | READY |
 | T-164 | [Đợt 5] Dọn dữ liệu MVP sau ≥ 2 tuần (`docs/29` mục 6; H6, người sáng lập đồng ý) | N+A | T-157 | — | READY |
+| **V2 · Nâng cấp quản trị sau chuyển đổi (D-096; `docs/30`)** ||||||
+| T-166 | Chốt hướng admin chính, kế hoạch, hợp đồng thao tác và đồng bộ tài liệu | A | T-142 | — | DONE |
+| T-167 | Nền wp-admin: menu theo quyền, danh sách Tác phẩm toàn kho, bộ lọc, phân trang, số đếm đúng, bản xem trước màn admin | A | T-166 | — | READY |
+| T-168 | Hộp việc trong wp-admin: mọi trạng thái, tìm/lọc/phân trang, quyết một thẻ dùng nghiệp vụ hiện có | A | T-167 | — | BLOCKED |
+| T-169 | Trang sửa tác phẩm có cấu trúc: phần, nguồn gốc, việc liên quan, xem trước; dùng chung đường kiểm/lưu | A | T-167 | — | BLOCKED |
+| T-170 | Lịch sử và khôi phục: so trước/sau, phiên bản/xung đột, nguồn và nhật ký quyết việc | A | T-168, T-169 | — | BLOCKED |
+| T-171 | Xử lý lô: duyệt gợi ý, sửa phân loại/nhiều phần, ẩn/thùng rác, đổi trạng thái việc; xem trước và kết quả từng mục | A | T-170 | — | BLOCKED |
+| T-172 | Dùng thử admin trên máy tính/điện thoại, kiểm tương đương, chuyển lối vào `/bien-tap/…` an toàn | N+A | T-171 | — | BLOCKED |
 | **Sau · Cải tiến liên tục** ||||||
 | T-060 | Thẻ chia sẻ dạng ảnh (2 mẫu × 2 khổ) — gộp vào T-050 (D-059) | A | T-050 | — | DEFERRED |
 | T-061 | Thứ tự tình huống theo dịp | A | T-043 | — | DEFERRED |
@@ -685,6 +693,24 @@ Mọi task V2 đọc AGENTS.md và `docs/26`; task trang người đọc đọc 
 
 #### Đợt 5 · Sau khi mở (T-158..T-164)
 **Chấp nhận chung:** thể loại chỉ lên menu khi qua cổng (D-091); truyện chỉ từ sách hết bản quyền người sáng lập đã kiểm (H3); T-158 đạt tiêu chí cũ của T-131 (máy không tự điền "Lời đã đối chiếu với"; lời sách không vào repo công khai) và T-099; T-159 đạt tiêu chí cũ của T-133; T-160 đạt tiêu chí cũ của T-105 (nghe thử 30 bài trước khi sinh cả kho, ghi "Giọng đọc máy"); T-163 chỉ xuất các phần đã lưu của tác phẩm đã đăng, nguồn có quyền; T-164 chỉ chạy khi người sáng lập đồng ý (H6).
+
+#### Nâng cấp quản trị V2 (T-166..T-172; D-096)
+
+**T-166 — kế hoạch:** `docs/01`, `00`, `02`, `22`, `26`, `28`, `30` và hướng dẫn agent thống nhất hướng admin chính; ghi rõ phần D-094 còn hiệu lực và giao diện nào đang chạy. Không thay mã, dữ liệu hay cấu hình máy chủ.
+
+**T-167 — danh sách và nền:** đọc `docs/30` mục 2, 4. Có bản xem trước admin trên máy tính và điện thoại trước khi thay đường sửa chính; danh sách `tac_pham` tìm/lọc/phân trang toàn kho theo trạng thái và phần thiếu, số đếm độc lập giới hạn trang; quyền từng vai, liên kết sang bài/việc; không mở ô meta thô. Kiểm trang khách và truy vấn khi dữ liệu lớn.
+
+**T-168 — Hộp việc:** đọc `docs/30` mục 2. Chờ/Để sau/Xong/Bỏ đều tìm lại được; bộ lọc và số đếm đúng toàn kho; mở thẻ thấy bài/nguồn liên quan; quyết một thẻ qua `QuyetViec`, có kiểm quyền, nonce và nhật ký. Không tự chuyển thẻ thành bài viết.
+
+**T-169 — sửa tác phẩm:** đọc `docs/30` mục 2, 4 và `docs/28` mục 6. Biểu mẫu theo phần gọi `LuuPhan`/`KiemPhan`, giữ nguồn gốc và nháp chờ duyệt; sửa cùng một phần qua admin và trang đọc cho kết quả tương đương; `post_content`/chỉ mục được cập nhật; người không đủ quyền không gửi trực tiếp được.
+
+**T-170 — lịch sử:** đọc `docs/30` mục 4. So trước/sau từng phần; khôi phục tạo sự kiện mới và từ chối khi có thay đổi mới hơn; quyết việc, đổi trạng thái và hồ sơ nguồn có dấu vết tương ứng. Hoàn tác 10 giây vẫn dùng được cho thao tác đủ điều kiện.
+
+**T-171 — thao tác lô:** đọc hợp đồng `docs/30` mục 3. Mỗi lô chốt phạm vi, xem trước, kiểm quyền và phiên bản từng mục, báo thành công/bỏ qua/xung đột/lỗi, chạy lại không áp dụng trùng; kiểm riêng duyệt nhóm gợi ý có ngoại lệ, thêm/gỡ/thay thế phân loại, sửa nội dung từng hàng, ẩn/thùng rác và đổi trạng thái việc. Không tự quyết sự thật văn hoá hay xoá vĩnh viễn.
+
+**T-172 — nghiệm thu và chuyển lối vào:** người sáng lập chạy ba kịch bản `docs/30` mục 5 trên máy tính và điện thoại; ghi thời gian, số thao tác, lỗi; `kiem-tra`, `test:v2`, `quet:v2` và luồng E2E đạt. Sau đó mới chuyển đường tắt/đường cũ; có cách quay lại giao diện cũ nếu phát hiện lỗi. Không tự đánh `DONE` trước phản hồi dùng thử của người sáng lập.
+
+**Lưu ý trạng thái:** T-143..T-157 là backlog xây mới trước ngày chuyển, có mục ghi `READY` dù `docs/02` và site thật đã ghi nhận phần triển khai. Nhóm T-166..T-172 theo dõi **nâng cấp mới**, không dùng các trạng thái cũ để suy ra chức năng admin đã có. Đối soát backlog lịch sử là việc riêng, không đổi trạng thái hàng loạt trong kế hoạch này.
 
 ## 4. User story
 
