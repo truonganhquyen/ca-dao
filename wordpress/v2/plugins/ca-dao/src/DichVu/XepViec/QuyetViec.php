@@ -38,14 +38,48 @@ final class QuyetViec {
 	/**
 	 * @return array{ok:bool,loi:string[],thong_bao:string,chuyen:string} chuyen: đường dẫn nên mở tiếp (rỗng = về Hộp việc)
 	 */
-	public static function quyet( int $id, string $quyet, int $nguoi, bool $duyet ): array {
+	public static function quyet( int $id, string $quyet, int $nguoi, bool $duyet, int $phien = -1 ): array {
+		global $wpdb;
 		$v = Viec::lay( $id );
 		if ( ! $v || ! in_array( $v['trang_thai'], array( Viec::CHO, Viec::DE_SAU ), true ) ) {
 			return self::kq( false, 'Việc này đã được quyết rồi.' );
 		}
+		if ( $phien >= 0 && $phien !== $v['phien'] ) {
+			return self::kq( false, 'Thẻ đã đổi ở phiên khác. Tải lại Hộp việc để xem quyết định mới.' );
+		}
 		if ( ! isset( self::LOAI[ $v['loai'] ][1][ $quyet ] ) ) {
 			return self::kq( false, 'Không có lựa chọn này cho việc này.' );
 		}
+		if ( false === $wpdb->query( 'START TRANSACTION' ) ) {
+			return self::kq( false, 'Chưa mở được lượt quyết việc. Thử lại sau.' );
+		}
+		if ( ! Viec::giu( $id, $v['phien'] ) ) {
+			$wpdb->query( 'ROLLBACK' );
+			return self::kq( false, 'Thẻ đã đổi ở phiên khác. Tải lại Hộp việc để xem quyết định mới.' );
+		}
+		try {
+			$kq = self::thuc_hien( $v, $quyet, $nguoi, $duyet );
+		} catch ( \Throwable $e ) {
+			$kq = self::kq( false, 'Chưa lưu được quyết định. Thử lại sau.' );
+		}
+		$sau = Viec::lay( $id );
+		if ( ! $kq['ok'] || ! $sau || $sau['phien'] !== $v['phien'] + 1 || 'dang_lam' === $sau['trang_thai'] ) {
+			$wpdb->query( 'ROLLBACK' );
+			if ( 'post' === $v['doi_tuong_loai'] ) {
+				clean_post_cache( (int) $v['doi_tuong_id'] );
+			}
+			return $kq['ok'] ? self::kq( false, 'Chưa ghi được trạng thái việc; mọi thay đổi đã được huỷ.' ) : $kq;
+		}
+		if ( false === $wpdb->query( 'COMMIT' ) ) {
+			$wpdb->query( 'ROLLBACK' );
+			return self::kq( false, 'Chưa xác nhận được quyết định. Kiểm tra lại Hộp việc trước khi thử tiếp.' );
+		}
+		return $kq;
+	}
+
+	/** Chạy trong giao dịch đã giữ đúng phiên thẻ. */
+	private static function thuc_hien( array $v, string $quyet, int $nguoi, bool $duyet ): array {
+		$id = $v['id'];
 		if ( Viec::DE_SAU === $quyet || 'de_sau' === $quyet ) {
 			if ( 'co_the_trung' === $v['loai'] ) {
 				ChongTrung::dat( (string) $v['noi_dung']['a'], (string) $v['noi_dung']['b'], 'de_sau' );
@@ -56,7 +90,10 @@ final class QuyetViec {
 		switch ( $v['loai'] ) {
 			case 'cau_moi':
 				if ( 'bo' === $quyet ) {
-					UngVien::bo( (int) $v['doi_tuong_id'], $nguoi );
+					if ( ! UngVien::bo( (int) $v['doi_tuong_id'], $nguoi ) ) {
+						return self::kq( false, 'Câu này không còn chờ xử lý.' );
+					}
+					Viec::dong( $id, Viec::BO, 'bo', $nguoi );
 					return self::kq( true, 'Đã bỏ câu này (vẫn giữ trong kho).' );
 				}
 				if ( 'dang' === $quyet && ! $duyet ) {
@@ -66,6 +103,7 @@ final class QuyetViec {
 				if ( ! $kq['ok'] ) {
 					return self::kq( false, implode( ' ', $kq['loi'] ) );
 				}
+				Viec::dong( $id, Viec::XONG, $quyet, $nguoi );
 				return self::kq( true, 'dang' === $quyet ? 'Đã đăng.' : 'Đã tạo bản nháp; sửa tiếp trên trang bài.', 'sua' === $quyet ? (string) get_preview_post_link( $kq['bai'] ) : '' );
 			case 'nhap_y_nghia':
 				if ( 'bo' === $quyet ) {
