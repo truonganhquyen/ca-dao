@@ -2,13 +2,13 @@
 
 | | |
 |---|---|
-| Phiên bản | 3.1 · 05/11/2026 (hướng quản trị admin chính: D-096) |
+| Phiên bản | 3.2 · 05/11/2026 (kế hoạch cải tiến tổng thể sau review V2) |
 | Trạng thái | **Ổn định.** Đổi nội dung phải ghi vào `01-nhat-ky-quyet-dinh.md` |
 | Đọc khi | Trước mọi việc khác. Người mới và AI agent đọc tài liệu này đầu tiên |
 | Thay cho | Bản 2.0 (MVP, 23/10/2026) — lưu ở `docs/luu-tru/00-tai-lieu-nen-mvp.md` |
 | Căn cứ | Bản đề xuất *Phongdao Next Generation v1.0* (27/10/2026); `docs/nghien-cuu/v2-*-2026-10-27.md`; khảo sát đối thủ 27/10; báo cáo E2E 26/10 |
 
-Tài liệu này trả lời: làm gì, cho ai, theo nguyên tắc nào, trong phạm vi nào, đo bằng gì. Chi tiết "làm thế nào": kỹ thuật ở `26`, sản phẩm cho người đọc ở `27`, luồng nội dung và Bàn biên tập ở `28`, chuyển dữ liệu và chuyển đổi ở `29`, kế hoạch nâng cấp quản trị ở `30`, task ở `22`.
+Tài liệu này trả lời: làm gì, cho ai, theo nguyên tắc nào, trong phạm vi nào, đo bằng gì. Chi tiết "làm thế nào": kỹ thuật ở `26`, sản phẩm cho người đọc ở `27`, luồng nội dung và Bàn biên tập ở `28`, chuyển dữ liệu và chuyển đổi ở `29`, kế hoạch nâng cấp quản trị ở `30`, kế hoạch cải tiến tổng thể sau review ở `31`, task ở `22`.
 
 ---
 

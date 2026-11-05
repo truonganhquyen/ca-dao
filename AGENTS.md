@@ -8,7 +8,7 @@ Tệp này dành cho mọi AI agent làm việc trong kho mã (Claude Code, Code
 
 **Hướng hiện tại — "Trung thực hơn hoàn hảo"** (D-039, chuyển WordPress D-054..D-056): xuất bản sớm, nội dung dày dần. Không chặn đăng vì lý do biên tập; nguồn không bắt buộc nhưng không được bịa. Site Astro cũ đã gỡ khỏi repo (D-071).
 
-**V2** (D-082..D-096): WordPress là khung, plugin/theme V2 ở `wordpress/v2/`; phongdao.com đã chạy V2 từ 04/11/2026, việc mở cho Google vẫn do người sáng lập quyết (H5). Mỗi phần của bài lưu trong bài (D-094). Hướng nâng cấp quản trị D-096: wp-admin là nơi quản lý nội dung chính, Hộp việc là hàng chờ, sửa trên trang đọc là lối nhanh; kế hoạch ở `docs/30-ke-hoach-quan-tri-bien-tap-v2.md`. Giao diện đang chạy vẫn theo D-094 cho tới khi triển khai từng bước. **MVP (`wordpress/plugins/ca-dao`, `wordpress/themes/ca-dao`) đóng băng tính năng:** chỉ sửa lỗi bảo mật, lỗi mất dữ liệu; mọi tính năng mới làm trong V2.
+**V2** (D-082..D-096): WordPress là khung, plugin/theme V2 ở `wordpress/v2/`; phongdao.com đã chạy V2 từ 04/11/2026, việc mở cho Google vẫn do người sáng lập quyết (H5). Mỗi phần của bài lưu trong bài (D-094). Hướng nâng cấp quản trị D-096: wp-admin là nơi quản lý nội dung chính, Hộp việc là hàng chờ, sửa trên trang đọc là lối nhanh; kế hoạch ở `docs/30-ke-hoach-quan-tri-bien-tap-v2.md`. Kế hoạch cải tiến chung sau review, bao gồm cả việc ngoài quản trị, ở `docs/31-ke-hoach-cai-tien-sau-review-v2.md`. Giao diện đang chạy vẫn theo D-094 cho tới khi triển khai từng bước. **MVP (`wordpress/plugins/ca-dao`, `wordpress/themes/ca-dao`) đóng băng tính năng:** chỉ sửa lỗi bảo mật, lỗi mất dữ liệu; mọi tính năng mới làm trong V2.
 
 ## Đọc trước khi làm
 
@@ -24,6 +24,7 @@ Tệp này dành cho mọi AI agent làm việc trong kho mã (Claude Code, Code
 | **V2 — trang người đọc** (từng màn hình, SEO, đo lường, thiết kế) | `docs/27-san-pham-v2.md` |
 | **V2 — nguồn, kho, biên tập** | `docs/28-ban-bien-tap-v2.md` |
 | **V2 — nâng cấp quản trị, thao tác hàng loạt** | `docs/30-ke-hoach-quan-tri-bien-tap-v2.md` |
+| **V2 — lộ trình cải tiến chung sau review** (trang đọc, vận hành, dữ liệu, tìm kiếm, quản trị) | `docs/31-ke-hoach-cai-tien-sau-review-v2.md` |
 | **V2 — hình ảnh từng màn** (màu, bố cục, thành phần, trạng thái) | bộ thiết kế `design/v2/` (D-092; đọc `design/v2/README.txt`) |
 | **V2 — chuyển dữ liệu, ngày chuyển** | `docs/29-chuyen-doi-v2.md` |
 | **WordPress** (plugin, theme, nguồn tự động, kho, chuyển đổi, công cụ) | `docs/24-wordpress.md` |

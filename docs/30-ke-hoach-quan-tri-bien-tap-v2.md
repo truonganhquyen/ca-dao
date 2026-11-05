@@ -7,10 +7,13 @@
 | Quyết định | D-096; điều chỉnh hướng giao diện của D-094, giữ mô hình dữ liệu và các lằn ranh |
 | Phạm vi | Plugin V2 và giao diện quản trị cho người có quyền; không đổi trang đọc của khách |
 | Căn cứ | `docs/e2e-review/v2/REPORT.md`, đối chiếu đề xuất duyệt và mã V2 ngày 05/11/2026 |
+| Lộ trình chung | `docs/31-ke-hoach-cai-tien-sau-review-v2.md` — các ưu tiên ngoài quản trị và phụ thuộc P0 của Hộp việc |
 
 ## 1. Quyết định sản phẩm
 
 **wp-admin là nơi quản trị nội dung chính.** Người biên tập mở danh sách Tác phẩm để tìm, lọc, sửa, rà dữ liệu thiếu và xử lý hàng loạt; mở Hộp việc để quyết các đề xuất, góp ý và việc cần xem. Nút Sửa trên trang đọc tiếp tục là lối sửa nhanh một bài, dùng cùng quy tắc lưu. Chỉ chuyển các đường `/bien-tap/…` sang trang admin tương ứng sau khi chức năng trên điện thoại đạt tương đương và liên kết cũ được kiểm.
+
+Các lỗi Hộp việc đang chạy và nhất quán quyết định thuộc T-176/T-177 trong `docs/31`; màn admin T-168 kế thừa kết quả này. Ưu tiên lỗi trang đọc, cập nhật an toàn, đối soát dữ liệu và tìm kiếm được điều phối cùng nhánh quản trị trong kế hoạch chung.
 
 Tác phẩm đã là loại bài `tac_pham` của WordPress. Các phần có cấu trúc nằm trong post meta của tác phẩm, phân loại nằm trong taxonomy, hồ sơ nguồn là loại bài ẩn, việc chờ và nhật ký nằm trong `wp_cadao_viec`. **Kế hoạch này không đổi loại bài, khoá meta, bảng việc, URL tác phẩm hay chính sách nguồn.** Không biến mỗi thẻ Hộp việc thành một bài viết; không đưa tác phẩm vào ô nội dung tự do của Gutenberg. Hiển thị menu WordPress chỉ là bước đầu; biểu mẫu vẫn phải ghi qua dịch vụ kiểm và lưu của Phongdao.
 
@@ -63,6 +66,8 @@ Màn máy tính ưu tiên bảng và bộ lọc; màn điện thoại ưu tiên 
 | Chuyển lối vào, nghiệm thu | T-172 | Người sáng lập thử ba kịch bản dưới đây trên máy tính và điện thoại; liên kết cũ đi đúng màn; cổng kiểm tự động đạt |
 
 **Ba kịch bản dùng thử:** (1) tìm toàn bộ bài thiếu Ý nghĩa, sửa ba bài và quay về đúng bộ lọc; (2) duyệt một nhóm gợi ý có hai ngoại lệ, kiểm kết quả từng bài; (3) ẩn một nhóm bài thử, khôi phục một mục và kiểm lịch sử. Dùng dữ liệu thử có nhãn, dọn sạch sau kiểm; không quyết nội dung văn hoá thật thay người biên tập. Ghi thời gian, số thao tác và lỗi của từng kịch bản; mục tiêu là giảm thao tác so với đường đang dùng, chưa tuyên bố “tối ưu” trước khi đo.
+
+Trên bản thử, kiểm thêm quyền và bàn giao bằng vai mẫu: người góp chứng cứ tạo nháp, biên tập viên xử lý, người có quyền duyệt ra quyết định. Chỉ thêm màn phân công và hạn xử lý nếu quy trình hai người thực sự cần sau khi T-177 đã xử lý xung đột.
 
 **30 ngày:** hoàn tất nền admin, danh sách và hàng chờ. **90 ngày:** sửa có cấu trúc, lịch sử và xử lý lô được thử trên bản xem trước. **6 tháng:** hoàn thiện các màn nguồn, danh mục, báo cáo chất lượng và phân công nếu đội có từ hai người; chỉ mở rộng khi số liệu dùng thật cho thấy cần. Các mốc là thứ tự đầu tư, phụ thuộc nguồn lực và kết quả thử, không phải cam kết lịch triển khai.
 

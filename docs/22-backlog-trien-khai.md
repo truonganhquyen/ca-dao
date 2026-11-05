@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Phiên bản | 2.5 · 05/11/2026 (kế hoạch nâng cấp quản trị D-096, T-166..T-172; `docs/30`) |
+| Phiên bản | 2.6 · 05/11/2026 (kế hoạch cải tiến sau review T-173..T-183; `docs/31`, gồm nhánh quản trị `docs/30`) |
 | Trạng thái | **Sống.** Cập nhật cột trạng thái ở mục 1 sau mỗi task/PR; enum: `READY`, `IN_PROGRESS`, `REVIEW`, `BLOCKED`, `DONE`, `DEFERRED` |
 | Đọc khi | Nhận việc. Mỗi task ghi rõ cần đọc tài liệu nào |
 | Ai làm | **N** = người sáng lập · **A** = AI agent hoặc dev · **N+A** = A làm, N duyệt và quyết định |
@@ -148,11 +148,23 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | **V2 · Nâng cấp quản trị sau chuyển đổi (D-096; `docs/30`)** ||||||
 | T-166 | Chốt hướng admin chính, kế hoạch, hợp đồng thao tác và đồng bộ tài liệu | A | T-142 | — | DONE |
 | T-167 | Nền wp-admin: menu theo quyền, danh sách Tác phẩm toàn kho, bộ lọc, phân trang, số đếm đúng, bản xem trước màn admin | A | T-166 | — | READY |
-| T-168 | Hộp việc trong wp-admin: mọi trạng thái, tìm/lọc/phân trang, quyết một thẻ dùng nghiệp vụ hiện có | A | T-167 | — | BLOCKED |
+| T-168 | Hộp việc trong wp-admin: mọi trạng thái, tìm/lọc/phân trang, quyết một thẻ dùng nghiệp vụ hiện có | A | T-167, T-176, T-177 | — | BLOCKED |
 | T-169 | Trang sửa tác phẩm có cấu trúc: phần, nguồn gốc, việc liên quan, xem trước; dùng chung đường kiểm/lưu | A | T-167 | — | BLOCKED |
 | T-170 | Lịch sử và khôi phục: so trước/sau, phiên bản/xung đột, nguồn và nhật ký quyết việc | A | T-168, T-169 | — | BLOCKED |
 | T-171 | Xử lý lô: duyệt gợi ý, sửa phân loại/nhiều phần, ẩn/thùng rác, đổi trạng thái việc; xem trước và kết quả từng mục | A | T-170 | — | BLOCKED |
 | T-172 | Dùng thử admin trên máy tính/điện thoại, kiểm tương đương, chuyển lối vào `/bien-tap/…` an toàn | N+A | T-171 | — | BLOCKED |
+| **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
+| T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
+| T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | READY |
+| T-175 | Gia cố cập nhật và phục hồi V2, diễn tập rollback trên bản sao, kiểm đường kích hoạt CI | A | T-173 | — | READY |
+| T-176 | Sửa Hộp việc hiện chạy: thẻ cuối, số đếm/phân trang, Để sau, Hoàn tác và thao tác bàn phím | A | T-173 | — | READY |
+| T-177 | Chặn hai quyết định đồng thời, bảo toàn cập nhật bài/việc/nhật ký khi ghi lỗi hoặc thử lại | A | T-173 | — | READY |
+| T-178 | Đối soát số bài, dữ liệu sau chuyển và backlog với site thật; ghi bằng chứng sai khác | A | T-173 | — | READY |
+| T-179 | Hồ sơ nguồn và nội dung máy đưa vào: căn cứ, lịch sử, quyền và công cụ sửa/ẩn theo phần | A | T-169, T-177 | — | BLOCKED |
+| T-180 | Bàn làm việc tuần, danh sách ngoại lệ dữ liệu và thử 20–30 bài nội dung chuyên sâu | N+A | T-176, T-178 | — | BLOCKED |
+| T-181 | Đo và sửa độ đầy đủ/thứ tự tìm kiếm khi kho lớn, giữ tìm không dấu | A | T-173 | — | READY |
+| T-182 | Đo và tối ưu nghẽn Bản đồ, Số liệu tuần, ảnh và truy vấn dữ liệu lớn | A | T-174, T-181 | — | BLOCKED |
+| T-183 | Thử nhỏ lối đọc theo chủ đề, bài viết dài và công cụ giáo viên với dữ liệu đã duyệt | N+A | T-180 | — | BLOCKED |
 | **Sau · Cải tiến liên tục** ||||||
 | T-060 | Thẻ chia sẻ dạng ảnh (2 mẫu × 2 khổ) — gộp vào T-050 (D-059) | A | T-050 | — | DEFERRED |
 | T-061 | Thứ tự tình huống theo dịp | A | T-043 | — | DEFERRED |
@@ -700,7 +712,7 @@ Mọi task V2 đọc AGENTS.md và `docs/26`; task trang người đọc đọc 
 
 **T-167 — danh sách và nền:** đọc `docs/30` mục 2, 4. Có bản xem trước admin trên máy tính và điện thoại trước khi thay đường sửa chính; danh sách `tac_pham` tìm/lọc/phân trang toàn kho theo trạng thái và phần thiếu, số đếm độc lập giới hạn trang; quyền từng vai, liên kết sang bài/việc; không mở ô meta thô. Kiểm trang khách và truy vấn khi dữ liệu lớn.
 
-**T-168 — Hộp việc:** đọc `docs/30` mục 2. Chờ/Để sau/Xong/Bỏ đều tìm lại được; bộ lọc và số đếm đúng toàn kho; mở thẻ thấy bài/nguồn liên quan; quyết một thẻ qua `QuyetViec`, có kiểm quyền, nonce và nhật ký. Không tự chuyển thẻ thành bài viết.
+**T-168 — Hộp việc:** đọc `docs/30` mục 2 và kết quả T-176/T-177. Chờ/Để sau/Xong/Bỏ đều tìm lại được; bộ lọc và số đếm đúng toàn kho; mở thẻ thấy bài/nguồn liên quan; quyết một thẻ qua `QuyetViec`, có kiểm quyền, nonce và nhật ký. Kế thừa phần sửa ở giao diện hiện chạy, không viết lại lỗi cũ trong màn mới; không tự chuyển thẻ thành bài viết.
 
 **T-169 — sửa tác phẩm:** đọc `docs/30` mục 2, 4 và `docs/28` mục 6. Biểu mẫu theo phần gọi `LuuPhan`/`KiemPhan`, giữ nguồn gốc và nháp chờ duyệt; sửa cùng một phần qua admin và trang đọc cho kết quả tương đương; `post_content`/chỉ mục được cập nhật; người không đủ quyền không gửi trực tiếp được.
 
@@ -710,7 +722,31 @@ Mọi task V2 đọc AGENTS.md và `docs/26`; task trang người đọc đọc 
 
 **T-172 — nghiệm thu và chuyển lối vào:** người sáng lập chạy ba kịch bản `docs/30` mục 5 trên máy tính và điện thoại; ghi thời gian, số thao tác, lỗi; `kiem-tra`, `test:v2`, `quet:v2` và luồng E2E đạt. Sau đó mới chuyển đường tắt/đường cũ; có cách quay lại giao diện cũ nếu phát hiện lỗi. Không tự đánh `DONE` trước phản hồi dùng thử của người sáng lập.
 
-**Lưu ý trạng thái:** T-143..T-157 là backlog xây mới trước ngày chuyển, có mục ghi `READY` dù `docs/02` và site thật đã ghi nhận phần triển khai. Nhóm T-166..T-172 theo dõi **nâng cấp mới**, không dùng các trạng thái cũ để suy ra chức năng admin đã có. Đối soát backlog lịch sử là việc riêng, không đổi trạng thái hàng loạt trong kế hoạch này.
+#### Cải tiến tổng thể sau review V2 (T-173..T-183)
+
+**T-173 — kế hoạch chung:** `docs/31` nối các phát hiện đã xác minh và đề xuất đã đối chiếu với `docs/30`, backlog, trạng thái và hướng dẫn agent. Phân biệt việc làm ngay, việc cần đo/thử và ý tưởng cần Human Gate. Chỉ đổi tài liệu, không sửa mã, dữ liệu hay máy chủ.
+
+**T-174 — trang người đọc:** đọc `docs/31` mục 2 và `docs/e2e-review/v2/REPORT.md` L-01/L-02/L-05/L-06. Đo lại trước khi sửa; kiểm vùng chạm Bản đồ, dung lượng ảnh, đường xử lý câu đố thiếu Ý nghĩa, tràn ngang ở 320 px và lối Quyền riêng tư; quét trợ năng và kiểm trang không JavaScript. Không thay chính sách dữ liệu bằng cách sửa đường dẫn.
+
+**T-175 — cập nhật an toàn:** đọc `docs/31` mục 2, D-090 và báo cáo E2E L-07..L-09. Trên bản sao, diễn tập lỗi giữa lúc thay thư mục, quay về bản phần mềm trước; đối chiếu thứ tự xử lý dữ liệu trong hướng dẫn, không đặt cổng thử khôi phục bản sao lưu FlashPanel. Kiểm smoke khách/biên tập và workflow khi thay đầu vào bộ kiểm. Không ghi lên máy chủ nếu chưa được người sáng lập đồng ý cho lần đó.
+
+**T-176 — Hộp việc đang chạy:** đọc `docs/31` mục 2 và báo cáo E2E L-03/L-04. Thử thẻ cuối, phân trang/số đếm khi hàng nghìn thẻ, tìm lại Để sau, Hoàn tác hợp lệ và phím tắt có ngoại lệ khi ô nhập/focus đang hoạt động. Dùng cùng hợp đồng trạng thái cho màn admin kế tiếp.
+
+**T-177 — nhất quán quyết định:** đọc `docs/31` mục 2 và `docs/26`. Thử hai phiên quyết cùng thẻ, phiên bản cũ, DB ghi lỗi và yêu cầu gửi lại; kết quả chỉ có một quyết định hợp lệ, không tách rời bài/việc/nhật ký; báo xung đột rõ cho người biên tập.
+
+**T-178 — đối soát:** đọc `docs/31` mục 2 và `docs/29`. Lập bảng ID cho chênh 630/631, kiểm bài vè nhiều đoạn, đường 301 và trạng thái task cũ theo bằng chứng triển khai; ghi rõ sai khác còn mở. Chỉ đọc site và dữ liệu; không sửa bài hoặc đóng thẻ để ép khớp số.
+
+**T-179 — nguồn và nội dung máy:** đọc `docs/31` mục 2, `docs/12`, `docs/28`, `docs/30`. Người có quyền thấy trang nguồn, căn cứ, quyền, bài/phần chịu ảnh hưởng và lịch sử trước/sau; có sửa/ẩn phần và tạm dừng việc nền với nhật ký. Không tự chấp thuận quyền mới, sửa lời đã đăng hoặc xoá dữ liệu gốc.
+
+**T-180 — bàn làm việc và chất lượng:** đọc `docs/31` mục 2. Tổng vào/ra, tuổi việc, 10 việc cần làm và danh sách thiếu/nghi trùng/nguồn chưa rõ lấy từ dữ liệu toàn kho; người biên tập chọn 20–30 bài thử làm sâu và ghi thời gian/giá trị, không tự điền nội dung văn hoá.
+
+**T-181 — tìm kiếm:** đọc `docs/31` mục 2 và `docs/27`. Dùng tập truy vấn đại diện và kho thử 1.000–10.000 bài để bắt bỏ sót/thứ tự sai do chặn 500 ứng viên; so kết quả và thời gian trước/sau, giữ tìm không dấu. Không thay hạ tầng tìm kiếm khi chưa có số đo.
+
+**T-182 — hiệu năng:** đọc `docs/31` mục 2. Đo truy vấn, thời gian, dung lượng Bản đồ/Số liệu tuần/ảnh trên mẫu lớn; tối ưu điểm nghẽn đã xác minh, kiểm lại kết quả và ngân sách trang đọc.
+
+**T-183 — thử sản phẩm:** đọc `docs/31` mục 3–4. Dùng dữ liệu đã duyệt để thử lối chủ đề, bài viết dài, bộ câu cho giáo viên và tìm dị bản; ghi tác vụ người dùng và gánh biên tập. Chỉ triển khai thay đổi UX lớn, mô hình dữ liệu, nguồn hoặc thông tin cá nhân sau Human Gate tương ứng.
+
+**Lưu ý trạng thái:** T-143..T-157 là backlog xây mới trước ngày chuyển, có mục ghi `READY` dù `docs/02` và site thật đã ghi nhận phần triển khai. Nhóm T-166..T-183 theo dõi **nâng cấp mới**, không dùng các trạng thái cũ để suy ra chức năng đã có. T-178 đối soát backlog lịch sử theo bằng chứng, không đổi trạng thái hàng loạt theo suy đoán.
 
 ## 4. User story
 
