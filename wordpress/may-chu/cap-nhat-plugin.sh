@@ -11,11 +11,44 @@
 set -euo pipefail
 
 NHANH=${NHANH:-main}
-PHP=php8.5
-WP=/home/cadao/phongdao.com
+PHP=${CADAO_PHP:-php8.5}
+WP=${CADAO_WP:-/home/cadao/phongdao.com}
 T=$(mktemp -d "$WP/wp-content/.tai-XXXXXX")      # WordPress bỏ qua thư mục bắt đầu bằng dấu chấm
-trap 'rm -rf "$T" "$WP/wp-content/plugins/.ca-dao-cu" "$WP/wp-content/themes/.ca-dao-cu"' EXIT
-wp() { "$PHP" -d error_reporting=0 /home/cadao/bin/wp-cli.phar --path="$WP" "$@"; }
+wp() { "$PHP" -d error_reporting=0 "${CADAO_WP_CLI:-/home/cadao/bin/wp-cli.phar}" --path="$WP" "$@"; }
+
+# EXIT cũng chạy khi set -e dừng giữa hai lệnh mv. Chỉ dọn bản cũ sau khi mọi bước đã thành công.
+thay=()
+declare -A co_cu=()
+da_xong=0
+moi_bat=
+ket_thuc() {
+	local ma=$? loai d loi=0
+	trap - EXIT
+	if [ "$da_xong" -ne 1 ]; then
+		for loai in "${thay[@]}"; do
+			d=$WP/wp-content/$loai
+			if [ -d "$d/.ca-dao-cu" ]; then
+				if [ -e "$d/ca-dao" ]; then mv "$d/ca-dao" "$T/hong-$loai" || loi=1; fi
+				if [ ! -e "$d/ca-dao" ]; then mv "$d/.ca-dao-cu" "$d/ca-dao" || loi=1; fi
+			elif [ "${co_cu[$loai]:-0}" -eq 0 ] && [ -e "$d/ca-dao" ]; then
+				# Lần cài đầu chưa có bản cũ: bỏ mã mới nếu bước sau thất bại.
+				mv "$d/ca-dao" "$T/hong-$loai" || loi=1
+			elif [ ! -e "$d/ca-dao" ]; then
+				# Không có bản cũ: lỗi nằm trước khi mã mới được đặt vào chỗ.
+				loi=1
+			fi
+		done
+		if [ -n "$moi_bat" ]; then wp theme activate twentytwentyfive >/dev/null || loi=1; wp option delete cadao_theme_da_bat >/dev/null || loi=1; fi
+		if declare -F lam_moi_duong_dan >/dev/null; then lam_moi_duong_dan; fi
+		[ "$loi" -eq 0 ] || echo "LỖI: chưa phục hồi hết; giữ bản cũ tại .ca-dao-cu để xử lý tay." >&2
+		[ "$ma" -ne 0 ] || ma=1
+	else
+		for loai in "${thay[@]}"; do rm -rf "$WP/wp-content/$loai/.ca-dao-cu"; done
+	fi
+	rm -rf "$T"
+	exit "$ma"
+}
+trap ket_thuc EXIT
 
 if [[ $NHANH =~ ^[0-9a-f]{40}$ ]]; then ref=$NHANH; else ref=refs/heads/$NHANH; fi
 curl -fsSL "https://codeload.github.com/truonganhquyen/ca-dao/tar.gz/$ref" |
@@ -45,29 +78,26 @@ trang_on() {
 	return 1
 }
 
-thay=()
-moi_bat=
 for loai in plugins themes; do
 	[ -d "$T/$loai/ca-dao" ] || continue
 	d=$WP/wp-content/$loai
+	[ ! -e "$d/.ca-dao-cu" ] || { echo "LỖI: còn bản cũ tại $d/.ca-dao-cu; cần kiểm tra trước khi cập nhật." >&2; exit 1; }
+	if [ -d "$d/ca-dao" ]; then co_cu[$loai]=1; else co_cu[$loai]=0; fi
+	thay+=("$loai")
 	[ -d "$d/ca-dao" ] && mv "$d/ca-dao" "$d/.ca-dao-cu"
 	mv "$T/$loai/ca-dao" "$d/ca-dao"
-	thay+=("$loai")
 done
 lam_moi_duong_dan
 if [ -d "$WP/wp-content/themes/ca-dao" ] && [ -z "$(wp option get cadao_theme_da_bat 2>/dev/null)" ]; then
-	wp theme activate ca-dao >/dev/null && wp option update cadao_theme_da_bat "$(date +%F)" >/dev/null && moi_bat=1
+	wp theme activate ca-dao >/dev/null
+	moi_bat=1
+	wp option update cadao_theme_da_bat "$(date +%F)" >/dev/null
 	echo "Đã bật theme ca-dao (lần đầu)."
 fi
 if ! trang_on; then
-	for loai in "${thay[@]}"; do
-		d=$WP/wp-content/$loai
-		[ -d "$d/.ca-dao-cu" ] && mv "$d/ca-dao" "$T/hong-$loai" && mv "$d/.ca-dao-cu" "$d/ca-dao"
-	done
-	if [ -n "$moi_bat" ]; then wp theme activate twentytwentyfive >/dev/null; wp option delete cadao_theme_da_bat >/dev/null; fi
-	lam_moi_duong_dan
-	echo "LỖI: trang chủ không trả 200 (hay trang đang nâng cấp) với bản $NHANH — đã trả lại bản cũ." >&2
+	echo "LỖI: trang chủ không trả 200 (hay trang đang nâng cấp) với bản $NHANH — đang trả lại bản cũ." >&2
 	exit 1
 fi
 echo "Plugin ca-dao từ $NHANH: $(grep -m1 -oE 'Version: *[0-9.]+' "$WP/wp-content/plugins/ca-dao/ca-dao.php")" \
 	"· theme: $(grep -m1 -oE 'Version: *[0-9.]+' "$WP/wp-content/themes/ca-dao/style.css" 2>/dev/null || echo 'chưa có')"
+da_xong=1

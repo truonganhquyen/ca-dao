@@ -156,7 +156,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
 | T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
 | T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | READY |
-| T-175 | Gia cố cập nhật và phục hồi V2, diễn tập rollback trên bản sao, kiểm đường kích hoạt CI | A | T-173 | — | READY |
+| T-175 | Gia cố cập nhật và phục hồi V2, diễn tập rollback trên bản sao, kiểm đường kích hoạt CI | A | T-173 | — | DONE |
 | T-176 | Sửa Hộp việc hiện chạy: thẻ cuối, số đếm/phân trang, Để sau, Hoàn tác và thao tác bàn phím | A | T-173 | — | READY |
 | T-177 | Chặn hai quyết định đồng thời, bảo toàn cập nhật bài/việc/nhật ký khi ghi lỗi hoặc thử lại | A | T-173 | — | READY |
 | T-178 | Đối soát số bài, dữ liệu sau chuyển và backlog với site thật; ghi bằng chứng sai khác | A | T-173 | — | READY |
@@ -729,6 +729,8 @@ Mọi task V2 đọc AGENTS.md và `docs/26`; task trang người đọc đọc 
 **T-174 — trang người đọc:** đọc `docs/31` mục 2 và `docs/e2e-review/v2/REPORT.md` L-01/L-02/L-05/L-06. Đo lại trước khi sửa; kiểm vùng chạm Bản đồ, dung lượng ảnh, đường xử lý câu đố thiếu Ý nghĩa, tràn ngang ở 320 px và lối Quyền riêng tư; quét trợ năng và kiểm trang không JavaScript. Không thay chính sách dữ liệu bằng cách sửa đường dẫn.
 
 **T-175 — cập nhật an toàn:** đọc `docs/31` mục 2, D-090 và báo cáo E2E L-07..L-09. Trên bản sao, diễn tập lỗi giữa lúc thay thư mục, quay về bản phần mềm trước; đối chiếu thứ tự xử lý dữ liệu trong hướng dẫn, không đặt cổng thử khôi phục bản sao lưu FlashPanel. Kiểm smoke khách/biên tập và workflow khi thay đầu vào bộ kiểm. Không ghi lên máy chủ nếu chưa được người sáng lập đồng ý cho lần đó.
+
+**Bằng chứng (05/11/2026, nhánh T-175):** script cập nhật giữ bản cũ tới sau kiểm trang chủ và tự phục hồi khi `mv` plugin/theme hoặc kiểm trang thất bại; `tests/deploy-rollback.sh` diễn tập ba lỗi trên bản sao. Hướng dẫn đặt hoàn tác dữ liệu trước Revert khi quay V2 → MVP. Workflow V2 nhận thay đổi từ `scripts/**`, `tests/e2e-v2/**`, mã triển khai, `.node-version` và `package-lock.json`. `kiem-tra` đạt; `test:v2` 237 PHP + 255 Playground + 55 chuyển đổi đạt; `quet:v2` 25 trang × 3 chế độ + 7 trang biên tập, 0 lỗi; `e2e:v2` 21 bước, 0 lỗi, 0 bỏ qua. Chưa ghi lên máy chủ hoặc diễn tập trên site thật.
 
 **T-176 — Hộp việc đang chạy:** đọc `docs/31` mục 2 và báo cáo E2E L-03/L-04. Thử thẻ cuối, phân trang/số đếm khi hàng nghìn thẻ, tìm lại Để sau, Hoàn tác hợp lệ và phím tắt có ngoại lệ khi ô nhập/focus đang hoạt động. Dùng cùng hợp đồng trạng thái cho màn admin kế tiếp.
 
