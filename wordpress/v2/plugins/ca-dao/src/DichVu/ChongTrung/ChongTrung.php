@@ -275,16 +275,20 @@ final class ChongTrung implements Module {
 	}
 
 	/** Đặt quyết định cho một cặp: 'khac' (là bài khác), 'de_sau', 'da_gop', 'bo'. */
-	public static function dat( string $a, string $b, string $trang_thai ): void {
+	public static function dat( string $a, string $b, string $trang_thai ): bool {
 		global $wpdb;
 		$t = self::bang( 'trung' );
 		if ( ! $wpdb->get_var( $wpdb->prepare( "SELECT id FROM $t WHERE a = %s AND b = %s", $a, $b ) ) && $wpdb->get_var( $wpdb->prepare( "SELECT id FROM $t WHERE a = %s AND b = %s", $b, $a ) ) ) {
 			[ $a, $b ] = array( $b, $a );
 		}
 		$co = $wpdb->update( $t, array( 'trang_thai' => $trang_thai ), array( 'a' => $a, 'b' => $b ) );
-		if ( ! $co && ! $wpdb->get_var( $wpdb->prepare( "SELECT id FROM $t WHERE a = %s AND b = %s", $a, $b ) ) ) {
-			$wpdb->insert( $t, array( 'a' => $a, 'b' => $b, 'trang_thai' => $trang_thai, 'ngay' => current_time( 'mysql' ) ) );
+		if ( false === $co ) {
+			return false;
 		}
+		if ( 0 === $co && ! $wpdb->get_var( $wpdb->prepare( "SELECT id FROM $t WHERE a = %s AND b = %s", $a, $b ) ) ) {
+			return 1 === $wpdb->insert( $t, array( 'a' => $a, 'b' => $b, 'trang_thai' => $trang_thai, 'ngay' => current_time( 'mysql' ) ) );
+		}
+		return true;
 	}
 
 	/** Những mục người biên soạn đã nói "là bài khác" với $muc (cả hai chiều). */

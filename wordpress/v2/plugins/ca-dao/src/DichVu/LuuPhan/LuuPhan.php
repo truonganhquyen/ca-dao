@@ -107,14 +107,20 @@ final class LuuPhan {
 			return self::hong( 'Chưa lưu được phần này. Thử lại sau.' );
 		}
 		if ( KhaiBao::TAC_PHAM === $bai->post_type && in_array( $phan, BanChu::PHAN, true ) ) {
-			wp_update_post(
+			$cap_nhat = wp_update_post(
 				wp_slash(
 					array(
 						'ID'           => $bai->ID,
 						'post_content' => BanChu::tu_phan( PhanBai::tat_ca( $bai->ID, $bai->post_type ) ),
 					)
-				)
+				),
+				true
 			);
+			if ( is_wp_error( $cap_nhat ) || ! $cap_nhat ) {
+				PhanBai::ghi( $bai->ID, $phan, $truoc );
+				Viec::xoa( $viec );
+				return self::hong( 'Chưa cập nhật được bản chữ; phần bài và nhật ký chưa được xác nhận.' );
+			}
 		}
 		/** Sau khi lưu một phần: dựng lại chỉ mục tìm, xoá đệm của bài (T-144, T-152). */
 		do_action( 'phongdao_da_luu_phan', $bai->ID, $phan, $viec );
