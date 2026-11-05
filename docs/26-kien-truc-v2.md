@@ -169,6 +169,8 @@ Trò chơi của đồng dao: quan hệ phân loại `tro_choi`, không phải p
 | `wp_cadao_luot_doc`, `wp_cadao_su_kien` | giữ cấu trúc MVP | số liệu |
 | `wp_cadao_gioi_thieu`, `wp_cadao_xac_nhan` | đọc khi nhập, rồi bỏ | thành phần `ban_co_biet`, việc Wikidata đã quyết |
 
+Từ bước nâng cấp CSDL 10, bảng việc có thêm `phien` (số nguyên bắt đầu từ 0, tăng một lần sau mỗi quyết định). Form Hộp việc gửi số phiên đã nhìn thấy; dịch vụ quyết giữ thẻ bằng cập nhật có điều kiện trong giao dịch, dùng trạng thái `dang_lam` chỉ trong giao dịch, rồi chốt trạng thái và nhật ký. Yêu cầu mang phiên cũ nhận lỗi xung đột rõ ràng. Đây là lớp bảo vệ cho quyết từng thẻ hiện chạy; nhất quán ghi trực tiếp phần bài và các đường máy/loạt còn thuộc phần tiếp theo của T-177.
+
 Một số phiên bản cơ sở dữ liệu duy nhất: tuỳ chọn `phongdao_csdl`; các bước nâng cấp đánh số trong `HaTang\CaiDat`, mỗi bước chạy lại được.
 
 **Hộp việc là một truy vấn** trên `wp_cadao_viec` (`trang_thai = cho`, xếp theo `uu_tien`). Máy thêm việc khi: chọn câu mới từ kho mỗi ngày, chống trùng thấy "có thể trùng", gợi ý chủ đề / vùng / mô-típ / Wikidata / đối chiếu sách, nạp nháp theo lô, câu được "mong có" mà kho có, người đọc gửi góp ý / dị bản / số trang / báo lỗi (bài `gop_y` giữ từ MVP, việc trỏ tới bài đó), cảm nghĩ, bài phân tích chờ duyệt, bước nhập dữ liệu cũ gặp bài "Cần xem".

@@ -158,7 +158,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | READY |
 | T-175 | Gia cố cập nhật và phục hồi V2, diễn tập rollback trên bản sao, kiểm đường kích hoạt CI | A | T-173 | — | DONE |
 | T-176 | Sửa Hộp việc hiện chạy: thẻ cuối, số đếm/phân trang, Để sau, Hoàn tác và thao tác bàn phím | A | T-173 | — | READY |
-| T-177 | Chặn hai quyết định đồng thời, bảo toàn cập nhật bài/việc/nhật ký khi ghi lỗi hoặc thử lại | A | T-173 | — | READY |
+| T-177 | Chặn hai quyết định đồng thời, bảo toàn cập nhật bài/việc/nhật ký khi ghi lỗi hoặc thử lại | A | T-173 | — | IN_PROGRESS |
 | T-178 | Đối soát số bài, dữ liệu sau chuyển và backlog với site thật; ghi bằng chứng sai khác | A | T-173 | — | READY |
 | T-179 | Hồ sơ nguồn và nội dung máy đưa vào: căn cứ, lịch sử, quyền và công cụ sửa/ẩn theo phần | A | T-169, T-177 | — | BLOCKED |
 | T-180 | Bàn làm việc tuần, danh sách ngoại lệ dữ liệu và thử 20–30 bài nội dung chuyên sâu | N+A | T-176, T-178 | — | BLOCKED |
@@ -735,6 +735,8 @@ Mọi task V2 đọc AGENTS.md và `docs/26`; task trang người đọc đọc 
 **T-176 — Hộp việc đang chạy:** đọc `docs/31` mục 2 và báo cáo E2E L-03/L-04. Thử thẻ cuối, phân trang/số đếm khi hàng nghìn thẻ, tìm lại Để sau, Hoàn tác hợp lệ và phím tắt có ngoại lệ khi ô nhập/focus đang hoạt động. Dùng cùng hợp đồng trạng thái cho màn admin kế tiếp.
 
 **T-177 — nhất quán quyết định:** đọc `docs/31` mục 2 và `docs/26`. Thử hai phiên quyết cùng thẻ, phiên bản cũ, DB ghi lỗi và yêu cầu gửi lại; kết quả chỉ có một quyết định hợp lệ, không tách rời bài/việc/nhật ký; báo xung đột rõ cho người biên tập.
+
+**T-177.1 đã làm (05/11/2026):** số phiên thẻ và cập nhật có điều kiện trong giao dịch cho quyết một thẻ của Hộp việc hiện chạy; thử yêu cầu cũ sau Để sau và lỗi ghi phần. `kiem-tra` đạt; `test:v2` 237 PHP + 258 Playground + 55 chuyển đổi đạt; `quet:v2` 25 trang × 3 chế độ + 7 trang biên tập, 0 lỗi; `e2e:v2` 21 bước, 0 lỗi, 0 bỏ qua. **T-177 còn mở:** kiểm lỗi DB ở mọi nhánh quyết (đăng câu mới, gộp, gợi ý, người đọc gửi), ghi trực tiếp phần bài/trạng thái và chạy lại yêu cầu qua hai phiên thực; không chuyển sang `DONE` trước các ca này.
 
 **T-178 — đối soát:** đọc `docs/31` mục 2 và `docs/29`. Lập bảng ID cho chênh 630/631, kiểm bài vè nhiều đoạn, đường 301 và trạng thái task cũ theo bằng chứng triển khai; ghi rõ sai khác còn mở. Chỉ đọc site và dữ liệu; không sửa bài hoặc đóng thẻ để ép khớp số.
 

@@ -32,6 +32,7 @@ final class Viec {
 		id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 		loai varchar(32) NOT NULL,
 		trang_thai varchar(16) NOT NULL DEFAULT 'cho',
+		phien bigint(20) unsigned NOT NULL DEFAULT 0,
 		doi_tuong_loai varchar(16) NOT NULL DEFAULT '',
 		doi_tuong_id bigint(20) unsigned NOT NULL DEFAULT 0,
 		phan varchar(32) NOT NULL DEFAULT '',
@@ -56,6 +57,7 @@ final class Viec {
 		$hang = array_merge(
 			array(
 				'trang_thai'     => self::CHO,
+				'phien'          => 0,
 				'doi_tuong_loai' => '',
 				'doi_tuong_id'   => 0,
 				'phan'           => '',
@@ -117,16 +119,19 @@ final class Viec {
 	/** Đóng một việc: trạng thái xong / bỏ / để sau, hành động đã chọn, người quyết, lúc quyết. */
 	public static function dong( int $id, string $trang_thai, string $quyet, int $nguoi ): bool {
 		global $wpdb;
-		return false !== $wpdb->update(
-			self::bang(),
-			array(
-				'trang_thai'  => $trang_thai,
-				'quyet'       => $quyet,
-				'nguoi_quyet' => $nguoi,
-				'quyet_luc'   => gmdate( 'Y-m-d H:i:s' ),
-			),
-			array( 'id' => $id )
-		);
+		return 1 === $wpdb->query( $wpdb->prepare(
+			'UPDATE ' . self::bang() . " SET trang_thai = %s, quyet = %s, nguoi_quyet = %d, quyet_luc = %s, phien = phien + 1 WHERE id = %d AND trang_thai IN ('cho','de_sau','dang_lam')",
+			$trang_thai, $quyet, $nguoi, gmdate( 'Y-m-d H:i:s' ), $id
+		) );
+	}
+
+	/** Giữ một phiên thẻ trong giao dịch; chỉ một yêu cầu được quyền thực hiện tác dụng phụ. */
+	public static function giu( int $id, int $phien ): bool {
+		global $wpdb;
+		return 1 === $wpdb->query( $wpdb->prepare(
+			'UPDATE ' . self::bang() . " SET trang_thai = 'dang_lam' WHERE id = %d AND phien = %d AND trang_thai IN ('cho','de_sau')",
+			$id, $phien
+		) );
 	}
 
 	/** Lịch sử của một đối tượng (bài, phân loại): việc đã quyết, mới nhất trước. */
@@ -140,7 +145,7 @@ final class Viec {
 	}
 
 	private static function doc( array $hang ): array {
-		foreach ( array( 'id', 'doi_tuong_id', 'uu_tien', 'nguoi_quyet' ) as $cot ) {
+		foreach ( array( 'id', 'doi_tuong_id', 'uu_tien', 'nguoi_quyet', 'phien' ) as $cot ) {
 			$hang[ $cot ] = (int) $hang[ $cot ];
 		}
 		foreach ( self::JSON as $cot ) {

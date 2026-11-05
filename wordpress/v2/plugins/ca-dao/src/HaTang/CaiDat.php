@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class CaiDat implements Module {
 
-	public const PHIEN_BAN_CSDL = 9;
+	public const PHIEN_BAN_CSDL = 10;
 
 	/** Tuỳ chọn lưu phiên bản lược đồ đã cài. */
 	public const TUY_CHON = 'phongdao_csdl';
@@ -64,6 +64,14 @@ final class CaiDat implements Module {
 		}
 		if ( $da_cai < 9 ) {
 			self::buoc_9();
+		}
+		if ( $da_cai < 10 ) {
+			global $wpdb;
+			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+			dbDelta( Viec::sql_tao( Viec::bang(), $wpdb->get_charset_collate() ) );
+			if ( false === $wpdb->query( 'SELECT phien FROM ' . Viec::bang() . ' LIMIT 0' ) ) {
+				return; // không ghi phiên bản lược đồ mới để lượt sau thử lại
+			}
 		}
 		update_option( self::TUY_CHON, self::PHIEN_BAN_CSDL, false );
 	}
