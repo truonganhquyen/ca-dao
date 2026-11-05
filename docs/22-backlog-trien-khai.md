@@ -738,6 +738,8 @@ Mọi task V2 đọc AGENTS.md và `docs/26`; task trang người đọc đọc 
 
 **T-177.1 đã làm (05/11/2026):** số phiên thẻ và cập nhật có điều kiện trong giao dịch cho quyết một thẻ của Hộp việc hiện chạy; thử yêu cầu cũ sau Để sau và lỗi ghi phần. `kiem-tra` đạt; `test:v2` 237 PHP + 258 Playground + 55 chuyển đổi đạt; `quet:v2` 25 trang × 3 chế độ + 7 trang biên tập, 0 lỗi; `e2e:v2` 21 bước, 0 lỗi, 0 bỏ qua. **T-177 còn mở:** kiểm lỗi DB ở mọi nhánh quyết (đăng câu mới, gộp, gợi ý, người đọc gửi), ghi trực tiếp phần bài/trạng thái và chạy lại yêu cầu qua hai phiên thực; không chuyển sang `DONE` trước các ca này.
 
+**T-177.2 (05/11/2026):** kiểm giá trị trả về của bước cập nhật bản chữ sau khi lưu phần, báo lỗi và hoàn tác meta/nhật ký khi bước đó thất bại; quyết định cặp câu trả lỗi ghi thay vì báo thành công. Thử ép lỗi DB ở cả hai đường trong Playground. `kiem-tra` 145 task, 0 lỗi; `test:v2` 237 PHP + 260 Playground + 55 chuyển đổi; `quet:v2` 25 trang × 3 chế độ + 7 trang biên tập, 0 lỗi; `e2e:v2` 21 bước, 0 lỗi/bỏ qua. **Chưa chốt T-177:** các đường đăng câu từ kho, gộp, gợi ý và đổi trạng thái nội dung người đọc gửi còn cần rà thao tác ghi và kiểm lỗi.
+
 **T-178 — đối soát:** đọc `docs/31` mục 2 và `docs/29`. Lập bảng ID cho chênh 630/631, kiểm bài vè nhiều đoạn, đường 301 và trạng thái task cũ theo bằng chứng triển khai; ghi rõ sai khác còn mở. Chỉ đọc site và dữ liệu; không sửa bài hoặc đóng thẻ để ép khớp số.
 
 **T-179 — nguồn và nội dung máy:** đọc `docs/31` mục 2, `docs/12`, `docs/28`, `docs/30`. Người có quyền thấy trang nguồn, căn cứ, quyền, bài/phần chịu ảnh hưởng và lịch sử trước/sau; có sửa/ẩn phần và tạm dừng việc nền với nhật ký. Không tự chấp thuận quyền mới, sửa lời đã đăng hoặc xoá dữ liệu gốc.

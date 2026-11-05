@@ -567,7 +567,26 @@ $q_loi = QuyetViec::quyet( $v_loi, 'duyet', $ai_ql, true, 0 );
 remove_filter( 'update_post_metadata', $chan_ghi, 10 );
 $so_nhat_ky_sau = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . Viec::bang() . " WHERE loai = 'sua' AND doi_tuong_loai = 'post' AND doi_tuong_id = %d", $tp1 ) );
 kt( 'ghi phần thất bại: giữ bài, việc chờ và nhật ký như trước', ! $q_loi['ok'] && $nghia_truoc === PhanBai::lay( $tp1, 'y_nghia' ) && Viec::CHO === Viec::lay( $v_loi )['trang_thai'] && 0 === Viec::lay( $v_loi )['phien'] && $so_nhat_ky === $so_nhat_ky_sau, array( 'q' => $q_loi, 'truoc' => $nghia_truoc, 'sau' => PhanBai::lay( $tp1, 'y_nghia' ), 'viec' => Viec::lay( $v_loi ), 'nhat_ky' => array( $so_nhat_ky, $so_nhat_ky_sau ) ) );
+$v_loi_ban_chu = Viec::tao( array( 'loai' => 'nhap_y_nghia', 'doi_tuong_loai' => 'post', 'doi_tuong_id' => $tp1, 'phan' => 'y_nghia', 'noi_dung' => array( 'chu' => 'Ý nghĩa thử lỗi bản chữ.', 'ai' => false ), 'nguoi_tao' => 'kiem_thu' ) );
+$noi_dung_truoc = get_post( $tp1 )->post_content;
+$da_chan_ban_chu = false;
+$chan_ban_chu = static function ( $sql ) use ( $wpdb, &$da_chan_ban_chu ) {
+	if ( ! $da_chan_ban_chu && preg_match( '/^UPDATE\s+`?' . preg_quote( $wpdb->posts, '/' ) . '`?\s+SET\b/i', $sql ) ) {
+		$da_chan_ban_chu = true;
+		return 'CA_DAO_KIEM_THU_LOI_GHI_BAN_CHU';
+	}
+	return $sql;
+};
+add_filter( 'query', $chan_ban_chu );
+$q_loi_ban_chu = QuyetViec::quyet( $v_loi_ban_chu, 'duyet', $ai_ql, true, 0 );
+remove_filter( 'query', $chan_ban_chu );
+kt( 'lỗi ghi bản chữ: huỷ phần bài, nhật ký và quyết thẻ cùng lượt', $da_chan_ban_chu && ! $q_loi_ban_chu['ok'] && $nghia_truoc === PhanBai::lay( $tp1, 'y_nghia' ) && $noi_dung_truoc === get_post( $tp1 )->post_content && Viec::CHO === Viec::lay( $v_loi_ban_chu )['trang_thai'] && $so_nhat_ky === (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . Viec::bang() . " WHERE loai = 'sua' AND doi_tuong_loai = 'post' AND doi_tuong_id = %d", $tp1 ) ), array( 'q' => $q_loi_ban_chu, 'da_chan' => $da_chan_ban_chu ) );
 kt( 'người không có quyền duyệt không duyệt được nháp', ! QuyetViec::quyet( Viec::tao( array( 'loai' => 'nhap_y_nghia', 'doi_tuong_loai' => 'post', 'doi_tuong_id' => $tp1, 'phan' => 'y_nghia', 'noi_dung' => array( 'chu' => 'x' ), 'nguoi_tao' => 'may' ) ), 'duyet', $ai_ql, false )['ok'] );
+$chan_cap_trung = static function ( $sql ) use ( $wpdb ) { return preg_match( '/^UPDATE\s+`?' . preg_quote( $wpdb->prefix . 'cadao_trung', '/' ) . '`?\s+SET\b/i', $sql ) ? 'CA_DAO_KIEM_THU_LOI_GHI_TRUNG' : $sql; };
+add_filter( 'query', $chan_cap_trung );
+$q_loi_trung = QuyetViec::quyet( $vgan[0]['id'], 'khac', $ai_ql, true, $vgan[0]['phien'] );
+remove_filter( 'query', $chan_cap_trung );
+kt( 'lỗi ghi quyết định cặp câu: thẻ vẫn chờ và chưa đổi cặp', ! $q_loi_trung['ok'] && Viec::CHO === Viec::lay( $vgan[0]['id'] )['trang_thai'] && ChongTrung::dang_cho( (int) $gan->id ), $q_loi_trung );
 $q = QuyetViec::quyet( $vgan[0]['id'], 'khac', $ai_ql, true );
 kt( 'quyết "Là bài khác": cặp ghi lại, câu kho hết chờ, việc đóng', $q['ok'] && ! ChongTrung::dang_cho( (int) $gan->id ) && array() === Viec::mo( 'kho', (int) $gan->id, 'co_the_trung' ) );
 $v_cd2 = Viec::mo( 'kho', (int) $h2->id, 'cau_moi' )[0] ?? null;

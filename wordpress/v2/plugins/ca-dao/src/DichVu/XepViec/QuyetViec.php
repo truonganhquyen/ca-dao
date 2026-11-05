@@ -82,7 +82,9 @@ final class QuyetViec {
 		$id = $v['id'];
 		if ( Viec::DE_SAU === $quyet || 'de_sau' === $quyet ) {
 			if ( 'co_the_trung' === $v['loai'] ) {
-				ChongTrung::dat( (string) $v['noi_dung']['a'], (string) $v['noi_dung']['b'], 'de_sau' );
+				if ( ! ChongTrung::dat( (string) $v['noi_dung']['a'], (string) $v['noi_dung']['b'], 'de_sau' ) ) {
+					return self::kq( false, 'Chưa lưu được quyết định về cặp câu. Thử lại sau.' );
+				}
 			}
 			Viec::dong( $id, Viec::DE_SAU, 'de_sau', $nguoi );
 			return self::kq( true, 'Đã để sau.' );
@@ -162,7 +164,9 @@ final class QuyetViec {
 				$a = (string) $v['noi_dung']['a'];
 				$b = (string) $v['noi_dung']['b'];
 				if ( 'khac' === $quyet ) {
-					ChongTrung::dat( $a, $b, 'khac' );
+					if ( ! ChongTrung::dat( $a, $b, 'khac' ) ) {
+						return self::kq( false, 'Chưa lưu được quyết định về cặp câu. Thử lại sau.' );
+					}
 				} elseif ( ! ChongTrung::gop( $a, $b, 'cung' === $quyet ? 'trung' : 'di_ban' ) ) {
 					return self::kq( false, 'Chưa gộp được (câu đã thành tác phẩm hoặc đã gộp).' );
 				}
