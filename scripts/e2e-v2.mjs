@@ -278,6 +278,38 @@ try {
       chac(!(await coChu(k, yNghia)), 'người đọc đã thấy nháp');
     });
 
+    await thu('Hộp việc: J/K đổi thẻ, phím số chọn nút, không kích hoạt khi đang nhập hoặc focus nút', async () => {
+      await di(bt, '/bien-tap/?tung=1');
+      chac(await bt.$('.tung-the [data-hv="sau"]'), 'không có thẻ sau để thử J/K');
+      chac(await bt.$eval('[data-hv="goi-y"]', e => !e.hidden), 'không hiện hướng dẫn phím tắt khi JavaScript chạy');
+      const dau = bt.url();
+      const theDau = await bt.$eval('.tung-the article.the-viec', e => e.id);
+      await Promise.all([bt.waitForNavigation({ waitUntil: 'load' }), bt.keyboard.press('j')]);
+      chac(bt.url() !== dau && await bt.$('.tung-the [data-hv="truoc"]'), 'J không tới thẻ sau');
+      await Promise.all([bt.waitForNavigation({ waitUntil: 'load' }), bt.keyboard.press('k')]);
+      chac(theDau === await bt.$eval('.tung-the article.the-viec', e => e.id), 'K không về thẻ trước');
+      const veDau = bt.url();
+      await bt.evaluate(() => {
+        window.__phimQuyet = [];
+        const f = document.querySelector('.tung-the form');
+        f.addEventListener('submit', e => { e.preventDefault(); window.__phimQuyet.push(e.submitter?.value); });
+        const o = document.createElement('input');
+        o.id = 'kiem-phim-nhap';
+        document.querySelector('.tung-the').prepend(o);
+        o.focus();
+      });
+      await bt.keyboard.press('j');
+      await bt.keyboard.press('1');
+      chac(bt.url() === veDau && 0 === await bt.evaluate(() => window.__phimQuyet.length), 'phím tắt chạy khi đang nhập');
+      await bt.focus('.tung-the button[name="quyet"]');
+      await bt.keyboard.press('j');
+      chac(bt.url() === veDau, 'J chạy khi focus ở nút');
+      const nut = await bt.$$eval('.tung-the button[name="quyet"]', ds => ds.slice(0, 3).map(n => n.value));
+      await bt.evaluate(() => { document.getElementById('kiem-phim-nhap').remove(); document.activeElement.blur(); });
+      for (let i = 0; i < nut.length; i++) await bt.keyboard.press(String(i + 1));
+      chac(JSON.stringify(await bt.evaluate(() => window.__phimQuyet)) === JSON.stringify(nut), 'phím 1/2/3 không chọn đúng nút');
+    });
+
     await thu('Hộp việc: Duyệt nháp ý nghĩa → người đọc thấy', async () => {
       await di(bt, '/bien-tap/?loai=nhap_y_nghia');
       const id = await bt.$$eval('article.the-viec[data-loai=nhap_y_nghia]', (as, c) => as.find(a => a.textContent.includes(c))?.id, yNghia);

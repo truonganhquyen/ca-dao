@@ -77,10 +77,10 @@ final class HopViec {
 			if ( ! $ds ) {
 				return $khung . '<p class="notice" role="status">Danh sách vừa thay đổi. Tải lại trang để xem tiếp.</p>';
 			}
-			$nav = '<div class="row between">' . ( $i > 0 ? '<a class="btn compact ghost" href="' . esc_url( add_query_arg( 'vi', $i - 1 ) ) . '">Thẻ trước</a>' : '<span></span>' )
-				. ( $i < $tong - 1 ? '<a class="btn compact" href="' . esc_url( add_query_arg( 'vi', $i + 1 ) ) . '">Thẻ sau</a>' : '<span></span>' ) . '</div>';
+			$nav = '<div class="row between hv-di-chuyen">' . ( $i > 0 ? '<a class="btn compact ghost" data-hv="truoc" href="' . esc_url( add_query_arg( 'vi', $i - 1 ) ) . '">Thẻ trước</a>' : '<span></span>' )
+				. ( $i < $tong - 1 ? '<a class="btn compact" data-hv="sau" href="' . esc_url( add_query_arg( 'vi', $i + 1 ) ) . '">Thẻ sau</a>' : '<span></span>' ) . '</div>';
 			return $khung . '<div class="tung-the"><div class="row between"><span class="small muted">Thẻ ' . ( $i + 1 ) . ' / ' . $tong . '</span></div>'
-				. '<div class="progress"><span style="width:' . (int) round( 100 * ( $i + 1 ) / $tong ) . '%"></span></div>' . self::the( $ds[0] ) . $nav . '</div>';
+				. '<div class="progress"><span style="width:' . (int) round( 100 * ( $i + 1 ) / $tong ) . '%"></span></div><p class="small muted" data-hv="goi-y" hidden>Phím tắt: 1, 2, 3 chọn nút; J đến thẻ sau, K về thẻ trước.</p>' . self::the( $ds[0] ) . $nav . '</div>';
 		}
 		$so_trang = (int) ceil( $tong / 30 );
 		$trang    = max( 1, min( $so_trang, (int) ( $_GET['trang'] ?? 1 ) ) ); // phpcs:ignore WordPress.Security.NonceVerification
