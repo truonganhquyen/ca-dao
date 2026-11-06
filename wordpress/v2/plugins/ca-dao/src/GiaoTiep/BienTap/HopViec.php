@@ -44,32 +44,52 @@ final class HopViec {
 
 	public static function hien(): string {
 		$loai  = sanitize_key( (string) ( $_GET['loai'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc
+		$loai  = isset( QuyetViec::LOAI[ $loai ] ) ? $loai : '';
+		$tt    = Viec::DE_SAU === (string) ( $_GET['tt'] ?? '' ) ? Viec::DE_SAU : Viec::CHO; // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc
 		$tung  = ! empty( $_GET['tung'] ); // phpcs:ignore WordPress.Security.NonceVerification
 		$da    = sanitize_text_field( wp_unslash( (string) ( $_GET['da'] ?? '' ) ) ); // phpcs:ignore WordPress.Security.NonceVerification
-		$tat   = Viec::ds_cho( 500 );
-		$dem   = array_count_values( array_column( $tat, 'loai' ) );
-		$ds    = '' === $loai ? $tat : array_values( array_filter( $tat, static fn( $v ) => $v['loai'] === $loai ) );
+		$cho   = Viec::dem_cho();
+		$hoan  = Viec::dem( Viec::DE_SAU );
+		$dem   = Viec::dem_loai( Viec::CHO );
+		$dem_tt = Viec::CHO === $tt ? $dem : Viec::dem_loai( Viec::DE_SAU );
+		$tong  = Viec::dem( $tt, $loai );
 		$bao   = '' === $da ? '' : '<p class="notice" role="status">' . esc_html( $da ) . '</p>';
-		$dau   = '<div class="row between hv-dau"><div><p class="eyebrow">Biên tập</p><h1>Hộp việc <span class="dem-lon">' . count( $tat ) . '</span></h1></div>'
-			. ( $tat ? '<a class="btn compact" href="' . esc_url( $tung ? remove_query_arg( array( 'tung', 'vi', 'da' ) ) : add_query_arg( 'tung', 1, remove_query_arg( 'da' ) ) ) . '">' . ( $tung ? 'Xem danh sách' : 'Duyệt từng thẻ' ) . '</a>' : '' ) . '</div>';
-		if ( ! $tat ) {
-			return $dau . $bao . '<div class="empty">' . Ve::icon( 'check' ) . '<h2>Hết việc rồi</h2><p class="muted">Không còn thẻ nào chờ. Có thể viết ý nghĩa cho bài đọc nhiều.</p><a class="btn primary" href="' . esc_url( home_url( '/bien-tap/tac-pham/?loc=thieu-y-nghia' ) ) . '">Bài thiếu ý nghĩa</a></div>';
-		}
+		$dau   = '<div class="row between hv-dau"><div><p class="eyebrow">Biên tập</p><h1>Hộp việc <span class="dem-lon">' . $cho . '</span></h1></div>'
+			. ( $tong ? '<a class="btn compact" href="' . esc_url( $tung ? remove_query_arg( array( 'tung', 'vi', 'da' ) ) : add_query_arg( 'tung', 1, remove_query_arg( array( 'trang', 'da' ) ) ) ) . '">' . ( $tung ? 'Xem danh sách' : 'Duyệt từng thẻ' ) . '</a>' : '' ) . '</div>';
+		$trang_thai = '<nav class="loc-viec" aria-label="Trạng thái việc"><a class="chip" href="' . esc_url( remove_query_arg( array( 'tt', 'vi', 'trang', 'da' ) ) ) . '" aria-current="' . ( Viec::CHO === $tt ? 'true' : 'false' ) . '">Chờ <span class="dem">' . $cho . '</span></a>'
+			. '<a class="chip" href="' . esc_url( add_query_arg( 'tt', Viec::DE_SAU, remove_query_arg( array( 'vi', 'trang', 'da' ) ) ) ) . '" aria-current="' . ( Viec::DE_SAU === $tt ? 'true' : 'false' ) . '">Để sau <span class="dem">' . $hoan . '</span></a></nav>';
 		$tuan = '<p class="tuan-nay">' . Ve::icon( 'calendar' ) . '<span>Đang chờ: <strong>' . (int) ( $dem['cau_moi'] ?? 0 ) . '</strong> câu mới · <strong>' . (int) ( $dem['nhap_y_nghia'] ?? 0 ) . '</strong> nháp ý nghĩa · <strong>' . (int) ( $dem['co_the_trung'] ?? 0 ) . '</strong> có thể trùng · <a href="' . esc_url( home_url( '/bien-tap/so-lieu/' ) ) . '">Số liệu tuần</a></span></p>';
-		if ( $tung ) {
-			$i = max( 0, min( count( $ds ) - 1, (int) ( $_GET['vi'] ?? 0 ) ) ); // phpcs:ignore WordPress.Security.NonceVerification
-			$nav = '<div class="row between">' . ( $i > 0 ? '<a class="btn compact ghost" href="' . esc_url( add_query_arg( 'vi', $i - 1 ) ) . '">Thẻ trước</a>' : '<span></span>' )
-				. ( $i < count( $ds ) - 1 ? '<a class="btn compact" href="' . esc_url( add_query_arg( 'vi', $i + 1 ) ) . '">Thẻ sau</a>' : '<span></span>' ) . '</div>';
-			return $dau . $bao . '<div class="tung-the"><div class="row between"><span class="small muted">Thẻ ' . ( $i + 1 ) . ' / ' . count( $ds ) . '</span></div>'
-				. '<div class="progress"><span style="width:' . (int) round( 100 * ( $i + 1 ) / max( 1, count( $ds ) ) ) . '%"></span></div>' . self::the( $ds[ $i ] ) . $nav . '</div>';
-		}
-		$loc = '<a class="chip" href="' . esc_url( remove_query_arg( array( 'loai', 'da' ) ) ) . '" aria-current="' . ( '' === $loai ? 'true' : 'false' ) . '">Tất cả <span class="dem">' . count( $tat ) . '</span></a>';
+		$loc = '<a class="chip" href="' . esc_url( remove_query_arg( array( 'loai', 'vi', 'trang', 'da' ) ) ) . '" aria-current="' . ( '' === $loai ? 'true' : 'false' ) . '">Tất cả <span class="dem">' . array_sum( $dem_tt ) . '</span></a>';
 		foreach ( QuyetViec::LOAI as $ma => [ $ten ] ) {
-			if ( ! empty( $dem[ $ma ] ) ) {
-				$loc .= '<a class="chip" href="' . esc_url( add_query_arg( 'loai', $ma, remove_query_arg( 'da' ) ) ) . '" aria-current="' . ( $ma === $loai ? 'true' : 'false' ) . '">' . esc_html( $ten ) . ' <span class="dem">' . (int) $dem[ $ma ] . '</span></a>';
+			if ( ! empty( $dem_tt[ $ma ] ) ) {
+				$loc .= '<a class="chip" href="' . esc_url( add_query_arg( 'loai', $ma, remove_query_arg( array( 'vi', 'trang', 'da' ) ) ) ) . '" aria-current="' . ( $ma === $loai ? 'true' : 'false' ) . '">' . esc_html( $ten ) . ' <span class="dem">' . (int) $dem_tt[ $ma ] . '</span></a>';
 			}
 		}
-		return $dau . $bao . $tuan . '<nav class="loc-viec" aria-label="Lọc việc">' . $loc . '</nav><div class="ds-viec">' . implode( '', array_map( array( self::class, 'the' ), $ds ) ) . '</div>';
+		$khung = $dau . $bao . $trang_thai . $tuan . '<nav class="loc-viec" aria-label="Lọc việc">' . $loc . '</nav>';
+		if ( ! $tong ) {
+			return $khung . ( Viec::CHO === $tt && '' === $loai
+				? '<div class="empty">' . Ve::icon( 'check' ) . '<h2>Hết việc rồi</h2><p class="muted">Không còn thẻ nào chờ. Có thể viết ý nghĩa cho bài đọc nhiều.</p><a class="btn primary" href="' . esc_url( home_url( '/bien-tap/tac-pham/?loc=thieu-y-nghia' ) ) . '">Bài thiếu ý nghĩa</a></div>'
+				: '<div class="empty"><h2>Không có thẻ phù hợp</h2><p class="muted">Chọn trạng thái hoặc loại việc khác.</p></div>' );
+		}
+		if ( $tung ) {
+			$i = max( 0, min( $tong - 1, (int) ( $_GET['vi'] ?? 0 ) ) ); // phpcs:ignore WordPress.Security.NonceVerification
+			$ds = Viec::trang( $tt, $loai, 1, $i );
+			if ( ! $ds ) {
+				return $khung . '<p class="notice" role="status">Danh sách vừa thay đổi. Tải lại trang để xem tiếp.</p>';
+			}
+			$nav = '<div class="row between">' . ( $i > 0 ? '<a class="btn compact ghost" href="' . esc_url( add_query_arg( 'vi', $i - 1 ) ) . '">Thẻ trước</a>' : '<span></span>' )
+				. ( $i < $tong - 1 ? '<a class="btn compact" href="' . esc_url( add_query_arg( 'vi', $i + 1 ) ) . '">Thẻ sau</a>' : '<span></span>' ) . '</div>';
+			return $khung . '<div class="tung-the"><div class="row between"><span class="small muted">Thẻ ' . ( $i + 1 ) . ' / ' . $tong . '</span></div>'
+				. '<div class="progress"><span style="width:' . (int) round( 100 * ( $i + 1 ) / $tong ) . '%"></span></div>' . self::the( $ds[0] ) . $nav . '</div>';
+		}
+		$so_trang = (int) ceil( $tong / 30 );
+		$trang    = max( 1, min( $so_trang, (int) ( $_GET['trang'] ?? 1 ) ) ); // phpcs:ignore WordPress.Security.NonceVerification
+		$ds       = Viec::trang( $tt, $loai, 30, ( $trang - 1 ) * 30 );
+		$phan_trang = '<nav class="row between" aria-label="Trang Hộp việc">'
+			. ( $trang > 1 ? '<a class="btn compact ghost" href="' . esc_url( add_query_arg( 'trang', $trang - 1, remove_query_arg( 'da' ) ) ) . '">Trang trước</a>' : '<span></span>' )
+			. '<span class="small muted">Trang ' . $trang . ' / ' . $so_trang . '</span>'
+			. ( $trang < $so_trang ? '<a class="btn compact" href="' . esc_url( add_query_arg( 'trang', $trang + 1, remove_query_arg( 'da' ) ) ) . '">Trang sau</a>' : '<span></span>' ) . '</nav>';
+		return $khung . '<div class="ds-viec">' . implode( '', array_map( array( self::class, 'the' ), $ds ) ) . '</div>' . $phan_trang;
 	}
 
 	/** Một thẻ việc: đủ thông tin để quyết ngay trên thẻ. */
@@ -153,6 +173,9 @@ final class HopViec {
 		}
 		$form = '';
 		foreach ( $nut as $ma => [ $chu, $kieu ] ) {
+			if ( Viec::DE_SAU === $v['trang_thai'] && 'de_sau' === $ma ) {
+				continue;
+			}
 			if ( ( 'dang' === $ma || 'duyet' === $ma ) && ! current_user_can( 'cadao_duyet' ) ) {
 				continue;
 			}

@@ -157,7 +157,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
 | T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | IN_PROGRESS |
 | T-175 | Gia cố cập nhật và phục hồi V2, diễn tập rollback trên bản sao, kiểm đường kích hoạt CI | A | T-173 | — | DONE |
-| T-176 | Sửa Hộp việc hiện chạy: thẻ cuối, số đếm/phân trang, Để sau, Hoàn tác và thao tác bàn phím | A | T-173 | — | READY |
+| T-176 | Sửa Hộp việc hiện chạy: thẻ cuối, số đếm/phân trang, Để sau, Hoàn tác và thao tác bàn phím | A | T-173 | — | IN_PROGRESS |
 | T-177 | Chặn hai quyết định đồng thời, bảo toàn cập nhật bài/việc/nhật ký khi ghi lỗi hoặc thử lại | A | T-173 | — | IN_PROGRESS |
 | T-178 | Đối soát số bài, dữ liệu sau chuyển và backlog với site thật; ghi bằng chứng sai khác | A | T-173 | — | READY |
 | T-179 | Hồ sơ nguồn và nội dung máy đưa vào: căn cứ, lịch sử, quyền và công cụ sửa/ẩn theo phần | A | T-169, T-177 | — | BLOCKED |
@@ -734,11 +734,15 @@ Mọi task V2 đọc AGENTS.md và `docs/26`; task trang người đọc đọc 
 
 **T-174.3 (06/11/2026):** đo lại bằng trang thật: ảnh chú thích trong `/dong-dao/con-cong-hay-mua/` tải bản 500 px 136.791 byte; ba ảnh trong `/ca-dao/em-toi-buon-ngu-buon-nghe/` tải bản gốc tổng 294.787 byte, đều không có `srcset`. Bản thu nhỏ 150 px đã có trên site, tương ứng 20.079 và tổng 18.465 byte (HEAD chỉ đọc). Trang bài chọn cỡ `thumbnail` từ ID tệp đính kèm; trang mục từ giữ cỡ `medium`; ghi công giữ nguyên. Theo số tổng trang trong báo cáo review và số HEAD hiện tại, **ước tính** hai trang còn 179.356 và 178.448 byte; chưa phải phép đo sau triển khai. `kiem-tra` 145 task, 0 lỗi; `test:v2` 237 PHP + 263 Playground + 55 chuyển đổi; `quet:v2` 29 trang × 3 chế độ + 4 trang tĩnh × 2 chế độ 320 px + 7 trang biên tập, 0 lỗi; `e2e:v2` 21 bước, 0 lỗi/bỏ qua. Chưa ghi lên máy chủ hoặc xác nhận ngân sách trang thật sau khi triển khai. **T-174 vẫn `IN_PROGRESS`:** đường Ý nghĩa câu đố, Quyền riêng tư và kiểm lại site thật; cần kiểm ảnh cắt 150 px bằng mắt trên site sau triển khai.
 
+**Kiểm sau PR #110 (06/11/2026, chỉ đọc):** site tự cập nhật plugin 1.0.7; GET hai trang trên đều HTTP 200 và HTML đã trỏ tới đúng bốn ảnh `-150x150.jpg` trên site. Chưa đo lại toàn bộ tài nguyên bằng cùng phép đo ngân sách của báo cáo review, nên chưa gọi ngưỡng 200 KiB là đạt; chưa xem hình cắt trong bố cục sau triển khai.
+
 **T-175 — cập nhật an toàn:** đọc `docs/31` mục 2, D-090 và báo cáo E2E L-07..L-09. Trên bản sao, diễn tập lỗi giữa lúc thay thư mục, quay về bản phần mềm trước; đối chiếu thứ tự xử lý dữ liệu trong hướng dẫn, không đặt cổng thử khôi phục bản sao lưu FlashPanel. Kiểm smoke khách/biên tập và workflow khi thay đầu vào bộ kiểm. Không ghi lên máy chủ nếu chưa được người sáng lập đồng ý cho lần đó.
 
 **Bằng chứng (05/11/2026, nhánh T-175):** script cập nhật giữ bản cũ tới sau kiểm trang chủ và tự phục hồi khi `mv` plugin/theme hoặc kiểm trang thất bại; `tests/deploy-rollback.sh` diễn tập ba lỗi trên bản sao. Hướng dẫn đặt hoàn tác dữ liệu trước Revert khi quay V2 → MVP. Workflow V2 nhận thay đổi từ `scripts/**`, `tests/e2e-v2/**`, mã triển khai, `.node-version` và `package-lock.json`. `kiem-tra` đạt; `test:v2` 237 PHP + 255 Playground + 55 chuyển đổi đạt; `quet:v2` 25 trang × 3 chế độ + 7 trang biên tập, 0 lỗi; `e2e:v2` 21 bước, 0 lỗi, 0 bỏ qua. Chưa ghi lên máy chủ hoặc diễn tập trên site thật.
 
 **T-176 — Hộp việc đang chạy:** đọc `docs/31` mục 2 và báo cáo E2E L-03/L-04. Thử thẻ cuối, phân trang/số đếm khi hàng nghìn thẻ, tìm lại Để sau, Hoàn tác hợp lệ và phím tắt có ngoại lệ khi ô nhập/focus đang hoạt động. Dùng cùng hợp đồng trạng thái cho màn admin kế tiếp.
+
+**T-176.1 (06/11/2026):** Hộp việc cũ chỉ tải 500 thẻ rồi lấy độ dài mảng làm tổng, nên thẻ sau mốc này không tìm được và số đếm thấp hơn dữ liệu thật. Bản vá đếm bằng truy vấn bảng việc, tải 30 thẻ mỗi trang, duyệt từng thẻ bằng vị trí thật trong tập đã lọc; có đường xem lại Để sau và không lặp nút Để sau trên thẻ đã hoãn. Kiểm thử tạo hơn 1.000 thẻ kỹ thuật, kiểm tổng, lọc loại, trang và thẻ cuối, rồi dọn dữ liệu thử. `kiem-tra` 145 task, 0 lỗi; `test:v2` 237 PHP + 265 Playground + 55 chuyển đổi; `quet:v2` 29 trang × 3 chế độ + 4 trang tĩnh × 2 chế độ 320 px + 7 trang biên tập, 0 lỗi; `e2e:v2` 21 bước đạt, 0 lỗi, 0 bỏ qua. **T-176 còn mở:** Hoàn tác quyết thẻ và phím tắt; màn admin mới dùng hợp đồng này sau.
 
 **T-177 — nhất quán quyết định:** đọc `docs/31` mục 2 và `docs/26`. Thử hai phiên quyết cùng thẻ, phiên bản cũ, DB ghi lỗi và yêu cầu gửi lại; kết quả chỉ có một quyết định hợp lệ, không tách rời bài/việc/nhật ký; báo xung đột rõ cho người biên tập.
 
