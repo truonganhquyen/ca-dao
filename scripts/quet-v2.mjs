@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Quét V2 (docs/26 mục 13): dựng WordPress trong Playground với plugin, theme V2 và dữ liệu mẫu (wordpress/v2/blueprint.json),
-// rồi trên từng trang: axe-core WCAG 2.2 A/AA (điện thoại 360 px sáng, tối; máy tính 1280 px; mở mọi <details>), không tràn ngang,
+// rồi trên từng trang: axe-core WCAG 2.2 A/AA (điện thoại 360 px sáng/tối; thêm 320 px sáng/tối cho trang tĩnh; máy tính 1280 px; mở mọi <details>), không tràn ngang,
 // mỗi câu của lời một dòng (D-093), không gọi máy chủ ngoài, có đầu CSP và không bị CSP chặn gì, ngân sách (trang ≤ 200 KB, JavaScript ≤ 21 KB — tính theo
 // dung lượng nén gzip như khi qua Cloudflare; woff2 đã nén sẵn). Cần Node ≥ 24.18 và Chrome/Chromium.
 // Dùng:  npm run quet:v2 [-- --anh <thư-mục>]   (--anh: lưu ảnh chụp 390 px từng trang để xem bằng mắt)
@@ -18,12 +18,17 @@ const iAnh = process.argv.indexOf('--anh');
 const thuMucAnh = iAnh > 0 ? path.resolve(process.argv[iAnh + 1]) : null;
 if (thuMucAnh) fs.mkdirSync(thuMucAnh, { recursive: true });
 
-const DS_TRANG = ['/', '/trang-mau-v2/', '/tim/', '/tim/?q=dong%20mau', '/ca-dao/dong-mau-mot-cua-bai/', '/tuc-ngu/tuc-ngu-mau-ngan/', '/cau-do/cau-do-mau/', '/ve/ve-mau/', '/dong-dao/dong-dao-mau/', '/kho/', '/the-loai/ca-dao/', '/tuyen-tap/', '/tuyen-tap/gui-mot-loi-nhan-mau/', '/tu-dien/', '/tu-dien/?chu=C', '/tu-dien/chut/', '/tu-dien/ben-mau-bac/', '/gop/', '/da-luu/', '/phan-tich/mot-cach-doc-mau/', '/ban-do/', '/kham-pha/', '/chu-de/', '/mo-tip/', '/ngau-nhien/'];
+const DS_TRANG = ['/', '/trang-mau-v2/', '/tim/', '/tim/?q=dong%20mau', '/ca-dao/dong-mau-mot-cua-bai/', '/tuc-ngu/tuc-ngu-mau-ngan/', '/cau-do/cau-do-mau/', '/ve/ve-mau/', '/dong-dao/dong-dao-mau/', '/kho/', '/the-loai/ca-dao/', '/tuyen-tap/', '/tuyen-tap/gui-mot-loi-nhan-mau/', '/tu-dien/', '/tu-dien/?chu=C', '/tu-dien/chut/', '/tu-dien/ben-mau-bac/', '/gop/', '/da-luu/', '/phan-tich/mot-cach-doc-mau/', '/ban-do/', '/kham-pha/', '/chu-de/', '/mo-tip/', '/ngau-nhien/', '/ve-du-an/', '/phuong-phap/', '/nguon/', '/chinh-sach-du-lieu/'];
+const DS_TINH_320 = new Set(['/ve-du-an/', '/phuong-phap/', '/nguon/', '/chinh-sach-du-lieu/']);
 const NGAN_SACH = { trang: 200 * 1024, js: 21 * 1024 };
 const CHE_DO = [
   { ten: 'điện thoại · sáng', w: 360, h: 800, toi: false },
   { ten: 'điện thoại · tối', w: 360, h: 800, toi: true },
   { ten: 'máy tính · sáng', w: 1280, h: 800, toi: false },
+];
+const CHE_DO_320 = [
+  { ten: '320 px · sáng', w: 320, h: 700, toi: false },
+  { ten: '320 px · tối', w: 320, h: 700, toi: true },
 ];
 
 const { G, san, dong: dongMayChu } = moPlayground(9432, 'quét v2');
@@ -49,7 +54,7 @@ try {
   await san;
   trinhDuyet = await puppeteer.launch({ executablePath: chrome, headless: true, args: ['--no-sandbox', '--font-render-hinting=none'] });
   for (const duong of DS_TRANG) {
-    for (const c of CHE_DO) {
+    for (const c of (DS_TINH_320.has(duong) ? [...CHE_DO, ...CHE_DO_320] : CHE_DO)) {
       const tab = await trinhDuyet.newPage();
       const ngoai = new Set();
       const tai = [];
@@ -153,7 +158,7 @@ try {
   await axeBt('tấm sửa ý nghĩa');
   if (thuMucAnh) await bt.screenshot({ path: path.join(thuMucAnh, 'tam-sua-y-nghia-390.png') });
   await bt.close();
-  console.log(`Quét V2: ${DS_TRANG.length} trang × ${CHE_DO.length} chế độ + ${DS_BIEN_TAP.length} trang biên tập (axe ${THE_WCAG.join(', ')}) — ${loi.length} lỗi.`);
+  console.log(`Quét V2: ${DS_TRANG.length} trang × ${CHE_DO.length} chế độ + ${DS_TINH_320.size} trang tĩnh × 2 chế độ 320 px + ${DS_BIEN_TAP.length} trang biên tập (axe ${THE_WCAG.join(', ')}) — ${loi.length} lỗi.`);
 } catch (e) {
   loi.push(String(e.message ?? e));
 } finally {

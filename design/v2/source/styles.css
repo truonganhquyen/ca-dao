@@ -188,3 +188,5 @@ details.block>summary{justify-content:flex-start;gap:10px}details.block>summary:
 .loi-doan .kho+.kho{margin-top:.85em}.loi-doan .doan+.doan{margin-top:1.4em}.doan{scroll-margin-top:28px}.doan-ten{width:0;min-width:100%;margin:0 0 .5em;font:600 17px/1.5 'Be Vietnam Pro',sans-serif;letter-spacing:0;color:var(--tim);white-space:normal;text-indent:0}.do .doan-ten{display:none}
 .bai-dai-tom{margin:0 0 4px}.muc-luc{margin:0 0 20px}.muc-luc ol{columns:2 12rem;margin:0;padding-left:1.4em}.muc-luc li{min-height:32px;break-inside:avoid;font-size:15px}.thu-gon .doan[data-sau]{display:none}.doc-toan-bai{margin:4px 0 24px}.doc-tiep-doan{display:inline-flex;align-items:center;min-height:44px;margin:0 0 8px;font-size:15px}
 @media print{.thu-gon .doan[data-sau]{display:block!important}.doc-toan-bai,.doc-tiep-doan{display:none!important}}
+/* Màn 320 px: giữ nút sáng/tối trong khung đầu trang mà vẫn đủ vùng chạm. */
+@media(max-width:359px){.site-header .mobile-search{padding-inline:10px}}
