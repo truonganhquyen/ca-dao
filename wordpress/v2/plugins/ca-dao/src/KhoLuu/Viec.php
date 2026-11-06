@@ -101,6 +101,41 @@ final class Viec {
 		return (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . self::bang() . ' WHERE trang_thai = %s', self::CHO ) );
 	}
 
+	/** Số thẻ theo loại của một trạng thái, không phụ thuộc giới hạn danh sách. */
+	public static function dem_loai( string $trang_thai ): array {
+		global $wpdb;
+		$hang = $wpdb->get_results( $wpdb->prepare( 'SELECT loai, COUNT(*) AS so FROM ' . self::bang() . ' WHERE trang_thai = %s GROUP BY loai', $trang_thai ), ARRAY_A );
+		return array_column( $hang ?: array(), 'so', 'loai' );
+	}
+
+	/** Số thẻ khớp trạng thái và loại (loại rỗng = mọi loại). */
+	public static function dem( string $trang_thai, string $loai = '' ): int {
+		global $wpdb;
+		$sql  = 'SELECT COUNT(*) FROM ' . self::bang() . ' WHERE trang_thai = %s';
+		$tham = array( $trang_thai );
+		if ( '' !== $loai ) {
+			$sql   .= ' AND loai = %s';
+			$tham[] = $loai;
+		}
+		return (int) $wpdb->get_var( $wpdb->prepare( $sql, $tham ) );
+	}
+
+	/** Một trang thẻ; ORDER BY ổn định khi cùng độ ưu tiên. */
+	public static function trang( string $trang_thai, string $loai, int $so, int $bo_qua ): array {
+		global $wpdb;
+		$sql  = 'SELECT * FROM ' . self::bang() . ' WHERE trang_thai = %s';
+		$tham = array( $trang_thai );
+		if ( '' !== $loai ) {
+			$sql   .= ' AND loai = %s';
+			$tham[] = $loai;
+		}
+		$sql   .= ' ORDER BY uu_tien DESC, id ASC LIMIT %d OFFSET %d';
+		$tham[] = max( 1, min( 50, $so ) );
+		$tham[] = max( 0, $bo_qua );
+		$ds     = $wpdb->get_results( $wpdb->prepare( $sql, $tham ), ARRAY_A );
+		return array_map( array( self::class, 'doc' ), $ds ?: array() );
+	}
+
 	/** Việc còn mở (chờ, để sau) của một đối tượng, theo loại việc (rỗng = mọi loại). */
 	public static function mo( string $doi_tuong_loai, int $doi_tuong_id, string $loai = '' ): array {
 		global $wpdb;

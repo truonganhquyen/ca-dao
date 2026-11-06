@@ -547,6 +547,41 @@ kt( 'người biên soạn: đầu trang có "Hộp việc" kèm số việc ch�
 $h = do_blocks( '<!-- wp:cadao/hop-viec /-->' );
 kt( 'Hộp việc: tiêu đề, lọc, form có nonce và phiên thẻ', str_contains( $h, 'Hộp việc <span class="dem-lon">' . Viec::dem_cho() . '</span>' ) && str_contains( $h, 'class="loc-viec"' ) && str_contains( $h, 'action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"' ) && str_contains( $h, 'name="_wpnonce"' ) && str_contains( $h, 'name="phien" value="0"' ) && str_contains( $h, 'name="quyet" value="duyet"' ), substr( $h, 0, 300 ) );
 kt( 'Hộp việc: thẻ nháp ý nghĩa ghi rõ chưa duyệt; thẻ có thể trùng đặt hai lời cạnh nhau', str_contains( $h, 'AI · chưa duyệt' ) && str_contains( $h, 'class="hai-cot"' ) );
+$get_cu = $_GET;
+$dem_cu = Viec::dem_cho();
+$ids_nhieu = array();
+for ( $i = 0; $i < 1010; $i++ ) {
+	$ids_nhieu[] = Viec::tao( array( 'loai' => 'can_xem', 'doi_tuong_loai' => 'post', 'doi_tuong_id' => $tp1, 'noi_dung' => array( 'ly_do' => array() ), 'nguoi_tao' => 'kiem_thu' ) );
+}
+$_GET = array();
+$h_nhieu = \Phongdao\GiaoTiep\BienTap\HopViec::hien();
+$so_trang = (int) ceil( ( $dem_cu + 1010 ) / 30 );
+$_GET = array( 'loai' => 'can_xem' );
+$h_loc_nhieu = \Phongdao\GiaoTiep\BienTap\HopViec::hien();
+$dem_loc_nhieu = Viec::dem( Viec::CHO, 'can_xem' );
+$_GET = array( 'trang' => (string) $so_trang );
+$h_cuoi = \Phongdao\GiaoTiep\BienTap\HopViec::hien();
+$_GET = array( 'tung' => '1', 'vi' => (string) ( $dem_cu + 1009 ) );
+$h_the_cuoi = \Phongdao\GiaoTiep\BienTap\HopViec::hien();
+$kiem_trang = array(
+	'so_tao'       => 1010 === count( array_filter( $ids_nhieu ) ),
+	'tong'         => $dem_cu + 1010 === Viec::dem_cho(),
+	'tieu_de'      => str_contains( $h_nhieu, 'Hộp việc <span class="dem-lon">' . ( $dem_cu + 1010 ) . '</span>' ),
+	'trang_dau'    => 30 === substr_count( $h_nhieu, 'class="the-viec ' ) && str_contains( $h_nhieu, 'Trang 1 / ' . $so_trang ),
+	'loc_loai'     => $dem_loc_nhieu >= 1010 && str_contains( $h_loc_nhieu, 'Cần xem <span class="dem">' . $dem_loc_nhieu . '</span>' ) && 30 === substr_count( $h_loc_nhieu, 'data-loai="can_xem"' ),
+	'trang_cuoi'   => str_contains( $h_cuoi, 'Trang ' . $so_trang . ' / ' . $so_trang ) && ! str_contains( $h_cuoi, '>Trang sau</a>' ),
+	'the_cuoi'     => str_contains( $h_the_cuoi, 'Thẻ ' . ( $dem_cu + 1010 ) . ' / ' . ( $dem_cu + 1010 ) ) && ! str_contains( $h_the_cuoi, '>Thẻ sau</a>' ),
+);
+kt( 'Hộp việc hơn 1.000 thẻ: số đếm đủ, lọc loại đúng, trang đầu tối đa 30, đến được trang và thẻ cuối', ! in_array( false, $kiem_trang, true ), $kiem_trang );
+$id_de_sau = Viec::tao( array( 'loai' => 'can_xem', 'trang_thai' => Viec::DE_SAU, 'doi_tuong_loai' => 'post', 'doi_tuong_id' => $tp1, 'noi_dung' => array( 'ly_do' => array() ), 'nguoi_tao' => 'kiem_thu' ) );
+$_GET = array( 'tt' => Viec::DE_SAU, 'loai' => 'can_xem' );
+$h_de_sau = \Phongdao\GiaoTiep\BienTap\HopViec::hien();
+kt( 'Hộp việc: tìm lại Để sau và không có nút Để sau lặp', $id_de_sau > 0 && str_contains( $h_de_sau, 'Để sau <span class="dem">' . Viec::dem( Viec::DE_SAU ) . '</span>' ) && str_contains( $h_de_sau, 'id="viec-' . $id_de_sau . '"' ) && ! str_contains( $h_de_sau, 'name="quyet" value="de_sau"' ) );
+foreach ( $ids_nhieu as $id_nhieu ) {
+	Viec::xoa( $id_nhieu );
+}
+Viec::xoa( $id_de_sau );
+$_GET = $get_cu;
 $v_nhap = Viec::mo( 'post', $tp1, 'nhap_y_nghia' )[0];
 $q      = QuyetViec::quyet( $v_nhap['id'], 'duyet', $ai_ql, true );
 kt( 'quyết "Duyệt" nháp ý nghĩa: vào bài với dấu AI, việc đóng', $q['ok'] && 'Ý nghĩa nháp mẫu.' === PhanBai::lay( $tp1, 'y_nghia' )['chu'] && NguoiLam::AI_DA_DUYET === PhanBai::lay( $tp1, 'y_nghia' )['nguoi_lam'] && array() === Viec::mo( 'post', $tp1, 'nhap_y_nghia' ), $q );
