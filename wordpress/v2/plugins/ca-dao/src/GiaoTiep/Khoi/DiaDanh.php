@@ -25,7 +25,7 @@ final class DiaDanh {
 		$url = empty( $anh['rieng'] ) ? false : wp_get_attachment_image_url( (int) $anh['rieng'], 'medium_large' );
 		if ( $url ) {
 			$t               = get_term( $term_id );
-			$d['anh_da_tai'] = array( 'rieng' => true, 'url' => $url, 'alt' => $t instanceof \WP_Term ? $t->name : '', 'ghi_cong' => (string) ( $anh['ghi_cong'] ?? '' ) );
+			$d['anh_da_tai'] = array( 'rieng' => true, 'id' => (int) $anh['rieng'], 'url' => $url, 'alt' => $t instanceof \WP_Term ? $t->name : '', 'ghi_cong' => (string) ( $anh['ghi_cong'] ?? '' ) );
 		} elseif ( ! empty( $anh['an'] ) ) {
 			unset( $d['anh_da_tai'] );
 		}
@@ -43,15 +43,21 @@ final class DiaDanh {
 	}
 
 	/** HTML: ảnh (kèm ghi công), bản đồ nhỏ, liên kết bản đồ lớn, Wikipedia. Rỗng khi không có gì. */
-	public static function html( array $wd ): string {
+	public static function html( array $wd, string $kich_thuoc = 'medium' ): string {
 		$ra  = '';
 		$anh = $wd['anh_da_tai'] ?? null;
 		if ( is_array( $anh ) && ! empty( $anh['url'] ) ) {
+			$id_anh = (int) ( $anh['id'] ?? 0 );
+			if ( ! $id_anh ) {
+				$id_anh = attachment_url_to_postid( (string) $anh['url'] );
+			}
+			$ban_nho = $id_anh ? wp_get_attachment_image_src( $id_anh, $kich_thuoc ) : false;
+			$url_anh = $ban_nho ? (string) $ban_nho[0] : (string) $anh['url'];
 			$ghi = ! empty( $anh['rieng'] )
 				? esc_html( (string) ( $anh['ghi_cong'] ?? '' ) )
 				: 'Ảnh: ' . esc_html( (string) ( $anh['tac_gia'] ?? '' ) ) . ' · ' . ( empty( $anh['giay_phep_url'] ) ? esc_html( (string) ( $anh['giay_phep'] ?? '' ) ) : '<a href="' . esc_url( $anh['giay_phep_url'] ) . '" rel="noopener">' . esc_html( (string) ( $anh['giay_phep'] ?? '' ) ) . '</a>' )
 					. ' · <a href="' . esc_url( (string) ( $anh['trang'] ?? 'https://commons.wikimedia.org' ) ) . '" rel="noopener">Wikimedia Commons</a>';
-			$ra .= '<figure class="anh-wd" style="margin:12px 0"><img src="' . esc_url( $anh['url'] ) . '" alt="' . esc_attr( (string) ( $anh['alt'] ?? $wd['nhan_wd'] ?? '' ) ) . '" loading="lazy" decoding="async" style="display:block;max-width:100%;max-height:14rem;width:auto;height:auto;border-radius:6px">'
+			$ra .= '<figure class="anh-wd" style="margin:12px 0"><img src="' . esc_url( $url_anh ) . '" alt="' . esc_attr( (string) ( $anh['alt'] ?? $wd['nhan_wd'] ?? '' ) ) . '" loading="lazy" decoding="async" style="display:block;max-width:100%;max-height:14rem;width:auto;height:auto;border-radius:6px">'
 				. ( '' === trim( wp_strip_all_tags( $ghi ) ) ? '' : '<figcaption class="small muted">' . $ghi . '</figcaption>' ) . '</figure>';
 		}
 		if ( ! empty( $wd['toa_do'] ) && is_array( $wd['toa_do'] ) ) {
