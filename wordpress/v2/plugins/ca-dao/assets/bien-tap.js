@@ -37,6 +37,26 @@
     if (cu && cu.chu) bao(cu.chu, cu.viec);
   } catch (e) { /* bộ nhớ bị chặn */ }
 
+  // Duyệt từng thẻ: phím tắt chỉ chạy khi người dùng không đang thao tác với điều khiển khác.
+  const tung = document.querySelector('.tung-the');
+  if (tung) {
+    const goiY = tung.querySelector('[data-hv="goi-y"]');
+    if (goiY) goiY.hidden = false;
+    document.addEventListener('keydown', e => {
+      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || e.isComposing || e.repeat) return;
+      const focus = document.activeElement;
+      if (focus?.closest('input, textarea, select, button, a, [contenteditable], [role="button"], [role="textbox"], dialog[open]')) return;
+      const phim = e.key.toLowerCase();
+      if (phim === 'j' || phim === 'k') {
+        const lienKet = tung.querySelector(`[data-hv="${phim === 'j' ? 'sau' : 'truoc'}"]`);
+        if (lienKet) { e.preventDefault(); location.assign(lienKet.href); }
+      } else if (/^[1-3]$/.test(phim)) {
+        const nut = tung.querySelectorAll('form button[name="quyet"]:not([disabled])')[Number(phim) - 1];
+        if (nut) { e.preventDefault(); nut.click(); }
+      }
+    });
+  }
+
   // Xem như người đọc: ẩn mọi phần chỉ người biên soạn thấy (nhớ trên máy)
   const xem = bat => {
     if (!dai) return;
