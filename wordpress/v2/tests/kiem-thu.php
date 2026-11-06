@@ -696,6 +696,20 @@ kt( 'trang bài cảm nhận: người viết (bút danh · vai), nội dung có
 $h = TacPham::hien( (array) \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_post( $bai_g ) ) );
 $bd = \Phongdao\GiaoTiep\Khoi\BanDo::diem();
 kt( 'Bản đồ: địa danh đã xác nhận có toạ độ trong khung, có bài đang đăng; toạ độ đổi thành vị trí trên ảnh', 1 === count( $bd ) && 'bến Mẫu Bắc' === $bd[0]['muc']->name && $bd[0]['x'] > 0 && $bd[0]['x'] < 100 && $bd[0]['y'] > 0 && $bd[0]['y'] < 100, $bd );
+$toa_do_day = array();
+for ( $i = 0; $i < 20; $i++ ) {
+	$toa_do_day[] = array( 'x' => 3 + ( $i % 5 ) * 7, 'y' => 4 + intdiv( $i, 5 ) * 7 );
+}
+$nhom_day = \Phongdao\GiaoTiep\Khoi\BanDo::nhom_diem( $toa_do_day );
+$tach_vung_cham = true;
+foreach ( $nhom_day as $i => $a ) {
+	foreach ( array_slice( $nhom_day, $i + 1 ) as $b ) {
+		if ( abs( $a['x'] - $b['x'] ) * 2.56 < 44 && abs( $a['y'] - $b['y'] ) * 2.56 < 44 ) {
+			$tach_vung_cham = false;
+		}
+	}
+}
+kt( 'Bản đồ dày điểm ở màn 320 px: không mất điểm, vùng chạm 44 px không chồng, ở trong mép ảnh', $tach_vung_cham && 20 === array_sum( array_map( static fn( $n ) => count( $n['ds'] ), $nhom_day ) ) && 10 <= min( array_column( $nhom_day, 'x' ) ) && 10 <= min( array_column( $nhom_day, 'y' ) ) && 90 >= max( array_column( $nhom_day, 'x' ) ) && 90 >= max( array_column( $nhom_day, 'y' ) ), $nhom_day );
 $dd2 = (int) wp_insert_term( 'nơi ngoài khung', 'muc_tu' )['term_id'];
 wp_set_object_terms( $mau_id['ve-mau'], $dd2, 'muc_tu', true );
 update_term_meta( $dd2, '_phongdao_wikidata', array( 'wd' => 'Q00', 'toa_do' => array( 48.8, 2.3 ) ) );
@@ -716,6 +730,7 @@ wp_delete_post( $rt_id, true );
 kt( 'chưa có trang Quyền riêng tư: chân trang, Khám phá không trỏ tới; đăng trang rồi thì có', ! $rt_truoc && $rt_sau );
 $hbd = \Phongdao\GiaoTiep\Khoi\BanDo::hien();
 kt( 'Bản đồ: điểm ngoài khung Việt Nam bị bỏ; ảnh bản đồ tự lưu có Hoàng Sa, Trường Sa; điểm là liên kết tới danh sách; ghi rõ "nhắc đến", không phải nơi lưu truyền', 1 === count( \Phongdao\GiaoTiep\Khoi\BanDo::diem() ) && str_contains( $hbd, 'ban-do-vn.svg' ) && str_contains( $hbd, 'Hoàng Sa và Trường Sa' ) && str_contains( $hbd, 'href="#dd-' ) && str_contains( $hbd, 'không đồng nghĩa là nơi lưu truyền' ) && ! preg_match( '#https?://(?!' . preg_quote( (string) wp_parse_url( home_url(), PHP_URL_HOST ), '#' ) . ')#', str_replace( 'https://www.w3.org', '', $hbd ) ), $hbd );
+kt( 'Bản đồ: liên kết điểm có vùng chạm 44 px, chấm nhìn thấy giữ 28 px', str_contains( $hbd, 'width:44px;height:44px' ) && str_contains( $hbd, 'width:28px;height:28px' ) );
 
 // Mục từ, địa danh (như MVP): ảnh Commons có ghi công, bản đồ nhỏ, Wikipedia; Từ khó nối Từ điển; ảnh đáp án câu đố
 $DD    = \Phongdao\GiaoTiep\Khoi\DiaDanh::class;

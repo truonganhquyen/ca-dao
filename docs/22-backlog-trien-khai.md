@@ -155,7 +155,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-172 | Dùng thử admin trên máy tính/điện thoại, kiểm tương đương, chuyển lối vào `/bien-tap/…` an toàn | N+A | T-171 | — | BLOCKED |
 | **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
 | T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
-| T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | READY |
+| T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | IN_PROGRESS |
 | T-175 | Gia cố cập nhật và phục hồi V2, diễn tập rollback trên bản sao, kiểm đường kích hoạt CI | A | T-173 | — | DONE |
 | T-176 | Sửa Hộp việc hiện chạy: thẻ cuối, số đếm/phân trang, Để sau, Hoàn tác và thao tác bàn phím | A | T-173 | — | READY |
 | T-177 | Chặn hai quyết định đồng thời, bảo toàn cập nhật bài/việc/nhật ký khi ghi lỗi hoặc thử lại | A | T-173 | — | IN_PROGRESS |
@@ -727,6 +727,8 @@ Mọi task V2 đọc AGENTS.md và `docs/26`; task trang người đọc đọc 
 **T-173 — kế hoạch chung:** `docs/31` nối các phát hiện đã xác minh và đề xuất đã đối chiếu với `docs/30`, backlog, trạng thái và hướng dẫn agent. Phân biệt việc làm ngay, việc cần đo/thử và ý tưởng cần Human Gate. Chỉ đổi tài liệu, không sửa mã, dữ liệu hay máy chủ.
 
 **T-174 — trang người đọc:** đọc `docs/31` mục 2 và `docs/e2e-review/v2/REPORT.md` L-01/L-02/L-05/L-06. Đo lại trước khi sửa; kiểm vùng chạm Bản đồ, dung lượng ảnh, đường xử lý câu đố thiếu Ý nghĩa, tràn ngang ở 320 px và lối Quyền riêng tư; quét trợ năng và kiểm trang không JavaScript. Không thay chính sách dữ liệu bằng cách sửa đường dẫn.
+
+**T-174.1 (05/11/2026):** đọc lại trang Bản đồ site thật (HTTP 200): 13 điểm còn vùng chạm 28 px, chưa có điểm 44 px. Bản vá giữ chấm nhìn thấy 28 px, mở vùng liên kết 44 px; điểm gần nhau được gộp để vùng chạm không chồng ở khổ 320 px. Có ca 20 toạ độ kiểm thử chỉ dùng số, không tạo địa danh giả. `kiem-tra` 145 task, 0 lỗi; `test:v2` 237 PHP + 262 Playground + 55 chuyển đổi; `quet:v2` 25 trang × 3 chế độ + 7 trang biên tập, 0 lỗi; `e2e:v2` 21 bước, 0 lỗi/bỏ qua. Chưa kiểm lại bản vá trên site thật vì không ghi lên máy chủ. **T-174 còn mở:** ảnh, đường Ý nghĩa câu đố, tràn ngang và lối Quyền riêng tư.
 
 **T-175 — cập nhật an toàn:** đọc `docs/31` mục 2, D-090 và báo cáo E2E L-07..L-09. Trên bản sao, diễn tập lỗi giữa lúc thay thư mục, quay về bản phần mềm trước; đối chiếu thứ tự xử lý dữ liệu trong hướng dẫn, không đặt cổng thử khôi phục bản sao lưu FlashPanel. Kiểm smoke khách/biên tập và workflow khi thay đầu vào bộ kiểm. Không ghi lên máy chủ nếu chưa được người sáng lập đồng ý cho lần đó.
 
