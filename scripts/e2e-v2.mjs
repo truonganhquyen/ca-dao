@@ -311,10 +311,11 @@ try {
     });
 
     await thu('Hộp việc: Duyệt nháp ý nghĩa → người đọc thấy', async () => {
-      await di(bt, '/bien-tap/?loai=nhap_y_nghia');
+      await di(bt, '/bien-tap/?loai=nhap_y_nghia&tung=1');
       const id = await bt.$$eval('article.the-viec[data-loai=nhap_y_nghia]', (as, c) => as.find(a => a.textContent.includes(c))?.id, yNghia);
       chac(id, 'không có thẻ nháp ý nghĩa');
       await bamDoiTrang(bt, `#${id} button[name=quyet][value=duyet]`);
+      chac(await coChu(bt, 'Đã hết thẻ trong lượt duyệt') && await bt.$('.empty[role=status] a[href*="/bien-tap/"]'), 'thẻ cuối không hiện trạng thái hết lượt duyệt');
       await di(k, caDao);
       chac(await coChu(k, yNghia), 'duyệt rồi người đọc vẫn chưa thấy');
     });

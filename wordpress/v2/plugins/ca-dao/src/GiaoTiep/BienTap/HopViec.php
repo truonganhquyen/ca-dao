@@ -67,12 +67,18 @@ final class HopViec {
 		}
 		$khung = $dau . $bao . $trang_thai . $tuan . '<nav class="loc-viec" aria-label="Lọc việc">' . $loc . '</nav>';
 		if ( ! $tong ) {
+			if ( $tung ) {
+				return $khung . '<div class="empty" role="status">' . Ve::icon( 'check' ) . '<h2>' . ( Viec::CHO === $tt && 0 === $cho ? 'Hết việc rồi' : 'Đã hết thẻ trong lượt duyệt' ) . '</h2><p class="muted">Không còn thẻ nào trong danh sách này.</p><a class="btn primary" href="' . esc_url( remove_query_arg( array( 'loai', 'tt', 'tung', 'vi', 'trang', 'da' ) ) ) . '">Xem Hộp việc</a></div>';
+			}
 			return $khung . ( Viec::CHO === $tt && '' === $loai
 				? '<div class="empty">' . Ve::icon( 'check' ) . '<h2>Hết việc rồi</h2><p class="muted">Không còn thẻ nào chờ. Có thể viết ý nghĩa cho bài đọc nhiều.</p><a class="btn primary" href="' . esc_url( home_url( '/bien-tap/tac-pham/?loc=thieu-y-nghia' ) ) . '">Bài thiếu ý nghĩa</a></div>'
 				: '<div class="empty"><h2>Không có thẻ phù hợp</h2><p class="muted">Chọn trạng thái hoặc loại việc khác.</p></div>' );
 		}
 		if ( $tung ) {
-			$i = max( 0, min( $tong - 1, (int) ( $_GET['vi'] ?? 0 ) ) ); // phpcs:ignore WordPress.Security.NonceVerification
+			$i = max( 0, (int) ( $_GET['vi'] ?? 0 ) ); // phpcs:ignore WordPress.Security.NonceVerification
+			if ( $i >= $tong ) {
+				return $khung . '<div class="empty" role="status">' . Ve::icon( 'check' ) . '<h2>Đã đến cuối lượt duyệt</h2><p class="muted">Danh sách đã đổi sau quyết định vừa rồi. Bạn có thể duyệt lại từ đầu.</p><a class="btn primary" href="' . esc_url( add_query_arg( 'vi', 0, remove_query_arg( 'da' ) ) ) . '">Duyệt lại từ đầu</a></div>';
+			}
 			$ds = Viec::trang( $tt, $loai, 1, $i );
 			if ( ! $ds ) {
 				return $khung . '<p class="notice" role="status">Danh sách vừa thay đổi. Tải lại trang để xem tiếp.</p>';

@@ -563,6 +563,8 @@ $_GET = array( 'trang' => (string) $so_trang );
 $h_cuoi = \Phongdao\GiaoTiep\BienTap\HopViec::hien();
 $_GET = array( 'tung' => '1', 'vi' => (string) ( $dem_cu + 1009 ) );
 $h_the_cuoi = \Phongdao\GiaoTiep\BienTap\HopViec::hien();
+$_GET = array( 'loai' => 'can_xem', 'tung' => '1', 'vi' => (string) $dem_loc_nhieu );
+$h_het_luot = \Phongdao\GiaoTiep\BienTap\HopViec::hien();
 $kiem_trang = array(
 	'so_tao'       => 1010 === count( array_filter( $ids_nhieu ) ),
 	'tong'         => $dem_cu + 1010 === Viec::dem_cho(),
@@ -571,6 +573,7 @@ $kiem_trang = array(
 	'loc_loai'     => $dem_loc_nhieu >= 1010 && str_contains( $h_loc_nhieu, 'Cần xem <span class="dem">' . $dem_loc_nhieu . '</span>' ) && 30 === substr_count( $h_loc_nhieu, 'data-loai="can_xem"' ),
 	'trang_cuoi'   => str_contains( $h_cuoi, 'Trang ' . $so_trang . ' / ' . $so_trang ) && ! str_contains( $h_cuoi, '>Trang sau</a>' ),
 	'the_cuoi'     => str_contains( $h_the_cuoi, 'Thẻ ' . ( $dem_cu + 1010 ) . ' / ' . ( $dem_cu + 1010 ) ) && ! str_contains( $h_the_cuoi, '>Thẻ sau</a>' ),
+	'het_luot'     => str_contains( $h_het_luot, 'Đã đến cuối lượt duyệt' ) && str_contains( $h_het_luot, 'Duyệt lại từ đầu' ) && ! str_contains( $h_het_luot, 'class="the-viec ' ),
 );
 kt( 'Hộp việc hơn 1.000 thẻ: số đếm đủ, lọc loại đúng, trang đầu tối đa 30, đến được trang và thẻ cuối', ! in_array( false, $kiem_trang, true ), $kiem_trang );
 $id_de_sau = Viec::tao( array( 'loai' => 'can_xem', 'trang_thai' => Viec::DE_SAU, 'doi_tuong_loai' => 'post', 'doi_tuong_id' => $tp1, 'noi_dung' => array( 'ly_do' => array() ), 'nguoi_tao' => 'kiem_thu' ) );
