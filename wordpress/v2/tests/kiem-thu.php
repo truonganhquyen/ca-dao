@@ -741,19 +741,36 @@ kt( 'trang mục từ địa danh đã xác nhận: bản đồ nhỏ có chấm
 $anh_wd = array( 'anh_da_tai' => array( 'url' => home_url( '/wp-content/uploads/mau.jpg' ), 'tac_gia' => 'Tác giả mẫu', 'giay_phep' => 'CC BY-SA 4.0', 'giay_phep_url' => 'https://creativecommons.org/licenses/by-sa/4.0/', 'trang' => 'https://commons.wikimedia.org/wiki/File:Mau.jpg' ), 'nhan_wd' => 'bến Mẫu Bắc', 'wiki' => 'https://vi.wikipedia.org/wiki/Mau' );
 $h_anh  = $DD::html( $anh_wd );
 kt( 'ảnh Commons: ảnh trên site, ghi "Ảnh: tác giả · giấy phép · Wikimedia Commons", có Wikipedia; không ảnh thì không chừa chỗ', str_contains( $h_anh, 'src="' . home_url( '/wp-content/uploads/mau.jpg' ) ) && str_contains( $h_anh, 'Ảnh: Tác giả mẫu · ' ) && str_contains( $h_anh, 'Wikimedia Commons</a>' ) && str_contains( $h_anh, 'Đọc thêm trên Wikipedia' ) && '' === $DD::html( array() ), $h_anh );
+$kich_da_xin = array();
+$ban_anh_thu = static function ( $cu, $id, $kich ) use ( &$kich_da_xin ) {
+	if ( 424242 !== $id ) {
+		return $cu;
+	}
+	$kich_da_xin[] = $kich;
+	return array( home_url( '/wp-content/uploads/mau-' . ( 'thumbnail' === $kich ? '150x150' : '300x225' ) . '.jpg' ), 'thumbnail' === $kich ? 150 : 300, 'thumbnail' === $kich ? 150 : 225, true );
+};
+add_filter( 'image_downsize', $ban_anh_thu, 10, 3 );
+$anh_co_id = $anh_wd;
+$anh_co_id['anh_da_tai']['id'] = 424242;
+$h_anh_bai = $DD::html( $anh_co_id, 'thumbnail' );
+$h_anh_muc = $DD::html( $anh_co_id );
+remove_filter( 'image_downsize', $ban_anh_thu, 10 );
+kt( 'ảnh đã tải: bài dùng cỡ nhỏ, trang mục từ dùng cỡ vừa, giữ nguyên dòng ghi công', array( 'thumbnail', 'medium' ) === $kich_da_xin && str_contains( $h_anh_bai, '/mau-150x150.jpg' ) && str_contains( $h_anh_muc, '/mau-300x225.jpg' ) && str_contains( $h_anh_bai, 'Wikimedia Commons</a>' ) && ! str_contains( $h_anh_bai, 'src="' . $anh_wd['anh_da_tai']['url'] ), array( 'bai' => $h_anh_bai, 'muc' => $h_anh_muc, 'kich' => $kich_da_xin ) );
 $wd_cu = get_term_meta( $t_bmb->term_id, '_phongdao_wikidata', true );
-update_term_meta( $t_bmb->term_id, '_phongdao_wikidata', $anh_wd + (array) $wd_cu );
+update_term_meta( $t_bmb->term_id, '_phongdao_wikidata', $anh_co_id + (array) $wd_cu );
 update_term_meta( $t_bmb->term_id, '_phongdao_anh', array( 'an' => true ) );
 kt( 'người biên soạn ẩn ảnh Wikidata: không hiện ảnh, vẫn có bản đồ', ! str_contains( $DD::html( (array) $DD::cua_muc_tu( $t_bmb->term_id ) ), '<figure' ) && str_contains( $DD::html( (array) $DD::cua_muc_tu( $t_bmb->term_id ) ), 'ban-do-nho' ) );
 delete_term_meta( $t_bmb->term_id, '_phongdao_anh' );
 LuuPhan::luu( $mau_id['dong-dao-mau'], 'chu_thich', array( array( 'tu' => 'bến Mẫu Bắc', 'loi_giai' => 'Địa danh tổng hợp ở phía bắc để xem bản đồ.', 'muc_tu_id' => (int) $t_bmb->term_id, 'nguoi_lam' => NguoiLam::NGUOI_VIET ) ), array( 'nguoi' => $ai_ql, 'goi' => KiemPhan::GOI_NGUOI, 'duyet' => true ) );
+add_filter( 'image_downsize', $ban_anh_thu, 10, 3 );
 $tp_dd = \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_post( $mau_id['dong-dao-mau'] ) );
 $h_tk  = \Phongdao\GiaoTiep\Khoi\TacPham::hien( (array) $tp_dd );
-kt( 'Từ khó nối mục từ: "Xem trong Từ điển · N bài", ảnh và bản đồ của địa danh', str_contains( $h_tk, 'Xem trong Từ điển · ' ) && str_contains( $h_tk, (string) get_term_link( $t_bmb ) ) && str_contains( $h_tk, 'Tác giả mẫu' ) && str_contains( $h_tk, 'ban-do-nho' ), substr( (string) strstr( $h_tk, 'id="chu-thich"' ), 0, 900 ) );
+kt( 'Từ khó nối mục từ: ảnh nhỏ và ghi công, liên kết Từ điển và bản đồ', str_contains( $h_tk, 'Xem trong Từ điển · ' ) && str_contains( $h_tk, (string) get_term_link( $t_bmb ) ) && str_contains( $h_tk, '/mau-150x150.jpg' ) && str_contains( $h_tk, 'Tác giả mẫu' ) && str_contains( $h_tk, 'ban-do-nho' ), substr( (string) strstr( $h_tk, 'id="chu-thich"' ), 0, 900 ) );
 update_term_meta( $t_bmb->term_id, '_phongdao_wikidata', $wd_cu );
-Viec::tao( array( 'loai' => 'wikidata', 'trang_thai' => Viec::XONG, 'quyet' => 'dung', 'doi_tuong_loai' => 'post', 'doi_tuong_id' => 0, 'noi_dung' => array( 'khoa' => 'dap:' . md5( \Phongdao\MienDuLieu\VanTay::chuan_loi( 'Đáp án mẫu' ) ), 'nhan' => 'đáp án mẫu', 'wd' => 'Q0', 'du_lieu' => $anh_wd + array( 'toa_do' => array( 21.0, 105.8 ) ) ), 'nguoi_tao' => 'nhap_cu' ) );
+Viec::tao( array( 'loai' => 'wikidata', 'trang_thai' => Viec::XONG, 'quyet' => 'dung', 'doi_tuong_loai' => 'post', 'doi_tuong_id' => 0, 'noi_dung' => array( 'khoa' => 'dap:' . md5( \Phongdao\MienDuLieu\VanTay::chuan_loi( 'Đáp án mẫu' ) ), 'nhan' => 'đáp án mẫu', 'wd' => 'Q0', 'du_lieu' => $anh_co_id + array( 'toa_do' => array( 21.0, 105.8 ) ) ), 'nguoi_tao' => 'nhap_cu' ) );
 $tp_do = \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_post( $mau_id['cau-do-mau'] ) );
-kt( 'đáp án câu đố đã xác nhận trên Wikidata (khoá như MVP): ảnh trong khối đáp án, không bản đồ', str_contains( (string) $tp_do['dap_an_them'], 'Tác giả mẫu' ) && ! str_contains( (string) $tp_do['dap_an_them'], 'ban-do-nho' ) && str_contains( \Phongdao\GiaoTiep\Khoi\TacPham::hien( (array) $tp_do ), 'Tác giả mẫu' ), $tp_do['dap_an_them'] ?? null );
+kt( 'đáp án câu đố đã xác nhận trên Wikidata: ảnh nhỏ và ghi công trong khối đáp án, không bản đồ', str_contains( (string) $tp_do['dap_an_them'], '/mau-150x150.jpg' ) && str_contains( (string) $tp_do['dap_an_them'], 'Tác giả mẫu' ) && ! str_contains( (string) $tp_do['dap_an_them'], 'ban-do-nho' ) && str_contains( \Phongdao\GiaoTiep\Khoi\TacPham::hien( (array) $tp_do ), 'Tác giả mẫu' ), $tp_do['dap_an_them'] ?? null );
+remove_filter( 'image_downsize', $ban_anh_thu, 10 );
 kt( 'nút Nghe giọng máy (D-095) trên thẻ lời: ẩn sẵn, chỉ hiện khi máy có giọng tiếng Việt', str_contains( $h_tk, 'data-action="nghe" aria-pressed="false" hidden' ) );
 // Sửa mục từ trên trang mục từ (thay trang Sửa mục từ của MVP)
 $SMT = \Phongdao\GiaoTiep\BienTap\SuaMucTu::class;

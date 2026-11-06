@@ -52,12 +52,12 @@ final class DocBai {
 		foreach ( $tp['chu_thich'] as $i => $c ) {
 			$t = $c['muc'] ? get_term( $c['muc'], 'muc_tu' ) : null;
 			if ( $t instanceof \WP_Term ) {
-				$tp['chu_thich'][ $i ]['muc'] = array( 'url' => (string) get_term_link( $t ), 'so_bai' => (int) $t->count, 'them' => \Phongdao\GiaoTiep\Khoi\DiaDanh::html( \Phongdao\GiaoTiep\Khoi\DiaDanh::cua_muc_tu( (int) $t->term_id ) ?? array() ) );
+				$tp['chu_thich'][ $i ]['muc'] = array( 'url' => (string) get_term_link( $t ), 'so_bai' => (int) $t->count, 'them' => \Phongdao\GiaoTiep\Khoi\DiaDanh::html( \Phongdao\GiaoTiep\Khoi\DiaDanh::cua_muc_tu( (int) $t->term_id ) ?? array(), 'thumbnail' ) );
 			} else {
 				$tp['chu_thich'][ $i ]['muc'] = null;
 			}
 		}
-		$tp['dap_an_them'] = '' === $tp['dap_an'] ? '' : \Phongdao\GiaoTiep\Khoi\DiaDanh::html( \Phongdao\GiaoTiep\Khoi\DiaDanh::cua_dap_an( $tp['dap_an'] ) ?? array() );
+		$tp['dap_an_them'] = '' === $tp['dap_an'] ? '' : \Phongdao\GiaoTiep\Khoi\DiaDanh::html( \Phongdao\GiaoTiep\Khoi\DiaDanh::cua_dap_an( $tp['dap_an'] ) ?? array(), 'thumbnail' );
 		return array( 'cam_nghi' => self::cam_nghi( $bai->ID ) ) + $tp;
 	}
 
