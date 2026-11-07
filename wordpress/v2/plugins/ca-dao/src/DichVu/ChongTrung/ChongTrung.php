@@ -368,15 +368,21 @@ final class ChongTrung implements Module {
 			return false; // gộp hai tác phẩm đã đăng: việc "Gộp tác phẩm" (người quyết)
 		}
 		$m = Kho::lay( $id_a );
-		if ( ! $m || $m->post_id ) {
+		if ( ! $m || $m->post_id || 'moi' !== $m->trang_thai || ! in_array( $lam, array( 'trung', 'di_ban' ), true ) ) {
 			return false;
 		}
 		$bai  = self::bai_cua_muc( $b );
 		$dich = $bai ? 'bai:' . $bai : $b;
-		$wpdb->update( Kho::bang(), array( 'trang_thai' => 'da_gop', 'gop_vao' => $dich, 'gop_lam' => $lam ), array( 'id' => $id_a ) );
-		$wpdb->update( Kho::bang(), array( 'gop_vao' => $dich ), array( 'gop_vao' => $a ) ); // câu đã gộp vào $a đi theo
+		if ( 1 !== $wpdb->update( Kho::bang(), array( 'trang_thai' => 'da_gop', 'gop_vao' => $dich, 'gop_lam' => $lam ), array( 'id' => $id_a, 'trang_thai' => 'moi', 'post_id' => 0 ) ) ) {
+			return false;
+		}
+		if ( false === $wpdb->update( Kho::bang(), array( 'gop_vao' => $dich ), array( 'gop_vao' => $a ) ) ) { // câu đã gộp vào $a đi theo
+			return false;
+		}
 		self::xoa( $a );
-		self::dat( $a, $b, 'da_gop' );
+		if ( ! self::dat( $a, $b, 'da_gop' ) ) {
+			return false;
+		}
 		if ( $bai ) {
 			UngVien::dong_bo( $bai );
 			self::van_tay_bai( $bai );

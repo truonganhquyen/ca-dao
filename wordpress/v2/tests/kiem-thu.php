@@ -661,6 +661,28 @@ add_filter( 'query', $chan_cap_trung );
 $q_loi_trung = QuyetViec::quyet( $vgan[0]['id'], 'khac', $ai_ql, true, $vgan[0]['phien'] );
 remove_filter( 'query', $chan_cap_trung );
 kt( 'lỗi ghi quyết định cặp câu: thẻ vẫn chờ và chưa đổi cặp', ! $q_loi_trung['ok'] && Viec::CHO === Viec::lay( $vgan[0]['id'] )['trang_thai'] && ChongTrung::dang_cho( (int) $gan->id ), $q_loi_trung );
+$vt_gan = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . ChongTrung::bang( 'van_tay' ) . ' WHERE muc = %s', 'kho:' . $gan->id ) );
+$loi_gop = array(
+	'đổi câu kho'       => '/^UPDATE\s+`?' . preg_quote( Kho::bang(), '/' ) . '`?\s+SET\s+`?trang_thai/i',
+	'chuyển câu liên đới' => '/^UPDATE\s+`?' . preg_quote( Kho::bang(), '/' ) . '`?\s+SET\s+`?gop_vao/i',
+	'ghi cặp'          => '/^UPDATE\s+`?' . preg_quote( ChongTrung::bang( 'trung' ), '/' ) . '`?\s+SET\s+`?trang_thai/i',
+);
+foreach ( $loi_gop as $buoc => $mau_sql ) {
+	$da_chan = false;
+	$chan_gop = static function ( $sql ) use ( $mau_sql, &$da_chan ) {
+		if ( ! $da_chan && preg_match( $mau_sql, $sql ) ) {
+			$da_chan = true;
+			return 'CA_DAO_KIEM_THU_LOI_GOP_CAP_CAU';
+		}
+		return $sql;
+	};
+	add_filter( 'query', $chan_gop );
+	$q_loi_gop = QuyetViec::quyet( $vgan[0]['id'], 'cung', $ai_ql, true, $vgan[0]['phien'] );
+	remove_filter( 'query', $chan_gop );
+	$gan_sau_loi = Kho::lay( (int) $gan->id );
+	$vt_sau_loi = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . ChongTrung::bang( 'van_tay' ) . ' WHERE muc = %s', 'kho:' . $gan->id ) );
+	kt( "lỗi $buoc khi gộp: thẻ, câu kho, cặp và chỉ mục cùng trở về trước", $da_chan && ! $q_loi_gop['ok'] && Viec::CHO === Viec::lay( $vgan[0]['id'] )['trang_thai'] && 0 === Viec::lay( $vgan[0]['id'] )['phien'] && 'moi' === $gan_sau_loi->trang_thai && '' === $gan_sau_loi->gop_vao && ChongTrung::dang_cho( (int) $gan->id ) && $vt_gan === $vt_sau_loi, array( 'q' => $q_loi_gop, 'da_chan' => $da_chan ) );
+}
 $q = QuyetViec::quyet( $vgan[0]['id'], 'khac', $ai_ql, true );
 kt( 'quyết "Là bài khác": cặp ghi lại, câu kho hết chờ, việc đóng', $q['ok'] && ! ChongTrung::dang_cho( (int) $gan->id ) && array() === Viec::mo( 'kho', (int) $gan->id, 'co_the_trung' ) );
 $v_cd2 = Viec::mo( 'kho', (int) $h2->id, 'cau_moi' )[0] ?? null;
