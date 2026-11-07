@@ -696,11 +696,12 @@ $loi_gop = array(
 	'chuyển câu liên đới' => '/^UPDATE\s+`?' . preg_quote( Kho::bang(), '/' ) . '`?\s+SET\s+`?gop_vao/i',
 	'xoá vân tay câu kho' => '/^DELETE\s+FROM\s+`?' . preg_quote( ChongTrung::bang( 'van_tay' ), '/' ) . '`?\s+WHERE\b/i',
 	'ghi cặp'          => '/^UPDATE\s+`?' . preg_quote( ChongTrung::bang( 'trung' ), '/' ) . '`?\s+SET\s+`?trang_thai/i',
+	'đổi khoá chỉ mục bài' => '/^UPDATE\s+`?' . preg_quote( ChongTrung::bang( 'van_tay' ), '/' ) . '`?\s+SET\b(?=.*\bWHERE\b.*tam:)/is',
 );
 foreach ( $loi_gop as $buoc => $mau_sql ) {
 	$da_chan = false;
-	$chan_gop = static function ( $sql ) use ( $mau_sql, &$da_chan ) {
-		if ( ! $da_chan && preg_match( $mau_sql, $sql ) ) {
+	$chan_gop = static function ( $sql ) use ( $mau_sql, $buoc, &$da_chan ) {
+		if ( ( ! $da_chan || 'đổi khoá chỉ mục bài' === $buoc ) && preg_match( $mau_sql, $sql ) ) {
 			$da_chan = true;
 			return 'CA_DAO_KIEM_THU_LOI_GOP_CAP_CAU';
 		}
@@ -711,7 +712,8 @@ foreach ( $loi_gop as $buoc => $mau_sql ) {
 	remove_filter( 'query', $chan_gop );
 	$gan_sau_loi = Kho::lay( (int) $gan->id );
 	$vt_sau_loi = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . ChongTrung::bang( 'van_tay' ) . ' WHERE muc = %s', 'kho:' . $gan->id ) );
-	kt( "lỗi $buoc khi gộp: thẻ, câu kho, cặp và chỉ mục cùng trở về trước", $da_chan && ! $q_loi_gop['ok'] && Viec::CHO === Viec::lay( $vgan[0]['id'] )['trang_thai'] && 0 === Viec::lay( $vgan[0]['id'] )['phien'] && 'moi' === $gan_sau_loi->trang_thai && '' === $gan_sau_loi->gop_vao && ChongTrung::dang_cho( (int) $gan->id ) && $vt_gan === $vt_sau_loi && $vt_bai === (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . ChongTrung::bang( 'van_tay' ) . ' WHERE muc = %s', 'bai:' . $tp1 ) ), array( 'q' => $q_loi_gop, 'da_chan' => $da_chan ) );
+	$tam_sau_loi = (int) $wpdb->get_var( "SELECT COUNT(*) FROM " . ChongTrung::bang( 'van_tay' ) . " WHERE muc LIKE 'tam:%' OR muc LIKE 'cu:%'" );
+	kt( "lỗi $buoc khi gộp: thẻ, câu kho, cặp và chỉ mục cùng trở về trước", $da_chan && ! $q_loi_gop['ok'] && Viec::CHO === Viec::lay( $vgan[0]['id'] )['trang_thai'] && 0 === Viec::lay( $vgan[0]['id'] )['phien'] && 'moi' === $gan_sau_loi->trang_thai && '' === $gan_sau_loi->gop_vao && ChongTrung::dang_cho( (int) $gan->id ) && $vt_gan === $vt_sau_loi && $vt_bai === (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . ChongTrung::bang( 'van_tay' ) . ' WHERE muc = %s', 'bai:' . $tp1 ) ) && 0 === $tam_sau_loi, array( 'q' => $q_loi_gop, 'da_chan' => $da_chan, 'tam' => $tam_sau_loi ) );
 }
 foreach ( array(
 	'ghi vân tay bài' => '/^INSERT\s+INTO\s+`?' . preg_quote( ChongTrung::bang( 'van_tay' ), '/' ) . '`?/i',
@@ -733,7 +735,7 @@ foreach ( array(
 	$cho_sau = ChongTrung::dang_cho( (int) $gan->id );
 	$vt_gan_sau = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . ChongTrung::bang( 'van_tay' ) . ' WHERE muc = %s', 'kho:' . $gan->id ) );
 	$vt_bai_sau = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . ChongTrung::bang( 'van_tay' ) . ' WHERE muc = %s', 'bai:' . $tp1 ) );
-	$tam_con = (int) $wpdb->get_var( "SELECT COUNT(*) FROM " . ChongTrung::bang( 'van_tay' ) . " WHERE muc LIKE 'tam:%'" );
+	$tam_con = (int) $wpdb->get_var( "SELECT COUNT(*) FROM " . ChongTrung::bang( 'van_tay' ) . " WHERE muc LIKE 'tam:%' OR muc LIKE 'cu:%'" );
 	kt( "lỗi $buoc khi gộp: không xác nhận nửa chừng", $da_chan && ! $q_loi_chi_muc['ok'] && Viec::CHO === $v_sau['trang_thai'] && 0 === $v_sau['phien'] && 'moi' === $m_sau->trang_thai && '' === $m_sau->gop_vao && $cho_sau && $vt_gan === $vt_gan_sau && $vt_bai === $vt_bai_sau && 0 === $tam_con, array( 'q' => $q_loi_chi_muc, 'da_chan' => $da_chan, 'viec' => array( $v_sau['trang_thai'], $v_sau['phien'] ), 'kho' => array( $m_sau->trang_thai, $m_sau->gop_vao ), 'cho' => $cho_sau, 'van_tay_kho' => array( $vt_gan, $vt_gan_sau ), 'van_tay_bai' => array( $vt_bai, $vt_bai_sau ), 'tam' => $tam_con ) );
 }
 $q = QuyetViec::quyet( $vgan[0]['id'], 'khac', $ai_ql, true );

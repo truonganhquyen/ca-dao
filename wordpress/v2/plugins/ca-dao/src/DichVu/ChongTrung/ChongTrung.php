@@ -116,6 +116,7 @@ final class ChongTrung implements Module {
 		global $wpdb;
 		// Dựng bản mới ở khoá tạm trước: lỗi ghi không được xoá chỉ mục đang dùng.
 		$tam = 'tam:' . bin2hex( random_bytes( 8 ) );
+		$cu  = 'cu:' . bin2hex( random_bytes( 8 ) );
 		$so_ghi = 0;
 		foreach ( array_values( $cac_loi ) as $phan => $loi ) {
 			$v = VanTay::cua( (string) $loi );
@@ -141,12 +142,27 @@ final class ChongTrung implements Module {
 				}
 			}
 		}
-		if ( ! self::xoa( $muc ) ) {
+		// Giữ nguyên các id vân tay cũ cùng cặp âm để có thể hoàn nguyên nếu bước kích hoạt lỗi.
+		$so_cu = $wpdb->update( self::bang( 'van_tay' ), array( 'muc' => $cu ), array( 'muc' => $muc ) );
+		if ( false === $so_cu ) {
 			self::xoa( $tam );
 			return false;
 		}
 		if ( $so_ghi && $so_ghi !== $wpdb->update( self::bang( 'van_tay' ), array( 'muc' => $muc ), array( 'muc' => $tam ) ) ) {
+			if ( $so_cu ) {
+				$wpdb->update( self::bang( 'van_tay' ), array( 'muc' => $muc ), array( 'muc' => $cu ) );
+			}
 			self::xoa( $tam );
+			return false;
+		}
+		if ( ! self::xoa( $cu ) ) {
+			// Bản mới đã hoạt động; giữ kết quả này nếu chưa dọn được bản cũ ẩn.
+			if ( $so_ghi ) {
+				return true;
+			}
+			if ( $so_cu ) {
+				$wpdb->update( self::bang( 'van_tay' ), array( 'muc' => $muc ), array( 'muc' => $cu ) );
+			}
 			return false;
 		}
 		return true;
@@ -191,7 +207,7 @@ final class ChongTrung implements Module {
 		$vt  = self::bang( 'van_tay' );
 		$tot = array();
 		$xet = static function ( object $h, int $chung ) use ( $v, $tru, &$tot ): void {
-			if ( str_starts_with( $h->muc, 'tam:' ) || in_array( $h->muc, $tru, true ) ) {
+			if ( str_starts_with( $h->muc, 'tam:' ) || str_starts_with( $h->muc, 'cu:' ) || in_array( $h->muc, $tru, true ) ) {
 				return;
 			}
 			$b = array( 'vt1' => $h->vt1, 'vt2' => $h->vt2, 'so_am' => (int) $h->so_am, 'so_dong' => (int) $h->so_dong, 'so_cap' => (int) $h->so_cap );
