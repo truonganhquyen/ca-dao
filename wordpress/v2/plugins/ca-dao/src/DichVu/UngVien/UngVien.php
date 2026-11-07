@@ -224,7 +224,10 @@ final class UngVien implements Module {
 		if ( is_wp_error( $id ) || ! $id ) {
 			return array( 'ok' => false, 'bai' => 0, 'loi' => array( 'Chưa tạo được tác phẩm. Thử lại sau.' ) );
 		}
-		wp_set_object_terms( $id, $the_loai, KhaiBao::THE_LOAI );
+		$gan_loai = wp_set_object_terms( $id, $the_loai, KhaiBao::THE_LOAI );
+		if ( is_wp_error( $gan_loai ) || ! $gan_loai ) {
+			return array( 'ok' => false, 'bai' => $id, 'loi' => array( 'Chưa gắn được thể loại cho tác phẩm; chưa đăng.' ) );
+		}
 		$loi = array();
 		foreach ( self::phan_tu_kho( $m ) as $phan => $gia_tri ) {
 			$kq  = LuuPhan::luu( $id, $phan, $gia_tri, array( 'nguoi' => (int) $nc['nguoi'], 'goi' => KiemPhan::GOI_MAY ) );
@@ -233,14 +236,21 @@ final class UngVien implements Module {
 		if ( $loi ) { // lời không lưu được thì không đăng; bài nháp giữ để người xem
 			return array( 'ok' => false, 'bai' => $id, 'loi' => $loi );
 		}
-		$wpdb->update( Kho::bang(), array( 'trang_thai' => 'da_tao_bai', 'post_id' => $id ), array( 'id' => $kho_id ) );
+		if ( 1 !== $wpdb->update( Kho::bang(), array( 'trang_thai' => 'da_tao_bai', 'post_id' => $id ), array( 'id' => $kho_id, 'trang_thai' => 'moi', 'post_id' => 0 ) ) ) {
+			return array( 'ok' => false, 'bai' => $id, 'loi' => array( 'Chưa ghi được trạng thái câu kho; chưa đăng.' ) );
+		}
 		ChongTrung::van_tay_kho( $kho_id );
 		ChongTrung::van_tay_bai( $id );
 		if ( 'publish' === $trang_thai ) {
-			wp_publish_post( $id );
+			$da_dang = wp_update_post( array( 'ID' => $id, 'post_status' => 'publish' ), true );
+			if ( is_wp_error( $da_dang ) || ! $da_dang || 'publish' !== get_post_status( $id ) ) {
+				return array( 'ok' => false, 'bai' => $id, 'loi' => array( 'Chưa chuyển được tác phẩm sang Đăng; tải lại Hộp việc để kiểm tra.' ) );
+			}
 		}
 		foreach ( Viec::mo( 'kho', $kho_id, self::VIEC ) as $v ) {
-			Viec::dong( $v['id'], Viec::XONG, 'publish' === $trang_thai ? 'dang' : 'sua_roi_dang', (int) $nc['nguoi'] );
+			if ( ! Viec::dong( $v['id'], Viec::XONG, 'publish' === $trang_thai ? 'dang' : 'sua_roi_dang', (int) $nc['nguoi'] ) ) {
+				return array( 'ok' => false, 'bai' => $id, 'loi' => array( 'Chưa đóng được việc câu mới; chưa xác nhận Đăng.' ) );
+			}
 		}
 		return array( 'ok' => true, 'bai' => $id, 'loi' => array() );
 	}
@@ -252,10 +262,14 @@ final class UngVien implements Module {
 		if ( ! $m || 'moi' !== $m->trang_thai ) {
 			return false;
 		}
-		$wpdb->update( Kho::bang(), array( 'trang_thai' => 'bo_qua' ), array( 'id' => $kho_id ) );
+		if ( 1 !== $wpdb->update( Kho::bang(), array( 'trang_thai' => 'bo_qua' ), array( 'id' => $kho_id, 'trang_thai' => 'moi' ) ) ) {
+			return false;
+		}
 		ChongTrung::van_tay_kho( $kho_id );
 		foreach ( Viec::mo( 'kho', $kho_id, self::VIEC ) as $v ) {
-			Viec::dong( $v['id'], Viec::BO, 'bo' . ( '' === $ly_do ? '' : ': ' . mb_substr( $ly_do, 0, 20 ) ), $nguoi );
+			if ( ! Viec::dong( $v['id'], Viec::BO, 'bo' . ( '' === $ly_do ? '' : ': ' . mb_substr( $ly_do, 0, 20 ) ), $nguoi ) ) {
+				return false;
+			}
 		}
 		return true;
 	}
