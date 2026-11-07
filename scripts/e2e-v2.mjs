@@ -329,8 +329,8 @@ try {
       await bamDoiTrang(bt, '[data-hv-hoan] button');
       chac(await coChu(bt, 'Đã hoàn tác quyết định thẻ') && await bt.$(`#${id}`), 'Hoàn tác không đưa thẻ về Chờ');
       const nutXong = `#${id} button[name=quyet][value=xong]`;
-      // Sau thông báo Hoàn tác, nút có thể nằm dưới thanh điều hướng cố định của điện thoại.
-      await bt.$eval(nutXong, e => e.scrollIntoView({ block: 'center' }));
+      // Cuộn ngay: CSS của trang dùng smooth scrolling, nên kiểm hit-test trước khi cuộn xong có thể trúng thanh dưới.
+      await bt.$eval(nutXong, e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
       chac(await bt.$eval(nutXong, e => { const r = e.getBoundingClientRect(); return e === document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); }), 'nút Đã xử lý bị thanh điều hướng che');
       await bamDoiTrang(bt, nutXong);
       await di(bt, '/bien-tap/?loai=nguoi_doc');
