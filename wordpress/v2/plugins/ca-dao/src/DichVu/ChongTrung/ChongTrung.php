@@ -93,51 +93,77 @@ final class ChongTrung implements Module {
 
 	// ---------- Chỉ mục vân tay ----------
 
-	public static function xoa( string $muc ): void {
+	public static function xoa( string $muc ): bool {
 		global $wpdb;
 		$vt  = self::bang( 'van_tay' );
 		$ids = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM $vt WHERE muc = %s", $muc ) );
-		if ( $ids ) {
-			$wpdb->query( 'DELETE FROM ' . self::bang( 'cap_am' ) . ' WHERE van_tay_id IN (' . implode( ',', array_map( 'intval', $ids ) ) . ')' );
-			$wpdb->query( $wpdb->prepare( "DELETE FROM $vt WHERE muc = %s", $muc ) );
+		if ( $wpdb->last_error ) {
+			return false;
 		}
+		if ( $ids ) {
+			if ( false === $wpdb->query( 'DELETE FROM ' . self::bang( 'cap_am' ) . ' WHERE van_tay_id IN (' . implode( ',', array_map( 'intval', $ids ) ) . ')' ) ) {
+				return false;
+			}
+			if ( false === $wpdb->query( $wpdb->prepare( "DELETE FROM $vt WHERE muc = %s", $muc ) ) ) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/** @param string[] $cac_loi phần tử 0 = lời chính, còn lại = dị bản */
-	public static function ghi( string $muc, array $cac_loi ): void {
+	public static function ghi( string $muc, array $cac_loi ): bool {
 		global $wpdb;
-		self::xoa( $muc );
+		// Dựng bản mới ở khoá tạm trước: lỗi ghi không được xoá chỉ mục đang dùng.
+		$tam = 'tam:' . bin2hex( random_bytes( 8 ) );
+		$so_ghi = 0;
 		foreach ( array_values( $cac_loi ) as $phan => $loi ) {
 			$v = VanTay::cua( (string) $loi );
 			if ( ! $v['so_am'] ) {
 				continue;
 			}
-			$wpdb->insert(
+			$da_ghi = $wpdb->insert(
 				self::bang( 'van_tay' ),
-				array( 'muc' => $muc, 'phan' => $phan, 'vt1' => $v['vt1'], 'vt2' => $v['vt2'], 'so_am' => min( 65535, $v['so_am'] ), 'so_dong' => min( 65535, $v['so_dong'] ), 'so_cap' => min( 65535, $v['so_cap'] ) )
+				array( 'muc' => $tam, 'phan' => $phan, 'vt1' => $v['vt1'], 'vt2' => $v['vt2'], 'so_am' => min( 65535, $v['so_am'] ), 'so_dong' => min( 65535, $v['so_dong'] ), 'so_cap' => min( 65535, $v['so_cap'] ) )
 			);
+			if ( false === $da_ghi ) {
+				self::xoa( $tam );
+				return false;
+			}
+			++$so_ghi;
 			if ( 0 === $phan && $v['so_am'] >= VanTay::AM_TOI_THIEU ) {
 				$id = (int) $wpdb->insert_id;
 				foreach ( array_chunk( $v['cap'], 500 ) as $lo ) {
-					$wpdb->query( 'INSERT IGNORE INTO ' . self::bang( 'cap_am' ) . ' (cap, van_tay_id) VALUES ' . implode( ',', array_map( static fn( $c ) => '(' . (int) $c . ',' . $id . ')', $lo ) ) );
+					if ( false === $wpdb->query( 'INSERT IGNORE INTO ' . self::bang( 'cap_am' ) . ' (cap, van_tay_id) VALUES ' . implode( ',', array_map( static fn( $c ) => '(' . (int) $c . ',' . $id . ')', $lo ) ) ) ) {
+						self::xoa( $tam );
+						return false;
+					}
 				}
 			}
 		}
+		if ( ! self::xoa( $muc ) ) {
+			self::xoa( $tam );
+			return false;
+		}
+		if ( $so_ghi && $so_ghi !== $wpdb->update( self::bang( 'van_tay' ), array( 'muc' => $muc ), array( 'muc' => $tam ) ) ) {
+			self::xoa( $tam );
+			return false;
+		}
+		return true;
 	}
 
 	/** Chỉ mục cho một tác phẩm từ các phần đã lưu (lời + dị bản); bài trong thùng rác / bản nháp tự động thì bỏ. */
-	public static function van_tay_bai( int $id ): void {
+	public static function van_tay_bai( int $id ): bool {
 		$bai = get_post( $id );
 		if ( ! $bai || KhaiBao::TAC_PHAM !== $bai->post_type || in_array( $bai->post_status, array( 'trash', 'auto-draft', 'inherit' ), true ) ) {
-			self::xoa( 'bai:' . $id );
-			return;
+			return self::xoa( 'bai:' . $id );
 		}
 		$loi = PhanBai::lay( $id, 'loi' )['dong'] ?? array();
 		$ds  = array( implode( "\n", $loi ) );
 		foreach ( PhanBai::lay( $id, 'di_ban' )['muc'] ?? array() as $d ) {
 			$ds[] = implode( "\n", $d['dong'] ?? array() );
 		}
-		self::ghi( 'bai:' . $id, $ds );
+		return self::ghi( 'bai:' . $id, $ds );
 	}
 
 	/** Chỉ mục cho một câu trong kho: chỉ câu "mới" (chưa thành tác phẩm, chưa gộp, chưa bỏ) và đã có lời. */
@@ -165,7 +191,7 @@ final class ChongTrung implements Module {
 		$vt  = self::bang( 'van_tay' );
 		$tot = array();
 		$xet = static function ( object $h, int $chung ) use ( $v, $tru, &$tot ): void {
-			if ( in_array( $h->muc, $tru, true ) ) {
+			if ( str_starts_with( $h->muc, 'tam:' ) || in_array( $h->muc, $tru, true ) ) {
 				return;
 			}
 			$b = array( 'vt1' => $h->vt1, 'vt2' => $h->vt2, 'so_am' => (int) $h->so_am, 'so_dong' => (int) $h->so_dong, 'so_cap' => (int) $h->so_cap );
@@ -379,7 +405,9 @@ final class ChongTrung implements Module {
 		if ( false === $wpdb->update( Kho::bang(), array( 'gop_vao' => $dich ), array( 'gop_vao' => $a ) ) ) { // câu đã gộp vào $a đi theo
 			return false;
 		}
-		self::xoa( $a );
+		if ( ! self::xoa( $a ) ) {
+			return false;
+		}
 		if ( ! self::dat( $a, $b, 'da_gop' ) ) {
 			return false;
 		}
@@ -387,7 +415,9 @@ final class ChongTrung implements Module {
 			if ( ! UngVien::dong_bo( $bai ) ) {
 				return false;
 			}
-			self::van_tay_bai( $bai );
+			if ( ! self::van_tay_bai( $bai ) ) {
+				return false;
+			}
 		}
 		return true;
 	}
