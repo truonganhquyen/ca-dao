@@ -226,7 +226,15 @@ kt( 'trang bài thật: chủ đề dẫn tới trang chủ đề, nút Sao ché
 kt( 'khách không nhận địa chỉ gốc máy đã lấy, người làm, giao diện sửa', ! str_contains( $h, 'nguon-an.example' ) && ! str_contains( $h, 'may_chep' ) && ! preg_match( '/nut-sua|dai-bien-tap|tam-sua/', $h ) );
 kt( 'chưa đối chiếu sách → nhãn "Bản lưu truyền phổ biến"', str_contains( $h, 'Bản lưu truyền phổ biến' ) && ! str_contains( $h, 'pill checked' ) );
 $h = $xem( $mau_id['cau-do-mau'] );
-kt( 'câu đố: Gợi ý và "Hiện đáp án" thu gọn (tắt JavaScript vẫn mở được), không nhắc thiếu ý nghĩa', str_contains( $h, '<details class="answer"><summary>Hiện đáp án</summary>' ) && str_contains( $h, '<summary>Gợi ý</summary>' ) && ! str_contains( $h, 'Bài đang được bổ sung ý nghĩa' ) );
+kt( 'câu đố: Gợi ý và "Hiện đáp án" thu gọn (tắt JavaScript vẫn mở được), không nhắc thiếu ý nghĩa', str_contains( $h, '<details class="answer"><summary>Hiện đáp án</summary>' ) && str_contains( $h, '<summary>Gợi ý</summary>' ) && ! str_contains( $h, 'Bài đang được bổ sung ý nghĩa' ) && ! str_contains( $h, 'data-tam="y_nghia"' ) );
+wp_set_current_user( $ai_ql );
+$get_truoc = $_GET;
+$_GET = array( 'loc' => 'thieu-y-nghia' );
+$ds_thieu_cau_do = \Phongdao\GiaoTiep\BienTap\DsTacPham::hien();
+$_GET = $get_truoc;
+$h_sua_cau_do = $xem( $mau_id['cau-do-mau'] );
+kt( 'câu đố từ danh sách Thiếu ý nghĩa mở được nút Thêm ý nghĩa khi người biên soạn sửa', str_contains( $ds_thieu_cau_do, esc_html( get_the_title( $mau_id['cau-do-mau'] ) ) ) && str_contains( $h_sua_cau_do, 'data-tam="y_nghia"' ) && str_contains( $h_sua_cau_do, 'Thêm ý nghĩa' ) );
+wp_set_current_user( 0 );
 $h = $xem( $mau_id['tuc-ngu-mau-ngan'] );
 kt( 'tục ngữ thật: câu là tiêu đề, Giải nghĩa chi tiết, Dùng khi 2 ví dụ', str_contains( $h, '<h1 class="read-title"><span class="verse-box"><span class="verse proverb"' ) && str_contains( $h, 'Giải nghĩa chi tiết' ) && 2 === substr_count( (string) strstr( (string) strstr( $h, '<ul class="uses">' ), '</ul>', true ), '<li>' ) );
 $h = $xem( $mau_id['cau-mau-thu-hai'] );
