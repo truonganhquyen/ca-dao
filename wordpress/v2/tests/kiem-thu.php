@@ -438,6 +438,11 @@ LuuPhan::luu( $tp1, 'di_ban', $db_nguoi, array( 'nguoi' => $ai_ql, 'goi' => Kiem
 Kho::luu( 'me-thu', array( 'ma_goc' => 1, 'di_ban' => array( "Dị một mẫu\nDị hai mẫu" ) ) );
 kt( 'kho đổi: phần người đã sửa giữ nguyên (máy không ghi đè)', 3 === count( PhanBai::lay( $tp1, 'di_ban' )['muc'] ?? array() ) );
 $bo_id = (int) $hv->id;
+$chan_bo = static function ( $sql ) { return preg_match( '/^UPDATE\s+`?' . preg_quote( Kho::bang(), '/' ) . '`?\s+SET\s+`?trang_thai/i', $sql ) ? 'CA_DAO_KIEM_THU_LOI_BO_CAU_KHO' : $sql; };
+add_filter( 'query', $chan_bo );
+$bo_loi = UngVien::bo( $bo_id, $ai_ql, 'thử lỗi ghi' );
+remove_filter( 'query', $chan_bo );
+kt( 'Bỏ câu mới khi lỗi ghi kho: trả lỗi, câu còn Mới và thẻ còn mở', ! $bo_loi && 'moi' === Kho::lay( $bo_id )->trang_thai && (bool) Viec::mo( 'kho', $bo_id, 'cau_moi' ) );
 kt( 'Bỏ câu mới: câu ở lại kho (bỏ qua), việc đóng', UngVien::bo( $bo_id, $ai_ql, 'không hợp' ) && 'bo_qua' === Kho::lay( $bo_id )->trang_thai && array() === Viec::mo( 'kho', $bo_id, 'cau_moi' ) );
 
 // ---------- Biên tập trên trang đọc (D-094): quyền, chế độ sửa, lưu qua REST, hoàn tác ----------
@@ -686,6 +691,27 @@ foreach ( $loi_gop as $buoc => $mau_sql ) {
 $q = QuyetViec::quyet( $vgan[0]['id'], 'khac', $ai_ql, true );
 kt( 'quyết "Là bài khác": cặp ghi lại, câu kho hết chờ, việc đóng', $q['ok'] && ! ChongTrung::dang_cho( (int) $gan->id ) && array() === Viec::mo( 'kho', (int) $gan->id, 'co_the_trung' ) );
 $v_cd2 = Viec::mo( 'kho', (int) $h2->id, 'cau_moi' )[0] ?? null;
+$so_bai_cd2 = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . $wpdb->posts . ' WHERE post_type = %s', KhaiBao::TAC_PHAM ) );
+$loi_dang = array(
+	'ghi trạng thái câu kho' => '/^UPDATE\s+`?' . preg_quote( Kho::bang(), '/' ) . '`?\s+SET\s+`?trang_thai/i',
+	'chuyển bài sang Đăng' => '/^UPDATE\s+`?' . preg_quote( $wpdb->posts, '/' ) . '`?\s+SET\b(?=.*\bpost_status\b)(?=.*\bpublish\b)/is',
+);
+foreach ( $loi_dang as $buoc => $mau_sql ) {
+	$da_chan_dang = false;
+	$chan_dang = static function ( $sql ) use ( $mau_sql, &$da_chan_dang ) {
+		if ( ! $da_chan_dang && preg_match( $mau_sql, $sql ) ) {
+			$da_chan_dang = true;
+			return 'CA_DAO_KIEM_THU_LOI_DANG_CAU_KHO';
+		}
+		return $sql;
+	};
+	add_filter( 'query', $chan_dang );
+	$q_loi_dang = $v_cd2 ? QuyetViec::quyet( $v_cd2['id'], 'dang', $ai_ql, true, $v_cd2['phien'] ) : array( 'ok' => true );
+	remove_filter( 'query', $chan_dang );
+	$kho_cd2 = Kho::lay( (int) $h2->id );
+	$so_bai_sau = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . $wpdb->posts . ' WHERE post_type = %s', KhaiBao::TAC_PHAM ) );
+	kt( "lỗi $buoc khi Đăng: huỷ bài, kho và quyết thẻ", $da_chan_dang && ! $q_loi_dang['ok'] && 'moi' === $kho_cd2->trang_thai && 0 === (int) $kho_cd2->post_id && Viec::CHO === Viec::lay( $v_cd2['id'] )['trang_thai'] && 0 === Viec::lay( $v_cd2['id'] )['phien'] && $so_bai_cd2 === $so_bai_sau, array( 'q' => $q_loi_dang, 'da_chan' => $da_chan_dang ) );
+}
 $q     = $v_cd2 ? QuyetViec::quyet( $v_cd2['id'], 'sua', $ai_ql, true ) : array( 'ok' => false );
 kt( 'quyết "Sửa rồi đăng" câu mới: tạo bản nháp, mở trang bài để sửa tiếp', $q['ok'] && 'draft' === get_post_status( (int) Kho::lay( (int) $h2->id )->post_id ) && str_contains( (string) $q['chuyen'], 'preview' ), $q );
 // Gợi ý chủ đề, vùng (thẻ Hộp việc): máy gợi ý kèm lý do khi lưu lời, chú thích; Đồng ý gắn; Bỏ thì không gợi ý lại
