@@ -50,6 +50,9 @@ final class QuyetViec {
 		if ( ! isset( self::LOAI[ $v['loai'] ][1][ $quyet ] ) ) {
 			return self::kq( false, 'Không có lựa chọn này cho việc này.' );
 		}
+		if ( Viec::DE_SAU === $v['trang_thai'] && 'de_sau' === $quyet ) {
+			return self::kq( false, 'Thẻ đã ở mục Để sau.' );
+		}
 		if ( false === $wpdb->query( 'START TRANSACTION' ) ) {
 			return self::kq( false, 'Chưa mở được lượt quyết việc. Thử lại sau.' );
 		}
@@ -77,6 +80,55 @@ final class QuyetViec {
 		return $kq;
 	}
 
+	/** Hoàn tác nhanh chỉ áp dụng cho quyết định đổi trạng thái thẻ, chưa tác động bài, kho hoặc cặp câu. */
+	public static function co_the_hoan_tac( ?array $v, int $nguoi, int $phien ): bool {
+		if ( ! $v || $v['phien'] !== $phien || $v['nguoi_quyet'] !== $nguoi || $nguoi < 1 ) {
+			return false;
+		}
+		$truoc = $v['truoc']['trang_thai'] ?? '';
+		$doi = ( 'de_sau' === $v['quyet'] && 'co_the_trung' !== $v['loai'] && Viec::DE_SAU === $v['trang_thai'] && Viec::CHO === $truoc )
+			|| ( 'can_xem' === $v['loai'] && 'xong' === $v['quyet'] && Viec::XONG === $v['trang_thai'] && in_array( $truoc, array( Viec::CHO, Viec::DE_SAU ), true ) )
+			|| ( in_array( $v['loai'], array( 'nhap_y_nghia', 'goi_y' ), true ) && 'bo' === $v['quyet'] && Viec::BO === $v['trang_thai'] && in_array( $truoc, array( Viec::CHO, Viec::DE_SAU ), true ) );
+		$luc = empty( $v['quyet_luc'] ) ? false : strtotime( (string) $v['quyet_luc'] . ' UTC' );
+		return $doi && false !== $luc && time() >= $luc && time() - $luc <= 10;
+	}
+
+	/** Ghi một sự kiện hoàn tác mới và trả thẻ về đúng trạng thái trước, trong một giao dịch có kiểm phiên. */
+	public static function hoan_tac( int $id, int $phien, int $nguoi ): array {
+		global $wpdb;
+		if ( false === $wpdb->query( 'START TRANSACTION' ) ) {
+			return self::kq( false, 'Chưa mở được lượt hoàn tác. Thử lại sau.' );
+		}
+		$v = Viec::lay( $id );
+		if ( ! self::co_the_hoan_tac( $v, $nguoi, $phien ) ) {
+			$wpdb->query( 'ROLLBACK' );
+			return self::kq( false, 'Không thể hoàn tác thẻ này: đã hết 10 giây, thẻ đã đổi hoặc quyết định cần sửa thủ công.' );
+		}
+		$truoc = $v['truoc']['trang_thai'];
+		$nhat_ky = Viec::tao( array(
+			'loai'           => Viec::SUA,
+			'trang_thai'     => Viec::XONG,
+			'doi_tuong_loai' => 'viec',
+			'doi_tuong_id'   => $id,
+			'phan'           => 'trang_thai',
+			'nguoi_tao'      => (string) $nguoi,
+			'quyet'          => 'hoan_tac',
+			'truoc'          => array( 'trang_thai' => $v['trang_thai'], 'quyet' => $v['quyet'], 'phien' => $phien ),
+			'sau'            => array( 'trang_thai' => $truoc, 'phien' => $phien + 1 ),
+			'nguoi_quyet'    => $nguoi,
+			'quyet_luc'      => gmdate( 'Y-m-d H:i:s' ),
+		) );
+		if ( ! $nhat_ky || ! Viec::hoan_tac_quyet( $id, $phien, $v['trang_thai'], $nguoi, $truoc ) ) {
+			$wpdb->query( 'ROLLBACK' );
+			return self::kq( false, 'Thẻ đã đổi hoặc chưa ghi được nhật ký; chưa hoàn tác.' );
+		}
+		if ( false === $wpdb->query( 'COMMIT' ) ) {
+			$wpdb->query( 'ROLLBACK' );
+			return self::kq( false, 'Chưa xác nhận được hoàn tác. Tải lại Hộp việc để kiểm tra.' );
+		}
+		return self::kq( true, 'Đã hoàn tác quyết định thẻ.' );
+	}
+
 	/** Chạy trong giao dịch đã giữ đúng phiên thẻ. */
 	private static function thuc_hien( array $v, string $quyet, int $nguoi, bool $duyet ): array {
 		$id = $v['id'];
@@ -86,7 +138,7 @@ final class QuyetViec {
 					return self::kq( false, 'Chưa lưu được quyết định về cặp câu. Thử lại sau.' );
 				}
 			}
-			Viec::dong( $id, Viec::DE_SAU, 'de_sau', $nguoi );
+			Viec::dong( $id, Viec::DE_SAU, 'de_sau', $nguoi, $v['trang_thai'] );
 			return self::kq( true, 'Đã để sau.' );
 		}
 		switch ( $v['loai'] ) {
@@ -109,7 +161,7 @@ final class QuyetViec {
 				return self::kq( true, 'dang' === $quyet ? 'Đã đăng.' : 'Đã tạo bản nháp; sửa tiếp trên trang bài.', 'sua' === $quyet ? (string) get_preview_post_link( $kq['bai'] ) : '' );
 			case 'nhap_y_nghia':
 				if ( 'bo' === $quyet ) {
-					Viec::dong( $id, Viec::BO, 'bo', $nguoi );
+					Viec::dong( $id, Viec::BO, 'bo', $nguoi, $v['trang_thai'] );
 					return self::kq( true, 'Đã bỏ nháp.' );
 				}
 				if ( ! $duyet ) {
@@ -128,11 +180,11 @@ final class QuyetViec {
 				Viec::dong( $id, Viec::XONG, 'duyet', $nguoi );
 				return self::kq( true, 'Đã duyệt; người đọc thấy ý nghĩa ngay.' );
 			case 'can_xem':
-				Viec::dong( $id, Viec::XONG, 'xong', $nguoi );
+				Viec::dong( $id, Viec::XONG, 'xong', $nguoi, $v['trang_thai'] );
 				return self::kq( true, 'Đã đánh dấu xem xong.' );
 			case 'goi_y':
 				if ( 'bo' === $quyet ) {
-					Viec::dong( $id, Viec::BO, 'bo', $nguoi );
+					Viec::dong( $id, Viec::BO, 'bo', $nguoi, $v['trang_thai'] );
 					return self::kq( true, 'Đã bỏ gợi ý; máy không gợi ý lại.' );
 				}
 				if ( ! \Phongdao\DichVu\GoiY\GoiY::dong_y( $v ) ) {

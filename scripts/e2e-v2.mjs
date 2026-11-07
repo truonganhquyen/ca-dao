@@ -320,11 +320,19 @@ try {
       chac(await coChu(k, yNghia), 'duyệt rồi người đọc vẫn chưa thấy');
     });
 
-    await thu('Hộp việc: góp của người đọc tới, bấm "Đã xử lý" thì thẻ đóng', async () => {
+    await thu('Hộp việc: Để sau rồi Hoàn tác trong 10 giây, sau đó xử lý thẻ', async () => {
       await di(bt, '/bien-tap/?loai=nguoi_doc');
       const id = await bt.$$eval('article.the-viec[data-loai=nguoi_doc]', as => as.find(a => a.textContent.includes('Góp thử đầu-cuối'))?.id);
       chac(id, 'không có thẻ góp vừa gửi');
-      await bamDoiTrang(bt, `#${id} button[name=quyet][value=xong]`);
+      await bamDoiTrang(bt, `#${id} button[name=quyet][value=de_sau]`);
+      chac(await bt.$('[data-hv-hoan] button:not([disabled])'), 'Để sau không hiện nút Hoàn tác còn hạn');
+      await bamDoiTrang(bt, '[data-hv-hoan] button');
+      chac(await coChu(bt, 'Đã hoàn tác quyết định thẻ') && await bt.$(`#${id}`), 'Hoàn tác không đưa thẻ về Chờ');
+      const nutXong = `#${id} button[name=quyet][value=xong]`;
+      // Cuộn ngay: CSS của trang dùng smooth scrolling, nên kiểm hit-test trước khi cuộn xong có thể trúng thanh dưới.
+      await bt.$eval(nutXong, e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+      chac(await bt.$eval(nutXong, e => { const r = e.getBoundingClientRect(); return e === document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); }), 'nút Đã xử lý bị thanh điều hướng che');
+      await bamDoiTrang(bt, nutXong);
       await di(bt, '/bien-tap/?loai=nguoi_doc');
       chac(!(await bt.$(`#${id}`)), 'thẻ vẫn còn sau khi xử lý');
     });

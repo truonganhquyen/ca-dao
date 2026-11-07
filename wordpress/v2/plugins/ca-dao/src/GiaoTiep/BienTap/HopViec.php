@@ -22,10 +22,12 @@ defined( 'ABSPATH' ) || exit;
 final class HopViec {
 
 	public const HANH_DONG = 'phongdao_quyet';
+	public const HOAN_TAC = 'phongdao_hoan_tac_quyet';
 
 	/** Gắn xử lý form quyết (gọi từ Module). */
 	public static function dang_ky(): void {
 		add_action( 'admin_post_' . self::HANH_DONG, array( self::class, 'nhan_form' ) );
+		add_action( 'admin_post_' . self::HOAN_TAC, array( self::class, 'nhan_hoan_tac' ) );
 	}
 
 	public static function nhan_form(): void {
@@ -37,7 +39,27 @@ final class HopViec {
 		$phien = isset( $_POST['phien'] ) && ctype_digit( (string) $_POST['phien'] ) ? (int) $_POST['phien'] : PHP_INT_MAX; // phpcs:ignore WordPress.Security.NonceVerification -- nonce đã kiểm trên
 		$kq   = QuyetViec::quyet( $id, $quyet, get_current_user_id(), current_user_can( 'cadao_duyet' ), $phien );
 		$ve   = (string) wp_get_referer() ?: home_url( '/bien-tap/' );
-		$dich = $kq['chuyen'] ?: remove_query_arg( 'da', $ve );
+		$dich = $kq['chuyen'] ?: remove_query_arg( array( 'da', 'hoan_viec', 'hoan_phien' ), $ve );
+		$v_sau = $kq['ok'] ? Viec::lay( $id ) : null;
+		$co_hoan = QuyetViec::co_the_hoan_tac( $v_sau, get_current_user_id(), (int) ( $v_sau['phien'] ?? -1 ) );
+		if ( $co_hoan ) {
+			$dich = add_query_arg( array( 'hoan_viec' => $id, 'hoan_phien' => $v_sau['phien'] ), $dich );
+		}
+		$thong_bao = $kq['ok'] ? $kq['thong_bao'] . ( $co_hoan || $kq['chuyen'] ? '' : ' Quyết định này không có Hoàn tác nhanh.' ) : 'Chưa xong: ' . implode( ' ', $kq['loi'] );
+		wp_safe_redirect( add_query_arg( 'da', rawurlencode( $thong_bao ), $dich ) );
+		exit;
+	}
+
+	/** Form Hoàn tác nhanh: quyền, nonce, người quyết, hạn 10 giây và phiên đều được kiểm lại trên máy chủ. */
+	public static function nhan_hoan_tac(): void {
+		$id = (int) ( $_POST['viec'] ?? 0 ); // phpcs:ignore WordPress.Security.NonceVerification -- kiểm ngay dưới
+		if ( ! current_user_can( 'cadao_soan' ) || ! wp_verify_nonce( (string) ( $_POST['_wpnonce'] ?? '' ), self::HOAN_TAC . $id ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			wp_die( esc_html__( 'Phiên làm việc đã hết hoặc không có quyền. Tải lại trang rồi thử lại.', 'ca-dao' ), '', array( 'response' => 403 ) );
+		}
+		$phien = isset( $_POST['phien'] ) && ctype_digit( (string) $_POST['phien'] ) ? (int) $_POST['phien'] : -1; // phpcs:ignore WordPress.Security.NonceVerification -- nonce đã kiểm trên
+		$kq = QuyetViec::hoan_tac( $id, $phien, get_current_user_id() );
+		$ve = (string) wp_get_referer() ?: home_url( '/bien-tap/' );
+		$dich = remove_query_arg( array( 'da', 'hoan_viec', 'hoan_phien' ), $ve );
 		wp_safe_redirect( add_query_arg( 'da', rawurlencode( $kq['ok'] ? $kq['thong_bao'] : 'Chưa xong: ' . implode( ' ', $kq['loi'] ) ), $dich ) );
 		exit;
 	}
@@ -54,6 +76,14 @@ final class HopViec {
 		$dem_tt = Viec::CHO === $tt ? $dem : Viec::dem_loai( Viec::DE_SAU );
 		$tong  = Viec::dem( $tt, $loai );
 		$bao   = '' === $da ? '' : '<p class="notice" role="status">' . esc_html( $da ) . '</p>';
+		$hoan_id = (int) ( $_GET['hoan_viec'] ?? 0 ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc
+		$hoan_phien = (int) ( $_GET['hoan_phien'] ?? -1 ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc
+		$v_hoan = $hoan_id > 0 ? Viec::lay( $hoan_id ) : null;
+		if ( QuyetViec::co_the_hoan_tac( $v_hoan, get_current_user_id(), $hoan_phien ) ) {
+			$han = strtotime( $v_hoan['quyet_luc'] . ' UTC' ) + 10;
+			$bao .= '<form class="notice" data-hv-hoan data-han="' . $han . '" method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="' . self::HOAN_TAC . '"><input type="hidden" name="viec" value="' . $hoan_id . '"><input type="hidden" name="phien" value="' . $hoan_phien . '">'
+				. wp_nonce_field( self::HOAN_TAC . $hoan_id, '_wpnonce', true, false ) . '<button class="btn compact" type="submit">Hoàn tác quyết định thẻ</button></form>';
+		}
 		$dau   = '<div class="row between hv-dau"><div><p class="eyebrow">Biên tập</p><h1>Hộp việc <span class="dem-lon">' . $cho . '</span></h1></div>'
 			. ( $tong ? '<a class="btn compact" href="' . esc_url( $tung ? remove_query_arg( array( 'tung', 'vi', 'da' ) ) : add_query_arg( 'tung', 1, remove_query_arg( array( 'trang', 'da' ) ) ) ) . '">' . ( $tung ? 'Xem danh sách' : 'Duyệt từng thẻ' ) . '</a>' : '' ) . '</div>';
 		$trang_thai = '<nav class="loc-viec" aria-label="Trạng thái việc"><a class="chip" href="' . esc_url( remove_query_arg( array( 'tt', 'vi', 'trang', 'da' ) ) ) . '" aria-current="' . ( Viec::CHO === $tt ? 'true' : 'false' ) . '">Chờ <span class="dem">' . $cho . '</span></a>'
