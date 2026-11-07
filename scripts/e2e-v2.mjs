@@ -267,6 +267,16 @@ try {
     chac(await dangNhap(bt, G, TEN), 'không đăng nhập được người biên soạn');
     const yNghia = 'Ý nghĩa thử đầu-cuối do người biên soạn viết.';
 
+    await thu('Câu đố thiếu Ý nghĩa: bộ lọc dẫn tới nút Thêm ý nghĩa, khách không thấy lời nhắc thiếu', async () => {
+      await di(bt, '/bien-tap/tac-pham/?loc=thieu-y-nghia');
+      const href = await bt.$eval('.ds-tp a.dtp-lien-ket[href*="/cau-do/cau-do-mau/"]', e => e.href).catch(() => '');
+      chac(href, 'bộ lọc Thiếu ý nghĩa không có câu đố mẫu');
+      await bt.goto(href, { waitUntil: 'load', timeout: 120_000 });
+      chac(await bt.$('button[data-tam="y_nghia"]') && await coChu(bt, 'Thêm ý nghĩa'), 'trang câu đố không cho người biên soạn thêm Ý nghĩa');
+      await di(k, T.cauDo);
+      chac(!(await k.$('button[data-tam="y_nghia"]')) && !(await coChu(k, 'Bài đang được bổ sung ý nghĩa')), 'khách thấy điều khiển hoặc lời nhắc thiếu Ý nghĩa');
+    });
+
     await thu('Biên tập: sửa ý nghĩa chưa duyệt → nháp, người đọc chưa thấy', async () => {
       await di(bt, caDao);
       await bam(bt, '[data-action=mo-tam][data-tam=y_nghia]');

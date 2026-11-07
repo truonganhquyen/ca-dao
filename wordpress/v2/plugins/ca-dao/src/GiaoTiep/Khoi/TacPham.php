@@ -42,7 +42,7 @@ final class TacPham {
 			$y = ( $sua ? '<p class="row no-print">' . $nut( 'cau_hoi', 'Sửa câu hỏi' ) . $nut( 'goi_y', 'Sửa gợi ý' ) . $nut( 'dap_an', 'Sửa đáp án' ) . '</p>' : '' )
 				. ( empty( $tp['goi_y'] ) ? '' : '<details class="disclosure"><summary>Gợi ý</summary><div class="detail-body"><p>' . esc_html( $tp['goi_y'] ) . '</p></div></details>' )
 				. ( empty( $tp['dap_an'] ) ? '' : '<details class="answer"><summary>Hiện đáp án</summary><div class="detail-body"><h2>Đáp án</h2><p>' . esc_html( $tp['dap_an'] ) . '</p>' . ( $tp['dap_an_them'] ?? '' ) . '</div></details>' )
-				. ( empty( $tp['y_nghia']['chu'] ) ? '' : Ve::y_nghia( $tp['y_nghia']['chu'], ! empty( $tp['y_nghia']['ai'] ), 'Ý nghĩa', $nut( 'y_nghia', 'Sửa' ) ) );
+				. ( empty( $tp['y_nghia']['chu'] ) && ! $sua ? '' : $y );
 		}
 		$muc_kiem = $sua ? '<div class="level-sua">' . Ve::muc_kiem( $tp['doi_chieu'] ) . $nut( 'loi', empty( $tp['doi_chieu'] ) ? 'Thêm đối chiếu sách' : 'Sửa đối chiếu' ) . '</div>' : Ve::muc_kiem( $tp['doi_chieu'] );
 		// Vè: bối cảnh trên lời; bài dài, bài nhiều phần chia đoạn (tiêu đề, mục lục, "Đọc toàn bài")
