@@ -384,7 +384,9 @@ final class ChongTrung implements Module {
 			return false;
 		}
 		if ( $bai ) {
-			UngVien::dong_bo( $bai );
+			if ( ! UngVien::dong_bo( $bai ) ) {
+				return false;
+			}
 			self::van_tay_bai( $bai );
 		}
 		return true;

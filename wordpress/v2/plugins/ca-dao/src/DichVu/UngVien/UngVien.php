@@ -278,19 +278,25 @@ final class UngVien implements Module {
 	 * Tác phẩm tạo từ kho: làm lại các phần từ kho (câu đã gộp, dị bản mới…) — chỉ phần còn hoàn toàn do máy chép.
 	 * Phần người đã sửa (có mục người viết / người đọc góp, hoặc lời đã sửa tay) giữ nguyên.
 	 */
-	public static function dong_bo( int $bai_id ): void {
+	public static function dong_bo( int $bai_id ): bool {
 		global $wpdb;
 		$m = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . Kho::bang() . ' WHERE post_id = %d ORDER BY id LIMIT 1', $bai_id ) );
-		if ( ! $m || KhaiBao::TAC_PHAM !== get_post_type( $bai_id ) ) {
-			return;
+		if ( KhaiBao::TAC_PHAM !== get_post_type( $bai_id ) ) {
+			return false;
+		}
+		if ( ! $m ) {
+			return true; // bài nhập tay không có phần do máy chép để đồng bộ
 		}
 		foreach ( self::phan_tu_kho( $m, $bai_id ) as $phan => $gia_tri ) {
 			$cu = PhanBai::lay( $bai_id, $phan );
 			if ( null !== $cu && ! self::chi_may( $cu ) ) {
 				continue;
 			}
-			LuuPhan::luu( $bai_id, $phan, $gia_tri, array( 'nguoi' => 0, 'goi' => KiemPhan::GOI_MAY ) );
+			if ( ! LuuPhan::luu( $bai_id, $phan, $gia_tri, array( 'nguoi' => 0, 'goi' => KiemPhan::GOI_MAY ) )['ok'] ) {
+				return false;
+			}
 		}
+		return true;
 	}
 
 	/** Phần (hoặc mọi mục của phần) do máy chép. */
