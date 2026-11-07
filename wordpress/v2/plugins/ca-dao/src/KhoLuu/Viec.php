@@ -152,11 +152,26 @@ final class Viec {
 	}
 
 	/** Đóng một việc: trạng thái xong / bỏ / để sau, hành động đã chọn, người quyết, lúc quyết. */
-	public static function dong( int $id, string $trang_thai, string $quyet, int $nguoi ): bool {
+	public static function dong( int $id, string $trang_thai, string $quyet, int $nguoi, string $trang_thai_truoc = '' ): bool {
+		global $wpdb;
+		$truoc = '' === $trang_thai_truoc ? '' : ', truoc = %s';
+		$tham  = array( $trang_thai, $quyet, $nguoi, gmdate( 'Y-m-d H:i:s' ) );
+		if ( '' !== $trang_thai_truoc ) {
+			$tham[] = self::json( array( 'trang_thai' => $trang_thai_truoc ) );
+		}
+		$tham[] = $id;
+		return 1 === $wpdb->query( $wpdb->prepare(
+			'UPDATE ' . self::bang() . " SET trang_thai = %s, quyet = %s, nguoi_quyet = %d, quyet_luc = %s{$truoc}, phien = phien + 1 WHERE id = %d AND trang_thai IN ('cho','de_sau','dang_lam')",
+			$tham
+		) );
+	}
+
+	/** Trả đúng phiên quyết về trạng thái trước; bản ghi nhật ký hoàn tác được tạo trong cùng giao dịch ở lớp dịch vụ. */
+	public static function hoan_tac_quyet( int $id, int $phien, string $trang_thai, int $nguoi, string $ve ): bool {
 		global $wpdb;
 		return 1 === $wpdb->query( $wpdb->prepare(
-			'UPDATE ' . self::bang() . " SET trang_thai = %s, quyet = %s, nguoi_quyet = %d, quyet_luc = %s, phien = phien + 1 WHERE id = %d AND trang_thai IN ('cho','de_sau','dang_lam')",
-			$trang_thai, $quyet, $nguoi, gmdate( 'Y-m-d H:i:s' ), $id
+			'UPDATE ' . self::bang() . ' SET trang_thai = %s, quyet = %s, nguoi_quyet = 0, quyet_luc = NULL, truoc = NULL, phien = phien + 1 WHERE id = %d AND phien = %d AND trang_thai = %s AND nguoi_quyet = %d',
+			$ve, '', $id, $phien, $trang_thai, $nguoi
 		) );
 	}
 

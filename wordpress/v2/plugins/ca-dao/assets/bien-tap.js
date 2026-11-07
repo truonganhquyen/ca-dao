@@ -37,6 +37,16 @@
     if (cu && cu.chu) bao(cu.chu, cu.viec);
   } catch (e) { /* bộ nhớ bị chặn */ }
 
+  const hoanQuyet = document.querySelector('[data-hv-hoan]');
+  if (hoanQuyet) {
+    const hetHan = () => {
+      const nut = hoanQuyet.querySelector('button');
+      if (nut) { nut.disabled = true; nut.textContent = 'Đã hết thời gian Hoàn tác nhanh'; }
+    };
+    const conLai = Number(hoanQuyet.dataset.han) * 1000 - Date.now();
+    if (conLai <= 0) hetHan(); else setTimeout(hetHan, conLai);
+  }
+
   // Duyệt từng thẻ: phím tắt chỉ chạy khi người dùng không đang thao tác với điều khiển khác.
   const tung = document.querySelector('.tung-the');
   if (tung) {
