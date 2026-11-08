@@ -68,6 +68,12 @@ final class HopViec {
 		$loai  = sanitize_key( (string) ( $_GET['loai'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc
 		$loai  = isset( QuyetViec::LOAI[ $loai ] ) ? $loai : '';
 		$tt    = Viec::DE_SAU === (string) ( $_GET['tt'] ?? '' ) ? Viec::DE_SAU : Viec::CHO; // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc
+		$chi_tiet_id = (int) ( $_GET['viec'] ?? 0 ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc
+		$chi_tiet = $chi_tiet_id > 0 ? Viec::lay( $chi_tiet_id ) : null;
+		if ( $chi_tiet && in_array( $chi_tiet['trang_thai'], array( Viec::CHO, Viec::DE_SAU ), true ) ) {
+			$tt = $chi_tiet['trang_thai'];
+			$loai = $chi_tiet['loai'];
+		}
 		$tung  = ! empty( $_GET['tung'] ); // phpcs:ignore WordPress.Security.NonceVerification
 		$da    = sanitize_text_field( wp_unslash( (string) ( $_GET['da'] ?? '' ) ) ); // phpcs:ignore WordPress.Security.NonceVerification
 		$cho   = Viec::dem_cho();
@@ -96,6 +102,11 @@ final class HopViec {
 			}
 		}
 		$khung = $dau . $bao . $trang_thai . $tuan . '<nav class="loc-viec" aria-label="Lọc việc">' . $loc . '</nav>';
+		if ( $chi_tiet_id > 0 ) {
+			return $khung . ( $chi_tiet && in_array( $chi_tiet['trang_thai'], array( Viec::CHO, Viec::DE_SAU ), true )
+				? '<div class="tung-the"><p><a href="' . esc_url( remove_query_arg( 'viec' ) ) . '">Về Hộp việc</a></p>' . self::the( $chi_tiet ) . '</div>'
+				: '<p class="notice" role="status">Thẻ này không còn chờ quyết. <a href="' . esc_url( remove_query_arg( 'viec' ) ) . '">Về Hộp việc</a></p>' );
+		}
 		if ( ! $tong ) {
 			if ( $tung ) {
 				return $khung . '<div class="empty" role="status">' . Ve::icon( 'check' ) . '<h2>' . ( Viec::CHO === $tt && 0 === $cho ? 'Hết việc rồi' : 'Đã hết thẻ trong lượt duyệt' ) . '</h2><p class="muted">Không còn thẻ nào trong danh sách này.</p><a class="btn primary" href="' . esc_url( remove_query_arg( array( 'loai', 'tt', 'tung', 'vi', 'trang', 'da' ) ) ) . '">Xem Hộp việc</a></div>';

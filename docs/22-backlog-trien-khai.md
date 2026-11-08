@@ -147,12 +147,13 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-164 | [Đợt 5] Dọn dữ liệu MVP sau ≥ 2 tuần (`docs/29` mục 6; H6, người sáng lập đồng ý) | N+A | T-157 | — | READY |
 | **V2 · Nâng cấp quản trị sau chuyển đổi (D-096; `docs/30`)** ||||||
 | T-166 | Chốt hướng admin chính, kế hoạch, hợp đồng thao tác và đồng bộ tài liệu | A | T-142 | — | DONE |
-| T-167 | Nền wp-admin: menu theo quyền, danh sách Tác phẩm toàn kho, bộ lọc, phân trang, số đếm đúng, bản xem trước màn admin | A | T-166 | — | READY |
+| T-167 | Nền wp-admin: menu theo quyền, danh sách Tác phẩm toàn kho, bộ lọc, phân trang, số đếm đúng, bản xem trước màn admin | A | T-166 | — | DONE |
 | T-168 | Hộp việc trong wp-admin: mọi trạng thái, tìm/lọc/phân trang, quyết một thẻ dùng nghiệp vụ hiện có | A | T-167, T-176, T-177 | — | BLOCKED |
 | T-169 | Trang sửa tác phẩm có cấu trúc: phần, nguồn gốc, việc liên quan, xem trước; dùng chung đường kiểm/lưu | A | T-167 | — | BLOCKED |
 | T-170 | Lịch sử và khôi phục: so trước/sau, phiên bản/xung đột, nguồn và nhật ký quyết việc | A | T-168, T-169 | — | BLOCKED |
 | T-171 | Xử lý lô: duyệt gợi ý, sửa phân loại/nhiều phần, ẩn/thùng rác, đổi trạng thái việc; xem trước và kết quả từng mục | A | T-170 | — | BLOCKED |
 | T-172 | Dùng thử admin trên máy tính/điện thoại, kiểm tương đương, chuyển lối vào `/bien-tap/…` an toàn | N+A | T-171 | — | BLOCKED |
+| T-184 | Màn Kho wp-admin: người quản trị tự tìm, tự chọn câu đủ điều kiện đưa vào Hộp việc | A | T-167, T-168 | — | BLOCKED |
 | **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
 | T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
 | T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | IN_PROGRESS |
@@ -706,11 +707,13 @@ Mọi task V2 đọc AGENTS.md và `docs/26`; task trang người đọc đọc 
 #### Đợt 5 · Sau khi mở (T-158..T-164)
 **Chấp nhận chung:** thể loại chỉ lên menu khi qua cổng (D-091); truyện chỉ từ sách hết bản quyền người sáng lập đã kiểm (H3); T-158 đạt tiêu chí cũ của T-131 (máy không tự điền "Lời đã đối chiếu với"; lời sách không vào repo công khai) và T-099; T-159 đạt tiêu chí cũ của T-133; T-160 đạt tiêu chí cũ của T-105 (nghe thử 30 bài trước khi sinh cả kho, ghi "Giọng đọc máy"); T-163 chỉ xuất các phần đã lưu của tác phẩm đã đăng, nguồn có quyền; T-164 chỉ chạy khi người sáng lập đồng ý (H6).
 
-#### Nâng cấp quản trị V2 (T-166..T-172; D-096)
+#### Nâng cấp quản trị V2 (T-166..T-172, T-184; D-096)
 
 **T-166 — kế hoạch:** `docs/01`, `00`, `02`, `22`, `26`, `28`, `30` và hướng dẫn agent thống nhất hướng admin chính; ghi rõ phần D-094 còn hiệu lực và giao diện nào đang chạy. Không thay mã, dữ liệu hay cấu hình máy chủ.
 
 **T-167 — danh sách và nền:** đọc `docs/30` mục 2, 4. Có bản xem trước admin trên máy tính và điện thoại trước khi thay đường sửa chính; danh sách `tac_pham` tìm/lọc/phân trang toàn kho theo trạng thái và phần thiếu, số đếm độc lập giới hạn trang; quyền từng vai, liên kết sang bài/việc; không mở ô meta thô. Kiểm trang khách và truy vấn khi dữ liệu lớn.
+
+Đã thêm trang Tác phẩm trong wp-admin cho người có `cadao_soan`: tìm ID/tên/lời, lọc trạng thái (kể cả thùng rác), thể loại, chủ đề, phần thiếu/cờ nghi và nguồn Lời; đếm toàn bộ kết quả, mỗi trang 30 bài, có liên kết bài và việc đang mở. Biên tập viên vào menu Phongdao tới danh sách; Quản trị vẫn giữ trang Nguồn & cài đặt. Chưa đổi đường sửa bài hay mở trường meta thô. Kiểm Playground trên hơn 1.000 bài nháp thử xác nhận đếm, phân trang, tìm và giới hạn truy vấn; xem bản admin 1280 px và 390 px, ở 390 px không tràn ngang. Màn Kho tự chọn câu được ghi riêng ở T-184.
 
 **T-168 — Hộp việc:** đọc `docs/30` mục 2 và kết quả T-176/T-177. Chờ/Để sau/Xong/Bỏ đều tìm lại được; bộ lọc và số đếm đúng toàn kho; mở thẻ thấy bài/nguồn liên quan; quyết một thẻ qua `QuyetViec`, có kiểm quyền, nonce và nhật ký. Kế thừa phần sửa ở giao diện hiện chạy, không viết lại lỗi cũ trong màn mới; không tự chuyển thẻ thành bài viết.
 
@@ -721,6 +724,8 @@ Mọi task V2 đọc AGENTS.md và `docs/26`; task trang người đọc đọc 
 **T-171 — thao tác lô:** đọc hợp đồng `docs/30` mục 3. Mỗi lô chốt phạm vi, xem trước, kiểm quyền và phiên bản từng mục, báo thành công/bỏ qua/xung đột/lỗi, chạy lại không áp dụng trùng; kiểm riêng duyệt nhóm gợi ý có ngoại lệ, thêm/gỡ/thay thế phân loại, sửa nội dung từng hàng, ẩn/thùng rác và đổi trạng thái việc. Không tự quyết sự thật văn hoá hay xoá vĩnh viễn.
 
 **T-172 — nghiệm thu và chuyển lối vào:** người sáng lập chạy ba kịch bản `docs/30` mục 5 trên máy tính và điện thoại; ghi thời gian, số thao tác, lỗi; `kiem-tra`, `test:v2`, `quet:v2` và luồng E2E đạt. Sau đó mới chuyển đường tắt/đường cũ; có cách quay lại giao diện cũ nếu phát hiện lỗi. Không tự đánh `DONE` trước phản hồi dùng thử của người sáng lập.
+
+**T-184 — Kho tự chọn câu:** sau nền danh sách và Hộp việc admin, thêm màn Kho riêng cho người có `cadao_soan`. Tìm theo ID/lời, lọc nguồn, thể loại, trạng thái và phân trang/đếm toàn kho; hiện căn cứ nguồn nội bộ đúng quyền. Người biên soạn bấm “Đưa vào Hộp việc” cho một câu `moi`, chưa gắn bài và chưa có thẻ Câu mới mở; máy chủ kiểm lại quyền, nonce và trạng thái, bấm lại không tạo trùng. Hành động chỉ tạo thẻ chờ, không đăng, gộp, sửa lời hay chọn câu thay người. Thử hàng nghìn câu, hai lượt bấm, câu đã gộp/đã có việc, quyền và giao diện điện thoại.
 
 #### Cải tiến tổng thể sau review V2 (T-173..T-183)
 
