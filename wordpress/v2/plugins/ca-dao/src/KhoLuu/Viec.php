@@ -152,12 +152,12 @@ final class Viec {
 	}
 
 	/** Đóng một việc: trạng thái xong / bỏ / để sau, hành động đã chọn, người quyết, lúc quyết. */
-	public static function dong( int $id, string $trang_thai, string $quyet, int $nguoi, string $trang_thai_truoc = '' ): bool {
+	public static function dong( int $id, string $trang_thai, string $quyet, int $nguoi, string $trang_thai_truoc = '', array $chi_tiet_truoc = array() ): bool {
 		global $wpdb;
-		$truoc = '' === $trang_thai_truoc ? '' : ', truoc = %s';
+		$truoc = '' === $trang_thai_truoc && ! $chi_tiet_truoc ? '' : ', truoc = %s';
 		$tham  = array( $trang_thai, $quyet, $nguoi, gmdate( 'Y-m-d H:i:s' ) );
-		if ( '' !== $trang_thai_truoc ) {
-			$tham[] = self::json( array( 'trang_thai' => $trang_thai_truoc ) );
+		if ( $truoc ) {
+			$tham[] = self::json( array( 'trang_thai' => $trang_thai_truoc ) + $chi_tiet_truoc );
 		}
 		$tham[] = $id;
 		return 1 === $wpdb->query( $wpdb->prepare(
