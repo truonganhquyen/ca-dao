@@ -25,6 +25,7 @@ Hộp việc là **hàng chờ quyết định**, không phải danh mục toàn
 |---|---|---|
 | Tổng quan Phongdao | Thấy số việc chờ theo loại, bài thiếu phần, lô có lỗi; đi thẳng vào danh sách đã lọc | Số đếm lấy từ toàn bộ dữ liệu, ghi thời điểm cập nhật; không dùng giới hạn danh sách làm tổng |
 | Tác phẩm | Tìm ID/tên/lời, lọc trạng thái, thể loại, chủ đề, mức hoàn thiện, cờ và nguồn; chọn nhiều bài; xem thùng rác | Phân trang ở máy chủ; cột ID, trạng thái, phần thiếu, nguồn, lần sửa cuối; chỉ tải dữ liệu cần cho trang |
+| Kho | Tự tìm/lọc câu đã thu thập theo nguồn, thể loại, trạng thái; xem căn cứ và tự chọn câu đưa vào Hộp việc | Kho là danh sách tư liệu riêng, không phải Hộp việc. Nút chỉ tạo thẻ Câu mới đang chờ, không đăng, gộp, duyệt hay sửa lời; kiểm quyền, nonce, trạng thái câu và thẻ trùng trước khi ghi |
 | Sửa tác phẩm | Sửa Lời, Ý nghĩa, Từ khó, Dị bản, phần theo thể loại, phân loại, nguồn và xem lịch sử | Biểu mẫu theo phần, hiển thị nguồn gốc từng phần, báo việc đang chờ; lưu qua `LuuPhan`/`KiemPhan`; liên kết xem trước trang đọc |
 | Hộp việc | Xem Chờ, Để sau, Xong, Bỏ; tìm, lọc, quyết từng thẻ hoặc nhóm cùng loại | Số lượng chính xác; việc đã hoãn tìm lại được; một thẻ mở được tác phẩm liên quan |
 | Nguồn và danh mục | Xem hồ sơ nguồn, mục từ, địa danh, phân loại và quan hệ | Giữ quyền `cadao_nguon` cho thay đổi chính sách nguồn; không mở trường nội bộ qua giao diện mặc định |
@@ -53,6 +54,7 @@ Màn máy tính ưu tiên bảng và bộ lọc; màn điện thoại ưu tiên 
 3. **Truy vấn có phân trang:** danh sách việc phải truy được mọi trạng thái và đếm chính xác theo bộ lọc; thêm chỉ mục sau khi đo truy vấn trên bản thử, tránh N+1 khi hiện nguồn, phần thiếu và việc liên quan. Bộ đếm không dựa trên `LIMIT 500/1000`.
 4. **Lịch sử có thể dùng:** lưu giá trị trước/sau và phiên bản đối tượng cho thao tác sửa, quyết việc, đổi trạng thái, nguồn và lô; khôi phục một phần chỉ khi phiên bản hiện tại còn phù hợp, ghi sự kiện khôi phục mới. Hoàn tác 10 giây là tiện ích nhanh, không thay lịch sử dài hạn.
 5. **Triển khai tăng dần:** thêm menu và trang admin sau quyền; giữ các đường sửa hiện có hoạt động trong lúc kiểm tương đương. Chuyển đường tắt/đường cũ cuối cùng, có cách quay lại giao diện cũ nếu phát hiện lỗi; không chuyển dữ liệu của tác phẩm hay việc.
+6. **Kho do người quản trị chọn:** danh sách kho dùng đếm và phân trang thật, hiện nguồn gốc và trạng thái đã có; nút “Đưa vào Hộp việc” chỉ có cho câu mới chưa gắn bài và chưa có thẻ Câu mới đang mở. Máy chủ kiểm lại quyền, nonce, phiên/trạng thái khi bấm; bấm lại không tạo thẻ đôi. Người biên soạn tự chọn câu, người có quyền duyệt quyết trong Hộp việc; không tự đưa câu lên trang đọc hay xoá dữ liệu kho.
 
 ## 5. Lộ trình và điều kiện nghiệm thu
 
@@ -64,6 +66,7 @@ Màn máy tính ưu tiên bảng và bộ lọc; màn điện thoại ưu tiên 
 | Lịch sử và khôi phục | T-170 | So trước/sau, khôi phục có kiểm xung đột và nhật ký mới; hồ sơ nguồn có dấu vết; bài sửa tiếp không bị ghi đè |
 | Xử lý lô | T-171 | Duyệt nhóm gợi ý, sửa phân loại, sửa nhiều phần, ẩn/thùng rác và đổi trạng thái việc theo hợp đồng mục 3; kết quả từng mục, chạy lại an toàn |
 | Chuyển lối vào, nghiệm thu | T-172 | Người sáng lập thử ba kịch bản dưới đây trên máy tính và điện thoại; liên kết cũ đi đúng màn; cổng kiểm tự động đạt |
+| Kho để tự chọn câu | T-184 | Từ danh sách kho, người quản trị lọc được câu và đưa một câu đủ điều kiện vào Hộp việc đúng một lần; quyết định xuất bản vẫn ở Hộp việc |
 
 **Ba kịch bản dùng thử:** (1) tìm toàn bộ bài thiếu Ý nghĩa, sửa ba bài và quay về đúng bộ lọc; (2) duyệt một nhóm gợi ý có hai ngoại lệ, kiểm kết quả từng bài; (3) ẩn một nhóm bài thử, khôi phục một mục và kiểm lịch sử. Dùng dữ liệu thử có nhãn, dọn sạch sau kiểm; không quyết nội dung văn hoá thật thay người biên tập. Ghi thời gian, số thao tác và lỗi của từng kịch bản; mục tiêu là giảm thao tác so với đường đang dùng, chưa tuyên bố “tối ưu” trước khi đo.
 

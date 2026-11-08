@@ -1,0 +1,100 @@
+.phongdao-admin-tp .phongdao-tp-loc {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+	gap: 12px;
+	align-items: end;
+	margin: 20px 0;
+}
+
+.phongdao-admin-tp .phongdao-tp-loc label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 5px;
+}
+
+.phongdao-admin-tp .phongdao-tp-loc input,
+.phongdao-admin-tp .phongdao-tp-loc select,
+.phongdao-admin-tp .phongdao-tp-loc button,
+.phongdao-admin-tp .phongdao-tp-trang .button {
+	width: 100%;
+	min-height: 44px;
+}
+
+.phongdao-admin-tp .phongdao-tp-tong {
+	margin: 16px 0;
+}
+
+.phongdao-admin-tp .widefat th,
+.phongdao-admin-tp .widefat td {
+	vertical-align: top;
+	padding: 12px;
+}
+
+.phongdao-admin-tp .widefat a {
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
+}
+
+.phongdao-admin-tp .phongdao-tp-trang {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin: 20px 0;
+}
+
+.phongdao-admin-tp .phongdao-tp-trang .button {
+	width: auto;
+	min-width: 110px;
+	text-align: center;
+}
+
+.phongdao-admin-tp :is(input, select, button, a):focus-visible {
+	outline: 3px solid #135e96;
+	outline-offset: 2px;
+}
+
+@media (max-width: 782px) {
+	.phongdao-admin-tp .phongdao-tp-loc {
+		grid-template-columns: 1fr;
+	}
+
+	.phongdao-admin-tp .widefat,
+	.phongdao-admin-tp .widefat tbody,
+	.phongdao-admin-tp .widefat tr,
+	.phongdao-admin-tp .widefat td {
+		display: block;
+	}
+
+	.phongdao-admin-tp .widefat thead {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+	}
+
+	.phongdao-admin-tp .widefat tr {
+		margin: 12px 0;
+		border: 1px solid #c3c4c7;
+		background: #fff;
+	}
+
+	.phongdao-admin-tp .widefat td {
+		padding: 8px 12px;
+		border: 0;
+		overflow-wrap: anywhere;
+	}
+
+	.phongdao-admin-tp .widefat td::before {
+		content: attr(data-nhan);
+		display: block;
+		font-weight: 600;
+		color: #50575e;
+		margin-bottom: 2px;
+	}
+
+	.phongdao-admin-tp .phongdao-tp-trang {
+		flex-wrap: wrap;
+	}
+}
