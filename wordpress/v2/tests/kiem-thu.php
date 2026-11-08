@@ -740,6 +740,20 @@ foreach ( array(
 }
 $q = QuyetViec::quyet( $vgan[0]['id'], 'khac', $ai_ql, true );
 kt( 'quyết "Là bài khác": cặp ghi lại, câu kho hết chờ, việc đóng', $q['ok'] && ! ChongTrung::dang_cho( (int) $gan->id ) && array() === Viec::mo( 'kho', (int) $gan->id, 'co_the_trung' ) );
+$bai_gioi_han = wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'draft', 'post_title' => 'Bài kiểm giới hạn chỉ mục' ) );
+$vt_ngan = \Phongdao\MienDuLieu\VanTay::cua( 'Hai chữ' );
+foreach ( array( 'tam:kiem', 'cu:kiem' ) as $muc_tam ) {
+	for ( $phan_tam = 0; $phan_tam < 30; ++$phan_tam ) {
+		$wpdb->insert( ChongTrung::bang( 'van_tay' ), array( 'muc' => $muc_tam, 'phan' => $phan_tam, 'vt1' => $vt_ngan['vt1'], 'vt2' => $vt_ngan['vt2'], 'so_am' => $vt_ngan['so_am'], 'so_dong' => $vt_ngan['so_dong'], 'so_cap' => $vt_ngan['so_cap'] ) );
+	}
+}
+$ghi_gioi_han = ChongTrung::ghi( 'bai:' . $bai_gioi_han, array( 'Hai chữ' ) );
+$so_tam_gioi_han = (int) $wpdb->get_var( "SELECT COUNT(*) FROM " . ChongTrung::bang( 'van_tay' ) . " WHERE muc IN ('tam:kiem', 'cu:kiem')" );
+$tim_gioi_han = array_column( ChongTrung::tim( 'Hai chữ' ), 'muc' );
+kt( 'hàng chỉ mục tạm không chiếm giới hạn 50 kết quả và che bài thật', $ghi_gioi_han && 60 === $so_tam_gioi_han && in_array( 'bai:' . $bai_gioi_han, $tim_gioi_han, true ), array( 'so_tam' => $so_tam_gioi_han, 'tim' => $tim_gioi_han ) );
+ChongTrung::xoa( 'tam:kiem' );
+ChongTrung::xoa( 'cu:kiem' );
+wp_delete_post( $bai_gioi_han, true );
 $v_cd2 = Viec::mo( 'kho', (int) $h2->id, 'cau_moi' )[0] ?? null;
 $so_bai_cd2 = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . $wpdb->posts . ' WHERE post_type = %s', KhaiBao::TAC_PHAM ) );
 $loi_dang = array(
