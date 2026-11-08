@@ -425,6 +425,24 @@ $kc  = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . Kho::bang() . ' WHERE 
 $dkc = UngVien::dang( (int) $kc->id, array( 'nguoi' => $ai_ql ) );
 kt( 'nguồn tắt "Chép chú thích": Đăng không chép chú thích (D-055)', $dkc['ok'] && null === PhanBai::lay( $dkc['bai'], 'chu_thich' ), $dkc );
 
+Kho::luu( 'me-thu', array( 'ma_goc' => 900, 'url' => "$G/trung-loi/", 'loai' => 'ca_dao', 'loi' => "Dòng một mẫu,\nDÒNG HAI MẪU!", 'di_ban' => array( "Dị bản kiểm lỗi\nDòng kiểm lỗi" ) ) );
+$kho_gop_loi = $k( "$G/trung-loi/" );
+$vt_gop_loi = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . ChongTrung::bang( 'van_tay' ) . ' WHERE muc = %s', 'kho:' . $kho_gop_loi->id ) );
+$di_ban_gop_loi = PhanBai::lay( $tp1, 'di_ban' );
+$chan_gop_tu_dong = static function ( $kiem, $bai, $khoa ) use ( $tp1 ) {
+	return $bai === $tp1 && $khoa === \Phongdao\MienDuLieu\Phan::khoa( 'di_ban' ) ? false : $kiem;
+};
+add_filter( 'update_post_metadata', $chan_gop_tu_dong, 10, 3 );
+$kq_gop_tu_dong = ChongTrung::kiem_kho( (int) $kho_gop_loi->id );
+remove_filter( 'update_post_metadata', $chan_gop_tu_dong, 10 );
+$kho_gop_sau_loi = Kho::lay( (int) $kho_gop_loi->id );
+$vt_gop_sau_loi = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . ChongTrung::bang( 'van_tay' ) . ' WHERE muc = %s', 'kho:' . $kho_gop_loi->id ) );
+kt( 'gộp tự động lỗi: câu kho và chỉ mục còn nguyên, đưa vào việc nghi trùng', 'cho_quyet' === $kq_gop_tu_dong && 'moi' === $kho_gop_sau_loi->trang_thai && $vt_gop_loi === $vt_gop_sau_loi && $di_ban_gop_loi === PhanBai::lay( $tp1, 'di_ban' ) && ChongTrung::dang_cho( (int) $kho_gop_loi->id ) && 1 === count( Viec::mo( 'kho', (int) $kho_gop_loi->id, 'co_the_trung' ) ), array( 'ket_qua' => $kq_gop_tu_dong, 'trang_thai' => $kho_gop_sau_loi->trang_thai, 'van_tay' => array( $vt_gop_loi, $vt_gop_sau_loi ) ) );
+$wpdb->delete( Viec::bang(), array( 'doi_tuong_loai' => 'kho', 'doi_tuong_id' => (int) $kho_gop_loi->id ) );
+$wpdb->delete( ChongTrung::bang( 'trung' ), array( 'a' => 'kho:' . $kho_gop_loi->id ) );
+ChongTrung::xoa( 'kho:' . $kho_gop_loi->id );
+$wpdb->delete( Kho::bang(), array( 'id' => (int) $kho_gop_loi->id ) );
+
 Kho::luu( 'me-thu', array( 'ma_goc' => 901, 'doc_trang' => '2026-10-26', 'url' => "$G/trung/", 'loai' => 'ca_dao', 'tieu_de' => 'Trùng', 'loi' => "Dòng một mẫu,\nDÒNG HAI MẪU!", 'di_ban' => array( "Dị bản từ nguồn khác\nDị bản dòng hai" ) ) );
 $tr = $k( "$G/trung/" );
 kt( 'chống trùng: lời y hệt (khác dấu câu, chữ hoa), cùng thể loại → tự gắn vào tác phẩm có sẵn', 'da_gop' === $tr->trang_thai && 'bai:' . $tp1 === $tr->gop_vao, $tr );
