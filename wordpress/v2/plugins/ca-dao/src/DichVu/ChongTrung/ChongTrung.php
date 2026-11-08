@@ -369,12 +369,18 @@ final class ChongTrung implements Module {
 			}
 			$cung_loai = self::nhom_the_loai( $khoa ) === self::nhom_the_loai( $t['muc'] );
 			if ( $cung_loai && 0 === $t['phan'] && 100 === $t['giong'] && in_array( $t['cap_do'], array( 'y_het', 'gan_y_het' ), true ) ) {
-				self::gop( $khoa, $t['muc'], 'trung' );
-				return 'da_gop';
+				$lam = 'trung';
+			} elseif ( $t['phan'] > 0 && 100 === $t['giong'] && 'di_ban' === $t['cap_do'] ) { // D-074: trùng đúng một dị bản đã ghi
+				$lam = 'di_ban';
+			} else {
+				$lam = '';
 			}
-			if ( $t['phan'] > 0 && 100 === $t['giong'] && 'di_ban' === $t['cap_do'] ) { // D-074: trùng đúng một dị bản đã ghi
-				self::gop( $khoa, $t['muc'], 'di_ban' );
-				return 'da_gop';
+			if ( $lam ) {
+				if ( self::gop_tu_dong( $khoa, $t['muc'], $lam ) ) {
+					return 'da_gop';
+				}
+				self::ghi_cho( $khoa, $t['muc'], $t['cap_do'], $t['giong'], trim( 'Chưa gộp tự động được; cần kiểm lại. ' . $t['ly_do'] ) );
+				return self::dang_cho( $kho_id ) ? 'cho_quyet' : 'khong';
 			}
 			$ly_do = $cung_loai ? $t['ly_do'] : trim( 'khác thể loại' . ( $t['ly_do'] ? '; ' . $t['ly_do'] : '' ) );
 			self::ghi_cho( $khoa, $t['muc'], $t['cap_do'], $t['giong'], $ly_do );
@@ -384,6 +390,28 @@ final class ChongTrung implements Module {
 			}
 		}
 		return 'khong';
+	}
+
+	/** Gộp từ nguồn nằm ngoài lượt quyết thẻ: giữ kho, cặp, phần bài và chỉ mục trong cùng giao dịch. */
+	private static function gop_tu_dong( string $a, string $b, string $lam ): bool {
+		global $wpdb;
+		if ( false === $wpdb->query( 'START TRANSACTION' ) ) {
+			return false;
+		}
+		try {
+			$ok = self::gop( $a, $b, $lam );
+		} catch ( \Throwable $e ) {
+			$ok = false;
+		}
+		if ( ! $ok || false === $wpdb->query( 'COMMIT' ) ) {
+			$wpdb->query( 'ROLLBACK' );
+			$bai = self::bai_cua_muc( $b );
+			if ( $bai ) {
+				clean_post_cache( $bai );
+			}
+			return false;
+		}
+		return true;
 	}
 
 	/** Sau khi kho lưu một câu: cập nhật chỉ mục; câu đã đọc trang gốc thì so ngay. */
