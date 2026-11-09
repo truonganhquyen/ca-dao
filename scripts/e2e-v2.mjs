@@ -479,10 +479,12 @@ try {
       const bao = await bt.$eval('.phongdao-admin-kho .notice', e => e.textContent.trim()).catch(() => '(không có thông báo)');
       chac(bao.includes(`Đã đưa câu #${id} vào Hộp việc`), `không báo đã đưa câu vào Hộp việc — thấy: ${bao}`);
       chac(!(await bt.$(`input[name=id][value="${id}"]`)), 'câu đã có thẻ vẫn còn nút đưa vào');
-      await bamDoiTrang(bt, '.phongdao-admin-kho .notice a[href*="phongdao-hop-viec"]');
+      // Mở đúng thẻ từ lối "Mở thẻ" của thông báo (đi thẳng tới địa chỉ, không chờ sự kiện chuyển trang sau cú bấm)
+      const mo = await bt.$eval('.phongdao-admin-kho .notice a[href*="phongdao-hop-viec"]', a => a.href);
+      await di(bt, mo.replace(G, ''));
       chac(await coChu(bt, 'người chọn từ Kho'), 'thẻ Câu mới không ghi người chọn từ Kho');
-      // Khách không bao giờ thấy màn Kho
-      const tl = await k.goto(G + '/wp-admin/admin.php?page=phongdao-kho', { waitUntil: 'load', timeout: 120_000 });
+      // Khách không bao giờ thấy màn Kho (bị đưa sang trang đăng nhập)
+      const tl = await k.goto(G + '/wp-admin/admin.php?page=phongdao-kho', { waitUntil: 'domcontentloaded', timeout: 120_000 });
       chac(!(await coChu(k, 'Câu kho mẫu')) && !(await coChu(k, 'Tục ngữ kho mẫu')), `khách thấy dữ liệu kho (HTTP ${tl.status()})`);
     });
 
@@ -499,6 +501,29 @@ try {
       chac(await coChu(bt, `Thành công ${so}`), `kết quả không ghi ${so} mục thành công`);
       await di(bt, '/wp-admin/admin.php?page=phongdao-hop-viec&tt=cho&loai=cau_moi');
       chac(await coChu(bt, '0 thẻ khớp bộ lọc') || await coChu(bt, 'Không có thẻ phù hợp'), 'còn thẻ Câu mới ở Chờ sau lô Để sau');
+    });
+
+    await thu('wp-admin Lô Tác phẩm: thêm một chủ đề có sẵn qua xem trước, người đọc thấy; gỡ lại theo lô', async () => {
+      await di(bt, T.cauDo);
+      const id = await bt.$eval('.dai-bien-tap', e => e.dataset.bai);
+      const lam = async thaoTac => {
+        await di(bt, `/wp-admin/admin.php?page=phongdao-tac-pham&q=${id}`);
+        await bam(bt, `input[name="ids[]"][value="${id}"]`);
+        await bt.select('#phongdao-lo-tp-thao-tac', thaoTac);
+        const v = await bt.$$eval('#phongdao-lo-tp-muc option', os => os.find(o => o.textContent.trim() === 'Lao động')?.value || '');
+        chac(v, 'không có chủ đề "Lao động" để chọn');
+        await bt.select('#phongdao-lo-tp-muc', v);
+        await bamDoiTrang(bt, '.phongdao-lo-chon [type=submit]');
+        chac(await coChu(bt, 'Chờ xem trước'), 'không sang bước xem trước');
+        await bamDoiTrang(bt, 'button[name=lam][value=ap_dung]');
+        chac(await coChu(bt, 'Lô đã chạy xong.') && await coChu(bt, 'Thành công 1'), `lô ${thaoTac} không thành công`);
+      };
+      await lam('pl_them');
+      await di(k, T.cauDo);
+      chac(await coChu(k, 'Chủ đề: Lao động'), 'người đọc không thấy chủ đề vừa thêm theo lô');
+      await lam('pl_go');
+      await di(k, T.cauDo);
+      chac(!(await coChu(k, 'Chủ đề: Lao động')), 'gỡ theo lô rồi người đọc vẫn thấy chủ đề');
     });
   }
 } catch (e) {

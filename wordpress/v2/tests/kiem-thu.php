@@ -1074,6 +1074,68 @@ $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . Viec::bang() . " WHERE (doi_tuong
 foreach ( $gy_t as $t_lo ) {
 	wp_delete_term( $t_lo, 'chu_de' );
 }
+
+// ---------- Xử lý lô: Tác phẩm — phân loại, ẩn, thùng rác (T-171) ----------
+$tp_lo = array();
+for ( $i = 1; $i <= 4; $i++ ) {
+	$tp_lo[ $i ] = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'post_title' => 'Bài lô tác phẩm ' . $i, 'post_name' => 'bai-lo-tac-pham-' . $i ) );
+	wp_set_object_terms( $tp_lo[ $i ], 'ca-dao', KhaiBao::THE_LOAI );
+}
+$t_x = (int) wp_insert_term( 'Chủ đề lô tác phẩm', 'chu_de' )['term_id'];
+$t_y = (int) wp_insert_term( 'Chủ đề lô khác', 'chu_de' )['term_id'];
+$t_c = (int) wp_insert_term( 'Trò chơi lô thử', 'tro_choi' )['term_id'];
+wp_set_object_terms( $tp_lo[2], $t_x, 'chu_de' ); // bài 2 đã có mục này
+$lb = $LO::tao( 'pl_them', array_values( $tp_lo ), 'chon', array(), $ai_ql, array( 'tax' => 'chu_de', 'term' => $t_x ) );
+$_GET = array( 'lo' => (string) $lb['lo'] );
+$h_lb = \Phongdao\GiaoTiep\QuanTri\TrangLo::hien();
+$LO::bo_chon( $lb['lo'], array_values( $tp_lo ), array( $tp_lo[1], $tp_lo[2], $tp_lo[3] ), $ai_ql ); // ngoại lệ: bài 4
+$LPL::luu( $tp_lo[3], 'chu_de', array( $t_y ), array(), $ai_ql ); // bài 3 đổi sau lúc xem trước
+$ab = $LO::ap_dung( $lb['lo'], $ai_ql, true );
+kt( 'lô Thêm phân loại: 1 thành công, bài đã có thì bỏ qua, ngoại lệ bỏ qua, bài đổi sau lúc xem trước thì xung đột; bài thành công ghi Lịch sử', $lb['ok'] && str_contains( $h_lb, 'Đang có (Chủ đề)' ) && array( 'thanh_cong' => 1, 'bo_qua' => 2, 'xung_dot' => 1, 'loi' => 0 ) === $ab['dem'] && has_term( $t_x, 'chu_de', $tp_lo[1] ) && ! has_term( $t_x, 'chu_de', $tp_lo[3] ) && ! has_term( $t_x, 'chu_de', $tp_lo[4] ) && 'chu_de' === ( Viec::lich_su( 'post', $tp_lo[1], 1 )[0]['phan'] ?? '' ), array( $lb, $ab ) );
+$lg = $LO::tao( 'pl_go', array( $tp_lo[1], $tp_lo[2] ), 'chon', array(), $ai_ql, array( 'tax' => 'chu_de', 'term' => $t_x ) );
+$ag = $LO::ap_dung( $lg['lo'], $ai_ql, true );
+$lt = $LO::tao( 'pl_thay', array( $tp_lo[3] ), 'chon', array(), $ai_ql, array( 'tax' => 'chu_de', 'term' => $t_x ) );
+$at = $LO::ap_dung( $lt['lo'], $ai_ql, true );
+kt( 'lô Gỡ, Thay thế phân loại', 2 === $ag['dem']['thanh_cong'] && ! has_term( $t_x, 'chu_de', $tp_lo[1] ) && ! has_term( $t_x, 'chu_de', $tp_lo[2] ) && 1 === $at['dem']['thanh_cong'] && array( $t_x ) === $LPL::dang_gan( $tp_lo[3], 'chu_de' ), array( $ag, $at ) );
+$l_tl = $LO::tao( 'pl_them', array( $tp_lo[1] ), 'chon', array(), $ai_ql, array( 'tax' => KhaiBao::THE_LOAI, 'term' => (int) get_term_by( 'slug', 'ca-dao', KhaiBao::THE_LOAI )->term_id ) );
+$l_tc = $LO::tao( 'pl_them', array( $tp_lo[1] ), 'chon', array(), $ai_ql, array( 'tax' => 'tro_choi', 'term' => $t_c ) );
+$a_tc = $LO::ap_dung( $l_tc['lo'], $ai_ql, true );
+kt( 'lô phân loại: thể loại không sửa theo lô; trò chơi trên bài không phải đồng dao thì bỏ qua', ! $l_tl['ok'] && $l_tc['ok'] && 1 === $a_tc['dem']['bo_qua'] && ! has_term( $t_c, 'tro_choi', $tp_lo[1] ), array( $l_tl, $a_tc ) );
+wp_update_post( array( 'ID' => $tp_lo[4], 'post_status' => 'private' ) );
+$la = $LO::tao( 'bai_an', array( $tp_lo[1], $tp_lo[4] ), 'chon', array(), $ai_ql );
+$aa = $LO::ap_dung( $la['lo'], $ai_ql, true );
+kt( 'lô Ẩn bài: bài đã đăng thành Đã ẩn, có dấu vết người làm; bài đã ẩn thì bỏ qua', 1 === $aa['dem']['thanh_cong'] && 1 === $aa['dem']['bo_qua'] && 'private' === get_post_status( $tp_lo[1] ) && 'an' === ( Viec::lich_su( 'post', $tp_lo[1], 1 )[0]['quyet'] ?? '' ) && $ai_ql === ( Viec::lich_su( 'post', $tp_lo[1], 1 )[0]['nguoi_quyet'] ?? 0 ), $aa );
+$lr_q = $LO::tao( 'thung_rac', array( $tp_lo[2] ), 'chon', array(), $chi_soan );
+$lr   = $LO::tao( 'thung_rac', array( $tp_lo[2], $tp_lo[3] ), 'chon', array(), $ai_ql );
+$_GET = array( 'lo' => (string) $lr['lo'] );
+$h_lr = \Phongdao\GiaoTiep\QuanTri\TrangLo::hien();
+$ar   = $LO::ap_dung( $lr['lo'], $ai_ql, true );
+$ll   = $LO::tao( 'lay_ra', array( $tp_lo[2], $tp_lo[1] ), 'chon', array(), $ai_ql );
+$al   = $LO::ap_dung( $ll['lo'], $ai_ql, true );
+kt( 'lô thùng rác cần quyền duyệt; xem trước hiện việc mở, tuyển tập; vào thùng rác rồi lấy ra (thành nháp); bài không ở thùng rác thì bỏ qua', ! $lr_q['ok'] && str_contains( $h_lr, 'Trong tuyển tập' ) && str_contains( $h_lr, 'Việc mở' ) && 2 === $ar['dem']['thanh_cong'] && 'trash' === get_post_status( $tp_lo[3] ) && 1 === $al['dem']['thanh_cong'] && 1 === $al['dem']['bo_qua'] && 'draft' === get_post_status( $tp_lo[2] ) && 'ra_thung_rac' === ( Viec::lich_su( 'post', $tp_lo[2], 1 )[0]['quyet'] ?? '' ), array( $ar, $al ) );
+$_GET   = array( 'q' => 'Bài lô tác phẩm', 'tt' => 'tat_ca' );
+$h_dstp = \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::hien();
+$ids_tp = \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::ids_loc( array( 'q' => 'Bài lô tác phẩm', 'tt' => 'tat_ca' ), $LO::TOI_DA );
+kt( 'danh sách Tác phẩm: ô chọn, khối Làm theo lô có mục phân loại có sẵn; "mọi bài khớp bộ lọc" lấy đủ bài kể cả thùng rác', str_contains( $h_dstp, 'name="ids[]" value="' . $tp_lo[1] . '"' ) && str_contains( $h_dstp, 'value="phongdao_lo_tao_bai"' ) && str_contains( $h_dstp, 'value="chu_de:' . $t_x . '"' ) && str_contains( $h_dstp, 'value="bai_an"' ) && 4 === count( array_intersect( $ids_tp, $tp_lo ) ), $ids_tp );
+add_filter( 'wp_die_handler', $chan_die_lo );
+add_filter( 'wp_redirect', $chan_di_lo );
+$g_tp    = $gui_lo( $ai_ql, 'tao_bai', array( 'thao_tac' => 'pl_them', 'muc_pl' => 'chu_de:' . $t_y, 'pham_vi' => 'loc', 'loc_q' => 'Bài lô tác phẩm', 'loc_tt' => 'tat_ca' ), 'phongdao_lo_tao_bai' );
+$g_tp_vc = $gui_lo( $ai_ql, 'tao_bai', array( 'thao_tac' => 'viec_de_sau', 'ids' => array( (string) $tp_lo[1] ) ), 'phongdao_lo_tao_bai' );
+$g_tp_dg = $gui_lo( $doc_gia, 'tao_bai', array( 'thao_tac' => 'bai_an', 'ids' => array( (string) $tp_lo[1] ) ), 'phongdao_lo_tao_bai' );
+remove_filter( 'wp_die_handler', $chan_die_lo );
+remove_filter( 'wp_redirect', $chan_di_lo );
+$_POST = $_REQUEST = array();
+wp_set_current_user( $ai_ql );
+$lo_tp = Viec::ds_lo( $ai_ql, 1 )[0] ?? array();
+kt( 'lô Tác phẩm qua admin-post: "mọi bài khớp bộ lọc" chốt đủ 4 bài và sang xem trước; thao tác của Hộp việc bị từ chối; người đọc bị chặn', str_contains( $g_tp, 'page=phongdao-lo&lo=' ) && 'loc' === ( $lo_tp['noi_dung']['pham_vi'] ?? '' ) && 4 === count( $lo_tp['noi_dung']['muc'] ?? array() ) && str_contains( $g_tp_vc, 'page=phongdao-tac-pham' ) && str_starts_with( $g_tp_dg, 'wp_die' ), array( $g_tp, $g_tp_vc, $g_tp_dg ) );
+$_GET = array();
+foreach ( $tp_lo as $b_lo ) {
+	wp_delete_post( $b_lo, true );
+}
+$wpdb->query( 'DELETE FROM ' . Viec::bang() . " WHERE (doi_tuong_loai = 'post' AND doi_tuong_id IN (" . implode( ',', array_map( 'intval', $tp_lo ) ) . ')) OR loai = \'' . Viec::LO . "'" );
+wp_delete_term( $t_x, 'chu_de' );
+wp_delete_term( $t_y, 'chu_de' );
+wp_delete_term( $t_c, 'tro_choi' );
 foreach ( $ids_nhieu as $id_nhieu ) {
 	Viec::xoa( $id_nhieu );
 }

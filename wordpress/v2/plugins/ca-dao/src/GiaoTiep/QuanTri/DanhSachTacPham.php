@@ -32,24 +32,37 @@ final class DanhSachTacPham {
 	);
 
 	/** @return array<string,string|int> Bộ lọc đã kiểm; URL và SQL chỉ nhận các giá trị này. */
-	private static function loc(): array {
-		$nguon = sanitize_text_field( wp_unslash( (string) ( $_GET['nguon'] ?? 'tat_ca' ) ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc
+	private static function loc( ?array $vao = null ): array {
+		$vao   = $vao ?? wp_unslash( $_GET ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc
+		$nguon = sanitize_text_field( (string) ( $vao['nguon'] ?? 'tat_ca' ) );
 		$ds_nguon = NguonTuDong::tat_ca();
 		if ( ! in_array( $nguon, array( 'tat_ca', 'may', 'nguoi', 'khong_may' ), true ) ) {
 			$id = str_starts_with( $nguon, 'may:' ) ? substr( $nguon, 4 ) : '';
 			$nguon = isset( $ds_nguon[ $id ] ) && preg_match( '/^[a-z0-9_-]+$/', $id ) ? 'may:' . $id : 'tat_ca';
 		}
-		$tt = sanitize_key( (string) ( $_GET['tt'] ?? 'tat_ca' ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc
-		$muc = sanitize_key( (string) ( $_GET['muc'] ?? 'tat_ca' ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc
+		$tt = sanitize_key( (string) ( $vao['tt'] ?? 'tat_ca' ) );
+		$muc = sanitize_key( (string) ( $vao['muc'] ?? 'tat_ca' ) );
 		return array(
-			'q'        => sanitize_text_field( wp_unslash( (string) ( $_GET['q'] ?? '' ) ) ), // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc
+			'q'        => sanitize_text_field( (string) ( $vao['q'] ?? '' ) ),
 			'tt'       => isset( self::TRANG_THAI[ $tt ] ) ? $tt : 'tat_ca',
-			'the_loai' => sanitize_title( wp_unslash( (string) ( $_GET['the_loai'] ?? '' ) ) ), // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc
-			'chu_de'   => sanitize_title( wp_unslash( (string) ( $_GET['chu_de'] ?? '' ) ) ), // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc
+			'the_loai' => sanitize_title( (string) ( $vao['the_loai'] ?? '' ) ),
+			'chu_de'   => sanitize_title( (string) ( $vao['chu_de'] ?? '' ) ),
 			'muc'      => isset( self::MUC[ $muc ] ) ? $muc : 'tat_ca',
 			'nguon'    => $nguon,
-			'paged'    => max( 1, (int) ( $_GET['paged'] ?? 1 ) ), // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc
+			'paged'    => max( 1, (int) ( $vao['paged'] ?? 1 ) ),
 		);
+	}
+
+	/**
+	 * Mọi ID tác phẩm khớp bộ lọc (phạm vi "mọi bài khớp bộ lọc" của một lô), cùng điều kiện với danh sách; lấy tối đa
+	 * $toi_da + 1 để biết có vượt giới hạn.
+	 *
+	 * @param array<string,string> $vao bộ lọc đã gửi (q, tt, the_loai, chu_de, muc, nguon)
+	 * @return int[]
+	 */
+	public static function ids_loc( array $vao, int $toi_da ): array {
+		$args = array_merge( self::tham_so( self::loc( $vao ) ), array( 'fields' => 'ids', 'posts_per_page' => $toi_da + 1, 'paged' => 1, 'no_found_rows' => true, 'update_post_meta_cache' => false, 'update_post_term_cache' => false ) );
+		return array_map( 'intval', ( new \WP_Query( $args ) )->posts );
 	}
 
 	/** @return array<string,mixed> */
@@ -144,7 +157,7 @@ final class DanhSachTacPham {
 		return $ra;
 	}
 
-	private static function dong( \WP_Post $bai, array $viec, array $nguon ): string {
+	private static function dong( \WP_Post $bai, array $viec, array $nguon, bool $lo = false ): string {
 		$id = (int) $bai->ID;
 		$tt = self::TRANG_THAI[ $bai->post_status ] ?? $bai->post_status;
 		$loai = get_the_terms( $id, KhaiBao::THE_LOAI );
@@ -165,7 +178,8 @@ final class DanhSachTacPham {
 		$ten = $lien ? '<a href="' . esc_url( $lien ) . '">' . esc_html( $ten ) . '</a>' : esc_html( $ten );
 		$viec_lien = $ve ? '<a href="' . esc_url( add_query_arg( array( 'page' => DanhSachViec::TRANG, 'viec' => (int) $viec[ $id ]['dau'] ), admin_url( 'admin.php' ) ) ) . '">' . $ve . ' việc mở</a>' : '—';
 		$sua_lien = 'trash' !== $bai->post_status && current_user_can( 'edit_post', $id ) ? ' <a href="' . esc_url( SuaTacPham::url( $id ) ) . '">Sửa bài</a>' : '';
-		return '<tr><td data-nhan="ID">' . $id . '</td><td data-nhan="Tác phẩm"><strong>' . $ten . '</strong>' . $sua_lien . '</td><td data-nhan="Trạng thái">' . esc_html( $tt ) . '</td><td data-nhan="Thể loại">' . esc_html( $ten_loai ) . '</td><td data-nhan="Phần thiếu">' . esc_html( $thieu ? implode( ', ', $thieu ) : 'Đủ phần chính' ) . '</td><td data-nhan="Nguồn Lời">' . esc_html( $nguon_hien ) . '</td><td data-nhan="Việc">' . $viec_lien . '</td><td data-nhan="Sửa cuối">' . esc_html( mysql2date( 'd/m/Y H:i', $bai->post_modified ) ) . '</td></tr>';
+		$chon = $lo ? '<td data-nhan="Chọn"><input type="checkbox" name="ids[]" value="' . $id . '" id="chon-bai-' . $id . '"><label for="chon-bai-' . $id . '" class="screen-reader-text">Chọn bài #' . $id . '</label></td>' : '';
+		return '<tr>' . $chon . '<td data-nhan="ID">' . $id . '</td><td data-nhan="Tác phẩm"><strong>' . $ten . '</strong>' . $sua_lien . '</td><td data-nhan="Trạng thái">' . esc_html( $tt ) . '</td><td data-nhan="Thể loại">' . esc_html( $ten_loai ) . '</td><td data-nhan="Phần thiếu">' . esc_html( $thieu ? implode( ', ', $thieu ) : 'Đủ phần chính' ) . '</td><td data-nhan="Nguồn Lời">' . esc_html( $nguon_hien ) . '</td><td data-nhan="Việc">' . $viec_lien . '</td><td data-nhan="Sửa cuối">' . esc_html( mysql2date( 'd/m/Y H:i', $bai->post_modified ) ) . '</td></tr>';
 	}
 
 	public static function hien(): string {
@@ -195,14 +209,18 @@ final class DanhSachTacPham {
 			. self::chon( 'muc', 'Phần và cờ', self::MUC, $loc['muc'] )
 			. self::chon( 'nguon', 'Nguồn Lời', self::tu_nguon( $nguon ), $loc['nguon'] )
 			. '<button class="button button-primary" type="submit">Tìm và lọc</button></form>';
-		$dong = implode( '', array_map( static fn( \WP_Post $p ): string => self::dong( $p, $viec, $nguon ), $truy->posts ) );
+		// Làm theo lô (T-171): ô chọn và khối thao tác khi có bài khớp
+		$lo   = (int) $truy->found_posts > 0;
+		$dong = implode( '', array_map( static fn( \WP_Post $p ): string => self::dong( $p, $viec, $nguon, $lo ), $truy->posts ) );
 		$so_trang = (int) $truy->max_num_pages;
 		$phan_trang = $so_trang > 1 ? '<nav class="phongdao-tp-trang" aria-label="Phân trang"><span>Trang ' . (int) $loc['paged'] . ' / ' . $so_trang . '</span>'
 			. ( $loc['paged'] > 1 ? '<a class="button" href="' . esc_url( self::url( $loc, $loc['paged'] - 1 ) ) . '">Trang trước</a>' : '' )
 			. ( $loc['paged'] < $so_trang ? '<a class="button" href="' . esc_url( self::url( $loc, $loc['paged'] + 1 ) ) . '">Trang sau</a>' : '' ) . '</nav>' : '';
 		return '<div class="wrap phongdao-admin-tp"><h1>Tác phẩm</h1><p class="description">Danh sách đọc từ toàn kho. Mở bài để sửa bằng biểu mẫu theo phần trên trang bài; việc chờ mở ở Hộp việc.</p>' . $form
+			. TrangLo::lay_bao()
 			. '<p class="phongdao-tp-tong" role="status"><strong>' . (int) $truy->found_posts . '</strong> tác phẩm khớp bộ lọc. Hiện ' . count( $truy->posts ) . ' mục trên trang này.</p>'
-			. '<table class="widefat striped"><thead><tr><th scope="col">ID</th><th scope="col">Tác phẩm</th><th scope="col">Trạng thái</th><th scope="col">Thể loại</th><th scope="col">Phần thiếu</th><th scope="col">Nguồn Lời</th><th scope="col">Việc</th><th scope="col">Sửa cuối</th></tr></thead><tbody>'
-			. ( $dong ?: '<tr><td colspan="8">Không có tác phẩm khớp. Thử đổi bộ lọc.</td></tr>' ) . '</tbody></table>' . $phan_trang . '</div>';
+			. ( $lo ? '<form method="post" class="phongdao-lo-form" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">' . TrangLo::khoi_chon_bai( $loc, (int) $truy->found_posts ) : '' )
+			. '<table class="widefat striped"><thead><tr>' . ( $lo ? '<th scope="col">Chọn</th>' : '' ) . '<th scope="col">ID</th><th scope="col">Tác phẩm</th><th scope="col">Trạng thái</th><th scope="col">Thể loại</th><th scope="col">Phần thiếu</th><th scope="col">Nguồn Lời</th><th scope="col">Việc</th><th scope="col">Sửa cuối</th></tr></thead><tbody>'
+			. ( $dong ?: '<tr><td colspan="8">Không có tác phẩm khớp. Thử đổi bộ lọc.</td></tr>' ) . '</tbody></table>' . ( $lo ? '</form>' : '' ) . $phan_trang . '</div>';
 	}
 }
