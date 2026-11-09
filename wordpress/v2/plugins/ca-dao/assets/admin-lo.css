@@ -1,0 +1,7 @@
+/* Màn Lô thao tác (T-171): dùng bố cục danh sách của admin-tac-pham.css; nút, ô chọn đủ lớn để chạm */
+.phongdao-admin-lo .phongdao-lo-nut { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+.phongdao-admin-lo .phongdao-lo-nut .button { min-height: 44px; white-space: normal; }
+.phongdao-admin-lo td input[type=checkbox] { width: 24px; height: 24px; margin: 0; }
+.phongdao-admin-lo form label { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; }
+.phongdao-admin-lo .phongdao-lo-loc a { display: inline-flex; align-items: center; min-height: 44px; }
+.phongdao-admin-lo .phongdao-lo-loc a[aria-current] { font-weight: 600; }

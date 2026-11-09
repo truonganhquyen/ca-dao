@@ -978,6 +978,102 @@ $NCD::luu_nguon( 'me-thu', $p_thu );
 $ls_ng = array_values( array_filter( Viec::lich_su( 'nguon', 0, 50 ), static fn( array $r ): bool => 'me-thu' === $r['phan'] ) );
 kt( 'dấu vết cài đặt nguồn: đổi số câu mỗi ngày rồi đổi lại — hai dòng có người; cài đặt về như cũ', 2 === count( $ls_ng ) && $ai_ql === $ls_ng[0]['nguoi_quyet'] && (int) $n_thu['so_bai_moi_ngay'] === (int) NguonTuDong::lay( 'me-thu' )['so_bai_moi_ngay'] && str_contains( $NCD::hien( 'nguon', 0, '' ), 'Số câu mới mỗi ngày: ' ), $ls_ng );
 $_GET = array();
+
+// ---------- Xử lý lô: Hộp việc (T-171) ----------
+$LO     = \Phongdao\DichVu\XuLyLo\Lo::class;
+$bai_lo = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'post_title' => 'Bài thử lô', 'post_name' => 'bai-thu-lo' ) );
+$gy_ids = array();
+$gy_t   = array();
+for ( $i = 1; $i <= 5; $i++ ) {
+	$gy_t[ $i ]   = (int) wp_insert_term( 'Chủ đề lô ' . $i, 'chu_de', array( 'slug' => 'chu-de-lo-' . $i ) )['term_id'];
+	$gy_ids[ $i ] = Viec::tao( array( 'loai' => 'goi_y', 'doi_tuong_loai' => 'post', 'doi_tuong_id' => $bai_lo, 'phan' => 'chu_de', 'noi_dung' => array( 'loai' => 'chu_de', 'ma' => 'chu-de-lo-' . $i, 'ly_do' => 'Lý do thử ' . $i ), 'nguoi_tao' => 'may', 'uu_tien' => 15 ) );
+}
+$lo_1  = $LO::tao( 'goi_y_dong_y', array_values( $gy_ids ), 'chon', array( 'tt' => 'cho', 'loai' => 'goi_y', 'q' => '' ), $ai_ql );
+$lo_v1 = Viec::lay( $lo_1['lo'] );
+kt( 'lô: bước xem trước chốt 5 thẻ kèm phiên, chưa đổi gì, không lẫn vào Hộp việc', $lo_1['ok'] && Viec::LO_XEM === $lo_v1['trang_thai'] && 5 === count( $lo_v1['noi_dung']['muc'] ) && 5 === count( array_filter( $gy_ids, static fn( int $i ): bool => Viec::CHO === Viec::lay( $i )['trang_thai'] ) ) && ! in_array( $lo_1['lo'], Viec::ids_quan_tri( 'tat_ca', '', '', 5000 ), true ), $lo_1 );
+$bc_1 = $LO::bo_chon( $lo_1['lo'], array_values( $gy_ids ), array( $gy_ids[1], $gy_ids[2], $gy_ids[3] ), $ai_ql );
+QuyetViec::quyet( $gy_ids[3], 'de_sau', $ai_ql, true ); // thẻ 3 đổi sau lúc xem trước
+$ad_1 = $LO::ap_dung( $lo_1['lo'], $ai_ql, true );
+$kq_1 = (array) Viec::lay( $lo_1['lo'] )['sau']['ket_qua'];
+kt( 'duyệt nhóm gợi ý có hai ngoại lệ: 2 thành công, 2 bỏ qua (ngoại lệ), 1 xung đột (đổi sau lúc xem trước); chỉ gắn chủ đề của thẻ thành công', $bc_1['ok'] && 2 === $bc_1['bo'] && $ad_1['ok'] && 0 === $ad_1['con'] && array( 'thanh_cong' => 2, 'bo_qua' => 2, 'xung_dot' => 1, 'loi' => 0 ) === $ad_1['dem'] && has_term( $gy_t[1], 'chu_de', $bai_lo ) && has_term( $gy_t[2], 'chu_de', $bai_lo ) && ! has_term( $gy_t[3], 'chu_de', $bai_lo ) && ! has_term( $gy_t[4], 'chu_de', $bai_lo ) && 'xung_dot' === ( $kq_1[ $gy_ids[3] ][0] ?? '' ) && Viec::LO_XONG === Viec::lay( $lo_1['lo'] )['trang_thai'], array( $ad_1, $kq_1 ) );
+kt( 'lô: mỗi thẻ thành công ghi người quyết và quyết định như bấm tay; ngoại lệ còn ở Chờ', 'dong_y' === Viec::lay( $gy_ids[1] )['quyet'] && $ai_ql === Viec::lay( $gy_ids[1] )['nguoi_quyet'] && Viec::CHO === Viec::lay( $gy_ids[4] )['trang_thai'] && Viec::DE_SAU === Viec::lay( $gy_ids[3] )['trang_thai'] );
+$ad_lai = $LO::ap_dung( $lo_1['lo'], $ai_ql, true );
+kt( 'lô đã xong: chạy lại bị từ chối, không áp dụng trùng', ! $ad_lai['ok'] && str_contains( $ad_lai['loi'], 'xong' ) && 2 === count( array_intersect( array( $gy_t[1], $gy_t[2] ), wp_get_object_terms( $bai_lo, 'chu_de', array( 'fields' => 'ids' ) ) ) ), $ad_lai );
+$chi_soan = (int) wp_insert_user( array( 'user_login' => 'chisoan', 'user_pass' => wp_generate_password(), 'role' => 'subscriber' ) );
+( new WP_User( $chi_soan ) )->add_cap( 'cadao_soan' );
+$lo_q = $LO::tao( 'goi_y_dong_y', array( $gy_ids[4] ), 'chon', array(), $chi_soan );
+$cx   = Viec::tao( array( 'loai' => 'can_xem', 'doi_tuong_loai' => 'post', 'doi_tuong_id' => $bai_lo, 'noi_dung' => array( 'ly_do' => array() ), 'nguoi_tao' => 'kiem_thu' ) );
+$lo_l = $LO::tao( 'viec_de_sau', array( $gy_ids[4], $cx ), 'chon', array(), $ai_ql );
+kt( 'lô: Đồng ý gợi ý cần quyền duyệt; chọn lẫn hai loại thẻ bị từ chối', ! $lo_q['ok'] && str_contains( $lo_q['loi'], 'quyền duyệt' ) && ! $lo_l['ok'] && str_contains( $lo_l['loi'], 'cùng một loại' ), array( $lo_q, $lo_l ) );
+$nd_id = Viec::tao( array( 'loai' => 'nguoi_doc', 'doi_tuong_loai' => 'post', 'doi_tuong_id' => 999999999, 'noi_dung' => array( 'loai' => 'gop_y' ), 'nguoi_tao' => 'kiem_thu' ) );
+$lo_nd = $LO::tao( 'viec_bo', array( $nd_id ), 'chon', array(), $ai_ql );
+$ad_nd = $LO::ap_dung( $lo_nd['lo'], $ai_ql, true );
+kt( 'lô Bỏ: nội dung người đọc gửi không bỏ theo lô (bỏ qua, quyết từng thẻ)', $ad_nd['ok'] && 1 === $ad_nd['dem']['bo_qua'] && Viec::CHO === Viec::lay( $nd_id )['trang_thai'], $ad_nd );
+// Lô lớn: 120 thẻ Cần xem, chạy từng lượt 50, phiên chặn hai lượt chạy cùng lúc
+$cx_ids = array( $cx );
+for ( $i = 1; $i < 120; $i++ ) {
+	$cx_ids[] = Viec::tao( array( 'loai' => 'can_xem', 'doi_tuong_loai' => 'post', 'doi_tuong_id' => $bai_lo, 'noi_dung' => array( 'ly_do' => array() ), 'nguoi_tao' => 'kiem_thu' ) );
+}
+$ids_loc = Viec::ids_quan_tri( Viec::CHO, 'can_xem', (string) $bai_lo, $LO::TOI_DA );
+$lo_lon  = $LO::tao( 'viec_de_sau', $ids_loc, 'loc', array( 'tt' => 'cho', 'loai' => 'can_xem', 'q' => (string) $bai_lo ), $ai_ql );
+$luot    = array();
+$luot[]  = $LO::ap_dung( $lo_lon['lo'], $ai_ql, true );
+$v_lon   = Viec::lay( $lo_lon['lo'] );
+$chan    = Viec::nhan_lo( $lo_lon['lo'], $v_lon['phien'] - 1 );
+$luot[]  = $LO::ap_dung( $lo_lon['lo'], $ai_ql, true );
+$luot[]  = $LO::ap_dung( $lo_lon['lo'], $ai_ql, true );
+kt( 'lô lớn (mọi thẻ khớp bộ lọc): 120 thẻ chạy 3 lượt 50/50/20, đều Để sau; lượt mang phiên cũ bị chặn', 120 === count( $ids_loc ) && $lo_lon['ok'] && 'loc' === Viec::lay( $lo_lon['lo'] )['noi_dung']['pham_vi'] && array( 70, 20, 0 ) === array_column( $luot, 'con' ) && Viec::LO_DANG === $v_lon['trang_thai'] && ! $chan && 120 === $luot[2]['dem']['thanh_cong'] && 120 === count( array_filter( $cx_ids, static fn( int $i ): bool => Viec::DE_SAU === Viec::lay( $i )['trang_thai'] ) ), array_column( $luot, 'dem' ) );
+// Giao diện, quyền
+$_GET   = array( 'tt' => 'cho', 'loai' => 'goi_y' );
+$h_hv   = \Phongdao\GiaoTiep\QuanTri\DanhSachViec::hien();
+$_GET   = array( 'tt' => 'xong' );
+$h_hv_x = \Phongdao\GiaoTiep\QuanTri\DanhSachViec::hien();
+kt( 'Hộp việc wp-admin: thẻ Chờ có ô chọn, khối Làm theo lô với hai phạm vi; thẻ đã xong không có', str_contains( $h_hv, 'name="ids[]" value="' . $gy_ids[4] . '"' ) && str_contains( $h_hv, 'Làm theo lô' ) && str_contains( $h_hv, 'Mọi thẻ khớp bộ lọc' ) && str_contains( $h_hv, 'value="goi_y_dong_y"' ) && ! str_contains( $h_hv_x, 'Làm theo lô' ) );
+$lo_x  = $LO::tao( 'viec_de_sau', array( $gy_ids[4], $gy_ids[5] ), 'chon', array(), $ai_ql );
+$_GET  = array( 'lo' => (string) $lo_x['lo'] );
+$h_lx  = \Phongdao\GiaoTiep\QuanTri\TrangLo::hien();
+$_GET  = array( 'lo' => (string) $lo_1['lo'] );
+$h_l1  = \Phongdao\GiaoTiep\QuanTri\TrangLo::hien();
+wp_set_current_user( $chi_soan );
+$h_khac = \Phongdao\GiaoTiep\QuanTri\TrangLo::hien();
+wp_set_current_user( $doc_gia );
+$h_dg_l = \Phongdao\GiaoTiep\QuanTri\TrangLo::hien();
+wp_set_current_user( $ai_ql );
+kt( 'màn Lô: xem trước có ô Áp dụng từng mục và nút Áp dụng; lô xong có thống kê, kết quả từng mục; người khác, người đọc không xem được', str_contains( $h_lx, 'name="giu[]" value="' . $gy_ids[5] . '"' ) && str_contains( $h_lx, 'Áp dụng cho 2 mục' ) && str_contains( $h_l1, 'Thành công 2' ) && str_contains( $h_l1, 'Xung đột 1' ) && str_contains( $h_l1, 'Thẻ đã đổi sau lúc xem trước.' ) && str_contains( $h_khac, 'người khác tạo' ) && ! str_contains( $h_dg_l, 'Lô #' ) );
+// Gửi thẳng admin-post: quyền, nonce; Huỷ lô
+$chan_die_lo = static fn() => static function ( $chu ): void {
+	throw new \RuntimeException( 'wp_die: ' . ( is_string( $chu ) ? $chu : 'lỗi' ) );
+};
+$chan_di_lo = static function ( $vi_tri ): string {
+	throw new \RuntimeException( 'redirect: ' . $vi_tri );
+};
+add_filter( 'wp_die_handler', $chan_die_lo );
+add_filter( 'wp_redirect', $chan_di_lo );
+$gui_lo = static function ( int $nguoi, string $hanh_dong, array $than, string $nonce ): string {
+	wp_set_current_user( $nguoi );
+	$_POST = $_REQUEST = $than + ( '' === $nonce ? array() : array( '_wpnonce' => wp_create_nonce( $nonce ) ) );
+	try {
+		\Phongdao\GiaoTiep\QuanTri\TrangLo::$hanh_dong();
+		return 'không dừng';
+	} catch ( \RuntimeException $e ) {
+		return $e->getMessage();
+	}
+};
+$g_dg  = $gui_lo( $doc_gia, 'tao', array( 'thao_tac' => 'viec_de_sau', 'ids' => array( (string) $gy_ids[5] ) ), 'phongdao_lo_tao' );
+$g_kn  = $gui_lo( $ai_ql, 'tao', array( 'thao_tac' => 'viec_de_sau', 'ids' => array( (string) $gy_ids[5] ) ), '' );
+$g_ok  = $gui_lo( $ai_ql, 'tao', array( 'thao_tac' => 'viec_de_sau', 'pham_vi' => 'chon', 'ids' => array( (string) $gy_ids[5] ), 'tt' => 'cho', 'loai' => 'goi_y', 'q' => '' ), 'phongdao_lo_tao' );
+$g_huy = $gui_lo( $ai_ql, 'lam', array( 'lo' => (string) $lo_x['lo'], 'lam' => 'huy' ), 'phongdao_lo_' . $lo_x['lo'] );
+remove_filter( 'wp_die_handler', $chan_die_lo );
+remove_filter( 'wp_redirect', $chan_di_lo );
+$_POST = $_REQUEST = array();
+wp_set_current_user( $ai_ql );
+kt( 'lô qua admin-post: người đọc, thiếu nonce bị chặn; tạo đúng thì sang màn xem trước; Huỷ lô thì dừng, thẻ giữ nguyên', str_starts_with( $g_dg, 'wp_die' ) && str_starts_with( $g_kn, 'wp_die' ) && str_contains( $g_ok, 'page=phongdao-lo&lo=' ) && str_contains( $g_huy, 'lo=' . $lo_x['lo'] ) && Viec::LO_HUY === Viec::lay( $lo_x['lo'] )['trang_thai'] && Viec::CHO === Viec::lay( $gy_ids[5] )['trang_thai'], array( $g_dg, $g_kn, $g_ok, $g_huy ) );
+$_GET = array();
+wp_delete_post( $bai_lo, true );
+$wpdb->query( $wpdb->prepare( 'DELETE FROM ' . Viec::bang() . " WHERE (doi_tuong_loai = 'post' AND doi_tuong_id IN (%d, %d)) OR loai = %s", $bai_lo, 999999999, Viec::LO ) );
+foreach ( $gy_t as $t_lo ) {
+	wp_delete_term( $t_lo, 'chu_de' );
+}
 foreach ( $ids_nhieu as $id_nhieu ) {
 	Viec::xoa( $id_nhieu );
 }

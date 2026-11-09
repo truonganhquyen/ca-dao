@@ -139,6 +139,32 @@ final class Viec {
 	/** Danh sách hàng chờ trong wp-admin: số đếm và trang dùng chung đúng điều kiện lọc. */
 	public static function tim_quan_tri( string $trang_thai, string $loai, string $tim, int $trang, int $moi_trang = 30 ): array {
 		global $wpdb;
+		[ $tu, $tham, $trang_thai ] = self::dieu_kien_quan_tri( $trang_thai, $loai, $tim );
+		$sql_dem = 'SELECT COUNT(*)' . $tu;
+		$tong = (int) $wpdb->get_var( $tham ? $wpdb->prepare( $sql_dem, $tham ) : $sql_dem );
+		$so = max( 1, min( 50, $moi_trang ) );
+		$bo = ( max( 1, $trang ) - 1 ) * $so;
+		$thu_tu = in_array( $trang_thai, array( self::CHO, self::DE_SAU ), true ) ? 'v.uu_tien DESC, v.id ASC' : 'v.id DESC';
+		$ds = $wpdb->get_results( $wpdb->prepare( 'SELECT v.*' . $tu . ' ORDER BY ' . $thu_tu . ' LIMIT %d OFFSET %d', array_merge( $tham, array( $so, $bo ) ) ), ARRAY_A );
+		return array( 'tong' => $tong, 'ds' => array_map( array( self::class, 'doc' ), $ds ?: array() ) );
+	}
+
+	/**
+	 * Mọi mã thẻ khớp bộ lọc của danh sách wp-admin (phạm vi "mọi mục khớp bộ lọc" của một lô), đúng thứ tự danh sách;
+	 * lấy tối đa $toi_da + 1 để biết có vượt giới hạn.
+	 *
+	 * @return int[]
+	 */
+	public static function ids_quan_tri( string $trang_thai, string $loai, string $tim, int $toi_da ): array {
+		global $wpdb;
+		[ $tu, $tham, $trang_thai ] = self::dieu_kien_quan_tri( $trang_thai, $loai, $tim );
+		$thu_tu = in_array( $trang_thai, array( self::CHO, self::DE_SAU ), true ) ? 'v.uu_tien DESC, v.id ASC' : 'v.id DESC';
+		return array_map( 'intval', $wpdb->get_col( $wpdb->prepare( 'SELECT v.id' . $tu . ' ORDER BY ' . $thu_tu . ' LIMIT %d', array_merge( $tham, array( $toi_da + 1 ) ) ) ) ?: array() );
+	}
+
+	/** @return array{0:string,1:array,2:string} phần FROM … WHERE, tham số, trạng thái đã kiểm */
+	private static function dieu_kien_quan_tri( string $trang_thai, string $loai, string $tim ): array {
+		global $wpdb;
 		$hop_le = array( self::CHO, self::DE_SAU, self::XONG, self::BO );
 		if ( ! in_array( $trang_thai, array_merge( array( 'tat_ca' ), $hop_le ), true ) ) {
 			$trang_thai = self::CHO;
@@ -168,14 +194,7 @@ final class Viec {
 				$tham = array_merge( $tham, array_fill( 0, 5, $like ) );
 			}
 		}
-		$tu = ' FROM ' . self::bang() . ' v' . $noi . ' WHERE ' . $dk;
-		$sql_dem = 'SELECT COUNT(*)' . $tu;
-		$tong = (int) $wpdb->get_var( $tham ? $wpdb->prepare( $sql_dem, $tham ) : $sql_dem );
-		$so = max( 1, min( 50, $moi_trang ) );
-		$bo = ( max( 1, $trang ) - 1 ) * $so;
-		$thu_tu = in_array( $trang_thai, array( self::CHO, self::DE_SAU ), true ) ? 'v.uu_tien DESC, v.id ASC' : 'v.id DESC';
-		$ds = $wpdb->get_results( $wpdb->prepare( 'SELECT v.*' . $tu . ' ORDER BY ' . $thu_tu . ' LIMIT %d OFFSET %d', array_merge( $tham, array( $so, $bo ) ) ), ARRAY_A );
-		return array( 'tong' => $tong, 'ds' => array_map( array( self::class, 'doc' ), $ds ?: array() ) );
+		return array( ' FROM ' . self::bang() . ' v' . $noi . ' WHERE ' . $dk, $tham, $trang_thai );
 	}
 
 	/** Việc còn mở (chờ, để sau) của một đối tượng, theo loại việc (rỗng = mọi loại). */
@@ -239,6 +258,43 @@ final class Viec {
 			$wpdb->prepare( 'SELECT * FROM ' . self::bang() . ' WHERE doi_tuong_loai = %s AND doi_tuong_id = %d AND trang_thai IN (' . implode( ',', array_fill( 0, count( $tt ), '%s' ) ) . ') ORDER BY id DESC LIMIT %d', array_merge( array( $doi_tuong_loai, $doi_tuong_id ), $tt, array( $so ) ) ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			ARRAY_A
 		);
+		return array_map( array( self::class, 'doc' ), $ds ?: array() );
+	}
+
+	/** Một lô thao tác hàng loạt (T-171): dòng riêng, trạng thái riêng — không lẫn vào Hộp việc hay số đếm thẻ. */
+	public const LO      = 'lo';
+	public const LO_XEM  = 'lo_xem';
+	public const LO_DANG = 'lo_dang';
+	public const LO_XONG = 'lo_xong';
+	public const LO_HUY  = 'lo_huy';
+
+	/** Giữ lượt chạy của một lô theo phiên: chỉ một yêu cầu được chạy tiếp mỗi lần. */
+	public static function nhan_lo( int $id, int $phien ): bool {
+		global $wpdb;
+		return 1 === $wpdb->query( $wpdb->prepare( 'UPDATE ' . self::bang() . ' SET trang_thai = %s, phien = phien + 1 WHERE id = %d AND loai = %s AND phien = %d AND trang_thai IN (%s, %s)', self::LO_DANG, $id, self::LO, $phien, self::LO_XEM, self::LO_DANG ) );
+	}
+
+	/** Ghi tiến độ / kết quả của lô đúng phiên đang giữ; nội dung (danh sách mục, bỏ chọn) đổi chỉ khi truyền vào. */
+	public static function ghi_lo( int $id, int $phien, string $trang_thai, array $sau, ?array $noi_dung = null ): bool {
+		global $wpdb;
+		$dat  = 'trang_thai = %s, sau = %s, phien = phien + 1';
+		$tham = array( $trang_thai, self::json( $sau ) );
+		if ( null !== $noi_dung ) {
+			$dat   .= ', noi_dung = %s';
+			$tham[] = self::json( $noi_dung );
+		}
+		if ( in_array( $trang_thai, array( self::LO_XONG, self::LO_HUY ), true ) ) {
+			$dat   .= ', quyet_luc = %s';
+			$tham[] = gmdate( 'Y-m-d H:i:s' );
+		}
+		// phien + 1 để luôn có một dòng đổi (MySQL không đếm dòng khi giá trị y như cũ) và chặn ghi chồng
+		return 1 === $wpdb->query( $wpdb->prepare( 'UPDATE ' . self::bang() . " SET $dat WHERE id = %d AND loai = %s AND phien = %d", array_merge( $tham, array( $id, self::LO, $phien ) ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+	}
+
+	/** Các lô gần đây của một người (mới nhất trước). */
+	public static function ds_lo( int $nguoi, int $so = 10 ): array {
+		global $wpdb;
+		$ds = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . self::bang() . ' WHERE loai = %s AND nguoi_tao = %s ORDER BY id DESC LIMIT %d', self::LO, (string) $nguoi, $so ), ARRAY_A );
 		return array_map( array( self::class, 'doc' ), $ds ?: array() );
 	}
 

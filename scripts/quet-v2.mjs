@@ -187,8 +187,18 @@ try {
     for (const v of kqKho.violations) for (const n of v.nodes.slice(0, 3)) loi.push(`${duongKho}: [${v.id}] ${v.help} — ${n.target.join(' ')}`);
     if (thuMucAnh) await bt.screenshot({ path: path.join(thuMucAnh, 'admin-kho-390.png'), fullPage: true });
   }
+  // Hộp việc admin (có khối Làm theo lô khi còn thẻ Chờ) và màn Lô thao tác (T-171)
+  for (const [duong, vung] of [['/wp-admin/admin.php?page=phongdao-hop-viec', '.phongdao-admin-viec'], ['/wp-admin/admin.php?page=phongdao-lo', '.phongdao-admin-lo']]) {
+    const tl = await bt.goto(G + duong, { waitUntil: 'load', timeout: 120_000 });
+    if (tl.status() !== 200 || !(await bt.$(`${vung} table`))) { loi.push(`${duong}: không mở được`); continue; }
+    const tran = await doTran(bt);
+    if (tran) loi.push(`${duong}: tràn ngang ${tran}`);
+    await bt.addScriptTag({ content: axeNguon });
+    const kq = await bt.evaluate((vung, the) => window.axe.run(vung, { runOnly: { type: 'tag', values: the } }), vung, THE_WCAG);
+    for (const v of kq.violations) for (const n of v.nodes.slice(0, 3)) loi.push(`${duong}: [${v.id}] ${v.help} — ${n.target.join(' ')}`);
+  }
   await bt.close();
-  console.log(`Quét V2: ${DS_TRANG.length} trang × ${CHE_DO.length} chế độ + ${DS_TINH_320.size} trang tĩnh × 2 chế độ 320 px + ${DS_BIEN_TAP.length} trang biên tập + 2 trang admin (axe ${THE_WCAG.join(', ')}) — ${loi.length} lỗi.`);
+  console.log(`Quét V2: ${DS_TRANG.length} trang × ${CHE_DO.length} chế độ + ${DS_TINH_320.size} trang tĩnh × 2 chế độ 320 px + ${DS_BIEN_TAP.length} trang biên tập + 4 trang admin (axe ${THE_WCAG.join(', ')}) — ${loi.length} lỗi.`);
 } catch (e) {
   loi.push(String(e.message ?? e));
 } finally {

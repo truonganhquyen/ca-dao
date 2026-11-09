@@ -39,7 +39,7 @@ final class DanhSachViec {
 	}
 
 	/** Tên của đúng các đối tượng trên trang; tối đa hai truy vấn thay vì từng dòng một. */
-	private static function ten_trang( array $ds ): array {
+	public static function ten_trang( array $ds ): array {
 		global $wpdb;
 		$ids = array( 'post' => array(), 'kho' => array() );
 		foreach ( $ds as $v ) {
@@ -69,7 +69,7 @@ final class DanhSachViec {
 		return $ten;
 	}
 
-	private static function doi_tuong( array $v, array $ten ): string {
+	public static function doi_tuong( array $v, array $ten ): string {
 		$id = (int) $v['doi_tuong_id'];
 		if ( 'post' === $v['doi_tuong_loai'] ) {
 			return $ten[ 'post:' . $id ] ?? 'Bài #' . $id;
@@ -125,21 +125,27 @@ final class DanhSachViec {
 			$loai .= '<option value="' . esc_attr( $ma ) . '"' . selected( $ma, $loc['loai'], false ) . '>' . esc_html( $ten[0] ) . '</option>';
 		}
 		$loai .= '</select>';
+		// Làm theo lô (T-171): chỉ khi xem thẻ còn mở (Chờ / Để sau)
+		$lo   = in_array( $loc['tt'], array( Viec::CHO, Viec::DE_SAU ), true ) && $kq['tong'] > 0;
 		$dong = '';
 		foreach ( $kq['ds'] as $v ) {
 			$id = (int) $v['id'];
 			$ten = QuyetViec::LOAI[ $v['loai'] ][0] ?? $v['loai'];
 			$ten = '<a href="' . esc_url( self::url( $loc, $loc['paged'], $id ) ) . '">' . esc_html( $ten ) . ' #' . $id . '</a>';
-			$dong .= '<tr><td data-nhan="Việc">' . $ten . '</td><td data-nhan="Đối tượng">' . esc_html( self::doi_tuong( $v, $ten_trang ) ) . '</td><td data-nhan="Trạng thái">' . esc_html( self::TRANG_THAI[ $v['trang_thai'] ] ?? $v['trang_thai'] ) . '</td><td data-nhan="Tạo lúc">' . esc_html( mysql2date( 'd/m/Y H:i', $v['tao_luc'] ) ) . '</td></tr>';
+			$chon = $lo ? '<td data-nhan="Chọn"><input type="checkbox" name="ids[]" value="' . $id . '" id="chon-viec-' . $id . '"><label for="chon-viec-' . $id . '" class="screen-reader-text">Chọn thẻ #' . $id . '</label></td>' : '';
+			$dong .= '<tr>' . $chon . '<td data-nhan="Việc">' . $ten . '</td><td data-nhan="Đối tượng">' . esc_html( self::doi_tuong( $v, $ten_trang ) ) . '</td><td data-nhan="Trạng thái">' . esc_html( self::TRANG_THAI[ $v['trang_thai'] ] ?? $v['trang_thai'] ) . '</td><td data-nhan="Tạo lúc">' . esc_html( mysql2date( 'd/m/Y H:i', $v['tao_luc'] ) ) . '</td></tr>';
 		}
 		$so_trang = (int) ceil( $kq['tong'] / self::MOI_TRANG );
 		$phan_trang = $so_trang > 1 ? '<nav class="phongdao-viec-trang" aria-label="Phân trang Hộp việc"><span>Trang ' . (int) $loc['paged'] . ' / ' . $so_trang . '</span>'
 			. ( $loc['paged'] > 1 ? '<a class="button" href="' . esc_url( self::url( $loc, $loc['paged'] - 1 ) ) . '">Trang trước</a>' : '' )
 			. ( $loc['paged'] < $so_trang ? '<a class="button" href="' . esc_url( self::url( $loc, $loc['paged'] + 1 ) ) . '">Trang sau</a>' : '' ) . '</nav>' : '';
-		return '<div class="wrap phongdao-admin-viec"><h1>Hộp việc</h1><p class="description">Tìm lại thẻ đã quyết; mở thẻ Chờ hoặc Để sau để quyết bằng nghiệp vụ hiện có.</p>'
+		$bang = '<table class="widefat striped"><thead><tr>' . ( $lo ? '<th scope="col">Chọn</th>' : '' ) . '<th scope="col">Việc</th><th scope="col">Đối tượng</th><th scope="col">Trạng thái</th><th scope="col">Tạo lúc</th></tr></thead><tbody>'
+			. ( $dong ?: '<tr><td colspan="4">Không có thẻ phù hợp. Thử đổi bộ lọc.</td></tr>' ) . '</tbody></table>';
+		return '<div class="wrap phongdao-admin-viec"><h1>Hộp việc</h1><p class="description">Tìm lại thẻ đã quyết; mở thẻ Chờ hoặc Để sau để quyết bằng nghiệp vụ hiện có, hoặc chọn nhiều thẻ cùng loại để làm theo lô.</p>'
+			. TrangLo::lay_bao()
 			. '<form class="phongdao-viec-loc" method="get" action="' . esc_url( admin_url( 'admin.php' ) ) . '"><input type="hidden" name="page" value="' . self::TRANG . '"><div><label for="phongdao-viec-q">Tìm ID, bài hoặc nội dung</label><input id="phongdao-viec-q" name="q" type="search" value="' . esc_attr( $loc['q'] ) . '"></div><div>' . $tt . '</div><div>' . $loai . '</div><button class="button button-primary" type="submit">Tìm và lọc</button></form>'
 			. '<p role="status"><strong>' . (int) $kq['tong'] . '</strong> thẻ khớp bộ lọc; hiện ' . count( $kq['ds'] ) . ' thẻ trên trang này.</p>'
-			. '<table class="widefat striped"><thead><tr><th scope="col">Việc</th><th scope="col">Đối tượng</th><th scope="col">Trạng thái</th><th scope="col">Tạo lúc</th></tr></thead><tbody>'
-			. ( $dong ?: '<tr><td colspan="4">Không có thẻ phù hợp. Thử đổi bộ lọc.</td></tr>' ) . '</tbody></table>' . $phan_trang . '</div>';
+			. ( $lo ? '<form method="post" class="phongdao-lo-form" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">' . TrangLo::khoi_chon( $loc, (int) $kq['tong'] ) . $bang . '</form>' : $bang )
+			. $phan_trang . '</div>';
 	}
 }
