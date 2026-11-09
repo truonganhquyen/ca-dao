@@ -23,7 +23,7 @@ final class NguonCaiDat {
 	public const QUYEN = 'cadao_nguon';
 
 	public static function dang_ky(): void {
-		foreach ( array( 'nguon', 'ho_so', 'turnstile' ) as $viec ) {
+		foreach ( array( 'nguon', 'ho_so', 'turnstile', 'may' ) as $viec ) {
 			add_action( 'admin_post_phongdao_luu_' . $viec, array( self::class, 'nhan_' . $viec ) );
 		}
 	}
@@ -101,6 +101,20 @@ final class NguonCaiDat {
 		);
 	}
 
+	/** Khối "Bài chịu ảnh hưởng" của một hồ sơ nguồn, kèm lối mở danh sách Tác phẩm của nguồn tự động dùng hồ sơ này. */
+	private static function anh_huong_html( int $id ): string {
+		$a   = self::anh_huong( $id );
+		$ten = array( 'loi' => 'Lời', 'chu_thich' => 'Từ khó', 'di_ban' => 'Dị bản', 'co_nghi' => 'Cờ nghi', 'boi_canh' => 'Bối cảnh', 'y_nghia' => 'Ý nghĩa', 'nghia_den' => 'Nghĩa đen', 'nghia_bong' => 'Nghĩa bóng', 'dung_khi' => 'Dùng khi' );
+		$chi = implode( ', ', array_map( static fn( string $k, int $so ): string => ( $ten[ $k ] ?? $k ) . ' ' . $so . ' bài', array_keys( $a['phan'] ), $a['phan'] ) );
+		$lien = array();
+		foreach ( NguonTuDong::tat_ca() as $nid => $n ) {
+			if ( (int) ( $n['ho_so'] ?? 0 ) === $id && preg_match( '/^[a-z0-9_-]+$/', (string) $nid ) ) {
+				$lien[] = '<a href="' . esc_url( add_query_arg( array( 'page' => DanhSachTacPham::TRANG, 'tt' => 'tat_ca', 'nguon' => 'may:' . $nid ), admin_url( 'admin.php' ) ) ) . '">Tác phẩm từ nguồn ' . esc_html( (string) ( $n['ten'] ?: $nid ) ) . '</a>';
+			}
+		}
+		return '<div class="notice notice-info inline"><p><strong>Bài chịu ảnh hưởng:</strong> ' . (int) $a['tong'] . ' bài có phần chép từ hoặc đối chiếu với hồ sơ này' . ( '' === $chi ? '' : ' (' . esc_html( $chi ) . ')' ) . '. Đổi giấy phép, cách ghi công hay "Chép chú thích" ảnh hưởng tới các bài này; máy không tự đổi bài đã đăng.' . ( $lien ? ' ' . implode( ' · ', $lien ) : '' ) . '</p></div>';
+	}
+
 	/** Danh sách dấu vết: ngày giờ, người, các trường đổi "cũ → mới". */
 	private static function dau_vet( array $ds ): string {
 		$o = '';
@@ -142,6 +156,14 @@ final class NguonCaiDat {
 		self::ve( 'ho_so', self::luu_ho_so( $id, wp_unslash( $_POST ) ) ); // phpcs:ignore WordPress.Security.NonceVerification
 	}
 
+	/** Tạm dừng / chạy lại một việc nền (bảng điều khiển máy, T-179). */
+	public static function nhan_may(): void {
+		self::kiem( 'phongdao_luu_may' );
+		$viec = sanitize_key( wp_unslash( (string) ( $_POST['viec'] ?? '' ) ) ); // phpcs:ignore WordPress.Security.NonceVerification -- kiem() đã kiểm
+		$kq   = \Phongdao\DichVu\May\DieuKhien::dat( $viec, 'dung' === ( $_POST['lam'] ?? '' ), get_current_user_id(), sanitize_text_field( wp_unslash( (string) ( $_POST['ly_do'] ?? '' ) ) ) ); // phpcs:ignore WordPress.Security.NonceVerification
+		self::ve( 'may', $kq['chu'] );
+	}
+
 	public static function nhan_turnstile(): void {
 		self::kiem( 'phongdao_luu_turnstile' );
 		self::ve( 'chong_rac', self::luu_turnstile( wp_unslash( $_POST ) ) ); // phpcs:ignore WordPress.Security.NonceVerification
@@ -173,10 +195,11 @@ final class NguonCaiDat {
 		$cac = array(
 			'nguon'     => 'Nguồn tự động',
 			'ho_so'     => 'Hồ sơ nguồn',
+			'may'       => 'Máy đang làm',
 			'chong_rac' => 'Chống rác',
 		);
 		$the = isset( $cac[ $the ] ) ? $the : 'nguon';
-		$h   = '<div class="wrap"><h1>Nguồn &amp; cài đặt</h1>'
+		$h   = '<div class="wrap phongdao-nguon"><h1>Nguồn &amp; cài đặt</h1>'
 			. ( '' !== $bao ? '<div class="notice notice-success"><p>' . esc_html( $bao ) . '</p></div>' : '' )
 			. '<nav class="nav-tab-wrapper" aria-label="Phần của trang">';
 		foreach ( $cac as $ma => $ten ) {
@@ -185,6 +208,8 @@ final class NguonCaiDat {
 		$h .= '</nav>';
 		if ( 'ho_so' === $the ) {
 			$h .= $ho_so ? self::sua_ho_so( $ho_so ) : self::ds_ho_so();
+		} elseif ( 'may' === $the ) {
+			$h .= self::may();
 		} elseif ( 'chong_rac' === $the ) {
 			$h .= self::chong_rac();
 		} else {
@@ -258,7 +283,64 @@ final class NguonCaiDat {
 			. $chon( 'xin_phep', 'Xin phép', HoSoNguon::XIN_PHEP ) . $chon( 'chinh_sach_hien', 'Hiện với người đọc', HoSoNguon::CHINH_SACH )
 			. '<tr><th scope="row">Chép chú thích</th><td><label><input type="checkbox" name="chep_chu_thich" value="1"' . checked( ! empty( $t['chep_chu_thich'] ), true, false ) . '> Được chép chú thích, lời giải của nguồn này</label></td></tr>'
 			. $o( 'ghi_chu', 'Ghi chú' ) . '</tbody></table>';
-		return '<p><a href="' . esc_url( add_query_arg( array( 'page' => Module::TRANG, 'the' => 'ho_so' ), admin_url( 'admin.php' ) ) ) . '">← Mọi hồ sơ</a></p><h2>' . esc_html( $p->post_title ) . '</h2>' . self::form( 'phongdao_luu_ho_so', $than ) . self::dau_vet( Viec::lich_su( 'ho_so', $id, 10 ) );
+		return '<p><a href="' . esc_url( add_query_arg( array( 'page' => Module::TRANG, 'the' => 'ho_so' ), admin_url( 'admin.php' ) ) ) . '">← Mọi hồ sơ</a></p><h2>' . esc_html( $p->post_title ) . '</h2>' . self::anh_huong_html( $id ) . self::form( 'phongdao_luu_ho_so', $than ) . self::dau_vet( Viec::lich_su( 'ho_so', $id, 10 ) );
+	}
+
+	/**
+	 * Bảng điều khiển máy (T-179): mỗi việc nền — đang chạy theo lịch hay tạm dừng, lần chạy tới, lần chạy gần nhất, lỗi gần
+	 * nhất, hạn mức; nút Tạm dừng / Chạy lại có lý do; nhật ký các lần bấm. Chỉ mục tìm chỉ xem, không tạm dừng (cần cho tìm).
+	 */
+	private static function may(): string {
+		$h = '<p>Máy chỉ đọc nguồn, chọn câu vào Hộp việc và gợi ý; mọi quyết định đăng vẫn ở người. Tạm dừng chỉ bỏ qua lượt chạy theo lịch: không gỡ bài, không xoá kho, không đổi cài đặt nguồn.</p>';
+		foreach ( \Phongdao\DichVu\May\DieuKhien::trang_thai() as $ma => $v ) {
+			$toi  = $v['lan_toi'] ? wp_date( 'd/m/Y H:i', $v['lan_toi'] ) : 'chưa hẹn';
+			$than = '<input type="hidden" name="viec" value="' . esc_attr( $ma ) . '"><input type="hidden" name="lam" value="' . ( $v['tam_dung'] ? 'chay' : 'dung' ) . '">'
+				. '<p><label for="may-ly-do-' . esc_attr( $ma ) . '">Lý do (không bắt buộc)</label><br><input class="regular-text" id="may-ly-do-' . esc_attr( $ma ) . '" name="ly_do" value=""></p>';
+			$h .= '<h2>' . esc_html( $v['ten'] ) . '</h2><p class="description">' . esc_html( $v['giai'] ) . '</p>'
+				. '<table class="form-table" role="presentation"><tbody>'
+				. '<tr><th scope="row">Trạng thái</th><td><strong>' . esc_html( $v['tam_dung'] ? 'Đang tạm dừng' : 'Chạy theo lịch' ) . '</strong></td></tr>'
+				. '<tr><th scope="row">Lần chạy tới</th><td>' . esc_html( $v['tam_dung'] ? $toi . ' (sẽ bỏ qua khi còn tạm dừng)' : $toi ) . '</td></tr>'
+				. '<tr><th scope="row">Lần chạy gần nhất</th><td>' . esc_html( '' === $v['lan_cuoi'] ? 'chưa ghi' : $v['lan_cuoi'] ) . '</td></tr>'
+				. '<tr><th scope="row">Lỗi gần nhất</th><td>' . esc_html( '' === $v['loi'] ? 'không có' : $v['loi'] ) . '</td></tr>'
+				. '<tr><th scope="row">Hạn mức, phạm vi</th><td>' . esc_html( $v['han_muc'] ) . '</td></tr>'
+				. '</tbody></table>'
+				. self::form( 'phongdao_luu_may', $than, $v['tam_dung'] ? 'Chạy lại' : 'Tạm dừng' )
+				. self::dau_vet_may( array_slice( array_values( array_filter( Viec::lich_su( 'may', 0, 100 ), static fn( array $r ): bool => $ma === $r['phan'] ) ), 0, 10 ) );
+		}
+		global $wpdb;
+		$sau = (int) get_option( \Phongdao\DichVu\ChiMucTim\ChiMucTim::SAU, -1 );
+		$h  .= '<h2>Dựng lại chỉ mục tìm</h2><p class="description">Chạy khi cần dựng lại chỉ mục tìm sau nâng cấp; chỉ xem (tìm kiếm cần chỉ mục đủ nên không tạm dừng ở đây).</p><p>'
+			. esc_html( $sau < 0 ? 'Không có lượt dựng lại đang dở.' : 'Đang dở, sau bài #' . $sau . '.' ) . ' Bảng chỉ mục có ' . (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . \Phongdao\DichVu\ChiMucTim\ChiMucTim::bang() ) . ' dòng.</p>'; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- không có giá trị ngoài
+		return $h;
+	}
+
+	/** Nhật ký tạm dừng / chạy lại của một việc nền. */
+	private static function dau_vet_may( array $ds ): string {
+		$o = '';
+		foreach ( $ds as $r ) {
+			$t  = strtotime( (string) $r['quyet_luc'] . ' UTC' );
+			$nd = (int) $r['nguoi_quyet'] ? get_userdata( (int) $r['nguoi_quyet'] ) : null;
+			$o .= '<li><strong>' . esc_html( $t ? wp_date( 'd/m/Y H:i', $t ) : (string) $r['quyet_luc'] ) . '</strong> · ' . esc_html( ( $nd ? $nd->display_name : 'máy' ) . ' · ' . ( 'tam_dung' === $r['quyet'] ? 'tạm dừng' : 'chạy lại' ) . ( empty( $r['noi_dung']['ly_do'] ) ? '' : ' — ' . $r['noi_dung']['ly_do'] ) ) . '</li>';
+		}
+		return '<h3>Nhật ký tạm dừng, chạy lại</h3>' . ( '' === $o ? '<p>Chưa có lần nào.</p>' : '<ol>' . $o . '</ol>' );
+	}
+
+	/**
+	 * Bài có phần chép từ (hoặc đối chiếu với) một hồ sơ nguồn, theo từng phần — để biết đổi chính sách nguồn ảnh hưởng tới
+	 * đâu trước khi quyết (T-179). Một truy vấn gom theo phần.
+	 *
+	 * @return array{tong:int,phan:array<string,int>}
+	 */
+	public static function anh_huong( int $ho_so ): array {
+		global $wpdb;
+		$tu   = " FROM {$wpdb->postmeta} pm JOIN {$wpdb->posts} p ON p.ID = pm.post_id WHERE p.post_type = %s AND p.post_status <> 'trash' AND pm.meta_key LIKE %s AND pm.meta_value LIKE %s";
+		$tham = array( KhaiBao::TAC_PHAM, $wpdb->esc_like( '_phongdao_' ) . '%', '%' . $wpdb->esc_like( '"ho_so";i:' . $ho_so . ';' ) . '%' );
+		$tong = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(DISTINCT pm.post_id)' . $tu, $tham ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$phan = array();
+		foreach ( $wpdb->get_results( $wpdb->prepare( 'SELECT pm.meta_key AS k, COUNT(DISTINCT pm.post_id) AS so' . $tu . ' GROUP BY pm.meta_key', $tham ), ARRAY_A ) ?: array() as $h ) { // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			$phan[ substr( (string) $h['k'], strlen( '_phongdao_' ) ) ] = (int) $h['so'];
+		}
+		return array( 'tong' => $tong, 'phan' => $phan );
 	}
 
 	private static function chong_rac(): string {

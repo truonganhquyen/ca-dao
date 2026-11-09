@@ -44,6 +44,9 @@ final class NguonTuDong implements Module {
 		add_action(
 			self::LICH_LAY,
 			static function (): void {
+				if ( \Phongdao\DichVu\May\DieuKhien::dang_dung( 'doc_nguon' ) ) {
+					return; // người quản trị tạm dừng ở bảng điều khiển máy
+				}
 				foreach ( self::tat_ca() as $id => $n ) {
 					if ( ! empty( $n['bat'] ) ) {
 						self::chay( (string) $id );

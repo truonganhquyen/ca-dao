@@ -48,6 +48,9 @@ final class UngVien implements Module {
 
 	/** Lịch hằng ngày: mỗi nguồn đang bật chọn "số câu mỗi ngày" câu mới vào Hộp việc. */
 	public static function chon_hang_ngay(): void {
+		if ( \Phongdao\DichVu\May\DieuKhien::dang_dung( 'chon_cau' ) ) {
+			return; // người quản trị tạm dừng ở bảng điều khiển máy
+		}
 		foreach ( array_keys( NguonTuDong::tat_ca() ) as $id ) {
 			$n = NguonTuDong::lay( (string) $id );
 			if ( $n && $n['bat'] && $n['so_bai_moi_ngay'] > 0 ) {

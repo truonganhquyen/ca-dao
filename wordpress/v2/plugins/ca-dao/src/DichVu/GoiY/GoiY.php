@@ -51,6 +51,9 @@ final class GoiY implements \Phongdao\HaTang\Module {
 	/** Một lô; còn bài thì hẹn lô sau. @return int số bài đã xét */
 	public static function lo( int $so = 200 ): int {
 		global $wpdb;
+		if ( \Phongdao\DichVu\May\DieuKhien::dang_dung( 'goi_y' ) ) {
+			return 0; // tạm dừng: giữ con trỏ, không hẹn lô sau; chạy lại thì bảng điều khiển hẹn tiếp
+		}
 		$sau = (int) get_option( self::SAU, -1 );
 		if ( $sau < 0 ) {
 			return 0;
