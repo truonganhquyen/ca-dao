@@ -1192,6 +1192,89 @@ remove_filter( 'wp_redirect', $chan_di_lo );
 $_POST = $_REQUEST = array();
 $_GET  = array();
 kt( 'sửa xong quay về đúng danh sách đang lọc: nút Sửa bài mang địa chỉ danh sách, trang sửa có lối về và giữ lối đó sau khi lưu; địa chỉ lạ bị bỏ', str_contains( $h_ds_ve, 've=' . rawurlencode( $ds_loc ) ) && str_contains( $h_sua_v, 'đúng bộ lọc vừa xem' ) && str_contains( $h_sua_v, 'name="ve" value="' . esc_attr( $ds_loc ) . '"' ) && ! str_contains( $h_sua_l, 'đúng bộ lọc vừa xem' ) && str_contains( $r_ve, 've=' . rawurlencode( $ds_loc ) ), array( 'ds' => str_contains( $h_ds_ve, 've=' . rawurlencode( $ds_loc ) ), 'lien_sua' => preg_match( '/page=phongdao-sua-tac-pham[^"]*/', $h_ds_ve, $m_ve ) ? $m_ve[0] : '', 've_mong' => rawurlencode( $ds_loc ), 'sua' => str_contains( $h_sua_v, 'đúng bộ lọc vừa xem' ), 'an' => str_contains( $h_sua_v, 'name="ve" value="' . esc_attr( $ds_loc ) . '"' ), 'la' => ! str_contains( $h_sua_l, 'đúng bộ lọc vừa xem' ), 've' => $r_ve ) );
+
+// ---------- Bảng điều khiển máy, căn cứ nguồn trước khi quyết (T-179) ----------
+$DK = \Phongdao\DichVu\May\DieuKhien::class;
+NguonTuDong::luu( array( 'id' => 'dk-thu', 'ten' => 'Nguồn thử điều khiển', 'bat' => true, 'so_bai_moi_ngay' => 2 ) + NguonTuDong::mac_dinh() );
+$dk_kho = array();
+for ( $i = 1; $i <= 2; $i++ ) {
+	$wpdb->insert( Kho::bang(), array( 'nguon_id' => 'dk-thu', 'ma_goc' => 'dk-' . $i, 'url' => 'https://example.org/dk-thu/' . $i . '/', 'loai' => 'ca_dao', 'tieu_de' => 'Câu điều khiển thử ' . $i, 'loi' => "Câu điều khiển thử $i dòng một\nCâu điều khiển thử $i dòng hai", 'du_lieu' => '{}', 'ngay_lay' => current_time( 'mysql' ), 'trang_thai' => 'moi', 'doc_trang' => '2026-11-09' ) );
+	$dk_kho[] = (int) $wpdb->insert_id;
+}
+$the_dk = static fn(): int => count( array_merge( ...array_map( static fn( int $k ): array => Viec::mo( 'kho', $k, 'cau_moi' ), $dk_kho ) ) );
+$ng_cu  = NguonTuDong::tat_ca(); // các nguồn thử khác tắt tạm trong ca này, trả nguyên sau
+foreach ( array_keys( $ng_cu ) as $id_ng ) {
+	if ( 'dk-thu' !== $id_ng ) {
+		NguonTuDong::luu( array( 'bat' => false ) + $ng_cu[ $id_ng ] );
+	}
+}
+$dk_1   = $DK::dat( 'chon_cau', true, $ai_ql, 'Thử tạm dừng' );
+UngVien::chon_hang_ngay();
+$dk_dung = $the_dk();
+$dk_2    = $DK::dat( 'chon_cau', false, $ai_ql );
+UngVien::chon_hang_ngay();
+$dk_chay = $the_dk();
+$nk_dk   = array_values( array_filter( Viec::lich_su( 'may', 0, 20 ), static fn( array $r ): bool => 'chon_cau' === $r['phan'] ) );
+$ng_nay  = NguonTuDong::tat_ca();
+update_option( NguonTuDong::TUY_CHON, array( 'dk-thu' => $ng_nay['dk-thu'] ) + $ng_cu, false ); // trả các nguồn khác về nguyên trạng
+kt( 'bảng điều khiển máy: tạm dừng "chọn câu mới hằng ngày" thì lượt theo lịch không tạo thẻ; chạy lại thì chọn đúng hạn mức; mỗi lần bấm ghi nhật ký kèm lý do', $dk_1['ok'] && 0 === $dk_dung && $dk_2['ok'] && 2 === $dk_chay && 2 === count( $nk_dk ) && 'chay_lai' === $nk_dk[0]['quyet'] && 'tam_dung' === $nk_dk[1]['quyet'] && 'Thử tạm dừng' === ( $nk_dk[1]['noi_dung']['ly_do'] ?? '' ) && $ai_ql === $nk_dk[1]['nguoi_quyet'], array( $dk_dung, $dk_chay, $nk_dk ) );
+$gy_sau_cu = get_option( \Phongdao\DichVu\GoiY\GoiY::SAU, -1 );
+update_option( \Phongdao\DichVu\GoiY\GoiY::SAU, 0, false );
+wp_clear_scheduled_hook( \Phongdao\DichVu\GoiY\GoiY::VIEC_NEN );
+$DK::dat( 'goi_y', true, $ai_ql );
+$gy_lo = \Phongdao\DichVu\GoiY\GoiY::lo();
+$gy_giu = (int) get_option( \Phongdao\DichVu\GoiY\GoiY::SAU, -1 );
+$DK::dat( 'goi_y', false, $ai_ql );
+kt( 'tạm dừng gợi ý theo lô: lô không chạy, giữ chỗ dừng; chạy lại thì hẹn lô kế tiếp', 0 === $gy_lo && 0 === $gy_giu && (bool) wp_next_scheduled( \Phongdao\DichVu\GoiY\GoiY::VIEC_NEN ), array( $gy_lo, $gy_giu ) );
+wp_clear_scheduled_hook( \Phongdao\DichVu\GoiY\GoiY::VIEC_NEN );
+update_option( \Phongdao\DichVu\GoiY\GoiY::SAU, $gy_sau_cu, false );
+$DK::dat( 'doc_nguon', true, $ai_ql );
+$tt_dk = $DK::trang_thai();
+$h_may = $NCD::hien( 'may', 0, '' );
+$DK::dat( 'doc_nguon', false, $ai_ql );
+kt( 'thẻ "Máy đang làm": ba việc nền, trạng thái tạm dừng, hạn mức từng nguồn, nút Chạy lại, nhật ký; chỉ mục tìm chỉ xem', 3 === count( $tt_dk ) && $tt_dk['doc_nguon']['tam_dung'] && str_contains( $tt_dk['chon_cau']['han_muc'], 'Nguồn thử điều khiển: 2 câu/ngày' ) && str_contains( $h_may, 'Đang tạm dừng' ) && str_contains( $h_may, '>Chạy lại</button>' ) && str_contains( $h_may, 'Nhật ký tạm dừng, chạy lại' ) && str_contains( $h_may, 'Dựng lại chỉ mục tìm' ) && ! $DK::dang_dung( 'doc_nguon' ), $tt_dk );
+$the_moi = Viec::mo( 'kho', $dk_kho[0], 'cau_moi' )[0] ?? null;
+kt( 'thẻ Câu mới có lối xem trang gốc máy đã lấy (chỉ người biên soạn thấy thẻ)', $the_moi && str_contains( \Phongdao\GiaoTiep\BienTap\HopViec::the( $the_moi ), 'https://example.org/dk-thu/1/' ) );
+$_GET  = array( 'id' => (string) $tp1 );
+$h_goc = \Phongdao\GiaoTiep\QuanTri\SuaTacPham::hien();
+kt( 'trang Sửa tác phẩm hiện trang gốc máy đã lấy cho người biên soạn', str_contains( $h_goc, 'xem trang gốc' ) && str_contains( $h_goc, esc_url( "$G/cd-1/" ) ) );
+$_GET = array();
+add_filter( 'wp_die_handler', $chan_die_lo );
+add_filter( 'wp_redirect', $chan_di_lo );
+$gui_may = static function ( int $nguoi, bool $nonce ) use ( $NCD ): string {
+	wp_set_current_user( $nguoi );
+	$_POST = $_REQUEST = array( 'viec' => 'goi_y', 'lam' => 'dung' ) + ( $nonce ? array( '_wpnonce' => wp_create_nonce( 'phongdao_luu_may' ) ) : array() );
+	try {
+		$NCD::nhan_may();
+		return 'không dừng';
+	} catch ( \RuntimeException $e ) {
+		return $e->getMessage();
+	}
+};
+$m_bt = $gui_may( $chi_soan, true );
+$m_ok = $gui_may( $ai_ql, true );
+remove_filter( 'wp_die_handler', $chan_die_lo );
+remove_filter( 'wp_redirect', $chan_di_lo );
+$_POST = $_REQUEST = array();
+wp_set_current_user( $ai_ql );
+$m_dung = $DK::dang_dung( 'goi_y' );
+$DK::dat( 'goi_y', false, $ai_ql );
+wp_clear_scheduled_hook( \Phongdao\DichVu\GoiY\GoiY::VIEC_NEN );
+kt( 'tạm dừng qua admin-post: chỉ người có quyền nguồn; gửi đúng thì tạm dừng và quay về thẻ Máy đang làm', str_starts_with( $m_bt, 'wp_die' ) && str_contains( $m_ok, 'the=may' ) && $m_dung, array( $m_bt, $m_ok ) );
+$hs_ah = (int) wp_insert_post( array( 'post_type' => KhaiBao::HO_SO_NGUON, 'post_status' => 'publish', 'post_title' => 'Sách thử ảnh hưởng' ) );
+$NCD::luu_ho_so( $hs_ah, array( 'ten' => 'Sách thử ảnh hưởng', 'loai' => 'sach' ) );
+$bai_ah = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'post_title' => 'Bài thử ảnh hưởng', 'post_name' => 'bai-thu-anh-huong' ) );
+wp_set_object_terms( $bai_ah, 'ca-dao', KhaiBao::THE_LOAI );
+$kq_ah = LuuPhan::luu( $bai_ah, 'loi', array( 'dong' => array( 'Dòng thử ảnh hưởng một', 'Dòng thử ảnh hưởng hai' ), 'nguoi_lam' => NguoiLam::NGUOI_VIET, 'doi_chieu' => array( 'ho_so' => $hs_ah, 'trang' => '3' ) ), $ncq );
+$ah    = $NCD::anh_huong( $hs_ah );
+kt( 'hồ sơ nguồn: đếm bài và phần chép từ / đối chiếu với hồ sơ trước khi đổi chính sách; trang hồ sơ hiện khối "Bài chịu ảnh hưởng"', $kq_ah['ok'] && 1 === $ah['tong'] && 1 === ( $ah['phan']['loi'] ?? 0 ) && str_contains( $NCD::hien( 'ho_so', $hs_ah, '' ), 'Bài chịu ảnh hưởng:</strong> 1 bài' ), array( $kq_ah, $ah ) );
+wp_delete_post( $bai_ah, true );
+wp_delete_post( $hs_ah, true );
+$wpdb->query( 'DELETE FROM ' . Viec::bang() . " WHERE doi_tuong_loai = 'kho' AND doi_tuong_id IN (" . implode( ',', $dk_kho ) . ')' );
+$wpdb->query( $wpdb->prepare( 'DELETE FROM ' . Kho::bang() . ' WHERE nguon_id = %s', 'dk-thu' ) );
+$ds_ng = NguonTuDong::tat_ca();
+unset( $ds_ng['dk-thu'] );
+update_option( NguonTuDong::TUY_CHON, $ds_ng, false );
 foreach ( $ids_nhieu as $id_nhieu ) {
 	Viec::xoa( $id_nhieu );
 }

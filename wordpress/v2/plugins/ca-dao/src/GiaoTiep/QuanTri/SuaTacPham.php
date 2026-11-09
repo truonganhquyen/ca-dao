@@ -79,6 +79,11 @@ final class SuaTacPham {
 		$ra .= '<p><a href="' . esc_url( '' !== self::$ve ? self::$ve : admin_url( 'admin.php?page=' . DanhSachTacPham::TRANG ) ) . '">← Danh sách Tác phẩm' . ( '' !== self::$ve ? ' (đúng bộ lọc vừa xem)' : '' ) . '</a> · <a href="' . esc_url( get_preview_post_link( $bai ) ) . '">Xem trên trang đọc</a></p>';
 		$ten_trang_thai = array( 'publish' => 'Đã đăng', 'draft' => 'Bản nháp', 'pending' => 'Chờ', 'private' => 'Đã ẩn', 'future' => 'Đã hẹn' )[ $bai->post_status ] ?? $bai->post_status;
 		$ra .= '<p>Trạng thái: <strong>' . esc_html( $ten_trang_thai ) . '</strong>. Mỗi phần lưu riêng, qua cùng quy tắc với nút Sửa trên trang đọc.</p>';
+		// Căn cứ trước khi quyết (T-179): trang gốc máy đã lấy — chỉ hiện trong admin, không bao giờ ra trang người đọc
+		$may = $ctx['phan']['nguon_may'] ?? null;
+		if ( ! empty( $may['url_goc'] ) ) {
+			$ra .= '<p class="goc-nguon">Bài này máy lấy từ nguồn "' . esc_html( (string) ( $may['nguon_id'] ?? '' ) ) . '"' . ( empty( $may['ngay_lay'] ) ? '' : ' ngày ' . esc_html( (string) $may['ngay_lay'] ) ) . ': <a href="' . esc_url( (string) $may['url_goc'] ) . '" rel="noreferrer nofollow">xem trang gốc</a> (chỉ người biên soạn thấy).</p>';
+		}
 		if ( $bao ) {
 			$ra .= '<div class="notice ' . ( 'loi' === $ket_qua ? 'notice-error' : 'notice-success' ) . '"><p role="status">' . esc_html( $bao ) . '</p></div>';
 		}
