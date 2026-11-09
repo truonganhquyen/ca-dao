@@ -2,7 +2,9 @@
 
 namespace Phongdao\DichVu\XuLyLo;
 
+use Phongdao\DichVu\LuuPhan\LuuPhanLoai;
 use Phongdao\DichVu\XepViec\QuyetViec;
+use Phongdao\HaTang\KhaiBao;
 use Phongdao\KhoLuu\Viec;
 
 defined( 'ABSPATH' ) || exit;
@@ -27,12 +29,23 @@ final class Lo {
 	/** Một lô tối đa (thu hẹp bộ lọc nếu nhiều hơn). */
 	public const TOI_DA = 2000;
 
-	/** Thao tác => [nhãn, đối tượng, quyền cần, lựa chọn của thẻ]. */
+	/** Thao tác => [nhãn, đối tượng, quyền cần, việc làm với từng mục]. */
 	public const THAO_TAC = array(
 		'viec_de_sau'  => array( 'Để sau', 'viec', 'cadao_soan', 'de_sau' ),
 		'viec_bo'      => array( 'Bỏ đề xuất', 'viec', 'cadao_soan', 'bo' ),
 		'goi_y_dong_y' => array( 'Đồng ý gợi ý', 'viec', 'cadao_duyet', 'dong_y' ),
+		'pl_them'      => array( 'Thêm phân loại', 'post', 'cadao_soan', 'them' ),
+		'pl_go'        => array( 'Gỡ phân loại', 'post', 'cadao_soan', 'go' ),
+		'pl_thay'      => array( 'Thay thế phân loại', 'post', 'cadao_soan', 'thay' ),
+		'bai_an'       => array( 'Ẩn bài', 'post', 'cadao_soan', 'private' ),
+		'thung_rac'    => array( 'Đưa vào thùng rác', 'post', 'cadao_duyet', 'trash' ),
+		'lay_ra'       => array( 'Lấy ra khỏi thùng rác', 'post', 'cadao_duyet', 'untrash' ),
 	);
+
+	/** Thao tác phân loại cần chọn một mục có sẵn (bộ, mục). */
+	public static function la_phan_loai( string $thao_tac ): bool {
+		return str_starts_with( $thao_tac, 'pl_' );
+	}
 
 	public const KET_QUA = array(
 		'thanh_cong' => 'Thành công',
@@ -51,11 +64,11 @@ final class Lo {
 	 * @param array<string,string> $loc     bộ lọc lúc chọn (để ghi lại phạm vi)
 	 * @return array{ok:bool,lo:int,loi:string}
 	 */
-	public static function tao( string $thao_tac, array $ids, string $pham_vi, array $loc, int $nguoi ): array {
+	public static function tao( string $thao_tac, array $ids, string $pham_vi, array $loc, int $nguoi, array $tham_so = array() ): array {
 		if ( ! isset( self::THAO_TAC[ $thao_tac ] ) ) {
 			return self::sai( 'Không có thao tác này.' );
 		}
-		[ $ten, , $quyen ] = self::THAO_TAC[ $thao_tac ];
+		[ $ten, $doi_tuong, $quyen ] = self::THAO_TAC[ $thao_tac ];
 		if ( ! user_can( $nguoi, $quyen ) ) {
 			return self::sai( 'cadao_duyet' === $quyen ? "Cần quyền duyệt để {$ten} theo lô." : 'Bạn không có quyền làm việc này.' );
 		}
@@ -65,6 +78,9 @@ final class Lo {
 		}
 		if ( count( $ids ) > self::TOI_DA ) {
 			return self::sai( 'Một lô tối đa ' . number_format( self::TOI_DA, 0, ',', '.' ) . ' mục. Thu hẹp bộ lọc rồi thử lại.' );
+		}
+		if ( 'post' === $doi_tuong ) {
+			return self::tao_bai( $thao_tac, $ids, $pham_vi, $loc, $nguoi, $tham_so );
 		}
 		$muc = self::chot_viec( $ids );
 		if ( ! $muc ) {
@@ -97,6 +113,119 @@ final class Lo {
 			)
 		);
 		return $id ? array( 'ok' => true, 'lo' => $id, 'loi' => '' ) : self::sai( 'Chưa tạo được lô. Thử lại sau.' );
+	}
+
+	/**
+	 * Lô trên tác phẩm: kiểm mục phân loại (bộ sửa tay được, mục có sẵn — không tạo mục mới), chốt bản của từng bài lúc xem
+	 * trước (tập mục đang gắn với thao tác phân loại; trạng thái bài với ẩn / thùng rác).
+	 */
+	private static function tao_bai( string $thao_tac, array $ids, string $pham_vi, array $loc, int $nguoi, array $tham_so ): array {
+		global $wpdb;
+		$ts = array();
+		if ( self::la_phan_loai( $thao_tac ) ) {
+			$tax = (string) ( $tham_so['tax'] ?? '' );
+			$t   = get_term( (int) ( $tham_so['term'] ?? 0 ), $tax );
+			if ( ! array_key_exists( $tax, LuuPhanLoai::SUA_DUOC ) || ! $t instanceof \WP_Term || LuuPhanLoai::may_giu( $tax, $t ) ) {
+				return self::sai( 'Chọn một mục phân loại có sẵn (chủ đề, vùng, mô-típ, lối hát, trò chơi).' );
+			}
+			$ts = array( 'tax' => $tax, 'term' => (int) $t->term_id, 'ten' => $t->name );
+		}
+		$co = array();
+		foreach ( array_chunk( $ids, 500 ) as $phan ) {
+			$dau = implode( ',', array_fill( 0, count( $phan ), '%d' ) );
+			foreach ( $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_status FROM {$wpdb->posts} WHERE ID IN ($dau) AND post_type = %s", array_merge( $phan, array( KhaiBao::TAC_PHAM ) ) ), ARRAY_A ) ?: array() as $h ) { // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$co[ (int) $h['ID'] ] = (string) $h['post_status'];
+			}
+		}
+		$muc = array();
+		foreach ( $ids as $i ) {
+			if ( isset( $co[ $i ] ) ) {
+				$muc[] = array( $i, $ts ? (string) wp_json_encode( LuuPhanLoai::dang_gan( $i, $ts['tax'] ) ) : $co[ $i ] );
+			}
+		}
+		if ( ! $muc ) {
+			return self::sai( 'Không còn tác phẩm nào trong các mục đã chọn.' );
+		}
+		$id = Viec::tao(
+			array(
+				'loai'           => Viec::LO,
+				'trang_thai'     => Viec::LO_XEM,
+				'doi_tuong_loai' => Viec::LO,
+				'doi_tuong_id'   => 0,
+				'phan'           => $thao_tac,
+				'noi_dung'       => array(
+					'thao_tac'  => $thao_tac,
+					'doi_tuong' => 'post',
+					'tham_so'   => $ts,
+					'pham_vi'   => 'loc' === $pham_vi ? 'loc' : 'chon',
+					'loc'       => array_map( 'strval', $loc ),
+					'muc'       => $muc,
+					'bo'        => array(),
+				),
+				'sau'            => array( 'ket_qua' => array() ),
+				'nguoi_tao'      => (string) $nguoi,
+			)
+		);
+		return $id ? array( 'ok' => true, 'lo' => $id, 'loi' => '' ) : self::sai( 'Chưa tạo được lô. Thử lại sau.' );
+	}
+
+	/** Một tác phẩm: kiểm quyền và bản lúc xem trước, rồi làm qua đúng đường ghi (LuuPhanLoai; trạng thái của WordPress, có dấu vết). @return array{0:string,1:string} */
+	private static function mot_bai( string $thao_tac, int $id, string $ban, int $nguoi, array $ts ): array {
+		$bai = get_post( $id );
+		if ( ! $bai || KhaiBao::TAC_PHAM !== $bai->post_type ) {
+			return array( 'loi', 'Không còn bài này.' );
+		}
+		if ( ! user_can( $nguoi, 'edit_post', $id ) ) {
+			return array( 'loi', 'Không có quyền sửa bài này.' );
+		}
+		$viec = self::THAO_TAC[ $thao_tac ][3];
+		if ( self::la_phan_loai( $thao_tac ) ) {
+			if ( 'trash' === $bai->post_status ) {
+				return array( 'bo_qua', 'Bài đang ở thùng rác.' );
+			}
+			$hien = LuuPhanLoai::dang_gan( $id, (string) $ts['tax'] );
+			if ( null === $hien ) {
+				return array( 'loi', 'Chưa đọc được phân loại của bài.' );
+			}
+			if ( (string) wp_json_encode( $hien ) !== $ban ) {
+				return array( 'xung_dot', 'Phân loại của bài đã đổi sau lúc xem trước.' );
+			}
+			$t   = (int) $ts['term'];
+			$moi = 'thay' === $viec ? array( $t ) : ( 'go' === $viec ? array_values( array_diff( $hien, array( $t ) ) ) : array_values( array_unique( array_merge( $hien, array( $t ) ) ) ) );
+			sort( $moi, SORT_NUMERIC );
+			if ( $moi === $hien ) {
+				return array( 'bo_qua', 'Không có gì thay đổi.' );
+			}
+			$kq = LuuPhanLoai::luu( $id, (string) $ts['tax'], $moi, $hien, $nguoi );
+			if ( $kq['ok'] ) {
+				return array( 'thanh_cong', 'Đã ' . array( 'them' => 'thêm', 'go' => 'gỡ', 'thay' => 'thay bằng' )[ $viec ] . ' ' . $ts['ten'] . '.' );
+			}
+			$loi = implode( ' ', $kq['loi'] );
+			return array( str_starts_with( $loi, 'Không sửa' ) ? 'bo_qua' : 'loi', $loi );
+		}
+		if ( $bai->post_status !== $ban ) {
+			return array( 'xung_dot', 'Trạng thái bài đã đổi sau lúc xem trước.' );
+		}
+		if ( 'private' === $viec ) {
+			if ( 'publish' !== $bai->post_status ) {
+				return array( 'bo_qua', 'Bài không ở trạng thái Đã đăng.' );
+			}
+			$ok = ! is_wp_error( wp_update_post( array( 'ID' => $id, 'post_status' => 'private' ), true ) ) && 'private' === get_post_status( $id );
+			return $ok ? array( 'thanh_cong', 'Đã ẩn khỏi người đọc.' ) : array( 'loi', 'Chưa ẩn được bài.' );
+		}
+		if ( 'trash' === $viec ) {
+			if ( 'trash' === $bai->post_status ) {
+				return array( 'bo_qua', 'Bài đã ở thùng rác.' );
+			}
+			if ( ! user_can( $nguoi, 'delete_post', $id ) ) {
+				return array( 'loi', 'Không có quyền đưa bài này vào thùng rác.' );
+			}
+			return wp_trash_post( $id ) && 'trash' === get_post_status( $id ) ? array( 'thanh_cong', 'Đã đưa vào thùng rác (lấy ra được).' ) : array( 'loi', 'Chưa đưa được vào thùng rác.' );
+		}
+		if ( 'trash' !== $bai->post_status ) {
+			return array( 'bo_qua', 'Bài không ở thùng rác.' );
+		}
+		return wp_untrash_post( $id ) && 'trash' !== get_post_status( $id ) ? array( 'thanh_cong', 'Đã lấy ra khỏi thùng rác (thành bản nháp).' ) : array( 'loi', 'Chưa lấy ra được.' );
 	}
 
 	/** Thẻ còn mở trong tập đã chọn, kèm phiên và loại lúc này. @return list<array{0:int,1:int,2:string}> */
@@ -182,7 +311,8 @@ final class Lo {
 			if ( $lam >= self::MOI_LUOT ) {
 				break;
 			}
-			$kq[ (string) $id ] = isset( $bo[ $id ] ) ? array( 'bo_qua', 'Người bỏ khỏi lô lúc xem trước.' ) : self::mot( $thao_tac, $id, (int) $p, $nguoi, $duyet );
+			$kq[ (string) $id ] = isset( $bo[ $id ] ) ? array( 'bo_qua', 'Người bỏ khỏi lô lúc xem trước.' )
+				: ( 'post' === ( $lo['noi_dung']['doi_tuong'] ?? 'viec' ) ? self::mot_bai( $thao_tac, $id, (string) $p, $nguoi, (array) ( $lo['noi_dung']['tham_so'] ?? array() ) ) : self::mot( $thao_tac, $id, (int) $p, $nguoi, $duyet ) );
 			++$lam;
 		}
 		$con = count( $lo['noi_dung']['muc'] ) - count( $kq );
