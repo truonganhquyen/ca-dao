@@ -157,8 +157,22 @@ try {
   if (!(await bt.$('dialog#tam-y_nghia[open]'))) loi.push('trang bài (biên tập): bấm "Sửa ý nghĩa" không mở tấm sửa');
   await axeBt('tấm sửa ý nghĩa');
   if (thuMucAnh) await bt.screenshot({ path: path.join(thuMucAnh, 'tam-sua-y-nghia-390.png') });
+  // Trang sửa mới trong wp-admin: quét nội dung plugin, tránh báo lỗi menu lõi WordPress.
+  const baiAdmin = await bt.$eval('.dai-bien-tap', e => e.dataset.bai);
+  const duongAdmin = `/wp-admin/admin.php?page=phongdao-sua-tac-pham&id=${baiAdmin}`;
+  const tlAdmin = await bt.goto(G + duongAdmin, { waitUntil: 'load', timeout: 120_000 });
+  if (tlAdmin.status() !== 200 || !(await bt.$('.phongdao-admin-sua form'))) loi.push(`${duongAdmin}: không mở được biểu mẫu admin`);
+  else {
+    await bt.evaluate(() => { document.querySelectorAll('.phongdao-admin-sua details').forEach(d => { d.open = true; }); });
+    const tranAdmin = await doTran(bt);
+    if (tranAdmin) loi.push(`${duongAdmin}: tràn ngang ${tranAdmin}`);
+    await bt.addScriptTag({ content: axeNguon });
+    const kqAdmin = await bt.evaluate(the => window.axe.run('.phongdao-admin-sua', { runOnly: { type: 'tag', values: the } }), THE_WCAG);
+    for (const v of kqAdmin.violations) for (const n of v.nodes.slice(0, 3)) loi.push(`${duongAdmin}: [${v.id}] ${v.help} — ${n.target.join(' ')}`);
+    if (thuMucAnh) await bt.screenshot({ path: path.join(thuMucAnh, 'admin-sua-390.png'), fullPage: true });
+  }
   await bt.close();
-  console.log(`Quét V2: ${DS_TRANG.length} trang × ${CHE_DO.length} chế độ + ${DS_TINH_320.size} trang tĩnh × 2 chế độ 320 px + ${DS_BIEN_TAP.length} trang biên tập (axe ${THE_WCAG.join(', ')}) — ${loi.length} lỗi.`);
+  console.log(`Quét V2: ${DS_TRANG.length} trang × ${CHE_DO.length} chế độ + ${DS_TINH_320.size} trang tĩnh × 2 chế độ 320 px + ${DS_BIEN_TAP.length} trang biên tập + 1 trang admin (axe ${THE_WCAG.join(', ')}) — ${loi.length} lỗi.`);
 } catch (e) {
   loi.push(String(e.message ?? e));
 } finally {

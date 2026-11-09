@@ -343,6 +343,21 @@ try {
       chac(await coChu(k, yNghia), 'duyệt rồi người đọc vẫn chưa thấy');
     });
 
+    await thu('wp-admin Sửa tác phẩm: lưu Ý nghĩa qua cùng dịch vụ, người đọc thấy bản đã duyệt', async () => {
+      const moi = 'Ý nghĩa thử từ biểu mẫu quản trị.';
+      await di(bt, caDao);
+      const id = await bt.$eval('.dai-bien-tap', e => e.dataset.bai);
+      await di(bt, `/wp-admin/admin.php?page=phongdao-sua-tac-pham&id=${id}`);
+      chac(await bt.$('#phan-y_nghia form') && await coChu(bt, 'Việc đang chờ'), 'không mở được trang sửa có cấu trúc');
+      await bam(bt, '#phan-y_nghia summary');
+      await datO(bt, '#phan-y_nghia textarea[name=chu]', moi);
+      await bam(bt, '#phan-y_nghia input[name=duyet]');
+      await bamDoiTrang(bt, '#phan-y_nghia form [type=submit]');
+      chac(await coChu(bt, 'Đã lưu phần bài.'), 'wp-admin không báo lưu thành công');
+      await di(k, caDao);
+      chac(await coChu(k, moi), 'người đọc không thấy Ý nghĩa vừa duyệt trong wp-admin');
+    });
+
     await thu('Hộp việc: Để sau rồi Hoàn tác trong 10 giây, sau đó xử lý thẻ', async () => {
       await di(bt, '/bien-tap/?loai=nguoi_doc');
       const id = await bt.$$eval('article.the-viec[data-loai=nguoi_doc]', as => as.find(a => a.textContent.includes('Góp thử đầu-cuối'))?.id);

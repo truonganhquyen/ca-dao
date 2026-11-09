@@ -39,8 +39,19 @@ final class TamSua {
 	 * @param array{ho_so:array<int,string>,sach:array<int,string>,duyet:bool} $ctx
 	 */
 	public static function ve( string $phan, ?array $cu, array $ctx ): string {
-		[ $tieu_de, $kieu ] = self::TAM[ $phan ];
-		$than               = match ( $kieu ) {
+		[ $tieu_de ] = self::TAM[ $phan ];
+		$than = self::than( $phan, $cu, $ctx );
+		$id = 'tam-' . $phan;
+		return '<dialog class="tam-sua" id="' . $id . '" aria-labelledby="' . $id . '-tieu-de"><form method="post" class="tam-khung" data-phan="' . esc_attr( $phan ) . '">'
+			. '<header class="tam-dau"><h2 id="' . $id . '-tieu-de">' . esc_html( $tieu_de ) . '</h2><button type="button" class="nut-dong" data-action="dong-tam" aria-label="Đóng"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></svg></button></header>'
+			. '<div class="tam-than">' . $than . '<p class="tam-loi" role="alert" hidden></p></div>'
+			. '<footer class="tam-chan"><button type="button" class="btn" data-action="dong-tam">Huỷ</button><button type="submit" class="btn primary">Lưu</button></footer></form></dialog>';
+	}
+
+	/** Cùng trường nhập của tấm sửa trang đọc và biểu mẫu wp-admin. */
+	public static function than( string $phan, ?array $cu, array $ctx ): string {
+		$kieu = self::TAM[ $phan ][1];
+		return match ( $kieu ) {
 			'loi'       => self::form_loi( $cu, $ctx ),
 			'y_nghia'   => self::form_y_nghia( $cu, $ctx ),
 			'chu_ai'    => self::vung( "s-$phan", 'chu', 'dung_khi' === $phan ? 'Mỗi dòng một ví dụ' : 'Nội dung', (string) ( $cu['chu'] ?? '' ) ) . self::hop( "s-$phan-ai", 'ai', 'Có hỗ trợ của AI', ! empty( $cu['ai'] ) ) . ( $ctx['duyet'] ? '' : '<p class="small muted">Phần có hỗ trợ AI cần người có quyền duyệt lưu.</p>' ),
@@ -53,11 +64,6 @@ final class TamSua {
 				. self::nguon( 's-bc', 'nguon', $cu['nguon'] ?? array(), $ctx ) . '<p class="small muted">Để trống hết = gỡ bối cảnh.</p>',
 			'doan'      => self::form_doan( $cu, $ctx ),
 		};
-		$id = 'tam-' . $phan;
-		return '<dialog class="tam-sua" id="' . $id . '" aria-labelledby="' . $id . '-tieu-de"><form method="post" class="tam-khung" data-phan="' . esc_attr( $phan ) . '">'
-			. '<header class="tam-dau"><h2 id="' . $id . '-tieu-de">' . esc_html( $tieu_de ) . '</h2><button type="button" class="nut-dong" data-action="dong-tam" aria-label="Đóng"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></svg></button></header>'
-			. '<div class="tam-than">' . $than . '<p class="tam-loi" role="alert" hidden></p></div>'
-			. '<footer class="tam-chan"><button type="button" class="btn" data-action="dong-tam">Huỷ</button><button type="submit" class="btn primary">Lưu</button></footer></form></dialog>';
 	}
 
 	private static function form_loi( ?array $cu, array $ctx ): string {
