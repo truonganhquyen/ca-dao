@@ -149,8 +149,8 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-166 | Chốt hướng admin chính, kế hoạch, hợp đồng thao tác và đồng bộ tài liệu | A | T-142 | — | DONE |
 | T-167 | Nền wp-admin: menu theo quyền, danh sách Tác phẩm toàn kho, bộ lọc, phân trang, số đếm đúng, bản xem trước màn admin | A | T-166 | — | DONE |
 | T-168 | Hộp việc trong wp-admin: mọi trạng thái, tìm/lọc/phân trang, quyết một thẻ dùng nghiệp vụ hiện có | A | T-167, T-176 | — | DONE |
-| T-169 | Trang sửa tác phẩm có cấu trúc: phần, nguồn gốc, việc liên quan, xem trước; dùng chung đường kiểm/lưu | A | T-167 | — | IN_PROGRESS |
-| T-170 | Lịch sử và khôi phục: so trước/sau, phiên bản/xung đột, nguồn và nhật ký quyết việc | A | T-168, T-169 | — | BLOCKED |
+| T-169 | Trang sửa tác phẩm có cấu trúc: phần, nguồn gốc, việc liên quan, xem trước; dùng chung đường kiểm/lưu | A | T-167 | — | DONE |
+| T-170 | Lịch sử và khôi phục: so trước/sau, phiên bản/xung đột, nguồn và nhật ký quyết việc | A | T-168, T-169 | — | READY |
 | T-171 | Xử lý lô: duyệt gợi ý, sửa phân loại/nhiều phần, ẩn/thùng rác, đổi trạng thái việc; xem trước và kết quả từng mục | A | T-170 | — | BLOCKED |
 | T-172 | Dùng thử admin trên máy tính/điện thoại, kiểm tương đương, chuyển lối vào `/bien-tap/…` an toàn | N+A | T-171 | — | BLOCKED |
 | T-184 | Màn Kho wp-admin: người quản trị tự tìm, tự chọn câu đủ điều kiện đưa vào Hộp việc | A | T-167, T-168 | — | READY |
@@ -161,7 +161,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-176 | Sửa Hộp việc hiện chạy: thẻ cuối, số đếm/phân trang, Để sau, Hoàn tác và thao tác bàn phím | A | T-173 | — | DONE |
 | T-177 | Chặn hai quyết định đồng thời, bảo toàn cập nhật bài/việc/nhật ký khi ghi lỗi hoặc thử lại | A | T-173 | — | IN_PROGRESS |
 | T-178 | Đối soát số bài, dữ liệu sau chuyển và backlog với site thật; ghi bằng chứng sai khác | A | T-173 | — | IN_PROGRESS |
-| T-179 | Hồ sơ nguồn và nội dung máy đưa vào: căn cứ, lịch sử, quyền và công cụ sửa/ẩn theo phần | A | T-169 | — | BLOCKED |
+| T-179 | Hồ sơ nguồn và nội dung máy đưa vào: căn cứ, lịch sử, quyền và công cụ sửa/ẩn theo phần | A | T-169 | — | READY |
 | T-180 | Bàn làm việc tuần, danh sách ngoại lệ dữ liệu và thử 20–30 bài nội dung chuyên sâu | N+A | T-176 | — | READY |
 | T-181 | Đo và sửa độ đầy đủ/thứ tự tìm kiếm khi kho lớn, giữ tìm không dấu | A | T-173 | — | READY |
 | T-182 | Đo và tối ưu nghẽn Bản đồ, Số liệu tuần, ảnh và truy vấn dữ liệu lớn | A | T-181 | — | BLOCKED |
@@ -722,6 +722,8 @@ Mọi task V2 đọc AGENTS.md và `docs/26`; task trang người đọc đọc 
 **T-169 — sửa tác phẩm:** đọc `docs/30` mục 2, 4 và `docs/28` mục 6. Biểu mẫu theo phần gọi `LuuPhan`/`KiemPhan`, giữ nguồn gốc và nháp chờ duyệt; sửa cùng một phần qua admin và trang đọc cho kết quả tương đương; `post_content`/chỉ mục được cập nhật; người không đủ quyền không gửi trực tiếp được.
 
 **T-169.1 (09/11/2026, đang làm):** trang sửa trong wp-admin dùng cùng trường nhập `TamSua` và cùng dịch vụ `BienTap::luu_phan` với lối sửa trên trang đọc. Danh sách Tác phẩm có liên kết Sửa bài; trang sửa hiện nguồn gốc từng phần, việc chờ và lối xem trang đọc. Gửi form kiểm quyền `cadao_soan`/`edit_post` và nonce; lỗi kiểm dữ liệu báo một lần; Ý nghĩa chưa duyệt tiếp tục là nháp Hộp việc. Kiểm cục bộ: `kiem-tra` 146 task, 0 lỗi; `test:v2` 237 PHP + 320 Playground + 55 chuyển đổi (PHP 8.4.12, Node 24.22); `quet:v2` 29 trang × 3 chế độ + 4 trang tĩnh × 2 chế độ 320 px + 7 trang biên tập + 1 trang sửa admin 390 px, 0 lỗi; `e2e:v2` 25 bước đạt, 0 lỗi, 0 bỏ qua, có lưu Ý nghĩa trong admin rồi đọc như khách. Các lượt Playground đầu hỏng do điều kiện kiểm nhãn nguồn gốc quá chặt **không** tính PASS; lượt cuối đã đạt. Chưa hoàn tất phân loại trong admin, đối chiếu lịch sử đầy đủ và nghiệm thu điện thoại bằng thiết bị thật; T-169 giữ `IN_PROGRESS`.
+
+**T-169.2 (09/11/2026, xong):** trang Sửa tác phẩm thêm khối **Phân loại**: chủ đề, vùng, mô-típ, lối hát (hình thức) và trò chơi (chỉ đồng dao) chọn trong mục đã có, không tạo mục mới; thể loại (đổi đường dẫn, H6), mục từ (theo Từ khó) và thể thơ máy tính từ lời chỉ hiện để xem. Ghi qua `DichVu\LuuPhan\LuuPhanLoai` — kiểm bộ phân loại hợp thể loại, mục có thật, tập màn hình đã thấy còn đúng (bài vừa đổi ở nơi khác thì từ chối, không ghi đè), nhật ký trước/sau kèm tên mục và phân loại ghi trong một giao dịch; lỗi giữa chừng huỷ cả hai. Gửi thẳng admin-post kiểm `cadao_soan`/`edit_post` và nonce. Thêm khối **Lịch sử** 50 dòng (ngày giờ, phần, việc, người; phân loại ghi mục thêm/gỡ), dòng lịch sử trên trang đọc dùng chung cách mô tả. Sửa lỗi biểu tượng SVG dùng chung phình thành hình tròn đen ở trang sửa và Hộp việc admin (wp-admin không nạp CSS theme); `quet:v2` nay báo lỗi khi biểu tượng trong trang admin rộng quá 40 px. Plugin V2 1.0.25. Kiểm cục bộ: `kiem-tra` 146 task, 1 câu hỏi mở, 0 lỗi; `test:v2` 237 PHP + 334 Playground + 55 chuyển đổi (PHP 8.4.12, Node 24.22.1); `quet:v2` 29 trang × 3 chế độ + 4 trang tĩnh × 2 chế độ 320 px + 7 trang biên tập + 1 trang admin 390 px, 0 lỗi; `e2e:v2` 26 bước đạt, 0 lỗi, 0 bỏ qua; có gỡ rồi gắn lại một chủ đề trong admin, người đọc thấy đúng và Lịch sử ghi lại. So sánh trước/sau và khôi phục từ Lịch sử thuộc T-170; nghiệm thu trên điện thoại thật của người sáng lập thuộc T-172.
 
 **T-170 — lịch sử:** đọc `docs/30` mục 4. So trước/sau từng phần; khôi phục tạo sự kiện mới và từ chối khi có thay đổi mới hơn; quyết việc, đổi trạng thái và hồ sơ nguồn có dấu vết tương ứng. Hoàn tác 10 giây vẫn dùng được cho thao tác đủ điều kiện.
 

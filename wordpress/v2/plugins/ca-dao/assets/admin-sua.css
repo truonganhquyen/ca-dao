@@ -16,3 +16,13 @@
 .phongdao-sua-phan .button { min-height: 44px; }
 .phongdao-sua-phan .goc-nguon { color: #50575e; }
 @media (max-width: 782px) { .phongdao-sua-viec, .phongdao-sua-phan { padding: 12px; } .phongdao-sua-phan .ds-sua { padding-left: 20px; } }
+.phongdao-sua-phan fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.phongdao-chon-muc { max-height: 320px; overflow-y: auto; border: 1px solid #dcdcde; border-radius: 4px; padding: 0 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); column-gap: 12px; }
+.phongdao-chon-muc .choice { margin: 0; }
+.phongdao-chon-muc input[type=checkbox] { margin: 0; }
+.phongdao-lich-su { margin-left: 20px; }
+.phongdao-lich-su li { margin-bottom: 6px; }
+.phongdao-chon-muc .choice[hidden], .phongdao-loc-muc[hidden] { display: none; }
+/* Biểu tượng SVG dùng chung với trang đọc: wp-admin không nạp CSS của theme nên tự đặt cỡ, nét (không để thành hình tròn đen to) */
+.phongdao-admin-sua .icon { width: 17px; height: 17px; display: inline-block; vertical-align: middle; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.phongdao-admin-sua .goc-nguon { display: flex; align-items: center; gap: 8px; }

@@ -86,15 +86,28 @@ final class CheDoSua {
 
 	/** Khối Lịch sử (chỉ người biên soạn thấy). */
 	public static function lich_su( array $sua ): string {
-		$ten = array( 'loi' => 'Lời', 'y_nghia' => 'Ý nghĩa', 'chu_thich' => 'Từ khó', 'di_ban' => 'Dị bản', 'nghia_den' => 'Nghĩa đen', 'nghia_bong' => 'Nghĩa bóng', 'dung_khi' => 'Dùng khi', 'cau_hoi' => 'Câu hỏi', 'dap_an' => 'Đáp án', 'goi_y' => 'Gợi ý', 'co_nghi' => 'Cờ nghi', 'boi_canh' => 'Bối cảnh', 'doan' => 'Đoạn', 'chu_de' => 'Chủ đề', 'vung' => 'Vùng', 'goi_y' => 'Gợi ý', 'nguon_may' => 'Địa chỉ gốc', 'trang_thai' => 'Trạng thái', 'ten' => 'Tên bài' );
-		$viec = array( 'luu' => 'sửa', 'xoa' => 'gỡ', 'khoi_phuc' => 'khôi phục bản trước', 'dang' => 'đăng', 'an' => 'ẩn', 'nhap' => 'về nháp', 'dong_y' => 'đồng ý gợi ý', 'da_co' => 'đã có', 'da_duyet_mvp' => 'đã duyệt trên bản cũ' );
-		$o    = '';
+		$o = '';
 		foreach ( $sua['lich_su'] as $r ) {
-			$nd = (int) $r['nguoi_quyet'] ? get_userdata( (int) $r['nguoi_quyet'] ) : null;
-			$ai = (int) $r['nguoi_quyet'] ? ( $nd ? $nd->display_name : '' ) : 'máy';
-			$o .= '<li><strong>' . esc_html( self::ngay( (string) $r['quyet_luc'] ) ) . '</strong> · ' . esc_html( ( $ten[ $r['phan'] ] ?? $r['phan'] ) . ': ' . ( $viec[ $r['quyet'] ] ?? $r['quyet'] ) . ( '' === $ai ? '' : " ($ai)" ) ) . '</li>';
+			$o .= '<li><strong>' . esc_html( self::ngay( (string) $r['quyet_luc'] ) ) . '</strong> · ' . esc_html( self::mo_ta( $r ) ) . '</li>';
 		}
 		return '<section class="block tint-dat no-print" id="lich-su"><div class="block-dau"><h2>Lịch sử</h2></div>' . ( '' === $o ? '<p class="small muted">Chưa có lần sửa nào được ghi.</p>' : '<ol class="lich-su">' . $o . '</ol>' ) . '</section>';
+	}
+
+	/** Một dòng lịch sử bằng chữ: phần, việc, người; sửa phân loại tay thì kèm mục thêm / gỡ. */
+	public static function mo_ta( array $r ): string {
+		$ten  = array( 'loi' => 'Lời', 'y_nghia' => 'Ý nghĩa', 'chu_thich' => 'Từ khó', 'di_ban' => 'Dị bản', 'nghia_den' => 'Nghĩa đen', 'nghia_bong' => 'Nghĩa bóng', 'dung_khi' => 'Dùng khi', 'cau_hoi' => 'Câu hỏi', 'dap_an' => 'Đáp án', 'co_nghi' => 'Cờ nghi', 'boi_canh' => 'Bối cảnh', 'doan' => 'Đoạn', 'chu_de' => 'Chủ đề', 'vung' => 'Vùng', 'mo_tip' => 'Mô-típ', 'hinh_thuc' => 'Hình thức', 'tro_choi' => 'Trò chơi', 'goi_y' => 'Gợi ý', 'nguon_may' => 'Địa chỉ gốc', 'trang_thai' => 'Trạng thái', 'ten' => 'Tên bài' );
+		$viec = array( 'luu' => 'sửa', 'xoa' => 'gỡ', 'khoi_phuc' => 'khôi phục bản trước', 'dang' => 'đăng', 'an' => 'ẩn', 'nhap' => 'về nháp', 'dong_y' => 'đồng ý gợi ý', 'da_co' => 'đã có', 'da_duyet_mvp' => 'đã duyệt trên bản cũ' );
+		$nd   = (int) $r['nguoi_quyet'] ? get_userdata( (int) $r['nguoi_quyet'] ) : null;
+		$ai   = (int) $r['nguoi_quyet'] ? ( $nd ? $nd->display_name : '' ) : 'máy';
+		$chu  = ( $ten[ $r['phan'] ] ?? $r['phan'] ) . ': ' . ( $viec[ $r['quyet'] ] ?? $r['quyet'] ) . ( '' === $ai ? '' : " ($ai)" );
+		$truoc = $r['truoc']['ten'] ?? null;
+		$sau   = $r['sau']['ten'] ?? null;
+		if ( is_array( $truoc ) && is_array( $sau ) ) {
+			$them = array_diff( $sau, $truoc );
+			$go   = array_diff( $truoc, $sau );
+			$chu .= ( $them ? ' · thêm ' . implode( ', ', $them ) : '' ) . ( $go ? ' · gỡ ' . implode( ', ', $go ) : '' );
+		}
+		return $chu;
 	}
 
 	/** Mọi tấm sửa hợp thể loại của bài. */

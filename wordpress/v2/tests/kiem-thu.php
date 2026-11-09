@@ -680,6 +680,103 @@ kt( 'wp-admin Sửa tác phẩm: hiện lỗi kiểm dữ liệu đúng một l�
 wp_set_current_user( 0 );
 kt( 'wp-admin Sửa tác phẩm: khách không nhận form và nguồn gốc nội bộ', ! str_contains( \Phongdao\GiaoTiep\QuanTri\SuaTacPham::hien(), 'phongdao_sua_phan' ) );
 wp_set_current_user( $ai_ql );
+
+// ---------- wp-admin: sửa phân loại tay, khối Lịch sử (T-169) ----------
+$LPL  = \Phongdao\DichVu\LuuPhan\LuuPhanLoai::class;
+$pl_a = (int) wp_insert_term( 'Chủ đề thử A', 'chu_de' )['term_id'];
+$pl_b = (int) wp_insert_term( 'Chủ đề thử B', 'chu_de' )['term_id'];
+$pl_v = (int) wp_insert_term( 'Vùng thử', 'vung' )['term_id'];
+$pl_h = (int) wp_insert_term( 'Lối hát thử', 'hinh_thuc' )['term_id'];
+$cd_truoc = $LPL::dang_gan( $tp1, 'chu_de' );
+$kq_pl    = $LPL::luu( $tp1, 'chu_de', array_merge( $cd_truoc, array( $pl_b, $pl_a, $pl_a ) ), $cd_truoc, $ai_ql );
+$nk_pl    = Viec::lay( $kq_pl['viec'] );
+kt( 'sửa phân loại tay: gắn hai chủ đề có sẵn, ghi nhật ký trước/sau kèm tên và người', $kq_pl['ok'] && $kq_pl['doi'] && has_term( $pl_a, 'chu_de', $tp1 ) && has_term( $pl_b, 'chu_de', $tp1 ) && Viec::SUA === ( $nk_pl['loai'] ?? '' ) && 'chu_de' === $nk_pl['phan'] && $cd_truoc === $nk_pl['truoc']['term_ids'] && in_array( 'Chủ đề thử A', $nk_pl['sau']['ten'], true ) && $ai_ql === $nk_pl['nguoi_quyet'], array( $kq_pl, $nk_pl ) );
+$cd_sau  = $LPL::dang_gan( $tp1, 'chu_de' );
+$kq_pl_0 = $LPL::luu( $tp1, 'chu_de', array_reverse( $cd_sau ), $cd_sau, $ai_ql );
+kt( 'sửa phân loại tay: chọn lại đúng tập đang gắn thì không ghi gì', $kq_pl_0['ok'] && ! $kq_pl_0['doi'] && 0 === $kq_pl_0['viec'], $kq_pl_0 );
+$kq_pl_cu = $LPL::luu( $tp1, 'chu_de', $cd_truoc, $cd_truoc, $ai_ql );
+kt( 'sửa phân loại tay: màn hình cũ (bài vừa đổi ở nơi khác) bị từ chối, không ghi đè', ! $kq_pl_cu['ok'] && $cd_sau === $LPL::dang_gan( $tp1, 'chu_de' ) && str_contains( implode( ' ', $kq_pl_cu['loi'] ), 'Tải lại trang' ), $kq_pl_cu );
+$so_cd   = (int) wp_count_terms( array( 'taxonomy' => 'chu_de', 'hide_empty' => false ) );
+$kq_pl_l = $LPL::luu( $tp1, 'chu_de', array_merge( $cd_sau, array( $pl_v ) ), $cd_sau, $ai_ql );
+$kq_pl_k = $LPL::luu( $tp1, 'chu_de', array_merge( $cd_sau, array( 999999 ) ), $cd_sau, $ai_ql );
+kt( 'sửa phân loại tay: mục của bộ khác hoặc không có thì từ chối, không tạo mục mới', ! $kq_pl_l['ok'] && ! $kq_pl_k['ok'] && $cd_sau === $LPL::dang_gan( $tp1, 'chu_de' ) && $so_cd === (int) wp_count_terms( array( 'taxonomy' => 'chu_de', 'hide_empty' => false ) ) && ! has_term( $pl_v, 'vung', $tp1 ), array( $kq_pl_l, $kq_pl_k ) );
+$kq_pl_tl = $LPL::luu( $tp1, KhaiBao::THE_LOAI, array(), array(), $ai_ql );
+$kq_pl_mt = $LPL::luu( $tp1, 'muc_tu', array(), array(), $ai_ql );
+$kq_pl_tc = $LPL::luu( $tp1, 'tro_choi', array(), array(), $ai_ql );
+kt( 'sửa phân loại tay: không sửa thể loại (đổi đường dẫn), mục từ; trò chơi chỉ cho đồng dao', ! $kq_pl_tl['ok'] && ! $kq_pl_mt['ok'] && ! $kq_pl_tc['ok'] && has_term( 'ca-dao', KhaiBao::THE_LOAI, $tp1 ) && $LPL::sua_duoc( 'tro_choi', 'dong-dao' ), array( $kq_pl_tl, $kq_pl_tc ) );
+$dd_pl   = $mau_id['dong-dao-mau'];
+$ht_truoc = $LPL::dang_gan( $dd_pl, 'hinh_thuc' );
+$kq_ht   = $LPL::luu( $dd_pl, 'hinh_thuc', array( $pl_h ), $ht_truoc, $ai_ql );
+$bon_chu = get_term_by( 'slug', 'bon-chu', 'hinh_thuc' );
+$kq_ht_m = $LPL::luu( $dd_pl, 'hinh_thuc', array( $pl_h, (int) $bon_chu->term_id ), array( $pl_h ), $ai_ql );
+kt( 'sửa phân loại tay: hình thức gắn lối hát, giữ thể thơ máy tính; không gắn tay thể thơ', $kq_ht['ok'] && has_term( $pl_h, 'hinh_thuc', $dd_pl ) && has_term( 'bon-chu', 'hinh_thuc', $dd_pl ) && array( $pl_h ) === $LPL::dang_gan( $dd_pl, 'hinh_thuc' ) && ! $kq_ht_m['ok'], array( $kq_ht, $kq_ht_m ) );
+$kq_ht_go = $LPL::luu( $dd_pl, 'hinh_thuc', $ht_truoc, array( $pl_h ), $ai_ql );
+kt( 'sửa phân loại tay: gỡ lối hát vẫn giữ thể thơ máy tính', $kq_ht_go['ok'] && ! has_term( $pl_h, 'hinh_thuc', $dd_pl ) && has_term( 'bon-chu', 'hinh_thuc', $dd_pl ), $kq_ht_go );
+$so_ls_pl     = count( Viec::lich_su( 'post', $tp1, 500 ) );
+$da_chan_pl   = false;
+$chan_pl      = static function ( $sql ) use ( $wpdb, &$da_chan_pl ) {
+	if ( ! $da_chan_pl && preg_match( '/^INSERT\s+INTO\s+`?' . preg_quote( $wpdb->term_relationships, '/' ) . '`?/i', $sql ) ) {
+		$da_chan_pl = true;
+		return 'CA_DAO_KIEM_THU_LOI_GAN_PHAN_LOAI';
+	}
+	return $sql;
+};
+add_filter( 'query', $chan_pl );
+$kq_pl_loi = $LPL::luu( $tp1, 'vung', array_merge( $LPL::dang_gan( $tp1, 'vung' ), array( $pl_v ) ), $LPL::dang_gan( $tp1, 'vung' ), $ai_ql );
+remove_filter( 'query', $chan_pl );
+clean_object_term_cache( $tp1, KhaiBao::TAC_PHAM );
+kt( 'lỗi gắn phân loại: huỷ cả nhật ký, bài giữ nguyên', $da_chan_pl && ! $kq_pl_loi['ok'] && ! has_term( $pl_v, 'vung', $tp1 ) && $so_ls_pl === count( Viec::lich_su( 'post', $tp1, 500 ) ), $kq_pl_loi );
+$_GET     = array( 'id' => (string) $tp1, 'phan_loai' => 'chu_de' );
+$admin_pl = \Phongdao\GiaoTiep\QuanTri\SuaTacPham::hien();
+$kiem_pl  = array(
+	'form'      => str_contains( $admin_pl, 'name="action" value="phongdao_sua_phan_loai"' ) && str_contains( $admin_pl, 'name="tax" value="chu_de"' ) && str_contains( $admin_pl, 'name="tax" value="vung"' ),
+	'mo_lai'    => str_contains( $admin_pl, 'id="phan-loai-chu_de" open' ),
+	'da_chon'   => str_contains( $admin_pl, 'name="chon[]" value="' . $pl_a . '" checked=' ) && ! str_contains( $admin_pl, 'name="chon[]" value="' . $pl_v . '" checked=' ),
+	'da_thay'   => str_contains( $admin_pl, 'name="da_thay[]" value="' . $pl_a . '"' ),
+	'chi_xem'   => ! str_contains( $admin_pl, 'name="tax" value="the_loai"' ) && ! str_contains( $admin_pl, 'name="tax" value="muc_tu"' ) && ! str_contains( $admin_pl, 'id="phan-loai-tro_choi"' ) && str_contains( $admin_pl, 'không đổi ở đây vì sẽ đổi đường dẫn' ),
+	'lich_su'   => str_contains( $admin_pl, 'id="lich-su"' ) && str_contains( $admin_pl, 'Chủ đề: sửa' ) && str_contains( $admin_pl, 'thêm Chủ đề thử' ),
+);
+kt( 'wp-admin Sửa tác phẩm: khối Phân loại chọn mục có sẵn, giữ tập đã thấy; thể loại, mục từ chỉ xem; có Lịch sử', ! in_array( false, $kiem_pl, true ), $kiem_pl );
+$_GET     = array( 'id' => (string) $dd_pl );
+$admin_dd = \Phongdao\GiaoTiep\QuanTri\SuaTacPham::hien();
+kt( 'wp-admin Sửa tác phẩm: đồng dao có Trò chơi; thể thơ máy tính chỉ hiện để xem', str_contains( $admin_dd, 'id="phan-loai-tro_choi"' ) && str_contains( $admin_dd, 'Thể thơ máy tự tính từ lời' ) && ! str_contains( $admin_dd, 'name="chon[]" value="' . (int) $bon_chu->term_id . '"' ) );
+kt( 'Lịch sử trên trang đọc (chế độ sửa): ghi mục thêm, gỡ của phân loại', str_contains( \Phongdao\GiaoTiep\BienTap\CheDoSua::lich_su( \Phongdao\GiaoTiep\BienTap\CheDoSua::ngu_canh( get_post( $tp1 ) ) ), 'Chủ đề: sửa' ) );
+$_GET = array( 'id' => (string) $tp1 );
+wp_set_current_user( $doc_gia );
+$admin_dg = \Phongdao\GiaoTiep\QuanTri\SuaTacPham::hien();
+wp_set_current_user( 0 );
+$admin_khach = \Phongdao\GiaoTiep\QuanTri\SuaTacPham::hien();
+kt( 'wp-admin Sửa tác phẩm: người đọc, khách không nhận form phân loại hay lịch sử', ! str_contains( $admin_dg . $admin_khach, 'phongdao_sua_phan_loai' ) && ! str_contains( $admin_dg . $admin_khach, 'id="lich-su"' ) );
+// Gửi thẳng tới admin-post: người không đủ quyền, hoặc thiếu nonce, bị chặn trước khi ghi
+$chan_die = static fn() => static function ( $chu ): void {
+	throw new \RuntimeException( 'wp_die: ' . ( is_string( $chu ) ? $chu : 'lỗi' ) );
+};
+add_filter( 'wp_die_handler', $chan_die );
+$gui_pl = static function ( int $nguoi, bool $nonce ) use ( $tp1, $cd_sau ): string {
+	wp_set_current_user( $nguoi );
+	// Gửi hợp lệ thì gỡ hết chủ đề (tập đã thấy đúng bản hiện tại)
+	$_POST = $_REQUEST = array( 'id' => (string) $tp1, 'tax' => 'chu_de', 'chon' => array(), 'da_thay' => array_map( 'strval', $cd_sau ) );
+	if ( $nonce ) {
+		$_POST['_wpnonce'] = $_REQUEST['_wpnonce'] = wp_create_nonce( 'phongdao_sua_phan_loai_' . $tp1 . '_chu_de' );
+	}
+	try {
+		\Phongdao\GiaoTiep\QuanTri\SuaTacPham::luu_phan_loai();
+		return 'không chặn';
+	} catch ( \RuntimeException $e ) {
+		return $e->getMessage();
+	}
+};
+$gui_dg = $gui_pl( $doc_gia, true );
+$gui_kn = $gui_pl( $ai_ql, false );
+remove_filter( 'wp_die_handler', $chan_die );
+$_POST = $_REQUEST = array();
+kt( 'wp-admin sửa phân loại: người đọc gửi thẳng bị chặn; thiếu nonce bị chặn; bài không đổi', str_starts_with( $gui_dg, 'wp_die' ) && str_starts_with( $gui_kn, 'wp_die' ) && $LPL::dang_gan( $tp1, 'chu_de' ) === $cd_sau, array( $gui_dg, $gui_kn ) );
+wp_set_current_user( $ai_ql );
+$LPL::luu( $tp1, 'chu_de', $cd_truoc, $LPL::dang_gan( $tp1, 'chu_de' ), $ai_ql );
+foreach ( array( array( $pl_a, 'chu_de' ), array( $pl_b, 'chu_de' ), array( $pl_v, 'vung' ), array( $pl_h, 'hinh_thuc' ) ) as [ $t_pl, $tax_pl ] ) {
+	wp_delete_term( $t_pl, $tax_pl );
+}
+kt( 'sửa phân loại tay: trả bài thử về chủ đề cũ', $cd_truoc === $LPL::dang_gan( $tp1, 'chu_de' ) );
 $_GET = array();
 foreach ( $ids_nhieu as $id_nhieu ) {
 	Viec::xoa( $id_nhieu );

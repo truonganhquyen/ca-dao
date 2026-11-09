@@ -358,6 +358,31 @@ try {
       chac(await coChu(k, moi), 'người đọc không thấy Ý nghĩa vừa duyệt trong wp-admin');
     });
 
+    await thu('wp-admin Sửa tác phẩm: đổi một chủ đề có sẵn, người đọc thấy đúng, Lịch sử ghi lại, trả về như cũ', async () => {
+      await di(bt, caDao);
+      const id = await bt.$eval('.dai-bien-tap', e => e.dataset.bai);
+      const duong = `/wp-admin/admin.php?page=phongdao-sua-tac-pham&id=${id}`;
+      const chipChuDe = async () => k.$$eval('a.tag-pill', as => as.map(a => a.textContent.trim()).filter(t => t.startsWith('Chủ đề: ')));
+      const doiMot = async () => {
+        await di(bt, duong);
+        await bam(bt, '#phan-loai-chu_de summary');
+        const o = await bt.$eval('#phan-loai-chu_de label.choice', l => ({ ten: l.textContent.trim(), co: l.querySelector('input').checked }));
+        await bam(bt, '#phan-loai-chu_de label.choice input');
+        await bamDoiTrang(bt, '#phan-loai-chu_de form [type=submit]');
+        chac(await coChu(bt, 'Đã lưu phân loại.'), 'wp-admin không báo lưu phân loại');
+        await di(k, caDao);
+        chac((await chipChuDe()).includes(`Chủ đề: ${o.ten}`) === !o.co, `người đọc thấy sai chủ đề "${o.ten}" sau khi ${o.co ? 'gỡ' : 'gắn'}`);
+        return o;
+      };
+      await di(k, caDao);
+      const truoc = await chipChuDe();
+      const lan1 = await doiMot();
+      const lan2 = await doiMot();
+      chac(lan1.ten === lan2.ten && lan1.co !== lan2.co, 'lần hai không trả lại đúng mục vừa đổi');
+      chac(JSON.stringify(await chipChuDe()) === JSON.stringify(truoc), 'chủ đề trên trang đọc không về như cũ');
+      chac(await bt.$eval('#lich-su', (e, ten) => e.textContent.includes('Chủ đề: sửa') && e.textContent.includes(ten), lan1.ten), 'Lịch sử trong wp-admin không ghi lần sửa chủ đề');
+    });
+
     await thu('Hộp việc: Để sau rồi Hoàn tác trong 10 giây, sau đó xử lý thẻ', async () => {
       await di(bt, '/bien-tap/?loai=nguoi_doc');
       const id = await bt.$$eval('article.the-viec[data-loai=nguoi_doc]', as => as.find(a => a.textContent.includes('Góp thử đầu-cuối'))?.id);

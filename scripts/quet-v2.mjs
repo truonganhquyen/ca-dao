@@ -166,6 +166,9 @@ try {
     await bt.evaluate(() => { document.querySelectorAll('.phongdao-admin-sua details').forEach(d => { d.open = true; }); });
     const tranAdmin = await doTran(bt);
     if (tranAdmin) loi.push(`${duongAdmin}: tràn ngang ${tranAdmin}`);
+    // wp-admin không nạp CSS của theme: biểu tượng SVG dùng chung phải tự có cỡ (không phình thành hình to)
+    const iconTo = await bt.$$eval('.phongdao-admin-sua svg', ss => ss.filter(s => s.getBoundingClientRect().width > 40).length);
+    if (iconTo) loi.push(`${duongAdmin}: ${iconTo} biểu tượng SVG rộng quá 40 px (thiếu CSS cỡ biểu tượng trong admin)`);
     await bt.addScriptTag({ content: axeNguon });
     const kqAdmin = await bt.evaluate(the => window.axe.run('.phongdao-admin-sua', { runOnly: { type: 'tag', values: the } }), THE_WCAG);
     for (const v of kqAdmin.violations) for (const n of v.nodes.slice(0, 3)) loi.push(`${duongAdmin}: [${v.id}] ${v.help} — ${n.target.join(' ')}`);
