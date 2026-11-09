@@ -105,14 +105,18 @@ final class TrangLo {
 		$trang = max( 1, (int) ( $_POST['trang'] ?? 1 ) );
 		$them  = array( 'trang' => $trang > 1 ? $trang : '' );
 		if ( in_array( $lam, array( 'luu_bo', 'ap_dung' ), true ) && isset( $_POST['tren_trang'] ) ) {
-			$bc = Lo::bo_chon( $lo, array_map( 'absint', (array) wp_unslash( $_POST['tren_trang'] ) ), array_map( 'absint', (array) wp_unslash( $_POST['giu'] ?? array() ) ), $nguoi );
+			$tren = array_map( 'absint', (array) wp_unslash( $_POST['tren_trang'] ) );
+			$giu  = array_map( 'absint', (array) wp_unslash( $_POST['giu'] ?? array() ) );
+			$bc   = isset( $_POST['gia_tri'] )
+				? Lo::luu_gia_tri( $lo, array_map( 'sanitize_textarea_field', (array) wp_unslash( $_POST['gia_tri'] ) ), $tren, $giu, array( 'duyet' => ! empty( $_POST['duyet'] ), 'ai' => ! empty( $_POST['ai'] ) ), $nguoi )
+				: Lo::bo_chon( $lo, $tren, $giu, $nguoi );
 			if ( ! $bc['ok'] ) {
 				self::bao( false, $bc['loi'] );
 				wp_safe_redirect( self::url( $lo, $them ) );
 				exit;
 			}
 			if ( 'luu_bo' === $lam ) {
-				self::bao( true, 'Đã lưu bỏ chọn: ' . $bc['bo'] . ' mục sẽ bỏ qua.' );
+				self::bao( true, isset( $_POST['gia_tri'] ) ? 'Đã lưu giá trị trên trang này; xem so trước/sau rồi bấm Áp dụng.' : 'Đã lưu bỏ chọn: ' . $bc['bo'] . ' mục sẽ bỏ qua.' );
 			}
 		}
 		if ( in_array( $lam, array( 'ap_dung', 'tiep' ), true ) ) {
@@ -159,7 +163,7 @@ final class TrangLo {
 			. esc_html( 'loc' === $nd['pham_vi'] ? 'mọi mục khớp bộ lọc lúc chọn' : 'các mục đã chọn' ) . ' · tạo ' . esc_html( $t ? wp_date( 'd/m/Y H:i', $t ) : '' )
 			. ' · <strong>' . esc_html( self::TRANG_THAI[ $lo['trang_thai'] ] ?? $lo['trang_thai'] ) . '</strong></p>';
 		if ( Viec::LO_XEM === $lo['trang_thai'] ) {
-			return $h . ( $bai ? self::xem_truoc_bai( $lo ) : self::xem_truoc( $lo ) ) . '</div>';
+			return $h . ( 'sua_phan' === $nd['thao_tac'] ? self::xem_truoc_sua( $lo ) : ( $bai ? self::xem_truoc_bai( $lo ) : self::xem_truoc( $lo ) ) ) . '</div>';
 		}
 		$dem = Lo::dem( $kq );
 		$h  .= '<p class="phongdao-tp-tong" role="status">Đã xử lý <strong>' . count( $kq ) . '</strong> / ' . $tong . ' mục: '
@@ -182,7 +186,61 @@ final class TrangLo {
 	}
 
 	private static function mo_ta_tham_so( array $ts ): string {
+		if ( ! empty( $ts['phan'] ) ) {
+			return 'Phần: ' . ( $ts['ten'] ?? $ts['phan'] );
+		}
 		return empty( $ts['tax'] ) ? '' : ( \Phongdao\HaTang\KhaiBao::PHAN_LOAI[ $ts['tax'] ][1] ?? $ts['tax'] ) . ': ' . ( $ts['ten'] ?? '' );
+	}
+
+	/**
+	 * Xem trước lô "sửa một phần theo từng hàng": mỗi bài một ô giá trị riêng (không có ô ghi đè lên mọi bài), bản đang
+	 * có, so trước/sau của giá trị đã lưu. Duyệt và "có hỗ trợ AI" do người đánh.
+	 */
+	private static function xem_truoc_sua( array $lo ): string {
+		$id    = (int) $lo['id'];
+		$nd    = $lo['noi_dung'];
+		$ts    = (array) ( $nd['tham_so'] ?? array() );
+		$phan  = (string) $ts['phan'];
+		$muc   = (array) $nd['muc'];
+		$gt    = (array) ( $nd['gia_tri'] ?? array() );
+		$bo    = array_flip( array_map( 'intval', (array) $nd['bo'] ) );
+		$trang = max( 1, (int) ( $_GET['trang'] ?? 1 ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc
+		$so    = (int) ceil( count( $muc ) / self::MOI_TRANG );
+		$trang = min( $trang, max( 1, $so ) );
+		$tren  = array_slice( $muc, ( $trang - 1 ) * self::MOI_TRANG, self::MOI_TRANG );
+		$bai   = self::bai_trang( array_map( static fn( array $m ): int => (int) $m[0], $tren ) );
+		$dong  = '';
+		foreach ( $tren as [ $bid, $ban ] ) {
+			$bid  = (int) $bid;
+			$hien = \Phongdao\KhoLuu\PhanBai::lay( $bid, $phan );
+			$cu   = trim( (string) ( $hien['chu'] ?? '' ) );
+			$co   = array_key_exists( $bid, $gt );
+			$moi  = $co ? (string) $gt[ $bid ] : $cu;
+			$doi  = (string) wp_json_encode( $hien ) !== (string) $ban ? '<p class="description">Phần này đã đổi sau lúc xem trước — sẽ báo xung đột.</p>' : '';
+			$so_sanh = '';
+			if ( $co && '' !== $moi && $moi !== $cu ) {
+				$o = '';
+				foreach ( \Phongdao\MienDuLieu\SoSanh::khac( '' === $cu ? array() : explode( "\n", $cu ), explode( "\n", $moi ) ) as [ $dau, $d ] ) {
+					$o .= '-' === $dau ? '<li class="bo"><span aria-hidden="true">− </span><del><span class="screen-reader-text">bỏ: </span>' . esc_html( $d ) . '</del></li>'
+						: ( '+' === $dau ? '<li class="them"><span aria-hidden="true">+ </span><ins><span class="screen-reader-text">thêm: </span>' . esc_html( $d ) . '</ins></li>' : '<li>' . esc_html( $d ) . '</li>' );
+				}
+				$so_sanh = '<ul class="phongdao-lo-so-sanh">' . $o . '</ul>';
+			}
+			$dong .= '<tr><td data-nhan="Áp dụng"><input type="hidden" name="tren_trang[]" value="' . $bid . '"><input type="checkbox" name="giu[]" value="' . $bid . '" id="lo-giu-' . $bid . '"' . checked( ! isset( $bo[ $bid ] ), true, false ) . '><label for="lo-giu-' . $bid . '" class="screen-reader-text">Áp dụng cho bài #' . $bid . '</label></td>'
+				. '<td data-nhan="Tác phẩm">' . self::lien_bai( $bid, $bai[ $bid ] ?? null ) . '<p class="description">Đang có: ' . esc_html( '' === $cu ? '(chưa có)' : $cu ) . '</p>' . $doi . '</td>'
+				. '<td data-nhan="Giá trị mới"><label for="lo-gt-' . $bid . '" class="screen-reader-text">' . esc_html( ( $ts['ten'] ?? $phan ) . ' mới cho bài #' . $bid ) . '</label><textarea id="lo-gt-' . $bid . '" name="gia_tri[' . $bid . ']" rows="3">' . esc_textarea( $moi ) . '</textarea>' . $so_sanh . '</td></tr>';
+		}
+		$ap    = count( $muc ) - count( $bo );
+		$duyet = current_user_can( 'cadao_duyet' ) && 'y_nghia' === $phan
+			? '<p><label><input type="checkbox" name="duyet" value="1"' . checked( ! empty( $ts['duyet'] ), true, false ) . '> Tôi đã đọc và duyệt các giá trị này (bỏ chọn thì mỗi bài thành nháp trong Hộp việc, người đọc chưa thấy)</label></p>'
+			: ( 'y_nghia' === $phan ? '<p class="description">Ý nghĩa sẽ thành nháp trong Hộp việc chờ người có quyền duyệt.</p>' : '' );
+		return '<p class="description">Mỗi bài một giá trị riêng, gõ ở ô của bài đó; ô để trống thì bỏ qua (không xoá phần đang có). Bấm "Lưu giá trị" để xem so trước/sau, rồi Áp dụng. Mỗi bài lưu qua đúng đường của nút Sửa và có Lịch sử.</p>'
+			. '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">' . self::an( $id, $trang )
+			. '<table class="widefat striped"><thead><tr><th scope="col">Áp dụng</th><th scope="col">Tác phẩm</th><th scope="col">' . esc_html( (string) ( $ts['ten'] ?? $phan ) ) . ' mới</th></tr></thead><tbody>' . $dong . '</tbody></table>'
+			. $duyet . '<p><label><input type="checkbox" name="ai" value="1"' . checked( ! empty( $ts['ai'] ), true, false ) . '> Các giá trị này có hỗ trợ của AI</label></p>'
+			. '<p class="phongdao-lo-nut"><button type="submit" name="lam" value="luu_bo" class="button">Lưu giá trị trên trang này</button> <button type="submit" name="lam" value="ap_dung" class="button button-primary">Áp dụng cho ' . $ap . ' mục</button> <button type="submit" name="lam" value="huy" class="button">Huỷ lô</button></p>'
+			. '<p><label><input type="checkbox" name="tu_chay" value="1" checked> Tự chạy tiếp đến hết (mỗi lượt ' . Lo::MOI_LUOT . ' mục)</label></p></form>'
+			. self::phan_trang( $id, $trang, $so );
 	}
 
 	/** Tên tác phẩm (liên kết Sửa bài) của một trang mục. @return array<int,\WP_Post> */
@@ -300,6 +358,7 @@ final class TrangLo {
 			. '<input type="hidden" name="action" value="phongdao_lo_tao_bai">' . wp_nonce_field( 'phongdao_lo_tao_bai', '_wpnonce', false, false ) . $an
 			. '<div class="phongdao-lo-o"><label for="phongdao-lo-tp-thao-tac">Thao tác</label><select id="phongdao-lo-tp-thao-tac" name="thao_tac"><option value="">Chọn thao tác</option>' . $tt . '</select></div>'
 			. '<div class="phongdao-lo-o"><label for="phongdao-lo-tp-muc">Mục phân loại có sẵn</label><select id="phongdao-lo-tp-muc" name="muc_pl">' . $muc . '</select></div>'
+			. '<div class="phongdao-lo-o"><label for="phongdao-lo-tp-phan">Phần (cho sửa theo từng hàng)</label><select id="phongdao-lo-tp-phan" name="phan_sua"><option value="">Chọn phần</option>' . implode( '', array_map( static fn( string $ma, string $ten ): string => '<option value="' . esc_attr( $ma ) . '">' . esc_html( $ten ) . '</option>', array_keys( Lo::PHAN_SUA ), Lo::PHAN_SUA ) ) . '</select></div>'
 			. '<fieldset class="phongdao-lo-pham-vi"><legend>Phạm vi</legend>'
 			. '<label><input type="radio" name="pham_vi" value="chon" checked> Các bài đã chọn trên trang này</label>'
 			. '<label><input type="radio" name="pham_vi" value="loc"> Mọi bài khớp bộ lọc (' . (int) $tong . ' bài)</label></fieldset>'
@@ -321,7 +380,7 @@ final class TrangLo {
 		$ids      = 'loc' === $pham_vi ? DanhSachTacPham::ids_loc( $loc, Lo::TOI_DA ) : array_map( 'absint', (array) wp_unslash( $_POST['ids'] ?? array() ) );
 		$thao_tac = sanitize_key( (string) ( $_POST['thao_tac'] ?? '' ) );
 		[ $tax, $term ] = array_pad( explode( ':', sanitize_text_field( wp_unslash( (string) ( $_POST['muc_pl'] ?? '' ) ) ), 2 ), 2, '' );
-		$kq = 'post' !== ( Lo::THAO_TAC[ $thao_tac ][1] ?? '' ) ? array( 'ok' => false, 'lo' => 0, 'loi' => 'Chọn một thao tác.' ) : Lo::tao( $thao_tac, $ids, $pham_vi, $loc, get_current_user_id(), array( 'tax' => sanitize_key( $tax ), 'term' => (int) $term ) );
+		$kq = 'post' !== ( Lo::THAO_TAC[ $thao_tac ][1] ?? '' ) ? array( 'ok' => false, 'lo' => 0, 'loi' => 'Chọn một thao tác.' ) : Lo::tao( $thao_tac, $ids, $pham_vi, $loc, get_current_user_id(), array( 'tax' => sanitize_key( $tax ), 'term' => (int) $term, 'phan' => sanitize_key( (string) ( $_POST['phan_sua'] ?? '' ) ) ) );
 		if ( ! $kq['ok'] ) {
 			self::bao( false, $kq['loi'] );
 			wp_safe_redirect( add_query_arg( array_filter( array( 'page' => DanhSachTacPham::TRANG ) + $loc, static fn( $v ) => '' !== $v ), admin_url( 'admin.php' ) ) );

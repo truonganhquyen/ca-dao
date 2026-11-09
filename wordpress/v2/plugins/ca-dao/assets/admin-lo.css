@@ -2,6 +2,14 @@
 .phongdao-admin-lo .phongdao-lo-nut { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
 .phongdao-admin-lo .phongdao-lo-nut .button { min-height: 44px; white-space: normal; }
 .phongdao-admin-lo td input[type=checkbox] { width: 24px; height: 24px; margin: 0; }
-.phongdao-admin-lo form label { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; }
+.phongdao-admin-lo form label:not(.screen-reader-text) { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; }
 .phongdao-admin-lo .phongdao-lo-loc a { display: inline-flex; align-items: center; min-height: 44px; }
 .phongdao-admin-lo .phongdao-lo-loc a[aria-current] { font-weight: 600; }
+/* Sửa một phần theo từng hàng: ô gõ rộng hết cột, so trước/sau ("−" bỏ, "+" thêm — có chữ, không chỉ dựa vào màu) */
+.phongdao-admin-lo textarea { width: 100%; box-sizing: border-box; min-height: 88px; }
+.phongdao-lo-so-sanh { margin: 6px 0 0; padding: 6px; list-style: none; background: #f6f7f7; border: 1px solid #dcdcde; border-radius: 4px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.phongdao-lo-so-sanh li { margin: 0; padding: 2px 4px; }
+.phongdao-lo-so-sanh li.bo { background: #fcf0f1; }
+.phongdao-lo-so-sanh li.them { background: #edfaef; }
+.phongdao-lo-so-sanh del { color: #8a2424; }
+.phongdao-lo-so-sanh ins { color: #00450c; text-decoration: none; }
