@@ -24,8 +24,22 @@ final class SuaTacPham {
 		add_action( 'admin_post_phongdao_khoi_phuc', array( self::class, 'khoi_phuc' ) );
 	}
 
-	public static function url( int $id ): string {
-		return add_query_arg( array( 'page' => self::TRANG, 'id' => $id ), admin_url( 'admin.php' ) );
+	/** Địa chỉ danh sách Tác phẩm (đúng bộ lọc, trang) để quay về sau khi sửa (T-172, kịch bản 1). */
+	private static string $ve = '';
+
+	/** Chỉ nhận trang danh sách Tác phẩm của site; còn lại bỏ. */
+	public static function ve_hop_le( string $ve ): string {
+		$ve = esc_url_raw( $ve );
+		return str_starts_with( $ve, admin_url( 'admin.php?page=' . DanhSachTacPham::TRANG ) ) ? $ve : '';
+	}
+
+	public static function url( int $id, string $ve = '' ): string {
+		$ve = '' !== $ve ? $ve : self::$ve;
+		return add_query_arg( array_filter( array( 'page' => self::TRANG, 'id' => $id, 've' => '' === $ve ? '' : rawurlencode( $ve ) ) ), admin_url( 'admin.php' ) );
+	}
+
+	private static function an_ve(): string {
+		return '' === self::$ve ? '' : '<input type="hidden" name="ve" value="' . esc_attr( self::$ve ) . '">';
 	}
 
 	/** @return string[] */
@@ -41,6 +55,7 @@ final class SuaTacPham {
 	}
 
 	public static function hien(): string {
+		self::$ve = self::ve_hop_le( wp_unslash( (string) ( $_GET['ve'] ?? '' ) ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ là lối quay về, đã kiểm
 		$id = absint( $_GET['id'] ?? 0 ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc
 		$bai = $id ? get_post( $id ) : null;
 		if ( ! current_user_can( 'cadao_soan' ) || ! $bai || KhaiBao::TAC_PHAM !== $bai->post_type || ! current_user_can( 'edit_post', $id ) || 'trash' === $bai->post_status ) {
@@ -61,7 +76,7 @@ final class SuaTacPham {
 			delete_transient( $khoa_loi );
 		}
 		$ra = '<div class="wrap phongdao-admin-sua"><h1>Sửa tác phẩm #' . $id . ': ' . esc_html( $bai->post_title ) . '</h1>';
-		$ra .= '<p><a href="' . esc_url( admin_url( 'admin.php?page=' . DanhSachTacPham::TRANG ) ) . '">← Danh sách Tác phẩm</a> · <a href="' . esc_url( get_preview_post_link( $bai ) ) . '">Xem trên trang đọc</a></p>';
+		$ra .= '<p><a href="' . esc_url( '' !== self::$ve ? self::$ve : admin_url( 'admin.php?page=' . DanhSachTacPham::TRANG ) ) . '">← Danh sách Tác phẩm' . ( '' !== self::$ve ? ' (đúng bộ lọc vừa xem)' : '' ) . '</a> · <a href="' . esc_url( get_preview_post_link( $bai ) ) . '">Xem trên trang đọc</a></p>';
 		$ten_trang_thai = array( 'publish' => 'Đã đăng', 'draft' => 'Bản nháp', 'pending' => 'Chờ', 'private' => 'Đã ẩn', 'future' => 'Đã hẹn' )[ $bai->post_status ] ?? $bai->post_status;
 		$ra .= '<p>Trạng thái: <strong>' . esc_html( $ten_trang_thai ) . '</strong>. Mỗi phần lưu riêng, qua cùng quy tắc với nút Sửa trên trang đọc.</p>';
 		if ( $bao ) {
@@ -87,7 +102,7 @@ final class SuaTacPham {
 			$ten_goc = str_starts_with( $ten, 'Sửa ' ) ? mb_substr( $ten, 4 ) : $ten;
 			$ten_goc = mb_strtoupper( mb_substr( $ten_goc, 0, 1 ) ) . mb_substr( $ten_goc, 1 );
 			$ra .= CheDoSua::goc( $ten_goc, $cu, $ctx );
-			$ra .= '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="phongdao_sua_phan"><input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="phan" value="' . esc_attr( $phan ) . '">';
+			$ra .= '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="phongdao_sua_phan">' . self::an_ve() . '<input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="phan" value="' . esc_attr( $phan ) . '">';
 			$ra .= wp_nonce_field( 'phongdao_sua_phan_' . $id . '_' . $phan, '_wpnonce', true, false );
 			$ra .= TamSua::than( $phan, $cu, $ctx ) . '<p><button type="submit" class="button button-primary">Lưu phần này</button></p></form></details>';
 		}
@@ -124,7 +139,7 @@ final class SuaTacPham {
 				$ra .= '<p>Chưa có mục nào để chọn trong bộ ' . esc_html( $nhan ) . '. Màn này chỉ chọn mục có sẵn, không tạo mục mới.</p></details>';
 				continue;
 			}
-			$ra .= '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="phongdao_sua_phan_loai"><input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="tax" value="' . esc_attr( $tax ) . '">';
+			$ra .= '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="phongdao_sua_phan_loai">' . self::an_ve() . '<input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="tax" value="' . esc_attr( $tax ) . '">';
 			$ra .= wp_nonce_field( 'phongdao_sua_phan_loai_' . $id . '_' . $tax, '_wpnonce', true, false );
 			foreach ( $dang as $tid ) {
 				$ra .= '<input type="hidden" name="da_thay[]" value="' . $tid . '">';
@@ -165,7 +180,7 @@ final class SuaTacPham {
 				$o .= self::so_sanh( $r );
 				$ly_do = LichSu::ly_do_khong( $r, $moi_nhat[ $r['phan'] ] ?? 0 );
 				if ( '' === $ly_do ) {
-					$o .= '<form method="post" class="phongdao-khoi-phuc" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="phongdao_khoi_phuc"><input type="hidden" name="viec" value="' . (int) $r['id'] . '">'
+					$o .= '<form method="post" class="phongdao-khoi-phuc" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="phongdao_khoi_phuc">' . self::an_ve() . '<input type="hidden" name="viec" value="' . (int) $r['id'] . '">'
 						. wp_nonce_field( 'phongdao_khoi_phuc_' . (int) $r['id'], '_wpnonce', false, false )
 						. '<button type="submit" class="button" aria-label="' . esc_attr( 'Khôi phục bản trước: ' . CheDoSua::mo_ta( $r ) . ', ' . $luc ) . '">Khôi phục bản trước</button></form>';
 				}
@@ -210,6 +225,7 @@ final class SuaTacPham {
 		if ( ! $kq['ok'] ) {
 			set_transient( 'phongdao_sua_loi_' . $id . '_' . get_current_user_id(), implode( ' ', $kq['loi'] ), MINUTE_IN_SECONDS );
 		}
+		self::$ve = self::ve_hop_le( wp_unslash( (string) ( $_POST['ve'] ?? '' ) ) );
 		wp_safe_redirect( add_query_arg( 'ket_qua', $kq['ok'] ? ( $kq['doi'] ? 'da_khoi_phuc' : 'khong_doi' ) : 'loi', self::url( $id ) ) . '#lich-su' );
 		exit;
 	}
@@ -230,6 +246,7 @@ final class SuaTacPham {
 			set_transient( 'phongdao_sua_loi_' . $id . '_' . get_current_user_id(), implode( ' ', $kq['loi'] ), MINUTE_IN_SECONDS );
 		}
 		$ket_qua = ! $kq['ok'] ? 'loi' : ( $kq['doi'] ? 'da_luu_pl' : 'khong_doi' );
+		self::$ve = self::ve_hop_le( wp_unslash( (string) ( $_POST['ve'] ?? '' ) ) );
 		wp_safe_redirect( add_query_arg( array( 'ket_qua' => $ket_qua, 'phan_loai' => $tax ), self::url( $id ) ) . '#phan-loai-' . $tax );
 		exit;
 	}
@@ -251,6 +268,7 @@ final class SuaTacPham {
 			set_transient( 'phongdao_sua_loi_' . $id . '_' . get_current_user_id(), implode( ' ', $kq['loi'] ?? array() ), MINUTE_IN_SECONDS );
 		}
 		$ket_qua = ! $kq['ok'] ? 'loi' : ( ! empty( $kq['thong_bao'] ) && str_contains( $kq['thong_bao'], 'nháp' ) ? 'nhap' : ( ! empty( $kq['doi'] ) ? 'da_luu' : 'khong_doi' ) );
+		self::$ve = self::ve_hop_le( wp_unslash( (string) ( $_POST['ve'] ?? '' ) ) );
 		wp_safe_redirect( add_query_arg( array( 'ket_qua' => $ket_qua, 'phan' => $phan ), self::url( $id ) ) . '#phan-' . $phan );
 		exit;
 	}

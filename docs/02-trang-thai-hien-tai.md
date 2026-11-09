@@ -83,6 +83,8 @@
 
 ## Đang chờ người sáng lập
 
+- **Dùng thử màn quản trị mới (09/11/2026):** làm ba kịch bản trong `docs/huong-dan/dung-thu-quan-tri.md` trên điện thoại và máy tính, gửi lại bảng ghi chú. Sau phản hồi mới chuyển lối vào biên tập sang wp-admin.
+
 Mở **Ca dao – Tục ngữ → Bàn biên tập** (hoặc ô "việc chờ bạn" trên Bảng tin): mọi hàng chờ dưới đây có số đếm và nút mở đúng trang; phần **"Làm trước"** là đủ cho mỗi tuần, phần "Khi rảnh" không gấp.
 
 - **An toàn tài khoản quản trị:** đã xong cả (đổi mật khẩu, xác thực hai lớp, tên hiển thị công khai, OPcache, xóa bài mẫu "Hello world!" — người sáng lập báo 02/11/2026). Nếu đăng nhập sai 5 lần, site tạm khoá tài khoản 15 phút — đợi, hoặc bấm "Quên mật khẩu?".

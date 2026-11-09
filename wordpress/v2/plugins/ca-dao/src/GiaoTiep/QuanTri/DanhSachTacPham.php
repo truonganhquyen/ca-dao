@@ -157,7 +157,7 @@ final class DanhSachTacPham {
 		return $ra;
 	}
 
-	private static function dong( \WP_Post $bai, array $viec, array $nguon, bool $lo = false ): string {
+	private static function dong( \WP_Post $bai, array $viec, array $nguon, bool $lo = false, string $ve_ds = '' ): string {
 		$id = (int) $bai->ID;
 		$tt = self::TRANG_THAI[ $bai->post_status ] ?? $bai->post_status;
 		$loai = get_the_terms( $id, KhaiBao::THE_LOAI );
@@ -177,7 +177,7 @@ final class DanhSachTacPham {
 		$ten = '' !== trim( $bai->post_title ) ? $bai->post_title : '(Chưa đặt tên)';
 		$ten = $lien ? '<a href="' . esc_url( $lien ) . '">' . esc_html( $ten ) . '</a>' : esc_html( $ten );
 		$viec_lien = $ve ? '<a href="' . esc_url( add_query_arg( array( 'page' => DanhSachViec::TRANG, 'viec' => (int) $viec[ $id ]['dau'] ), admin_url( 'admin.php' ) ) ) . '">' . $ve . ' việc mở</a>' : '—';
-		$sua_lien = 'trash' !== $bai->post_status && current_user_can( 'edit_post', $id ) ? ' <a href="' . esc_url( SuaTacPham::url( $id ) ) . '">Sửa bài</a>' : '';
+		$sua_lien = 'trash' !== $bai->post_status && current_user_can( 'edit_post', $id ) ? ' <a href="' . esc_url( SuaTacPham::url( $id, $ve_ds ) ) . '">Sửa bài</a>' : '';
 		$chon = $lo ? '<td data-nhan="Chọn"><input type="checkbox" name="ids[]" value="' . $id . '" id="chon-bai-' . $id . '"><label for="chon-bai-' . $id . '" class="screen-reader-text">Chọn bài #' . $id . '</label></td>' : '';
 		return '<tr>' . $chon . '<td data-nhan="ID">' . $id . '</td><td data-nhan="Tác phẩm"><strong>' . $ten . '</strong>' . $sua_lien . '</td><td data-nhan="Trạng thái">' . esc_html( $tt ) . '</td><td data-nhan="Thể loại">' . esc_html( $ten_loai ) . '</td><td data-nhan="Phần thiếu">' . esc_html( $thieu ? implode( ', ', $thieu ) : 'Đủ phần chính' ) . '</td><td data-nhan="Nguồn Lời">' . esc_html( $nguon_hien ) . '</td><td data-nhan="Việc">' . $viec_lien . '</td><td data-nhan="Sửa cuối">' . esc_html( mysql2date( 'd/m/Y H:i', $bai->post_modified ) ) . '</td></tr>';
 	}
@@ -211,7 +211,7 @@ final class DanhSachTacPham {
 			. '<button class="button button-primary" type="submit">Tìm và lọc</button></form>';
 		// Làm theo lô (T-171): ô chọn và khối thao tác khi có bài khớp
 		$lo   = (int) $truy->found_posts > 0;
-		$dong = implode( '', array_map( static fn( \WP_Post $p ): string => self::dong( $p, $viec, $nguon, $lo ), $truy->posts ) );
+		$dong = implode( '', array_map( static fn( \WP_Post $p ): string => self::dong( $p, $viec, $nguon, $lo, self::url( $loc, (int) $loc['paged'] ) ), $truy->posts ) );
 		$so_trang = (int) $truy->max_num_pages;
 		$phan_trang = $so_trang > 1 ? '<nav class="phongdao-tp-trang" aria-label="Phân trang"><span>Trang ' . (int) $loc['paged'] . ' / ' . $so_trang . '</span>'
 			. ( $loc['paged'] > 1 ? '<a class="button" href="' . esc_url( self::url( $loc, $loc['paged'] - 1 ) ) . '">Trang trước</a>' : '' )

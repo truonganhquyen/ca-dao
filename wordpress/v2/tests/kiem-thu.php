@@ -1167,6 +1167,31 @@ foreach ( $sp as $b_sp ) {
 	wp_delete_post( $b_sp, true );
 }
 $wpdb->query( 'DELETE FROM ' . Viec::bang() . " WHERE (doi_tuong_loai = 'post' AND doi_tuong_id IN (" . implode( ',', array_map( 'intval', $sp ) ) . ')) OR loai = \'' . Viec::LO . "'" );
+
+// ---------- Sửa xong quay về đúng danh sách đang lọc (T-172, kịch bản dùng thử 1) ----------
+$SUA     = \Phongdao\GiaoTiep\QuanTri\SuaTacPham::class;
+$ds_loc  = add_query_arg( array( 'page' => 'phongdao-tac-pham', 'tt' => 'tat_ca', 'muc' => 'thieu_y_nghia', 'nguon' => 'tat_ca', 'paged' => 1 ), admin_url( 'admin.php' ) );
+$_GET    = array( 'tt' => 'tat_ca', 'muc' => 'thieu_y_nghia' );
+$h_ds_ve = \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::hien();
+$_GET    = array( 'id' => (string) $tp1, 've' => $ds_loc );
+$h_sua_v = $SUA::hien();
+$_GET    = array( 'id' => (string) $tp1, 've' => 'https://evil.example/wp-admin/admin.php?page=phongdao-tac-pham' );
+$h_sua_l = $SUA::hien();
+add_filter( 'wp_die_handler', $chan_die_lo );
+add_filter( 'wp_redirect', $chan_di_lo );
+wp_set_current_user( $ai_ql );
+$_POST = $_REQUEST = array( 'id' => (string) $tp1, 'tax' => 'chu_de', 'chon' => array_map( 'strval', $LPL::dang_gan( $tp1, 'chu_de' ) ), 'da_thay' => array_map( 'strval', $LPL::dang_gan( $tp1, 'chu_de' ) ), 've' => $ds_loc, '_wpnonce' => wp_create_nonce( 'phongdao_sua_phan_loai_' . $tp1 . '_chu_de' ) );
+try {
+	$SUA::luu_phan_loai();
+	$r_ve = 'không dừng';
+} catch ( \RuntimeException $e ) {
+	$r_ve = $e->getMessage();
+}
+remove_filter( 'wp_die_handler', $chan_die_lo );
+remove_filter( 'wp_redirect', $chan_di_lo );
+$_POST = $_REQUEST = array();
+$_GET  = array();
+kt( 'sửa xong quay về đúng danh sách đang lọc: nút Sửa bài mang địa chỉ danh sách, trang sửa có lối về và giữ lối đó sau khi lưu; địa chỉ lạ bị bỏ', str_contains( $h_ds_ve, 've=' . rawurlencode( $ds_loc ) ) && str_contains( $h_sua_v, 'đúng bộ lọc vừa xem' ) && str_contains( $h_sua_v, 'name="ve" value="' . esc_attr( $ds_loc ) . '"' ) && ! str_contains( $h_sua_l, 'đúng bộ lọc vừa xem' ) && str_contains( $r_ve, 've=' . rawurlencode( $ds_loc ) ), array( 'ds' => str_contains( $h_ds_ve, 've=' . rawurlencode( $ds_loc ) ), 'lien_sua' => preg_match( '/page=phongdao-sua-tac-pham[^"]*/', $h_ds_ve, $m_ve ) ? $m_ve[0] : '', 've_mong' => rawurlencode( $ds_loc ), 'sua' => str_contains( $h_sua_v, 'đúng bộ lọc vừa xem' ), 'an' => str_contains( $h_sua_v, 'name="ve" value="' . esc_attr( $ds_loc ) . '"' ), 'la' => ! str_contains( $h_sua_l, 'đúng bộ lọc vừa xem' ), 've' => $r_ve ) );
 foreach ( $ids_nhieu as $id_nhieu ) {
 	Viec::xoa( $id_nhieu );
 }
