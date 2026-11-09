@@ -19,6 +19,7 @@ final class KhoiDong {
 		AnToan::class,
 		ChuyenHuong::class,
 		DichVu\LuuPhan\GanHinhThuc::class,
+		DichVu\LuuPhan\DauVetTrangThai::class,
 		DichVu\DungTrang\DuLieuTrangChu::class,
 		DichVu\ChiMucTim\ChiMucTim::class,
 		DichVu\NhapNguon\NguonTuDong::class,

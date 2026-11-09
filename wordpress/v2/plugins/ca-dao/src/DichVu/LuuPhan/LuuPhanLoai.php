@@ -70,7 +70,7 @@ final class LuuPhanLoai {
 	 * @param int[] $da_thay tập mục màn hình đã thấy lúc mở
 	 * @return array{ok:bool,loi:string[],doi:bool,viec:int}
 	 */
-	public static function luu( int $bai_id, string $tax, array $chon, array $da_thay, int $nguoi ): array {
+	public static function luu( int $bai_id, string $tax, array $chon, array $da_thay, int $nguoi, string $quyet = 'luu', int $tu_viec = 0 ): array {
 		global $wpdb;
 		$bai = get_post( $bai_id );
 		if ( ! $bai || KhaiBao::TAC_PHAM !== $bai->post_type || 'trash' === $bai->post_status ) {
@@ -116,9 +116,10 @@ final class LuuPhanLoai {
 				'doi_tuong_loai' => 'post',
 				'doi_tuong_id'   => $bai->ID,
 				'phan'           => $tax,
+				'noi_dung'       => $tu_viec ? array( 'tu_viec' => $tu_viec ) : null,
 				'nguoi_tao'      => (string) $nguoi,
 				'tao_luc'        => $luc,
-				'quyet'          => 'luu',
+				'quyet'          => $quyet,
 				'truoc'          => array( 'term_ids' => $hien_tai, 'ten' => self::ten( $hien_tai, $tax ) ),
 				'sau'            => array( 'term_ids' => $chon, 'ten' => self::ten( $chon, $tax ) ),
 				'nguoi_quyet'    => $nguoi,
@@ -138,6 +139,29 @@ final class LuuPhanLoai {
 		/** Sau khi người sửa tay phân loại của bài. */
 		do_action( 'phongdao_da_luu_phan_loai', $bai->ID, $tax, $viec );
 		return self::xong( true, $viec );
+	}
+
+	/**
+	 * Khôi phục tập mục trước một lần sửa tay phân loại (Lịch sử, T-170): chỉ khi bài còn đúng tập ngay sau lần đó; ghi một
+	 * lần sửa mới (quyết "khoi_phuc"). Mục trước nay đã bị xoá khỏi bộ phân loại thì từ chối.
+	 *
+	 * @return array{ok:bool,loi:string[],doi:bool,viec:int}
+	 */
+	public static function khoi_phuc( int $viec_id, int $nguoi ): array {
+		$v = Viec::lay( $viec_id );
+		if ( ! $v || Viec::SUA !== $v['loai'] || 'post' !== $v['doi_tuong_loai'] || ! array_key_exists( (string) $v['phan'], self::SUA_DUOC ) || ! is_array( $v['truoc']['term_ids'] ?? null ) || ! is_array( $v['sau']['term_ids'] ?? null ) ) {
+			return self::hong( 'Không khôi phục được lần sửa này.' );
+		}
+		if ( Viec::moi_nhat_sua( (int) $v['doi_tuong_id'], (string) $v['phan'] ) !== $viec_id || ! self::con_nguyen( $v ) ) {
+			return self::hong( 'Phân loại này đã được sửa sau lần đó. Khôi phục từ lần sửa mới nhất trong Lịch sử, hoặc sửa tay.' );
+		}
+		return self::luu( (int) $v['doi_tuong_id'], (string) $v['phan'], $v['truoc']['term_ids'], $v['sau']['term_ids'], $nguoi, 'khoi_phuc', $viec_id );
+	}
+
+	/** Bài còn đúng tập mục ngay sau một dòng nhật ký sửa phân loại. */
+	public static function con_nguyen( array $v ): bool {
+		$hien_tai = self::dang_gan( (int) $v['doi_tuong_id'], (string) $v['phan'] );
+		return null !== $hien_tai && is_array( $v['sau']['term_ids'] ?? null ) && self::ids( $v['sau']['term_ids'] ) === $hien_tai;
 	}
 
 	/** @return int[] ID dương, không trùng, tăng dần */

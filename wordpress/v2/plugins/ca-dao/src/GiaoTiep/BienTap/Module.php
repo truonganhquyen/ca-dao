@@ -159,7 +159,12 @@ final class Module implements \Phongdao\HaTang\Module {
 			return array( 'ok' => true, 'loi' => array(), 'thong_bao' => 'Không có gì thay đổi.' );
 		}
 		try {
-			$cap_nhat = wp_update_post( array( 'ID' => $id, 'post_status' => $moi ), true );
+			\Phongdao\DichVu\LuuPhan\DauVetTrangThai::$bo_qua = true; // lối này tự ghi dòng nhật ký bên dưới
+			try {
+				$cap_nhat = wp_update_post( array( 'ID' => $id, 'post_status' => $moi ), true );
+			} finally {
+				\Phongdao\DichVu\LuuPhan\DauVetTrangThai::$bo_qua = false;
+			}
 			$da_luu = $wpdb->get_var( $wpdb->prepare( "SELECT post_status FROM $wpdb->posts WHERE ID = %d", $id ) );
 			if ( is_wp_error( $cap_nhat ) || (int) $cap_nhat !== $id || $da_luu !== $moi ) {
 				throw new \RuntimeException( 'post_status' );

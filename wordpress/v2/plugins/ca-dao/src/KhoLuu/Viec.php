@@ -226,14 +226,26 @@ final class Viec {
 		) );
 	}
 
-	/** Lịch sử của một đối tượng (bài, phân loại): việc đã quyết, mới nhất trước. */
-	public static function lich_su( string $doi_tuong_loai, int $doi_tuong_id, int $so = 50 ): array {
+	/**
+	 * Lịch sử của một đối tượng (bài, phân loại, hồ sơ nguồn): việc đã quyết, mới nhất trước. Mặc định chỉ việc "xong";
+	 * màn Lịch sử truyền thêm "bỏ" để thấy cả đề xuất đã bỏ.
+	 *
+	 * @param string[] $trang_thai
+	 */
+	public static function lich_su( string $doi_tuong_loai, int $doi_tuong_id, int $so = 50, array $trang_thai = array( self::XONG ) ): array {
 		global $wpdb;
+		$tt = array_values( array_intersect( $trang_thai, array( self::XONG, self::BO ) ) ) ?: array( self::XONG );
 		$ds = $wpdb->get_results(
-			$wpdb->prepare( 'SELECT * FROM ' . self::bang() . ' WHERE doi_tuong_loai = %s AND doi_tuong_id = %d AND trang_thai = %s ORDER BY id DESC LIMIT %d', $doi_tuong_loai, $doi_tuong_id, self::XONG, $so ),
+			$wpdb->prepare( 'SELECT * FROM ' . self::bang() . ' WHERE doi_tuong_loai = %s AND doi_tuong_id = %d AND trang_thai IN (' . implode( ',', array_fill( 0, count( $tt ), '%s' ) ) . ') ORDER BY id DESC LIMIT %d', array_merge( array( $doi_tuong_loai, $doi_tuong_id ), $tt, array( $so ) ) ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			ARRAY_A
 		);
 		return array_map( array( self::class, 'doc' ), $ds ?: array() );
+	}
+
+	/** Mã dòng sửa mới nhất của một phần (hay một bộ phân loại) của bài; 0 khi chưa có. */
+	public static function moi_nhat_sua( int $bai, string $phan ): int {
+		global $wpdb;
+		return (int) $wpdb->get_var( $wpdb->prepare( 'SELECT MAX(id) FROM ' . self::bang() . ' WHERE loai = %s AND doi_tuong_loai = %s AND doi_tuong_id = %d AND phan = %s', self::SUA, 'post', $bai, $phan ) );
 	}
 
 	private static function doc( array $hang ): array {

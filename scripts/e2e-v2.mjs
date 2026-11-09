@@ -383,6 +383,29 @@ try {
       chac(await bt.$eval('#lich-su', (e, ten) => e.textContent.includes('Chủ đề: sửa') && e.textContent.includes(ten), lan1.ten), 'Lịch sử trong wp-admin không ghi lần sửa chủ đề');
     });
 
+    await thu('wp-admin Lịch sử: xem trước/sau rồi Khôi phục bản trước của Ý nghĩa, người đọc thấy bản cũ', async () => {
+      const moi = 'Ý nghĩa thử từ biểu mẫu quản trị.';
+      await di(bt, caDao);
+      const id = await bt.$eval('.dai-bien-tap', e => e.dataset.bai);
+      await di(bt, `/wp-admin/admin.php?page=phongdao-sua-tac-pham&id=${id}`);
+      // Dòng sửa Ý nghĩa mới nhất có nút khôi phục: đánh dấu, mở so sánh, đọc các dòng bị bỏ (bản cũ)
+      const cu = await bt.evaluate(() => {
+        const li = [...document.querySelectorAll('#lich-su li')].find(l => l.textContent.includes('Ý nghĩa: sửa') && l.querySelector('form.phongdao-khoi-phuc'));
+        if (!li) return null;
+        li.dataset.thu = '1';
+        const d = li.querySelector('details');
+        if (d) d.open = true;
+        return [...li.querySelectorAll('.phongdao-so-sanh li.bo del')].map(e => e.textContent.replace(/^bỏ: /, '').trim()).filter(t => t && !t.startsWith('('));
+      });
+      chac(cu, 'không có lần sửa Ý nghĩa nào khôi phục được trong Lịch sử');
+      chac(await bt.$eval('#lich-su li[data-thu] .phongdao-so-sanh', e => e.textContent.includes('thêm: ')), 'so sánh không đánh dấu dòng thêm');
+      await bamDoiTrang(bt, '#lich-su li[data-thu] form.phongdao-khoi-phuc [type=submit]');
+      chac(await coChu(bt, 'Đã khôi phục bản trước'), 'không báo đã khôi phục');
+      await di(k, caDao);
+      chac(!(await coChu(k, moi)), 'người đọc vẫn thấy Ý nghĩa đã khôi phục bỏ đi');
+      if (cu.length) chac(await coChu(k, cu[0]), `người đọc không thấy bản cũ "${cu[0]}"`);
+    });
+
     await thu('Hộp việc: Để sau rồi Hoàn tác trong 10 giây, sau đó xử lý thẻ', async () => {
       await di(bt, '/bien-tap/?loai=nguoi_doc');
       const id = await bt.$$eval('article.the-viec[data-loai=nguoi_doc]', as => as.find(a => a.textContent.includes('Góp thử đầu-cuối'))?.id);
