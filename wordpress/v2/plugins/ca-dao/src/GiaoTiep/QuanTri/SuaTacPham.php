@@ -2,6 +2,7 @@
 
 namespace Phongdao\GiaoTiep\QuanTri;
 
+use Phongdao\DichVu\LuuPhan\LuuPhanLoai;
 use Phongdao\DichVu\XepViec\QuyetViec;
 use Phongdao\GiaoTiep\BienTap\CheDoSua;
 use Phongdao\GiaoTiep\BienTap\Module as BienTap;
@@ -17,6 +18,7 @@ final class SuaTacPham {
 
 	public static function dang_ky(): void {
 		add_action( 'admin_post_phongdao_sua_phan', array( self::class, 'luu' ) );
+		add_action( 'admin_post_phongdao_sua_phan_loai', array( self::class, 'luu_phan_loai' ) );
 	}
 
 	public static function url( int $id ): string {
@@ -49,7 +51,7 @@ final class SuaTacPham {
 		$loai = is_array( $terms ) && $terms ? $terms[0]->slug : '';
 		$mo = Viec::mo( 'post', $id );
 		$ket_qua = sanitize_key( (string) ( $_GET['ket_qua'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc thông báo
-		$bao = array( 'da_luu' => 'Đã lưu phần bài.', 'nhap' => 'Đã lưu nháp vào Hộp việc; người đọc chưa thấy.', 'khong_doi' => 'Không có gì thay đổi.', 'loi' => 'Chưa lưu được. Kiểm lại dữ liệu và thử tiếp.' )[ $ket_qua ] ?? '';
+		$bao = array( 'da_luu' => 'Đã lưu phần bài.', 'da_luu_pl' => 'Đã lưu phân loại.', 'nhap' => 'Đã lưu nháp vào Hộp việc; người đọc chưa thấy.', 'khong_doi' => 'Không có gì thay đổi.', 'loi' => 'Chưa lưu được. Kiểm lại dữ liệu và thử tiếp.' )[ $ket_qua ] ?? '';
 		if ( 'loi' === $ket_qua ) {
 			$khoa_loi = 'phongdao_sua_loi_' . $id . '_' . get_current_user_id();
 			$bao = (string) get_transient( $khoa_loi ) ?: $bao;
@@ -86,7 +88,88 @@ final class SuaTacPham {
 			$ra .= wp_nonce_field( 'phongdao_sua_phan_' . $id . '_' . $phan, '_wpnonce', true, false );
 			$ra .= TamSua::than( $phan, $cu, $ctx ) . '<p><button type="submit" class="button button-primary">Lưu phần này</button></p></form></details>';
 		}
-		return $ra . '</div>';
+		return $ra . self::phan_loai( $bai, $loai ) . self::lich_su( $id ) . '</div>';
+	}
+
+	/** Khối Phân loại: thể loại, mục từ chỉ xem; các bộ còn lại chọn trong mục có sẵn. */
+	private static function phan_loai( \WP_Post $bai, string $loai ): string {
+		$id   = $bai->ID;
+		$ten  = static fn( array $ds ): string => implode( ', ', array_map( static fn( \WP_Term $t ): string => $t->name, $ds ) );
+		$tl   = get_the_terms( $id, KhaiBao::THE_LOAI );
+		$mt   = get_the_terms( $id, 'muc_tu' );
+		$ra   = '<h2 id="phan-loai">Phân loại</h2>';
+		$ra  .= '<p>Thể loại: <strong>' . esc_html( is_array( $tl ) && $tl ? $ten( $tl ) : 'Chưa có' ) . '</strong> · không đổi ở đây vì sẽ đổi đường dẫn của bài.'
+			. ( is_array( $mt ) && $mt ? '<br>Mục từ trong Từ điển: ' . esc_html( $ten( $mt ) ) . ' · gắn theo phần Từ khó.' : '' ) . '</p>';
+		$mo   = sanitize_key( (string) ( $_GET['phan_loai'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ mở lại khối vừa lưu
+		foreach ( array_keys( LuuPhanLoai::SUA_DUOC ) as $tax ) {
+			if ( ! LuuPhanLoai::sua_duoc( $tax, $loai ) || ! taxonomy_exists( $tax ) ) {
+				continue;
+			}
+			$nhan   = KhaiBao::PHAN_LOAI[ $tax ][1];
+			$gan    = wp_get_object_terms( $id, $tax );
+			$gan    = is_array( $gan ) ? $gan : array();
+			$may    = array_values( array_filter( $gan, static fn( \WP_Term $t ): bool => LuuPhanLoai::may_giu( $tax, $t ) ) );
+			$nguoi  = array_values( array_filter( $gan, static fn( \WP_Term $t ): bool => ! LuuPhanLoai::may_giu( $tax, $t ) ) );
+			$dang   = array_map( static fn( \WP_Term $t ): int => (int) $t->term_id, $nguoi );
+			$chon   = LuuPhanLoai::lua_chon( $tax );
+			$o_id   = 'pl-' . $tax;
+			$ra    .= '<details class="phongdao-sua-phan" id="phan-loai-' . esc_attr( $tax ) . '"' . ( $mo === $tax ? ' open' : '' ) . '><summary>' . esc_html( $nhan . ' · ' . ( $gan ? implode( ', ', array_filter( array( $ten( $may ) . ( $may ? ' (máy)' : '' ), $ten( $nguoi ) ) ) ) : 'Chưa có' ) ) . '</summary>';
+			if ( $may ) {
+				$ra .= '<p class="goc-nguon">Thể thơ máy tự tính từ lời: ' . esc_html( $ten( $may ) ) . '. Sửa lời thì máy tính lại.</p>';
+			}
+			if ( ! $chon ) {
+				$ra .= '<p>Chưa có mục nào để chọn trong bộ ' . esc_html( $nhan ) . '. Màn này chỉ chọn mục có sẵn, không tạo mục mới.</p></details>';
+				continue;
+			}
+			$ra .= '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="phongdao_sua_phan_loai"><input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="tax" value="' . esc_attr( $tax ) . '">';
+			$ra .= wp_nonce_field( 'phongdao_sua_phan_loai_' . $id . '_' . $tax, '_wpnonce', true, false );
+			foreach ( $dang as $tid ) {
+				$ra .= '<input type="hidden" name="da_thay[]" value="' . $tid . '">';
+			}
+			$ra .= '<fieldset><legend class="screen-reader-text">Chọn ' . esc_html( mb_strtolower( $nhan ) ) . ' của bài</legend>';
+			if ( count( $chon ) > 12 ) {
+				$ra .= '<p class="o-nhap phongdao-loc-muc" data-chi-js hidden><label for="' . $o_id . '-loc">Lọc danh sách</label><input type="search" id="' . $o_id . '-loc" data-loc-muc="' . $o_id . '-ds" autocomplete="off"></p>';
+			}
+			$ra .= '<div class="phongdao-chon-muc" id="' . $o_id . '-ds">';
+			foreach ( $chon as $t ) {
+				$tid = (int) $t->term_id;
+				$ra .= '<label class="choice" for="' . $o_id . '-' . $tid . '"><input type="checkbox" id="' . $o_id . '-' . $tid . '" name="chon[]" value="' . $tid . '"' . checked( in_array( $tid, $dang, true ), true, false ) . '> ' . esc_html( $t->name ) . '</label>';
+			}
+			$ra .= '</div></fieldset><p class="description">Đánh dấu để gắn, bỏ dấu để gỡ. Chỉ chọn mục có sẵn; màn này không tạo mục mới.</p>';
+			$ra .= '<p><button type="submit" class="button button-primary">Lưu ' . esc_html( mb_strtolower( $nhan ) ) . '</button></p></form></details>';
+		}
+		return $ra;
+	}
+
+	/** Khối Lịch sử: 50 lần sửa, quyết mới nhất của bài (so sánh và khôi phục đầy đủ là việc của màn Lịch sử). */
+	private static function lich_su( int $id ): string {
+		$ds = Viec::lich_su( 'post', $id, 50 );
+		$o  = '';
+		foreach ( $ds as $r ) {
+			$t  = strtotime( (string) $r['quyet_luc'] . ' UTC' );
+			$o .= '<li><strong>' . esc_html( $t ? wp_date( 'd/m/Y H:i', $t ) : (string) $r['quyet_luc'] ) . '</strong> · ' . esc_html( CheDoSua::mo_ta( $r ) ) . '</li>';
+		}
+		return '<section class="phongdao-sua-viec" id="lich-su"><h2>Lịch sử</h2>' . ( '' === $o ? '<p>Chưa có lần sửa nào được ghi.</p>' : '<ol class="phongdao-lich-su">' . $o . '</ol>' ) . '</section>';
+	}
+
+	/** Lưu phân loại từ biểu mẫu: kiểm quyền từng bài và nonce, ghi qua LuuPhanLoai. */
+	public static function luu_phan_loai(): void {
+		$id  = absint( $_POST['id'] ?? 0 );
+		$tax = sanitize_key( (string) ( $_POST['tax'] ?? '' ) );
+		$bai = $id ? get_post( $id ) : null;
+		if ( ! current_user_can( 'cadao_soan' ) || ! $bai || KhaiBao::TAC_PHAM !== $bai->post_type || 'trash' === $bai->post_status || ! current_user_can( 'edit_post', $id ) || ! array_key_exists( $tax, LuuPhanLoai::SUA_DUOC ) ) {
+			wp_die( 'Bạn không có quyền sửa phân loại này.', '', array( 'response' => 403 ) );
+		}
+		check_admin_referer( 'phongdao_sua_phan_loai_' . $id . '_' . $tax );
+		$chon    = array_map( 'absint', (array) wp_unslash( $_POST['chon'] ?? array() ) );
+		$da_thay = array_map( 'absint', (array) wp_unslash( $_POST['da_thay'] ?? array() ) );
+		$kq      = LuuPhanLoai::luu( $id, $tax, $chon, $da_thay, get_current_user_id() );
+		if ( ! $kq['ok'] ) {
+			set_transient( 'phongdao_sua_loi_' . $id . '_' . get_current_user_id(), implode( ' ', $kq['loi'] ), MINUTE_IN_SECONDS );
+		}
+		$ket_qua = ! $kq['ok'] ? 'loi' : ( $kq['doi'] ? 'da_luu_pl' : 'khong_doi' );
+		wp_safe_redirect( add_query_arg( array( 'ket_qua' => $ket_qua, 'phan_loai' => $tax ), self::url( $id ) ) . '#phan-loai-' . $tax );
+		exit;
 	}
 
 	public static function luu(): void {
