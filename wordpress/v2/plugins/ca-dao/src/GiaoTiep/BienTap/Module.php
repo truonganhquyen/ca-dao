@@ -135,32 +135,58 @@ final class Module implements \Phongdao\HaTang\Module {
 
 	/** Đăng / Ẩn / về nháp. Đăng cần quyền duyệt. Ghi một dòng nhật ký. */
 	public static function trang_thai( \WP_REST_Request $yc ): array {
+		global $wpdb;
 		$id  = (int) $yc['id'];
 		$moi = (string) $yc['trang_thai'];
+		$mong_doi = (string) $yc['trang_thai_cu'];
 		$map = array( 'publish' => 'dang', 'private' => 'an', 'draft' => 'nhap' );
 		if ( ! isset( $map[ $moi ] ) || ( 'publish' === $moi && ! current_user_can( 'cadao_duyet' ) ) ) {
 			return array( 'ok' => false, 'loi' => array( 'publish' === $moi ? 'Cần quyền duyệt để đăng.' : 'Trạng thái không hợp lệ.' ) );
 		}
-		$cu = (string) get_post_status( $id );
+		if ( ! isset( $map[ $mong_doi ] ) && ! in_array( $mong_doi, array( 'pending', 'future' ), true ) ) {
+			return array( 'ok' => false, 'loi' => array( 'Tải lại bài trước khi đổi trạng thái.' ) );
+		}
+		if ( false === $wpdb->query( 'START TRANSACTION' ) ) {
+			return array( 'ok' => false, 'loi' => array( 'Chưa mở được lượt đổi trạng thái. Thử lại sau.' ) );
+		}
+		$cu = $wpdb->get_var( $wpdb->prepare( "SELECT post_status FROM $wpdb->posts WHERE ID = %d AND post_type = %s FOR UPDATE", $id, KhaiBao::TAC_PHAM ) );
+		if ( null === $cu || $cu !== $mong_doi ) {
+			$wpdb->query( 'ROLLBACK' );
+			return array( 'ok' => false, 'loi' => array( 'Bài đã đổi ở phiên khác. Tải lại trước khi quyết định.' ) );
+		}
 		if ( $cu === $moi ) {
+			$wpdb->query( 'ROLLBACK' );
 			return array( 'ok' => true, 'loi' => array(), 'thong_bao' => 'Không có gì thay đổi.' );
 		}
-		wp_update_post( array( 'ID' => $id, 'post_status' => $moi ) );
-		$viec = Viec::tao(
-			array(
-				'loai'           => Viec::SUA,
-				'trang_thai'     => Viec::XONG,
-				'doi_tuong_loai' => 'post',
-				'doi_tuong_id'   => $id,
-				'phan'           => 'trang_thai',
-				'nguoi_tao'      => (string) get_current_user_id(),
-				'quyet'          => $map[ $moi ],
-				'truoc'          => array( 'trang_thai' => $cu ),
-				'sau'            => array( 'trang_thai' => $moi ),
-				'nguoi_quyet'    => get_current_user_id(),
-				'quyet_luc'      => gmdate( 'Y-m-d H:i:s' ),
-			)
-		);
+		try {
+			$cap_nhat = wp_update_post( array( 'ID' => $id, 'post_status' => $moi ), true );
+			$da_luu = $wpdb->get_var( $wpdb->prepare( "SELECT post_status FROM $wpdb->posts WHERE ID = %d", $id ) );
+			if ( is_wp_error( $cap_nhat ) || (int) $cap_nhat !== $id || $da_luu !== $moi ) {
+				throw new \RuntimeException( 'post_status' );
+			}
+			$viec = Viec::tao(
+				array(
+					'loai'           => Viec::SUA,
+					'trang_thai'     => Viec::XONG,
+					'doi_tuong_loai' => 'post',
+					'doi_tuong_id'   => $id,
+					'phan'           => 'trang_thai',
+					'nguoi_tao'      => (string) get_current_user_id(),
+					'quyet'          => $map[ $moi ],
+					'truoc'          => array( 'trang_thai' => $cu ),
+					'sau'            => array( 'trang_thai' => $moi ),
+					'nguoi_quyet'    => get_current_user_id(),
+					'quyet_luc'      => gmdate( 'Y-m-d H:i:s' ),
+				)
+			);
+			if ( ! $viec || false === $wpdb->query( 'COMMIT' ) ) {
+				throw new \RuntimeException( 'nhat_ky' );
+			}
+		} catch ( \Throwable $e ) {
+			$wpdb->query( 'ROLLBACK' );
+			clean_post_cache( $id );
+			return array( 'ok' => false, 'loi' => array( 'Chưa lưu được trạng thái và nhật ký. Tải lại bài trước khi thử tiếp.' ) );
+		}
 		return array( 'ok' => true, 'loi' => array(), 'viec' => 0, 'thong_bao' => array( 'dang' => 'Đã đăng.', 'an' => 'Đã ẩn bài khỏi người đọc.', 'nhap' => 'Đã chuyển về bản nháp.' )[ $map[ $moi ] ], 'nhat_ky' => $viec );
 	}
 }

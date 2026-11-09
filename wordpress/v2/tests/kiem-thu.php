@@ -536,10 +536,38 @@ kt( 'sửa chữ trong lời: người làm thành "người viết"', ( $kq->ge
 $viec_sua = (int) ( $kq->get_data()['viec'] ?? 0 );
 $kq       = rest_do_request( new WP_REST_Request( 'POST', "/phongdao/v1/viec/$viec_sua/hoan-tac" ) );
 kt( 'hoàn tác qua REST: lời về bản trước', ( $kq->get_data()['ok'] ?? false ) && array( 'Dòng một mẫu', 'Dòng hai mẫu' ) === PhanBai::lay( $tp1, 'loi' )['dong'], $kq->get_data() );
-$kq = $rest( "/tac-pham/$tp1/trang-thai", array( 'trang_thai' => 'private' ) );
+$kq = $rest( "/tac-pham/$tp1/trang-thai", array( 'trang_thai' => 'private', 'trang_thai_cu' => 'publish' ) );
 kt( 'Ẩn bài: bài thôi hiện với người đọc, lịch sử ghi lại', ( $kq->get_data()['ok'] ?? false ) && 'private' === get_post_status( $tp1 ) && 'trang_thai' === ( Viec::lich_su( 'post', $tp1, 1 )[0]['phan'] ?? '' ) );
-$rest( "/tac-pham/$tp1/trang-thai", array( 'trang_thai' => 'publish' ) );
+$kq_cu = $rest( "/tac-pham/$tp1/trang-thai", array( 'trang_thai' => 'draft', 'trang_thai_cu' => 'publish' ) );
+kt( 'đổi trạng thái từ màn cũ bị chặn, không ghi thêm nhật ký', ! ( $kq_cu->get_data()['ok'] ?? false ) && 'private' === get_post_status( $tp1 ) && 'an' === ( Viec::lich_su( 'post', $tp1, 1 )[0]['quyet'] ?? '' ) );
+$rest( "/tac-pham/$tp1/trang-thai", array( 'trang_thai' => 'publish', 'trang_thai_cu' => 'private' ) );
 kt( 'Đăng lại (cần quyền duyệt)', 'publish' === get_post_status( $tp1 ) );
+$so_lich_su_trang_thai = count( array_filter( Viec::lich_su( 'post', $tp1, 100 ), static fn( $v ) => 'trang_thai' === $v['phan'] ) );
+$da_chan_trang_thai = false;
+$chan_trang_thai = static function ( $sql ) use ( $wpdb, &$da_chan_trang_thai ) {
+	if ( ! $da_chan_trang_thai && preg_match( '/^UPDATE\s+`?' . preg_quote( $wpdb->posts, '/' ) . '`?\s+SET\b(?=.*\bpost_status\b)/is', $sql ) ) {
+		$da_chan_trang_thai = true;
+		return 'CA_DAO_KIEM_THU_LOI_DOI_TRANG_THAI';
+	}
+	return $sql;
+};
+add_filter( 'query', $chan_trang_thai );
+$kq_loi_trang_thai = $rest( "/tac-pham/$tp1/trang-thai", array( 'trang_thai' => 'private', 'trang_thai_cu' => 'publish' ) );
+remove_filter( 'query', $chan_trang_thai );
+kt( 'lỗi ghi trạng thái: bài và nhật ký giữ nguyên', $da_chan_trang_thai && ! ( $kq_loi_trang_thai->get_data()['ok'] ?? false ) && 'publish' === get_post_status( $tp1 ) && $so_lich_su_trang_thai === count( array_filter( Viec::lich_su( 'post', $tp1, 100 ), static fn( $v ) => 'trang_thai' === $v['phan'] ) ) );
+$da_chan_nhat_ky_tt = false;
+$chan_nhat_ky_tt = static function ( $sql ) use ( &$da_chan_nhat_ky_tt ) {
+	if ( ! $da_chan_nhat_ky_tt && preg_match( '/^INSERT\s+INTO\s+`?' . preg_quote( Viec::bang(), '/' ) . '`?\s*\(/i', $sql ) ) {
+		$da_chan_nhat_ky_tt = true;
+		return 'CA_DAO_KIEM_THU_LOI_GHI_NHAT_KY_TRANG_THAI';
+	}
+	return $sql;
+};
+add_filter( 'query', $chan_nhat_ky_tt );
+$kq_loi_nhat_ky_tt = $rest( "/tac-pham/$tp1/trang-thai", array( 'trang_thai' => 'private', 'trang_thai_cu' => 'publish' ) );
+remove_filter( 'query', $chan_nhat_ky_tt );
+kt( 'lỗi ghi nhật ký trạng thái: huỷ thay đổi bài, thử lại được đúng một lần', $da_chan_nhat_ky_tt && ! ( $kq_loi_nhat_ky_tt->get_data()['ok'] ?? false ) && 'publish' === get_post_status( $tp1 ) && $so_lich_su_trang_thai === count( array_filter( Viec::lich_su( 'post', $tp1, 100 ), static fn( $v ) => 'trang_thai' === $v['phan'] ) ) && ( $rest( "/tac-pham/$tp1/trang-thai", array( 'trang_thai' => 'private', 'trang_thai_cu' => 'publish' ) )->get_data()['ok'] ?? false ) && 'private' === get_post_status( $tp1 ) );
+$rest( "/tac-pham/$tp1/trang-thai", array( 'trang_thai' => 'publish', 'trang_thai_cu' => 'private' ) );
 
 // Vè dài: đoạn có tiêu đề, bối cảnh, mục lục, "Đọc toàn bài"; tấm Chia đoạn / Bối cảnh chỉ ở bài vè
 $ve = $mau_id['ve-mau'];
@@ -853,6 +881,13 @@ $gy_ma = array_map( static fn( $v ) => $v['noi_dung']['loai'] . ':' . $v['noi_du
 kt( 'lưu lời, chú thích → thẻ gợi ý: Hát ru (lời có "ví dầu"), vùng Nam Bộ (chú thích nhắc Cần Thơ); mỗi gợi ý một thẻ', array( 'chu_de:hat-ru', 'vung:nam-bo' ) === $gy_ma, $gy_ma );
 $the_gy = \Phongdao\GiaoTiep\BienTap\HopViec::the( $gy_v[1] ?? array( 'id' => 0, 'loai' => 'x' ) );
 kt( 'thẻ gợi ý: "Vùng: Nam Bộ — tên bài", lời, lý do máy gợi ý, nút Đồng ý', str_contains( $the_gy, 'Vùng: Nam Bộ — Ví dầu mẫu gợi ý' ) && str_contains( $the_gy, 'Cần Thơ' ) && str_contains( $the_gy, 'Đồng ý' ), $the_gy );
+$chan_dong_viec = static function ( $sql ) {
+	return preg_match( '/^UPDATE\s+`?' . preg_quote( Viec::bang(), '/' ) . '`?\s+SET\s+trang_thai\s*=\s*[\'\"]xong[\'\"]/i', $sql ) ? 'CA_DAO_KIEM_THU_LOI_DONG_VIEC' : $sql;
+};
+add_filter( 'query', $chan_dong_viec );
+$q_gy_loi = QuyetViec::quyet( (int) ( $gy_v[1]['id'] ?? 0 ), 'dong_y', $ai_ql, true, 0 );
+remove_filter( 'query', $chan_dong_viec );
+kt( 'gợi ý: lỗi đóng thẻ huỷ gắn vùng và dọn đệm phân loại', ! $q_gy_loi['ok'] && Viec::CHO === Viec::lay( $gy_v[1]['id'] )['trang_thai'] && 0 === Viec::lay( $gy_v[1]['id'] )['phien'] && ! has_term( 'nam-bo', 'vung', $gy_bai ), $q_gy_loi );
 $q1 = QuyetViec::quyet( (int) ( $gy_v[1]['id'] ?? 0 ), 'dong_y', $ai_ql, true );
 $q2 = QuyetViec::quyet( (int) ( $gy_v[0]['id'] ?? 0 ), 'bo', $ai_ql, true );
 kt( 'Đồng ý → gắn vùng; Bỏ → không gắn; tính lại không tạo lại thẻ đã quyết', $q1['ok'] && $q2['ok'] && has_term( 'nam-bo', 'vung', $gy_bai ) && ! has_term( 'hat-ru', 'chu_de', $gy_bai ) && 0 === \Phongdao\DichVu\GoiY\GoiY::ghi( $gy_bai ) && array() === Viec::mo( 'post', $gy_bai, 'goi_y' ), array( $q1, $q2 ) );
@@ -985,6 +1020,11 @@ $v_bl = Viec::mo( 'comment', $g2['id'], 'nguoi_doc' )[0] ?? array();
 $hv   = \Phongdao\GiaoTiep\BienTap\HopViec::the( $v_bl );
 $hv2  = \Phongdao\GiaoTiep\BienTap\HopViec::the( Viec::mo( 'post', $gy->ID, 'nguoi_doc' )[0] ?? array( 'id' => 0, 'loai' => 'x' ) );
 kt( 'Hộp việc: thẻ cảm nghĩ có "Hiện trên trang"; thẻ góp ý có "Đã xử lý", không có "Hiện"', str_contains( $hv, 'Hiện trên trang' ) && str_contains( $hv, 'Cảm nghĩ mẫu của bạn đọc.' ) && str_contains( $hv2, 'Đã xử lý' ) && ! str_contains( $hv2, 'Hiện trên trang' ), array( $hv, $hv2 ) );
+$bl_truoc = get_comment( $g2['id'] )->comment_approved;
+add_filter( 'query', $chan_dong_viec );
+$q_bl_loi = QuyetViec::quyet( (int) $v_bl['id'], 'duyet', $ai_ql, true, 0 );
+remove_filter( 'query', $chan_dong_viec );
+kt( 'cảm nghĩ: lỗi đóng thẻ huỷ công khai và dọn đệm bình luận', ! $q_bl_loi['ok'] && $bl_truoc === get_comment( $g2['id'] )->comment_approved && Viec::CHO === Viec::lay( $v_bl['id'] )['trang_thai'] && 0 === Viec::lay( $v_bl['id'] )['phien'], $q_bl_loi );
 $kq = \Phongdao\DichVu\XepViec\QuyetViec::quyet( (int) $v_bl['id'], 'duyet', $ai_ql, true );
 wp_set_current_user( 0 );
 $h = TacPham::hien( (array) \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_post( $bai_g ) ) );

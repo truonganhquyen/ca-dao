@@ -69,13 +69,12 @@ final class QuyetViec {
 		$sau = Viec::lay( $id );
 		if ( ! $kq['ok'] || ! $sau || $sau['phien'] !== $v['phien'] + 1 || 'dang_lam' === $sau['trang_thai'] ) {
 			$wpdb->query( 'ROLLBACK' );
-			if ( 'post' === $v['doi_tuong_loai'] ) {
-				clean_post_cache( (int) $v['doi_tuong_id'] );
-			}
+			self::don_dem_sau_huy( $v );
 			return $kq['ok'] ? self::kq( false, 'Chưa ghi được trạng thái việc; mọi thay đổi đã được huỷ.' ) : $kq;
 		}
 		if ( false === $wpdb->query( 'COMMIT' ) ) {
 			$wpdb->query( 'ROLLBACK' );
+			self::don_dem_sau_huy( $v );
 			return self::kq( false, 'Chưa xác nhận được quyết định. Kiểm tra lại Hộp việc trước khi thử tiếp.' );
 		}
 		return $kq;
@@ -303,11 +302,14 @@ final class QuyetViec {
 		return $ids;
 	}
 
-	/** Giao dịch đã huỷ nhưng WordPress có thể còn đệm phần bài hoặc phân loại. */
+	/** Giao dịch đã huỷ nhưng WordPress có thể còn đệm bài, phân loại hoặc cảm nghĩ. */
 	private static function don_dem_sau_huy( array $v ): void {
-		if ( 'nhap_y_nghia' === $v['loai'] && 'duyet' === $v['quyet'] ) {
+		if ( 'post' === $v['doi_tuong_loai'] ) {
 			clean_post_cache( (int) $v['doi_tuong_id'] );
-		} elseif ( 'goi_y' === $v['loai'] && 'dong_y' === $v['quyet'] ) {
+		} elseif ( 'comment' === $v['doi_tuong_loai'] ) {
+			clean_comment_cache( (int) $v['doi_tuong_id'] );
+		}
+		if ( 'goi_y' === $v['loai'] ) {
 			clean_object_term_cache( (int) $v['doi_tuong_id'], (string) get_post_type( (int) $v['doi_tuong_id'] ) );
 		}
 	}

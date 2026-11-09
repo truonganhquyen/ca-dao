@@ -60,7 +60,7 @@ final class CheDoSua {
 		$nut  = 'publish' === $sua['trang_thai']
 			? '<button type="button" class="btn compact ghost" data-action="trang-thai" data-trang-thai="private">Ẩn bài</button>'
 			: ( $sua['duyet'] ? '<button type="button" class="btn compact primary" data-action="trang-thai" data-trang-thai="publish">Đăng</button>' : '' );
-		return '<div class="dai-bien-tap no-print" role="region" aria-label="Chế độ sửa" data-bai="' . (int) $sua['id'] . '"><span class="dbt-trai">' . Ve::icon( 'edit' ) . '<strong>Đang sửa</strong><span class="tag-pill plain">' . esc_html( $tt ) . '</span>'
+		return '<div class="dai-bien-tap no-print" role="region" aria-label="Chế độ sửa" data-bai="' . (int) $sua['id'] . '" data-trang-thai="' . esc_attr( $sua['trang_thai'] ) . '"><span class="dbt-trai">' . Ve::icon( 'edit' ) . '<strong>Đang sửa</strong><span class="tag-pill plain">' . esc_html( $tt ) . '</span>'
 			. ( '' === $cuoi ? '' : '<span class="small muted">sửa lần cuối ' . esc_html( self::ngay( $cuoi ) ) . '</span>' ) . '</span>'
 			. '<span class="dbt-phai"><button type="button" class="btn compact" data-action="xem-nhu-doc-gia" aria-pressed="false">Xem như người đọc</button>' . $nut . '</span></div>';
 	}
