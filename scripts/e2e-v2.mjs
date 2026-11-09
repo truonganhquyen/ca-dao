@@ -525,6 +525,26 @@ try {
       await di(k, T.cauDo);
       chac(!(await coChu(k, 'Chủ đề: Lao động')), 'gỡ theo lô rồi người đọc vẫn thấy chủ đề');
     });
+
+    await thu('wp-admin Lô sửa từng hàng: viết Ý nghĩa cho một bài, xem so trước/sau, duyệt, người đọc thấy', async () => {
+      const moi = 'Ý nghĩa thử viết theo lô từng hàng.';
+      await di(bt, T.cauDo);
+      const id = await bt.$eval('.dai-bien-tap', e => e.dataset.bai);
+      await di(bt, `/wp-admin/admin.php?page=phongdao-tac-pham&q=${id}`);
+      await bam(bt, `input[name="ids[]"][value="${id}"]`);
+      await bt.select('#phongdao-lo-tp-thao-tac', 'sua_phan');
+      await bt.select('#phongdao-lo-tp-phan', 'y_nghia');
+      await bamDoiTrang(bt, '.phongdao-lo-chon [type=submit]');
+      chac(await bt.$(`textarea[name="gia_tri[${id}]"]`), 'không có ô giá trị riêng cho bài');
+      await datO(bt, `textarea[name="gia_tri[${id}]"]`, moi);
+      await bam(bt, 'input[name=duyet]');
+      await bamDoiTrang(bt, 'button[name=lam][value=luu_bo]');
+      chac(await coChu(bt, moi) && await bt.$('.phongdao-lo-so-sanh ins'), 'không hiện so trước/sau sau khi lưu giá trị');
+      await bamDoiTrang(bt, 'button[name=lam][value=ap_dung]');
+      chac(await coChu(bt, 'Lô đã chạy xong.') && await coChu(bt, 'Thành công 1'), 'lô sửa từng hàng không thành công');
+      await di(k, T.cauDo);
+      chac(await coChu(k, moi), 'người đọc không thấy Ý nghĩa vừa duyệt theo lô');
+    });
   }
 } catch (e) {
   loi.push(String(e.message ?? e).split('\n')[0]);

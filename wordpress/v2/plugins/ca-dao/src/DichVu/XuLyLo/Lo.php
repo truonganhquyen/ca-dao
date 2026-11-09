@@ -5,6 +5,7 @@ namespace Phongdao\DichVu\XuLyLo;
 use Phongdao\DichVu\LuuPhan\LuuPhanLoai;
 use Phongdao\DichVu\XepViec\QuyetViec;
 use Phongdao\HaTang\KhaiBao;
+use Phongdao\KhoLuu\PhanBai;
 use Phongdao\KhoLuu\Viec;
 
 defined( 'ABSPATH' ) || exit;
@@ -40,6 +41,22 @@ final class Lo {
 		'bai_an'       => array( 'Ẩn bài', 'post', 'cadao_soan', 'private' ),
 		'thung_rac'    => array( 'Đưa vào thùng rác', 'post', 'cadao_duyet', 'trash' ),
 		'lay_ra'       => array( 'Lấy ra khỏi thùng rác', 'post', 'cadao_duyet', 'untrash' ),
+		'sua_phan'     => array( 'Sửa một phần theo từng hàng', 'post', 'cadao_soan', 'sua_phan' ),
+	);
+
+	/**
+	 * Phần chữ sửa được theo từng hàng (mỗi bài một giá trị riêng; không có ô ghi đè một nội dung lên mọi bài). Lời, dị bản,
+	 * từ khó không sửa theo lô.
+	 */
+	public const PHAN_SUA = array(
+		'y_nghia'     => 'Ý nghĩa',
+		'ban_co_biet' => 'Bạn có biết',
+		'nghia_den'   => 'Nghĩa đen (tục ngữ)',
+		'nghia_bong'  => 'Nghĩa bóng (tục ngữ)',
+		'dung_khi'    => 'Dùng khi (tục ngữ)',
+		'cau_hoi'     => 'Câu hỏi (câu đố)',
+		'dap_an'      => 'Đáp án (câu đố)',
+		'goi_y'       => 'Gợi ý (câu đố)',
 	);
 
 	/** Thao tác phân loại cần chọn một mục có sẵn (bộ, mục). */
@@ -129,6 +146,12 @@ final class Lo {
 				return self::sai( 'Chọn một mục phân loại có sẵn (chủ đề, vùng, mô-típ, lối hát, trò chơi).' );
 			}
 			$ts = array( 'tax' => $tax, 'term' => (int) $t->term_id, 'ten' => $t->name );
+		} elseif ( 'sua_phan' === $thao_tac ) {
+			$phan = (string) ( $tham_so['phan'] ?? '' );
+			if ( ! isset( self::PHAN_SUA[ $phan ] ) ) {
+				return self::sai( 'Chọn phần muốn sửa theo từng hàng.' );
+			}
+			$ts = array( 'phan' => $phan, 'ten' => self::PHAN_SUA[ $phan ], 'duyet' => false, 'ai' => false );
 		}
 		$co = array();
 		foreach ( array_chunk( $ids, 500 ) as $phan ) {
@@ -140,7 +163,8 @@ final class Lo {
 		$muc = array();
 		foreach ( $ids as $i ) {
 			if ( isset( $co[ $i ] ) ) {
-				$muc[] = array( $i, $ts ? (string) wp_json_encode( LuuPhanLoai::dang_gan( $i, $ts['tax'] ) ) : $co[ $i ] );
+				$ban = isset( $ts['phan'] ) ? (string) wp_json_encode( PhanBai::lay( $i, $ts['phan'] ) ) : ( isset( $ts['tax'] ) ? (string) wp_json_encode( LuuPhanLoai::dang_gan( $i, $ts['tax'] ) ) : $co[ $i ] );
+				$muc[] = array( $i, $ban );
 			}
 		}
 		if ( ! $muc ) {
@@ -161,12 +185,74 @@ final class Lo {
 					'loc'       => array_map( 'strval', $loc ),
 					'muc'       => $muc,
 					'bo'        => array(),
+					'gia_tri'   => array(),
 				),
 				'sau'            => array( 'ket_qua' => array() ),
 				'nguoi_tao'      => (string) $nguoi,
 			)
 		);
 		return $id ? array( 'ok' => true, 'lo' => $id, 'loi' => '' ) : self::sai( 'Chưa tạo được lô. Thử lại sau.' );
+	}
+
+	/**
+	 * Lô "sửa một phần theo từng hàng": lưu giá trị người gõ cho các bài trên một trang xem trước (và bỏ chọn ngoại lệ,
+	 * tuỳ chọn duyệt / có hỗ trợ AI do người đánh). Chưa ghi gì vào bài.
+	 *
+	 * @param array<int|string,string> $gia_tri  mã bài => chữ
+	 * @param int[]                    $tren_trang
+	 * @param int[]                    $giu
+	 * @param array{duyet?:bool,ai?:bool} $tuy_chon
+	 * @return array{ok:bool,loi:string,bo:int}
+	 */
+	public static function luu_gia_tri( int $lo_id, array $gia_tri, array $tren_trang, array $giu, array $tuy_chon, int $nguoi ): array {
+		[ $lo, $ly_do ] = self::lay_cua( $lo_id, $nguoi, array( Viec::LO_XEM ) );
+		if ( ! $lo || 'sua_phan' !== ( $lo['noi_dung']['thao_tac'] ?? '' ) ) {
+			return array( 'ok' => false, 'loi' => $lo ? 'Lô này không sửa theo từng hàng.' : $ly_do, 'bo' => 0 );
+		}
+		$co  = array_flip( array_map( static fn( array $m ): int => (int) $m[0], $lo['noi_dung']['muc'] ) );
+		$nd  = $lo['noi_dung'];
+		$gt  = (array) ( $nd['gia_tri'] ?? array() );
+		foreach ( $gia_tri as $id => $chu ) {
+			if ( isset( $co[ (int) $id ] ) ) {
+				$gt[ (string) (int) $id ] = mb_substr( trim( str_replace( "\r", '', (string) $chu ) ), 0, 5000 );
+			}
+		}
+		$tren = array_filter( array_map( 'intval', $tren_trang ), static fn( int $i ): bool => isset( $co[ $i ] ) );
+		$bo   = array_values( array_unique( array_merge( array_diff( array_map( 'intval', (array) $nd['bo'] ), $tren ), array_diff( $tren, array_map( 'intval', $giu ) ) ) ) );
+		sort( $bo, SORT_NUMERIC );
+		$nd['gia_tri']          = $gt;
+		$nd['bo']               = $bo;
+		$nd['tham_so']['duyet'] = ! empty( $tuy_chon['duyet'] ) && user_can( $nguoi, 'cadao_duyet' );
+		$nd['tham_so']['ai']    = ! empty( $tuy_chon['ai'] );
+		if ( ! Viec::ghi_lo( $lo_id, (int) $lo['phien'], Viec::LO_XEM, (array) $lo['sau'], $nd ) ) {
+			return array( 'ok' => false, 'loi' => 'Lô vừa đổi ở phiên khác. Tải lại trang.', 'bo' => 0 );
+		}
+		return array( 'ok' => true, 'loi' => '', 'bo' => count( $bo ) );
+	}
+
+	/** Một bài của lô sửa theo từng hàng: qua đúng đường lưu của nút Sửa (Ý nghĩa chưa duyệt thành nháp trong Hộp việc). @return array{0:string,1:string} */
+	private static function mot_sua_phan( int $id, string $ban, array $ts, string $moi ): array {
+		$phan = (string) $ts['phan'];
+		$hien = PhanBai::lay( $id, $phan );
+		if ( (string) wp_json_encode( $hien ) !== $ban ) {
+			return array( 'xung_dot', 'Phần này của bài đã đổi sau lúc xem trước.' );
+		}
+		if ( '' === $moi ) {
+			return array( 'bo_qua', 'Chưa nhập giá trị cho bài này.' );
+		}
+		if ( $moi === trim( (string) ( $hien['chu'] ?? '' ) ) && ( ! empty( $ts['ai'] ) ) === ! empty( $hien['ai'] ) ) {
+			return array( 'bo_qua', 'Không đổi so với bản đang có.' );
+		}
+		$yc = new \WP_REST_Request( 'POST', '/phongdao/v1/tac-pham/' . $id . '/phan/' . $phan );
+		// Thân yêu cầu trước: set_body_params thay cả nhóm tham số POST, đặt sau sẽ xoá mất id / phan
+		$yc->set_body_params( array( 'chu' => $moi, 'ai' => empty( $ts['ai'] ) ? '' : '1', 'duyet' => empty( $ts['duyet'] ) ? '' : '1' ) );
+		$yc->set_url_params( array( 'id' => $id, 'phan' => $phan ) );
+		$kq = \Phongdao\GiaoTiep\BienTap\Module::luu_phan( $yc );
+		if ( $kq['ok'] ) {
+			return array( 'thanh_cong', (string) ( $kq['thong_bao'] ?? 'Đã lưu.' ) );
+		}
+		$loi = implode( ' ', (array) ( $kq['loi'] ?? array() ) );
+		return array( str_contains( $loi, 'thể loại' ) || str_contains( $loi, 'Không có phần' ) ? 'bo_qua' : 'loi', $loi );
 	}
 
 	/** Một tác phẩm: kiểm quyền và bản lúc xem trước, rồi làm qua đúng đường ghi (LuuPhanLoai; trạng thái của WordPress, có dấu vết). @return array{0:string,1:string} */
@@ -179,6 +265,9 @@ final class Lo {
 			return array( 'loi', 'Không có quyền sửa bài này.' );
 		}
 		$viec = self::THAO_TAC[ $thao_tac ][3];
+		if ( 'sua_phan' === $viec ) {
+			return 'trash' === $bai->post_status ? array( 'bo_qua', 'Bài đang ở thùng rác.' ) : self::mot_sua_phan( $id, $ban, $ts, (string) ( $ts['gia_tri'][ (string) $id ] ?? '' ) );
+		}
 		if ( self::la_phan_loai( $thao_tac ) ) {
 			if ( 'trash' === $bai->post_status ) {
 				return array( 'bo_qua', 'Bài đang ở thùng rác.' );
@@ -312,7 +401,7 @@ final class Lo {
 				break;
 			}
 			$kq[ (string) $id ] = isset( $bo[ $id ] ) ? array( 'bo_qua', 'Người bỏ khỏi lô lúc xem trước.' )
-				: ( 'post' === ( $lo['noi_dung']['doi_tuong'] ?? 'viec' ) ? self::mot_bai( $thao_tac, $id, (string) $p, $nguoi, (array) ( $lo['noi_dung']['tham_so'] ?? array() ) ) : self::mot( $thao_tac, $id, (int) $p, $nguoi, $duyet ) );
+				: ( 'post' === ( $lo['noi_dung']['doi_tuong'] ?? 'viec' ) ? self::mot_bai( $thao_tac, $id, (string) $p, $nguoi, (array) ( $lo['noi_dung']['tham_so'] ?? array() ) + array( 'gia_tri' => (array) ( $lo['noi_dung']['gia_tri'] ?? array() ) ) ) : self::mot( $thao_tac, $id, (int) $p, $nguoi, $duyet ) );
 			++$lam;
 		}
 		$con = count( $lo['noi_dung']['muc'] ) - count( $kq );

@@ -1136,6 +1136,37 @@ $wpdb->query( 'DELETE FROM ' . Viec::bang() . " WHERE (doi_tuong_loai = 'post' A
 wp_delete_term( $t_x, 'chu_de' );
 wp_delete_term( $t_y, 'chu_de' );
 wp_delete_term( $t_c, 'tro_choi' );
+
+// ---------- Xử lý lô: sửa một phần theo từng hàng (T-171) ----------
+$sp = array();
+for ( $i = 1; $i <= 3; $i++ ) {
+	$sp[ $i ] = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'post_title' => 'Bài sửa từng hàng ' . $i, 'post_name' => 'bai-sua-tung-hang-' . $i ) );
+	wp_set_object_terms( $sp[ $i ], 'ca-dao', KhaiBao::THE_LOAI );
+}
+LuuPhan::luu( $sp[1], 'y_nghia', array( 'chu' => 'Ý nghĩa cũ của bài một.', 'nguoi_lam' => NguoiLam::NGUOI_VIET ), $ncq );
+$ls  = $LO::tao( 'sua_phan', array_values( $sp ), 'chon', array(), $ai_ql, array( 'phan' => 'y_nghia' ) );
+$lg1 = $LO::luu_gia_tri( $ls['lo'], array( $sp[1] => 'Ý nghĩa mới của bài một.', $sp[2] => '', $sp[3] => 'Ý nghĩa mới của bài ba.' ), array_values( $sp ), array_values( $sp ), array( 'duyet' => true ), $ai_ql );
+$_GET = array( 'lo' => (string) $ls['lo'] );
+$h_ls = \Phongdao\GiaoTiep\QuanTri\TrangLo::hien();
+LuuPhan::luu( $sp[3], 'y_nghia', array( 'chu' => 'Ai đó vừa viết cho bài ba.', 'nguoi_lam' => NguoiLam::NGUOI_VIET ), $ncq ); // đổi sau lúc xem trước
+$as = $LO::ap_dung( $ls['lo'], $ai_ql, true );
+kt( 'lô sửa từng hàng (Ý nghĩa, đã duyệt): mỗi bài một ô riêng có so trước/sau; ô trống bỏ qua; bài đổi sau lúc xem trước xung đột; bài thành công qua đường lưu của nút Sửa, có Lịch sử', $ls['ok'] && $lg1['ok'] && str_contains( $h_ls, 'name="gia_tri[' . $sp[1] . ']"' ) && str_contains( $h_ls, 'thêm: </span>Ý nghĩa mới của bài một.' ) && array( 'thanh_cong' => 1, 'bo_qua' => 1, 'xung_dot' => 1, 'loi' => 0 ) === $as['dem'] && 'Ý nghĩa mới của bài một.' === ( PhanBai::lay( $sp[1], 'y_nghia' )['chu'] ?? '' ) && 'Ai đó vừa viết cho bài ba.' === ( PhanBai::lay( $sp[3], 'y_nghia' )['chu'] ?? '' ) && null === PhanBai::lay( $sp[2], 'y_nghia' ) && 'y_nghia' === ( Viec::lich_su( 'post', $sp[1], 1 )[0]['phan'] ?? '' ), array( $lg1, $as ) );
+$ln = $LO::tao( 'sua_phan', array( $sp[2] ), 'chon', array(), $ai_ql, array( 'phan' => 'y_nghia' ) );
+$LO::luu_gia_tri( $ln['lo'], array( $sp[2] => 'Nháp ý nghĩa bài hai.' ), array( $sp[2] ), array( $sp[2] ), array(), $ai_ql );
+$an = $LO::ap_dung( $ln['lo'], $ai_ql, true );
+kt( 'lô sửa từng hàng không đánh "đã duyệt": Ý nghĩa thành nháp trong Hộp việc, người đọc chưa thấy', 1 === $an['dem']['thanh_cong'] && null === PhanBai::lay( $sp[2], 'y_nghia' ) && 1 === count( Viec::mo( 'post', $sp[2], 'nhap_y_nghia' ) ), $an );
+$ld = $LO::tao( 'sua_phan', array( $sp[2] ), 'chon', array(), $ai_ql, array( 'phan' => 'dung_khi' ) );
+$LO::luu_gia_tri( $ld['lo'], array( $sp[2] => 'Ví dụ thử.' ), array( $sp[2] ), array( $sp[2] ), array(), $ai_ql );
+$ad = $LO::ap_dung( $ld['lo'], $ai_ql, true );
+$l_loi = $LO::tao( 'sua_phan', array( $sp[2] ), 'chon', array(), $ai_ql, array( 'phan' => 'loi' ) );
+$l_ai  = $LO::tao( 'sua_phan', array( $sp[1] ), 'chon', array(), $chi_soan, array( 'phan' => 'y_nghia' ) );
+$g_ai  = $LO::luu_gia_tri( $l_ai['lo'], array( $sp[1] => 'Thử không có quyền duyệt.' ), array( $sp[1] ), array( $sp[1] ), array( 'duyet' => true ), $chi_soan );
+kt( 'lô sửa từng hàng: phần không dùng cho thể loại thì bỏ qua; lời không sửa theo lô; người không có quyền duyệt không đánh "đã duyệt" được', 1 === $ad['dem']['bo_qua'] && null === PhanBai::lay( $sp[2], 'dung_khi' ) && ! $l_loi['ok'] && $g_ai['ok'] && empty( Viec::lay( $l_ai['lo'] )['noi_dung']['tham_so']['duyet'] ), array( $ad, $l_loi, $g_ai ) );
+$_GET = array();
+foreach ( $sp as $b_sp ) {
+	wp_delete_post( $b_sp, true );
+}
+$wpdb->query( 'DELETE FROM ' . Viec::bang() . " WHERE (doi_tuong_loai = 'post' AND doi_tuong_id IN (" . implode( ',', array_map( 'intval', $sp ) ) . ')) OR loai = \'' . Viec::LO . "'" );
 foreach ( $ids_nhieu as $id_nhieu ) {
 	Viec::xoa( $id_nhieu );
 }
