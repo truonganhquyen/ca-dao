@@ -102,6 +102,7 @@
       b.disabled = true;
       const f = new FormData();
       f.append('trang_thai', b.dataset.trangThai);
+      f.append('trang_thai_cu', dai.dataset.trangThai);
       const d = await goi('/tac-pham/' + bai + '/trang-thai', f);
       if (d.ok) tai_lai(d.thong_bao || 'Đã đổi trạng thái.');
       else { b.disabled = false; bao((d.loi || []).join(' ')); }
