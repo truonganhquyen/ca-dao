@@ -104,17 +104,7 @@ final class UngVien implements Module {
 					continue;
 				}
 				$id = $lay( $dong[ $k ] );
-				if ( $id ) {
-					Viec::tao(
-						array(
-							'loai'           => self::VIEC,
-							'doi_tuong_loai' => 'kho',
-							'doi_tuong_id'   => $id,
-							'noi_dung'       => array( 'nguon_id' => $nguon['id'] ),
-							'nguoi_tao'      => 'may',
-							'uu_tien'        => 40,
-						)
-					);
+				if ( $id && self::tao_the( $id, array( 'nguon_id' => $nguon['id'] ), 'may', 40 )['moi'] ) {
 					++$them;
 				}
 				if ( $them >= $so ) {
@@ -123,6 +113,107 @@ final class UngVien implements Module {
 			}
 		}
 		return $them;
+	}
+
+	/** Thẻ Câu mới người tự chọn từ Kho đứng trước câu máy chọn (40). */
+	public const UU_TIEN_CHON_TAY = 50;
+
+	/**
+	 * Người biên soạn tự chọn một câu trong Kho đưa vào Hộp việc (docs/30 mục 4.6, T-184). Chỉ tạo thẻ "Câu mới" đang chờ:
+	 * không đăng, gộp, sửa lời hay bỏ câu — quyết vẫn ở Hộp việc. Cùng điều kiện với lượt máy chọn: câu mới, có lời, chưa
+	 * gắn bài, không chờ quyết trùng, máy so trùng lại trước. Cờ của nguồn (vd. thô tục) chỉ là lời nhắc: người đã thấy và
+	 * tự chọn. Bấm lại, hay hai người bấm cùng lúc, vẫn chỉ có một thẻ.
+	 *
+	 * @return array{ok:bool,moi:bool,viec:int,thong_bao:string}
+	 */
+	public static function dua_vao_hop_viec( int $kho_id, int $nguoi ): array {
+		$m     = Kho::lay( $kho_id );
+		$ly_do = self::chua_chon_duoc( $m );
+		if ( '' !== $ly_do ) {
+			return self::kq_chon( false, false, 0, $ly_do );
+		}
+		$mo = Viec::mo( 'kho', $kho_id, self::VIEC );
+		if ( $mo ) {
+			return self::kq_chon( true, false, (int) $mo[0]['id'], 'Câu này đã có trong Hộp việc (thẻ #' . (int) $mo[0]['id'] . ').' );
+		}
+		if ( ChongTrung::dang_cho( $kho_id ) ) {
+			return self::kq_chon( false, false, 0, 'Câu đang chờ quyết trùng ở thẻ "Có thể trùng" trong Hộp việc. Quyết thẻ đó trước.' );
+		}
+		$trung = ChongTrung::kiem_kho( $kho_id ); // ngoài giao dịch: bước gộp tự động tự mở giao dịch riêng
+		if ( 'da_gop' === $trung ) {
+			return self::kq_chon( false, false, 0, 'Câu trùng hẳn một bài đã có nên máy đã gắn vào bài đó theo quy tắc tự gộp; không tạo thẻ mới.' );
+		}
+		if ( 'cho_quyet' === $trung ) {
+			return self::kq_chon( false, false, 0, 'Máy vừa thấy câu này có thể trùng; đã thêm thẻ "Có thể trùng" vào Hộp việc để bạn quyết trước.' );
+		}
+		$t = self::tao_the( $kho_id, array( 'nguon_id' => (string) $m->nguon_id, 'chon_boi' => $nguoi ), (string) $nguoi, self::UU_TIEN_CHON_TAY );
+		if ( '' !== $t['loi'] ) {
+			return self::kq_chon( false, false, 0, $t['loi'] );
+		}
+		return $t['moi']
+			? self::kq_chon( true, true, $t['viec'], 'Đã đưa câu #' . $kho_id . ' vào Hộp việc (thẻ #' . $t['viec'] . '). Quyết Đăng, Sửa rồi đăng hay Bỏ ở đó.' )
+			: self::kq_chon( true, false, $t['viec'], 'Câu này đã có trong Hộp việc (thẻ #' . $t['viec'] . ').' );
+	}
+
+	/** Lý do một câu kho chưa đưa vào Hộp việc được; rỗng = được (màn Kho dùng để ẩn nút). */
+	public static function chua_chon_duoc( ?object $m ): string {
+		if ( ! $m ) {
+			return 'Không tìm thấy câu này trong kho.';
+		}
+		if ( '' === trim( (string) $m->loi ) ) {
+			return 'Câu chưa có lời (máy chưa đọc được trang gốc).';
+		}
+		if ( 'moi' !== $m->trang_thai || (int) $m->post_id ) {
+			return array( 'da_tao_bai' => 'Câu đã thành tác phẩm.', 'da_gop' => 'Câu đã gộp vào bài hay câu khác.', 'bo_qua' => 'Câu đã bị bỏ.' )[ $m->trang_thai ] ?? 'Câu không còn ở trạng thái mới.';
+		}
+		return '';
+	}
+
+	/**
+	 * Thẻ "Câu mới" của một câu kho, đúng một lần: khoá dòng kho, kiểm lại trạng thái và thẻ đang mở rồi ghi, cùng một giao
+	 * dịch (máy chọn hằng ngày và người chọn tay đi chung đường này).
+	 *
+	 * @return array{viec:int,moi:bool,loi:string}
+	 */
+	private static function tao_the( int $kho_id, array $noi_dung, string $nguoi_tao, int $uu_tien ): array {
+		global $wpdb;
+		if ( false === $wpdb->query( 'START TRANSACTION' ) ) {
+			return array( 'viec' => 0, 'moi' => false, 'loi' => 'Chưa mở được lượt ghi. Thử lại sau.' );
+		}
+		$hang = $wpdb->get_row( $wpdb->prepare( 'SELECT trang_thai, post_id, loi FROM ' . Kho::bang() . ' WHERE id = %d FOR UPDATE', $kho_id ) );
+		if ( ! $hang || 'moi' !== $hang->trang_thai || (int) $hang->post_id || '' === trim( (string) $hang->loi ) ) {
+			$wpdb->query( 'ROLLBACK' );
+			return array( 'viec' => 0, 'moi' => false, 'loi' => 'Câu vừa đổi trạng thái. Tải lại Kho để xem.' );
+		}
+		$mo = Viec::mo( 'kho', $kho_id, self::VIEC );
+		if ( $mo ) {
+			$wpdb->query( 'ROLLBACK' );
+			return array( 'viec' => (int) $mo[0]['id'], 'moi' => false, 'loi' => '' );
+		}
+		$viec = Viec::tao(
+			array(
+				'loai'           => self::VIEC,
+				'doi_tuong_loai' => 'kho',
+				'doi_tuong_id'   => $kho_id,
+				'noi_dung'       => $noi_dung,
+				'nguoi_tao'      => $nguoi_tao,
+				'uu_tien'        => $uu_tien,
+			)
+		);
+		if ( ! $viec || false === $wpdb->query( 'COMMIT' ) ) {
+			$wpdb->query( 'ROLLBACK' );
+			return array( 'viec' => 0, 'moi' => false, 'loi' => 'Chưa ghi được thẻ vào Hộp việc. Thử lại sau.' );
+		}
+		return array( 'viec' => $viec, 'moi' => true, 'loi' => '' );
+	}
+
+	private static function kq_chon( bool $ok, bool $moi, int $viec, string $chu ): array {
+		return array(
+			'ok'        => $ok,
+			'moi'       => $moi,
+			'viec'      => $viec,
+			'thong_bao' => $chu,
+		);
 	}
 
 	/**

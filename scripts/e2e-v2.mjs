@@ -447,6 +447,21 @@ try {
       await di(k, T.mucTu);
       chac(await coChu(k, giai), 'người đọc không thấy lời giải mới');
     });
+
+    await thu('wp-admin Kho: tự chọn một câu đưa vào Hộp việc đúng một lần, thẻ ghi người chọn', async () => {
+      await di(bt, '/wp-admin/admin.php?page=phongdao-kho');
+      chac(await coChu(bt, 'câu khớp bộ lọc'), 'không mở được màn Kho');
+      const id = await bt.$eval('form input[name=action][value=phongdao_kho_dua_vao]', o => o.form.querySelector('input[name=id]').value);
+      await bamDoiTrang(bt, `form:has(input[name=id][value="${id}"]) [type=submit]`);
+      const bao = await bt.$eval('.phongdao-admin-kho .notice', e => e.textContent.trim()).catch(() => '(không có thông báo)');
+      chac(bao.includes(`Đã đưa câu #${id} vào Hộp việc`), `không báo đã đưa câu vào Hộp việc — thấy: ${bao}`);
+      chac(!(await bt.$(`input[name=id][value="${id}"]`)), 'câu đã có thẻ vẫn còn nút đưa vào');
+      await bamDoiTrang(bt, '.phongdao-admin-kho .notice a[href*="phongdao-hop-viec"]');
+      chac(await coChu(bt, 'người chọn từ Kho'), 'thẻ Câu mới không ghi người chọn từ Kho');
+      // Khách không bao giờ thấy màn Kho
+      const tl = await k.goto(G + '/wp-admin/admin.php?page=phongdao-kho', { waitUntil: 'load', timeout: 120_000 });
+      chac(!(await coChu(k, 'Câu kho mẫu')) && !(await coChu(k, 'Tục ngữ kho mẫu')), `khách thấy dữ liệu kho (HTTP ${tl.status()})`);
+    });
   }
 } catch (e) {
   loi.push(String(e.message ?? e).split('\n')[0]);

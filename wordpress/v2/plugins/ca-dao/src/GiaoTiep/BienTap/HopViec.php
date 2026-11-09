@@ -155,7 +155,7 @@ final class HopViec {
 				$tieu_de = $m->tieu_de ?: (string) strtok( $m->loi, "\n" );
 				$than    = Ve::loi( array_slice( array_values( array_filter( explode( "\n", $m->loi ), 'strlen' ) ), 0, 8 ), 'ca-dao' === $g ? 'lucbat' : '', array(), array( 'nhom' => 'hv-' . $v['id'] ) )
 					. '<p class="small muted">' . esc_html( TheLoai::DS[ $g ] . ' · ' . count( (array) ( $d['chu_thich'] ?? array() ) ) . ' chú thích · ' . count( (array) ( $d['di_ban'] ?? array() ) ) . ' dị bản' . ( empty( $d['co'] ) ? '' : ' · cờ: ' . implode( ', ', (array) $d['co'] ) ) ) . '</p>';
-				$ly_do = 'nguồn: ' . $m->nguon_id;
+				$ly_do = ( empty( $v['noi_dung']['chon_boi'] ) ? '' : 'người chọn từ Kho · ' ) . 'nguồn: ' . $m->nguon_id;
 			}
 		} elseif ( 'nhap_y_nghia' === $v['loai'] ) {
 			$bai = get_post( (int) $v['doi_tuong_id'] );
