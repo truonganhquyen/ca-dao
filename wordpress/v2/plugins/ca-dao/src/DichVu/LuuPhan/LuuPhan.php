@@ -77,7 +77,17 @@ final class LuuPhan {
 		if ( $truoc === $cu ) {
 			return self::xong( false, 0 );
 		}
+		// Chỉ khôi phục lần sửa mới nhất của phần, khi phần còn đúng bản ngay sau lần đó: có lần sửa mới hơn thì từ chối,
+		// không ghi đè (T-170)
+		if ( Viec::moi_nhat_sua( $bai->ID, $phan ) !== $viec_id || ! self::con_nguyen( $truoc, $viec['sau'] ) ) {
+			return self::hong( 'Phần này đã được sửa sau lần đó. Khôi phục từ lần sửa mới nhất trong Lịch sử, hoặc sửa tay.' );
+		}
 		return self::ghi( $bai, $phan, $truoc, $cu, $nc, 'khoi_phuc', self::luc( $nc ), $viec_id );
+	}
+
+	/** Giá trị đang lưu còn đúng bản "sau" của một dòng nhật ký (so dạng JSON: nhật ký lưu JSON, phần lưu meta). */
+	public static function con_nguyen( mixed $hien_tai, mixed $sau ): bool {
+		return wp_json_encode( $hien_tai ) === wp_json_encode( $sau );
 	}
 
 	private static function ghi( \WP_Post $bai, string $phan, ?array $truoc, ?array $sau, array $nc, string $quyet, string $luc, int $tu_viec = 0 ): array {

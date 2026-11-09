@@ -26,3 +26,14 @@
 /* Biểu tượng SVG dùng chung với trang đọc: wp-admin không nạp CSS của theme nên tự đặt cỡ, nét (không để thành hình tròn đen to) */
 .phongdao-admin-sua .icon { width: 17px; height: 17px; display: inline-block; vertical-align: middle; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .phongdao-admin-sua .goc-nguon { display: flex; align-items: center; gap: 8px; }
+/* Lịch sử: so trước/sau từng dòng ("−" bỏ, "+" thêm — có chữ, không chỉ dựa vào màu) và nút khôi phục */
+.phongdao-so-sanh { margin: 6px 0; }
+.phongdao-so-sanh summary { cursor: pointer; min-height: 44px; display: inline-flex; align-items: center; color: #2271b1; }
+.phongdao-so-sanh ul { margin: 4px 0 8px; padding: 8px; list-style: none; background: #f6f7f7; border: 1px solid #dcdcde; border-radius: 4px; font-family: inherit; white-space: pre-wrap; overflow-wrap: anywhere; }
+.phongdao-so-sanh li { margin: 0; padding: 2px 4px; }
+.phongdao-so-sanh li.bo { background: #fcf0f1; }
+.phongdao-so-sanh li.them { background: #edfaef; }
+.phongdao-so-sanh del { color: #8a2424; }
+.phongdao-so-sanh ins { color: #00450c; text-decoration: none; }
+.phongdao-khoi-phuc { margin: 4px 0 8px; }
+.phongdao-khoi-phuc .button { min-height: 44px; }

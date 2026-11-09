@@ -7,7 +7,9 @@ use Phongdao\DichVu\NhapNguon\NguonTuDong;
 use Phongdao\HaTang\KhaiBao;
 use Phongdao\KhoLuu\HoSo;
 use Phongdao\KhoLuu\Kho;
+use Phongdao\KhoLuu\Viec;
 use Phongdao\MienDuLieu\HoSoNguon;
+use Phongdao\MienDuLieu\SoSanh;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -34,6 +36,7 @@ final class NguonCaiDat {
 		if ( ! $n ) {
 			return 'Không có nguồn này.';
 		}
+		$cu                   = self::cai_dat( $n );
 		$n['bat']             = ! empty( $p['bat'] );
 		$n['so_bai_moi_ngay'] = max( 1, min( 50, (int) ( $p['so_bai_moi_ngay'] ?? $n['so_bai_moi_ngay'] ) ) );
 		$n['loai_lay']        = array_values( array_intersect( array_keys( CadaoMe::LOAI ), array_map( 'strval', (array) ( $p['loai_lay'] ?? array() ) ) ) );
@@ -41,6 +44,7 @@ final class NguonCaiDat {
 		$n['bo_qua_co']       = empty( $p['bo_tho_tuc'] ) ? array() : array( 'tho_tuc' );
 		NguonTuDong::luu( $n );
 		NguonTuDong::hen_lich();
+		self::ghi_dau_vet( 'nguon', 0, mb_substr( $id, 0, 32 ), $cu, self::cai_dat( $n ) );
 		return $n['bat'] ? 'Đã lưu. Nguồn đang bật: máy đọc theo lịch, câu mới vào Hộp việc mỗi ngày.' : 'Đã lưu. Nguồn đang tắt.';
 	}
 
@@ -50,6 +54,7 @@ final class NguonCaiDat {
 		if ( ! $hs || KhaiBao::HO_SO_NGUON !== $hs->post_type ) {
 			return 'Không có hồ sơ này.';
 		}
+		$cu  = array( 'ten' => $hs->post_title ) + HoSo::truong( $id );
 		$ten = trim( sanitize_text_field( (string) ( $p['ten'] ?? '' ) ) );
 		if ( '' !== $ten && $ten !== $hs->post_title ) {
 			wp_update_post( wp_slash( array( 'ID' => $id, 'post_title' => $ten ) ) );
@@ -59,7 +64,53 @@ final class NguonCaiDat {
 			$truong[ $k ] = 'chep_chu_thich' === $k ? ! empty( $p[ $k ] ) : sanitize_text_field( (string) ( $p[ $k ] ?? '' ) );
 		}
 		update_post_meta( $id, HoSo::META, wp_slash( HoSoNguon::chuan( $truong ) ) );
+		self::ghi_dau_vet( 'ho_so', $id, 'ho_so', $cu, array( 'ten' => (string) get_post_field( 'post_title', $id ) ) + HoSo::truong( $id ) );
 		return 'Đã lưu hồ sơ nguồn.';
+	}
+
+	/** Các cài đặt của nguồn tự động cần dấu vết (bật, số câu, loại lấy, chép chú thích, bỏ qua cờ). */
+	private static function cai_dat( array $n ): array {
+		return array(
+			'bat'             => ! empty( $n['bat'] ),
+			'so_bai_moi_ngay' => (int) ( $n['so_bai_moi_ngay'] ?? 0 ),
+			'loai_lay'        => array_values( (array) ( $n['loai_lay'] ?? array() ) ),
+			'chep_chu_thich'  => ! empty( $n['chep_chu_thich'] ),
+			'bo_qua_co'       => array_values( (array) ( $n['bo_qua_co'] ?? array() ) ),
+		);
+	}
+
+	/** Dấu vết một lần đổi hồ sơ nguồn / cài đặt nguồn (T-170): ai, lúc nào, trước, sau — chỉ khi có trường đổi. */
+	private static function ghi_dau_vet( string $loai, int $id, string $phan, array $truoc, array $sau ): void {
+		if ( ! SoSanh::truong_doi( $truoc, $sau ) ) {
+			return;
+		}
+		Viec::tao(
+			array(
+				'loai'           => Viec::SUA,
+				'trang_thai'     => Viec::XONG,
+				'doi_tuong_loai' => $loai,
+				'doi_tuong_id'   => $id,
+				'phan'           => $phan,
+				'nguoi_tao'      => (string) get_current_user_id(),
+				'quyet'          => 'luu',
+				'truoc'          => $truoc,
+				'sau'            => $sau,
+				'nguoi_quyet'    => get_current_user_id(),
+				'quyet_luc'      => gmdate( 'Y-m-d H:i:s' ),
+			)
+		);
+	}
+
+	/** Danh sách dấu vết: ngày giờ, người, các trường đổi "cũ → mới". */
+	private static function dau_vet( array $ds ): string {
+		$o = '';
+		foreach ( $ds as $r ) {
+			$t  = strtotime( (string) $r['quyet_luc'] . ' UTC' );
+			$nd = (int) $r['nguoi_quyet'] ? get_userdata( (int) $r['nguoi_quyet'] ) : null;
+			$o .= '<li><strong>' . esc_html( $t ? wp_date( 'd/m/Y H:i', $t ) : (string) $r['quyet_luc'] ) . '</strong> · ' . esc_html( $nd ? $nd->display_name : 'máy' ) . ' · '
+				. esc_html( implode( '; ', SoSanh::truong_doi( (array) $r['truoc'], (array) $r['sau'] ) ) ) . '</li>';
+		}
+		return '<h3>Lịch sử thay đổi</h3>' . ( '' === $o ? '<p>Chưa có thay đổi nào được ghi.</p>' : '<ol>' . $o . '</ol>' );
 	}
 
 	/** Khoá bí mật để trống = giữ khoá cũ; xoá Site key = tắt Turnstile. @return string lời báo */
@@ -168,7 +219,8 @@ final class NguonCaiDat {
 				$nk .= '<li>' . esc_html( (string) ( $d['luc'] ?? '' ) . ' · ' . (string) ( $d['viec'] ?? '' ) . ( isset( $d['loi'] ) && '' !== (string) $d['loi'] ? ' · lỗi: ' . (string) $d['loi'] : '' ) ) . '</li>';
 			}
 			$h .= '<h2>' . esc_html( (string) ( $n['ten'] ?: $id ) ) . ( empty( $n['url'] ) ? '' : ' <a class="page-title-action" href="' . esc_url( $n['url'] ) . '" rel="noopener">Mở trang nguồn</a>' ) . '</h2>'
-				. self::form( 'phongdao_luu_nguon', $than ) . '<h3>Máy đang làm (gần nhất)</h3>' . ( '' === $nk ? '<p>Chưa chạy lần nào.</p>' : '<ul>' . $nk . '</ul>' );
+				. self::form( 'phongdao_luu_nguon', $than ) . '<h3>Máy đang làm (gần nhất)</h3>' . ( '' === $nk ? '<p>Chưa chạy lần nào.</p>' : '<ul>' . $nk . '</ul>' )
+				. self::dau_vet( array_slice( array_values( array_filter( Viec::lich_su( 'nguon', 0, 100 ), static fn( array $r ): bool => mb_substr( (string) $id, 0, 32 ) === $r['phan'] ) ), 0, 10 ) );
 		}
 		return $h;
 	}
@@ -206,7 +258,7 @@ final class NguonCaiDat {
 			. $chon( 'xin_phep', 'Xin phép', HoSoNguon::XIN_PHEP ) . $chon( 'chinh_sach_hien', 'Hiện với người đọc', HoSoNguon::CHINH_SACH )
 			. '<tr><th scope="row">Chép chú thích</th><td><label><input type="checkbox" name="chep_chu_thich" value="1"' . checked( ! empty( $t['chep_chu_thich'] ), true, false ) . '> Được chép chú thích, lời giải của nguồn này</label></td></tr>'
 			. $o( 'ghi_chu', 'Ghi chú' ) . '</tbody></table>';
-		return '<p><a href="' . esc_url( add_query_arg( array( 'page' => Module::TRANG, 'the' => 'ho_so' ), admin_url( 'admin.php' ) ) ) . '">← Mọi hồ sơ</a></p><h2>' . esc_html( $p->post_title ) . '</h2>' . self::form( 'phongdao_luu_ho_so', $than );
+		return '<p><a href="' . esc_url( add_query_arg( array( 'page' => Module::TRANG, 'the' => 'ho_so' ), admin_url( 'admin.php' ) ) ) . '">← Mọi hồ sơ</a></p><h2>' . esc_html( $p->post_title ) . '</h2>' . self::form( 'phongdao_luu_ho_so', $than ) . self::dau_vet( Viec::lich_su( 'ho_so', $id, 10 ) );
 	}
 
 	private static function chong_rac(): string {

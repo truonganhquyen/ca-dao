@@ -2,6 +2,7 @@
 
 namespace Phongdao\GiaoTiep\QuanTri;
 
+use Phongdao\DichVu\LuuPhan\LichSu;
 use Phongdao\DichVu\LuuPhan\LuuPhanLoai;
 use Phongdao\DichVu\XepViec\QuyetViec;
 use Phongdao\GiaoTiep\BienTap\CheDoSua;
@@ -9,6 +10,7 @@ use Phongdao\GiaoTiep\BienTap\Module as BienTap;
 use Phongdao\GiaoTiep\BienTap\TamSua;
 use Phongdao\HaTang\KhaiBao;
 use Phongdao\KhoLuu\Viec;
+use Phongdao\MienDuLieu\SoSanh;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -19,6 +21,7 @@ final class SuaTacPham {
 	public static function dang_ky(): void {
 		add_action( 'admin_post_phongdao_sua_phan', array( self::class, 'luu' ) );
 		add_action( 'admin_post_phongdao_sua_phan_loai', array( self::class, 'luu_phan_loai' ) );
+		add_action( 'admin_post_phongdao_khoi_phuc', array( self::class, 'khoi_phuc' ) );
 	}
 
 	public static function url( int $id ): string {
@@ -51,7 +54,7 @@ final class SuaTacPham {
 		$loai = is_array( $terms ) && $terms ? $terms[0]->slug : '';
 		$mo = Viec::mo( 'post', $id );
 		$ket_qua = sanitize_key( (string) ( $_GET['ket_qua'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc thông báo
-		$bao = array( 'da_luu' => 'Đã lưu phần bài.', 'da_luu_pl' => 'Đã lưu phân loại.', 'nhap' => 'Đã lưu nháp vào Hộp việc; người đọc chưa thấy.', 'khong_doi' => 'Không có gì thay đổi.', 'loi' => 'Chưa lưu được. Kiểm lại dữ liệu và thử tiếp.' )[ $ket_qua ] ?? '';
+		$bao = array( 'da_luu' => 'Đã lưu phần bài.', 'da_luu_pl' => 'Đã lưu phân loại.', 'da_khoi_phuc' => 'Đã khôi phục bản trước; lần khôi phục được ghi vào Lịch sử.', 'nhap' => 'Đã lưu nháp vào Hộp việc; người đọc chưa thấy.', 'khong_doi' => 'Không có gì thay đổi.', 'loi' => 'Chưa lưu được. Kiểm lại dữ liệu và thử tiếp.' )[ $ket_qua ] ?? '';
 		if ( 'loi' === $ket_qua ) {
 			$khoa_loi = 'phongdao_sua_loi_' . $id . '_' . get_current_user_id();
 			$bao = (string) get_transient( $khoa_loi ) ?: $bao;
@@ -141,15 +144,74 @@ final class SuaTacPham {
 		return $ra;
 	}
 
-	/** Khối Lịch sử: 50 lần sửa, quyết mới nhất của bài (so sánh và khôi phục đầy đủ là việc của màn Lịch sử). */
+	/**
+	 * Khối Lịch sử (T-170): 50 lần sửa, quyết mới nhất của bài — kể cả đề xuất đã bỏ. Mỗi lần sửa xem được trước/sau từng
+	 * dòng; lần sửa mới nhất của một phần (khi chưa có thay đổi mới hơn) có nút "Khôi phục bản trước".
+	 */
 	private static function lich_su( int $id ): string {
-		$ds = Viec::lich_su( 'post', $id, 50 );
-		$o  = '';
+		$ds       = Viec::lich_su( 'post', $id, 50, array( Viec::XONG, Viec::BO ) );
+		$moi_nhat = array();
 		foreach ( $ds as $r ) {
-			$t  = strtotime( (string) $r['quyet_luc'] . ' UTC' );
-			$o .= '<li><strong>' . esc_html( $t ? wp_date( 'd/m/Y H:i', $t ) : (string) $r['quyet_luc'] ) . '</strong> · ' . esc_html( CheDoSua::mo_ta( $r ) ) . '</li>';
+			if ( Viec::SUA === $r['loai'] && ! isset( $moi_nhat[ $r['phan'] ] ) ) {
+				$moi_nhat[ $r['phan'] ] = (int) $r['id']; // danh sách mới nhất trước: lần gặp đầu là lần sửa mới nhất
+			}
 		}
-		return '<section class="phongdao-sua-viec" id="lich-su"><h2>Lịch sử</h2>' . ( '' === $o ? '<p>Chưa có lần sửa nào được ghi.</p>' : '<ol class="phongdao-lich-su">' . $o . '</ol>' ) . '</section>';
+		$o = '';
+		foreach ( $ds as $r ) {
+			$t     = strtotime( (string) $r['quyet_luc'] . ' UTC' );
+			$luc   = $t ? wp_date( 'd/m/Y H:i', $t ) : (string) $r['quyet_luc'];
+			$o    .= '<li><strong>' . esc_html( $luc ) . '</strong> · ' . esc_html( CheDoSua::mo_ta( $r ) );
+			if ( Viec::SUA === $r['loai'] ) {
+				$o .= self::so_sanh( $r );
+				$ly_do = LichSu::ly_do_khong( $r, $moi_nhat[ $r['phan'] ] ?? 0 );
+				if ( '' === $ly_do ) {
+					$o .= '<form method="post" class="phongdao-khoi-phuc" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="phongdao_khoi_phuc"><input type="hidden" name="viec" value="' . (int) $r['id'] . '">'
+						. wp_nonce_field( 'phongdao_khoi_phuc_' . (int) $r['id'], '_wpnonce', false, false )
+						. '<button type="submit" class="button" aria-label="' . esc_attr( 'Khôi phục bản trước: ' . CheDoSua::mo_ta( $r ) . ', ' . $luc ) . '">Khôi phục bản trước</button></form>';
+				}
+			}
+			$o .= '</li>';
+		}
+		return '<section class="phongdao-sua-viec" id="lich-su"><h2>Lịch sử</h2>'
+			. ( '' === $o ? '<p>Chưa có lần sửa nào được ghi.</p>' : '<p class="description">Khôi phục chỉ có ở lần sửa mới nhất của mỗi phần, khi chưa ai sửa tiếp; khôi phục cũng được ghi thành một lần sửa mới.</p><ol class="phongdao-lich-su">' . $o . '</ol>' )
+			. '</section>';
+	}
+
+	/** Trước/sau của một lần sửa, so từng dòng: "−" dòng bỏ, "+" dòng thêm (không chỉ dựa vào màu). */
+	private static function so_sanh( array $r ): string {
+		$a = SoSanh::dong( $r['truoc'] );
+		$b = SoSanh::dong( $r['sau'] );
+		if ( ! $a && ! $b ) {
+			return '';
+		}
+		$o = '';
+		foreach ( SoSanh::khac( $a, $b ) as [ $dau, $dong ] ) {
+			$chu = esc_html( '' === $dong ? ' ' : $dong );
+			$o  .= match ( $dau ) {
+				'-'     => '<li class="bo"><span aria-hidden="true">− </span><del><span class="screen-reader-text">bỏ: </span>' . $chu . '</del></li>',
+				'+'     => '<li class="them"><span aria-hidden="true">+ </span><ins><span class="screen-reader-text">thêm: </span>' . $chu . '</ins></li>',
+				default => '<li class="giu"><span aria-hidden="true">  </span>' . $chu . '</li>',
+			};
+		}
+		return '<details class="phongdao-so-sanh"><summary>Xem trước/sau</summary><ul>' . $o . '</ul></details>';
+	}
+
+	/** Nút "Khôi phục bản trước": kiểm quyền trên bài của lần sửa và nonce từng dòng; ghi qua LichSu. */
+	public static function khoi_phuc(): void {
+		$vid = absint( $_POST['viec'] ?? 0 );
+		$v   = $vid ? Viec::lay( $vid ) : null;
+		$id  = $v && 'post' === $v['doi_tuong_loai'] ? (int) $v['doi_tuong_id'] : 0;
+		$bai = $id ? get_post( $id ) : null;
+		if ( ! current_user_can( 'cadao_soan' ) || ! $bai || KhaiBao::TAC_PHAM !== $bai->post_type || ! current_user_can( 'edit_post', $id ) ) {
+			wp_die( 'Bạn không có quyền khôi phục lần sửa này.', '', array( 'response' => 403 ) );
+		}
+		check_admin_referer( 'phongdao_khoi_phuc_' . $vid );
+		$kq = LichSu::khoi_phuc( $vid, get_current_user_id(), current_user_can( 'cadao_duyet' ) );
+		if ( ! $kq['ok'] ) {
+			set_transient( 'phongdao_sua_loi_' . $id . '_' . get_current_user_id(), implode( ' ', $kq['loi'] ), MINUTE_IN_SECONDS );
+		}
+		wp_safe_redirect( add_query_arg( 'ket_qua', $kq['ok'] ? ( $kq['doi'] ? 'da_khoi_phuc' : 'khong_doi' ) : 'loi', self::url( $id ) ) . '#lich-su' );
+		exit;
 	}
 
 	/** Lưu phân loại từ biểu mẫu: kiểm quyền từng bài và nonce, ghi qua LuuPhanLoai. */

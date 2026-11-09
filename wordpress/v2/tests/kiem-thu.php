@@ -883,6 +883,101 @@ $_GET = array();
 $wpdb->query( 'DELETE FROM ' . Viec::bang() . " WHERE doi_tuong_loai = 'kho' AND doi_tuong_id IN (" . implode( ',', $kt_ids ) . ')' );
 $wpdb->delete( $bang_kho, array( 'nguon_id' => 'kho-thu' ) );
 kt( 'wp-admin Kho: dọn câu thử', 0 === (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $bang_kho WHERE nguon_id = %s", 'kho-thu' ) ) );
+
+// ---------- Lịch sử và khôi phục, dấu vết (T-170) ----------
+$LS     = \Phongdao\DichVu\LuuPhan\LichSu::class;
+$ncq    = array( 'nguoi' => $ai_ql, 'goi' => KiemPhan::GOI_NGUOI, 'duyet' => true );
+$yn_goc = PhanBai::lay( $tp1, 'y_nghia' );
+$s_1    = LuuPhan::luu( $tp1, 'y_nghia', array( 'chu' => 'Ý nghĩa thử lịch sử một.', 'nguoi_lam' => NguoiLam::NGUOI_VIET ), $ncq );
+$s_2    = LuuPhan::luu( $tp1, 'y_nghia', array( 'chu' => 'Ý nghĩa thử lịch sử hai.', 'nguoi_lam' => NguoiLam::NGUOI_VIET ), $ncq );
+$k_cu   = $LS::khoi_phuc( $s_1['viec'], $ai_ql, true );
+kt( 'khôi phục: lần sửa cũ (đã có lần sửa mới hơn) bị từ chối, phần giữ nguyên', ! $k_cu['ok'] && 'Ý nghĩa thử lịch sử hai.' === PhanBai::lay( $tp1, 'y_nghia' )['chu'], $k_cu );
+$r_cu = rest_do_request( new WP_REST_Request( 'POST', '/phongdao/v1/viec/' . $s_1['viec'] . '/hoan-tac' ) );
+kt( 'Hoàn tác (REST) một lần sửa cũ cũng bị từ chối, không ghi đè lần sửa mới hơn', ! ( $r_cu->get_data()['ok'] ?? false ) && 'Ý nghĩa thử lịch sử hai.' === PhanBai::lay( $tp1, 'y_nghia' )['chu'], $r_cu->get_data() );
+$k_moi = $LS::khoi_phuc( $s_2['viec'], $ai_ql, true );
+$nk_km = Viec::lay( $k_moi['viec'] );
+kt( 'khôi phục lần sửa mới nhất: về bản trước, ghi một lần sửa mới "khôi phục" trỏ về lần đó', $k_moi['ok'] && $k_moi['doi'] && 'Ý nghĩa thử lịch sử một.' === PhanBai::lay( $tp1, 'y_nghia' )['chu'] && 'khoi_phuc' === $nk_km['quyet'] && $s_2['viec'] === (int) ( $nk_km['noi_dung']['tu_viec'] ?? 0 ), array( $k_moi, $nk_km ) );
+$k_lai = $LS::khoi_phuc( $s_2['viec'], $ai_ql, true );
+kt( 'khôi phục: bấm lại cùng dòng (đã có lần khôi phục mới hơn) bị từ chối', ! $k_lai['ok'] && 'Ý nghĩa thử lịch sử một.' === PhanBai::lay( $tp1, 'y_nghia' )['chu'], $k_lai );
+$t_ls = (int) wp_insert_term( 'Chủ đề lịch sử thử', 'chu_de' )['term_id'];
+$cd_0 = $LPL::dang_gan( $tp1, 'chu_de' );
+$pl_1 = $LPL::luu( $tp1, 'chu_de', array_merge( $cd_0, array( $t_ls ) ), $cd_0, $ai_ql );
+$kp_1 = $LS::khoi_phuc( $pl_1['viec'], $ai_ql, true );
+$kp_2 = $LS::khoi_phuc( $pl_1['viec'], $ai_ql, true );
+kt( 'khôi phục phân loại: gỡ mục vừa gắn, ghi "khôi phục"; bấm lại bị từ chối', $kp_1['ok'] && $cd_0 === $LPL::dang_gan( $tp1, 'chu_de' ) && 'khoi_phuc' === Viec::lay( $kp_1['viec'] )['quyet'] && ! $kp_2['ok'], array( $kp_1, $kp_2 ) );
+$_GET = array( 'id' => (string) $tp1 );
+$h_ls = \Phongdao\GiaoTiep\QuanTri\SuaTacPham::hien();
+kt( 'Lịch sử wp-admin: Xem trước/sau đánh dấu dòng bỏ / thêm bằng chữ; nút Khôi phục chỉ ở lần sửa mới nhất của mỗi phần', str_contains( $h_ls, 'Xem trước/sau' ) && str_contains( $h_ls, '<span class="screen-reader-text">bỏ: </span>' ) && str_contains( $h_ls, '<span class="screen-reader-text">thêm: </span>' ) && str_contains( $h_ls, 'name="viec" value="' . $kp_1['viec'] . '"' ) && str_contains( $h_ls, 'name="viec" value="' . $k_moi['viec'] . '"' ) && ! str_contains( $h_ls, 'name="viec" value="' . $s_1['viec'] . '"' ) && ! str_contains( $h_ls, 'name="viec" value="' . $pl_1['viec'] . '"' ) );
+PhanBai::ghi( $tp1, 'y_nghia', array( 'chu' => 'Sửa ngoài lối thử.', 'nguoi_lam' => NguoiLam::NGUOI_VIET ) );
+clean_post_cache( $tp1 );
+kt( 'khôi phục: phần đã đổi ngoài lối sửa (không có nhật ký) thì từ chối', str_contains( $LS::ly_do_khong( Viec::lay( $k_moi['viec'] ) ), 'thay đổi mới hơn' ) && ! $LS::khoi_phuc( $k_moi['viec'], $ai_ql, true )['ok'] );
+// Gửi thẳng nút khôi phục: quyền, nonce
+$chan_die_ls = static fn() => static function ( $chu ): void {
+	throw new \RuntimeException( 'wp_die: ' . ( is_string( $chu ) ? $chu : 'lỗi' ) );
+};
+$chan_di_ls = static function ( $vi_tri ): string {
+	throw new \RuntimeException( 'redirect: ' . $vi_tri );
+};
+add_filter( 'wp_die_handler', $chan_die_ls );
+add_filter( 'wp_redirect', $chan_di_ls );
+$gui_kp = static function ( int $nguoi, int $viec, bool $nonce ): string {
+	wp_set_current_user( $nguoi );
+	$_POST = $_REQUEST = array( 'viec' => (string) $viec );
+	if ( $nonce ) {
+		$_POST['_wpnonce'] = $_REQUEST['_wpnonce'] = wp_create_nonce( 'phongdao_khoi_phuc_' . $viec );
+	}
+	try {
+		\Phongdao\GiaoTiep\QuanTri\SuaTacPham::khoi_phuc();
+		return 'không dừng';
+	} catch ( \RuntimeException $e ) {
+		return $e->getMessage();
+	}
+};
+$kp_dg = $gui_kp( $doc_gia, $kp_1['viec'], true );
+$kp_kn = $gui_kp( $ai_ql, $kp_1['viec'], false );
+$kp_cd = $LPL::dang_gan( $tp1, 'chu_de' );
+$kp_ok = $gui_kp( $ai_ql, $kp_1['viec'], true );
+remove_filter( 'wp_die_handler', $chan_die_ls );
+remove_filter( 'wp_redirect', $chan_di_ls );
+$_POST = $_REQUEST = array();
+wp_set_current_user( $ai_ql );
+kt( 'nút khôi phục: người đọc, thiếu nonce bị chặn trước khi ghi; gửi đúng thì khôi phục rồi quay về Lịch sử', str_starts_with( $kp_dg, 'wp_die' ) && str_starts_with( $kp_kn, 'wp_die' ) && $cd_0 === $kp_cd && str_contains( $kp_ok, 'ket_qua=da_khoi_phuc' ) && str_ends_with( $kp_ok, '#lich-su' ) && in_array( $t_ls, $LPL::dang_gan( $tp1, 'chu_de' ), true ), array( $kp_dg, $kp_kn, $kp_ok ) );
+$LPL::luu( $tp1, 'chu_de', $cd_0, $LPL::dang_gan( $tp1, 'chu_de' ), $ai_ql );
+wp_delete_term( $t_ls, 'chu_de' );
+PhanBai::ghi( $tp1, 'y_nghia', $yn_goc );
+clean_post_cache( $tp1 );
+// Dấu vết trạng thái: từ màn có sẵn của WordPress, nút Đăng / Ẩn của Phongdao, xoá vĩnh viễn
+$bai_tt = wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'post_title' => 'Bài thử dấu vết trạng thái', 'post_name' => 'bai-thu-dau-vet' ) );
+$tt_ls  = static fn(): array => array_values( array_map( static fn( array $r ): string => $r['quyet'], array_filter( Viec::lich_su( 'post', $bai_tt, 50 ), static fn( array $r ): bool => 'trang_thai' === $r['phan'] ) ) );
+$tt_tao = $tt_ls();
+wp_trash_post( $bai_tt );
+wp_untrash_post( $bai_tt );
+$tt_rac = $tt_ls();
+kt( 'dấu vết trạng thái: tạo bài không ghi; thùng rác rồi lấy ra từ màn WordPress đều ghi, kèm người', array() === $tt_tao && array( 'ra_thung_rac', 'thung_rac' ) === $tt_rac && $ai_ql === ( Viec::lich_su( 'post', $bai_tt, 1 )[0]['nguoi_quyet'] ?? 0 ), $tt_rac );
+$rest( "/tac-pham/$bai_tt/trang-thai", array( 'trang_thai' => 'publish', 'trang_thai_cu' => get_post_status( $bai_tt ) ) );
+$tt_dang = $tt_ls();
+kt( 'dấu vết trạng thái: nút Đăng của Phongdao chỉ ghi một dòng (không trùng)', 3 === count( $tt_dang ) && 'dang' === $tt_dang[0] && 'publish' === get_post_status( $bai_tt ), $tt_dang );
+wp_delete_post( $bai_tt, true );
+$tt_xoa = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . Viec::bang() . " WHERE doi_tuong_loai = 'post' AND doi_tuong_id = %d AND quyet = 'xoa_vinh_vien'", $bai_tt ), ARRAY_A );
+kt( 'xoá vĩnh viễn: còn dòng nhật ký ghi tên bài và trạng thái cuối', $tt_xoa && str_contains( (string) $tt_xoa['truoc'], 'Bài thử dấu vết trạng thái' ) && str_contains( (string) $tt_xoa['truoc'], 'publish' ) );
+$wpdb->query( $wpdb->prepare( 'DELETE FROM ' . Viec::bang() . " WHERE doi_tuong_loai = 'post' AND doi_tuong_id = %d", $bai_tt ) );
+// Dấu vết hồ sơ nguồn, cài đặt nguồn
+$NCD   = \Phongdao\GiaoTiep\QuanTri\NguonCaiDat::class;
+$hs_ls = (int) wp_insert_post( array( 'post_type' => KhaiBao::HO_SO_NGUON, 'post_status' => 'publish', 'post_title' => 'Hồ sơ thử lịch sử' ) );
+$NCD::luu_ho_so( $hs_ls, array( 'ten' => 'Hồ sơ thử lịch sử', 'loai' => 'sach', 'chep_chu_thich' => '' ) );
+$NCD::luu_ho_so( $hs_ls, array( 'ten' => 'Hồ sơ thử lịch sử', 'loai' => 'sach', 'chep_chu_thich' => '' ) );
+$ls_hs = Viec::lich_su( 'ho_so', $hs_ls, 10 );
+$td_hs = $ls_hs ? \Phongdao\MienDuLieu\SoSanh::truong_doi( (array) $ls_hs[0]['truoc'], (array) $ls_hs[0]['sau'] ) : array();
+kt( 'dấu vết hồ sơ nguồn: đổi thì ghi trước/sau và người; lưu y như cũ thì không ghi', 1 === count( $ls_hs ) && $ai_ql === $ls_hs[0]['nguoi_quyet'] && array( 'Loại: (trống) → sach' ) === $td_hs, array( $ls_hs, $td_hs ) );
+kt( 'trang hồ sơ nguồn hiện Lịch sử thay đổi', str_contains( $NCD::hien( 'ho_so', $hs_ls, '' ), 'Loại: (trống) → sach' ) );
+wp_delete_post( $hs_ls, true );
+$n_thu = NguonTuDong::lay( 'me-thu' );
+$p_thu = array( 'bat' => $n_thu['bat'] ? '1' : '', 'so_bai_moi_ngay' => (string) $n_thu['so_bai_moi_ngay'], 'loai_lay' => $n_thu['loai_lay'], 'chep_chu_thich' => $n_thu['chep_chu_thich'] ? '1' : '', 'bo_tho_tuc' => in_array( 'tho_tuc', (array) $n_thu['bo_qua_co'], true ) ? '1' : '' );
+$NCD::luu_nguon( 'me-thu', array( 'so_bai_moi_ngay' => (string) ( 50 === (int) $n_thu['so_bai_moi_ngay'] ? 49 : (int) $n_thu['so_bai_moi_ngay'] + 1 ) ) + $p_thu );
+$NCD::luu_nguon( 'me-thu', $p_thu );
+$ls_ng = array_values( array_filter( Viec::lich_su( 'nguon', 0, 50 ), static fn( array $r ): bool => 'me-thu' === $r['phan'] ) );
+kt( 'dấu vết cài đặt nguồn: đổi số câu mỗi ngày rồi đổi lại — hai dòng có người; cài đặt về như cũ', 2 === count( $ls_ng ) && $ai_ql === $ls_ng[0]['nguoi_quyet'] && (int) $n_thu['so_bai_moi_ngay'] === (int) NguonTuDong::lay( 'me-thu' )['so_bai_moi_ngay'] && str_contains( $NCD::hien( 'nguon', 0, '' ), 'Số câu mới mỗi ngày: ' ), $ls_ng );
+$_GET = array();
 foreach ( $ids_nhieu as $id_nhieu ) {
 	Viec::xoa( $id_nhieu );
 }
