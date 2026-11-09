@@ -15,6 +15,7 @@ final class Module implements \Phongdao\HaTang\Module {
 	public function dang_ky(): void {
 		add_action( 'admin_menu', array( $this, 'them_menu' ) );
 		NguonCaiDat::dang_ky();
+		SuaTacPham::dang_ky();
 	}
 
 	public function them_menu(): void {
@@ -27,6 +28,18 @@ final class Module implements \Phongdao\HaTang\Module {
 			add_action( 'admin_enqueue_scripts', static function ( string $trang ) use ( $ds ): void {
 				if ( $trang === $ds ) {
 					wp_enqueue_style( 'phongdao-admin-tac-pham', plugins_url( 'assets/admin-tac-pham.css', dirname( __DIR__, 3 ) . '/ca-dao.php' ), array(), CADAO_PHIEN_BAN );
+				}
+			} );
+		}
+		$sua = add_submenu_page( self::TRANG, 'Sửa tác phẩm', 'Sửa tác phẩm', 'cadao_soan', SuaTacPham::TRANG, static function (): void {
+			echo SuaTacPham::hien(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- lớp hiển thị thoát giá trị động
+		} );
+		if ( $sua ) {
+			add_action( 'admin_enqueue_scripts', static function ( string $trang ) use ( $sua ): void {
+				if ( $trang === $sua ) {
+					$tep = dirname( __DIR__, 3 ) . '/ca-dao.php';
+					wp_enqueue_style( 'phongdao-admin-sua', plugins_url( 'assets/admin-sua.css', $tep ), array(), CADAO_PHIEN_BAN );
+					wp_enqueue_script( 'phongdao-admin-sua', plugins_url( 'assets/admin-sua.js', $tep ), array(), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
 				}
 			} );
 		}

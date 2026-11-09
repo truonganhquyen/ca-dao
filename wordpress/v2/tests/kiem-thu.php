@@ -669,6 +669,18 @@ kt( 'wp-admin Hộp việc: tìm ID của thẻ Để sau trong mọi trạng th
 wp_set_current_user( 0 );
 kt( 'wp-admin Hộp việc: khách không đọc được thẻ', ! str_contains( \Phongdao\GiaoTiep\QuanTri\DanhSachViec::hien(), 'Cần xem #' . $id_de_sau ) );
 wp_set_current_user( $ai_ql );
+$_GET = array( 'id' => (string) $tp1 );
+$admin_sua = \Phongdao\GiaoTiep\QuanTri\SuaTacPham::hien();
+$kiem_admin_sua = array( 'form' => str_contains( $admin_sua, 'name="action" value="phongdao_sua_phan"' ), 'loi' => str_contains( $admin_sua, 'id="phan-loi"' ), 'y_nghia' => str_contains( $admin_sua, 'id="phan-y_nghia"' ), 'goc' => str_contains( $admin_sua, 'class="goc-nguon no-print"' ) && str_contains( $admin_sua, 'Lời:' ), 'viec' => str_contains( $admin_sua, 'Việc đang chờ' ), 'xem' => str_contains( $admin_sua, 'Xem trên trang đọc' ) );
+kt( 'wp-admin Sửa tác phẩm: form theo phần dùng trường cũ, có nguồn gốc, việc chờ và bản xem trước', ! in_array( false, $kiem_admin_sua, true ), $kiem_admin_sua );
+$khoa_loi_sua = 'phongdao_sua_loi_' . $tp1 . '_' . $ai_ql;
+set_transient( $khoa_loi_sua, 'Phần thử chưa hợp lệ.', MINUTE_IN_SECONDS );
+$_GET['ket_qua'] = 'loi';
+kt( 'wp-admin Sửa tác phẩm: hiện lỗi kiểm dữ liệu đúng một lần', str_contains( \Phongdao\GiaoTiep\QuanTri\SuaTacPham::hien(), 'Phần thử chưa hợp lệ.' ) && false === get_transient( $khoa_loi_sua ) );
+wp_set_current_user( 0 );
+kt( 'wp-admin Sửa tác phẩm: khách không nhận form và nguồn gốc nội bộ', ! str_contains( \Phongdao\GiaoTiep\QuanTri\SuaTacPham::hien(), 'phongdao_sua_phan' ) );
+wp_set_current_user( $ai_ql );
+$_GET = array();
 foreach ( $ids_nhieu as $id_nhieu ) {
 	Viec::xoa( $id_nhieu );
 }

@@ -149,7 +149,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-166 | Chốt hướng admin chính, kế hoạch, hợp đồng thao tác và đồng bộ tài liệu | A | T-142 | — | DONE |
 | T-167 | Nền wp-admin: menu theo quyền, danh sách Tác phẩm toàn kho, bộ lọc, phân trang, số đếm đúng, bản xem trước màn admin | A | T-166 | — | DONE |
 | T-168 | Hộp việc trong wp-admin: mọi trạng thái, tìm/lọc/phân trang, quyết một thẻ dùng nghiệp vụ hiện có | A | T-167, T-176 | — | DONE |
-| T-169 | Trang sửa tác phẩm có cấu trúc: phần, nguồn gốc, việc liên quan, xem trước; dùng chung đường kiểm/lưu | A | T-167 | — | READY |
+| T-169 | Trang sửa tác phẩm có cấu trúc: phần, nguồn gốc, việc liên quan, xem trước; dùng chung đường kiểm/lưu | A | T-167 | — | IN_PROGRESS |
 | T-170 | Lịch sử và khôi phục: so trước/sau, phiên bản/xung đột, nguồn và nhật ký quyết việc | A | T-168, T-169 | — | BLOCKED |
 | T-171 | Xử lý lô: duyệt gợi ý, sửa phân loại/nhiều phần, ẩn/thùng rác, đổi trạng thái việc; xem trước và kết quả từng mục | A | T-170 | — | BLOCKED |
 | T-172 | Dùng thử admin trên máy tính/điện thoại, kiểm tương đương, chuyển lối vào `/bien-tap/…` an toàn | N+A | T-171 | — | BLOCKED |
@@ -720,6 +720,8 @@ Mọi task V2 đọc AGENTS.md và `docs/26`; task trang người đọc đọc 
 **T-168 đã làm (09/11/2026):** menu Hộp việc trong wp-admin mở danh sách thật trên slug cũ `phongdao-hop-viec`; tìm ID/bài/nội dung, lọc bốn trạng thái và loại, đếm toàn kho và phân trang 30 thẻ. Trang chi tiết dùng lại thẻ và form `QuyetViec` có quyền, nonce, số phiên, nhật ký và Hoàn tác nhanh nếu quyết định đủ điều kiện; thẻ đóng vẫn xem nội dung nhưng không còn nút quyết. Danh sách Tác phẩm dẫn tới thẻ admin; đường `/bien-tap/` vẫn hoạt động. Trên hơn 1.000 thẻ thử, số đếm/phân trang và giới hạn truy vấn đạt; E2E bấm Duyệt trong admin rồi kiểm Ý nghĩa hiện cho người đọc. Xem bản thử 1280/390 px; slug cũ được mở trực tiếp, không qua chuyển hướng. Phần ca hiếm chống quyết trùng không thuộc cổng T-168 theo D-097.
 
 **T-169 — sửa tác phẩm:** đọc `docs/30` mục 2, 4 và `docs/28` mục 6. Biểu mẫu theo phần gọi `LuuPhan`/`KiemPhan`, giữ nguồn gốc và nháp chờ duyệt; sửa cùng một phần qua admin và trang đọc cho kết quả tương đương; `post_content`/chỉ mục được cập nhật; người không đủ quyền không gửi trực tiếp được.
+
+**T-169.1 (09/11/2026, đang làm):** trang sửa trong wp-admin dùng cùng trường nhập `TamSua` và cùng dịch vụ `BienTap::luu_phan` với lối sửa trên trang đọc. Danh sách Tác phẩm có liên kết Sửa bài; trang sửa hiện nguồn gốc từng phần, việc chờ và lối xem trang đọc. Gửi form kiểm quyền `cadao_soan`/`edit_post` và nonce; lỗi kiểm dữ liệu báo một lần; Ý nghĩa chưa duyệt tiếp tục là nháp Hộp việc. Kiểm cục bộ: `kiem-tra` 146 task, 0 lỗi; `test:v2` 237 PHP + 320 Playground + 55 chuyển đổi (PHP 8.4.12, Node 24.22); `quet:v2` 29 trang × 3 chế độ + 4 trang tĩnh × 2 chế độ 320 px + 7 trang biên tập + 1 trang sửa admin 390 px, 0 lỗi; `e2e:v2` 25 bước đạt, 0 lỗi, 0 bỏ qua, có lưu Ý nghĩa trong admin rồi đọc như khách. Các lượt Playground đầu hỏng do điều kiện kiểm nhãn nguồn gốc quá chặt **không** tính PASS; lượt cuối đã đạt. Chưa hoàn tất phân loại trong admin, đối chiếu lịch sử đầy đủ và nghiệm thu điện thoại bằng thiết bị thật; T-169 giữ `IN_PROGRESS`.
 
 **T-170 — lịch sử:** đọc `docs/30` mục 4. So trước/sau từng phần; khôi phục tạo sự kiện mới và từ chối khi có thay đổi mới hơn; quyết việc, đổi trạng thái và hồ sơ nguồn có dấu vết tương ứng. Hoàn tác 10 giây vẫn dùng được cho thao tác đủ điều kiện.
 
