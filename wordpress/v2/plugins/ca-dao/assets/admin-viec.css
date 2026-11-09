@@ -1,0 +1,135 @@
+.phongdao-admin-viec .phongdao-viec-loc {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+	align-items: end;
+	gap: 12px;
+	margin: 20px 0;
+}
+
+.phongdao-admin-viec .phongdao-viec-loc label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 5px;
+}
+
+.phongdao-admin-viec :is(input[type="search"], select, .phongdao-viec-loc button) {
+	width: 100%;
+	min-height: 44px;
+}
+
+.phongdao-admin-viec .widefat :is(th, td) {
+	padding: 12px;
+}
+
+.phongdao-admin-viec .widefat a,
+.phongdao-admin-viec .phongdao-viec-trang .button,
+.phongdao-admin-viec .tv-nut button,
+.phongdao-admin-viec .tv-mo {
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
+}
+
+.phongdao-admin-viec .phongdao-viec-trang {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px;
+	margin: 20px 0;
+}
+
+.phongdao-admin-viec .the-viec {
+	max-width: 800px;
+	padding: 20px;
+	border: 1px solid #c3c4c7;
+	background: #fff;
+}
+
+.phongdao-admin-viec .tv-dau {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 8px;
+}
+
+.phongdao-admin-viec .tv-loai {
+	font-weight: 700;
+}
+
+.phongdao-admin-viec .tv-nut {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-top: 16px;
+}
+
+.phongdao-admin-viec .tv-nut button {
+	cursor: pointer;
+	padding: 8px 16px;
+	border: 1px solid #2271b1;
+	border-radius: 3px;
+	background: #fff;
+	color: #135e96;
+}
+
+.phongdao-admin-viec .tv-nut button.primary {
+	background: #2271b1;
+	color: #fff;
+}
+
+.phongdao-admin-viec .hai-cot {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+}
+
+.phongdao-admin-viec .verse,
+.phongdao-admin-viec blockquote {
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+}
+
+.phongdao-admin-viec :is(input, select, button, a):focus-visible {
+	outline: 3px solid #135e96;
+	outline-offset: 2px;
+}
+
+@media (max-width: 782px) {
+	.phongdao-admin-viec .phongdao-viec-loc,
+	.phongdao-admin-viec .hai-cot {
+		grid-template-columns: 1fr;
+	}
+
+	.phongdao-admin-viec .widefat,
+	.phongdao-admin-viec .widefat tbody,
+	.phongdao-admin-viec .widefat tr,
+	.phongdao-admin-viec .widefat td {
+		display: block;
+	}
+
+	.phongdao-admin-viec .widefat thead {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+	}
+
+	.phongdao-admin-viec .widefat tr {
+		margin: 12px 0;
+		border: 1px solid #c3c4c7;
+		background: #fff;
+	}
+
+	.phongdao-admin-viec .widefat td {
+		border: 0;
+		overflow-wrap: anywhere;
+	}
+
+	.phongdao-admin-viec .widefat td::before {
+		content: attr(data-nhan);
+		display: block;
+		font-weight: 600;
+		color: #50575e;
+	}
+}

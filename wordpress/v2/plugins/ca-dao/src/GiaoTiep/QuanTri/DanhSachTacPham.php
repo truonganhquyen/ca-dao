@@ -163,7 +163,7 @@ final class DanhSachTacPham {
 		$lien = 'trash' === $bai->post_status || ! current_user_can( 'edit_post', $id ) ? '' : ( 'publish' === $bai->post_status || 'private' === $bai->post_status ? (string) get_permalink( $bai ) : (string) get_preview_post_link( $bai ) );
 		$ten = '' !== trim( $bai->post_title ) ? $bai->post_title : '(Chưa đặt tên)';
 		$ten = $lien ? '<a href="' . esc_url( $lien ) . '">' . esc_html( $ten ) . '</a>' : esc_html( $ten );
-		$viec_lien = $ve ? '<a href="' . esc_url( add_query_arg( 'viec', (int) $viec[ $id ]['dau'], home_url( '/bien-tap/' ) ) ) . '">' . $ve . ' việc mở</a>' : '—';
+		$viec_lien = $ve ? '<a href="' . esc_url( add_query_arg( array( 'page' => DanhSachViec::TRANG, 'viec' => (int) $viec[ $id ]['dau'] ), admin_url( 'admin.php' ) ) ) . '">' . $ve . ' việc mở</a>' : '—';
 		return '<tr><td data-nhan="ID">' . $id . '</td><td data-nhan="Tác phẩm"><strong>' . $ten . '</strong></td><td data-nhan="Trạng thái">' . esc_html( $tt ) . '</td><td data-nhan="Thể loại">' . esc_html( $ten_loai ) . '</td><td data-nhan="Phần thiếu">' . esc_html( $thieu ? implode( ', ', $thieu ) : 'Đủ phần chính' ) . '</td><td data-nhan="Nguồn Lời">' . esc_html( $nguon_hien ) . '</td><td data-nhan="Việc">' . $viec_lien . '</td><td data-nhan="Sửa cuối">' . esc_html( mysql2date( 'd/m/Y H:i', $bai->post_modified ) ) . '</td></tr>';
 	}
 

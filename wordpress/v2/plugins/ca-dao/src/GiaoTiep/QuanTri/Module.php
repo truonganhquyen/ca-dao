@@ -30,13 +30,15 @@ final class Module implements \Phongdao\HaTang\Module {
 				}
 			} );
 		}
-		// Đường tắt tới Hộp việc: chuyển ở bước load-… (trước khi wp-admin in đầu trang) — chuyển trong hàm hiện trang thì
-		// đầu trang đã gửi, trình duyệt chỉ thấy cảnh báo "headers already sent". Hàm hiện trang chỉ còn là liên kết dự phòng.
-		$moc = add_submenu_page( self::TRANG, 'Hộp việc', 'Hộp việc', 'cadao_soan', 'phongdao-hop-viec', static function (): void {
-			echo '<div class="wrap"><h1>Hộp việc</h1><p><a href="' . esc_url( home_url( '/bien-tap/' ) ) . '">' . esc_html__( 'Mở Hộp việc', 'ca-dao' ) . '</a></p></div>';
+		$moc = add_submenu_page( self::TRANG, 'Hộp việc', 'Hộp việc', 'cadao_soan', DanhSachViec::TRANG, static function (): void {
+			echo DanhSachViec::hien(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- lớp hiển thị thoát giá trị động
 		} );
 		if ( $moc ) {
-			add_action( 'load-' . $moc, array( self::class, 'toi_hop_viec' ) );
+			add_action( 'admin_enqueue_scripts', static function ( string $trang ) use ( $moc ): void {
+				if ( $trang === $moc ) {
+					wp_enqueue_style( 'phongdao-admin-viec', plugins_url( 'assets/admin-viec.css', dirname( __DIR__, 3 ) . '/ca-dao.php' ), array(), CADAO_PHIEN_BAN );
+				}
+			} );
 		}
 	}
 
@@ -46,11 +48,6 @@ final class Module implements \Phongdao\HaTang\Module {
 			wp_safe_redirect( admin_url( 'admin.php?page=' . DanhSachTacPham::TRANG ) );
 			exit;
 		}
-	}
-
-	public static function toi_hop_viec(): void {
-		wp_safe_redirect( home_url( '/bien-tap/' ) );
-		exit;
 	}
 
 	public function hien(): void {
