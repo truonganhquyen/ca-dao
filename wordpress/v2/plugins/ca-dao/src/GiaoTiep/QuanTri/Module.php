@@ -17,6 +17,7 @@ final class Module implements \Phongdao\HaTang\Module {
 		NguonCaiDat::dang_ky();
 		SuaTacPham::dang_ky();
 		DanhSachKho::dang_ky();
+		TrangLo::dang_ky();
 	}
 
 	public function them_menu(): void {
@@ -51,6 +52,19 @@ final class Module implements \Phongdao\HaTang\Module {
 			add_action( 'admin_enqueue_scripts', static function ( string $trang ) use ( $moc ): void {
 				if ( $trang === $moc ) {
 					wp_enqueue_style( 'phongdao-admin-viec', plugins_url( 'assets/admin-viec.css', dirname( __DIR__, 3 ) . '/ca-dao.php' ), array(), CADAO_PHIEN_BAN );
+				}
+			} );
+		}
+		$lo = add_submenu_page( self::TRANG, 'Lô thao tác', 'Lô thao tác', 'cadao_soan', TrangLo::TRANG, static function (): void {
+			echo TrangLo::hien(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- lớp hiển thị thoát giá trị động
+		} );
+		if ( $lo ) {
+			add_action( 'admin_enqueue_scripts', static function ( string $trang ) use ( $lo ): void {
+				if ( $trang === $lo ) {
+					$tep = dirname( __DIR__, 3 ) . '/ca-dao.php';
+					wp_enqueue_style( 'phongdao-admin-tac-pham', plugins_url( 'assets/admin-tac-pham.css', $tep ), array(), CADAO_PHIEN_BAN );
+					wp_enqueue_style( 'phongdao-admin-lo', plugins_url( 'assets/admin-lo.css', $tep ), array( 'phongdao-admin-tac-pham' ), CADAO_PHIEN_BAN );
+					wp_enqueue_script( 'phongdao-admin-lo', plugins_url( 'assets/admin-lo.js', $tep ), array(), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
 				}
 			} );
 		}

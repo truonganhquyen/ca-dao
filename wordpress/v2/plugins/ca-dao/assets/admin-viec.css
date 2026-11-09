@@ -136,3 +136,13 @@
 
 /* Biểu tượng SVG của thẻ dùng chung với /bien-tap/: wp-admin không nạp CSS của theme nên tự đặt cỡ, nét */
 .phongdao-admin-viec .icon { width: 17px; height: 17px; display: inline-block; vertical-align: middle; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Làm theo lô trên danh sách Hộp việc (T-171) */
+.phongdao-admin-viec .phongdao-lo-chon { border: 1px solid #c3c4c7; border-radius: 6px; background: #fff; padding: 12px 16px; margin: 16px 0; display: grid; gap: 12px; }
+.phongdao-admin-viec .phongdao-lo-chon > legend { font-weight: 600; padding: 0 4px; }
+.phongdao-admin-viec .phongdao-lo-o label { display: block; font-weight: 600; margin-bottom: 4px; }
+.phongdao-admin-viec .phongdao-lo-o select, .phongdao-admin-viec .phongdao-lo-chon .button { min-height: 44px; max-width: 100%; }
+.phongdao-admin-viec .phongdao-lo-pham-vi { border: 0; padding: 0; margin: 0; }
+.phongdao-admin-viec .phongdao-lo-pham-vi legend { font-weight: 600; margin-bottom: 4px; }
+.phongdao-admin-viec .phongdao-lo-pham-vi label { display: flex; align-items: center; gap: 8px; min-height: 44px; }
+.phongdao-admin-viec td input[type=checkbox] { width: 24px; height: 24px; margin: 0; }

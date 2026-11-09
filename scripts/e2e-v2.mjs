@@ -485,6 +485,21 @@ try {
       const tl = await k.goto(G + '/wp-admin/admin.php?page=phongdao-kho', { waitUntil: 'load', timeout: 120_000 });
       chac(!(await coChu(k, 'Câu kho mẫu')) && !(await coChu(k, 'Tục ngữ kho mẫu')), `khách thấy dữ liệu kho (HTTP ${tl.status()})`);
     });
+
+    await thu('wp-admin Lô: Để sau mọi thẻ Câu mới khớp bộ lọc — xem trước, áp dụng, kết quả từng mục', async () => {
+      await di(bt, '/wp-admin/admin.php?page=phongdao-hop-viec&tt=cho&loai=cau_moi');
+      chac(await bt.$('.phongdao-lo-chon'), 'Hộp việc không có khối Làm theo lô');
+      await bt.select('#phongdao-lo-thao-tac', 'viec_de_sau');
+      await bam(bt, 'input[name=pham_vi][value=loc]');
+      await bamDoiTrang(bt, '.phongdao-lo-chon [type=submit]');
+      chac(await coChu(bt, 'Chờ xem trước') && await bt.$('input[name="giu[]"]'), 'không sang bước xem trước');
+      const so = await bt.$$eval('input[name="giu[]"]', os => os.length);
+      await bamDoiTrang(bt, 'button[name=lam][value=ap_dung]');
+      await doi(bt, () => document.body.innerText.includes('Lô đã chạy xong.'), null, 'lô không chạy xong', 60_000);
+      chac(await coChu(bt, `Thành công ${so}`), `kết quả không ghi ${so} mục thành công`);
+      await di(bt, '/wp-admin/admin.php?page=phongdao-hop-viec&tt=cho&loai=cau_moi');
+      chac(await coChu(bt, '0 thẻ khớp bộ lọc') || await coChu(bt, 'Không có thẻ phù hợp'), 'còn thẻ Câu mới ở Chờ sau lô Để sau');
+    });
   }
 } catch (e) {
   loi.push(String(e.message ?? e).split('\n')[0]);
