@@ -37,7 +37,7 @@
 		},
 		{
 			"step": "runPHP",
-			"code": "<?php require '/wordpress/wp-load.php'; update_option('permalink_structure', '/%postname%/'); foreach (get_posts(array('post_type' => array('post', 'page'), 'post_status' => 'any', 'numberposts' => -1)) as $p) { wp_delete_post($p->ID, true); } $mau = '<!-- wp:paragraph --><p>Dữ liệu thử: Dòng mẫu một của bài này. Dòng mẫu hai dài hơn chút cho vừa.</p><!-- /wp:paragraph -->'; wp_insert_post(array('post_type' => 'page', 'post_status' => 'publish', 'post_name' => 'trang-mau-v2', 'post_title' => 'Trang mẫu V2', 'post_content' => $mau)); wp_insert_post(array('post_type' => 'post', 'post_status' => 'publish', 'post_name' => 'bai-viet-mau-v2', 'post_title' => 'Bài viết mẫu V2', 'post_content' => $mau)); \\Phongdao\\DichVu\\DungTrang\\GieoMau::gieo_tra_cuu(1); flush_rewrite_rules(); ?>"
+			"code": "<?php require '/wordpress/wp-load.php'; update_option('permalink_structure', '/%postname%/'); foreach (get_posts(array('post_type' => array('post', 'page'), 'post_status' => 'any', 'numberposts' => -1)) as $p) { wp_delete_post($p->ID, true); } $mau = '<!-- wp:paragraph --><p>Dữ liệu thử: Dòng mẫu một của bài này. Dòng mẫu hai dài hơn chút cho vừa.</p><!-- /wp:paragraph -->'; wp_insert_post(array('post_type' => 'page', 'post_status' => 'publish', 'post_name' => 'trang-mau-v2', 'post_title' => 'Trang mẫu V2', 'post_content' => $mau)); wp_insert_post(array('post_type' => 'post', 'post_status' => 'publish', 'post_name' => 'bai-viet-mau-v2', 'post_title' => 'Bài viết mẫu V2', 'post_content' => $mau)); \\Phongdao\\DichVu\\DungTrang\\GieoMau::gieo_tra_cuu(1); \\Phongdao\\DichVu\\DungTrang\\GieoMau::gieo_kho(); flush_rewrite_rules(); ?>"
 		}
 	]
 }

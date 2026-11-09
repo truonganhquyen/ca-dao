@@ -1,0 +1,26 @@
+/* Màn Kho (T-184): dùng chung bố cục danh sách Tác phẩm (admin-tac-pham.css), thêm phần riêng của câu kho. */
+.phongdao-admin-kho .phongdao-kho-cau strong,
+.phongdao-admin-kho .phongdao-kho-loi,
+.phongdao-admin-kho .phongdao-kho-cau .description,
+.phongdao-admin-kho .phongdao-kho-co {
+	display: block;
+}
+
+.phongdao-admin-kho .phongdao-kho-loi {
+	margin: 6px 0;
+	line-height: 1.6;
+}
+
+.phongdao-admin-kho .phongdao-kho-co {
+	margin-top: 4px;
+	color: #8a2424;
+}
+
+.phongdao-admin-kho .widefat td form {
+	margin: 0;
+}
+
+.phongdao-admin-kho .widefat .button {
+	min-height: 44px;
+	white-space: normal;
+}

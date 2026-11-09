@@ -124,6 +124,38 @@ final class GieoMau {
 	}
 
 	/**
+	 * Câu kho mẫu cho bản xem trước (màn Kho wp-admin, T-184): chữ tự đặt, không phải lời thật; nguồn "mau" không có hồ sơ.
+	 * Chỉ blueprint xem trước gọi; không chạy trên site thật.
+	 *
+	 * @return int[] ID kho
+	 */
+	public static function gieo_kho(): array {
+		$ra = array();
+		// Chữ mỗi câu khác hẳn nhau (máy chống trùng không coi là cùng một câu); là danh sách từ, không phải lời dân gian
+		$mau = array(
+			'ca_dao'            => array( 'Câu kho mẫu', "Kho mẫu một táo lê đào mận\nnhãn vải hồng xoài na ổi" ),
+			'thanh_ngu_tuc_ngu' => array( 'Tục ngữ kho mẫu', "Kho mẫu hai xanh đỏ tím vàng\ncam lục chàm trắng nâu đen" ),
+			'cau_do'            => array( 'Câu đố kho mẫu', "Kho mẫu ba đông tây nam bắc\nsáng trưa chiều tối nửa đêm" ),
+		);
+		foreach ( $mau as $loai => [ $ten, $loi ] ) {
+			\Phongdao\KhoLuu\Kho::luu(
+				'mau',
+				array(
+					'ma_goc'    => 'kho-mau-' . $loai,
+					'url'       => 'https://example.org/kho-mau/' . $loai . '/',
+					'loai'      => $loai,
+					'tieu_de'   => $ten,
+					'loi'       => $loi,
+					'doc_trang' => gmdate( 'Y-m-d' ),
+				)
+			);
+			global $wpdb;
+			$ra[] = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM ' . \Phongdao\KhoLuu\Kho::bang() . ' WHERE nguon_id = %s AND ma_goc = %s', 'mau', 'kho-mau-' . $loai ) );
+		}
+		return $ra;
+	}
+
+	/**
 	 * Vè mẫu dài: 48 dòng đánh số, ba đoạn có tiêu đề, một chỗ ngắt khổ, bối cảnh — xem cách hiện bài dài (tóm tắt, mục
 	 * lục, "Đọc toàn bài"). Chữ mẫu tự đặt, không phải lời vè thật.
 	 */
