@@ -140,7 +140,7 @@ final class HopViec {
 	}
 
 	/** Một thẻ việc: đủ thông tin để quyết ngay trên thẻ. */
-	public static function the( array $v ): string {
+	public static function the( array $v, bool $co_form = true ): string {
 		[ $ten, $nut ] = QuyetViec::LOAI[ $v['loai'] ] ?? array( $v['loai'], array() );
 		$tieu_de = '';
 		$than    = '';
@@ -231,8 +231,8 @@ final class HopViec {
 		return '<article class="the-viec g-' . esc_attr( $g ) . '" data-loai="' . esc_attr( $v['loai'] ) . '" id="viec-' . (int) $v['id'] . '">'
 			. '<header class="tv-dau"><span class="tv-loai">' . esc_html( $ten ) . '</span><span class="small muted">' . esc_html( $ly_do ) . '</span></header>'
 			. '<h3>' . esc_html( $tieu_de ?: 'Việc #' . $v['id'] ) . '</h3>' . $than
-			. '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="tv-nut"><input type="hidden" name="action" value="' . self::HANH_DONG . '"><input type="hidden" name="viec" value="' . (int) $v['id'] . '"><input type="hidden" name="phien" value="' . (int) $v['phien'] . '">'
-			. wp_nonce_field( self::HANH_DONG . $v['id'], '_wpnonce', true, false ) . $form . '</form>'
+			. ( $co_form ? '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="tv-nut"><input type="hidden" name="action" value="' . self::HANH_DONG . '"><input type="hidden" name="viec" value="' . (int) $v['id'] . '"><input type="hidden" name="phien" value="' . (int) $v['phien'] . '">'
+				. wp_nonce_field( self::HANH_DONG . $v['id'], '_wpnonce', true, false ) . $form . '</form>' : '' )
 			. ( '' === $mo ? '' : '<a class="tv-mo" href="' . esc_url( $mo ) . '">Mở bài ' . Ve::icon( 'arrow' ) . '</a>' ) . '</article>';
 	}
 

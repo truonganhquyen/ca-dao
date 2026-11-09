@@ -148,12 +148,12 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | **V2 · Nâng cấp quản trị sau chuyển đổi (D-096; `docs/30`)** ||||||
 | T-166 | Chốt hướng admin chính, kế hoạch, hợp đồng thao tác và đồng bộ tài liệu | A | T-142 | — | DONE |
 | T-167 | Nền wp-admin: menu theo quyền, danh sách Tác phẩm toàn kho, bộ lọc, phân trang, số đếm đúng, bản xem trước màn admin | A | T-166 | — | DONE |
-| T-168 | Hộp việc trong wp-admin: mọi trạng thái, tìm/lọc/phân trang, quyết một thẻ dùng nghiệp vụ hiện có | A | T-167, T-176, T-177 | — | BLOCKED |
-| T-169 | Trang sửa tác phẩm có cấu trúc: phần, nguồn gốc, việc liên quan, xem trước; dùng chung đường kiểm/lưu | A | T-167 | — | BLOCKED |
+| T-168 | Hộp việc trong wp-admin: mọi trạng thái, tìm/lọc/phân trang, quyết một thẻ dùng nghiệp vụ hiện có | A | T-167, T-176 | — | DONE |
+| T-169 | Trang sửa tác phẩm có cấu trúc: phần, nguồn gốc, việc liên quan, xem trước; dùng chung đường kiểm/lưu | A | T-167 | — | READY |
 | T-170 | Lịch sử và khôi phục: so trước/sau, phiên bản/xung đột, nguồn và nhật ký quyết việc | A | T-168, T-169 | — | BLOCKED |
 | T-171 | Xử lý lô: duyệt gợi ý, sửa phân loại/nhiều phần, ẩn/thùng rác, đổi trạng thái việc; xem trước và kết quả từng mục | A | T-170 | — | BLOCKED |
 | T-172 | Dùng thử admin trên máy tính/điện thoại, kiểm tương đương, chuyển lối vào `/bien-tap/…` an toàn | N+A | T-171 | — | BLOCKED |
-| T-184 | Màn Kho wp-admin: người quản trị tự tìm, tự chọn câu đủ điều kiện đưa vào Hộp việc | A | T-167, T-168 | — | BLOCKED |
+| T-184 | Màn Kho wp-admin: người quản trị tự tìm, tự chọn câu đủ điều kiện đưa vào Hộp việc | A | T-167, T-168 | — | READY |
 | **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
 | T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
 | T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | IN_PROGRESS |
@@ -161,10 +161,10 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-176 | Sửa Hộp việc hiện chạy: thẻ cuối, số đếm/phân trang, Để sau, Hoàn tác và thao tác bàn phím | A | T-173 | — | DONE |
 | T-177 | Chặn hai quyết định đồng thời, bảo toàn cập nhật bài/việc/nhật ký khi ghi lỗi hoặc thử lại | A | T-173 | — | IN_PROGRESS |
 | T-178 | Đối soát số bài, dữ liệu sau chuyển và backlog với site thật; ghi bằng chứng sai khác | A | T-173 | — | IN_PROGRESS |
-| T-179 | Hồ sơ nguồn và nội dung máy đưa vào: căn cứ, lịch sử, quyền và công cụ sửa/ẩn theo phần | A | T-169, T-177 | — | BLOCKED |
-| T-180 | Bàn làm việc tuần, danh sách ngoại lệ dữ liệu và thử 20–30 bài nội dung chuyên sâu | N+A | T-176, T-178 | — | BLOCKED |
+| T-179 | Hồ sơ nguồn và nội dung máy đưa vào: căn cứ, lịch sử, quyền và công cụ sửa/ẩn theo phần | A | T-169 | — | BLOCKED |
+| T-180 | Bàn làm việc tuần, danh sách ngoại lệ dữ liệu và thử 20–30 bài nội dung chuyên sâu | N+A | T-176 | — | READY |
 | T-181 | Đo và sửa độ đầy đủ/thứ tự tìm kiếm khi kho lớn, giữ tìm không dấu | A | T-173 | — | READY |
-| T-182 | Đo và tối ưu nghẽn Bản đồ, Số liệu tuần, ảnh và truy vấn dữ liệu lớn | A | T-174, T-181 | — | BLOCKED |
+| T-182 | Đo và tối ưu nghẽn Bản đồ, Số liệu tuần, ảnh và truy vấn dữ liệu lớn | A | T-181 | — | BLOCKED |
 | T-183 | Thử nhỏ lối đọc theo chủ đề, bài viết dài và công cụ giáo viên với dữ liệu đã duyệt | N+A | T-180 | — | BLOCKED |
 | **Sau · Cải tiến liên tục** ||||||
 | T-060 | Thẻ chia sẻ dạng ảnh (2 mẫu × 2 khổ) — gộp vào T-050 (D-059) | A | T-050 | — | DEFERRED |
@@ -717,6 +717,8 @@ Mọi task V2 đọc AGENTS.md và `docs/26`; task trang người đọc đọc 
 
 **T-168 — Hộp việc:** đọc `docs/30` mục 2 và kết quả T-176/T-177. Chờ/Để sau/Xong/Bỏ đều tìm lại được; bộ lọc và số đếm đúng toàn kho; mở thẻ thấy bài/nguồn liên quan; quyết một thẻ qua `QuyetViec`, có kiểm quyền, nonce và nhật ký. Kế thừa phần sửa ở giao diện hiện chạy, không viết lại lỗi cũ trong màn mới; không tự chuyển thẻ thành bài viết.
 
+**T-168 đã làm (09/11/2026):** menu Hộp việc trong wp-admin mở danh sách thật trên slug cũ `phongdao-hop-viec`; tìm ID/bài/nội dung, lọc bốn trạng thái và loại, đếm toàn kho và phân trang 30 thẻ. Trang chi tiết dùng lại thẻ và form `QuyetViec` có quyền, nonce, số phiên, nhật ký và Hoàn tác nhanh nếu quyết định đủ điều kiện; thẻ đóng vẫn xem nội dung nhưng không còn nút quyết. Danh sách Tác phẩm dẫn tới thẻ admin; đường `/bien-tap/` vẫn hoạt động. Trên hơn 1.000 thẻ thử, số đếm/phân trang và giới hạn truy vấn đạt; E2E bấm Duyệt trong admin rồi kiểm Ý nghĩa hiện cho người đọc. Xem bản thử 1280/390 px; slug cũ được mở trực tiếp, không qua chuyển hướng. Phần ca hiếm chống quyết trùng không thuộc cổng T-168 theo D-097.
+
 **T-169 — sửa tác phẩm:** đọc `docs/30` mục 2, 4 và `docs/28` mục 6. Biểu mẫu theo phần gọi `LuuPhan`/`KiemPhan`, giữ nguồn gốc và nháp chờ duyệt; sửa cùng một phần qua admin và trang đọc cho kết quả tương đương; `post_content`/chỉ mục được cập nhật; người không đủ quyền không gửi trực tiếp được.
 
 **T-170 — lịch sử:** đọc `docs/30` mục 4. So trước/sau từng phần; khôi phục tạo sự kiện mới và từ chối khi có thay đổi mới hơn; quyết việc, đổi trạng thái và hồ sơ nguồn có dấu vết tương ứng. Hoàn tác 10 giây vẫn dùng được cho thao tác đủ điều kiện.
@@ -763,6 +765,8 @@ Mọi task V2 đọc AGENTS.md và `docs/26`; task trang người đọc đọc 
 
 **T-177 — nhất quán quyết định:** đọc `docs/31` mục 2 và `docs/26`. Thử hai phiên quyết cùng thẻ, phiên bản cũ, DB ghi lỗi và yêu cầu gửi lại; kết quả chỉ có một quyết định hợp lệ, không tách rời bài/việc/nhật ký; báo xung đột rõ cho người biên tập.
 
+**Phạm vi sau D-097:** không triển khai thêm hai ca lỗi hiếm của chống quyết trùng: ghi thẻ Có thể trùng dự phòng thất bại sau khi gộp tự động đã hoàn nguyên, và dọn hàng chỉ mục tạm/cũ thất bại do DB. Đây là rủi ro tồn dư đã nhận, không xoá hay làm yếu kiểm thử đang có. T-177 còn phải kiểm hai phiên quyết thực, đường gợi ý, nội dung người đọc gửi và đổi trạng thái bài. Các màn admin dùng nghiệp vụ quyết hiện có, tự kiểm quyền/nonce/phiên và không chờ phần ca hiếm này.
+
 **T-177.1 đã làm (05/11/2026):** số phiên thẻ và cập nhật có điều kiện trong giao dịch cho quyết một thẻ của Hộp việc hiện chạy; thử yêu cầu cũ sau Để sau và lỗi ghi phần. `kiem-tra` đạt; `test:v2` 237 PHP + 258 Playground + 55 chuyển đổi đạt; `quet:v2` 25 trang × 3 chế độ + 7 trang biên tập, 0 lỗi; `e2e:v2` 21 bước, 0 lỗi, 0 bỏ qua. **T-177 còn mở:** kiểm lỗi DB ở mọi nhánh quyết (đăng câu mới, gộp, gợi ý, người đọc gửi), ghi trực tiếp phần bài/trạng thái và chạy lại yêu cầu qua hai phiên thực; không chuyển sang `DONE` trước các ca này.
 
 **T-177.2 (05/11/2026):** kiểm giá trị trả về của bước cập nhật bản chữ sau khi lưu phần, báo lỗi và hoàn tác meta/nhật ký khi bước đó thất bại; quyết định cặp câu trả lỗi ghi thay vì báo thành công. Thử ép lỗi DB ở cả hai đường trong Playground. `kiem-tra` 145 task, 0 lỗi; `test:v2` 237 PHP + 260 Playground + 55 chuyển đổi; `quet:v2` 25 trang × 3 chế độ + 7 trang biên tập, 0 lỗi; `e2e:v2` 21 bước, 0 lỗi/bỏ qua. **Chưa chốt T-177:** các đường đăng câu từ kho, gộp, gợi ý và đổi trạng thái nội dung người đọc gửi còn cần rà thao tác ghi và kiểm lỗi.
@@ -780,6 +784,8 @@ Mọi task V2 đọc AGENTS.md và `docs/26`; task trang người đọc đọc 
 **T-177.8 (08/11/2026):** hàng chỉ mục tạm còn sót sau lỗi dọn có thể chiếm hết `LIMIT 50` của truy vấn khớp nguyên lời: ca Playground chèn 60 hàng `tam:`/`cu:` trước chỉ mục bài thật cho kết quả rỗng. Hai truy vấn khớp nguyên lời và gần giống nay bỏ khoá tạm **trước** `LIMIT`, còn bước lọc khi xét kết quả để phòng vệ thêm; ca kiểm mới thấy lại bài thật. `kiem-tra` 145 task, 0 lỗi; `test:v2` 237 PHP + 285 Playground + 55 chuyển đổi (PHP 8.4.12, Node 24.18.0); `quet:v2` 29 trang × 3 chế độ + 4 trang tĩnh × 2 chế độ 320 px + 7 trang biên tập, 0 lỗi; `e2e:v2` chạy riêng đạt 23 bước, 0 lỗi, 0 bỏ qua (lượt chạy song song đầu tiên không khởi động được Playground, không tính PASS). **T-177 còn mở:** cần dọn hàng dự phòng cũ khi lỗi DB, bao giao dịch cho gộp tự động và đối soát các nhánh gợi ý/nội dung người đọc gửi, hai phiên quyết thực; không gọi task DONE.
 
 **T-177.9 (08/11/2026):** đường gộp tự động từ câu kho trước đây báo `da_gop` ngay cả khi đồng bộ dị bản thất bại: ca Playground thấy câu kho bị đánh dấu đã gộp, hai vân tay của nó mất nhưng bài đích không nhận dị bản. Nay toàn bộ lần gộp tự động nằm trong giao dịch; lỗi thì huỷ, giữ câu và chỉ mục, đồng thời tạo thẻ Có thể trùng cho người biên tập quyết. Ca ép lỗi kiểm cả thẻ, câu kho, cặp, dị bản và chỉ mục; ca gộp bình thường vẫn chạy. `kiem-tra` 145 task, 0 lỗi; `test:v2` 237 PHP + 286 Playground + 55 chuyển đổi (PHP 8.4.12, Node 24.18.0); `quet:v2` 29 trang × 3 chế độ + 4 trang tĩnh × 2 chế độ 320 px + 7 trang biên tập, 0 lỗi; `e2e:v2` chạy riêng 23 bước đạt, 0 lỗi, 0 bỏ qua. **T-177 còn mở:** kiểm lỗi khi không ghi được thẻ dự phòng, dọn hàng chỉ mục ẩn, các nhánh gợi ý/nội dung người đọc gửi và hai phiên quyết thực; không gọi task DONE.
+
+Phần “kiểm lỗi khi không ghi được thẻ dự phòng, dọn hàng chỉ mục ẩn” ở báo cáo 08/11 là phạm vi **đã bỏ theo D-097**, không còn là điều kiện hoàn thành hiện hành. Các đường gợi ý, nội dung người đọc gửi, đổi trạng thái bài và hai phiên quyết thực vẫn phải kiểm; không tự đổi trạng thái T-177 thành `DONE` trước bằng chứng đó.
 
 **T-178 — đối soát:** đọc `docs/31` mục 2 và `docs/29`. Lập bảng ID cho chênh 630/631, kiểm bài vè nhiều đoạn, đường 301 và trạng thái task cũ theo bằng chứng triển khai; ghi rõ sai khác còn mở. Chỉ đọc site và dữ liệu; không sửa bài hoặc đóng thẻ để ép khớp số.
 

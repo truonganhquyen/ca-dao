@@ -136,6 +136,48 @@ final class Viec {
 		return array_map( array( self::class, 'doc' ), $ds ?: array() );
 	}
 
+	/** Danh sách hàng chờ trong wp-admin: số đếm và trang dùng chung đúng điều kiện lọc. */
+	public static function tim_quan_tri( string $trang_thai, string $loai, string $tim, int $trang, int $moi_trang = 30 ): array {
+		global $wpdb;
+		$hop_le = array( self::CHO, self::DE_SAU, self::XONG, self::BO );
+		if ( ! in_array( $trang_thai, array_merge( array( 'tat_ca' ), $hop_le ), true ) ) {
+			$trang_thai = self::CHO;
+		}
+		$dk = "v.loai <> 'sua' AND v.trang_thai IN ('cho','de_sau','xong','bo')";
+		$tham = array();
+		if ( 'tat_ca' !== $trang_thai ) {
+			$dk .= ' AND v.trang_thai = %s';
+			$tham[] = $trang_thai;
+		}
+		if ( '' !== $loai ) {
+			$dk .= ' AND v.loai = %s';
+			$tham[] = $loai;
+		}
+		$noi = '';
+		if ( '' !== $tim ) {
+			if ( ctype_digit( $tim ) ) {
+				$dk .= ' AND (v.id = %d OR v.doi_tuong_id = %d)';
+				$tham[] = (int) $tim;
+				$tham[] = (int) $tim;
+			} else {
+				$noi = ' LEFT JOIN ' . $wpdb->posts . " p ON v.doi_tuong_loai = 'post' AND p.ID = v.doi_tuong_id"
+					. ' LEFT JOIN ' . $wpdb->comments . " c ON v.doi_tuong_loai = 'comment' AND c.comment_ID = v.doi_tuong_id"
+					. ' LEFT JOIN ' . Kho::bang() . " k ON v.doi_tuong_loai = 'kho' AND k.id = v.doi_tuong_id";
+				$dk .= ' AND (v.noi_dung LIKE %s OR p.post_title LIKE %s OR c.comment_content LIKE %s OR k.tieu_de LIKE %s OR k.loi LIKE %s)';
+				$like = '%' . $wpdb->esc_like( $tim ) . '%';
+				$tham = array_merge( $tham, array_fill( 0, 5, $like ) );
+			}
+		}
+		$tu = ' FROM ' . self::bang() . ' v' . $noi . ' WHERE ' . $dk;
+		$sql_dem = 'SELECT COUNT(*)' . $tu;
+		$tong = (int) $wpdb->get_var( $tham ? $wpdb->prepare( $sql_dem, $tham ) : $sql_dem );
+		$so = max( 1, min( 50, $moi_trang ) );
+		$bo = ( max( 1, $trang ) - 1 ) * $so;
+		$thu_tu = in_array( $trang_thai, array( self::CHO, self::DE_SAU ), true ) ? 'v.uu_tien DESC, v.id ASC' : 'v.id DESC';
+		$ds = $wpdb->get_results( $wpdb->prepare( 'SELECT v.*' . $tu . ' ORDER BY ' . $thu_tu . ' LIMIT %d OFFSET %d', array_merge( $tham, array( $so, $bo ) ) ), ARRAY_A );
+		return array( 'tong' => $tong, 'ds' => array_map( array( self::class, 'doc' ), $ds ?: array() ) );
+	}
+
 	/** Việc còn mở (chờ, để sau) của một đối tượng, theo loại việc (rỗng = mọi loại). */
 	public static function mo( string $doi_tuong_loai, int $doi_tuong_id, string $loai = '' ): array {
 		global $wpdb;

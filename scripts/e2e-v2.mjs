@@ -288,6 +288,17 @@ try {
       chac(!(await coChu(k, yNghia)), 'người đọc đã thấy nháp');
     });
 
+    await thu('wp-admin Hộp việc: lọc thẻ, mở đúng form quyết và dùng được ở điện thoại', async () => {
+      await di(bt, '/wp-admin/admin.php?page=phongdao-hop-viec&tt=cho&loai=nhap_y_nghia');
+      chac(await bt.$('.phongdao-admin-viec .widefat tbody tr a[href*="viec="]'), 'danh sách admin không có thẻ nháp');
+      const dich = await bt.$eval('.phongdao-admin-viec .widefat tbody tr a[href*="viec="]', e => e.href);
+      await bt.goto(dich, { waitUntil: 'load', timeout: 120_000 });
+      chac(await bt.$('.phongdao-admin-viec article.the-viec form input[name="_wpnonce"]') && await bt.$('.phongdao-admin-viec article.the-viec form input[name="phien"]'), 'thẻ admin không dùng form quyết có nonce và phiên');
+      await bt.setViewport({ width: 390, height: 844 });
+      chac(await bt.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'màn Hộp việc admin tràn ngang ở 390 px');
+      await bt.setViewport({ width: 1280, height: 800 });
+    });
+
     await thu('Hộp việc: J/K đổi thẻ, phím số chọn nút, không kích hoạt khi đang nhập hoặc focus nút', async () => {
       await di(bt, '/bien-tap/?tung=1');
       chac(await bt.$('.tung-the [data-hv="sau"]'), 'không có thẻ sau để thử J/K');
@@ -320,12 +331,14 @@ try {
       chac(JSON.stringify(await bt.evaluate(() => window.__phimQuyet)) === JSON.stringify(nut), 'phím 1/2/3 không chọn đúng nút');
     });
 
-    await thu('Hộp việc: Duyệt nháp ý nghĩa → người đọc thấy', async () => {
-      await di(bt, '/bien-tap/?loai=nhap_y_nghia&tung=1');
-      const id = await bt.$$eval('article.the-viec[data-loai=nhap_y_nghia]', (as, c) => as.find(a => a.textContent.includes(c))?.id, yNghia);
-      chac(id, 'không có thẻ nháp ý nghĩa');
-      await bamDoiTrang(bt, `#${id} button[name=quyet][value=duyet]`);
-      chac(await coChu(bt, 'Đã hết thẻ trong lượt duyệt') && await bt.$('.empty[role=status] a[href*="/bien-tap/"]'), 'thẻ cuối không hiện trạng thái hết lượt duyệt');
+    await thu('wp-admin Hộp việc: Duyệt nháp ý nghĩa → người đọc thấy, thẻ đóng không hiện nút quyết', async () => {
+      await di(bt, `/wp-admin/admin.php?page=phongdao-hop-viec&tt=cho&loai=nhap_y_nghia&q=${encodeURIComponent(yNghia)}`);
+      const dich = await bt.$eval('.phongdao-admin-viec .widefat tbody tr a[href*="viec="]', e => e.href).catch(() => '');
+      chac(dich, 'không tìm thấy đúng thẻ nháp ý nghĩa trong admin');
+      await bt.goto(dich, { waitUntil: 'load', timeout: 120_000 });
+      chac(await coChu(bt, yNghia), 'chi tiết thẻ không có đúng nháp cần duyệt');
+      await bamDoiTrang(bt, '.phongdao-admin-viec article.the-viec button[name=quyet][value=duyet]');
+      chac(await coChu(bt, 'Đã duyệt') && !(await bt.$('.phongdao-admin-viec article.the-viec button[name=quyet]')), 'quyết trong admin chưa đóng thẻ hoặc còn nút quyết');
       await di(k, caDao);
       chac(await coChu(k, yNghia), 'duyệt rồi người đọc vẫn chưa thấy');
     });
