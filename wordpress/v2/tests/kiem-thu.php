@@ -1907,6 +1907,49 @@ $sd = $SEO::so_do_bai( array(), KhaiBao::TAC_PHAM );
 kt( 'sơ đồ trang: tác phẩm chỉ gồm bài L2; mục từ chỉ gồm mục lập chỉ mục được', $sd['post__in'] === $SEO::ds_l2() && in_array( $t_chut->term_id, $SEO::so_do_phan_loai( array(), 'muc_tu' )['include'], true ) );
 $xem( array( 'post_type' => KhaiBao::TAC_PHAM ) );
 
+// ---------- Bàn làm việc (T-180) ----------
+$SV   = \Phongdao\DichVu\XepViec\SoViec::class;
+$BLV  = \Phongdao\GiaoTiep\QuanTri\BanLamViec::class;
+$gio  = time();
+$luc  = static fn( float $ngay ): string => gmdate( 'Y-m-d H:i:s', (int) ( $gio - $ngay * DAY_IN_SECONDS ) );
+$vr_0 = $SV::vao_ra( $gio )['can_xem'];
+$tu_0 = $SV::tuoi( $gio );
+$nd_0 = $SV::nguoi_doc_cho();
+$the_blv = array();
+foreach ( array( 0.5, 3, 10, 40 ) as $ngay ) { // thẻ đang mở ở bốn tuổi
+	$the_blv[] = Viec::tao( array( 'loai' => 'can_xem', 'doi_tuong_loai' => 'post', 'doi_tuong_id' => $bai_lo, 'noi_dung' => array( 'ly_do' => array() ), 'nguoi_tao' => 'kiem_thu', 'tao_luc' => $luc( $ngay ) ) );
+}
+$the_blv[] = Viec::tao( array( 'loai' => 'can_xem', 'trang_thai' => Viec::XONG, 'doi_tuong_loai' => 'post', 'doi_tuong_id' => $bai_lo, 'nguoi_tao' => 'kiem_thu', 'tao_luc' => $luc( 9 ), 'quyet' => 'xong', 'nguoi_quyet' => $ai_ql, 'quyet_luc' => $luc( 2 ) ) );
+$the_blv[] = Viec::tao( array( 'loai' => 'nguoi_doc', 'doi_tuong_loai' => 'post', 'doi_tuong_id' => 999999998, 'noi_dung' => array( 'loai' => 'bao_loi', 'bai' => 0 ), 'nguoi_tao' => 'nguoi_doc', 'tao_luc' => $luc( 1.5 ) ) );
+$vr_1 = $SV::vao_ra( $gio )['can_xem'];
+$tu_1 = $SV::tuoi( $gio );
+$nd_1 = $SV::nguoi_doc_cho();
+kt( 'bàn làm việc: thẻ vào / ra 7 ngày qua và 7 ngày trước đó theo loại (thẻ 10 ngày tuổi tính tuần trước, thẻ đóng 2 ngày trước tính "ra")', 2 === $vr_1['vao'] - $vr_0['vao'] && 2 === $vr_1['vao_truoc'] - $vr_0['vao_truoc'] && 1 === $vr_1['ra'] - $vr_0['ra'] && $vr_1['ra_truoc'] === $vr_0['ra_truoc'], array( $vr_0, $vr_1 ) );
+kt( 'bàn làm việc: tuổi thẻ đang mở chia bốn khoảng, cộng đủ; thẻ đã đóng không tính', 5 === $tu_1['tong'] - $tu_0['tong'] && 1 === $tu_1['duoi_1'] - $tu_0['duoi_1'] && 2 === $tu_1['tu_1_7'] - $tu_0['tu_1_7'] && 1 === $tu_1['tu_7_30'] - $tu_0['tu_7_30'] && 1 === $tu_1['tren_30'] - $tu_0['tren_30'] && $tu_1['tong'] === $tu_1['duoi_1'] + $tu_1['tu_1_7'] + $tu_1['tu_7_30'] + $tu_1['tren_30'], array( $tu_0, $tu_1 ) );
+kt( 'bàn làm việc: thẻ mở lâu nhất đứng đầu; báo lỗi của người đọc đếm riêng', $the_blv[3] === ( $SV::lau_nhat( 1 )[0]['id'] ?? 0 ) && 1 === ( $nd_1['bao_loi'] ?? 0 ) - ( $nd_0['bao_loi'] ?? 0 ) );
+$nl = $BLV::viec_nen_lam( $gio );
+kt( 'bàn làm việc: tối đa 10 việc nên làm, báo lỗi người đọc đứng đầu, mỗi việc mở một danh sách trong wp-admin', count( $nl ) <= 10 && $nl && str_contains( $nl[0]['chu'], 'báo lỗi' ) && ! array_filter( $nl, static fn( array $x ): bool => ! str_contains( $x['url'], 'admin.php?page=phongdao' ) || $x['so'] < 1 ), $nl );
+kt( 'bàn làm việc: đếm ngoại lệ theo đúng bộ lọc của danh sách Tác phẩm (không dừng ở số mỗi trang)', \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::dem_loc( array( 'tt' => 'publish', 'muc' => 'thieu_y_nghia' ) ) === count( \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::ids_loc( array( 'tt' => 'publish', 'muc' => 'thieu_y_nghia' ), 5000 ) ) );
+$hs_ncr  = (int) wp_insert_post( array( 'post_type' => KhaiBao::HO_SO_NGUON, 'post_status' => 'publish', 'post_title' => 'Sách thử bàn làm việc' ) );
+$NCD::luu_ho_so( $hs_ncr, array( 'ten' => 'Sách thử bàn làm việc', 'loai' => 'sach' ) );
+$ncr_0   = array_values( array_filter( $BLV::nguon_chua_ro(), static fn( array $n ): bool => $hs_ncr === $n['id'] ) );
+$bai_ncr = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'post_title' => 'Bài thử nguồn chưa rõ', 'post_name' => 'bai-thu-nguon-chua-ro' ) );
+wp_set_object_terms( $bai_ncr, 'ca-dao', KhaiBao::THE_LOAI );
+LuuPhan::luu( $bai_ncr, 'loi', array( 'dong' => array( 'Dòng thử nguồn chưa rõ một', 'Dòng thử nguồn chưa rõ hai' ), 'nguoi_lam' => NguoiLam::NGUOI_VIET, 'doi_chieu' => array( 'ho_so' => $hs_ncr, 'trang' => '5' ) ), $ncq );
+$ncr = array_values( array_filter( $BLV::nguon_chua_ro(), static fn( array $n ): bool => $hs_ncr === $n['id'] ) );
+wp_delete_post( $bai_ncr, true );
+wp_delete_post( $hs_ncr, true );
+kt( 'bàn làm việc: hồ sơ nguồn chưa bài nào dùng thì không báo; có bài dùng mà thiếu giấy phép thì vào "nguồn chưa rõ", kèm số bài', array() === $ncr_0 && 1 === count( $ncr ) && array( 'giấy phép' ) === $ncr[0]['thieu'] && 1 === $ncr[0]['bai'], array( $ncr_0, $ncr ) );
+wp_set_current_user( $chi_soan );
+$h_blv = $BLV::hien( $gio );
+wp_set_current_user( 0 );
+$h_khach = $BLV::hien( $gio );
+wp_set_current_user( $ai_ql );
+kt( 'trang Bàn làm việc: người biên soạn xem được năm khối, không lộ nút đổi dữ liệu; khách không xem được', str_contains( $h_blv, '<h1>Bàn làm việc</h1>' ) && str_contains( $h_blv, 'Nên làm tuần này' ) && str_contains( $h_blv, 'Việc vào, ra' ) && str_contains( $h_blv, 'Tuổi thẻ đang mở' ) && str_contains( $h_blv, 'Ngoại lệ dữ liệu' ) && str_contains( $h_blv, 'Thử làm sâu 20–30 bài' ) && ! str_contains( $h_blv, '<form' ) && str_contains( $h_khach, 'không có quyền' ) );
+foreach ( $the_blv as $id_blv ) {
+	Viec::xoa( (int) $id_blv );
+}
+
 // ---------- Đường dẫn dùng chung (T-178) ----------
 // Thêm bài "đăng ngay" từng đăng bằng wp_publish_post (không kiểm trùng tên): hai bài cùng câu đầu chung một địa chỉ,
 // người đọc chỉ mở được bài đăng sau. Nay tên riêng ngay từ nháp; dữ liệu cũ đã trùng thì báo, người quản trị bấm mới tách.

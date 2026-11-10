@@ -62,6 +62,17 @@ final class DanhSachTacPham {
 	 * @param array<string,string> $vao bộ lọc đã gửi (q, tt, the_loai, chu_de, muc, nguon)
 	 * @return int[]
 	 */
+	/** Số tác phẩm khớp một bộ lọc (Bàn làm việc, T-180), không phụ thuộc phân trang. */
+	public static function dem_loc( array $vao ): int {
+		$args = array_merge( self::tham_so( self::loc( $vao ) ), array( 'fields' => 'ids', 'posts_per_page' => 1, 'paged' => 1, 'update_post_meta_cache' => false, 'update_post_term_cache' => false ) );
+		return (int) ( new \WP_Query( $args ) )->found_posts;
+	}
+
+	/** Đường dẫn tới danh sách đã lọc (bộ lọc qua cùng bước kiểm như form). */
+	public static function url_loc( array $vao ): string {
+		return self::url( self::loc( $vao ) );
+	}
+
 	public static function ids_loc( array $vao, int $toi_da ): array {
 		$args = array_merge( self::tham_so( self::loc( $vao ) ), array( 'fields' => 'ids', 'posts_per_page' => $toi_da + 1, 'paged' => 1, 'no_found_rows' => true, 'update_post_meta_cache' => false, 'update_post_term_cache' => false ) );
 		return array_map( 'intval', ( new \WP_Query( $args ) )->posts );

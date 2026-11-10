@@ -304,7 +304,7 @@ final class Viec {
 		return (int) $wpdb->get_var( $wpdb->prepare( 'SELECT MAX(id) FROM ' . self::bang() . ' WHERE loai = %s AND doi_tuong_loai = %s AND doi_tuong_id = %d AND phan = %s', self::SUA, 'post', $bai, $phan ) );
 	}
 
-	private static function doc( array $hang ): array {
+	public static function doc( array $hang ): array {
 		foreach ( array( 'id', 'doi_tuong_id', 'uu_tien', 'nguoi_quyet', 'phien' ) as $cot ) {
 			$hang[ $cot ] = (int) $hang[ $cot ];
 		}

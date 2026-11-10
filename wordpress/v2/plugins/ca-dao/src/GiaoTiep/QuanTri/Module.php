@@ -24,6 +24,9 @@ final class Module implements \Phongdao\HaTang\Module {
 	public function them_menu(): void {
 		add_menu_page( 'Phongdao', 'Phongdao', 'cadao_soan', self::TRANG, array( $this, 'hien' ), 'dashicons-book-alt', 3 );
 		add_action( 'load-toplevel_page_' . self::TRANG, array( $this, 'trang_dau' ) );
+		add_submenu_page( self::TRANG, 'Bàn làm việc', 'Bàn làm việc', 'cadao_soan', BanLamViec::TRANG, static function (): void {
+			echo BanLamViec::hien(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- lớp hiển thị thoát giá trị động
+		} );
 		$ds = add_submenu_page( self::TRANG, 'Tác phẩm', 'Tác phẩm', 'cadao_soan', DanhSachTacPham::TRANG, static function (): void {
 			echo DanhSachTacPham::hien(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- mọi giá trị động được thoát trong lớp hiển thị
 		} );
