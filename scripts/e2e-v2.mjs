@@ -423,6 +423,42 @@ try {
       chac(!(await bt.$(`#${id}`)), 'thẻ vẫn còn sau khi xử lý');
     });
 
+    await thu('Hộp việc hai phiên: thẻ đã quyết ở phiên khác thì màn cũ bị chặn, báo rõ, không quyết chồng', async () => {
+      const chu = 'Góp thử hai phiên: dòng một nên đọc khác.';
+      await di(k, '/gop/');
+      await bam(k, 'input[name=loai][value=bao_loi]');
+      await datO(k, '#gop-noi-dung', chu);
+      await bam(k, 'input[name=dong_y]');
+      await bamDoiTrang(k, '#gop-form [type=submit]');
+      chac(await coChu(k, 'Cảm ơn bạn!'), 'người đọc chưa gửi được góp thử');
+      const bt2 = await moTab(trinhDuyet.defaultBrowserContext(), 'người biên soạn (phiên 2)');
+      try {
+        await di(bt, '/bien-tap/?loai=nguoi_doc');
+        await di(bt2, '/bien-tap/?loai=nguoi_doc');
+        const tim = tab => tab.$$eval('article.the-viec[data-loai=nguoi_doc]', (as, c) => as.find(a => a.textContent.includes(c))?.id, chu);
+        const id = await tim(bt);
+        chac(id && id === await tim(bt2), 'hai phiên không cùng thấy thẻ góp vừa gửi');
+        // Đưa thẻ trình duyệt lên trước và cuộn tức thì (trang cuộn mượt): cú bấm không trúng thanh điều hướng dưới
+        const bamThe = async (tab, nut) => {
+          await tab.bringToFront();
+          await tab.$eval(`#${id} button[name=quyet][value=${nut}]`, e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+          await bamDoiTrang(tab, `#${id} button[name=quyet][value=${nut}]`);
+        };
+        await bamThe(bt, 'de_sau');
+        await bamThe(bt2, 'xong'); // màn cũ: vẫn thấy thẻ ở Chờ
+        chac(await coChu(bt2, 'Thẻ đã đổi ở phiên khác'), 'màn cũ không báo thẻ đã đổi ở phiên khác');
+        await di(bt2, '/bien-tap/?loai=nguoi_doc&tt=de_sau');
+        chac(await bt2.$(`#${id}`), 'thẻ không còn ở Để sau: màn cũ đã quyết chồng');
+        await bamThe(bt2, 'xong'); // màn mới tải lại thì quyết được
+        await di(bt2, '/bien-tap/?loai=nguoi_doc&tt=de_sau');
+        chac(!(await bt2.$(`#${id}`)), 'màn đã tải lại vẫn không quyết được thẻ');
+      } finally {
+        await bt2.close();
+        await bt.bringToFront();
+        tabDangChay = bt;
+      }
+    });
+
     await thu('Biên tập: sửa lời rồi Hoàn tác', async () => {
       const bai = '/ca-dao/cau-mau-thu-hai/', them = 'Dòng thêm thử đầu cuối';
       await di(bt, bai);
