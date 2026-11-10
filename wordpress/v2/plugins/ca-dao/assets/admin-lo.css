@@ -13,3 +13,11 @@
 .phongdao-lo-so-sanh li.them { background: #edfaef; }
 .phongdao-lo-so-sanh del { color: #8a2424; }
 .phongdao-lo-so-sanh ins { color: #00450c; text-decoration: none; }
+/* Xem trước lô trên câu kho (Đưa vào Hộp việc, Đăng thẻ Câu mới — D-099): lời đọc được trước khi áp dụng, cờ có chữ */
+.phongdao-lo-cau .phongdao-kho-cau strong,
+.phongdao-lo-cau .phongdao-kho-loi,
+.phongdao-lo-cau .phongdao-kho-cau > .description,
+.phongdao-lo-cau .phongdao-kho-co { display: block; }
+.phongdao-lo-cau .phongdao-kho-loi { margin: 6px 0; line-height: 1.6; }
+.phongdao-lo-cau .phongdao-kho-co { margin-top: 4px; color: #8a2424; font-weight: 600; }
+.phongdao-admin-lo .phongdao-lo-tiep .button { min-height: 44px; display: inline-flex; align-items: center; }

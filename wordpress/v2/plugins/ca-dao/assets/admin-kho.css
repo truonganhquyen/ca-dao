@@ -24,3 +24,10 @@
 	min-height: 44px;
 	white-space: normal;
 }
+
+/* Chọn nhiều câu (D-099): ô chọn đủ lớn để chạm */
+.phongdao-admin-kho td input[type=checkbox] {
+	width: 24px;
+	height: 24px;
+	margin: 0;
+}
