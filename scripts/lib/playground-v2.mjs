@@ -44,6 +44,11 @@ export const moPlayground = (cong, ten) => {
   // Bản sao blueprint không đăng nhập (thanh quản trị thêm JavaScript, làm sai ngân sách; khách thì không có)
   const bp = JSON.parse(fs.readFileSync(path.join(goc, 'blueprint.json'), 'utf8'));
   delete bp.login;
+  // Kiểm thử không cần việc nền của WordPress (WP-Cron: kiểm cập nhật, sức khoẻ site, việc nền của plugin) hay mạng ngoài.
+  // Trên máy CI chậm mạng, các việc đó giữ máy chủ Playground hàng phút đúng lúc bước kiểm bấm "Áp dụng" một lô
+  // (hết giờ chuyển trang 120 giây ngẫu nhiên ở các bước lô, #141–#143). Tắt chúng chỉ trong bản dựng để kiểm; site thật,
+  // bản xem trước không đổi.
+  bp.steps.unshift({ step: 'defineWpConfigConsts', consts: { DISABLE_WP_CRON: true, WP_HTTP_BLOCK_EXTERNAL: true } });
   const tepBp = path.join(os.tmpdir(), `phongdao-v2-${ten.replace(/\W+/g, '-')}-${process.pid}.json`);
   fs.writeFileSync(tepBp, JSON.stringify(bp));
   const mayChu = spawn('npx', [
