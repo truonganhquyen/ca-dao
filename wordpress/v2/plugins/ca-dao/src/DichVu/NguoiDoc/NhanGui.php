@@ -48,11 +48,40 @@ final class NhanGui {
 		if ( $bai_id && ( ! $bai || KhaiBao::TAC_PHAM !== $bai->post_type || 'publish' !== $bai->post_status ) ) {
 			return $hong( 'bai' );
 		}
+		if ( '' !== trim( (string) ( $p['web'] ?? '' ) ) ) {
+			return $hong( 'bay' ); // ô bẫy có chữ: máy tự động
+		}
+		// Bấm gửi hai lần (mạng chậm) hoặc gửi lại form vừa gửi: nhận là đã gửi, không tạo bản thứ hai. Khoá chỉ là dấu băm của
+		// chính nội dung gửi, giữ 10 phút; không lưu địa chỉ mạng hay gì của người gửi.
+		$lap = 'phongdao_gop_lap_' . substr( wp_hash( (string) wp_json_encode( $d ) ), 0, 24 );
+		$cu  = get_transient( $lap );
+		if ( is_array( $cu ) && Viec::mo( (string) $cu['loai'], (int) $cu['id'], 'nguoi_doc' ) ) {
+			return array( 'ok' => true, 'ma' => '', 'id' => (int) $cu['id'], 'bai' => $bai_id );
+		}
 		$chan = self::chong_rac( $p );
 		if ( null !== $chan ) {
 			return $hong( $chan );
 		}
+		$luu = self::ghi( $d, $bai );
+		if ( ! $luu ) {
+			return $hong( 'loi' );
+		}
+		set_transient( $lap, $luu, 10 * MINUTE_IN_SECONDS );
+		return array( 'ok' => true, 'ma' => '', 'id' => $luu['id'], 'bai' => $bai_id );
+	}
 
+	/**
+	 * Ghi nội dung và thẻ "Người đọc gửi" trong cùng một giao dịch: một bước lỗi thì không còn nội dung nào nằm ngoài
+	 * Hộp việc (người đọc được báo chưa gửi được để gửi lại).
+	 *
+	 * @return array{id:int,loai:string}|null
+	 */
+	private static function ghi( array $d, ?\WP_Post $bai ): ?array {
+		global $wpdb;
+		if ( false === $wpdb->query( 'START TRANSACTION' ) ) {
+			return null;
+		}
+		$bai_id  = $bai ? $bai->ID : 0;
 		$ten_bai = $bai ? $bai->post_title : 'không gắn bài';
 		if ( 'cam_nghi' === $d['loai'] ) {
 			$id   = (int) wp_insert_comment(
@@ -116,10 +145,7 @@ final class NhanGui {
 			);
 			$loai = 'post';
 		}
-		if ( ! $id ) {
-			return $hong( 'loi' );
-		}
-		Viec::tao(
+		$the = $id ? Viec::tao(
 			array(
 				'loai'           => 'nguoi_doc',
 				'doi_tuong_loai' => $loai,
@@ -131,15 +157,21 @@ final class NhanGui {
 				'nguoi_tao'      => 'nguoi_doc',
 				'uu_tien'        => 30,
 			)
-		);
-		return array( 'ok' => true, 'ma' => '', 'id' => $id, 'bai' => $bai_id );
+		) : 0;
+		if ( ! $the || false === $wpdb->query( 'COMMIT' ) ) {
+			$wpdb->query( 'ROLLBACK' );
+			if ( $id && 'comment' === $loai ) {
+				clean_comment_cache( $id );
+			} elseif ( $id ) {
+				clean_post_cache( $id );
+			}
+			return null;
+		}
+		return array( 'id' => $id, 'loai' => $loai );
 	}
 
 	/** @return ?string mã lời báo khi bị chặn; null = cho qua (đã tính một lần gửi) */
 	private static function chong_rac( array $p ): ?string {
-		if ( '' !== trim( (string) ( $p['web'] ?? '' ) ) ) {
-			return 'bay'; // ô bẫy có chữ: máy tự động
-		}
 		$ip   = DiaChiMang::cua( (string) ( $_SERVER['REMOTE_ADDR'] ?? '' ), (string) ( $_SERVER['HTTP_CF_CONNECTING_IP'] ?? '' ) );
 		$khoa = 'phongdao_gui_' . substr( wp_hash( $ip . gmdate( 'YmdH' ) ), 0, 20 ); // chỉ dấu băm, hết hạn sau một giờ
 		$so   = (int) get_transient( $khoa );

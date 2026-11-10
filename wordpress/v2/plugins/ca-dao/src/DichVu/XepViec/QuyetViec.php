@@ -234,22 +234,10 @@ final class QuyetViec {
 				if ( ! isset( self::nut_nguoi_doc( $v )[ $quyet ] ) ) {
 					return self::kq( false, 'Không có lựa chọn này cho việc này.' );
 				}
-				$dt = (int) $v['doi_tuong_id'];
-				if ( 'duyet' === $quyet ) {
-					if ( ! $duyet ) {
-						return self::kq( false, 'Cần quyền duyệt để hiện nội dung người đọc gửi.' );
-					}
-					$ok = 'comment' === $v['doi_tuong_loai'] ? (bool) wp_set_comment_status( $dt, 'approve' ) : ! is_wp_error( wp_update_post( array( 'ID' => $dt, 'post_status' => 'publish' ), true ) );
-				} elseif ( 'bo' === $quyet ) {
-					$ok = 'comment' === $v['doi_tuong_loai'] ? (bool) wp_set_comment_status( $dt, 'trash' ) : (bool) wp_trash_post( $dt );
-				} else {
-					$ok = ! is_wp_error( wp_update_post( array( 'ID' => $dt, 'post_status' => 'private' ), true ) ); // góp ý đã xử lý: giữ lại, không công khai
+				if ( 'duyet' === $quyet && ! $duyet ) {
+					return self::kq( false, 'Cần quyền duyệt để hiện nội dung người đọc gửi.' );
 				}
-				if ( ! $ok ) {
-					return self::kq( false, 'Không làm được; nội dung này có thể đã bị xoá.' );
-				}
-				Viec::dong( $id, 'bo' === $quyet ? Viec::BO : Viec::XONG, $quyet, $nguoi );
-				return self::kq( true, 'duyet' === $quyet ? 'Đã hiện trên trang.' : ( 'bo' === $quyet ? 'Đã bỏ.' : 'Đã đánh dấu xử lý xong.' ) );
+				return self::quyet_nguoi_doc( $v, $quyet, $nguoi );
 			case 'co_the_trung':
 				$a = (string) $v['noi_dung']['a'];
 				$b = (string) $v['noi_dung']['b'];
@@ -264,6 +252,57 @@ final class QuyetViec {
 				return self::kq( true, 'khac' === $quyet ? 'Đã ghi: là bài khác.' : 'Đã gộp.' );
 		}
 		return self::kq( false, 'Chưa xử lý được việc này.' );
+	}
+
+	/** Trạng thái của nội dung người đọc gửi, quy về: cho (chờ, nháp), hien (công khai), xong (đã xử lý, riêng tư), rac (thùng rác, thư rác). */
+	public static function tt_nguoi_doc( string $doi_tuong_loai, int $id ): string {
+		if ( 'comment' === $doi_tuong_loai ) {
+			$o = get_comment( $id );
+			return $o ? ( array( '0' => 'cho', '1' => 'hien', 'trash' => 'rac', 'spam' => 'rac' )[ (string) $o->comment_approved ] ?? 'khac' ) : '';
+		}
+		$tt = get_post_status( $id );
+		return false === $tt ? '' : ( array( 'pending' => 'cho', 'draft' => 'cho', 'publish' => 'hien', 'private' => 'xong', 'trash' => 'rac' )[ $tt ] ?? 'khac' );
+	}
+
+	/**
+	 * Người đọc gửi (cảm nghĩ, bài cảm nhận, góp ý): đối chiếu trạng thái hiện tại của nội dung trước khi làm — nội dung có
+	 * thể đã đổi ở màn Bình luận/Bài viết của WordPress. Đã đúng trạng thái cần thì chỉ đóng thẻ; đã vào thùng rác thì không
+	 * tự lấy ra để hiện; làm xong thì đọc lại trạng thái, chưa đúng thì báo lỗi để giao dịch huỷ.
+	 */
+	private static function quyet_nguoi_doc( array $v, string $quyet, int $nguoi ): array {
+		$dt   = (int) $v['doi_tuong_id'];
+		$bl   = 'comment' === $v['doi_tuong_loai'];
+		$ten  = $bl ? 'Cảm nghĩ' : 'Nội dung';
+		$tt   = self::tt_nguoi_doc( $v['doi_tuong_loai'], $dt );
+		$dich = array( 'duyet' => 'hien', 'xong' => 'xong', 'bo' => 'rac' )[ $quyet ];
+		$the  = 'bo' === $quyet ? Viec::BO : Viec::XONG;
+		$dong = static fn( string $chu ): array => Viec::dong( $v['id'], $the, $quyet, $nguoi, $v['trang_thai'], array( 'noi_dung' => $tt ) ) ? self::kq( true, $chu ) : self::kq( false, 'Chưa ghi được trạng thái việc.' );
+		if ( '' === $tt ) {
+			return 'bo' === $quyet ? $dong( $ten . ' này đã bị xoá ở nơi khác; đã đóng thẻ.' ) : self::kq( false, $ten . ' này đã bị xoá ở nơi khác. Bấm Bỏ để đóng thẻ.' );
+		}
+		if ( $tt === $dich ) { // đã có người làm ở màn khác: chỉ đóng thẻ, không ghi lại
+			return $dong( $ten . ' đã ở trạng thái này từ trước; đã đóng thẻ.' );
+		}
+		if ( 'rac' === $tt ) {
+			return self::kq( false, $ten . ' này đã vào thùng rác ở nơi khác; máy không tự lấy ra. Lấy ra ở màn ' . ( $bl ? 'Bình luận' : 'Bài viết' ) . ' của WordPress nếu muốn giữ, hoặc bấm Bỏ để đóng thẻ.' );
+		}
+		if ( 'khac' === $tt ) {
+			return self::kq( false, $ten . ' này đang ở trạng thái khác (đã hẹn giờ hoặc tương tự); xử lý ở màn của WordPress.' );
+		}
+		if ( $bl ) {
+			wp_set_comment_status( $dt, 'duyet' === $quyet ? 'approve' : 'trash' );
+			clean_comment_cache( $dt );
+		} elseif ( 'bo' === $quyet ) {
+			wp_trash_post( $dt );
+			clean_post_cache( $dt );
+		} else {
+			wp_update_post( array( 'ID' => $dt, 'post_status' => 'duyet' === $quyet ? 'publish' : 'private' ), true ); // góp ý đã xử lý: giữ lại, không công khai
+			clean_post_cache( $dt );
+		}
+		if ( self::tt_nguoi_doc( $v['doi_tuong_loai'], $dt ) !== $dich ) {
+			return self::kq( false, 'Chưa đổi được trạng thái ' . mb_strtolower( $ten ) . '; thẻ vẫn mở.' );
+		}
+		return $dong( 'duyet' === $quyet ? 'Đã hiện trên trang.' : ( 'bo' === $quyet ? 'Đã bỏ.' : 'Đã đánh dấu xử lý xong.' ) );
 	}
 
 	/** Chỉ khôi phục nếu phần bài còn đúng bản của lần Duyệt và chưa có lượt sửa mới hơn. */
