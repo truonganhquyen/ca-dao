@@ -1217,6 +1217,16 @@ for ( $i = 1; $i < 120; $i++ ) {
 }
 $ids_loc = Viec::ids_quan_tri( Viec::CHO, 'can_xem', (string) $bai_lo, $LO::TOI_DA );
 $lo_lon  = $LO::tao( 'viec_de_sau', $ids_loc, 'loc', array( 'tt' => 'cho', 'loai' => 'can_xem', 'q' => (string) $bai_lo ), $ai_ql );
+// Trang xem trước nhiều trang: 3 ngoại lệ ở trang 2 → nút "Đánh dấu cả 3 thẻ … ở trang khác"; giu_het chỉ chủ lô
+$muc_lon = array_map( static fn( array $m ): int => (int) $m[0], Viec::lay( $lo_lon['lo'] )['noi_dung']['muc'] );
+$LO::bo_chon( $lo_lon['lo'], array_slice( $muc_lon, 40, 3 ), array(), $ai_ql );
+$_GET    = array( 'lo' => (string) $lo_lon['lo'] );
+$h_lon1  = \Phongdao\GiaoTiep\QuanTri\TrangLo::hien();
+$gh_khac = $LO::giu_het( $lo_lon['lo'], $chi_soan );
+$gh_ok   = $LO::giu_het( $lo_lon['lo'], $ai_ql );
+$h_lon2  = \Phongdao\GiaoTiep\QuanTri\TrangLo::hien();
+$_GET    = array();
+kt( 'xem trước lô nhiều trang: thanh "Chọn tất cả" dùng ô giu[]; còn mục bỏ dấu ở trang khác thì có nút "Đánh dấu cả 3 thẻ đang bỏ dấu ở trang khác"; nút chính đếm sẵn số còn đánh dấu ở trang khác; giu_het chỉ chủ lô, đánh dấu lại mọi trang, chưa áp dụng gì', str_contains( $h_lon1, 'data-o="giu[]"' ) && str_contains( $h_lon1, 'name="lam" value="giu_het"' ) && str_contains( $h_lon1, 'Đánh dấu cả 3 thẻ đang bỏ dấu ở trang khác' ) && str_contains( $h_lon1, 'data-mau="Áp dụng cho %d mục" data-ngoai="87"' ) && str_contains( $h_lon1, 'Áp dụng cho 117 mục' ) && ! $gh_khac['ok'] && $gh_ok['ok'] && 0 === $gh_ok['bo'] && array() === Viec::lay( $lo_lon['lo'] )['noi_dung']['bo'] && Viec::LO_XEM === Viec::lay( $lo_lon['lo'] )['trang_thai'] && ! str_contains( $h_lon2, 'value="giu_het"' ) && str_contains( $h_lon2, 'data-ngoai="90"' ), array( $gh_khac, $gh_ok ) );
 $luot    = array();
 $luot[]  = $LO::ap_dung( $lo_lon['lo'], $ai_ql, true );
 $v_lon   = Viec::lay( $lo_lon['lo'] );
@@ -1264,6 +1274,12 @@ $g_dg  = $gui_lo( $doc_gia, 'tao', array( 'thao_tac' => 'viec_de_sau', 'ids' => 
 $g_kn  = $gui_lo( $ai_ql, 'tao', array( 'thao_tac' => 'viec_de_sau', 'ids' => array( (string) $gy_ids[5] ) ), '' );
 $g_ok  = $gui_lo( $ai_ql, 'tao', array( 'thao_tac' => 'viec_de_sau', 'pham_vi' => 'chon', 'ids' => array( (string) $gy_ids[5] ), 'tt' => 'cho', 'loai' => 'goi_y', 'q' => '' ), 'phongdao_lo_tao' );
 $g_huy = $gui_lo( $ai_ql, 'lam', array( 'lo' => (string) $lo_x['lo'], 'lam' => 'huy' ), 'phongdao_lo_' . $lo_x['lo'] );
+$lo_g  = $LO::tao( 'viec_de_sau', array( $gy_ids[5] ), 'chon', array(), $ai_ql );
+$LO::bo_chon( (int) $lo_g['lo'], array( $gy_ids[5] ), array(), $ai_ql );
+$g_gh  = $gui_lo( $ai_ql, 'lam', array( 'lo' => (string) $lo_g['lo'], 'lam' => 'giu_het', 'tren_trang' => array(), 'giu' => array() ), 'phongdao_lo_' . $lo_g['lo'] );
+$v_gh  = Viec::lay( (int) $lo_g['lo'] );
+$LO::huy( (int) $lo_g['lo'], $ai_ql );
+kt( 'lô qua admin-post: nút "Đánh dấu cả … ở trang khác" (lam=giu_het) đánh dấu lại mọi mục, quay về trang xem trước, chưa áp dụng gì', $lo_g['ok'] && str_contains( $g_gh, 'lo=' . $lo_g['lo'] ) && array() === $v_gh['noi_dung']['bo'] && Viec::LO_XEM === $v_gh['trang_thai'] && Viec::CHO === Viec::lay( $gy_ids[5] )['trang_thai'], array( $lo_g, $g_gh, $v_gh['noi_dung']['bo'] ?? null ) );
 remove_filter( 'wp_die_handler', $chan_die_lo );
 remove_filter( 'wp_redirect', $chan_di_lo );
 $_POST = $_REQUEST = array();

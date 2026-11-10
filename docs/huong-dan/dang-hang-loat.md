@@ -21,6 +21,7 @@ Mỗi lần tối đa 2.000 câu. Kho nhiều hơn thì lọc theo nguồn hoặ
 1. Khi hiện **Lô đã chạy xong.**, bấm **Xem trước và đăng … câu vừa đưa vào**. Nút này chỉ gồm đúng các câu bạn vừa chọn, không lẫn các thẻ Câu mới có từ trước. Nút chỉ hiện với tài khoản có quyền duyệt.
 2. Ở bước xem trước, mỗi dòng có lời, thể loại, nguồn và cờ.
    - Câu có cờ (có từ thô tục, nghi là câu hiện đại, nguồn ghi cần xem) đã được bỏ dấu sẵn. Đọc lại; muốn đăng thì đánh dấu.
+   - Đọc xong mà muốn đăng hết: bấm ô **Chọn tất cả … câu trên trang này** ngay trên bảng (giữ Shift để chọn một dải). Lô dài hơn một trang thì bấm thêm **Đánh dấu cả … câu đang bỏ dấu ở trang khác**. Nút chính đếm lại ngay số câu sẽ đăng. Chưa có gì được đăng cho tới khi bạn bấm nút chính.
    - Câu đang chờ quyết trùng sẽ được bỏ qua. Quyết thẻ **Có thể trùng** trước rồi đăng sau.
 3. Bấm **Đăng … câu**. Để trang mở cho tới khi hiện **Lô đã chạy xong.**
 

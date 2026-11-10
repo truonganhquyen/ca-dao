@@ -467,6 +467,21 @@ final class Lo {
 	}
 
 	/**
+	 * Đánh dấu lại mọi mục của lô đang xem trước, cả ở các trang khác (kể cả câu có cờ để sẵn bỏ chọn). Chỉ chủ lô, chỉ
+	 * khi lô còn ở bước xem trước; chưa áp dụng gì — người vẫn phải bấm nút chính.
+	 *
+	 * @return array{ok:bool,loi:string,bo:int}
+	 */
+	public static function giu_het( int $lo_id, int $nguoi ): array {
+		[ $lo, $ly_do ] = self::lay_cua( $lo_id, $nguoi, array( Viec::LO_XEM ) );
+		if ( ! $lo ) {
+			return array( 'ok' => false, 'loi' => $ly_do, 'bo' => 0 );
+		}
+		$tat = array_map( static fn( array $m ): int => (int) $m[0], (array) $lo['noi_dung']['muc'] );
+		return self::bo_chon( $lo_id, $tat, $tat, $nguoi );
+	}
+
+	/**
 	 * Bỏ chọn ngoại lệ trên một trang xem trước: mục trên trang không đánh dấu thì bỏ khỏi lô, đánh dấu lại thì giữ.
 	 *
 	 * @param int[] $tren_trang mục hiện trên trang
