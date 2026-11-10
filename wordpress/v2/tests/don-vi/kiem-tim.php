@@ -52,3 +52,40 @@ kt( 'tìm: giới hạn số kết quả, vẫn đếm đủ tổng', 2 === coun
 $tu_vung = array( 'gao' => 9, 'gai' => 3, 'ga' => 4, 'gay' => 1, 'bao' => 7, 'doi' => 5 );
 kt( 'gợi ý gõ sai: âm tiết cách một chữ cái, dùng nhiều trước', array( 'gao', 'ga', 'gai' ) === array_slice( ChiMuc::tu_gan( 'gaj', $tu_vung ), 0, 3 ), ChiMuc::tu_gan( 'gaj', $tu_vung ) );
 kt( 'gợi ý gõ sai: không gợi ý chính nó, không gợi ý chữ xa hơn một chữ cái', ! in_array( 'gao', ChiMuc::tu_gan( 'gao', $tu_vung ), true ) && ! in_array( 'bao', ChiMuc::tu_gan( 'gai', $tu_vung ), true ) && array() === ChiMuc::tu_gan( '', $tu_vung ) );
+
+// T-181: xếp từ cờ CSDL (xep_co, cách ChiMucTim::tim dùng) trùng xep() trên MỌI ứng viên của kho thử 1.500 bài
+// (tổng hợp, tests/do-tim/kho-thu.php), chỉ đọc chữ của một phần ứng viên
+require_once V2_GOC . '/tests/do-tim/kho-thu.php';
+$kho_lon = do_tim_kho( 1500 );
+$lon     = array();
+foreach ( $kho_lon as [ $id, $c, $p ] ) {
+	$h = ChiMuc::dong_chi_muc( $c, $p );
+	if ( $h ) {
+		$lon[ $id ] = array( 'post_id' => $id ) + $h;
+	}
+}
+$tv_lon  = do_tim_truy_van( $kho_lon );
+$q_lon   = array_values( $tv_lon['ds'] );
+$q_lon   = array_merge( $q_lon, array( 'anh em người', 'người con', 'mà', 'ma', 'Cà', 'nhớ thương', 'em ơi', 'ăn cá', '?!' ) );
+$sai_lon = array();
+$doc_it  = false;
+foreach ( $q_lon as $q ) {
+	$phep = ChiMuc::phep_so( $q );
+	$ung  = $loc( array_values( $lon ), $q );
+	$co   = array_map( static fn( array $r ): array => array( 'post_id' => (string) $r['post_id'], 'dai' => (string) strlen( $r['chinh_kd'] ) ) + array_map( 'intval', ChiMuc::co( $r, $phep ) ), $phep ? $ung : array() );
+	$doc  = static fn( array $ids ): array => array_intersect_key( $lon, array_flip( $ids ) );
+	$a    = ChiMuc::xep( $ung, $q, 20 );
+	foreach ( array( array( 20, 100 ), array( 20, 1 ), array( 1, 100 ), array( 0, 100 ) ) as [ $so, $lo ] ) {
+		$b = ChiMuc::xep_co( $co, $q, $so, $doc, $lo );
+		if ( array_slice( $a['ds'], 0, $so ) !== $b['ds'] || $a['tong'] !== $b['tong'] ) {
+			$sai_lon[] = array( $q, $so, $lo );
+		}
+		if ( 20 === $so && 100 === $lo && $b['doc'] > 0 && $b['doc'] < count( $ung ) / 2 && count( $ung ) > 500 ) {
+			$doc_it = true;
+		}
+	}
+}
+kt( 'tìm kho lớn: xếp từ cờ CSDL ra đúng tổng và đúng thứ tự như xếp mọi ứng viên (mọi truy vấn đại diện, mọi cỡ lô)', array() === $sai_lon && count( $q_lon ) >= 20, $sai_lon );
+kt( 'tìm kho lớn: có truy vấn hơn 500 ứng viên mà chỉ phải đọc chữ dưới một nửa', $doc_it );
+kt( 'tìm kho lớn: kho thử có truy vấn hơn 500 ứng viên và bài mới nhất có cụm lấy làm mẫu', count( $loc( array_values( $lon ), $tv_lon['ds']['Hai chữ phổ biến'] ) ) > 500 && in_array( $tv_lon['moi'], array_column( ChiMuc::xep( $loc( array_values( $lon ), $tv_lon['ds']['Cả dòng của bài mới'] ), $tv_lon['ds']['Cả dòng của bài mới'] )['ds'], 'id' ), true ) );
+kt( 'dòng chỉ mục: phần chính không có chữ thì không đánh chỉ mục; có thì đệm khoảng trắng hai đầu', null === ChiMuc::dong_chi_muc( ' ?! ', 'có giải thích' ) && ' hòa thuận ' === ChiMuc::dong_chi_muc( 'Hoà, thuận', '' )['chinh'] && ' hoa thuan ' === ChiMuc::dong_chi_muc( 'Hoà, thuận', '' )['chinh_kd'] && '  ' === ChiMuc::dong_chi_muc( 'a', '' )['phu'] );

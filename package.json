@@ -14,6 +14,7 @@
     "quet:v2": "node scripts/quet-v2.mjs",
     "e2e:v2": "node scripts/e2e-v2.mjs",
     "xem-truoc:v2": "node scripts/xem-truoc-v2.mjs",
+    "do:tim:v2": "node scripts/do-tim-v2.mjs",
     "dong-bo:giao-dien-v2": "node scripts/dong-bo-giao-dien-v2.mjs",
     "test:nhat-quan": "node scripts/test-nhat-quan.mjs",
     "kiem-nhat-quan": "node scripts/kiem-nhat-quan.mjs",

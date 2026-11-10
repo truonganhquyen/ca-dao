@@ -91,7 +91,7 @@ final class Tim {
 			$o .= '<section class="section"><h2>Có các chữ này nhưng không liền nhau</h2><div class="grid two">' . $roi . '</div></section>';
 		}
 		$hien = count( $kq['ds'] );
-		$dem  = $tong > $hien ? $hien . ' trên ' . $tong . ' bài — gõ thêm chữ để thu hẹp' : $hien . ' bài';
+		$dem  = $tong > $hien ? $hien . ' trên ' . number_format_i18n( $tong ) . ' bài — gõ thêm chữ để thu hẹp' : $hien . ' bài';
 		return '<p id="search-status" class="small muted" aria-live="polite">' . esc_html( $dem ) . '</p><div id="search-results">' . $o . '</div>';
 	}
 

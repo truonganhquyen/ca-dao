@@ -23,6 +23,7 @@ reference/
 wordpress/v2/tests/.ket-qua.txt
 wordpress/v2/tests/.ket-qua-chuyen-doi.txt
 wordpress/v2/tests/.chuyen-doi-mvp.json
+wordpress/v2/tests/.do-tim.txt
 qa-anh-v2/
 #Sandbox
 tai-khoan.env
