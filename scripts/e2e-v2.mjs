@@ -595,9 +595,12 @@ try {
       await bamDoiTrang(bt, '.phongdao-lo-chon [type=submit]');
       chac(await bt.$(`textarea[name="gia_tri[${id}]"]`), 'không có ô giá trị riêng cho bài');
       await datO(bt, `textarea[name="gia_tri[${id}]"]`, moi);
-      await bam(bt, 'input[name=duyet]');
+      // Đánh dấu "đã duyệt" chắc chắn (không bấm theo toạ độ — bố cục còn nhích khi tải xong) rồi kiểm lại
+      await bt.$eval('input[name=duyet]', o => { if (!o.checked) o.click(); });
+      chac(await bt.$eval('input[name=duyet]', o => o.checked), 'chưa đánh dấu được ô "đã duyệt"');
       await bamDoiTrang(bt, 'button[name=lam][value=luu_bo]');
       chac(await coChu(bt, moi) && await bt.$('.phongdao-lo-so-sanh ins'), 'không hiện so trước/sau sau khi lưu giá trị');
+      chac(await bt.$eval('input[name=duyet]', o => o.checked), 'lưu giá trị xong ô "đã duyệt" mất dấu');
       await bamDoiTrang(bt, 'button[name=lam][value=ap_dung]');
       chac(await coChu(bt, 'Lô đã chạy xong.') && await coChu(bt, 'Thành công 1'), 'lô sửa từng hàng không thành công');
       await di(k, T.cauDo);
