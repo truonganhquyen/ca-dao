@@ -581,6 +581,32 @@ try {
       await di(k, T.cauDo);
       chac(await coChu(k, moi), 'người đọc không thấy Ý nghĩa vừa duyệt theo lô');
     });
+
+    await thu('wp-admin Đăng hàng loạt từ Kho: chọn nhiều câu → Hộp việc → Đăng theo lô qua xem trước, người đọc thấy bài', async () => {
+      await di(bt, '/wp-admin/admin.php?page=phongdao-kho');
+      const chon = await bt.$$eval('input[name="ids[]"][form=phongdao-kho-lo]', os => os.map(o => o.value));
+      chac(chon.length >= 2, `màn Kho không có đủ câu để chọn nhiều (thấy ${chon.length})`);
+      for (const id of chon.slice(0, 2)) await bam(bt, `input[name="ids[]"][value="${id}"]`);
+      await bamDoiTrang(bt, '#phongdao-kho-lo [type=submit]');
+      chac(await coChu(bt, 'Chờ xem trước') && await coChu(bt, 'Đưa 2 câu vào Hộp việc'), 'Kho không sang bước xem trước lô');
+      await bamDoiTrang(bt, 'button[name=lam][value=ap_dung]');
+      await doi(bt, () => document.body.innerText.includes('Lô đã chạy xong.'), null, 'lô Kho không chạy xong', 60_000);
+      chac(await coChu(bt, 'Thành công 2'), 'lô Kho không tạo đủ 2 thẻ Câu mới');
+      const moHv = await bt.$eval('.phongdao-lo-tiep a', a => a.href);
+      await di(bt, moHv.replace(G, '') + '&tt=cho');
+      await bt.select('#phongdao-lo-thao-tac', 'cau_moi_dang');
+      await bam(bt, 'input[name=pham_vi][value=loc]');
+      await bamDoiTrang(bt, '.phongdao-lo-chon [type=submit]');
+      chac(await coChu(bt, 'Chưa có gì được đăng') && await coChu(bt, 'Kho mẫu'), 'lô Đăng không hiện lời ở bước xem trước');
+      const so = await bt.$$eval('input[name="giu[]"]:checked', os => os.length);
+      chac(so >= 2, `xem trước lô Đăng chỉ có ${so} câu đánh dấu`);
+      await bamDoiTrang(bt, 'button[name=lam][value=ap_dung]');
+      await doi(bt, () => document.body.innerText.includes('Lô đã chạy xong.'), null, 'lô Đăng không chạy xong', 120_000);
+      chac(await coChu(bt, `Thành công ${so}`), `lô Đăng không đăng đủ ${so} câu`);
+      const bai = await bt.$eval('.phongdao-admin-lo td a[href*="phongdao-sua-tac-pham"]', a => new URL(a.href).searchParams.get('id'));
+      await di(k, `/?p=${bai}`);
+      chac(await coChu(k, 'Kho mẫu'), 'người đọc không thấy bài vừa đăng theo lô');
+    });
   }
 } catch (e) {
   loi.push(String(e.message ?? e).split('\n')[0]);

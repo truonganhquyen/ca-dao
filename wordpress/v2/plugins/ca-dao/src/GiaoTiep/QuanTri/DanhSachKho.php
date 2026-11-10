@@ -5,6 +5,7 @@ namespace Phongdao\GiaoTiep\QuanTri;
 use Phongdao\DichVu\ChongTrung\ChongTrung;
 use Phongdao\DichVu\NhapNguon\NguonTuDong;
 use Phongdao\DichVu\UngVien\UngVien;
+use Phongdao\DichVu\XuLyLo\Lo;
 use Phongdao\KhoLuu\Kho;
 use Phongdao\KhoLuu\Viec;
 use Phongdao\MienDuLieu\TheLoai;
@@ -14,13 +15,16 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Màn Kho trong wp-admin (docs/30 mục 2, 4.6; T-184): người biên soạn tự tìm, lọc câu đã thu thập và đưa một câu đủ điều
  * kiện vào Hộp việc. Kho là tư liệu riêng, không phải Hộp việc: nút chỉ tạo thẻ "Câu mới" đang chờ (UngVien), không đăng,
- * gộp, sửa lời hay bỏ câu. Dữ liệu kho chỉ hiện cho người có `cadao_soan`; không bao giờ ra trang người đọc.
+ * gộp, sửa lời hay bỏ câu. Chọn nhiều câu (hoặc mọi câu khớp bộ lọc) tạo một lô "Đưa vào Hộp việc" có xem trước (D-099);
+ * đăng các câu đó vẫn ở Hộp việc. Dữ liệu kho chỉ hiện cho người có `cadao_soan`; không bao giờ ra trang người đọc.
  */
 final class DanhSachKho {
 
 	public const TRANG     = 'phongdao-kho';
 	public const HANH_DONG = 'phongdao_kho_dua_vao';
 	private const MOI_TRANG = 30;
+	/** Form lô đặt ngoài bảng (mỗi dòng đã có form riêng); ô chọn gắn vào bằng thuộc tính `form`. */
+	private const FORM_LO = 'phongdao-kho-lo';
 	private const TRANG_THAI = array(
 		'moi'        => 'Chưa dùng',
 		'tat_ca'     => 'Mọi trạng thái',
@@ -45,23 +49,24 @@ final class DanhSachKho {
 		add_action( 'admin_post_' . self::HANH_DONG, array( self::class, 'dua_vao' ) );
 	}
 
-	/** @return array<string,string|int> bộ lọc đã kiểm; SQL và URL chỉ nhận các giá trị này */
-	private static function loc(): array {
-		// phpcs:disable WordPress.Security.NonceVerification -- chỉ đọc bộ lọc
-		$nguon = sanitize_text_field( wp_unslash( (string) ( $_GET['nguon'] ?? '' ) ) );
-		$loai  = sanitize_key( (string) ( $_GET['loai'] ?? '' ) );
-		$tt    = sanitize_key( (string) ( $_GET['tt'] ?? 'moi' ) );
-		$the   = sanitize_key( (string) ( $_GET['the'] ?? 'tat_ca' ) );
-		$loc   = array(
-			'q'     => trim( sanitize_text_field( wp_unslash( (string) ( $_GET['q'] ?? '' ) ) ) ),
+	/**
+	 * @param array<string,mixed>|null $vao bộ lọc thô (mặc định $_GET; form lô gửi qua ô ẩn `loc_*`)
+	 * @return array<string,string|int> bộ lọc đã kiểm; SQL và URL chỉ nhận các giá trị này
+	 */
+	private static function loc( ?array $vao = null ): array {
+		$g     = $vao ?? $_GET; // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc bộ lọc
+		$nguon = sanitize_text_field( wp_unslash( (string) ( $g['nguon'] ?? '' ) ) );
+		$loai  = sanitize_key( (string) ( $g['loai'] ?? '' ) );
+		$tt    = sanitize_key( (string) ( $g['tt'] ?? 'moi' ) );
+		$the   = sanitize_key( (string) ( $g['the'] ?? 'tat_ca' ) );
+		return array(
+			'q'     => trim( sanitize_text_field( wp_unslash( (string) ( $g['q'] ?? '' ) ) ) ),
 			'nguon' => preg_match( '/^[a-z0-9_-]{1,64}$/', $nguon ) ? $nguon : '',
 			'loai'  => isset( TheLoai::TU_LOAI_GOC[ $loai ] ) ? $loai : '',
 			'tt'    => isset( self::TRANG_THAI[ $tt ] ) ? $tt : 'moi',
 			'the'   => isset( self::THE[ $the ] ) ? $the : 'tat_ca',
-			'paged' => max( 1, (int) ( $_GET['paged'] ?? 1 ) ),
+			'paged' => max( 1, (int) ( $g['paged'] ?? 1 ) ),
 		);
-		// phpcs:enable
-		return $loc;
 	}
 
 	/** Điều kiện SQL của bộ lọc (bảng kho đặt bí danh k). Câu chưa có lời (chờ đọc trang) không hiện. */
@@ -86,6 +91,28 @@ final class DanhSachKho {
 			$dk[] = ( 'co' === $loc['the'] ? '' : 'NOT ' ) . 'EXISTS (SELECT 1 FROM ' . Viec::bang() . " v WHERE v.doi_tuong_loai = 'kho' AND v.doi_tuong_id = k.id AND v.loai = '" . UngVien::VIEC . "' AND v.trang_thai IN ('cho','de_sau'))";
 		}
 		return implode( ' AND ', $dk );
+	}
+
+	/** Điều kiện của câu đưa vào Hộp việc được trong bộ lọc: Chưa dùng, chưa gắn bài, chưa có thẻ Câu mới đang mở. */
+	private static function dieu_kien_chon( array $loc ): string {
+		return self::dieu_kien( $loc ) . " AND k.trang_thai = 'moi' AND k.post_id = 0 AND NOT EXISTS (SELECT 1 FROM " . Viec::bang() . " v WHERE v.doi_tuong_loai = 'kho' AND v.doi_tuong_id = k.id AND v.loai = '" . UngVien::VIEC . "' AND v.trang_thai IN ('cho','de_sau'))";
+	}
+
+	/** Số câu khớp bộ lọc còn đưa vào Hộp việc được (cho phạm vi "mọi câu khớp bộ lọc"). */
+	public static function dem_chon( array $loc ): int {
+		global $wpdb;
+		return (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . Kho::bang() . ' k WHERE ' . self::dieu_kien_chon( $loc ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- điều kiện đã prepare từng phần
+	}
+
+	/** @return int[] mã câu khớp bộ lọc còn đưa vào được, theo thứ tự trên màn (mới lấy trước), tối đa $toi_da + 1 */
+	public static function ids_chon( array $loc, int $toi_da ): array {
+		global $wpdb;
+		return array_map( 'intval', $wpdb->get_col( $wpdb->prepare( 'SELECT k.id FROM ' . Kho::bang() . ' k WHERE ' . self::dieu_kien_chon( $loc ) . ' ORDER BY k.id DESC LIMIT %d', $toi_da + 1 ) ) ?: array() ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+	}
+
+	/** Bộ lọc đọc từ ô ẩn `loc_*` của form lô, kiểm như bộ lọc trên URL. */
+	public static function loc_tu( array $vao ): array {
+		return self::loc( $vao );
 	}
 
 	/** @return array{tong:int,ds:object[]} một trang câu kho khớp bộ lọc, mới lấy trước; tổng đếm toàn kho */
@@ -144,7 +171,7 @@ final class DanhSachKho {
 		return $ra . '</select></div>';
 	}
 
-	private static function ten_loai( string $loai ): string {
+	public static function ten_loai( string $loai ): string {
 		return TheLoai::DS[ TheLoai::TU_LOAI_GOC[ $loai ] ?? '' ] ?? ( '' === $loai ? 'Chưa rõ' : $loai );
 	}
 
@@ -152,8 +179,8 @@ final class DanhSachKho {
 		return '' === $mysql ? '' : (string) mysql2date( 'd/m/Y', $mysql );
 	}
 
-	private static function dong( object $m, array $tt_trang, array $nguon, string $quay_lai ): string {
-		$id   = (int) $m->id;
+	/** Ô "Câu" của một câu kho: tên, bốn dòng đầu, số chú thích / dị bản, cờ của nguồn (dùng ở Kho và xem trước lô). */
+	public static function o_cau( object $m ): string {
 		$d    = Kho::du_lieu( $m );
 		$dong = array_values( array_filter( explode( "\n", (string) $m->loi ), static fn( string $l ): bool => '' !== trim( $l ) ) );
 		$ten  = '' !== trim( (string) $m->tieu_de ) ? (string) $m->tieu_de : (string) ( $dong[0] ?? '' );
@@ -161,7 +188,12 @@ final class DanhSachKho {
 			. ( count( $dong ) > 4 ? '<span class="description">… ' . count( $dong ) . ' dòng</span>' : '' );
 		$them = array( count( (array) ( $d['chu_thich'] ?? array() ) ) . ' chú thích', count( (array) ( $d['di_ban'] ?? array() ) ) . ' dị bản' );
 		$co   = array_map( static fn( $c ): string => self::CO[ $c ] ?? (string) $c, (array) ( $d['co'] ?? array() ) );
-		$cau .= '<span class="description">' . esc_html( implode( ' · ', $them ) ) . '</span>' . ( $co ? '<span class="phongdao-kho-co">Cờ: ' . esc_html( implode( ', ', $co ) ) . '</span>' : '' );
+		return $cau . '<span class="description">' . esc_html( implode( ' · ', $them ) ) . '</span>' . ( $co ? '<span class="phongdao-kho-co">Cờ: ' . esc_html( implode( ', ', $co ) ) . '</span>' : '' );
+	}
+
+	private static function dong( object $m, array $tt_trang, array $nguon, string $quay_lai ): string {
+		$id   = (int) $m->id;
+		$cau  = self::o_cau( $m );
 
 		$ten_nguon = (string) ( $nguon[ $m->nguon_id ]['ten'] ?? $m->nguon_id );
 		$doc       = (string) $m->doc_trang;
@@ -186,6 +218,9 @@ final class DanhSachKho {
 		}
 
 		$ly_do = UngVien::chua_chon_duoc( $m );
+		$chon  = '' === $ly_do && ! $the && ! $trung
+			? '<input type="checkbox" name="ids[]" value="' . $id . '" form="' . self::FORM_LO . '" id="chon-kho-' . $id . '"><label for="chon-kho-' . $id . '" class="screen-reader-text">Chọn câu #' . $id . '</label>'
+			: '';
 		if ( '' === $ly_do && ! $the && ! $trung ) {
 			$lam = '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="' . self::HANH_DONG . '"><input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="quay_lai" value="' . esc_attr( $quay_lai ) . '">'
 				. wp_nonce_field( self::HANH_DONG . '_' . $id, '_wpnonce', false, false )
@@ -193,7 +228,7 @@ final class DanhSachKho {
 		} else {
 			$lam = '<span class="description">' . esc_html( $the ? 'Đã có trong Hộp việc' : ( $trung ? 'Quyết trùng trước' : $ly_do ) ) . '</span>';
 		}
-		return '<tr><td data-nhan="ID">' . $id . '</td><td data-nhan="Câu" class="phongdao-kho-cau">' . $cau . '</td><td data-nhan="Thể loại">' . esc_html( self::ten_loai( (string) $m->loai ) ) . '</td><td data-nhan="Nguồn">' . $goc . '</td><td data-nhan="Trạng thái">' . implode( '<br>', $tt ) . '</td><td data-nhan="Làm gì">' . $lam . '</td></tr>';
+		return '<tr><td data-nhan="Chọn">' . $chon . '</td><td data-nhan="ID">' . $id . '</td><td data-nhan="Câu" class="phongdao-kho-cau">' . $cau . '</td><td data-nhan="Thể loại">' . esc_html( self::ten_loai( (string) $m->loai ) ) . '</td><td data-nhan="Nguồn">' . $goc . '</td><td data-nhan="Trạng thái">' . implode( '<br>', $tt ) . '</td><td data-nhan="Làm gì">' . $lam . '</td></tr>';
 	}
 
 	public static function hien(): string {
@@ -226,6 +261,7 @@ final class DanhSachKho {
 			. self::chon( 'tt', 'Trạng thái', self::TRANG_THAI, (string) $loc['tt'] )
 			. self::chon( 'the', 'Hộp việc', self::THE, (string) $loc['the'] )
 			. '<button class="button button-primary" type="submit">Tìm và lọc</button></form>';
+		$bao     .= TrangLo::lay_bao();
 		$quay_lai = self::url( $loc, (int) $loc['paged'] );
 		$dong     = implode( '', array_map( static fn( object $m ): string => self::dong( $m, $tt, $nguon, $quay_lai ), $kq['ds'] ) );
 		$so_trang = (int) ceil( $kq['tong'] / self::MOI_TRANG );
@@ -236,8 +272,27 @@ final class DanhSachKho {
 			. '<p class="description">Câu máy đã thu thập từ nguồn, chưa lên trang. Tự chọn câu muốn đăng: bấm "Đưa vào Hộp việc" để tạo thẻ Câu mới, rồi quyết Đăng, Sửa rồi đăng hay Bỏ ở Hộp việc. Nút không tự đăng, không sửa lời.</p>'
 			. $bao . $form
 			. '<p class="phongdao-tp-tong" role="status"><strong>' . (int) $kq['tong'] . '</strong> câu khớp bộ lọc. Hiện ' . count( $kq['ds'] ) . ' câu trên trang này.</p>'
-			. '<table class="widefat striped"><thead><tr><th scope="col">ID</th><th scope="col">Câu</th><th scope="col">Thể loại</th><th scope="col">Nguồn</th><th scope="col">Trạng thái</th><th scope="col">Làm gì</th></tr></thead><tbody>'
-			. ( $dong ?: '<tr><td colspan="6">Không có câu nào khớp. Thử đổi bộ lọc.</td></tr>' ) . '</tbody></table>' . $phan_trang . '</div>';
+			. ( $kq['tong'] > 0 ? self::khoi_lo( $loc ) : '' )
+			. '<table class="widefat striped"><thead><tr><th scope="col">Chọn</th><th scope="col">ID</th><th scope="col">Câu</th><th scope="col">Thể loại</th><th scope="col">Nguồn</th><th scope="col">Trạng thái</th><th scope="col">Làm gì</th></tr></thead><tbody>'
+			. ( $dong ?: '<tr><td colspan="7">Không có câu nào khớp. Thử đổi bộ lọc.</td></tr>' ) . '</tbody></table>' . $phan_trang . '</div>';
+	}
+
+	/** Khối "Đưa nhiều câu vào Hộp việc": phạm vi đã chọn trên trang / mọi câu khớp bộ lọc, sang bước xem trước của lô. */
+	private static function khoi_lo( array $loc ): string {
+		$so  = self::dem_chon( $loc );
+		$an  = '';
+		foreach ( array( 'q', 'nguon', 'loai', 'tt', 'the' ) as $k ) {
+			$an .= '<input type="hidden" name="loc_' . $k . '" value="' . esc_attr( (string) $loc[ $k ] ) . '">';
+		}
+		$qua = $so > Lo::TOI_DA ? ' — một lô tối đa ' . number_format_i18n( Lo::TOI_DA ) . ' câu, lọc theo nguồn hoặc thể loại để chia nhỏ' : '';
+		return '<form id="' . self::FORM_LO . '" class="phongdao-lo-form" method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><fieldset class="phongdao-lo-chon"><legend>Đưa nhiều câu vào Hộp việc</legend>'
+			. '<input type="hidden" name="action" value="' . TrangLo::TAO_KHO . '">' . wp_nonce_field( TrangLo::TAO_KHO, '_wpnonce', false, false ) . $an
+			. '<fieldset class="phongdao-lo-pham-vi"><legend>Phạm vi</legend>'
+			. '<label><input type="radio" name="pham_vi" value="chon" checked> Các câu đã chọn trên trang này</label>'
+			. '<label><input type="radio" name="pham_vi" value="loc"' . disabled( 0 === $so, true, false ) . '> Mọi câu khớp bộ lọc còn đưa vào được (' . esc_html( number_format_i18n( $so ) ) . ' câu' . esc_html( $qua ) . ')</label></fieldset>'
+			. '<button type="submit" class="button">Xem trước</button>'
+			. '<p class="description">Chỉ tính câu Chưa dùng, có lời, chưa có thẻ Câu mới. Bước xem trước cho bỏ chọn ngoại lệ; chưa có gì thay đổi cho tới khi bấm Áp dụng. Sau đó đăng các câu này ở Hộp việc: lọc "Câu mới từ nguồn", chọn Làm theo lô → Đăng.</p>'
+			. '</fieldset></form>';
 	}
 
 	/** Nút "Đưa vào Hộp việc": kiểm quyền, nonce từng câu; ghi qua UngVien; quay về đúng trang danh sách. */

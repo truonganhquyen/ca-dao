@@ -25,7 +25,7 @@ Hộp việc là **hàng chờ quyết định**, không phải danh mục toàn
 |---|---|---|
 | Tổng quan Phongdao | Thấy số việc chờ theo loại, bài thiếu phần, lô có lỗi; đi thẳng vào danh sách đã lọc | Số đếm lấy từ toàn bộ dữ liệu, ghi thời điểm cập nhật; không dùng giới hạn danh sách làm tổng |
 | Tác phẩm | Tìm ID/tên/lời, lọc trạng thái, thể loại, chủ đề, mức hoàn thiện, cờ và nguồn; chọn nhiều bài; xem thùng rác | Phân trang ở máy chủ; cột ID, trạng thái, phần thiếu, nguồn, lần sửa cuối; chỉ tải dữ liệu cần cho trang |
-| Kho | Tự tìm/lọc câu đã thu thập theo nguồn, thể loại, trạng thái; xem căn cứ và tự chọn câu đưa vào Hộp việc | Kho là danh sách tư liệu riêng, không phải Hộp việc. Nút chỉ tạo thẻ Câu mới đang chờ, không đăng, gộp, duyệt hay sửa lời; kiểm quyền, nonce, trạng thái câu và thẻ trùng trước khi ghi |
+| Kho | Tự tìm/lọc câu đã thu thập theo nguồn, thể loại, trạng thái; xem căn cứ và tự chọn câu đưa vào Hộp việc | Kho là danh sách tư liệu riêng, không phải Hộp việc. Nút chỉ tạo thẻ Câu mới đang chờ, không đăng, gộp, duyệt hay sửa lời; kiểm quyền, nonce, trạng thái câu và thẻ trùng trước khi ghi. Chọn nhiều câu hoặc mọi câu khớp bộ lọc tạo lô "Đưa vào Hộp việc" có xem trước (D-099) |
 | Sửa tác phẩm | Sửa Lời, Ý nghĩa, Từ khó, Dị bản, phần theo thể loại, phân loại, nguồn và xem lịch sử | Biểu mẫu theo phần, hiển thị nguồn gốc từng phần, báo việc đang chờ; lưu qua `LuuPhan`/`KiemPhan`; liên kết xem trước trang đọc |
 | Hộp việc | Xem Chờ, Để sau, Xong, Bỏ; tìm, lọc, quyết từng thẻ hoặc nhóm cùng loại | Số lượng chính xác; việc đã hoãn tìm lại được; một thẻ mở được tác phẩm liên quan |
 | Nguồn và danh mục | Xem hồ sơ nguồn, mục từ, địa danh, phân loại và quan hệ | Giữ quyền `cadao_nguon` cho thay đổi chính sách nguồn; không mở trường nội bộ qua giao diện mặc định |
@@ -45,7 +45,7 @@ Màn máy tính ưu tiên bảng và bộ lọc; màn điện thoại ưu tiên 
 
 **Chọn phạm vi:** giao diện luôn nói rõ “các mục đã chọn trên trang này” hay “mọi mục khớp bộ lọc”. Phạm vi thứ hai cần xem trước danh sách có phân trang và số lượng trước khi áp dụng. Mỗi lô có mã, người thực hiện, bộ lọc/tập ID đã chốt, thời điểm và kết quả `thành công / bỏ qua / xung đột / lỗi` cho từng mục. Chạy lại cùng lô không được áp dụng trùng. Bài đã đổi sau lúc xem trước phải được bỏ qua và báo xung đột, không ghi đè âm thầm. Xử lý theo lô có giới hạn, tiếp tục được sau gián đoạn; không phụ thuộc vào việc mở một trang chứa mọi bản ghi.
 
-**Duyệt nội dung, xuất bản và xoá là ba quyết định khác nhau.** Máy chỉ đề xuất; thao tác hàng loạt không tự đăng bài, không tự đặt dấu đã duyệt/có hỗ trợ AI, không tự quyết nguồn, bản quyền, địa danh, dị bản, gộp bài hay xoá vĩnh viễn. Mức thiếu nội dung là bộ lọc và lời nhắc, không thành cổng chặn đăng mới (D-039, D-054).
+**Duyệt nội dung, xuất bản và xoá là ba quyết định khác nhau.** Máy chỉ đề xuất; thao tác hàng loạt không tự đăng bài (riêng lô **Đăng thẻ Câu mới** — D-099 — do người có quyền duyệt bấm sau bước xem trước hiện lời, cờ và nguồn; câu có cờ để sẵn bỏ chọn, câu chờ quyết trùng bị bỏ qua), không tự đặt dấu đã duyệt/có hỗ trợ AI, không tự quyết nguồn, bản quyền, địa danh, dị bản, gộp bài hay xoá vĩnh viễn. Mức thiếu nội dung là bộ lọc và lời nhắc, không thành cổng chặn đăng mới (D-039, D-054).
 
 ## 4. Hợp đồng kỹ thuật
 

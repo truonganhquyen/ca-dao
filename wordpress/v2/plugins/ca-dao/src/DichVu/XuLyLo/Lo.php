@@ -2,9 +2,12 @@
 
 namespace Phongdao\DichVu\XuLyLo;
 
+use Phongdao\DichVu\ChongTrung\ChongTrung;
 use Phongdao\DichVu\LuuPhan\LuuPhanLoai;
+use Phongdao\DichVu\UngVien\UngVien;
 use Phongdao\DichVu\XepViec\QuyetViec;
 use Phongdao\HaTang\KhaiBao;
+use Phongdao\KhoLuu\Kho;
 use Phongdao\KhoLuu\PhanBai;
 use Phongdao\KhoLuu\Viec;
 
@@ -20,7 +23,9 @@ defined( 'ABSPATH' ) || exit;
  * - Một lô là một dòng `wp_cadao_viec` loại "lo" (trạng thái riêng, không vào Hộp việc): mã, người, phạm vi/bộ lọc, tập
  *   mục, thời điểm, kết quả.
  *
- * Máy không tự quyết nội dung: lô chỉ chạy khi người có quyền bấm; không đăng bài, không xoá vĩnh viễn.
+ * Máy không tự quyết nội dung: lô chỉ chạy khi người có quyền bấm; không xoá vĩnh viễn. Đăng theo lô (D-099) chỉ có cho
+ * thẻ Câu mới, cần quyền duyệt, và mỗi câu qua đúng đường của nút Đăng đơn; câu có cờ của nguồn để sẵn bỏ chọn, câu đang
+ * chờ quyết trùng thì bỏ qua.
  */
 final class Lo {
 
@@ -35,6 +40,8 @@ final class Lo {
 		'viec_de_sau'  => array( 'Để sau', 'viec', 'cadao_soan', 'de_sau' ),
 		'viec_bo'      => array( 'Bỏ đề xuất', 'viec', 'cadao_soan', 'bo' ),
 		'goi_y_dong_y' => array( 'Đồng ý gợi ý', 'viec', 'cadao_duyet', 'dong_y' ),
+		'cau_moi_dang' => array( 'Đăng (thẻ Câu mới từ nguồn)', 'viec', 'cadao_duyet', 'dang' ),
+		'kho_dua_vao'  => array( 'Đưa vào Hộp việc', 'kho', 'cadao_soan', 'dua_vao' ),
 		'pl_them'      => array( 'Thêm phân loại', 'post', 'cadao_soan', 'them' ),
 		'pl_go'        => array( 'Gỡ phân loại', 'post', 'cadao_soan', 'go' ),
 		'pl_thay'      => array( 'Thay thế phân loại', 'post', 'cadao_soan', 'thay' ),
@@ -99,6 +106,9 @@ final class Lo {
 		if ( 'post' === $doi_tuong ) {
 			return self::tao_bai( $thao_tac, $ids, $pham_vi, $loc, $nguoi, $tham_so );
 		}
+		if ( 'kho' === $doi_tuong ) {
+			return self::tao_kho( $thao_tac, $ids, $pham_vi, $loc, $nguoi );
+		}
 		$muc = self::chot_viec( $ids );
 		if ( ! $muc ) {
 			return self::sai( 'Các thẻ đã chọn không còn ở Chờ hay Để sau.' );
@@ -110,6 +120,11 @@ final class Lo {
 		if ( 'goi_y_dong_y' === $thao_tac && 'goi_y' !== $loai[0] ) {
 			return self::sai( 'Đồng ý theo lô chỉ dùng cho thẻ "Gợi ý chủ đề, vùng".' );
 		}
+		if ( 'cau_moi_dang' === $thao_tac && UngVien::VIEC !== $loai[0] ) {
+			return self::sai( 'Đăng theo lô chỉ dùng cho thẻ "Câu mới từ nguồn" (lọc Loại việc trước).' );
+		}
+		// Đăng: câu có cờ của nguồn hay đang chờ quyết trùng để sẵn bỏ chọn — người tự đánh dấu lại nếu muốn đăng
+		$bo = 'cau_moi_dang' === $thao_tac ? self::ngoai_le_cau_moi( array_column( $muc, 0 ) ) : array();
 		$id = Viec::tao(
 			array(
 				'loai'           => Viec::LO,
@@ -123,6 +138,95 @@ final class Lo {
 					'pham_vi'   => 'loc' === $pham_vi ? 'loc' : 'chon',
 					'loc'       => array_map( 'strval', $loc ),
 					'muc'       => array_map( static fn( array $m ): array => array( $m[0], $m[1] ), $muc ),
+					'bo'        => $bo,
+				),
+				'sau'            => array( 'ket_qua' => array() ),
+				'nguoi_tao'      => (string) $nguoi,
+			)
+		);
+		return $id ? array( 'ok' => true, 'lo' => $id, 'loi' => '' ) : self::sai( 'Chưa tạo được lô. Thử lại sau.' );
+	}
+
+	/**
+	 * Câu kho đang chờ quyết trùng trong một tập mã câu (một truy vấn mỗi 500 câu).
+	 *
+	 * @param int[] $kho_ids
+	 * @return array<int,bool>
+	 */
+	public static function kho_cho_trung( array $kho_ids ): array {
+		global $wpdb;
+		$ra = array();
+		foreach ( array_chunk( array_values( array_unique( array_map( 'intval', $kho_ids ) ) ), 500 ) as $phan ) {
+			$khoa = array_map( static fn( int $i ): string => 'kho:' . $i, $phan );
+			foreach ( $wpdb->get_col( $wpdb->prepare( 'SELECT a FROM ' . ChongTrung::bang( 'trung' ) . " WHERE trang_thai IN ('cho','de_sau') AND a IN (" . implode( ',', array_fill( 0, count( $khoa ), '%s' ) ) . ')', $khoa ) ) ?: array() as $a ) { // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$ra[ (int) substr( (string) $a, 4 ) ] = true;
+			}
+		}
+		return $ra;
+	}
+
+	/** Thẻ Câu mới có câu kho mang cờ của nguồn hay đang chờ quyết trùng (để sẵn bỏ chọn khi đăng theo lô). @return int[] */
+	private static function ngoai_le_cau_moi( array $the_ids ): array {
+		global $wpdb;
+		$kho = array();
+		$co  = array();
+		foreach ( array_chunk( array_map( 'intval', $the_ids ), 500 ) as $phan ) {
+			$dau = implode( ',', array_fill( 0, count( $phan ), '%d' ) );
+			foreach ( $wpdb->get_results( $wpdb->prepare( 'SELECT v.id, k.id AS kho, k.du_lieu FROM ' . Viec::bang() . ' v JOIN ' . Kho::bang() . " k ON k.id = v.doi_tuong_id WHERE v.doi_tuong_loai = 'kho' AND v.id IN ($dau)", $phan ), ARRAY_A ) ?: array() as $h ) { // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$kho[ (int) $h['id'] ] = (int) $h['kho'];
+				if ( ! empty( ( json_decode( (string) $h['du_lieu'], true ) ?: array() )['co'] ) ) {
+					$co[ (int) $h['id'] ] = true;
+				}
+			}
+		}
+		$trung = self::kho_cho_trung( array_values( $kho ) );
+		$bo    = array();
+		foreach ( $kho as $the => $k ) {
+			if ( isset( $co[ $the ] ) || isset( $trung[ $k ] ) ) {
+				$bo[] = $the;
+			}
+		}
+		sort( $bo, SORT_NUMERIC );
+		return $bo;
+	}
+
+	/**
+	 * Lô trên câu kho ("Đưa vào Hộp việc" nhiều câu): chỉ chốt câu còn Chưa dùng, có lời, chưa gắn bài và chưa có thẻ Câu
+	 * mới đang mở; bản lúc xem trước là trạng thái câu. Không đăng, không gộp, không sửa lời.
+	 */
+	private static function tao_kho( string $thao_tac, array $ids, string $pham_vi, array $loc, int $nguoi ): array {
+		global $wpdb;
+		$co = array();
+		foreach ( array_chunk( $ids, 500 ) as $phan ) {
+			$dau = implode( ',', array_fill( 0, count( $phan ), '%d' ) );
+			$sql = 'SELECT k.id, k.trang_thai FROM ' . Kho::bang() . " k WHERE k.id IN ($dau) AND k.trang_thai = 'moi' AND k.post_id = 0 AND k.loi <> ''"
+				. ' AND NOT EXISTS (SELECT 1 FROM ' . Viec::bang() . " v WHERE v.doi_tuong_loai = 'kho' AND v.doi_tuong_id = k.id AND v.loai = %s AND v.trang_thai IN ('cho','de_sau'))";
+			foreach ( $wpdb->get_results( $wpdb->prepare( $sql, array_merge( $phan, array( UngVien::VIEC ) ) ), ARRAY_A ) ?: array() as $h ) { // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$co[ (int) $h['id'] ] = (string) $h['trang_thai'];
+			}
+		}
+		$muc = array();
+		foreach ( $ids as $i ) {
+			if ( isset( $co[ $i ] ) ) {
+				$muc[] = array( $i, $co[ $i ] );
+			}
+		}
+		if ( ! $muc ) {
+			return self::sai( 'Không còn câu nào đưa vào được: chỉ câu Chưa dùng, có lời và chưa có thẻ Câu mới.' );
+		}
+		$id = Viec::tao(
+			array(
+				'loai'           => Viec::LO,
+				'trang_thai'     => Viec::LO_XEM,
+				'doi_tuong_loai' => Viec::LO,
+				'doi_tuong_id'   => 0,
+				'phan'           => $thao_tac,
+				'noi_dung'       => array(
+					'thao_tac'  => $thao_tac,
+					'doi_tuong' => 'kho',
+					'pham_vi'   => 'loc' === $pham_vi ? 'loc' : 'chon',
+					'loc'       => array_map( 'strval', $loc ),
+					'muc'       => $muc,
 					'bo'        => array(),
 				),
 				'sau'            => array( 'ket_qua' => array() ),
@@ -130,6 +234,22 @@ final class Lo {
 			)
 		);
 		return $id ? array( 'ok' => true, 'lo' => $id, 'loi' => '' ) : self::sai( 'Chưa tạo được lô. Thử lại sau.' );
+	}
+
+	/** Một câu kho: còn đúng trạng thái lúc xem trước thì đưa vào Hộp việc qua đúng đường của nút đơn (UngVien). @return array{0:string,1:string} */
+	private static function mot_kho( int $id, string $ban, int $nguoi ): array {
+		$m = Kho::lay( $id );
+		if ( ! $m ) {
+			return array( 'loi', 'Không còn câu này trong kho.' );
+		}
+		if ( $ban !== (string) $m->trang_thai || (int) $m->post_id ) {
+			return array( 'xung_dot', 'Câu đã đổi trạng thái sau lúc xem trước.' );
+		}
+		$kq = UngVien::dua_vao_hop_viec( $id, $nguoi );
+		if ( $kq['moi'] ) {
+			return array( 'thanh_cong', 'Đã tạo thẻ Câu mới #' . $kq['viec'] . '.' );
+		}
+		return array( $kq['ok'] || ! str_contains( (string) $kq['thong_bao'], 'Thử lại' ) ? 'bo_qua' : 'loi', (string) $kq['thong_bao'] );
 	}
 
 	/**
@@ -400,8 +520,10 @@ final class Lo {
 			if ( $lam >= self::MOI_LUOT ) {
 				break;
 			}
+			$dt = (string) ( $lo['noi_dung']['doi_tuong'] ?? 'viec' );
 			$kq[ (string) $id ] = isset( $bo[ $id ] ) ? array( 'bo_qua', 'Người bỏ khỏi lô lúc xem trước.' )
-				: ( 'post' === ( $lo['noi_dung']['doi_tuong'] ?? 'viec' ) ? self::mot_bai( $thao_tac, $id, (string) $p, $nguoi, (array) ( $lo['noi_dung']['tham_so'] ?? array() ) + array( 'gia_tri' => (array) ( $lo['noi_dung']['gia_tri'] ?? array() ) ) ) : self::mot( $thao_tac, $id, (int) $p, $nguoi, $duyet ) );
+				: ( 'post' === $dt ? self::mot_bai( $thao_tac, $id, (string) $p, $nguoi, (array) ( $lo['noi_dung']['tham_so'] ?? array() ) + array( 'gia_tri' => (array) ( $lo['noi_dung']['gia_tri'] ?? array() ) ) )
+					: ( 'kho' === $dt ? self::mot_kho( $id, (string) $p, $nguoi ) : self::mot( $thao_tac, $id, (int) $p, $nguoi, $duyet ) ) );
 			++$lam;
 		}
 		$con = count( $lo['noi_dung']['muc'] ) - count( $kq );
@@ -433,12 +555,17 @@ final class Lo {
 		if ( 'de_sau' === $quyet && Viec::DE_SAU === $v['trang_thai'] ) {
 			return array( 'bo_qua', 'Thẻ đã ở Để sau.' );
 		}
+		$dang = 'dang' === $quyet && UngVien::VIEC === $v['loai'];
+		if ( $dang && ChongTrung::dang_cho( (int) $v['doi_tuong_id'] ) ) {
+			return array( 'bo_qua', 'Câu đang chờ quyết trùng: quyết thẻ "Có thể trùng" trước.' );
+		}
 		$kq = QuyetViec::quyet( $id, $quyet, $nguoi, $duyet, $phien );
 		if ( $kq['ok'] ) {
-			return array( 'thanh_cong', (string) $kq['thong_bao'] );
+			$bai = $dang ? (int) ( Kho::lay( (int) $v['doi_tuong_id'] )?->post_id ?? 0 ) : 0;
+			return array( 'thanh_cong', (string) $kq['thong_bao'] . ( $bai ? ' Bài #' . $bai . '.' : '' ) );
 		}
 		$loi = implode( ' ', $kq['loi'] );
-		return array( str_contains( $loi, 'phiên khác' ) ? 'xung_dot' : ( str_contains( $loi, 'đã được quyết' ) ? 'bo_qua' : 'loi' ), $loi );
+		return array( str_contains( $loi, 'phiên khác' ) ? 'xung_dot' : ( str_contains( $loi, 'đã được quyết' ) || str_contains( $loi, 'không còn chờ' ) ? 'bo_qua' : 'loi' ), $loi );
 	}
 
 	/** Dừng lô: mục chưa làm giữ nguyên; mục đã làm vẫn có kết quả và nhật ký. */
