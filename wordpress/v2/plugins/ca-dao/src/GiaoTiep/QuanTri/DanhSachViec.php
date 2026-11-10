@@ -191,7 +191,7 @@ final class DanhSachViec {
 		$phan_trang = $so_trang > 1 ? '<nav class="phongdao-viec-trang" aria-label="Phân trang Hộp việc"><span>Trang ' . (int) $loc['paged'] . ' / ' . $so_trang . '</span>'
 			. ( $loc['paged'] > 1 ? '<a class="button" href="' . esc_url( self::url( $loc, $loc['paged'] - 1 ) ) . '">Trang trước</a>' : '' )
 			. ( $loc['paged'] < $so_trang ? '<a class="button" href="' . esc_url( self::url( $loc, $loc['paged'] + 1 ) ) . '">Trang sau</a>' : '' ) . '</nav>' : '';
-		$bang = '<table class="widefat striped"><thead><tr>' . ( $lo ? '<th scope="col">Chọn</th>' : '' ) . '<th scope="col">Việc</th><th scope="col">Đối tượng</th><th scope="col">Trạng thái</th><th scope="col">Tạo lúc</th></tr></thead><tbody>'
+		$bang = ( $lo ? TrangLo::chon_het( (int) $kq['tong'], 'thẻ' ) : '' ) . '<table class="widefat striped"><thead><tr>' . ( $lo ? '<th scope="col">Chọn</th>' : '' ) . '<th scope="col">Việc</th><th scope="col">Đối tượng</th><th scope="col">Trạng thái</th><th scope="col">Tạo lúc</th></tr></thead><tbody>'
 			. ( $dong ?: '<tr><td colspan="4">Không có thẻ phù hợp. Thử đổi bộ lọc.</td></tr>' ) . '</tbody></table>';
 		return '<div class="wrap phongdao-admin-viec"><h1>Hộp việc</h1><p class="description">Tìm lại thẻ đã quyết; mở thẻ Chờ hoặc Để sau để quyết bằng nghiệp vụ hiện có, hoặc chọn nhiều thẻ cùng loại để làm theo lô.</p>'
 			. TrangLo::lay_bao()

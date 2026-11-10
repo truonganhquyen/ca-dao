@@ -876,6 +876,7 @@ $h_kho  = $DSK::hien();
 $q_kho  = $wpdb->num_queries - $q_kho;
 kt( 'wp-admin Kho: hơn 1.000 câu đếm đủ, 30 dòng mới lấy trước, có Trang sau và nút đưa vào', 1050 === count( $kt_ids ) && str_contains( $h_kho, '<strong>1050</strong> câu khớp' ) && 30 === substr_count( $h_kho, 'data-nhan="Câu"' ) && str_contains( $h_kho, 'Trang sau' ) && 30 === substr_count( $h_kho, 'value="phongdao_kho_dua_vao"' ) && strpos( $h_kho, 'Câu kho thử 1050' ) < strpos( $h_kho, 'Câu kho thử 1049' ) );
 kt( 'wp-admin Kho: số truy vấn không tăng theo 30 dòng', $q_kho <= 20, $q_kho );
+kt( 'wp-admin Kho: thanh "Chọn tất cả trên trang này" ngay trên bảng, ẩn khi không có JavaScript, đếm theo số câu còn đưa vào được; ô chọn hết không gửi lên máy chủ', str_contains( $h_kho, '<div class="phongdao-chon-het" hidden data-tong="' . $DSK::dem_chon( array( 'nguon' => 'kho-thu', 'q' => '', 'loai' => '', 'tt' => 'moi', 'the' => 'tat_ca' ) ) . '" data-don-vi="câu">' ) && str_contains( $h_kho, '<input type="checkbox" class="phongdao-chon-het-o">' ) && strpos( $h_kho, 'phongdao-chon-het' ) < strpos( $h_kho, '<table class="widefat' ) );
 $_GET   = array( 'nguon' => 'kho-thu', 'loai' => 'cau_do' );
 $h_loai = $DSK::hien();
 $_GET   = array( 'nguon' => 'kho-thu', 'q' => 'thử 1049 dòng' );
@@ -1056,6 +1057,7 @@ $h_hv_ql = \Phongdao\GiaoTiep\QuanTri\DanhSachViec::hien();
 wp_set_current_user( $soan_k );
 $h_hv_s  = \Phongdao\GiaoTiep\QuanTri\DanhSachViec::hien();
 wp_set_current_user( $ai_ql );
+kt( 'Hộp việc: thanh "Chọn tất cả trên trang này" nằm trong form lô, trước bảng, đếm mọi thẻ khớp bộ lọc', (bool) preg_match( '#<form method="post" class="phongdao-lo-form"[^>]*>.*<div class="phongdao-chon-het" hidden data-tong="\d+" data-don-vi="thẻ">.*<table class="widefat#s', $h_hv_ql ) );
 kt( 'Hộp việc: lệnh "Đăng (thẻ Câu mới từ nguồn)" trong Làm theo lô chỉ có với người có quyền duyệt', str_contains( $h_hv_ql, 'value="cau_moi_dang"' ) && ! str_contains( $h_hv_s, 'value="cau_moi_dang"' ) && str_contains( $h_hv_s, 'value="viec_de_sau"' ) );
 foreach ( $wpdb->get_col( $wpdb->prepare( "SELECT post_id FROM $bang_kho WHERE nguon_id = %s AND trang_thai = 'da_tao_bai' AND post_id > 0", 'kho-thu' ) ) ?: array() as $p_xoa ) {
 	if ( (int) $p_xoa !== (int) $tp1 ) {
@@ -1315,6 +1317,7 @@ kt( 'lô thùng rác cần quyền duyệt; xem trước hiện việc mở, tuy
 $_GET   = array( 'q' => 'Bài lô tác phẩm', 'tt' => 'tat_ca' );
 $h_dstp = \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::hien();
 $ids_tp = \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::ids_loc( array( 'q' => 'Bài lô tác phẩm', 'tt' => 'tat_ca' ), $LO::TOI_DA );
+kt( 'danh sách Tác phẩm: thanh "Chọn tất cả trên trang này" trước bảng, đếm mọi bài khớp bộ lọc', (bool) preg_match( '#<div class="phongdao-chon-het" hidden data-tong="(\d+)" data-don-vi="bài">#', $h_dstp, $m_ch ) && count( $ids_tp ) === (int) $m_ch[1] && strpos( $h_dstp, 'phongdao-chon-het' ) < strpos( $h_dstp, '<table class="widefat' ), $m_ch ?? null );
 kt( 'danh sách Tác phẩm: ô chọn, khối Làm theo lô có mục phân loại có sẵn; "mọi bài khớp bộ lọc" lấy đủ bài kể cả thùng rác', str_contains( $h_dstp, 'name="ids[]" value="' . $tp_lo[1] . '"' ) && str_contains( $h_dstp, 'value="phongdao_lo_tao_bai"' ) && str_contains( $h_dstp, 'value="chu_de:' . $t_x . '"' ) && str_contains( $h_dstp, 'value="bai_an"' ) && 4 === count( array_intersect( $ids_tp, $tp_lo ) ), $ids_tp );
 add_filter( 'wp_die_handler', $chan_die_lo );
 add_filter( 'wp_redirect', $chan_di_lo );

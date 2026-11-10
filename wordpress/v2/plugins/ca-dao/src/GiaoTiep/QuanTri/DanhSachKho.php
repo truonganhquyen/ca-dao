@@ -268,18 +268,18 @@ final class DanhSachKho {
 		$phan_trang = $so_trang > 1 ? '<nav class="phongdao-tp-trang" aria-label="Phân trang"><span>Trang ' . (int) $loc['paged'] . ' / ' . $so_trang . '</span>'
 			. ( $loc['paged'] > 1 ? '<a class="button" href="' . esc_url( self::url( $loc, (int) $loc['paged'] - 1 ) ) . '">Trang trước</a>' : '' )
 			. ( $loc['paged'] < $so_trang ? '<a class="button" href="' . esc_url( self::url( $loc, (int) $loc['paged'] + 1 ) ) . '">Trang sau</a>' : '' ) . '</nav>' : '';
+		$so_chon = $kq['tong'] > 0 ? self::dem_chon( $loc ) : 0;
 		return '<div class="wrap phongdao-admin-tp phongdao-admin-kho"><h1>Kho</h1>'
 			. '<p class="description">Câu máy đã thu thập từ nguồn, chưa lên trang. Tự chọn câu muốn đăng: bấm "Đưa vào Hộp việc" để tạo thẻ Câu mới, rồi quyết Đăng, Sửa rồi đăng hay Bỏ ở Hộp việc. Nút không tự đăng, không sửa lời.</p>'
 			. $bao . $form
 			. '<p class="phongdao-tp-tong" role="status"><strong>' . (int) $kq['tong'] . '</strong> câu khớp bộ lọc. Hiện ' . count( $kq['ds'] ) . ' câu trên trang này.</p>'
-			. ( $kq['tong'] > 0 ? self::khoi_lo( $loc ) : '' )
+			. ( $kq['tong'] > 0 ? self::khoi_lo( $loc, $so_chon ) . TrangLo::chon_het( $so_chon, 'câu' ) : '' )
 			. '<table class="widefat striped"><thead><tr><th scope="col">Chọn</th><th scope="col">ID</th><th scope="col">Câu</th><th scope="col">Thể loại</th><th scope="col">Nguồn</th><th scope="col">Trạng thái</th><th scope="col">Làm gì</th></tr></thead><tbody>'
 			. ( $dong ?: '<tr><td colspan="7">Không có câu nào khớp. Thử đổi bộ lọc.</td></tr>' ) . '</tbody></table>' . $phan_trang . '</div>';
 	}
 
 	/** Khối "Đưa nhiều câu vào Hộp việc": phạm vi đã chọn trên trang / mọi câu khớp bộ lọc, sang bước xem trước của lô. */
-	private static function khoi_lo( array $loc ): string {
-		$so  = self::dem_chon( $loc );
+	private static function khoi_lo( array $loc, int $so ): string {
 		$an  = '';
 		foreach ( array( 'q', 'nguon', 'loai', 'tt', 'the' ) as $k ) {
 			$an .= '<input type="hidden" name="loc_' . $k . '" value="' . esc_attr( (string) $loc[ $k ] ) . '">';

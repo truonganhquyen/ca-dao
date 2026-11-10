@@ -869,6 +869,8 @@ Phần còn thiếu gom thành **T-185** (`READY`, xếp sau các việc của `
 
 **T-187.3 (10/11/2026, kiểm thử ổn định, tiếp):** sau #144 vẫn còn hỏng ngẫu nhiên ở các bước lô; ảnh lỗi CI và một lần tái hiện tại máy ("frame detached") cho thấy puppeteer mất dấu trang khi Chrome thay khung lúc gửi form rồi chuyển hướng. `bamDoiTrang` của `e2e:v2` nay không dựa vào `waitForNavigation`: đánh dấu trang cũ, bấm, chờ trang hiện tại là trang mới đã tải xong; bước "Lô sửa từng hàng" đánh dấu "đã duyệt" bằng phần tử và kiểm dấu còn sau khi lưu (#145); khi một bước hỏng, in các yêu cầu tải trang còn treo để chẩn đoán. Kiểm cục bộ: `e2e:v2` hai lượt liền, mỗi lượt 34 bước đạt.
 
+**T-187.4 (11/11/2026, chọn hàng loạt, người sáng lập hỏi):** danh sách Tác phẩm, Hộp việc, Kho chỉ đánh dấu được từng hàng. Thêm thanh "Chọn tất cả N … trên trang này" ngay trên bảng (`TrangLo::chon_het`, hiện khi có JavaScript, dùng được trên điện thoại vì đầu bảng bị ẩn ở màn hẹp): ô ba trạng thái (chưa / một phần / hết), giữ Shift chọn một dải, và khi đã chọn cả trang mà bộ lọc còn nhiều hơn thì nút "Chọn mọi N … khớp bộ lọc" chuyển Phạm vi của khối lô sang mọi mục khớp bộ lọc. Ô chọn hết không có name nên không gửi gì lên máy chủ; máy chủ, xem trước lô và quyền không đổi. Plugin 1.0.39.
+
 **Lưu ý trạng thái:** T-143..T-157 là backlog xây mới trước ngày chuyển; trạng thái đã đối soát theo bằng chứng ở T-178.3 (10/11/2026), phần còn thiếu ở T-185. Nhóm T-166..T-183 theo dõi **nâng cấp mới**, không dùng các trạng thái cũ để suy ra chức năng đã có. T-178 đối soát backlog lịch sử theo bằng chứng, không đổi trạng thái hàng loạt theo suy đoán.
 
 ## 4. User story

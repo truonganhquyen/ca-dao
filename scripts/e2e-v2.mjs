@@ -564,6 +564,40 @@ try {
       chac(!(await coChu(k, 'Câu kho mẫu')) && !(await coChu(k, 'Tục ngữ kho mẫu')), `khách thấy dữ liệu kho (HTTP ${tl.status()})`);
     });
 
+    await thu('wp-admin chọn hàng loạt ở Tác phẩm: chọn tất cả trên trang, giữ Shift chọn một dải, bỏ chọn hết', async () => {
+      await di(bt, '/wp-admin/admin.php?page=phongdao-tac-pham&tt=tat_ca');
+      const o = 'input[name="ids[]"]';
+      const n = await bt.$$eval(o, os => os.length);
+      chac(n >= 3, `danh sách Tác phẩm không đủ bài để thử chọn hàng loạt (thấy ${n})`);
+      await bt.waitForSelector('.phongdao-chon-het:not([hidden])', { visible: true, timeout: 15_000 });
+      const dem = () => bt.$$eval(o + ':checked', os => os.length);
+      const trangThai = () => bt.$eval('.phongdao-chon-het-o', h => (h.checked ? 'het' : h.indeterminate ? 'mot_phan' : 'chua'));
+      chac(await coChu(bt, `Chọn tất cả ${n} bài trên trang này`), 'thanh chọn không ghi số bài trên trang');
+      await bam(bt, '.phongdao-chon-het-o');
+      chac(await dem() === n && await trangThai() === 'het', `bấm "Chọn tất cả" mà chỉ chọn ${await dem()}/${n} bài`);
+      chac(await bt.$eval('details.phongdao-lo-gon', (d, so) => d.open && d.querySelector('.phongdao-lo-dem').textContent.includes(`đã chọn ${so}`), n), 'chọn tất cả mà khối Làm theo lô không mở, không đếm');
+      await bam(bt, '.phongdao-chon-het-o');
+      chac(await dem() === 0 && await trangThai() === 'chua', 'bấm lại "Chọn tất cả" mà không bỏ chọn hết');
+      // Bấm ô thứ nhất, giữ Shift bấm ô thứ ba: chọn cả ba
+      const ids = await bt.$$eval(o, os => os.map(x => x.value));
+      await bam(bt, `${o}[value="${ids[0]}"]`);
+      await bt.keyboard.down('Shift');
+      await bam(bt, `${o}[value="${ids[2]}"]`);
+      await bt.keyboard.up('Shift');
+      const chon = await bt.$$eval(o + ':checked', os => os.map(x => x.value));
+      chac(chon.join() === ids.slice(0, 3).join(), `giữ Shift chọn dải được ${chon.length} bài (${chon.join()}), cần 3 bài đầu`);
+      chac(n === 3 ? await trangThai() === 'het' : await trangThai() === 'mot_phan', 'ô "Chọn tất cả" không hiện chọn một phần');
+      // Có nhiều bài khớp bộ lọc hơn trên trang thì có nút chuyển sang "Mọi bài khớp bộ lọc"
+      await bt.$eval('.phongdao-chon-het-o', h => { if (!h.checked) h.click(); });
+      const tong = await bt.$eval('.phongdao-chon-het', t => Number(t.dataset.tong));
+      if (tong > n) {
+        await bam(bt, '.phongdao-chon-loc');
+        chac(await bt.$eval('input[name=pham_vi][value=loc]', r => r.checked), 'bấm "Chọn mọi bài khớp bộ lọc" mà Phạm vi không đổi');
+      }
+      await bt.$eval('.phongdao-chon-het-o', h => { if (h.checked) h.click(); });
+      chac(await dem() === 0 && await bt.$eval('input[name=pham_vi][value=chon]', r => r.checked), 'bỏ chọn hết mà còn ô chọn hoặc Phạm vi vẫn là mọi bài');
+    });
+
     await thu('wp-admin Lô: Để sau mọi thẻ Câu mới khớp bộ lọc — xem trước, áp dụng, kết quả từng mục', async () => {
       await di(bt, '/wp-admin/admin.php?page=phongdao-hop-viec&tt=cho&loai=cau_moi');
       chac(await bt.$('.phongdao-lo-chon'), 'Hộp việc không có khối Làm theo lô');
