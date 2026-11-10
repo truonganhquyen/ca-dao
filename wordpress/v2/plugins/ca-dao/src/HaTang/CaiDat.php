@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class CaiDat implements Module {
 
-	public const PHIEN_BAN_CSDL = 10;
+	public const PHIEN_BAN_CSDL = 11;
 
 	/** Tuỳ chọn lưu phiên bản lược đồ đã cài. */
 	public const TUY_CHON = 'phongdao_csdl';
@@ -72,6 +72,10 @@ final class CaiDat implements Module {
 			if ( false === $wpdb->query( 'SELECT phien FROM ' . Viec::bang() . ' LIMIT 0' ) ) {
 				return; // không ghi phiên bản lược đồ mới để lượt sau thử lại
 			}
+		}
+		if ( $da_cai < 11 ) {
+			// Bước 11 (T-187): lịch chọn câu mới hằng ngày đúng 06:00 giờ Việt Nam (trước chạy 13:00 vì hẹn theo UTC)
+			\Phongdao\DichVu\NhapNguon\NguonTuDong::hen_lai_lich_ngay();
 		}
 		update_option( self::TUY_CHON, self::PHIEN_BAN_CSDL, false );
 	}

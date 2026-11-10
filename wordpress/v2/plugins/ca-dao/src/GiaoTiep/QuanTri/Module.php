@@ -5,8 +5,9 @@ namespace Phongdao\GiaoTiep\QuanTri;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Mục menu "Phongdao" trong wp-admin (D-094; docs/28 mục 4.7): trang Nguồn & cài đặt (chỉ Quản trị) và đường tắt tới
- * Hộp việc cho mọi người biên soạn.
+ * Mục menu "Phongdao" trong wp-admin (D-094, D-100; docs/28 mục 4.7): xếp theo việc hằng ngày — Bàn làm việc (mở khi
+ * bấm "Phongdao" và ngay sau khi đăng nhập), Hộp việc (kèm số việc chờ), Tác phẩm, Kho, Nguồn & cài đặt (chỉ Quản trị),
+ * Thao tác hàng loạt. "Sửa tác phẩm" là màn con mở từ danh sách, không nằm trên menu.
  */
 final class Module implements \Phongdao\HaTang\Module {
 
@@ -14,6 +15,10 @@ final class Module implements \Phongdao\HaTang\Module {
 
 	public function dang_ky(): void {
 		add_action( 'admin_menu', array( $this, 'them_menu' ) );
+		add_filter( 'login_redirect', array( self::class, 'sau_dang_nhap' ), 10, 3 );
+		add_filter( 'submenu_file', array( self::class, 'muc_dang_mo' ) );
+		add_filter( 'parent_file', array( self::class, 'menu_dang_mo' ) );
+		add_action( 'admin_bar_menu', array( self::class, 'them_moi' ), 80 );
 		NguonCaiDat::dang_ky();
 		SuaTacPham::dang_ky();
 		DanhSachKho::dang_ky();
@@ -22,25 +27,46 @@ final class Module implements \Phongdao\HaTang\Module {
 	}
 
 	public function them_menu(): void {
-		add_menu_page( 'Phongdao', 'Phongdao', 'cadao_soan', self::TRANG, array( $this, 'hien' ), 'dashicons-book-alt', 3 );
-		add_action( 'load-toplevel_page_' . self::TRANG, array( $this, 'trang_dau' ) );
-		add_submenu_page( self::TRANG, 'Bàn làm việc', 'Bàn làm việc', 'cadao_soan', BanLamViec::TRANG, static function (): void {
+		$ban = static function (): void {
 			echo BanLamViec::hien(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- lớp hiển thị thoát giá trị động
+		};
+		$cha = BanLamViec::TRANG;
+		add_menu_page( 'Phongdao', 'Phongdao', 'cadao_soan', $cha, $ban, 'dashicons-book-alt', 3 );
+		add_submenu_page( $cha, 'Bàn làm việc', 'Bàn làm việc', 'cadao_soan', $cha, $ban );
+		$cho = \Phongdao\KhoLuu\Viec::dem_cho();
+		$moc = add_submenu_page( $cha, 'Hộp việc', 'Hộp việc' . ( $cho ? ' <span class="awaiting-mod count-' . $cho . '"><span class="pending-count">' . number_format_i18n( $cho ) . '</span></span>' : '' ), 'cadao_soan', DanhSachViec::TRANG, static function (): void {
+			echo DanhSachViec::hien(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- lớp hiển thị thoát giá trị động
 		} );
-		$ds = add_submenu_page( self::TRANG, 'Tác phẩm', 'Tác phẩm', 'cadao_soan', DanhSachTacPham::TRANG, static function (): void {
+		if ( $moc ) {
+			add_action( 'admin_enqueue_scripts', static function ( string $trang ) use ( $moc ): void {
+				if ( $trang === $moc ) {
+					$tep = dirname( __DIR__, 3 ) . '/ca-dao.php';
+					wp_enqueue_style( 'phongdao-admin-viec', plugins_url( 'assets/admin-viec.css', $tep ), array(), CADAO_PHIEN_BAN );
+					wp_enqueue_script( 'phongdao-admin-chon', plugins_url( 'assets/admin-chon.js', $tep ), array(), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
+				}
+			} );
+		}
+		$ds = add_submenu_page( $cha, 'Tác phẩm', 'Tác phẩm', 'cadao_soan', DanhSachTacPham::TRANG, static function (): void {
 			echo DanhSachTacPham::hien(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- mọi giá trị động được thoát trong lớp hiển thị
 		} );
 		if ( $ds ) {
 			add_action( 'admin_enqueue_scripts', static function ( string $trang ) use ( $ds ): void {
 				if ( $trang === $ds ) {
-					wp_enqueue_style( 'phongdao-admin-tac-pham', plugins_url( 'assets/admin-tac-pham.css', dirname( __DIR__, 3 ) . '/ca-dao.php' ), array(), CADAO_PHIEN_BAN );
+					$tep = dirname( __DIR__, 3 ) . '/ca-dao.php';
+					wp_enqueue_style( 'phongdao-admin-tac-pham', plugins_url( 'assets/admin-tac-pham.css', $tep ), array(), CADAO_PHIEN_BAN );
+					wp_enqueue_script( 'phongdao-admin-chon', plugins_url( 'assets/admin-chon.js', $tep ), array(), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
 				}
 			} );
 		}
-		$sua = add_submenu_page( self::TRANG, 'Sửa tác phẩm', 'Sửa tác phẩm', 'cadao_soan', SuaTacPham::TRANG, static function (): void {
+		// Màn con, không lên menu: mở từ danh sách Tác phẩm, Hộp việc, Bàn làm việc
+		$sua = add_submenu_page( '', 'Sửa tác phẩm', 'Sửa tác phẩm', 'cadao_soan', SuaTacPham::TRANG, static function (): void {
 			echo SuaTacPham::hien(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- lớp hiển thị thoát giá trị động
 		} );
 		if ( $sua ) {
+			add_action( 'load-' . $sua, static function (): void {
+				global $title;
+				$title = 'Sửa tác phẩm'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- màn ẩn khỏi menu không có tiêu đề cho thẻ <title>
+			} );
 			add_action( 'admin_enqueue_scripts', static function ( string $trang ) use ( $sua ): void {
 				if ( $trang === $sua ) {
 					$tep = dirname( __DIR__, 3 ) . '/ca-dao.php';
@@ -49,17 +75,22 @@ final class Module implements \Phongdao\HaTang\Module {
 				}
 			} );
 		}
-		$moc = add_submenu_page( self::TRANG, 'Hộp việc', 'Hộp việc', 'cadao_soan', DanhSachViec::TRANG, static function (): void {
-			echo DanhSachViec::hien(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- lớp hiển thị thoát giá trị động
+		$kho = add_submenu_page( $cha, 'Kho', 'Kho', 'cadao_soan', DanhSachKho::TRANG, static function (): void {
+			echo DanhSachKho::hien(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- lớp hiển thị thoát giá trị động
 		} );
-		if ( $moc ) {
-			add_action( 'admin_enqueue_scripts', static function ( string $trang ) use ( $moc ): void {
-				if ( $trang === $moc ) {
-					wp_enqueue_style( 'phongdao-admin-viec', plugins_url( 'assets/admin-viec.css', dirname( __DIR__, 3 ) . '/ca-dao.php' ), array(), CADAO_PHIEN_BAN );
+		if ( $kho ) {
+			add_action( 'admin_enqueue_scripts', static function ( string $trang ) use ( $kho ): void {
+				if ( $trang === $kho ) {
+					$tep = dirname( __DIR__, 3 ) . '/ca-dao.php';
+					wp_enqueue_style( 'phongdao-admin-tac-pham', plugins_url( 'assets/admin-tac-pham.css', $tep ), array(), CADAO_PHIEN_BAN );
+					wp_enqueue_style( 'phongdao-admin-kho', plugins_url( 'assets/admin-kho.css', $tep ), array( 'phongdao-admin-tac-pham' ), CADAO_PHIEN_BAN );
+					wp_enqueue_script( 'phongdao-admin-chon', plugins_url( 'assets/admin-chon.js', $tep ), array(), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
 				}
 			} );
 		}
-		$lo = add_submenu_page( self::TRANG, 'Lô thao tác', 'Lô thao tác', 'cadao_soan', TrangLo::TRANG, static function (): void {
+		// Nguồn & cài đặt giữ đường dẫn admin.php?page=phongdao (hồ sơ nguồn, máy đang làm… trỏ tới đây); chỉ Quản trị
+		add_submenu_page( $cha, 'Nguồn & cài đặt', 'Nguồn &amp; cài đặt', NguonCaiDat::QUYEN, self::TRANG, array( $this, 'hien' ) );
+		$lo = add_submenu_page( $cha, 'Thao tác hàng loạt', 'Thao tác hàng loạt', 'cadao_soan', TrangLo::TRANG, static function (): void {
 			echo TrangLo::hien(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- lớp hiển thị thoát giá trị động
 		} );
 		if ( $lo ) {
@@ -72,33 +103,44 @@ final class Module implements \Phongdao\HaTang\Module {
 				}
 			} );
 		}
-		$kho = add_submenu_page( self::TRANG, 'Kho', 'Kho', 'cadao_soan', DanhSachKho::TRANG, static function (): void {
-			echo DanhSachKho::hien(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- lớp hiển thị thoát giá trị động
-		} );
-		if ( $kho ) {
-			add_action( 'admin_enqueue_scripts', static function ( string $trang ) use ( $kho ): void {
-				if ( $trang === $kho ) {
-					$tep = dirname( __DIR__, 3 ) . '/ca-dao.php';
-					wp_enqueue_style( 'phongdao-admin-tac-pham', plugins_url( 'assets/admin-tac-pham.css', $tep ), array(), CADAO_PHIEN_BAN );
-					wp_enqueue_style( 'phongdao-admin-kho', plugins_url( 'assets/admin-kho.css', $tep ), array( 'phongdao-admin-tac-pham' ), CADAO_PHIEN_BAN );
-				}
-			} );
+	}
+
+	/** Đăng nhập xong (không có đích riêng) thì người biên soạn vào Bàn làm việc, không vào trang chào mừng WordPress. */
+	public static function sau_dang_nhap( string $dich, string $yeu_cau, $nguoi ): string {
+		$mac_dinh = '' === $yeu_cau || in_array( untrailingslashit( $yeu_cau ), array( untrailingslashit( admin_url() ), untrailingslashit( admin_url( 'index.php' ) ) ), true );
+		if ( $mac_dinh && $nguoi instanceof \WP_User && $nguoi->has_cap( 'cadao_soan' ) ) {
+			return admin_url( 'admin.php?page=' . BanLamViec::TRANG );
+		}
+		return $dich;
+	}
+
+	/** "Thêm mới → Tác phẩm" ở thanh trên cùng, mở màn Thêm bài (có kiểm trùng khi dán lời). */
+	public static function them_moi( \WP_Admin_Bar $thanh ): void {
+		if ( current_user_can( 'cadao_soan' ) && $thanh->get_node( 'new-content' ) ) {
+			$thanh->add_node(
+				array(
+					'parent' => 'new-content',
+					'id'     => 'new-tac-pham',
+					'title'  => 'Tác phẩm',
+					'href'   => home_url( '/bien-tap/them/' ),
+				)
+			);
 		}
 	}
 
-	/** Biên tập mở menu Phongdao tới danh sách chính; Quản trị giữ trang Nguồn & cài đặt hiện có. */
-	public function trang_dau(): void {
-		if ( ! current_user_can( NguonCaiDat::QUYEN ) ) {
-			wp_safe_redirect( admin_url( 'admin.php?page=' . DanhSachTacPham::TRANG ) );
-			exit;
-		}
+	/** Màn Sửa tác phẩm (ẩn khỏi menu) giữ menu Phongdao mở. */
+	public static function menu_dang_mo( $cha ) {
+		$trang = sanitize_key( (string) ( $_GET['page'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc để tô menu
+		return SuaTacPham::TRANG === $trang ? BanLamViec::TRANG : $cha;
+	}
+
+	/** Màn Sửa tác phẩm (ẩn khỏi menu) đánh dấu mục "Tác phẩm" đang mở. */
+	public static function muc_dang_mo( $muc ) {
+		$trang = sanitize_key( (string) ( $_GET['page'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc để tô menu
+		return SuaTacPham::TRANG === $trang ? DanhSachTacPham::TRANG : $muc;
 	}
 
 	public function hien(): void {
-		if ( ! current_user_can( NguonCaiDat::QUYEN ) ) {
-			echo '<div class="wrap"><h1>Phongdao</h1><p>' . esc_html__( 'Việc biên tập làm ngay trên trang đọc và ở Hộp việc.', 'ca-dao' ) . ' <a href="' . esc_url( home_url( '/bien-tap/' ) ) . '">' . esc_html__( 'Mở Hộp việc', 'ca-dao' ) . '</a></p></div>';
-			return;
-		}
 		// phpcs:disable WordPress.Security.NonceVerification -- chỉ đọc để chọn thẻ, hồ sơ
 		echo NguonCaiDat::hien( sanitize_key( wp_unslash( $_GET['the'] ?? '' ) ), (int) ( $_GET['ho_so'] ?? 0 ), NguonCaiDat::bao() ); // phpcs:ignore WordPress.Security.EscapeOutput -- đã thoát trong NguonCaiDat
 	}

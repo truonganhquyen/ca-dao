@@ -45,7 +45,20 @@ final class TamSua {
 		return '<dialog class="tam-sua" id="' . $id . '" aria-labelledby="' . $id . '-tieu-de"><form method="post" class="tam-khung" data-phan="' . esc_attr( $phan ) . '">'
 			. '<header class="tam-dau"><h2 id="' . $id . '-tieu-de">' . esc_html( $tieu_de ) . '</h2><button type="button" class="nut-dong" data-action="dong-tam" aria-label="Đóng"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></svg></button></header>'
 			. '<div class="tam-than">' . $than . '<p class="tam-loi" role="alert" hidden></p></div>'
-			. '<footer class="tam-chan"><button type="button" class="btn" data-action="dong-tam">Huỷ</button><button type="submit" class="btn primary">Lưu</button></footer></form></dialog>';
+			. '<footer class="tam-chan"><button type="button" class="btn" data-action="dong-tam">Huỷ</button>' . self::nut_luu( $phan, $ctx, 'btn primary', 'btn' ) . '</footer></form></dialog>';
+	}
+
+	/**
+	 * Nút lưu của một phần (D-102). Ý nghĩa: "Lưu nháp" (vào Hộp việc, người đọc chưa thấy) và — chỉ người có quyền
+	 * duyệt — "Lưu và hiện cho người đọc". Người vẫn là người bấm; không còn ô "đã duyệt" dễ quên.
+	 */
+	public static function nut_luu( string $phan, array $ctx, string $lop_chinh, string $lop_phu, string $nhan = 'Lưu' ): string {
+		if ( 'y_nghia' === ( self::TAM[ $phan ][1] ?? '' ) ) {
+			return ! empty( $ctx['duyet'] )
+				? '<button type="submit" name="duyet" value="" class="' . esc_attr( $lop_phu ) . '">Lưu nháp</button><button type="submit" name="duyet" value="1" class="' . esc_attr( $lop_chinh ) . '">Lưu và hiện cho người đọc</button>'
+				: '<button type="submit" class="' . esc_attr( $lop_chinh ) . '">Lưu nháp</button>';
+		}
+		return '<button type="submit" class="' . esc_attr( $lop_chinh ) . '">' . esc_html( $nhan ) . '</button>';
 	}
 
 	/** Cùng trường nhập của tấm sửa trang đọc và biểu mẫu wp-admin. */
@@ -82,8 +95,9 @@ final class TamSua {
 	private static function form_y_nghia( ?array $cu, array $ctx ): string {
 		return self::vung( 's-y-nghia', 'chu', 'Ý nghĩa · 2–3 câu ngắn', (string) ( $cu['chu'] ?? '' ) )
 			. self::hop( 's-y-nghia-ai', 'ai', 'Có hỗ trợ của AI', ! empty( $cu['ai'] ) )
-			. ( $ctx['duyet'] ? self::hop( 's-y-nghia-duyet', 'duyet', 'Tôi đã đọc và duyệt phần này', false ) : '' )
-			. '<p class="small muted">Lưu khi chưa đánh "đã duyệt" thì ý nghĩa ở dạng nháp trong Hộp việc, người đọc chưa thấy. Để trống và đánh "đã duyệt" = gỡ ý nghĩa.</p>';
+			. ( $ctx['duyet']
+				? '<p class="small muted">"Lưu nháp": ý nghĩa vào Hộp việc, người đọc chưa thấy. "Lưu và hiện cho người đọc": hiện ngay trên trang bài. Để trống rồi bấm "Lưu và hiện cho người đọc" = gỡ ý nghĩa.</p>'
+				: '<p class="small muted">Ý nghĩa lưu thành nháp trong Hộp việc; người có quyền duyệt xem rồi mới hiện cho người đọc.</p>' );
 	}
 
 	/** Đoạn của bài vè dài: tiêu đề + từ dòng, đến dòng (đếm dòng có chữ). */

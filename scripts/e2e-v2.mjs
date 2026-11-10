@@ -281,8 +281,9 @@ try {
       await di(bt, caDao);
       await bam(bt, '[data-action=mo-tam][data-tam=y_nghia]');
       await datO(bt, 'dialog#tam-y_nghia[open] textarea[name=chu]', yNghia);
-      chac(await bt.$eval('dialog#tam-y_nghia input[name=duyet]', o => !o.checked), 'ô "đã duyệt" đánh sẵn');
-      await bamDoiTrang(bt, 'dialog#tam-y_nghia [type=submit]');
+      // Hai nút lưu thay ô "đã duyệt" (D-102): bấm "Lưu nháp"
+      chac(await bt.$('dialog#tam-y_nghia button[name=duyet][value="1"]') && !(await bt.$('dialog#tam-y_nghia input[name=duyet]')), 'tấm sửa Ý nghĩa chưa có hai nút "Lưu nháp" / "Lưu và hiện cho người đọc"');
+      await bamDoiTrang(bt, 'dialog#tam-y_nghia button[name=duyet][value=""]');
       await baoCo(bt, 'nháp vào Hộp việc');
       await di(k, caDao);
       chac(!(await coChu(k, yNghia)), 'người đọc đã thấy nháp');
@@ -339,8 +340,26 @@ try {
       chac(await coChu(bt, yNghia), 'chi tiết thẻ không có đúng nháp cần duyệt');
       await bamDoiTrang(bt, '.phongdao-admin-viec article.the-viec button[name=quyet][value=duyet]');
       chac(await coChu(bt, 'Đã duyệt') && !(await bt.$('.phongdao-admin-viec article.the-viec button[name=quyet]')), 'quyết trong admin chưa đóng thẻ hoặc còn nút quyết');
+      // Quyết xong không phải ngõ cụt: ghi nhãn quyết định, có lối sang bài và sang thẻ kế (hoặc báo hết thẻ)
+      chac(await coChu(bt, 'Đã quyết: Duyệt') && !(await bt.$eval('.phongdao-viec-tt', e => e.textContent.includes('Phiên'))), 'thẻ đã quyết chưa ghi nhãn quyết định dễ đọc');
+      chac(!(await bt.$eval('article.the-viec', e => e.textContent.includes('chưa duyệt') || e.textContent.includes('người đọc chưa thấy'))), 'thẻ đã duyệt vẫn ghi "chưa duyệt" / "người đọc chưa thấy"');
+      chac(await bt.$('.phongdao-viec-bai a[href*="phongdao-sua-tac-pham"]') && (await bt.$('.phongdao-viec-tiep a') || await coChu(bt, 'Hết thẻ')), 'quyết xong không có lối Sửa bài hoặc Thẻ tiếp theo');
       await di(k, caDao);
       chac(await coChu(k, yNghia), 'duyệt rồi người đọc vẫn chưa thấy');
+    });
+
+    await thu('wp-admin Sửa tác phẩm: lời hiện ở đầu; Ẩn khỏi người đọc rồi Đăng lại ngay trên trang sửa', async () => {
+      await di(bt, caDao);
+      const id = await bt.$eval('.dai-bien-tap', e => e.dataset.bai);
+      await di(bt, `/wp-admin/admin.php?page=phongdao-sua-tac-pham&id=${id}`);
+      chac(await bt.$('.phongdao-loi-xem li'), 'trang sửa chưa hiện lời ở đầu');
+      await bamDoiTrang(bt, '.phongdao-trang-thai form:has(input[name=trang_thai][value=private]) [type=submit]');
+      chac(await coChu(bt, 'Đã ẩn bài khỏi người đọc'), 'không báo đã ẩn bài');
+      const an = await k.goto(G + caDao, { waitUntil: 'load', timeout: 120_000 });
+      chac(an.status() === 404, `ẩn rồi khách vẫn mở được bài (HTTP ${an.status()})`);
+      await bamDoiTrang(bt, '.phongdao-trang-thai form:has(input[name=trang_thai][value=publish]) [type=submit]');
+      chac(await coChu(bt, 'Đã đăng: người đọc thấy bài'), 'không báo đã đăng lại');
+      await di(k, caDao);
     });
 
     await thu('wp-admin Sửa tác phẩm: lưu Ý nghĩa qua cùng dịch vụ, người đọc thấy bản đã duyệt', async () => {
@@ -351,8 +370,7 @@ try {
       chac(await bt.$('#phan-y_nghia form') && await coChu(bt, 'Việc đang chờ'), 'không mở được trang sửa có cấu trúc');
       await bam(bt, '#phan-y_nghia summary');
       await datO(bt, '#phan-y_nghia textarea[name=chu]', moi);
-      await bam(bt, '#phan-y_nghia input[name=duyet]');
-      await bamDoiTrang(bt, '#phan-y_nghia form [type=submit]');
+      await bamDoiTrang(bt, '#phan-y_nghia button[name=duyet][value="1"]');
       chac(await coChu(bt, 'Đã lưu phần bài.'), 'wp-admin không báo lưu thành công');
       await di(k, caDao);
       chac(await coChu(k, moi), 'người đọc không thấy Ý nghĩa vừa duyệt trong wp-admin');
@@ -527,6 +545,9 @@ try {
     await thu('wp-admin Lô: Để sau mọi thẻ Câu mới khớp bộ lọc — xem trước, áp dụng, kết quả từng mục', async () => {
       await di(bt, '/wp-admin/admin.php?page=phongdao-hop-viec&tt=cho&loai=cau_moi');
       chac(await bt.$('.phongdao-lo-chon'), 'Hộp việc không có khối Làm theo lô');
+      // Khối lô thu gọn khi chưa chọn thẻ nào: mở bằng tay để chọn "mọi thẻ khớp bộ lọc"
+      chac(!(await bt.$eval('details.phongdao-lo-gon', d => d.open)), 'khối Làm theo lô mở sẵn khi chưa chọn thẻ nào');
+      await bam(bt, 'details.phongdao-lo-gon > summary');
       await bt.select('#phongdao-lo-thao-tac', 'viec_de_sau');
       await bam(bt, 'input[name=pham_vi][value=loc]');
       await bamDoiTrang(bt, '.phongdao-lo-chon [type=submit]');
@@ -568,6 +589,7 @@ try {
       const id = await bt.$eval('.dai-bien-tap', e => e.dataset.bai);
       await di(bt, `/wp-admin/admin.php?page=phongdao-tac-pham&q=${id}`);
       await bam(bt, `input[name="ids[]"][value="${id}"]`);
+      chac(await bt.$eval('details.phongdao-lo-gon', d => d.open && d.querySelector('.phongdao-lo-dem').textContent.includes('đã chọn 1')), 'đánh dấu bài mà khối Làm theo lô không tự mở, không đếm');
       await bt.select('#phongdao-lo-tp-thao-tac', 'sua_phan');
       await bt.select('#phongdao-lo-tp-phan', 'y_nghia');
       await bamDoiTrang(bt, '.phongdao-lo-chon [type=submit]');
@@ -592,14 +614,11 @@ try {
       await bamDoiTrang(bt, 'button[name=lam][value=ap_dung]');
       await doi(bt, () => document.body.innerText.includes('Lô đã chạy xong.'), null, 'lô Kho không chạy xong', 60_000);
       chac(await coChu(bt, 'Thành công 2'), 'lô Kho không tạo đủ 2 thẻ Câu mới');
-      const moHv = await bt.$eval('.phongdao-lo-tiep a', a => a.href);
-      await di(bt, moHv.replace(G, '') + '&tt=cho');
-      await bt.select('#phongdao-lo-thao-tac', 'cau_moi_dang');
-      await bam(bt, 'input[name=pham_vi][value=loc]');
-      await bamDoiTrang(bt, '.phongdao-lo-chon [type=submit]');
+      // Đi thẳng sang lô Đăng đúng 2 câu vừa đưa vào (không mở mọi thẻ Câu mới cũ)
+      await bamDoiTrang(bt, 'form.phongdao-lo-tiep [type=submit]');
       chac(await coChu(bt, 'Chưa có gì được đăng') && await coChu(bt, 'Kho mẫu'), 'lô Đăng không hiện lời ở bước xem trước');
-      const so = await bt.$$eval('input[name="giu[]"]:checked', os => os.length);
-      chac(so >= 2, `xem trước lô Đăng chỉ có ${so} câu đánh dấu`);
+      const so = await bt.$$eval('input[name="giu[]"]', os => os.length);
+      chac(so === 2, `xem trước lô Đăng có ${so} câu, cần đúng 2 câu vừa đưa vào`);
       await bamDoiTrang(bt, 'button[name=lam][value=ap_dung]');
       await doi(bt, () => document.body.innerText.includes('Lô đã chạy xong.'), null, 'lô Đăng không chạy xong', 120_000);
       chac(await coChu(bt, `Thành công ${so}`), `lô Đăng không đăng đủ ${so} câu`);

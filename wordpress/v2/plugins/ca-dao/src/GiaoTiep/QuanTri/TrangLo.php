@@ -64,7 +64,7 @@ final class TrangLo {
 				$tt .= '<option value="' . esc_attr( $ma ) . '">' . esc_html( $ten ) . '</option>';
 			}
 		}
-		return '<fieldset class="phongdao-lo-chon"><legend>Làm theo lô</legend>'
+		return '<details class="phongdao-lo-gon"><summary>Làm theo lô<span class="phongdao-lo-dem" aria-live="polite"></span></summary><fieldset class="phongdao-lo-chon"><legend class="screen-reader-text">Làm theo lô</legend>'
 			. '<input type="hidden" name="action" value="phongdao_lo_tao">' . wp_nonce_field( 'phongdao_lo_tao', '_wpnonce', false, false )
 			. '<input type="hidden" name="tt" value="' . esc_attr( (string) $loc['tt'] ) . '"><input type="hidden" name="loai" value="' . esc_attr( (string) $loc['loai'] ) . '"><input type="hidden" name="q" value="' . esc_attr( (string) $loc['q'] ) . '">'
 			. '<div class="phongdao-lo-o"><label for="phongdao-lo-thao-tac">Thao tác</label><select id="phongdao-lo-thao-tac" name="thao_tac"><option value="">Chọn thao tác</option>' . $tt . '</select></div>'
@@ -72,7 +72,7 @@ final class TrangLo {
 			. '<label><input type="radio" name="pham_vi" value="chon" checked> Các thẻ đã chọn trên trang này</label>'
 			. '<label><input type="radio" name="pham_vi" value="loc"> Mọi thẻ khớp bộ lọc (' . (int) $tong . ' thẻ)</label></fieldset>'
 			. '<button type="submit" class="button">Xem trước</button>'
-			. '<p class="description">Chỉ chọn các thẻ cùng một loại. Bước xem trước chốt danh sách, cho bỏ chọn ngoại lệ; chưa có gì thay đổi cho tới khi bấm Áp dụng.</p></fieldset>';
+			. '<p class="description">Chỉ chọn các thẻ cùng một loại. Bước xem trước chốt danh sách, cho bỏ chọn ngoại lệ; chưa có gì thay đổi cho tới khi bấm Áp dụng.</p></fieldset></details>';
 	}
 
 	/** Tạo lô từ danh sách Hộp việc. */
@@ -146,10 +146,10 @@ final class TrangLo {
 
 	public static function hien(): string {
 		if ( ! current_user_can( 'cadao_soan' ) ) {
-			return '<div class="wrap"><h1>Lô thao tác</h1><p>Bạn không có quyền xem lô.</p></div>';
+			return '<div class="wrap"><h1>Thao tác hàng loạt</h1><p>Bạn không có quyền xem lô.</p></div>';
 		}
 		$id = absint( $_GET['lo'] ?? 0 ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc
-		$h  = '<div class="wrap phongdao-admin-tp phongdao-admin-lo"><h1>Lô thao tác</h1>' . self::lay_bao();
+		$h  = '<div class="wrap phongdao-admin-tp phongdao-admin-lo"><h1>Thao tác hàng loạt</h1>' . self::lay_bao();
 		if ( ! $id ) {
 			return $h . self::ds() . '</div>';
 		}
@@ -191,9 +191,31 @@ final class TrangLo {
 			return '';
 		}
 		if ( self::la_kho( $lo ) ) {
-			$url = add_query_arg( array( 'page' => DanhSachViec::TRANG, 'loai' => UngVien::VIEC ), admin_url( 'admin.php' ) );
-			return '<p class="phongdao-lo-tiep"><a class="button button-primary" href="' . esc_url( $url ) . '">Mở Hộp việc: thẻ Câu mới</a></p>'
-				. '<p class="description">Ở Hộp việc, chọn các thẻ hoặc "Mọi thẻ khớp bộ lọc", chọn thao tác "' . esc_html( Lo::THAO_TAC['cau_moi_dang'][0] ) . '" rồi bấm Xem trước.</p>';
+			// Chỉ đúng các thẻ lô này vừa tạo (T-187): trước đây lối sang Hộp việc mở mọi thẻ Câu mới, dễ đăng nhầm cả câu cũ
+			$the = array();
+			foreach ( (array) ( $lo['sau']['ket_qua'] ?? array() ) as $kho_id => $kq ) {
+				if ( 'thanh_cong' === ( $kq[0] ?? '' ) ) {
+					foreach ( Viec::mo( 'kho', (int) $kho_id, UngVien::VIEC ) as $v ) {
+						$the[] = (int) $v['id'];
+					}
+				}
+			}
+			$url  = add_query_arg( array( 'page' => DanhSachViec::TRANG, 'loai' => UngVien::VIEC ), admin_url( 'admin.php' ) );
+			$dang = '';
+			if ( $the && current_user_can( Lo::THAO_TAC['cau_moi_dang'][2] ) ) {
+				$an = '';
+				foreach ( $the as $id ) {
+					$an .= '<input type="hidden" name="ids[]" value="' . $id . '">';
+				}
+				$dang = '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="phongdao-lo-tiep">'
+					. '<input type="hidden" name="action" value="phongdao_lo_tao">' . wp_nonce_field( 'phongdao_lo_tao', '_wpnonce', false, false )
+					. '<input type="hidden" name="tt" value="' . Viec::CHO . '"><input type="hidden" name="loai" value="' . UngVien::VIEC . '"><input type="hidden" name="q" value="">'
+					. '<input type="hidden" name="thao_tac" value="cau_moi_dang"><input type="hidden" name="pham_vi" value="chon">' . $an
+					. '<button type="submit" class="button button-primary">Xem trước và đăng ' . count( $the ) . ' câu vừa đưa vào</button></form>'
+					. '<p class="description">Chỉ gồm đúng các câu lô này vừa đưa vào Hộp việc. Bước xem trước chưa đăng gì.</p>';
+			}
+			return $dang . '<p class="phongdao-lo-tiep"><a class="button' . ( '' === $dang ? ' button-primary' : '' ) . '" href="' . esc_url( $url ) . '">Mở Hộp việc: mọi thẻ Câu mới</a></p>'
+				. '<p class="description">Hộp việc có cả các thẻ Câu mới từ trước, không chỉ các câu vừa đưa vào. Muốn quyết từng câu, mở từng thẻ hoặc dùng Duyệt từng thẻ.</p>';
 		}
 		if ( 'cau_moi_dang' === $lo['noi_dung']['thao_tac'] ) {
 			return '<p class="description">Bài đã đăng hiện ở Phongdao → <a href="' . esc_url( add_query_arg( array( 'page' => DanhSachTacPham::TRANG ), admin_url( 'admin.php' ) ) ) . '">Tác phẩm</a>. Đăng nhầm thì chọn bài ở đó, Làm theo lô → Ẩn bài hoặc Đưa vào thùng rác.</p>';
@@ -453,7 +475,7 @@ final class TrangLo {
 				$an .= '<input type="hidden" name="loc_' . esc_attr( (string) $k ) . '" value="' . esc_attr( (string) $v ) . '">';
 			}
 		}
-		return '<fieldset class="phongdao-lo-chon"><legend>Làm theo lô</legend>'
+		return '<details class="phongdao-lo-gon"><summary>Làm theo lô<span class="phongdao-lo-dem" aria-live="polite"></span></summary><fieldset class="phongdao-lo-chon"><legend class="screen-reader-text">Làm theo lô</legend>'
 			. '<input type="hidden" name="action" value="phongdao_lo_tao_bai">' . wp_nonce_field( 'phongdao_lo_tao_bai', '_wpnonce', false, false ) . $an
 			. '<div class="phongdao-lo-o"><label for="phongdao-lo-tp-thao-tac">Thao tác</label><select id="phongdao-lo-tp-thao-tac" name="thao_tac"><option value="">Chọn thao tác</option>' . $tt . '</select></div>'
 			. '<div class="phongdao-lo-o"><label for="phongdao-lo-tp-muc">Mục phân loại có sẵn</label><select id="phongdao-lo-tp-muc" name="muc_pl">' . $muc . '</select></div>'
@@ -462,7 +484,7 @@ final class TrangLo {
 			. '<label><input type="radio" name="pham_vi" value="chon" checked> Các bài đã chọn trên trang này</label>'
 			. '<label><input type="radio" name="pham_vi" value="loc"> Mọi bài khớp bộ lọc (' . (int) $tong . ' bài)</label></fieldset>'
 			. '<button type="submit" class="button">Xem trước</button>'
-			. '<p class="description">Bước xem trước chốt danh sách và cho bỏ chọn ngoại lệ; chưa có gì thay đổi cho tới khi bấm Áp dụng. Không có xoá vĩnh viễn.</p></fieldset>';
+			. '<p class="description">Bước xem trước chốt danh sách và cho bỏ chọn ngoại lệ; chưa có gì thay đổi cho tới khi bấm Áp dụng. Không có xoá vĩnh viễn.</p></fieldset></details>';
 	}
 
 	/** Tạo lô từ danh sách Tác phẩm. */

@@ -298,7 +298,7 @@ final class NguonCaiDat {
 				. '<p><label for="may-ly-do-' . esc_attr( $ma ) . '">Lý do (không bắt buộc)</label><br><input class="regular-text" id="may-ly-do-' . esc_attr( $ma ) . '" name="ly_do" value=""></p>';
 			$h .= '<h2>' . esc_html( $v['ten'] ) . '</h2><p class="description">' . esc_html( $v['giai'] ) . '</p>'
 				. '<table class="form-table" role="presentation"><tbody>'
-				. '<tr><th scope="row">Trạng thái</th><td><strong>' . esc_html( $v['tam_dung'] ? 'Đang tạm dừng' : 'Chạy theo lịch' ) . '</strong></td></tr>'
+				. '<tr><th scope="row">Trạng thái</th><td><strong>' . esc_html( $v['tam_dung'] ? 'Đang tạm dừng' : ( empty( $v['khong_nguon'] ) ? 'Chạy theo lịch' : 'Không có nguồn nào bật — lượt chạy theo lịch không làm gì' ) ) . '</strong></td></tr>'
 				. '<tr><th scope="row">Lần chạy tới</th><td>' . esc_html( $v['tam_dung'] ? $toi . ' (sẽ bỏ qua khi còn tạm dừng)' : $toi ) . '</td></tr>'
 				. '<tr><th scope="row">Lần chạy gần nhất</th><td>' . esc_html( '' === $v['lan_cuoi'] ? 'chưa ghi' : $v['lan_cuoi'] ) . '</td></tr>'
 				. '<tr><th scope="row">Lỗi gần nhất</th><td>' . esc_html( '' === $v['loi'] ? 'không có' : $v['loi'] ) . '</td></tr>'

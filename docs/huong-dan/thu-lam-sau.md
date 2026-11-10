@@ -14,7 +14,7 @@ Nên trộn vài thể loại, ví dụ 10 ca dao, 10 tục ngữ, 5 đồng dao
 
 Mở bài bằng **Sửa bài** (từ Bàn làm việc hoặc Phongdao → Tác phẩm), rồi làm những việc bạn thấy cần:
 
-- **Ý nghĩa:** viết, đánh dấu **Tôi đã đọc và duyệt**, lưu.
+- **Ý nghĩa:** viết, bấm **Lưu và hiện cho người đọc**.
 - **Từ khó:** thêm từ người đọc dễ không hiểu.
 - **Nguồn, đối chiếu:** nếu có sách, ghi sách và trang. Không có thì để trống. Nguồn không bắt buộc.
 - **Phân loại:** chủ đề, vùng nếu chắc chắn.

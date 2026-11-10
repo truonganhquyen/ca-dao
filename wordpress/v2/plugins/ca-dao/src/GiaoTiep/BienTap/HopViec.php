@@ -155,7 +155,7 @@ final class HopViec {
 				$tieu_de = $m->tieu_de ?: (string) strtok( $m->loi, "\n" );
 				$than    = Ve::loi( array_slice( array_values( array_filter( explode( "\n", $m->loi ), 'strlen' ) ), 0, 8 ), 'ca-dao' === $g ? 'lucbat' : '', array(), array( 'nhom' => 'hv-' . $v['id'] ) )
 					. '<p class="small muted">' . esc_html( TheLoai::DS[ $g ] . ' · ' . count( (array) ( $d['chu_thich'] ?? array() ) ) . ' chú thích · ' . count( (array) ( $d['di_ban'] ?? array() ) ) . ' dị bản' . ( empty( $d['co'] ) ? '' : ' · cờ: ' . implode( ', ', (array) $d['co'] ) ) ) . '</p>';
-				$ly_do = ( empty( $v['noi_dung']['chon_boi'] ) ? '' : 'người chọn từ Kho · ' ) . 'nguồn: ' . $m->nguon_id;
+				$ly_do = ( empty( $v['noi_dung']['chon_boi'] ) ? '' : 'người chọn từ Kho · ' ) . 'nguồn: ' . \Phongdao\DichVu\NhapNguon\NguonTuDong::ten( (string) $m->nguon_id );
 				// Căn cứ trước khi quyết (T-179): trang gốc máy đã lấy — chỉ người biên soạn thấy thẻ này
 				if ( '' !== (string) $m->url ) {
 					$than .= '<p class="small"><a href="' . esc_url( (string) $m->url ) . '" rel="noreferrer nofollow">Xem trang gốc máy đã lấy</a></p>';
@@ -167,7 +167,7 @@ final class HopViec {
 				$tieu_de = $bai->post_title;
 				$mo      = (string) get_permalink( $bai );
 				$than    = Ve::loi( array_slice( PhanBai::lay( $bai->ID, 'loi' )['dong'] ?? array(), 0, 4 ), '', array(), array( 'nhom' => 'hv-' . $v['id'] ) )
-					. '<div class="nhap-ai"><span class="tag">' . ( empty( $v['noi_dung']['ai'] ) ? 'Nháp · chưa duyệt' : 'AI · chưa duyệt' ) . '</span><p>' . esc_html( (string) ( $v['noi_dung']['chu'] ?? '' ) ) . '</p></div>';
+					. '<div class="nhap-ai"><span class="tag">' . ( empty( $v['noi_dung']['ai'] ) ? 'Nháp' : 'AI' ) . ( in_array( $v['trang_thai'], array( Viec::CHO, Viec::DE_SAU ), true ) ? ' · chưa duyệt' : '' ) . '</span><p>' . esc_html( (string) ( $v['noi_dung']['chu'] ?? '' ) ) . '</p></div>';
 				$ly_do   = 'người đọc chưa thấy';
 			}
 		} elseif ( 'nguoi_doc' === $v['loai'] ) {
@@ -221,6 +221,10 @@ final class HopViec {
 			$ly_do = 'giống ' . (int) ( $n['giong'] ?? 0 ) . '%' . ( empty( $n['ly_do'] ) ? '' : ' · ' . $n['ly_do'] );
 			$mo    = $lub[3];
 			$g     = 'tim';
+		}
+		// Thẻ đã đóng: không còn ghi "chờ duyệt / người đọc chưa thấy" (nội dung đã được quyết)
+		if ( ! in_array( $v['trang_thai'], array( Viec::CHO, Viec::DE_SAU ), true ) && in_array( $v['loai'], array( 'nhap_y_nghia', 'nguoi_doc' ), true ) ) {
+			$ly_do = '';
 		}
 		$form = '';
 		foreach ( $nut as $ma => [ $chu, $kieu ] ) {

@@ -114,7 +114,11 @@ final class Module implements \Phongdao\HaTang\Module {
 		if ( ! isset( TamSua::TAM[ $phan ] ) ) {
 			return array( 'ok' => false, 'loi' => array( 'Phần này chưa sửa được ở đây.' ) );
 		}
-		$doc = TamSua::doc( $phan, (array) $yc->get_body_params(), PhanBai::lay( $id, $phan ) );
+		$vao = (array) $yc->get_body_params();
+		if ( ! current_user_can( 'cadao_duyet' ) ) {
+			unset( $vao['duyet'] ); // chỉ người có quyền duyệt mới "hiện cho người đọc"; còn lại luôn là nháp
+		}
+		$doc = TamSua::doc( $phan, $vao, PhanBai::lay( $id, $phan ) );
 		if ( null !== $doc['nhap'] ) {
 			$viec = Viec::tao(
 				array(
