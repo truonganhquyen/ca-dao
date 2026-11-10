@@ -115,6 +115,8 @@ final class DieuKhien {
 				$han = $sau < 0 ? 'Không có lô đang dở.' : 'Đang dở, sau bài #' . $sau . '.';
 			}
 			$ra[ $ma ] = array(
+				// Đọc nguồn, chọn câu chỉ làm việc với nguồn đang bật: không nguồn nào bật thì lượt theo lịch không làm gì
+				'khong_nguon' => in_array( $ma, array( 'doc_nguon', 'chon_cau' ), true ) && ! array_filter( array_column( $nguon, 'bat' ) ),
 				'ten'      => $ten,
 				'giai'     => $giai,
 				'tam_dung' => self::dang_dung( $ma ),

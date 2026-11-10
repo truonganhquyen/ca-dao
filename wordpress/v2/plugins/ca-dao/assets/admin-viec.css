@@ -146,3 +146,18 @@
 .phongdao-admin-viec .phongdao-lo-pham-vi legend { font-weight: 600; margin-bottom: 4px; }
 .phongdao-admin-viec .phongdao-lo-pham-vi label { display: flex; align-items: center; gap: 8px; min-height: 44px; }
 .phongdao-admin-viec td input[type=checkbox] { width: 24px; height: 24px; margin: 0; }
+
+/* Lời trong thẻ: mỗi câu một dòng (wp-admin không nạp CSS của theme) */
+.phongdao-admin-viec .verse .line { display: block; }
+.phongdao-admin-viec .verse .ln { display: inline-block; min-width: 2.2em; color: #646970; font-size: 12px; }
+.phongdao-admin-viec .verse-box { margin: 8px 0; font-size: 15px; line-height: 1.6; }
+
+/* Khối "Làm theo lô" gọn (T-187) */
+.phongdao-admin-viec .phongdao-lo-gon { margin: 16px 0; }
+.phongdao-admin-viec .phongdao-lo-gon > summary { display: flex; align-items: center; min-height: 44px; padding: 0 14px; border: 1px solid #c3c4c7; border-radius: 6px; background: #fff; font-weight: 600; cursor: pointer; }
+.phongdao-admin-viec .phongdao-lo-gon[open] > summary { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.phongdao-admin-viec .phongdao-lo-gon[open] > .phongdao-lo-chon { margin-top: 0; border-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; }
+.phongdao-admin-viec .phongdao-lo-gon > summary:focus-visible { outline: 3px solid #135e96; outline-offset: 2px; }
+.phongdao-admin-viec .phongdao-lo-dem { font-weight: 400; color: #135e96; }
+.phongdao-admin-viec .phongdao-viec-tiep, .phongdao-admin-viec .phongdao-viec-bai { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 16px 0; }
+.phongdao-admin-viec .phongdao-viec-tiep .button, .phongdao-admin-viec .phongdao-viec-bai .button { min-height: 44px; display: inline-flex; align-items: center; }

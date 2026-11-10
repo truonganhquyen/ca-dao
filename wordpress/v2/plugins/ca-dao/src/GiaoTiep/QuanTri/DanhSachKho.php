@@ -285,14 +285,14 @@ final class DanhSachKho {
 			$an .= '<input type="hidden" name="loc_' . $k . '" value="' . esc_attr( (string) $loc[ $k ] ) . '">';
 		}
 		$qua = $so > Lo::TOI_DA ? ' — một lô tối đa ' . number_format_i18n( Lo::TOI_DA ) . ' câu, lọc theo nguồn hoặc thể loại để chia nhỏ' : '';
-		return '<form id="' . self::FORM_LO . '" class="phongdao-lo-form" method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><fieldset class="phongdao-lo-chon"><legend>Đưa nhiều câu vào Hộp việc</legend>'
+		return '<form id="' . self::FORM_LO . '" class="phongdao-lo-form" method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><details class="phongdao-lo-gon"><summary>Đưa nhiều câu vào Hộp việc<span class="phongdao-lo-dem" aria-live="polite"></span></summary><fieldset class="phongdao-lo-chon"><legend class="screen-reader-text">Đưa nhiều câu vào Hộp việc</legend>'
 			. '<input type="hidden" name="action" value="' . TrangLo::TAO_KHO . '">' . wp_nonce_field( TrangLo::TAO_KHO, '_wpnonce', false, false ) . $an
 			. '<fieldset class="phongdao-lo-pham-vi"><legend>Phạm vi</legend>'
 			. '<label><input type="radio" name="pham_vi" value="chon" checked> Các câu đã chọn trên trang này</label>'
 			. '<label><input type="radio" name="pham_vi" value="loc"' . disabled( 0 === $so, true, false ) . '> Mọi câu khớp bộ lọc còn đưa vào được (' . esc_html( number_format_i18n( $so ) ) . ' câu' . esc_html( $qua ) . ')</label></fieldset>'
 			. '<button type="submit" class="button">Xem trước</button>'
-			. '<p class="description">Chỉ tính câu Chưa dùng, có lời, chưa có thẻ Câu mới. Bước xem trước cho bỏ chọn ngoại lệ; chưa có gì thay đổi cho tới khi bấm Áp dụng. Sau đó đăng các câu này ở Hộp việc: lọc "Câu mới từ nguồn", chọn Làm theo lô → Đăng.</p>'
-			. '</fieldset></form>';
+			. '<p class="description">Chỉ tính câu Chưa dùng, có lời, chưa có thẻ Câu mới. Bước xem trước cho bỏ chọn ngoại lệ; chưa có gì thay đổi cho tới khi bấm Áp dụng. Đưa xong, màn kết quả có nút "Xem trước và đăng" đúng các câu vừa đưa vào.</p>'
+			. '</fieldset></details></form>';
 	}
 
 	/** Nút "Đưa vào Hộp việc": kiểm quyền, nonce từng câu; ghi qua UngVien; quay về đúng trang danh sách. */

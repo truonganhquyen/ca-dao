@@ -134,12 +134,15 @@
     const f = e.target.closest('dialog.tam-sua form');
     if (!f) return;
     e.preventDefault();
-    const nut = f.querySelector('[type=submit]'), loi = f.querySelector('.tam-loi');
-    nut.disabled = true;
+    const nut = [...f.querySelectorAll('[type=submit]')], loi = f.querySelector('.tam-loi');
+    // Nút đã bấm mang giá trị riêng (Lưu nháp / Lưu và hiện cho người đọc): FormData không tự kèm nút bấm
+    const du = new FormData(f);
+    if (e.submitter && e.submitter.name) du.set(e.submitter.name, e.submitter.value);
+    nut.forEach(n => { n.disabled = true; });
     loi.hidden = true;
-    const d = await goi('/tac-pham/' + bai + '/phan/' + f.dataset.phan, new FormData(f));
+    const d = await goi('/tac-pham/' + bai + '/phan/' + f.dataset.phan, du);
     if (d.ok) { tai_lai(d.thong_bao || 'Đã lưu.', d.doi ? d.viec : 0); return; }
-    nut.disabled = false;
+    nut.forEach(n => { n.disabled = false; });
     loi.textContent = (d.loi || ['Chưa lưu được.']).join(' ');
     loi.hidden = false;
   });

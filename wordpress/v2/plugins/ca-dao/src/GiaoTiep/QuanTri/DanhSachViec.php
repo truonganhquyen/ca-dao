@@ -87,7 +87,7 @@ final class DanhSachViec {
 			return $ve . '<p role="status">Không tìm thấy thẻ việc này.</p>';
 		}
 		$tt = self::TRANG_THAI[ $v['trang_thai'] ] ?? $v['trang_thai'];
-		$bao = '<p class="phongdao-viec-tt">Trạng thái: <strong>' . esc_html( $tt ) . '</strong> · Phiên ' . (int) $v['phien'] . '</p>';
+		$bao = '<p class="phongdao-viec-tt">Trạng thái: <strong>' . esc_html( $tt ) . '</strong></p>';
 		$da = sanitize_text_field( wp_unslash( (string) ( $_GET['da'] ?? '' ) ) ); // phpcs:ignore WordPress.Security.NonceVerification -- thông báo sau redirect
 		if ( '' !== $da ) {
 			$bao .= '<div class="notice notice-info"><p role="status">' . esc_html( $da ) . '</p></div>';
@@ -98,11 +98,63 @@ final class DanhSachViec {
 			$bao .= '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="' . HopViec::HOAN_TAC . '"><input type="hidden" name="viec" value="' . (int) $v['id'] . '"><input type="hidden" name="phien" value="' . (int) $v['phien'] . '">'
 				. wp_nonce_field( HopViec::HOAN_TAC . $v['id'], '_wpnonce', true, false ) . '<button class="button" type="submit">Hoàn tác trong 10 giây</button></form>';
 		}
+		$tiep = self::tiep( $loc, $v );
 		if ( ! in_array( $v['trang_thai'], array( Viec::CHO, Viec::DE_SAU ), true ) ) {
-			$quyet = '' !== $v['quyet'] ? ' · Quyết định: ' . $v['quyet'] : '';
-			return $ve . $bao . '<p>Thẻ #' . (int) $v['id'] . ' đã đóng' . esc_html( $quyet ) . '. Nội dung và nhật ký còn được giữ trong bảng việc.</p>' . HopViec::the( $v, false );
+			$nguoi = (int) $v['nguoi_quyet'] ? get_userdata( (int) $v['nguoi_quyet'] ) : null;
+			$luc   = '' !== (string) ( $v['quyet_luc'] ?? '' ) ? get_date_from_gmt( (string) $v['quyet_luc'], 'd/m/Y H:i' ) : '';
+			$ai    = trim( ( $nguoi ? $nguoi->display_name : '' ) . ( '' !== $luc ? ' · ' . $luc : '' ), ' ·' );
+			$quyet = '' !== $v['quyet'] ? '<p>Đã quyết: <strong>' . esc_html( self::nhan_quyet( $v ) ) . '</strong>' . ( '' !== $ai ? ' (' . esc_html( $ai ) . ')' : '' ) . '.</p>' : '<p>Thẻ đã đóng.</p>';
+			return $ve . $bao . $quyet . self::lien_bai( $v ) . $tiep . HopViec::the( $v, false );
 		}
-		return $ve . $bao . HopViec::the( $v );
+		return $ve . $bao . HopViec::the( $v ) . self::lien_bai( $v ) . $tiep;
+	}
+
+	/** Nhãn quyết định cho người đọc (không in mã như "dang"). */
+	private static function nhan_quyet( array $v ): string {
+		$nut = QuyetViec::LOAI[ $v['loai'] ][1][ $v['quyet'] ][0] ?? '';
+		if ( '' !== $nut ) {
+			return $nut;
+		}
+		return array(
+			'da_co'          => 'Bài đã có sẵn phân loại này',
+			'da_duyet_mvp'   => 'Đã duyệt trên bản cũ',
+			'hoan_tac'       => 'Hoàn tác',
+			'da_gop'         => 'Đã gộp',
+			'tach_duong_dan' => 'Cho đường dẫn riêng',
+		)[ $v['quyet'] ] ?? $v['quyet'];
+	}
+
+	/** Bài của thẻ (thẻ trên bài, hoặc bài đã đăng từ câu kho): lối Sửa bài trong quản trị và Xem bài trên trang đọc. */
+	private static function lien_bai( array $v ): string {
+		$bai = 'post' === $v['doi_tuong_loai'] ? (int) $v['doi_tuong_id'] : 0;
+		if ( 'kho' === $v['doi_tuong_loai'] ) {
+			$bai = (int) ( Kho::lay( (int) $v['doi_tuong_id'] )?->post_id ?? 0 );
+		}
+		$p = $bai ? get_post( $bai ) : null;
+		if ( ! $p || \Phongdao\HaTang\KhaiBao::TAC_PHAM !== $p->post_type || 'trash' === $p->post_status ) {
+			return '';
+		}
+		$lien = array();
+		if ( current_user_can( 'edit_post', $bai ) ) {
+			$lien[] = '<a class="button" href="' . esc_url( SuaTacPham::url( $bai ) ) . '">Sửa bài</a>';
+		}
+		if ( 'publish' === $p->post_status ) {
+			$lien[] = '<a class="button" href="' . esc_url( (string) get_permalink( $p ) ) . '">Xem bài trên trang đọc</a>';
+		}
+		return $lien ? '<p class="phongdao-viec-bai">Bài: <strong>' . esc_html( $p->post_title ) . '</strong> ' . implode( ' ', $lien ) . '</p>' : '';
+	}
+
+	/** Lối sang thẻ kế tiếp cùng bộ lọc (thẻ đang chờ hoặc để sau), để không phải về danh sách sau mỗi lần quyết. */
+	private static function tiep( array $loc, array $v ): string {
+		$tt  = Viec::DE_SAU === $loc['tt'] ? Viec::DE_SAU : Viec::CHO;
+		$kq  = Viec::tim_quan_tri( $tt, $loc['loai'], $loc['q'], 1, 2 );
+		$con = $kq['tong'] - ( $tt === $v['trang_thai'] && ( '' === $loc['loai'] || $loc['loai'] === $v['loai'] ) ? 1 : 0 );
+		foreach ( $kq['ds'] as $n ) {
+			if ( (int) $n['id'] !== (int) $v['id'] ) {
+				return '<p class="phongdao-viec-tiep"><a class="button button-primary" href="' . esc_url( self::url( array( 'tt' => $tt ) + $loc, 1, (int) $n['id'] ) ) . '">Thẻ tiếp theo →</a> <span class="description">Còn ' . max( 0, $con ) . ' thẻ ' . esc_html( Viec::DE_SAU === $tt ? 'để sau' : 'đang chờ' ) . ( '' !== $loc['loai'] ? ' loại này' : '' ) . '.</span></p>';
+			}
+		}
+		return '<p class="phongdao-viec-tiep" role="status">Hết thẻ ' . esc_html( Viec::DE_SAU === $tt ? 'để sau' : 'đang chờ' ) . ( '' !== $loc['loai'] ? ' loại này' : '' ) . '. <a href="' . esc_url( self::url( array( 'tt' => $tt, 'loai' => '' ) + $loc ) ) . '">Xem mọi loại việc</a></p>';
 	}
 
 	public static function hien(): string {
@@ -133,7 +185,7 @@ final class DanhSachViec {
 			$ten = QuyetViec::LOAI[ $v['loai'] ][0] ?? $v['loai'];
 			$ten = '<a href="' . esc_url( self::url( $loc, $loc['paged'], $id ) ) . '">' . esc_html( $ten ) . ' #' . $id . '</a>';
 			$chon = $lo ? '<td data-nhan="Chọn"><input type="checkbox" name="ids[]" value="' . $id . '" id="chon-viec-' . $id . '"><label for="chon-viec-' . $id . '" class="screen-reader-text">Chọn thẻ #' . $id . '</label></td>' : '';
-			$dong .= '<tr>' . $chon . '<td data-nhan="Việc">' . $ten . '</td><td data-nhan="Đối tượng">' . esc_html( self::doi_tuong( $v, $ten_trang ) ) . '</td><td data-nhan="Trạng thái">' . esc_html( self::TRANG_THAI[ $v['trang_thai'] ] ?? $v['trang_thai'] ) . '</td><td data-nhan="Tạo lúc">' . esc_html( mysql2date( 'd/m/Y H:i', $v['tao_luc'] ) ) . '</td></tr>';
+			$dong .= '<tr>' . $chon . '<td data-nhan="Việc">' . $ten . '</td><td data-nhan="Đối tượng">' . esc_html( self::doi_tuong( $v, $ten_trang ) ) . '</td><td data-nhan="Trạng thái">' . esc_html( self::TRANG_THAI[ $v['trang_thai'] ] ?? $v['trang_thai'] ) . '</td><td data-nhan="Tạo lúc">' . esc_html( get_date_from_gmt( (string) $v['tao_luc'], 'd/m/Y H:i' ) ) . '</td></tr>';
 		}
 		$so_trang = (int) ceil( $kq['tong'] / self::MOI_TRANG );
 		$phan_trang = $so_trang > 1 ? '<nav class="phongdao-viec-trang" aria-label="Phân trang Hộp việc"><span>Trang ' . (int) $loc['paged'] . ' / ' . $so_trang . '</span>'

@@ -37,3 +37,15 @@
 .phongdao-so-sanh ins { color: #00450c; text-decoration: none; }
 .phongdao-khoi-phuc { margin: 4px 0 8px; }
 .phongdao-khoi-phuc .button { min-height: 44px; }
+/* Trạng thái bài và nút đổi ngay trên trang sửa; lời luôn hiện (T-187) */
+.phongdao-trang-thai { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0; padding: 12px 16px; background: #fff; border: 1px solid #c3c4c7; border-radius: 6px; }
+.phongdao-trang-thai p { margin: 0 12px 0 0; font-size: 14px; }
+.phongdao-trang-thai form { margin: 0; }
+.phongdao-trang-thai .button { min-height: 44px; }
+.phongdao-loi-xem { background: #fff; border: 1px solid #c3c4c7; border-radius: 6px; margin: 16px 0; padding: 16px; }
+.phongdao-loi-xem h2 { margin: 0 0 8px; }
+.phongdao-loi-xem ol { list-style: none; margin: 0; padding: 0; max-height: 50vh; overflow-y: auto; font-size: 16px; line-height: 1.7; }
+.phongdao-loi-xem li { margin: 0; }
+.phongdao-loi-xem li.ngat { height: .8em; }
+.phongdao-loi-xem .so { display: inline-block; min-width: 2.4em; color: #646970; font-size: 12px; font-variant-numeric: tabular-nums; }
+.phongdao-sua-nut { display: flex; flex-wrap: wrap; gap: 8px; }

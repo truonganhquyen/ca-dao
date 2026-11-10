@@ -83,6 +83,12 @@ final class NguonTuDong implements Module {
 		return is_array( $ds ) ? $ds : array();
 	}
 
+	/** Tên hiển thị của một nguồn tự động; chưa cấu hình thì giữ mã. */
+	public static function ten( string $id ): string {
+		$ten = (string) ( self::tat_ca()[ $id ]['ten'] ?? '' );
+		return '' !== $ten ? $ten : $id;
+	}
+
 	public static function lay( string $id ): ?array {
 		$ds = self::tat_ca();
 		return isset( $ds[ $id ] ) ? $ds[ $id ] + self::mac_dinh() : null;
@@ -151,7 +157,26 @@ final class NguonTuDong implements Module {
 			wp_schedule_event( time() + MINUTE_IN_SECONDS, 'cadao_5_phut', self::LICH_LAY );
 		}
 		if ( ! wp_next_scheduled( self::LICH_NGAY ) ) {
-			wp_schedule_event( strtotime( 'tomorrow 06:00' ) ?: time() + DAY_IN_SECONDS, 'daily', self::LICH_NGAY );
+			wp_schedule_event( self::sau_6_gio(), 'daily', self::LICH_NGAY );
+		}
+	}
+
+	/** 06:00 sắp tới theo giờ của site (giờ Việt Nam), không theo giờ máy chủ (UTC). */
+	public static function sau_6_gio(): int {
+		$bay_gio = new \DateTimeImmutable( 'now', wp_timezone() );
+		$moc     = $bay_gio->setTime( 6, 0 );
+		return ( $moc > $bay_gio ? $moc : $moc->modify( '+1 day' ) )->getTimestamp();
+	}
+
+	/**
+	 * Lịch chọn câu hằng ngày từng hẹn 06:00 giờ máy chủ (UTC, tức 13:00 giờ Việt Nam): hẹn lại đúng 06:00 giờ site.
+	 * Lịch đã đúng giờ thì để nguyên.
+	 */
+	public static function hen_lai_lich_ngay(): void {
+		$t = wp_next_scheduled( self::LICH_NGAY );
+		if ( $t && '06:00' !== wp_date( 'H:i', $t ) ) {
+			wp_clear_scheduled_hook( self::LICH_NGAY );
+			wp_schedule_event( self::sau_6_gio(), 'daily', self::LICH_NGAY );
 		}
 	}
 }
