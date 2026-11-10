@@ -33,7 +33,7 @@ final class SoLieuTuan {
 			}
 			$thieu += null === PhanBai::lay( (int) $id, 'y_nghia' ) ? 1 : 0;
 		}
-		$viec = count( Viec::ds_cho( 1000 ) );
+		$viec = Viec::dem_cho();
 		$kho  = Kho::dem();
 		$o    = '';
 		foreach ( array( array( 'book', count( $ids ), 'tác phẩm đã đăng' ), array( 'check', $cap[2] + $cap[3], 'bài đủ cấp L2 (lên Google khi mở)' ), array( 'calendar', $viec, 'việc đang chờ' ), array( 'layers', $kho['moi'], 'câu trong kho chưa xử lý' ) ) as [ $hinh, $so, $nhan ] ) {
