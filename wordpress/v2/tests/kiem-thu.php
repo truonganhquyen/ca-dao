@@ -302,6 +302,38 @@ wp_update_post( array( 'ID' => $mau_id['cau-do-mau'], 'post_status' => 'draft' )
 $an = ! in_array( $mau_id['cau-do-mau'], $tim_id( 'cau do mau dong hai' ), true );
 wp_update_post( array( 'ID' => $mau_id['cau-do-mau'], 'post_status' => 'publish' ) );
 kt( 'bài thôi đăng ra khỏi kết quả; đăng lại thì có', $an && in_array( $mau_id['cau-do-mau'], $tim_id( 'cau do mau dong hai' ), true ) );
+// Kho lớn (T-181): 1.200 dòng chỉ mục tổng hợp (tests/do-tim/kho-thu.php, id từ 900001) đổ thẳng vào bảng; SQL cờ
+// của ChiMucTim::tim phải ra đúng như xếp MỌI dòng của bảng bằng PHP, không còn chặn 500 ứng viên
+require_once '/repo/tests/do-tim/kho-thu.php';
+$TIM     = \Phongdao\DichVu\ChiMucTim\ChiMucTim::class;
+$kho_tim = do_tim_kho( 1200 );
+foreach ( array_chunk( $kho_tim, 200 ) as $lo_tim ) {
+	$gt_tim = array();
+	foreach ( $lo_tim as [ $id_t, $chinh_t, $phu_t ] ) {
+		$h_t      = \Phongdao\MienDuLieu\ChiMuc::dong_chi_muc( $chinh_t, $phu_t );
+		$gt_tim[] = $wpdb->prepare( '(%d, %s, %s, %s, %s)', 900000 + $id_t, $h_t['chinh'], $h_t['chinh_kd'], $h_t['phu'], $h_t['phu_kd'] );
+	}
+	$wpdb->query( 'INSERT INTO ' . $TIM::bang() . ' (post_id, chinh, chinh_kd, phu, phu_kd) VALUES ' . implode( ',', $gt_tim ) );
+}
+$bang_tim = $wpdb->get_results( 'SELECT post_id, chinh, chinh_kd, phu, phu_kd FROM ' . $TIM::bang() . ' ORDER BY post_id', ARRAY_A );
+$tv_tim   = do_tim_truy_van( $kho_tim );
+$sai_tim  = array();
+foreach ( array_merge( array_values( $tv_tim['ds'] ), array( 'anh em người', 'mà', 'Cà', 'em ơi', 'dong mau' ) ) as $q_t ) {
+	$mau_t = \Phongdao\MienDuLieu\ChiMuc::mau( \Phongdao\MienDuLieu\ChiMuc::khong_dau( \Phongdao\MienDuLieu\ChiMuc::chu( $q_t ) ) );
+	$ung_t = array_values( array_filter( $bang_tim, static fn( array $r ): bool => array_reduce( $mau_t, static fn( bool $c, string $t ): bool => $c && ( str_contains( $r['chinh_kd'], $t ) || str_contains( $r['phu_kd'], $t ) ), true ) ) );
+	$dung_t = \Phongdao\MienDuLieu\ChiMuc::xep( $ung_t, $q_t, 20 );
+	$that  = $TIM::tim( $q_t, 20 );
+	if ( $dung_t['ds'] !== $that['ds'] || $dung_t['tong'] !== $that['tong'] || $TIM::dem( $q_t ) !== $dung_t['tong'] ) {
+		$sai_tim[] = array( $q_t, $dung_t['tong'], $that['tong'], array_column( $dung_t['ds'], 'id' ), array_column( $that['ds'], 'id' ) );
+	}
+}
+$q_nhieu = $tv_tim['ds']['Một chữ cái (vừa gõ)'];
+$tong_nh = $TIM::tim( $q_nhieu )['tong'];
+$q_moi   = $tv_tim['ds']['Cả dòng của bài mới'];
+kt( 'tìm kho lớn: tổng và 20 kết quả đầu (đúng thứ tự) như xếp mọi dòng của bảng — SQL cờ chạy đúng trên CSDL', array() === $sai_tim, $sai_tim );
+kt( 'tìm kho lớn: hơn 500 ứng viên thì đếm đủ (không dừng ở 500), trang Tìm hiện tổng có dấu chấm hàng nghìn', $tong_nh > 500 && str_contains( \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( $q_nhieu ), '20 trên ' . number_format_i18n( $tong_nh ) . ' bài' ), $tong_nh );
+kt( 'tìm kho lớn: bài mới nhất (id lớn nhất) có cả dòng là kết quả đầu, khớp cả cụm', 900000 + $tv_tim['moi'] === ( $TIM::tim( $q_moi )['ds'][0]['id'] ?? 0 ) && $TIM::tim( $q_moi )['ds'][0]['lien'] );
+$wpdb->query( $wpdb->prepare( 'DELETE FROM ' . $TIM::bang() . ' WHERE post_id > %d', 900000 ) );
 wp_set_current_user( 0 );
 $h = \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 'dong mau mot cua bai nay' );
 kt( 'trang Tìm: khớp cả câu thì thẻ lớn đầu trang, có Đọc bài', str_contains( $h, 'result-primary' ) && str_contains( $h, 'Khớp cả câu · Ca dao' ) && str_contains( $h, esc_url( (string) get_permalink( $mau_id['dong-mau-mot-cua-bai'] ) ) ) );

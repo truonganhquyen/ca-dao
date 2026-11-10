@@ -79,14 +79,10 @@ final class ChiMucTim implements Module {
 			self::xoa( $id );
 			return;
 		}
-		$phan  = PhanBai::tat_ca( $bai->ID, $bai->post_type );
-		$dong  = array_merge( $phan['loi']['dong'] ?? array(), ...array_map( static fn( $d ) => $d['dong'] ?? array(), $phan['di_ban']['muc'] ?? array() ) );
-		$chinh = ChiMuc::chu( $bai->post_title . "\n" . implode( "\n", $dong ) );
-		if ( '' === ChiMuc::khong_dau( $chinh ) ) {
-			self::xoa( $id );
-			return;
-		}
-		$phu = ChiMuc::chu(
+		$phan = PhanBai::tat_ca( $bai->ID, $bai->post_type );
+		$dong = array_merge( $phan['loi']['dong'] ?? array(), ...array_map( static fn( $d ) => $d['dong'] ?? array(), $phan['di_ban']['muc'] ?? array() ) );
+		$hang = ChiMuc::dong_chi_muc(
+			$bai->post_title . "\n" . implode( "\n", $dong ),
 			implode(
 				"\n",
 				array_merge(
@@ -95,19 +91,12 @@ final class ChiMucTim implements Module {
 				)
 			)
 		);
-		$chinh_kd = ChiMuc::khong_dau( $chinh );
-		// Khoảng trắng hai đầu để so trọn âm tiết (" ca " không khớp "cao")
-		$wpdb->replace(
-			self::bang(),
-			array(
-				'post_id'  => $id,
-				'chinh'    => " $chinh ",
-				'chinh_kd' => " $chinh_kd ",
-				'phu'      => " $phu ",
-				'phu_kd'   => ' ' . ChiMuc::khong_dau( $phu ) . ' ',
-			)
-		);
-		self::them_tu_vung( $chinh_kd );
+		if ( ! $hang ) {
+			self::xoa( $id );
+			return;
+		}
+		$wpdb->replace( self::bang(), array( 'post_id' => $id ) + $hang );
+		self::them_tu_vung( trim( $hang['chinh_kd'] ) );
 	}
 
 	public static function xoa( int $id ): void {
@@ -144,20 +133,52 @@ final class ChiMucTim implements Module {
 	}
 
 	/**
-	 * Tìm bài đã đăng.
+	 * Tìm bài đã đăng, xếp trên MỌI bài có đủ các chữ (T-181; trước đây chỉ 500 bài đầu bảng chưa sắp nên bỏ sót bài
+	 * mới và đếm tối đa 500). Câu 1 lấy cờ khớp do CSDL tính (không lấy chữ); chỉ bài còn phải xét chữ gần nhau mà còn
+	 * có thể lọt vào $so bài đầu mới được đọc chữ, từng lô (ChiMuc::xep_co).
 	 *
-	 * @return array{ds:array<int,array{id:int,diem:int,roi:bool}>,tong:int}
+	 * @return array{ds:array<int,array{id:int,diem:int,roi:bool,lien:bool}>,tong:int,doc:int} doc = số bài đã đọc chữ
 	 */
 	public static function tim( string $q, int $so = 20 ): array {
 		global $wpdb;
-		$kd = ChiMuc::khong_dau( ChiMuc::chu( $q ) );
-		if ( '' === $kd ) {
-			return array( 'ds' => array(), 'tong' => 0 );
+		$phep = ChiMuc::phep_so( $q );
+		if ( ! $phep ) {
+			return array( 'ds' => array(), 'tong' => 0, 'doc' => 0 );
 		}
-		$giong = static fn( string $s ): string => '%' . $wpdb->esc_like( $s ) . '%';
-		$dk    = implode( ' AND ', array_map( static fn( string $t ): string => $wpdb->prepare( '(chinh_kd LIKE BINARY %s OR phu_kd LIKE BINARY %s)', $giong( $t ), $giong( $t ) ), ChiMuc::mau( $kd ) ) );
-		$hang  = $wpdb->get_results( 'SELECT post_id, chinh, chinh_kd, phu, phu_kd FROM ' . self::bang() . " WHERE $dk LIMIT 500", ARRAY_A ) ?: array();
-		return ChiMuc::xep( $hang, $q, $so );
+		$cot  = implode( ', ', array_map( static fn( string $ten, array $p ): string => self::sql_co( $p ) . " AS $ten", array_keys( $phep ), $phep ) );
+		$hang = $wpdb->get_results( "SELECT post_id, LENGTH(chinh_kd) AS dai, $cot FROM " . self::bang() . ' WHERE ' . self::sql_dk( $phep ), ARRAY_A ) ?: array(); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- từng mẫu đã qua prepare()
+		return ChiMuc::xep_co(
+			$hang,
+			$q,
+			$so,
+			static function ( array $ids ) use ( $wpdb ): array {
+				$ra = array();
+				foreach ( $wpdb->get_results( 'SELECT post_id, chinh_kd, phu_kd FROM ' . self::bang() . ' WHERE post_id IN (' . implode( ',', array_map( 'intval', $ids ) ) . ')', ARRAY_A ) ?: array() as $r ) { // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- chỉ số nguyên
+					$ra[ (int) $r['post_id'] ] = $r;
+				}
+				return $ra;
+			}
+		);
+	}
+
+	/** Số bài đã đăng có đủ các chữ (gợi ý gõ sai chỉ cần số này, không cần xếp). */
+	public static function dem( string $q ): int {
+		global $wpdb;
+		$phep = ChiMuc::phep_so( $q );
+		return $phep ? (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . self::bang() . ' WHERE ' . self::sql_dk( $phep ) ) : 0; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- từng mẫu đã qua prepare()
+	}
+
+	/** Điều kiện ứng viên: mọi chữ tìm (không dấu, trọn âm tiết, chữ cuối gõ dở) có ở phần chính hoặc phụ. */
+	private static function sql_dk( array $phep ): string {
+		global $wpdb;
+		return implode( ' AND ', array_map( static fn( string $t ): string => $wpdb->prepare( '(chinh_kd LIKE BINARY %s OR phu_kd LIKE BINARY %s)', '%' . $wpdb->esc_like( $t ) . '%', '%' . $wpdb->esc_like( $t ) . '%' ), $phep['hc'][1] ) );
+	}
+
+	/** Một cờ của ChiMuc::phep_so() thành biểu thức SQL 0/1 (chạy trên MySQL/MariaDB và SQLite của Playground). */
+	private static function sql_co( array $p ): string {
+		global $wpdb;
+		[ $cot, $ds, $dau ] = $p;
+		return '(' . implode( ' AND ', array_map( static fn( string $s ): string => $wpdb->prepare( "$cot LIKE BINARY %s", ( $dau ? '' : '%' ) . $wpdb->esc_like( $s ) . '%' ), $ds ) ) . ')';
 	}
 
 	/**
@@ -179,7 +200,7 @@ final class ChiMucTim implements Module {
 				$thu      = $tu;
 				$thu[ $i ] = $thay;
 				$moi       = implode( ' ', $thu );
-				$dem       = self::tim( $moi, 1 )['tong'];
+				$dem       = self::dem( $moi );
 				if ( $dem > $nhieu ) {
 					$tot   = $moi;
 					$nhieu = $dem;
