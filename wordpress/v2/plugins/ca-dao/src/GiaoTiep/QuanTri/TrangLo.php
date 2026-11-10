@@ -56,6 +56,21 @@ final class TrangLo {
 		return '<div class="notice ' . ( empty( $b['ok'] ) ? 'notice-error' : 'notice-success' ) . '"><p role="status">' . esc_html( (string) ( $b['chu'] ?? '' ) ) . '</p></div>';
 	}
 
+	/**
+	 * Thanh "Chọn tất cả trên trang này" ngay trên bảng có ô chọn (Tác phẩm, Hộp việc, Kho). Chỉ hiện khi có JavaScript
+	 * (assets/admin-chon.js): ô chọn hết có ba trạng thái, giữ Shift để chọn một dải, và nút chuyển Phạm vi sang mọi mục
+	 * khớp bộ lọc khi đã chọn cả trang mà bộ lọc còn nhiều hơn. Ô này không có name nên không gửi gì lên máy chủ.
+	 *
+	 * @param int    $tong   Số mục khớp bộ lọc mà Phạm vi "Mọi … khớp bộ lọc" sẽ tính.
+	 * @param string $don_vi Tên mục: "bài", "thẻ", "câu".
+	 */
+	public static function chon_het( int $tong, string $don_vi ): string {
+		return '<div class="phongdao-chon-het" hidden data-tong="' . $tong . '" data-don-vi="' . esc_attr( $don_vi ) . '">'
+			. '<label><input type="checkbox" class="phongdao-chon-het-o"> <span class="phongdao-chon-het-chu">Chọn tất cả ' . esc_html( $don_vi ) . ' trên trang này</span></label>'
+			. '<button type="button" class="button phongdao-chon-loc" hidden></button>'
+			. '<span class="description phongdao-chon-meo">Mẹo: bấm một ô, giữ phím Shift rồi bấm ô khác để chọn cả dải ở giữa.</span></div>';
+	}
+
 	/** Khối "Làm theo lô" trên danh sách Hộp việc (chỉ khi xem thẻ Chờ / Để sau). */
 	public static function khoi_chon( array $loc, int $tong ): string {
 		$tt = '';

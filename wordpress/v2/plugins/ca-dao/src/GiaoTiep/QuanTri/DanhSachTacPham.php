@@ -281,6 +281,7 @@ final class DanhSachTacPham {
 			. self::bao_trung()
 			. '<p class="phongdao-tp-tong" role="status"><strong>' . (int) $truy->found_posts . '</strong> tác phẩm khớp bộ lọc. Hiện ' . count( $truy->posts ) . ' mục trên trang này.</p>'
 			. ( $lo ? '<form method="post" class="phongdao-lo-form" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">' . TrangLo::khoi_chon_bai( $loc, (int) $truy->found_posts ) : '' )
+			. ( $lo ? TrangLo::chon_het( (int) $truy->found_posts, 'bài' ) : '' )
 			. '<table class="widefat striped"><thead><tr>' . ( $lo ? '<th scope="col">Chọn</th>' : '' ) . '<th scope="col">ID</th><th scope="col">Tác phẩm</th><th scope="col">Trạng thái</th><th scope="col">Thể loại</th><th scope="col">Phần thiếu</th><th scope="col">Nguồn Lời</th><th scope="col">Việc</th><th scope="col">Sửa cuối</th></tr></thead><tbody>'
 			. ( $dong ?: '<tr><td colspan="8">Không có tác phẩm khớp. Thử đổi bộ lọc.</td></tr>' ) . '</tbody></table>' . ( $lo ? '</form>' : '' ) . $phan_trang . '</div>';
 	}

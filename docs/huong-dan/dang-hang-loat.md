@@ -6,7 +6,11 @@ Chọn câu ở Kho, đưa vào Hộp việc, rồi bấm đăng ngay đúng cá
 
 1. Mở wp-admin → **Phongdao** → **Kho**.
 2. Lọc theo nguồn hoặc thể loại nếu muốn, ví dụ chỉ Tục ngữ.
-3. Đánh dấu ô **Chọn** ở các câu muốn đăng. Khối **Đưa nhiều câu vào Hộp việc** tự mở và đếm số câu đã chọn. Muốn lấy hết thì mở khối đó và chọn **Mọi câu khớp bộ lọc**.
+3. Đánh dấu ô **Chọn** ở các câu muốn đăng. Khối **Đưa nhiều câu vào Hộp việc** tự mở và đếm số câu đã chọn.
+   - Chọn nhanh: bấm ô **Chọn tất cả … câu trên trang này** ngay trên bảng; bấm lại để bỏ chọn hết.
+   - Chọn một dải (máy tính): bấm ô đầu, giữ phím **Shift** rồi bấm ô cuối, mọi câu ở giữa được chọn theo.
+   - Lấy hết mọi trang: chọn tất cả trên trang rồi bấm **Chọn mọi … câu khớp bộ lọc** (hoặc mở khối và chọn **Mọi câu khớp bộ lọc**).
+   Cách chọn này dùng được cả ở Tác phẩm và Hộp việc.
 4. Bấm **Xem trước**. Đọc danh sách, bỏ dấu câu không muốn.
 5. Bấm **Đưa … câu vào Hộp việc**. Máy làm từng lượt 50 câu cho tới hết.
 
