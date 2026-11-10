@@ -678,6 +678,14 @@ try {
       chac(await coChu(bt, 'Chưa có gì được đăng') && await coChu(bt, 'Kho mẫu'), 'lô Đăng không hiện lời ở bước xem trước');
       const so = await bt.$$eval('input[name="giu[]"]', os => os.length);
       chac(so === 2, `xem trước lô Đăng có ${so} câu, cần đúng 2 câu vừa đưa vào`);
+      // Trang xem trước có "Chọn tất cả": bỏ hết thì nút chính đếm 0, chọn lại thì đếm 2
+      await bt.waitForSelector('.phongdao-chon-het:not([hidden])', { visible: true, timeout: 15_000 });
+      const nutDang = () => bt.$eval('button[name=lam][value=ap_dung]', b => b.textContent.trim());
+      chac(await nutDang() === 'Đăng 2 câu', `nút chính ghi "${await nutDang()}", cần "Đăng 2 câu"`);
+      await bt.$eval('.phongdao-chon-het-o', h => { if (h.checked) h.click(); });
+      chac(await bt.$$eval('input[name="giu[]"]:checked', os => os.length) === 0 && await nutDang() === 'Đăng 0 câu', 'bỏ chọn hết ở xem trước mà ô hoặc nút chính không đổi');
+      await bam(bt, '.phongdao-chon-het-o');
+      chac(await bt.$$eval('input[name="giu[]"]:checked', os => os.length) === 2 && await nutDang() === 'Đăng 2 câu', 'chọn tất cả ở xem trước mà không đánh dấu lại đủ 2 câu');
       await bamDoiTrang(bt, 'button[name=lam][value=ap_dung]');
       await doi(bt, () => document.body.innerText.includes('Lô đã chạy xong.'), null, 'lô Đăng không chạy xong', 120_000);
       chac(await coChu(bt, `Thành công ${so}`), `lô Đăng không đăng đủ ${so} câu`);

@@ -63,12 +63,28 @@ final class TrangLo {
 	 *
 	 * @param int    $tong   Số mục khớp bộ lọc mà Phạm vi "Mọi … khớp bộ lọc" sẽ tính.
 	 * @param string $don_vi Tên mục: "bài", "thẻ", "câu".
+	 * @param string $o      Tên ô chọn của từng hàng: ids[] ở danh sách, giu[] ở trang xem trước lô.
+	 * @param string $nut    Nút thay cho nút "Chọn mọi … khớp bộ lọc" (trang xem trước lô).
 	 */
-	public static function chon_het( int $tong, string $don_vi ): string {
-		return '<div class="phongdao-chon-het" hidden data-tong="' . $tong . '" data-don-vi="' . esc_attr( $don_vi ) . '">'
+	public static function chon_het( int $tong, string $don_vi, string $o = 'ids[]', string $nut = '' ): string {
+		return '<div class="phongdao-chon-het" hidden data-tong="' . $tong . '" data-don-vi="' . esc_attr( $don_vi ) . '"' . ( 'ids[]' === $o ? '' : ' data-o="' . esc_attr( $o ) . '"' ) . '>'
 			. '<label><input type="checkbox" class="phongdao-chon-het-o"> <span class="phongdao-chon-het-chu">Chọn tất cả ' . esc_html( $don_vi ) . ' trên trang này</span></label>'
-			. '<button type="button" class="button phongdao-chon-loc" hidden></button>'
+			. ( 'ids[]' === $o ? '<button type="button" class="button phongdao-chon-loc" hidden></button>' : $nut )
 			. '<span class="description phongdao-chon-meo">Mẹo: bấm một ô, giữ phím Shift rồi bấm ô khác để chọn cả dải ở giữa.</span></div>';
+	}
+
+	/**
+	 * Thanh chọn của một trang xem trước lô (ô "Áp dụng" tên giu[]): chọn tất cả trên trang, và khi các trang khác còn mục
+	 * bỏ dấu (câu có cờ để sẵn bỏ chọn, ngoại lệ đã lưu) thì nút "Đánh dấu cả … ở trang khác" (lam=giu_het).
+	 *
+	 * @param array<int,int> $bo mã mục bỏ dấu (khoá)
+	 * @return array{0:string,1:int} HTML thanh chọn; số mục còn đánh dấu ở các trang khác (nút chính đếm lại ngay khi đánh dấu)
+	 */
+	private static function chon_lo( array $muc, array $tren, array $bo, string $don_vi ): array {
+		$o_day   = array_flip( array_map( static fn( array $m ): int => (int) $m[0], $tren ) );
+		$bo_khac = count( array_filter( array_keys( $bo ), static fn( int $i ): bool => ! isset( $o_day[ $i ] ) ) );
+		$nut     = $bo_khac ? '<button type="submit" name="lam" value="giu_het" class="button phongdao-chon-loc" data-gui hidden>Đánh dấu cả ' . $bo_khac . ' ' . esc_html( $don_vi ) . ' đang bỏ dấu ở trang khác</button>' : '';
+		return array( self::chon_het( count( $muc ), $don_vi, 'giu[]', $nut ), count( $muc ) - count( $o_day ) - $bo_khac );
 	}
 
 	/** Khối "Làm theo lô" trên danh sách Hộp việc (chỉ khi xem thẻ Chờ / Để sau). */
@@ -125,7 +141,7 @@ final class TrangLo {
 		$lam   = sanitize_key( (string) ( $_POST['lam'] ?? '' ) );
 		$trang = max( 1, (int) ( $_POST['trang'] ?? 1 ) );
 		$them  = array( 'trang' => $trang > 1 ? $trang : '' );
-		if ( in_array( $lam, array( 'luu_bo', 'ap_dung' ), true ) && isset( $_POST['tren_trang'] ) ) {
+		if ( in_array( $lam, array( 'luu_bo', 'ap_dung', 'giu_het' ), true ) && isset( $_POST['tren_trang'] ) ) {
 			$tren = array_map( 'absint', (array) wp_unslash( $_POST['tren_trang'] ) );
 			$giu  = array_map( 'absint', (array) wp_unslash( $_POST['giu'] ?? array() ) );
 			$bc   = isset( $_POST['gia_tri'] )
@@ -139,6 +155,10 @@ final class TrangLo {
 			if ( 'luu_bo' === $lam ) {
 				self::bao( true, isset( $_POST['gia_tri'] ) ? 'Đã lưu giá trị trên trang này; xem so trước/sau rồi bấm Áp dụng.' : 'Đã lưu bỏ chọn: ' . $bc['bo'] . ' mục sẽ bỏ qua.' );
 			}
+		}
+		if ( 'giu_het' === $lam ) {
+			$bc = Lo::giu_het( $lo, $nguoi );
+			self::bao( $bc['ok'], $bc['ok'] ? 'Đã đánh dấu mọi mục của lô, cả ở các trang khác. Chưa có gì thay đổi cho tới khi bấm nút chính.' : $bc['loi'] );
 		}
 		if ( in_array( $lam, array( 'ap_dung', 'tiep' ), true ) ) {
 			$kq = Lo::ap_dung( $lo, $nguoi, current_user_can( 'cadao_duyet' ) );
@@ -313,10 +333,12 @@ final class TrangLo {
 			? 'Chưa có gì thay đổi. Mỗi câu đánh dấu sẽ có một thẻ Câu mới trong Hộp việc, giống bấm "Đưa vào Hộp việc" ở từng câu; chưa câu nào lên trang đọc. Câu máy vừa thấy có thể trùng sẽ thành thẻ "Có thể trùng" để bạn quyết trước.'
 			: 'Chưa có gì được đăng. Mỗi câu đánh dấu sẽ thành một tác phẩm Đã đăng, giống bấm Đăng ở từng thẻ: lời và dị bản chép từ kho, chú thích chỉ chép từ nguồn bật "Chép chú thích". Câu có cờ của nguồn (từ thô tục, nghi câu hiện đại, nguồn ghi cần xem…) đã để sẵn bỏ dấu — đánh dấu lại nếu bạn vẫn muốn đăng. Câu đang chờ quyết trùng sẽ bỏ qua. Đăng nhầm thì ẩn hoặc đưa vào thùng rác theo lô ở Tác phẩm.';
 		$nut  = $kho ? 'Đưa ' . $ap . ' câu vào Hộp việc' : 'Đăng ' . $ap . ' câu';
+		$mau  = $kho ? 'Đưa %d câu vào Hộp việc' : 'Đăng %d câu';
+		[ $thanh, $ngoai ] = self::chon_lo( $muc, $tren, $bo, 'câu' );
 		return '<p class="description">' . esc_html( $giai ) . ' Bỏ dấu ở câu không muốn, bấm "Lưu bỏ chọn" nếu còn trang khác cần xem, rồi bấm nút chính. Mục đổi sau lúc xem trước sẽ được bỏ qua và báo xung đột.</p>'
-			. '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">' . self::an( $id, $trang )
+			. '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">' . self::an( $id, $trang ) . $thanh
 			. '<table class="widefat striped phongdao-lo-cau"><thead><tr><th scope="col">Áp dụng</th><th scope="col">Câu</th><th scope="col">Thể loại</th><th scope="col">Nguồn</th><th scope="col">Lúc này</th></tr></thead><tbody>' . $dong . '</tbody></table>'
-			. '<p class="phongdao-lo-nut"><button type="submit" name="lam" value="ap_dung" class="button button-primary">' . esc_html( $nut ) . ' (tính cả bỏ chọn trên trang này)</button> <button type="submit" name="lam" value="luu_bo" class="button">Lưu bỏ chọn trên trang này</button> <button type="submit" name="lam" value="huy" class="button">Huỷ lô</button></p>'
+			. '<p class="phongdao-lo-nut"><button type="submit" name="lam" value="ap_dung" class="button button-primary" data-mau="' . esc_attr( $mau ) . '" data-ngoai="' . $ngoai . '">' . esc_html( $nut ) . ' (tính cả bỏ chọn trên trang này)</button> <button type="submit" name="lam" value="luu_bo" class="button">Lưu bỏ chọn trên trang này</button> <button type="submit" name="lam" value="huy" class="button">Huỷ lô</button></p>'
 			. '<p><label><input type="checkbox" name="tu_chay" value="1" checked> Tự chạy tiếp đến hết (mỗi lượt ' . Lo::MOI_LUOT . ' mục; bỏ chọn thì bấm Tiếp tục từng lượt)</label></p></form>'
 			. self::phan_trang( $id, $trang, $so );
 	}
@@ -371,7 +393,7 @@ final class TrangLo {
 			? '<p><label><input type="checkbox" name="duyet" value="1"' . checked( ! empty( $ts['duyet'] ), true, false ) . '> Tôi đã đọc và duyệt các giá trị này (bỏ chọn thì mỗi bài thành nháp trong Hộp việc, người đọc chưa thấy)</label></p>'
 			: ( 'y_nghia' === $phan ? '<p class="description">Ý nghĩa sẽ thành nháp trong Hộp việc chờ người có quyền duyệt.</p>' : '' );
 		return '<p class="description">Mỗi bài một giá trị riêng, gõ ở ô của bài đó; ô để trống thì bỏ qua (không xoá phần đang có). Bấm "Lưu giá trị" để xem so trước/sau, rồi Áp dụng. Mỗi bài lưu qua đúng đường của nút Sửa và có Lịch sử.</p>'
-			. '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">' . self::an( $id, $trang )
+			. '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">' . self::an( $id, $trang ) . self::chon_lo( $muc, $tren, $bo, 'bài' )[0]
 			. '<table class="widefat striped"><thead><tr><th scope="col">Áp dụng</th><th scope="col">Tác phẩm</th><th scope="col">' . esc_html( (string) ( $ts['ten'] ?? $phan ) ) . ' mới</th></tr></thead><tbody>' . $dong . '</tbody></table>'
 			. $duyet . '<p><label><input type="checkbox" name="ai" value="1"' . checked( ! empty( $ts['ai'] ), true, false ) . '> Các giá trị này có hỗ trợ của AI</label></p>'
 			. '<p class="phongdao-lo-nut"><button type="submit" name="lam" value="luu_bo" class="button">Lưu giá trị trên trang này</button> <button type="submit" name="lam" value="ap_dung" class="button button-primary">Áp dụng cho ' . $ap . ' mục</button> <button type="submit" name="lam" value="huy" class="button">Huỷ lô</button></p>'
@@ -453,13 +475,14 @@ final class TrangLo {
 			$dong .= '<tr><td data-nhan="Áp dụng"><input type="hidden" name="tren_trang[]" value="' . $bid . '"><input type="checkbox" name="giu[]" value="' . $bid . '" id="lo-giu-' . $bid . '"' . checked( ! isset( $bo[ $bid ] ), true, false ) . '><label for="lo-giu-' . $bid . '" class="screen-reader-text">Áp dụng cho bài #' . $bid . '</label></td>'
 				. '<td data-nhan="Tác phẩm">' . self::lien_bai( $bid, $p ) . '</td><td data-nhan="Trạng thái">' . esc_html( $trang_thai ) . '</td>' . $o . '</tr>';
 		}
+		[ $thanh, $ngoai ] = self::chon_lo( $muc, $tren, $bo, 'bài' );
 		$dau = $pl ? '<th scope="col">Đang có (' . esc_html( \Phongdao\HaTang\KhaiBao::PHAN_LOAI[ $ts['tax'] ][1] ?? '' ) . ')</th>' : '<th scope="col">Việc mở</th><th scope="col">Trong tuyển tập</th>';
 		$ap  = count( $muc ) - count( $bo );
 		$giai = $pl ? 'Mỗi bài ghi một lần sửa phân loại vào Lịch sử (khôi phục được). Không tạo mục mới.' : ( 'thung_rac' === $nd['thao_tac'] ? 'Bài vào thùng rác thì người đọc không thấy; lấy ra được bằng lô "Lấy ra khỏi thùng rác". Không xoá vĩnh viễn.' : 'Mỗi lần đổi trạng thái có dấu vết trong Lịch sử của bài.' );
 		return '<p class="description">Chưa có gì thay đổi. ' . esc_html( $giai ) . ' Bỏ dấu ở bài không muốn áp dụng; bài đổi sau lúc xem trước sẽ được bỏ qua và báo xung đột.</p>'
-			. '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">' . self::an( $id, $trang )
+			. '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">' . self::an( $id, $trang ) . $thanh
 			. '<table class="widefat striped"><thead><tr><th scope="col">Áp dụng</th><th scope="col">Tác phẩm</th><th scope="col">Trạng thái</th>' . $dau . '</tr></thead><tbody>' . $dong . '</tbody></table>'
-			. '<p class="phongdao-lo-nut"><button type="submit" name="lam" value="ap_dung" class="button button-primary">Áp dụng cho ' . $ap . ' mục (tính cả bỏ chọn trên trang này)</button> <button type="submit" name="lam" value="luu_bo" class="button">Lưu bỏ chọn trên trang này</button> <button type="submit" name="lam" value="huy" class="button">Huỷ lô</button></p>'
+			. '<p class="phongdao-lo-nut"><button type="submit" name="lam" value="ap_dung" class="button button-primary" data-mau="Áp dụng cho %d mục" data-ngoai="' . $ngoai . '">Áp dụng cho ' . $ap . ' mục (tính cả bỏ chọn trên trang này)</button> <button type="submit" name="lam" value="luu_bo" class="button">Lưu bỏ chọn trên trang này</button> <button type="submit" name="lam" value="huy" class="button">Huỷ lô</button></p>'
 			. '<p><label><input type="checkbox" name="tu_chay" value="1" checked> Tự chạy tiếp đến hết (mỗi lượt ' . Lo::MOI_LUOT . ' mục; bỏ chọn thì bấm Tiếp tục từng lượt)</label></p></form>'
 			. self::phan_trang( $id, $trang, $so );
 	}
@@ -600,10 +623,11 @@ final class TrangLo {
 				. '<td data-nhan="Thẻ">' . self::lien_the( $vid ) . '</td><td data-nhan="Bài / câu">' . esc_html( $v ? DanhSachViec::doi_tuong( $v, $ten ) : '' ) . '</td><td data-nhan="Nội dung">' . esc_html( $v ? self::mo_ta( $v ) : '' ) . '</td><td data-nhan="Lúc này">' . esc_html( $hien ) . '</td></tr>';
 		}
 		$ap = count( $muc ) - count( $bo );
+		[ $thanh, $ngoai ] = self::chon_lo( $muc, $tren, $bo, 'thẻ' );
 		return '<p class="description">Chưa có gì thay đổi. Bỏ dấu ở mục không muốn áp dụng (ngoại lệ), bấm "Lưu bỏ chọn" nếu còn trang khác cần xem, rồi bấm Áp dụng. Mục đổi sau lúc xem trước sẽ được bỏ qua và báo xung đột, không ghi đè.</p>'
-			. '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">' . self::an( $id, $trang )
+			. '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">' . self::an( $id, $trang ) . $thanh
 			. '<table class="widefat striped"><thead><tr><th scope="col">Áp dụng</th><th scope="col">Thẻ</th><th scope="col">Bài / câu</th><th scope="col">Nội dung</th><th scope="col">Lúc này</th></tr></thead><tbody>' . $dong . '</tbody></table>'
-			. '<p class="phongdao-lo-nut"><button type="submit" name="lam" value="ap_dung" class="button button-primary">Áp dụng cho ' . $ap . ' mục (tính cả bỏ chọn trên trang này)</button> <button type="submit" name="lam" value="luu_bo" class="button">Lưu bỏ chọn trên trang này</button> <button type="submit" name="lam" value="huy" class="button">Huỷ lô</button></p>'
+			. '<p class="phongdao-lo-nut"><button type="submit" name="lam" value="ap_dung" class="button button-primary" data-mau="Áp dụng cho %d mục" data-ngoai="' . $ngoai . '">Áp dụng cho ' . $ap . ' mục (tính cả bỏ chọn trên trang này)</button> <button type="submit" name="lam" value="luu_bo" class="button">Lưu bỏ chọn trên trang này</button> <button type="submit" name="lam" value="huy" class="button">Huỷ lô</button></p>'
 			. '<p><label><input type="checkbox" name="tu_chay" value="1" checked> Tự chạy tiếp đến hết (mỗi lượt ' . Lo::MOI_LUOT . ' mục; bỏ chọn thì bấm Tiếp tục từng lượt)</label></p></form>'
 			. self::phan_trang( $id, $trang, $so );
 	}
