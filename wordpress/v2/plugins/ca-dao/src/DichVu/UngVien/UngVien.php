@@ -309,7 +309,7 @@ final class UngVien implements Module {
 					'post_type'   => KhaiBao::TAC_PHAM,
 					'post_status' => 'draft',
 					'post_title'  => $tieu_de,
-					'post_name'   => sanitize_title( $tieu_de ),
+					'post_name'   => \Phongdao\DichVu\LuuPhan\DuongDan::ten_moi( $tieu_de ),
 					'post_author' => (int) $nc['nguoi'],
 				)
 			),

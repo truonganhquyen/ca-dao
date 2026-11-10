@@ -79,7 +79,7 @@ final class ThemBai {
 			return array( 'ok' => false, 'bai' => 0, 'loi' => array( 'Chưa có lời.' ) );
 		}
 		$ten = '' !== trim( $f['ten'] ) ? trim( $f['ten'] ) : trim( $dong[0] );
-		$id  = wp_insert_post( wp_slash( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'draft', 'post_title' => $ten, 'post_name' => sanitize_title( $ten ), 'post_author' => $nguoi ) ), true );
+		$id  = wp_insert_post( wp_slash( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'draft', 'post_title' => $ten, 'post_name' => \Phongdao\DichVu\LuuPhan\DuongDan::ten_moi( $ten ), 'post_author' => $nguoi ) ), true );
 		if ( is_wp_error( $id ) || ! $id ) {
 			return array( 'ok' => false, 'bai' => 0, 'loi' => array( 'Chưa tạo được bài.' ) );
 		}
@@ -92,8 +92,10 @@ final class ThemBai {
 			wp_delete_post( $id, true );
 			return array( 'ok' => false, 'bai' => 0, 'loi' => $kq['loi'] );
 		}
+		// Đăng qua wp_update_post (kiểm trùng tên đường dẫn); wp_publish_post không kiểm, từng làm hai bài cùng tên chung một
+		// địa chỉ và người đọc mất lối vào bài cũ (T-178)
 		if ( $f['dang'] ) {
-			wp_publish_post( $id );
+			wp_update_post( array( 'ID' => $id, 'post_status' => 'publish' ) );
 		}
 		return array( 'ok' => true, 'bai' => $id, 'loi' => array() );
 	}
