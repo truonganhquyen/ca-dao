@@ -26,6 +26,7 @@ const nhac = [];
 let dat = 0;
 let soAnh = 0;
 let tabDangChay = null;
+const cacTab = [];
 const chac = (dk, bao) => { if (!dk) throw new Error(bao); };
 const thu = async (ten, fn) => {
   try { await fn(); dat++; console.log(`ĐẠT      ${ten}`); }
@@ -33,6 +34,8 @@ const thu = async (ten, fn) => {
     const chu = String(e.message ?? e).split('\n')[0];
     loi.push(`${ten}: ${chu}`);
     console.log(`LỖI      [${TEN}] ${ten}: ${chu}`);
+    const treo = cacTab.flatMap(t => [...t.dangCho].map(([r, luc]) => `${t.nhan}: ${r.method()} ${r.url().replace(G, '')} (${Math.round((Date.now() - luc) / 1000)} giây)`));
+    if (treo.length) console.log(`THÔNG TIN [${TEN}] yêu cầu chưa xong lúc hỏng: ${treo.join('; ')}`);
     if (thuMucAnh && tabDangChay) { try { await tabDangChay.screenshot({ path: path.join(thuMucAnh, `e2e-hong-${++soAnh}.png`), fullPage: true }); } catch { /* tab đã đóng */ } }
   }
 };
@@ -48,6 +51,14 @@ const moTab = async (ctx, nhan) => {
     await tab.setRequestInterception(true);
     tab.on('request', r => { if (['GET', 'HEAD'].includes(r.method())) r.continue(); else { daChan++; r.abort(); } });
   }
+  // Chẩn đoán: yêu cầu tải trang / gọi máy chủ nào còn treo khi một bước hỏng (in ra ở lỗi của bước)
+  const dangCho = new Map();
+  tab.on('request', r => { if (['document', 'xhr', 'fetch'].includes(r.resourceType())) dangCho.set(r, Date.now()); });
+  tab.on('requestfinished', r => dangCho.delete(r));
+  tab.on('requestfailed', r => dangCho.delete(r));
+  tab.dangCho = dangCho;
+  tab.nhan = nhan;
+  cacTab.push(tab);
   tabDangChay = tab;
   return tab;
 };
@@ -62,8 +73,19 @@ const doi = async (tab, fn, arg, bao, ms = 15_000) => {
   catch { throw new Error(bao); }
 };
 const bam = async (tab, sel) => { const b = await tab.waitForSelector(sel, { visible: true, timeout: 15_000 }).catch(() => null); chac(b, `không thấy ${sel}`); await b.click(); };
-// Bấm rồi chờ trang mới (form gửi thẳng, tải lại sau khi lưu)
-const bamDoiTrang = async (tab, sel) => { await Promise.all([tab.waitForNavigation({ waitUntil: 'load', timeout: 120_000 }), bam(tab, sel)]); };
+// Bấm rồi chờ trang mới (form gửi thẳng, tải lại sau khi lưu). Không dựa vào sự kiện chuyển trang của puppeteer: Chrome mới
+// có lúc thay khung trang khi gửi form rồi chuyển hướng, làm waitForNavigation treo 120 giây hoặc "frame detached" ngẫu
+// nhiên ở các bước lô (#141–#145). Đánh dấu trang cũ, bấm, rồi chờ tới khi trang hiện tại là trang mới đã tải xong.
+const bamDoiTrang = async (tab, sel) => {
+  await tab.evaluate(() => { window.__trangCu = 1; });
+  await bam(tab, sel);
+  const het = Date.now() + 120_000;
+  for (;;) {
+    try { if (await tab.evaluate(() => !window.__trangCu && document.readyState === 'complete')) return; } catch { /* đang chuyển trang */ }
+    if (Date.now() > het) throw new Error(`bấm ${sel} mà không sang trang mới sau 120 giây`);
+    await new Promise(ok => setTimeout(ok, 200));
+  }
+};
 const baoCo = (tab, chu) => doi(tab, c => (document.querySelector('#phongdao-bao')?.textContent || '').includes(c), chu, `không hiện thông báo "${chu}"`);
 const coChu = (tab, chu) => tab.evaluate(c => document.body.innerText.includes(c), chu);
 const datO = (tab, sel, gt) => tab.$eval(sel, (o, v) => { o.value = v; o.dispatchEvent(new Event('input', { bubbles: true })); }, gt);

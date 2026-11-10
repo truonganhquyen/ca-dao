@@ -867,6 +867,8 @@ Phần còn thiếu gom thành **T-185** (`READY`, xếp sau các việc của `
 
 **T-187.2 (10/11/2026, kiểm thử ổn định):** các bước lô của `e2e:v2` trên CI hết giờ chuyển trang 120 giây ngẫu nhiên (#141–#143, cả khi chạy lại): ảnh lỗi cho thấy bấm "Áp dụng" mà máy chủ Playground không trả lời. Bản dựng để kiểm (`scripts/lib/playground-v2.mjs`, dùng cho `quet:v2`, `e2e:v2`) tắt WP-Cron và yêu cầu mạng ngoài (`DISABLE_WP_CRON`, `WP_HTTP_BLOCK_EXTERNAL`): việc nền kiểm cập nhật, sức khoẻ site, việc nền của plugin không còn giữ máy chủ giữa lúc kiểm. Site thật và bản xem trước không đổi. Kiểm cục bộ: `quet:v2` 0 lỗi, `e2e:v2` 34 bước đạt.
 
+**T-187.3 (10/11/2026, kiểm thử ổn định, tiếp):** sau #144 vẫn còn hỏng ngẫu nhiên ở các bước lô; ảnh lỗi CI và một lần tái hiện tại máy ("frame detached") cho thấy puppeteer mất dấu trang khi Chrome thay khung lúc gửi form rồi chuyển hướng. `bamDoiTrang` của `e2e:v2` nay không dựa vào `waitForNavigation`: đánh dấu trang cũ, bấm, chờ trang hiện tại là trang mới đã tải xong; bước "Lô sửa từng hàng" đánh dấu "đã duyệt" bằng phần tử và kiểm dấu còn sau khi lưu (#145); khi một bước hỏng, in các yêu cầu tải trang còn treo để chẩn đoán. Kiểm cục bộ: `e2e:v2` hai lượt liền, mỗi lượt 34 bước đạt.
+
 **Lưu ý trạng thái:** T-143..T-157 là backlog xây mới trước ngày chuyển; trạng thái đã đối soát theo bằng chứng ở T-178.3 (10/11/2026), phần còn thiếu ở T-185. Nhóm T-166..T-183 theo dõi **nâng cấp mới**, không dùng các trạng thái cũ để suy ra chức năng đã có. T-178 đối soát backlog lịch sử theo bằng chứng, không đổi trạng thái hàng loạt theo suy đoán.
 
 ## 4. User story
