@@ -2,6 +2,7 @@
 
 namespace Phongdao\GiaoTiep\QuanTri;
 
+use Phongdao\DichVu\LuuPhan\DuongDan;
 use Phongdao\DichVu\NhapNguon\NguonTuDong;
 use Phongdao\HaTang\KhaiBao;
 use Phongdao\KhoLuu\PhanBai;
@@ -14,6 +15,7 @@ defined( 'ABSPATH' ) || exit;
 final class DanhSachTacPham {
 
 	public const TRANG = 'phongdao-tac-pham';
+	public const TACH = 'phongdao_tach_duong_dan';
 	private const MOI_TRANG = 30;
 	private const TRANG_THAI = array(
 		'tat_ca' => 'Tất cả',
@@ -182,6 +184,53 @@ final class DanhSachTacPham {
 		return '<tr>' . $chon . '<td data-nhan="ID">' . $id . '</td><td data-nhan="Tác phẩm"><strong>' . $ten . '</strong>' . $sua_lien . '</td><td data-nhan="Trạng thái">' . esc_html( $tt ) . '</td><td data-nhan="Thể loại">' . esc_html( $ten_loai ) . '</td><td data-nhan="Phần thiếu">' . esc_html( $thieu ? implode( ', ', $thieu ) : 'Đủ phần chính' ) . '</td><td data-nhan="Nguồn Lời">' . esc_html( $nguon_hien ) . '</td><td data-nhan="Việc">' . $viec_lien . '</td><td data-nhan="Sửa cuối">' . esc_html( mysql2date( 'd/m/Y H:i', $bai->post_modified ) ) . '</td></tr>';
 	}
 
+	public static function dang_ky(): void {
+		add_action( 'admin_post_' . self::TACH, array( self::class, 'tach' ) );
+	}
+
+	/** Người quản trị chọn một bài trong nhóm trùng đường dẫn để nhận đường dẫn riêng (H6: chỉ khi người bấm). */
+	public static function tach(): void {
+		$id = absint( $_POST['id'] ?? 0 ); // phpcs:ignore WordPress.Security.NonceVerification -- kiểm ngay dưới
+		if ( ! current_user_can( 'cadao_nguon' ) || ! $id ) {
+			wp_die( 'Chỉ người quản trị được đổi đường dẫn của bài đã đăng.', '', array( 'response' => 403 ) );
+		}
+		check_admin_referer( self::TACH . '_' . $id );
+		set_transient( 'phongdao_tach_bao_' . get_current_user_id(), DuongDan::tach( $id, get_current_user_id() ), MINUTE_IN_SECONDS );
+		wp_safe_redirect( admin_url( 'admin.php?page=' . self::TRANG ) );
+		exit;
+	}
+
+	/**
+	 * Khối báo tác phẩm đã đăng dùng chung đường dẫn (T-178): người đọc vào địa chỉ đó chỉ mở được một bài. Ai có quyền
+	 * biên soạn đều thấy để báo; nút tách chỉ hiện với người quản trị.
+	 */
+	public static function bao_trung(): string {
+		$o   = '';
+		$bao = get_transient( 'phongdao_tach_bao_' . get_current_user_id() );
+		if ( is_array( $bao ) ) {
+			delete_transient( 'phongdao_tach_bao_' . get_current_user_id() );
+			$o .= '<div class="notice ' . ( $bao['ok'] ? 'notice-success' : 'notice-error' ) . '" role="status"><p>' . esc_html( (string) $bao['thong_bao'] ) . '</p></div>';
+		}
+		$nhom = DuongDan::trung();
+		if ( ! $nhom ) {
+			return $o;
+		}
+		$quyen = current_user_can( 'cadao_nguon' );
+		$o    .= '<div class="notice notice-warning phongdao-trung-duong-dan"><p><strong>' . count( $nhom ) . ' đường dẫn đang dùng chung cho nhiều bài đã đăng.</strong> Người đọc vào mỗi địa chỉ chỉ mở được một bài; bài còn lại không có lối vào (thẻ của nó mở ra bài khác). '
+			. ( $quyen ? 'Chọn bài nhận đường dẫn riêng (thêm đuôi số). Đây là đổi đường dẫn của bài đã đăng: chỉ đổi khi bạn bấm.' : 'Báo người quản trị chọn bài nào nhận đường dẫn riêng.' ) . '</p><ul>';
+		foreach ( $nhom as $ten => $ds ) {
+			$o .= '<li><code>' . esc_html( (string) $ten ) . '</code><ul>';
+			foreach ( $ds as $b ) {
+				$o .= '<li><a href="' . esc_url( SuaTacPham::url( $b['id'] ) ) . '">#' . $b['id'] . ' ' . esc_html( $b['ten'] ) . '</a> · đăng ' . esc_html( mysql2date( 'd/m/Y', $b['ngay'] ) ) . ' · '
+					. ( $b['mo_duoc'] ? '<strong>người đọc đang mở được bài này</strong>' : 'người đọc không mở được bài này' )
+					. ( $quyen ? ' <form method="post" class="phongdao-tach" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="' . self::TACH . '"><input type="hidden" name="id" value="' . $b['id'] . '">' . wp_nonce_field( self::TACH . '_' . $b['id'], '_wpnonce', true, false ) . '<button type="submit" class="button" aria-label="Cho bài này đường dẫn riêng: #' . $b['id'] . '">Cho bài này đường dẫn riêng</button></form>' : '' )
+					. '</li>';
+			}
+			$o .= '</ul></li>';
+		}
+		return $o . '</ul></div>';
+	}
+
 	public static function hien(): string {
 		if ( ! current_user_can( 'cadao_soan' ) ) {
 			return '<div class="wrap"><p>Bạn không có quyền xem danh sách này.</p></div>';
@@ -218,6 +267,7 @@ final class DanhSachTacPham {
 			. ( $loc['paged'] < $so_trang ? '<a class="button" href="' . esc_url( self::url( $loc, $loc['paged'] + 1 ) ) . '">Trang sau</a>' : '' ) . '</nav>' : '';
 		return '<div class="wrap phongdao-admin-tp"><h1>Tác phẩm</h1><p class="description">Danh sách đọc từ toàn kho. Mở bài để sửa bằng biểu mẫu theo phần trên trang bài; việc chờ mở ở Hộp việc.</p>' . $form
 			. TrangLo::lay_bao()
+			. self::bao_trung()
 			. '<p class="phongdao-tp-tong" role="status"><strong>' . (int) $truy->found_posts . '</strong> tác phẩm khớp bộ lọc. Hiện ' . count( $truy->posts ) . ' mục trên trang này.</p>'
 			. ( $lo ? '<form method="post" class="phongdao-lo-form" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">' . TrangLo::khoi_chon_bai( $loc, (int) $truy->found_posts ) : '' )
 			. '<table class="widefat striped"><thead><tr>' . ( $lo ? '<th scope="col">Chọn</th>' : '' ) . '<th scope="col">ID</th><th scope="col">Tác phẩm</th><th scope="col">Trạng thái</th><th scope="col">Thể loại</th><th scope="col">Phần thiếu</th><th scope="col">Nguồn Lời</th><th scope="col">Việc</th><th scope="col">Sửa cuối</th></tr></thead><tbody>'

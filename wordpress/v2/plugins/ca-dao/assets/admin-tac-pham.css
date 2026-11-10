@@ -108,3 +108,4 @@
 .phongdao-admin-tp .phongdao-lo-pham-vi legend { font-weight: 600; margin-bottom: 4px; }
 .phongdao-admin-tp .phongdao-lo-pham-vi label { display: flex; align-items: center; gap: 8px; min-height: 44px; }
 .phongdao-admin-tp td input[type=checkbox] { width: 24px; height: 24px; margin: 0; }
+.phongdao-trung-duong-dan ul ul{margin:4px 0 8px 20px;list-style:disc}.phongdao-trung-duong-dan form.phongdao-tach{display:inline;margin-left:8px}

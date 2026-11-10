@@ -1907,6 +1907,55 @@ $sd = $SEO::so_do_bai( array(), KhaiBao::TAC_PHAM );
 kt( 'sơ đồ trang: tác phẩm chỉ gồm bài L2; mục từ chỉ gồm mục lập chỉ mục được', $sd['post__in'] === $SEO::ds_l2() && in_array( $t_chut->term_id, $SEO::so_do_phan_loai( array(), 'muc_tu' )['include'], true ) );
 $xem( array( 'post_type' => KhaiBao::TAC_PHAM ) );
 
+// ---------- Đường dẫn dùng chung (T-178) ----------
+// Thêm bài "đăng ngay" từng đăng bằng wp_publish_post (không kiểm trùng tên): hai bài cùng câu đầu chung một địa chỉ,
+// người đọc chỉ mở được bài đăng sau. Nay tên riêng ngay từ nháp; dữ liệu cũ đã trùng thì báo, người quản trị bấm mới tách.
+$DSTP = \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::class;
+$DD   = \Phongdao\DichVu\LuuPhan\DuongDan::class;
+wp_set_current_user( $ai_ql );
+$tb_1 = ThemBai::tao( array( 'the_loai' => 'ca-dao', 'loi' => "Câu trùng tên mẫu đầu dòng\nDòng sau của bản thứ nhất", 'ten' => '', 'nguon' => '', 'dang' => true ), $ai_ql );
+$tb_2 = ThemBai::tao( array( 'the_loai' => 'ca-dao', 'loi' => "Câu trùng tên mẫu đầu dòng\nDòng sau khác hẳn của bản thứ hai", 'ten' => '', 'nguon' => '', 'dang' => true ), $ai_ql );
+$ten_tr = (string) get_post_field( 'post_name', $tb_1['bai'] );
+kt( 'Thêm bài đăng ngay hai bài cùng câu đầu → hai đường dẫn khác nhau, người đọc mở được cả hai', $tb_1['ok'] && $tb_2['ok'] && 'publish' === get_post_status( $tb_2['bai'] ) && $ten_tr . '-2' === get_post_field( 'post_name', $tb_2['bai'] ) && $tb_1['bai'] === url_to_postid( get_permalink( $tb_1['bai'] ) ) && $tb_2['bai'] === url_to_postid( get_permalink( $tb_2['bai'] ) ) && ! isset( $DD::trung()[ $ten_tr ] ), array( $tb_1, $tb_2, $ten_tr, get_post_field( 'post_name', $tb_2['bai'] ) ) );
+// Dữ liệu cũ: bài 2 (đăng sau) mang đúng tên của bài 1
+$wpdb->update( $wpdb->posts, array( 'post_date' => '2026-11-01 09:00:00', 'post_date_gmt' => '2026-11-01 02:00:00' ), array( 'ID' => $tb_1['bai'] ) );
+$wpdb->update( $wpdb->posts, array( 'post_name' => $ten_tr, 'post_date' => '2026-11-08 09:00:00', 'post_date_gmt' => '2026-11-08 02:00:00' ), array( 'ID' => $tb_2['bai'] ) );
+clean_post_cache( $tb_1['bai'] );
+clean_post_cache( $tb_2['bai'] );
+$nhom_tr = $DD::trung()[ $ten_tr ] ?? array();
+kt( 'hai bài đã đăng cùng tên đường dẫn: phát hiện cả hai; bài người đọc mở được đúng là bài WordPress trả cho địa chỉ đó (đăng sau)', 2 === count( $nhom_tr ) && $tb_2['bai'] === $nhom_tr[0]['id'] && $nhom_tr[0]['mo_duoc'] && ! $nhom_tr[1]['mo_duoc'] && $tb_2['bai'] === url_to_postid( home_url( '/ca-dao/' . $ten_tr . '/' ) ), $nhom_tr );
+$h_tr_ql = $DSTP::bao_trung();
+wp_set_current_user( $chi_soan );
+$h_tr_bs = $DSTP::bao_trung();
+add_filter( 'wp_die_handler', $chan_die_lo );
+add_filter( 'wp_redirect', $chan_di_lo );
+$gui_tach = static function ( int $nguoi, int $id ) use ( $DSTP ): string {
+	wp_set_current_user( $nguoi );
+	$_POST = $_REQUEST = array( 'id' => (string) $id, '_wpnonce' => wp_create_nonce( $DSTP::TACH . '_' . $id ) );
+	try {
+		$DSTP::tach();
+		return 'không dừng';
+	} catch ( \RuntimeException $e ) {
+		return $e->getMessage();
+	}
+};
+$t_bs = $gui_tach( $chi_soan, $tb_1['bai'] );
+$ten_bs = (string) get_post_field( 'post_name', $tb_1['bai'] );
+$t_ql = $gui_tach( $ai_ql, $tb_1['bai'] );
+remove_filter( 'wp_die_handler', $chan_die_lo );
+remove_filter( 'wp_redirect', $chan_di_lo );
+$_POST = $_REQUEST = array();
+wp_set_current_user( $ai_ql );
+clean_post_cache( $tb_1['bai'] );
+$ten_rieng = (string) get_post_field( 'post_name', $tb_1['bai'] );
+$nk_tr     = array_values( array_filter( Viec::lich_su( 'post', $tb_1['bai'], 20 ), static fn( array $r ): bool => 'duong_dan' === $r['phan'] ) );
+$bao_tr    = $DSTP::bao_trung();
+kt( 'trang Tác phẩm báo đường dẫn dùng chung, nói bài nào người đọc không mở được; nút tách chỉ người quản trị thấy', str_contains( $h_tr_ql, '#' . $tb_1['bai'] ) && str_contains( $h_tr_ql, 'người đọc không mở được bài này' ) && str_contains( $h_tr_ql, 'Cho bài này đường dẫn riêng' ) && str_contains( $h_tr_bs, '#' . $tb_1['bai'] ) && ! str_contains( $h_tr_bs, 'Cho bài này đường dẫn riêng' ), array( $h_tr_ql, $h_tr_bs ) );
+kt( 'người biên soạn không tách được; người quản trị bấm thì bài kia có đường dẫn riêng, người đọc mở được cả hai, Lịch sử ghi trước/sau', str_starts_with( $t_bs, 'wp_die' ) && $ten_tr === $ten_bs && str_starts_with( $t_ql, 'redirect:' ) && str_starts_with( $ten_rieng, $ten_tr . '-' ) && $tb_1['bai'] === url_to_postid( get_permalink( $tb_1['bai'] ) ) && $tb_2['bai'] === url_to_postid( get_permalink( $tb_2['bai'] ) ) && ! isset( $DD::trung()[ $ten_tr ] ) && 1 === count( $nk_tr ) && $ten_tr === $nk_tr[0]['truoc']['post_name'] && $ten_rieng === $nk_tr[0]['sau']['post_name'] && $ai_ql === $nk_tr[0]['nguoi_quyet'] && str_contains( \Phongdao\GiaoTiep\BienTap\CheDoSua::mo_ta( $nk_tr[0] ), 'Đường dẫn: cho đường dẫn riêng' ) && str_contains( $bao_tr, 'nay có đường dẫn riêng' ), array( $t_bs, $t_ql, $ten_rieng, $nk_tr ) );
+kt( 'tách lại bài không còn trùng → không đổi gì', ! $DD::tach( $tb_1['bai'], $ai_ql )['ok'] && $ten_rieng === get_post_field( 'post_name', $tb_1['bai'] ) );
+wp_delete_post( $tb_1['bai'], true );
+wp_delete_post( $tb_2['bai'], true );
+
 // ---------- Nguồn & cài đặt (wp-admin) ----------
 $NC  = \Phongdao\GiaoTiep\QuanTri\NguonCaiDat::class;
 $cu  = \Phongdao\DichVu\NhapNguon\NguonTuDong::lay( 'cadao-me' );

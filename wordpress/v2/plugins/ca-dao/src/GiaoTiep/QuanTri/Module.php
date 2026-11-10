@@ -17,6 +17,7 @@ final class Module implements \Phongdao\HaTang\Module {
 		NguonCaiDat::dang_ky();
 		SuaTacPham::dang_ky();
 		DanhSachKho::dang_ky();
+		DanhSachTacPham::dang_ky();
 		TrangLo::dang_ky();
 	}
 
