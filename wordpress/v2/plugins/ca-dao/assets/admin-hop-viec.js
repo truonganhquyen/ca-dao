@@ -23,12 +23,13 @@
 
   // Máy tính: nút quyết ghi số phím tắt ("1 Đăng"); chỉ khi có bàn phím (màn rộng, chuột)
   const soPhim = () => {
-    if (!o || !window.matchMedia('(min-width: 783px) and (pointer: fine)').matches) return;
+    if (!o) return;
+    const goiY = o.querySelector('[data-hv="goi-y"]');
+    if (goiY) goiY.hidden = false;
+    if (!window.matchMedia('(min-width: 783px) and (pointer: fine)').matches) return;
     o.querySelectorAll('form button[name="quyet"]:not([disabled])').forEach((b, i) => {
       if (i < 3 && !b.querySelector('.phongdao-phim')) b.insertAdjacentHTML('afterbegin', `<kbd class="phongdao-phim" aria-hidden="true">${i + 1}</kbd> `);
     });
-    const goiY = o.querySelector('[data-hv="goi-y"]');
-    if (goiY) goiY.hidden = false;
   };
 
   hoanTac();
