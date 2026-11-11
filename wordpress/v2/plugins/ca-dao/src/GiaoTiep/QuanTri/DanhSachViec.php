@@ -311,9 +311,11 @@ final class DanhSachViec {
 			. ( $vi ? '<span class="description">Thẻ ' . $vi . ' / ' . $tong . '</span>' : '' )
 			. ( $sau ? '<a class="button" data-hv="sau" href="' . esc_url( self::url( $loc, (int) $loc['paged'], $sau ) ) . '">Thẻ sau →</a>' : '' )
 			. '</nav><p class="description" data-hv="goi-y" hidden>Phím tắt: J thẻ sau, K thẻ trước; 1, 2, 3 bấm nút quyết theo thứ tự. Quyết xong tự sang thẻ kế.</p>';
-		// Thẻ đang mở: không còn dòng "Trạng thái: Chờ"; có "Sửa bài · Xem bài" thì bỏ lối "Mở bài →" trùng
+		// Thẻ đang mở: không còn dòng "Trạng thái: Chờ"; có "Sửa bài · Xem bài" thì bỏ lối "Mở bài →" trùng. Đầu thẻ (màn hẹp):
+		// "← Danh sách · Thẻ 3 / 20"
 		$lien = self::lien_bai( $v );
-		return $ve . HopViec::the( $v, true, $tiep, '' === $lien ) . $lien . $di;
+		$ve   = '<p class="phongdao-hv-ve"><a href="' . esc_url( self::url( $loc, (int) $loc['paged'] ) ) . '">← Danh sách</a>' . ( $vi ? ' <span aria-hidden="true">·</span> <span>Thẻ ' . $vi . ' / ' . $tong . '</span>' : '' ) . '</p>';
+		return $ve . $di . HopViec::the( $v, true, $tiep, '' === $lien ) . $lien;
 	}
 
 	/**
@@ -387,7 +389,7 @@ final class DanhSachViec {
 		$ds   = ( $lo ? TrangLo::chon_het( (int) $kq['tong'], 'thẻ' ) : '' ) . ( $dong ? '<ul class="phongdao-hv-ds">' . $dong . '</ul>' : $rong );
 		$tim  = '<form class="phongdao-hv-tim" method="get" action="' . esc_url( admin_url( 'admin.php' ) ) . '"><input type="hidden" name="page" value="' . self::TRANG . '"><input type="hidden" name="tt" value="' . esc_attr( $loc['tt'] ) . '"><input type="hidden" name="loai" value="' . esc_attr( $loc['loai'] ) . '">'
 			. '<label for="phongdao-viec-q">Tìm thẻ</label><input id="phongdao-viec-q" name="q" type="search" value="' . esc_attr( $loc['q'] ) . '" placeholder="ID, tên bài hoặc chữ trong thẻ"><button class="button" type="submit">Tìm</button></form>';
-		return '<div class="wrap phongdao-admin-viec"><h1>Hộp việc</h1>'
+		return '<div class="wrap phongdao-admin-viec' . ( $v ? ' co-the' : '' ) . '"><h1>Hộp việc</h1>'
 			. self::bao_quyet( $loc ) . TrangLo::lay_bao() . self::tab( $loc ) . $tim
 			. '<p class="phongdao-hv-so" role="status"><strong>' . (int) $kq['tong'] . '</strong> thẻ khớp bộ lọc; hiện ' . count( $kq['ds'] ) . ' thẻ trên trang này.</p>'
 			. '<div class="phongdao-hv' . ( $v ? ' co-chon' : '' ) . '"><div class="phongdao-hv-trai">'

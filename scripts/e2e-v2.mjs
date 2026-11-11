@@ -392,8 +392,13 @@ try {
       chac(dich, 'không tìm thấy đúng thẻ nháp ý nghĩa trong admin');
       await bt.goto(dich, { waitUntil: 'load', timeout: 120_000 });
       chac(await coChu(bt, yNghia), 'chi tiết thẻ không có đúng nháp cần duyệt');
+      // Sửa vài chữ ngay trên thẻ rồi Duyệt; quyết không tải lại trang (dấu đặt trên trang còn nguyên sau khi quyết)
+      chac(await bt.$('.phongdao-admin-viec article.the-viec textarea.nhap-sua'), 'thẻ nháp không có ô sửa trước khi duyệt');
+      await datO(bt, '.phongdao-admin-viec article.the-viec textarea.nhap-sua', yNghia + ' Đã sửa trên thẻ.');
+      await bt.evaluate(() => { window.__khongTaiLai = 1; });
       await bamDoiTrang(bt, '.phongdao-admin-viec article.the-viec button[name=quyet][value=duyet]');
-      chac(await coChu(bt, 'Đã duyệt'), 'quyết trong admin không báo đã duyệt');
+      chac(await coChu(bt, 'Đã sửa và duyệt'), 'quyết trong admin không báo đã sửa và duyệt');
+      chac(await bt.evaluate(() => window.__khongTaiLai === 1), 'quyết thẻ mà trang tải lại (cần chỉ thay phần thẻ)');
       // Quyết xong tự sang thẻ kế (ở đây hết thẻ khớp tìm); xem lại thẻ vừa quyết qua lối trong lời báo
       await bamDoiTrang(bt, '.phongdao-hv-bao a');
       chac(!(await bt.$('.phongdao-admin-viec article.the-viec button[name=quyet]')), 'thẻ đã quyết còn nút quyết');
@@ -402,7 +407,29 @@ try {
       chac(!(await bt.$eval('article.the-viec', e => e.textContent.includes('chưa duyệt') || e.textContent.includes('người đọc chưa thấy'))), 'thẻ đã duyệt vẫn ghi "chưa duyệt" / "người đọc chưa thấy"');
       chac(await bt.$('.phongdao-viec-bai a[href*="phongdao-sua-tac-pham"]') && (await bt.$('.phongdao-viec-tiep a') || await coChu(bt, 'Hết thẻ')), 'quyết xong không có lối Sửa bài hoặc Thẻ tiếp theo');
       await di(k, caDao);
-      chac(await coChu(k, yNghia), 'duyệt rồi người đọc vẫn chưa thấy');
+      chac(await coChu(k, yNghia + ' Đã sửa trên thẻ.'), 'duyệt bản đã sửa rồi người đọc vẫn chưa thấy đúng bản đã sửa');
+    });
+
+    await thu('wp-admin Hộp việc trên điện thoại: mở một thẻ chỉ còn "← Danh sách · Thẻ N / M", nút quyết thấy ngay ở màn đầu; thanh dưới Hôm nay · Hộp việc · Bổ sung · Bài mới', async () => {
+      // Có ít nhất một thẻ chờ: người biên soạn "Lưu nháp" một ý nghĩa
+      await di(bt, caDao);
+      await bam(bt, '[data-action=mo-tam][data-tam=y_nghia]');
+      await datO(bt, 'dialog#tam-y_nghia[open] textarea[name=chu]', 'Nháp thử điện thoại.');
+      await bamDoiTrang(bt, 'dialog#tam-y_nghia button[name=duyet][value=""]');
+      await bt.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
+      await di(bt, '/wp-admin/admin.php?page=phongdao-hop-viec&tt=cho&loai=nhap_y_nghia');
+      const duoi = await bt.$$eval('.phongdao-thanh-duoi a', as => as.filter(a => a.offsetParent).map(a => a.textContent.replace(/\d+/g, '').trim()));
+      chac(JSON.stringify(duoi) === JSON.stringify(['Hôm nay', 'Hộp việc', 'Bổ sung', 'Bài mới']), `thanh dưới điện thoại: ${duoi.join(' · ')}`);
+      const mo = await bt.$eval('.phongdao-hv-ds a.phongdao-hv-mo', a => a.href).catch(() => '');
+      chac(mo, 'không có thẻ nháp để mở trên điện thoại');
+      await di(bt, mo.replace(G, ''));
+      chac(await bt.$eval('.phongdao-hv-tab', e => !e.offsetParent) && await bt.$eval('.phongdao-hv-tim', e => !e.offsetParent), 'mở thẻ mà tab, ô tìm vẫn chiếm màn');
+      chac(await bt.$eval('.phongdao-hv-ve', e => /Danh sách/.test(e.textContent) && /Thẻ \d+ \/ \d+/.test(e.textContent)), 'đầu thẻ không có "← Danh sách · Thẻ N / M"');
+      const nut = await bt.$eval('.phongdao-hv-phai .tv-nut button[name=quyet]', b => { const r = b.getBoundingClientRect(); return { duoi: r.bottom, cao: innerHeight }; });
+      chac(nut.duoi <= nut.cao, `nút quyết nằm dưới màn đầu (y = ${Math.round(nut.duoi)} / ${nut.cao})`);
+      chac(await bt.evaluate(() => { const b = document.querySelector('.phongdao-hv-phai .tv-nut button[name=quyet]'); const r = b.getBoundingClientRect(); return document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2)?.closest('button') === b; }), 'nút quyết bị thanh dưới che');
+      chac(await bt.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Hộp việc tràn ngang ở 390 px');
+      await bt.setViewport({ width: 1280, height: 800 });
     });
 
     await thu('wp-admin Sửa tác phẩm: lời hiện ở đầu; Ẩn khỏi người đọc rồi Đăng lại ngay trên trang sửa', async () => {
@@ -410,11 +437,11 @@ try {
       const id = await bt.$eval('.dai-bien-tap', e => e.dataset.bai);
       await di(bt, `/wp-admin/admin.php?page=phongdao-sua-tac-pham&id=${id}`);
       chac(await bt.$('.phongdao-loi-xem li'), 'trang sửa chưa hiện lời ở đầu');
-      await bamDoiTrang(bt, '.phongdao-trang-thai form:has(input[name=trang_thai][value=private]) [type=submit]');
+      await bamDoiTrang(bt, '.phongdao-sua-ben .phongdao-trang-thai form:has(input[name=trang_thai][value=private]) [type=submit]');
       chac(await coChu(bt, 'Đã ẩn bài khỏi người đọc'), 'không báo đã ẩn bài');
       const an = await k.goto(G + caDao, { waitUntil: 'load', timeout: 120_000 });
       chac(an.status() === 404, `ẩn rồi khách vẫn mở được bài (HTTP ${an.status()})`);
-      await bamDoiTrang(bt, '.phongdao-trang-thai form:has(input[name=trang_thai][value=publish]) [type=submit]');
+      await bamDoiTrang(bt, '.phongdao-sua-ben .phongdao-trang-thai form:has(input[name=trang_thai][value=publish]) [type=submit]');
       chac(await coChu(bt, 'Đã đăng: người đọc thấy bài'), 'không báo đã đăng lại');
       await di(k, caDao);
     });
@@ -424,7 +451,7 @@ try {
       await di(bt, caDao);
       const id = await bt.$eval('.dai-bien-tap', e => e.dataset.bai);
       await di(bt, `/wp-admin/admin.php?page=phongdao-sua-tac-pham&id=${id}`);
-      chac(await bt.$('#phan-y_nghia form') && await coChu(bt, 'Việc đang chờ'), 'không mở được trang sửa có cấu trúc');
+      chac(await bt.$('#phan-y_nghia form') && await coChu(bt, 'Phân loại') && await bt.$('#phan-co_nghi'), 'không mở được trang sửa có cấu trúc (phần, phân loại, công tắc cờ)');
       // Một màn hai cột: lời và các phần bên trái, trạng thái và phân loại bên phải (màn rộng)
       const [chinh, ben] = await bt.evaluate(() => ['.phongdao-sua-chinh', '.phongdao-sua-ben'].map(s => document.querySelector(s).getBoundingClientRect().toJSON()));
       chac(ben.width > 0 && ben.left >= chinh.right - 1, 'trang sửa không chia hai cột ở màn rộng');

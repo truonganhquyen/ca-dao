@@ -26,7 +26,7 @@ final class TamSua {
 		'ban_co_biet' => array( 'Sửa "Bạn có biết"', 'chu_ai' ),
 		'cau_hoi'     => array( 'Sửa câu hỏi', 'chu' ),
 		'dap_an'      => array( 'Sửa đáp án', 'chu' ),
-		'co_nghi'     => array( 'Cờ "Nghi không phải dân gian"', 'co_nghi' ),
+		'co_nghi'     => array( 'Cờ "Có thể không phải dân gian"', 'co_nghi' ),
 		'chu_thich'   => array( 'Sửa từ khó', 'chu_thich' ),
 		'di_ban'      => array( 'Sửa dị bản', 'di_ban' ),
 		'boi_canh'    => array( 'Bối cảnh của bài vè', 'boi_canh' ),

@@ -203,6 +203,24 @@
 	.phongdao-hv.co-chon > .phongdao-hv-trai { display: none; }
 }
 
+/* Mở một thẻ ở màn hẹp (T-189, báo cáo trinh sát lần 2 mục 2.2): ẩn tab, ô tìm, số thẻ — chỉ còn "← Danh sách · Thẻ 3 / 20",
+   Trước / Sau ở đầu thẻ; nút quyết dính đáy màn (trên thanh dưới của điện thoại) để thấy ngay ở màn đầu */
+@media (max-width: 1199px) {
+	.phongdao-admin-viec.co-the > h1 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+	.phongdao-admin-viec.co-the > .phongdao-hv-tab, .phongdao-admin-viec.co-the > .phongdao-hv-tim, .phongdao-admin-viec.co-the > .phongdao-hv-so { display: none; }
+	.phongdao-admin-viec .phongdao-hv-phai { display: flex; flex-direction: column; }
+	.phongdao-admin-viec .phongdao-hv-phai[data-tu-chon] { display: none; }
+	.phongdao-admin-viec .phongdao-hv-ve { order: 1; margin: 4px 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+	.phongdao-admin-viec .phongdao-hv-ve a { display: inline-flex; align-items: center; min-height: 44px; }
+	.phongdao-admin-viec .phongdao-hv-di { order: 2; margin: 0 0 8px; }
+	.phongdao-admin-viec .phongdao-hv-di .description { display: none; }
+	.phongdao-admin-viec .phongdao-hv-phai > :not(.phongdao-hv-ve):not(.phongdao-hv-di) { order: 3; }
+	.phongdao-admin-viec .phongdao-hv-phai .the-viec { padding: 12px; }
+	.phongdao-admin-viec .phongdao-hv-phai .tv-nut { position: sticky; bottom: var(--phongdao-thanh-duoi, 0px); z-index: 5; margin: 8px -12px -12px; padding: 8px 12px; background: #fff; border-top: 1px solid #dcdcde; box-shadow: 0 -2px 6px rgba(0, 0, 0, .08); }
+}
+.phongdao-admin-viec .nhap-sua { width: 100%; font-size: 15px; line-height: 1.6; }
+.phongdao-phim { display: inline-block; min-width: 1.2em; margin-right: 2px; padding: 0 3px; border: 1px solid currentColor; border-radius: 3px; font-size: 11px; line-height: 1.4; text-align: center; opacity: .8; }
+
 /* Thẻ gọn (báo cáo trinh sát lần 2, mục 1.4): chữ nháp to và rõ như lời, cờ của nguồn bằng chữ, lối lùi sau khi Đăng */
 .phongdao-admin-viec .nhap-ai .nhap-chu { font-size: 15px; line-height: 1.6; color: #1d2327; }
 .phongdao-admin-viec .tv-co { margin: 4px 0; font-weight: 600; color: #8a2424; }

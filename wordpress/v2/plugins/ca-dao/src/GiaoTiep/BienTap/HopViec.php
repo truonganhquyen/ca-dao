@@ -46,7 +46,8 @@ final class HopViec {
 			wp_die( esc_html__( 'Phiên làm việc đã hết hoặc không có quyền. Tải lại trang rồi thử lại.', 'ca-dao' ), '', array( 'response' => 403 ) );
 		}
 		$phien = isset( $_POST['phien'] ) && ctype_digit( (string) $_POST['phien'] ) ? (int) $_POST['phien'] : PHP_INT_MAX; // phpcs:ignore WordPress.Security.NonceVerification -- nonce đã kiểm trên
-		$kq   = QuyetViec::quyet( $id, $quyet, get_current_user_id(), current_user_can( 'cadao_duyet' ), $phien );
+		$chu_sua = 'duyet' === $quyet && isset( $_POST['chu'] ) ? sanitize_textarea_field( wp_unslash( (string) $_POST['chu'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification -- nonce đã kiểm trên
+		$kq   = QuyetViec::quyet( $id, $quyet, get_current_user_id(), current_user_can( 'cadao_duyet' ), $phien, $chu_sua );
 		$ve   = (string) wp_get_referer() ?: home_url( '/bien-tap/' );
 		// Quyết được thì sang thẻ kế (Hộp việc wp-admin), kèm lối xem lại thẻ vừa quyết; quyết hỏng thì ở lại thẻ này
 		$tiep = $kq['ok'] && ! $kq['chuyen'] ? self::tiep() : '';
@@ -201,7 +202,11 @@ final class HopViec {
 				$tieu_de = $bai->post_title;
 				$mo      = (string) get_permalink( $bai );
 				$than    = Ve::loi( array_slice( PhanBai::lay( $bai->ID, 'loi' )['dong'] ?? array(), 0, 4 ), '', array(), array( 'nhom' => 'hv-' . $v['id'] ) )
-					. '<div class="nhap-ai"><span class="tag">' . ( empty( $v['noi_dung']['ai'] ) ? 'Nháp' : 'AI' ) . ( in_array( $v['trang_thai'], array( Viec::CHO, Viec::DE_SAU ), true ) ? ' · chưa duyệt' : '' ) . '</span><p class="nhap-chu">' . esc_html( (string) ( $v['noi_dung']['chu'] ?? '' ) ) . '</p>'
+					. '<div class="nhap-ai"><span class="tag">' . ( empty( $v['noi_dung']['ai'] ) ? 'Nháp' : 'AI' ) . ( in_array( $v['trang_thai'], array( Viec::CHO, Viec::DE_SAU ), true ) ? ' · chưa duyệt' : '' ) . '</span>'
+					// Người có quyền duyệt sửa vài chữ ngay trên thẻ rồi bấm Duyệt (ô nằm trong form quyết, gửi kèm nút Duyệt)
+					. ( $co_form && current_user_can( 'cadao_duyet' ) && in_array( $v['trang_thai'], array( Viec::CHO, Viec::DE_SAU ), true )
+						? '<label class="screen-reader-text" for="nhap-sua-' . (int) $v['id'] . '">Nháp ý nghĩa (sửa được trước khi duyệt)</label><textarea class="nhap-chu nhap-sua" id="nhap-sua-' . (int) $v['id'] . '" name="chu" form="hv-form-' . (int) $v['id'] . '" rows="4">' . esc_textarea( (string) ( $v['noi_dung']['chu'] ?? '' ) ) . '</textarea><span class="small muted">Sửa vài chữ nếu cần rồi bấm Duyệt; bản đã sửa vào bài kèm Lịch sử.</span>'
+						: '<p class="nhap-chu">' . esc_html( (string) ( $v['noi_dung']['chu'] ?? '' ) ) . '</p>' )
 						. '<p class="small muted">' . esc_html( 'Người viết: ' . self::nguoi_viet( $v ) . ( empty( $v['noi_dung']['ai'] ) ? '' : ' · có hỗ trợ AI' ) ) . '</p></div>';
 				$ly_do   = 'người đọc chưa thấy';
 			}
@@ -274,7 +279,7 @@ final class HopViec {
 		return '<article class="the-viec g-' . esc_attr( $g ) . '" data-loai="' . esc_attr( $v['loai'] ) . '" id="viec-' . (int) $v['id'] . '">'
 			. '<header class="tv-dau"><span class="tv-loai">' . esc_html( $ten ) . '</span><span class="small muted">' . esc_html( $ly_do ) . '</span></header>'
 			. '<h3' . ( $an_ten ? ' class="screen-reader-text"' : '' ) . '>' . esc_html( $tieu_de ?: 'Việc #' . $v['id'] ) . '</h3>' . $than
-			. ( $co_form ? '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="tv-nut"><input type="hidden" name="action" value="' . self::HANH_DONG . '"><input type="hidden" name="viec" value="' . (int) $v['id'] . '"><input type="hidden" name="phien" value="' . (int) $v['phien'] . '">'
+			. ( $co_form ? '<form method="post" id="hv-form-' . (int) $v['id'] . '" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="tv-nut"><input type="hidden" name="action" value="' . self::HANH_DONG . '"><input type="hidden" name="viec" value="' . (int) $v['id'] . '"><input type="hidden" name="phien" value="' . (int) $v['phien'] . '">'
 				. ( '' === $tiep ? '' : '<input type="hidden" name="tiep" value="' . esc_attr( $tiep ) . '">' )
 				. wp_nonce_field( self::HANH_DONG . $v['id'], '_wpnonce', true, false ) . $form . '</form>' : '' )
 			. ( '' === $mo || ! $lo_mo ? '' : '<a class="tv-mo" href="' . esc_url( $mo ) . '">Mở bài ' . Ve::icon( 'arrow' ) . '</a>' ) . '</article>';

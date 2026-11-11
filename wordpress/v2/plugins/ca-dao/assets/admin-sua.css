@@ -66,3 +66,21 @@
 .phongdao-loi-xem li.ngat { height: .8em; }
 .phongdao-loi-xem .so { display: inline-block; min-width: 2.4em; color: #646970; font-size: 12px; font-variant-numeric: tabular-nums; }
 .phongdao-sua-nut { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* Trang sửa gọn (T-189, báo cáo trinh sát lần 2 mục 3.3): phần chưa có gom thành hàng "Thêm: …", bấm mới mở ô */
+.phongdao-sua-them { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 8px 0 12px; }
+.phongdao-sua-them .button { min-height: 36px; display: inline-flex; align-items: center; }
+.phongdao-sua-phan.chua-co:not([open]) { display: none; }
+.phongdao-sua-phan.chua-co:target { display: block; }
+/* Cờ "Có thể không phải dân gian": công tắc ở cột bên */
+.phongdao-sua-co { margin: 16px 0; padding: 8px 12px; border: 1px solid #c3c4c7; border-radius: 6px; background: #fff; }
+.phongdao-sua-co h2 { margin: 4px 0 8px; font-size: 14px; }
+.phongdao-sua-co form { margin: 0 0 8px; }
+.phongdao-sua-co .button, .phongdao-sua-co summary { min-height: 44px; }
+.phongdao-sua-co summary { display: flex; align-items: center; cursor: pointer; color: #135e96; font-weight: 600; }
+/* Điện thoại, máy tính hẹp: trạng thái và Đăng / Ẩn ngay dưới tên bài (cột bên nằm sau mọi phần) */
+.phongdao-sua-dau-dt { display: none; }
+@media (max-width: 1199px) {
+	.phongdao-sua-dau-dt { display: block; margin: 0 0 12px; }
+	.phongdao-sua-ben > .phongdao-trang-thai { display: none; }
+}
