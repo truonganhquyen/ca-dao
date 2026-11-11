@@ -393,7 +393,7 @@ final class DanhSachTacPham {
 		$phan_trang = $so_trang > 1 ? '<nav class="phongdao-tp-trang" aria-label="Phân trang"><span>Trang ' . (int) $loc['paged'] . ' / ' . $so_trang . '</span>'
 			. ( $loc['paged'] > 1 ? '<a class="button" href="' . esc_url( self::url( $loc, $loc['paged'] - 1 ) ) . '">Trang trước</a>' : '' )
 			. ( $loc['paged'] < $so_trang ? '<a class="button" href="' . esc_url( self::url( $loc, $loc['paged'] + 1 ) ) . '">Trang sau</a>' : '' ) . '</nav>' : '';
-		return '<div class="wrap phongdao-admin-tp phongdao-ds-tp"><h1 class="wp-heading-inline">Tác phẩm</h1> <a class="page-title-action" href="' . esc_url( home_url( '/bien-tap/them/' ) ) . '">Thêm tác phẩm</a><hr class="wp-header-end">'
+		return '<div class="wrap phongdao-admin-tp phongdao-ds-tp"><h1 class="wp-heading-inline">Tác phẩm</h1> <a class="page-title-action" href="' . esc_url( ThemTacPham::url() ) . '">Thêm tác phẩm</a><hr class="wp-header-end">'
 			. $bao . TrangLo::lay_bao() . self::bao_trung() . self::tab( $loc ) . self::form_loc( $loc )
 			. '<p class="phongdao-tp-tong" role="status"><strong>' . (int) $kq['tong'] . '</strong> tác phẩm khớp bộ lọc. Hiện ' . count( $bai ) . ' mục trên trang này.</p>'
 			. ( $lo ? '<form method="post" class="phongdao-lo-form" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">' . TrangLo::khoi_chon_bai( $loc, (int) $kq['tong'] ) : '' )

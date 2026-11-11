@@ -78,7 +78,7 @@ final class SuaTacPham {
 		$loai = is_array( $terms ) && $terms ? $terms[0]->slug : '';
 		$mo = Viec::mo( 'post', $id );
 		$ket_qua = sanitize_key( (string) ( $_GET['ket_qua'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc thông báo
-		$bao = array( 'da_luu_sang' => 'Đã lưu bài vừa rồi. Đây là bài tiếp theo trong danh sách.', 'da_luu' => 'Đã lưu phần bài.', 'da_luu_pl' => 'Đã lưu phân loại.', 'da_khoi_phuc' => 'Đã khôi phục bản trước; lần khôi phục được ghi vào Lịch sử.', 'nhap' => 'Đã lưu nháp vào Hộp việc; người đọc chưa thấy.', 'khong_doi' => 'Không có gì thay đổi.', 'dang' => 'Đã đăng: người đọc thấy bài.', 'an' => 'Đã ẩn bài khỏi người đọc; lấy lại bằng nút Đăng.', 've_nhap' => 'Đã chuyển về bản nháp.', 'loi' => 'Chưa lưu được. Kiểm lại dữ liệu và thử tiếp.' )[ $ket_qua ] ?? '';
+		$bao = array( 'da_luu_sang' => 'Đã lưu bài vừa rồi. Đây là bài tiếp theo trong danh sách.', 'da_luu' => 'Đã lưu phần bài.', 'da_luu_pl' => 'Đã lưu phân loại.', 'da_khoi_phuc' => 'Đã khôi phục bản trước; lần khôi phục được ghi vào Lịch sử.', 'nhap' => 'Đã lưu nháp vào Hộp việc; người đọc chưa thấy.', 'khong_doi' => 'Không có gì thay đổi.', 'dang' => 'Đã đăng: người đọc thấy bài.', 'an' => 'Đã ẩn bài khỏi người đọc; lấy lại bằng nút Đăng.', 've_nhap' => 'Đã chuyển về bản nháp.', 'loi' => 'Chưa lưu được. Kiểm lại dữ liệu và thử tiếp.', 'them' => 'Đã thêm bài (bản nháp). Viết tiếp các phần rồi bấm Đăng khi xong.', 'them_dang' => 'Đã thêm và đăng bài. Viết tiếp các phần nếu muốn.' )[ $ket_qua ] ?? '';
 		if ( 'loi' === $ket_qua ) {
 			$khoa_loi = 'phongdao_sua_loi_' . $id . '_' . get_current_user_id();
 			$bao = (string) get_transient( $khoa_loi ) ?: $bao;
@@ -215,7 +215,13 @@ final class SuaTacPham {
 		$ket_qua = ! $kq['ok'] ? 'loi' : ( 'Không có gì thay đổi.' === ( $kq['thong_bao'] ?? '' ) ? 'khong_doi' : ( array( 'publish' => 'dang', 'private' => 'an', 'draft' => 've_nhap' )[ $moi ] ?? 'da_luu' ) );
 		// Lối "Ẩn nếu nhầm" sau khi Đăng ở Hộp việc, nút Ẩn trên hàng ở Tác phẩm: xong thì về lại đúng màn đó, lời báo ở đó
 		$quay_lai = esc_url_raw( wp_unslash( (string) ( $_POST['quay_lai'] ?? '' ) ) );
-		if ( '' !== $quay_lai && ( str_starts_with( $quay_lai, admin_url( 'admin.php?page=' . DanhSachViec::TRANG ) ) || str_starts_with( $quay_lai, admin_url( 'admin.php?page=' . DanhSachTacPham::TRANG ) ) ) ) {
+		if ( '' !== $quay_lai && ( str_starts_with( $quay_lai, admin_url( 'admin.php?page=' . DanhSachViec::TRANG ) ) || str_starts_with( $quay_lai, admin_url( 'admin.php?page=' . DanhSachTacPham::TRANG ) ) || str_starts_with( $quay_lai, admin_url( 'admin.php?page=' . TrangLo::TRANG ) ) ) ) {
+			if ( str_starts_with( $quay_lai, admin_url( 'admin.php?page=' . TrangLo::TRANG ) ) ) {
+				// Màn kết quả lô đọc lời báo một lần (cùng chỗ với các lời báo khác của lô)
+				set_transient( 'phongdao_lo_bao_' . get_current_user_id(), array( 'ok' => 'an' === $ket_qua, 'chu' => 'an' === $ket_qua ? 'Đã ẩn “' . get_post_field( 'post_title', $id ) . '” khỏi người đọc; lấy lại bằng nút Đăng ở trang sửa bài.' : implode( ' ', $kq['loi'] ?? array( 'Bài không đổi trạng thái.' ) ), 'lo' => 0 ), MINUTE_IN_SECONDS );
+				wp_safe_redirect( $quay_lai );
+				exit;
+			}
 			$chu = 'an' === $ket_qua ? 'Đã ẩn “' . get_post_field( 'post_title', $id ) . '” khỏi người đọc; lấy lại bằng nút Đăng ở trang sửa bài.' : ( 'loi' === $ket_qua ? 'Chưa ẩn được: ' . implode( ' ', $kq['loi'] ) : 'Bài không đổi trạng thái.' );
 			wp_safe_redirect( add_query_arg( 'da', rawurlencode( $chu ), remove_query_arg( array( 'da', 'dang_bai', 'vua', 'hoan_viec', 'hoan_phien' ), $quay_lai ) ) );
 			exit;

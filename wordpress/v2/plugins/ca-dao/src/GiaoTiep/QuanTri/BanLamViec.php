@@ -72,6 +72,8 @@ final class BanLamViec {
 		$cho = Viec::dem_cho();
 		$dau = $cho ? (int) ( Viec::tim_quan_tri( Viec::CHO, '', '', 1, 1 )['ds'][0]['id'] ?? 0 ) : 0;
 		return array(
+			'goi_y'   => count( \Phongdao\DichVu\UngVien\UngVien::goi_y_hom_nay()['ids'] ),
+			'de_nghi' => \Phongdao\DichVu\UngVien\DanhDau::dem( 'de_nghi' ),
 			'kho'   => DanhSachKho::dem_chon( DanhSachKho::loc_tu( array() ) ),
 			'cho'   => $cho,
 			'dau'   => $dau,
@@ -88,7 +90,7 @@ final class BanLamViec {
 	public static function ba_o( string $lop = '' ): string {
 		$so  = self::so_ba_dong();
 		$o   = array(
-			array( 'Bài mới', $so['kho'], 'câu trong Kho chưa đăng', 'Chọn câu để đăng', DanhSachKho::url() ),
+			array( 'Bài mới', $so['kho'], 'câu trong Kho chưa đăng' . ( $so['goi_y'] ? ' · ' . number_format_i18n( $so['goi_y'] ) . ' máy gợi ý hôm nay' : '' ) . ( $so['de_nghi'] ? ' · ' . number_format_i18n( $so['de_nghi'] ) . ' đề nghị đăng' : '' ), 'Chọn câu để đăng', DanhSachKho::url( $so['goi_y'] ? array( 'goi_y' => 'hom_nay' ) : array() ) ),
 			array( 'Hộp việc', $so['cho'], 'việc đang chờ quyết', $so['dau'] ? 'Bắt đầu duyệt (' . number_format_i18n( $so['cho'] ) . ' việc)' : 'Mở Hộp việc', $so['dau'] ? DanhSachViec::url( array(), 1, $so['dau'] ) : DanhSachViec::url( array() ) ),
 			array( 'Bổ sung', $so['thieu'], 'bài đã đăng chưa có ý nghĩa', 'Bắt đầu bổ sung', BoSung::url() ),
 		);
@@ -167,6 +169,8 @@ final class BanLamViec {
 			array( count( $doc ), 'Viết ý nghĩa cho ' . count( $doc ) . ' bài đọc nhiều tuần này mà chưa có', DanhSachTacPham::url_loc( array( 'tt' => 'publish', 'muc' => 'thieu_y_nghia' ) ), array_map( static fn( int $id ): array => array( get_the_title( $id ), SuaTacPham::url( $id ) ), array_slice( array_keys( $doc ), 0, 5 ) ) ),
 			array( count( $tim ), count( $tim ) . ' câu người đọc tìm mà chưa có (7 ngày) — xem kho có không', DanhSachKho::url(), array_map( static fn( string $q ): array => array( $q, DanhSachKho::url( array( 'q' => $q ) ) ), array_keys( $tim ) ) ),
 			array( $cho['nhap_y_nghia'] ?? 0, ( $cho['nhap_y_nghia'] ?? 0 ) . ' nháp ý nghĩa chờ duyệt', self::hop_viec( array( 'loai' => 'nhap_y_nghia' ) ), array() ),
+			array( current_user_can( 'cadao_duyet' ) ? \Phongdao\DichVu\UngVien\DanhDau::dem( 'de_nghi' ) : 0, \Phongdao\DichVu\UngVien\DanhDau::dem( 'de_nghi' ) . ' câu được đề nghị đăng chờ bạn xem', DanhSachKho::url( array( 'danh' => 'de_nghi' ) ), array() ),
+			array( count( \Phongdao\DichVu\UngVien\UngVien::goi_y_hom_nay()['ids'] ), count( \Phongdao\DichVu\UngVien\UngVien::goi_y_hom_nay()['ids'] ) . ' câu máy gợi ý hôm nay ở Bài mới', DanhSachKho::url( array( 'goi_y' => 'hom_nay' ) ), array() ),
 			array( $cho['cau_moi'] ?? 0, ( $cho['cau_moi'] ?? 0 ) . ' câu mới từ nguồn chờ quyết', self::hop_viec( array( 'loai' => 'cau_moi' ) ), array() ),
 			array( $cho['co_the_trung'] ?? 0, ( $cho['co_the_trung'] ?? 0 ) . ' cặp câu có thể trùng chờ quyết', self::hop_viec( array( 'loai' => 'co_the_trung' ) ), array() ),
 			array( array_sum( $nd ) - $bao_loi, ( array_sum( $nd ) - $bao_loi ) . ' nội dung người đọc gửi khác (dị bản, góp ý, cảm nghĩ, bài cảm nhận)', self::hop_viec( array( 'loai' => 'nguoi_doc' ) ), array() ),

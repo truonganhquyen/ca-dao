@@ -62,6 +62,12 @@ final class Kho {
 		foreach ( array( 'cau_hoi', 'dap_an' ) as $k ) {
 			$d[ $k ] = array_key_exists( $k, $muc ) ? $muc[ $k ] : ( $d[ $k ] ?? null );
 		}
+		// Câu người nhập từ tệp (gõ từ sách): hồ sơ nguồn người chọn và người nhập — chỉ người điền, máy không tự điền
+		foreach ( array( 'ho_so', 'nhap_boi' ) as $k ) {
+			if ( array_key_exists( $k, $muc ) ) {
+				$d[ $k ] = (int) $muc[ $k ];
+			}
+		}
 		$hang = array(
 			'url'          => (string) ( $muc['url'] ?? $cu->url ?? '' ),
 			'loai'         => (string) ( $muc['loai'] ?? $cu->loai ?? '' ),

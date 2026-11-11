@@ -26,6 +26,8 @@ final class Module implements \Phongdao\HaTang\Module {
 		SuaTacPham::dang_ky();
 		DanhSachKho::dang_ky();
 		DanhSachTacPham::dang_ky();
+		\Phongdao\DichVu\UngVien\NhapTep::dang_ky();
+		ThemTacPham::dang_ky();
 		TrangLo::dang_ky();
 	}
 
@@ -114,6 +116,21 @@ final class Module implements \Phongdao\HaTang\Module {
 		}
 		// Nguồn & cài đặt giữ đường dẫn admin.php?page=phongdao (hồ sơ nguồn, máy đang làm… trỏ tới đây); chỉ Quản trị
 		add_submenu_page( $cha, 'Nguồn & cài đặt', 'Nguồn &amp; cài đặt', NguonCaiDat::QUYEN, self::TRANG, array( $this, 'hien' ) );
+		// Màn con: Thêm tác phẩm (mở từ Bài mới, Tác phẩm, "Thêm mới → Tác phẩm")
+		$them = add_submenu_page( '', 'Thêm tác phẩm', 'Thêm tác phẩm', 'cadao_soan', ThemTacPham::TRANG, static function (): void {
+			echo ThemTacPham::hien(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- lớp hiển thị thoát giá trị động
+		} );
+		if ( $them ) {
+			add_action( 'load-' . $them, static function (): void {
+				global $title;
+				$title = 'Thêm tác phẩm'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- màn ẩn khỏi menu không có tiêu đề cho thẻ <title>
+			} );
+			add_action( 'admin_enqueue_scripts', static function ( string $trang ) use ( $them ): void {
+				if ( $trang === $them ) {
+					ThemTacPham::nap_ma();
+				}
+			} );
+		}
 		// Màn con (đường dẫn cũ giữ): Lịch sử thao tác hàng loạt mở từ Hôm nay, từ màn kết quả; xem trước lô mở từ danh sách
 		$lo = add_submenu_page( '', 'Thao tác hàng loạt', 'Thao tác hàng loạt', 'cadao_soan', TrangLo::TRANG, static function (): void {
 			echo TrangLo::hien(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- lớp hiển thị thoát giá trị động
@@ -145,7 +162,7 @@ final class Module implements \Phongdao\HaTang\Module {
 		return $dich;
 	}
 
-	/** "Thêm mới → Tác phẩm" ở thanh trên cùng, mở màn Thêm bài (có kiểm trùng khi dán lời). */
+	/** "Thêm mới → Tác phẩm" ở thanh trên cùng, mở màn Thêm tác phẩm trong wp-admin (có kiểm trùng khi dán lời). */
 	public static function them_moi( \WP_Admin_Bar $thanh ): void {
 		if ( current_user_can( 'cadao_soan' ) && $thanh->get_node( 'new-content' ) ) {
 			$thanh->add_node(
@@ -153,7 +170,7 @@ final class Module implements \Phongdao\HaTang\Module {
 					'parent' => 'new-content',
 					'id'     => 'new-tac-pham',
 					'title'  => 'Tác phẩm',
-					'href'   => home_url( '/bien-tap/them/' ),
+					'href'   => ThemTacPham::url(),
 				)
 			);
 		}
@@ -168,6 +185,9 @@ final class Module implements \Phongdao\HaTang\Module {
 		$trang = sanitize_key( (string) ( $_GET['page'] ?? '' ) );
 		if ( SuaTacPham::TRANG === $trang ) {
 			return DanhSachTacPham::TRANG;
+		}
+		if ( ThemTacPham::TRANG === $trang ) {
+			return DanhSachKho::TRANG;
 		}
 		if ( TrangLo::TRANG !== $trang ) {
 			return '';

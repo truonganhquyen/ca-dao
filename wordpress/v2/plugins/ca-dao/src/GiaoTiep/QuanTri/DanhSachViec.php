@@ -179,6 +179,7 @@ final class DanhSachViec {
 			'da_gop'         => 'Đã gộp',
 			'tach_duong_dan' => 'Cho đường dẫn riêng',
 			'binh_luan'      => 'Đã xử lý ở Bình luận',
+			'chuyen_kho'     => 'Chuyển về Bài mới (Để dành)',
 		)[ $v['quyet'] ] ?? $v['quyet'];
 	}
 
