@@ -118,3 +118,41 @@
 .phongdao-lo-gon > summary:focus-visible { outline: 3px solid #135e96; outline-offset: 2px; }
 .phongdao-lo-dem { font-weight: 400; color: #135e96; }
 .phongdao-lo-dem:not(:empty) { margin-left: .35em; }
+
+/* Đợt 3 (T-189.2): tab trạng thái có số, lọc nhanh, "Thêm bộ lọc"; hàng Sửa · Xem · Ẩn; điện thoại dạng thẻ ba dòng */
+.phongdao-admin-tp .phongdao-tp-nhanh { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.phongdao-admin-tp .phongdao-tp-nhanh .button { min-height: 44px; display: inline-flex; align-items: center; }
+.phongdao-hv-tab { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.phongdao-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border: 1px solid #c3c4c7; border-radius: 22px; background: #fff; color: #1d2327; text-decoration: none; }
+.phongdao-chip:hover { border-color: #2271b1; color: #135e96; }
+.phongdao-chip[aria-current] { background: #2271b1; border-color: #2271b1; color: #fff; }
+.phongdao-chip-so { font-weight: 600; }
+.phongdao-admin-tp .phongdao-tp-nhanh .button[aria-current="true"] { background: #2271b1; border-color: #2271b1; color: #fff; }
+.phongdao-admin-tp .phongdao-tp-tim { margin: 12px 0; }
+.phongdao-admin-tp .phongdao-tp-tim-o { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.phongdao-admin-tp .phongdao-tp-tim-o label { font-weight: 600; }
+.phongdao-admin-tp .phongdao-tp-tim-o input[type=search] { flex: 1 1 220px; max-width: 420px; min-height: 44px; }
+.phongdao-admin-tp .phongdao-tp-tim-o .button { min-height: 44px; }
+.phongdao-admin-tp .phongdao-tp-them { margin: 8px 0; }
+.phongdao-admin-tp .phongdao-tp-them > summary { display: inline-flex; align-items: center; min-height: 44px; font-weight: 600; cursor: pointer; color: #135e96; }
+.phongdao-admin-tp .phongdao-tp-them .phongdao-tp-loc { margin: 8px 0; }
+.phongdao-admin-tp .phongdao-tp-dong2, .phongdao-admin-tp .phongdao-tp-dong3 { display: none; }
+.phongdao-admin-tp .phongdao-tp-hanh { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-top: 2px; }
+.phongdao-admin-tp .phongdao-tp-hanh .button-link { min-height: 44px; display: inline-flex; align-items: center; color: #2271b1; text-decoration: underline; }
+@media (max-width: 782px) {
+	.phongdao-admin-tp .phongdao-tp-bang td.phongdao-tp-an-dt { display: none; }
+	.phongdao-admin-tp .phongdao-tp-bang tr { display: grid; grid-template-columns: 40px 1fr; align-items: start; margin: 8px 0; padding: 4px 0; }
+	.phongdao-admin-tp .phongdao-tp-bang td::before { content: none; }
+	.phongdao-admin-tp .phongdao-tp-bang td.phongdao-tp-chon { padding: 10px 4px 0 12px; }
+	.phongdao-admin-tp .phongdao-tp-bang td.phongdao-tp-ten { padding: 4px 12px 4px 4px; grid-column: 2; }
+	.phongdao-admin-tp .phongdao-tp-bang td.phongdao-tp-ten:first-child { grid-column: 1 / -1; padding-left: 12px; }
+	.phongdao-admin-tp .phongdao-tp-ten strong a { min-height: 32px; }
+	.phongdao-admin-tp .phongdao-tp-dong2, .phongdao-admin-tp .phongdao-tp-dong3 { display: block; color: #3c434a; }
+	.phongdao-admin-tp .phongdao-tp-dong2 a { min-height: 24px; }
+	.phongdao-admin-tp .phongdao-tp-hanh a { min-height: 44px; }
+	.phongdao-admin-tp .phongdao-tp-bang tr > td:not(.phongdao-tp-chon) { grid-column: 2; padding: 2px 12px 2px 4px; }
+	/* Kho: lời gọn hai dòng, trạng thái và nút ngay dưới */
+	.phongdao-admin-kho .phongdao-tp-bang .phongdao-kho-loi { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+	.phongdao-admin-kho .phongdao-tp-bang .phongdao-kho-cau > .description { display: none; }
+	.phongdao-admin-kho .phongdao-kho-tt { color: #3c434a; }
+}

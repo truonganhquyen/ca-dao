@@ -9,7 +9,6 @@ use Phongdao\DichVu\XepViec\SoViec;
 use Phongdao\HaTang\KhaiBao;
 use Phongdao\KhoLuu\HoSo;
 use Phongdao\KhoLuu\Kho;
-use Phongdao\KhoLuu\PhanBai;
 use Phongdao\KhoLuu\Viec;
 
 defined( 'ABSPATH' ) || exit;
@@ -157,7 +156,8 @@ final class BanLamViec {
 		$trung   = DuongDan::trung();
 		$mong    = DoLuong::nhieu_nhat( 'mong_co_cau', 7, 20 );
 		$tim     = DoLuong::nhieu_nhat( 'tim_khong_ket_qua', 7, 5 );
-		$doc     = array_slice( array_filter( DoLuong::doc_nhieu( 7, 60 ), static fn( int $id ): bool => null === PhanBai::lay( $id, 'y_nghia' ), ARRAY_FILTER_USE_KEY ), 0, 10, true );
+		// Bài đọc nhiều chưa có Ý nghĩa: đọc từ bảng tóm tắt bài (Hôm nay mở nhanh cả khi kho lớn)
+		$doc     = array_flip( BoSung::doc_nhieu_thieu( 10 ) );
 		$tuoi    = SoViec::tuoi( $bay_gio );
 		$ten_kho = static fn( string $k ): string => (string) ( Kho::lay( (int) substr( $k, 4 ) )?->tieu_de ?? '' );
 		$ds      = array(

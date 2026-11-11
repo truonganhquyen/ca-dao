@@ -213,9 +213,9 @@ final class SuaTacPham {
 		}
 		$moi     = get_post_status( $id );
 		$ket_qua = ! $kq['ok'] ? 'loi' : ( 'Không có gì thay đổi.' === ( $kq['thong_bao'] ?? '' ) ? 'khong_doi' : ( array( 'publish' => 'dang', 'private' => 'an', 'draft' => 've_nhap' )[ $moi ] ?? 'da_luu' ) );
-		// Lối "Ẩn nếu nhầm" ngay sau khi Đăng ở Hộp việc: xong thì về lại đúng màn Hộp việc, lời báo ở đó
+		// Lối "Ẩn nếu nhầm" sau khi Đăng ở Hộp việc, nút Ẩn trên hàng ở Tác phẩm: xong thì về lại đúng màn đó, lời báo ở đó
 		$quay_lai = esc_url_raw( wp_unslash( (string) ( $_POST['quay_lai'] ?? '' ) ) );
-		if ( '' !== $quay_lai && str_starts_with( $quay_lai, admin_url( 'admin.php?page=' . DanhSachViec::TRANG ) ) ) {
+		if ( '' !== $quay_lai && ( str_starts_with( $quay_lai, admin_url( 'admin.php?page=' . DanhSachViec::TRANG ) ) || str_starts_with( $quay_lai, admin_url( 'admin.php?page=' . DanhSachTacPham::TRANG ) ) ) ) {
 			$chu = 'an' === $ket_qua ? 'Đã ẩn “' . get_post_field( 'post_title', $id ) . '” khỏi người đọc; lấy lại bằng nút Đăng ở trang sửa bài.' : ( 'loi' === $ket_qua ? 'Chưa ẩn được: ' . implode( ' ', $kq['loi'] ) : 'Bài không đổi trạng thái.' );
 			wp_safe_redirect( add_query_arg( 'da', rawurlencode( $chu ), remove_query_arg( array( 'da', 'dang_bai', 'vua', 'hoan_viec', 'hoan_phien' ), $quay_lai ) ) );
 			exit;

@@ -15,6 +15,7 @@ final class Module implements \Phongdao\HaTang\Module {
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			\WP_CLI::add_command( 'phongdao phien-ban', array( $this, 'phien_ban' ) );
 			\WP_CLI::add_command( 'phongdao tim', array( $this, 'tim' ) );
+			\WP_CLI::add_command( 'phongdao tom-tat', array( $this, 'tom_tat' ) );
 			\WP_CLI::add_command( 'phongdao nguon', array( $this, 'nguon' ) );
 			\WP_CLI::add_command( 'phongdao cau-moi', array( $this, 'cau_moi' ) );
 			\WP_CLI::add_command( 'phongdao kiem-ke', array( $this, 'kiem_ke' ) );
@@ -132,6 +133,25 @@ final class Module implements \Phongdao\HaTang\Module {
 	 * [--dung-lai]
 	 * : Dựng lại chỉ mục từ các phần đã lưu của mọi tác phẩm đã đăng.
 	 */
+	/**
+	 * Bảng tóm tắt bài (docs/32 mục 3.9): `--dung-lai` dựng lại mọi dòng ngay; không kèm gì thì in số dòng.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--dung-lai]
+	 * : Dựng lại toàn bộ bảng từ các phần đã lưu trong bài.
+	 */
+	public function tom_tat( array $doi, array $tuy ): void {
+		global $wpdb;
+		if ( isset( $tuy['dung-lai'] ) ) {
+			$n = \Phongdao\DichVu\TomTat\TomTat::dung_lai_ngay();
+			\Phongdao\DichVu\TomTat\TomTat::cap_nhat_luot_doc();
+			\WP_CLI::success( "Đã dựng lại bảng tóm tắt cho $n bài." );
+			return;
+		}
+		\WP_CLI::line( (string) (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . \Phongdao\DichVu\TomTat\TomTat::bang() ) . ' dòng tóm tắt.' ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- tên bảng của plugin
+	}
+
 	public function tim( array $doi, array $tuy ): void {
 		if ( isset( $tuy['dung-lai'] ) ) {
 			\Phongdao\DichVu\ChiMucTim\ChiMucTim::bat_dau_dung_lai();
