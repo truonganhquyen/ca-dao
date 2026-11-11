@@ -45,7 +45,7 @@ final class TomTat implements Module {
 				$moc,
 				static function ( $meta_id, $id, $khoa ): void {
 					if ( is_string( $khoa ) && str_starts_with( $khoa, \Phongdao\MienDuLieu\Phan::TIEN_TO ) && KhaiBao::TAC_PHAM === get_post_type( (int) $id ) ) {
-						self::ghi( (int) $id );
+						self::ghi_sau( (int) $id );
 					}
 				},
 				20,
@@ -56,7 +56,7 @@ final class TomTat implements Module {
 			'transition_post_status',
 			static function ( string $moi, string $cu, \WP_Post $bai ): void {
 				if ( KhaiBao::TAC_PHAM === $bai->post_type && $moi !== $cu ) {
-					self::ghi( $bai->ID );
+					self::ghi_sau( $bai->ID );
 				}
 			},
 			20,
@@ -66,13 +66,20 @@ final class TomTat implements Module {
 			'set_object_terms',
 			static function ( $id, $terms, $tt_ids, $tax ): void {
 				if ( KhaiBao::THE_LOAI === $tax && KhaiBao::TAC_PHAM === get_post_type( (int) $id ) ) {
-					self::ghi( (int) $id );
+					self::ghi_sau( (int) $id );
 				}
 			},
 			20,
 			4
 		);
-		add_action( 'deleted_post', static fn( int $id ) => self::xoa( $id ) );
+		add_action(
+			'deleted_post',
+			static function ( int $id ): void {
+				unset( self::$cho[ $id ] );
+				self::xoa( $id );
+			}
+		);
+		add_action( 'shutdown', array( self::class, 'xong' ), 1 );
 		add_action( self::VIEC_NEN, array( self::class, 'dung_lai_lo' ) );
 		add_action( self::VIEC_DOC, array( self::class, 'cap_nhat_luot_doc' ) );
 	}
@@ -161,6 +168,23 @@ final class TomTat implements Module {
 		return (int) $wpdb->get_var( $wpdb->prepare( 'SELECT SUM(so) FROM ' . \Phongdao\DichVu\DoLuong\DoLuong::bang( 'luot_doc' ) . ' WHERE post_id = %d AND ngay >= %s', $id, wp_date( 'Y-m-d', time() - 6 * DAY_IN_SECONDS ) ) );
 	}
 
+	/** Bài đã đổi trong lượt này, chờ tính lại dòng (mỗi bài một lần dù nhiều phần đổi). @var array<int,true> */
+	private static array $cho = array();
+
+	/** Đánh dấu bài cần tính lại; dòng được ghi một lần ở cuối lượt hoặc ngay khi có ai đọc bảng (xong()). */
+	public static function ghi_sau( int $id ): void {
+		self::$cho[ $id ] = true;
+	}
+
+	/** Tính lại các dòng đang chờ (cuối lượt, hoặc trước khi đọc bảng để danh sách luôn đúng trong cùng lượt). */
+	public static function xong(): void {
+		while ( self::$cho ) {
+			$id = (int) array_key_first( self::$cho );
+			unset( self::$cho[ $id ] );
+			self::ghi( $id );
+		}
+	}
+
 	/** Ghi lại dòng của một bài (bài không còn là tác phẩm thì xoá dòng). */
 	public static function ghi( int $id ): void {
 		global $wpdb;
@@ -180,6 +204,7 @@ final class TomTat implements Module {
 	/** @return array<string,mixed>|null dòng đã ghi của một bài */
 	public static function lay( int $id ): ?array {
 		global $wpdb;
+		self::xong();
 		$d = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . self::bang() . ' WHERE post_id = %d', $id ), ARRAY_A );
 		return is_array( $d ) ? $d : null;
 	}

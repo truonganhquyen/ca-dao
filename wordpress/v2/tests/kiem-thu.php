@@ -1687,6 +1687,49 @@ remove_filter( 'wp_redirect', $chan_di_lo );
 $_POST = $_REQUEST = array();
 $_GET  = array();
 kt( 'sửa xong quay về đúng danh sách đang lọc: nút Sửa bài mang địa chỉ danh sách, trang sửa có lối về và giữ lối đó sau khi lưu; địa chỉ lạ bị bỏ', str_contains( $h_ds_ve, 've=' . rawurlencode( $ds_loc ) ) && str_contains( $h_sua_v, 'đúng bộ lọc vừa xem' ) && str_contains( $h_sua_v, 'name="ve" value="' . esc_attr( $ds_loc ) . '"' ) && ! str_contains( $h_sua_l, 'đúng bộ lọc vừa xem' ) && str_contains( $r_ve, 've=' . rawurlencode( $ds_loc ) ), array( 'ds' => str_contains( $h_ds_ve, 've=' . rawurlencode( $ds_loc ) ), 'lien_sua' => preg_match( '/page=phongdao-sua-tac-pham[^"]*/', $h_ds_ve, $m_ve ) ? $m_ve[0] : '', 've_mong' => rawurlencode( $ds_loc ), 'sua' => str_contains( $h_sua_v, 'đúng bộ lọc vừa xem' ), 'an' => str_contains( $h_sua_v, 'name="ve" value="' . esc_attr( $ds_loc ) . '"' ), 'la' => ! str_contains( $h_sua_l, 'đúng bộ lọc vừa xem' ), 've' => $r_ve ) );
+// ---------- Nguồn & cài đặt: thêm hồ sơ, đề nghị nguồn, Cài đặt chung; Đối chiếu sách (T-189.6) ----------
+$HSK   = \Phongdao\KhoLuu\HoSo::class;
+$hs_bt = $HSK::them( 'Sách thử biên tập', array( 'tac_gia' => 'Người soạn thử', 'nha_xuat_ban' => 'NXB thử', 'nam' => '1999', 'giay_phep' => 'CC BY', 'xin_phep' => 'dong_y', 'chinh_sach_hien' => 'tai_cho' ), false, $ai_ql );
+$hs_qt = $HSK::them( 'Trang thử quản trị', array( 'loai' => 'web', 'url' => 'https://example.org/trang-thu/', 'giay_phep' => 'CC BY-SA 4.0', 'xin_phep' => 'khong_can' ), true, $ai_ql );
+$hs_rg = $HSK::them( '  ', array(), true, $ai_ql );
+$t_bt  = $HSK::truong( $hs_bt['id'] );
+$t_qt  = $HSK::truong( $hs_qt['id'] );
+kt( 'thêm hồ sơ nguồn: vai Biên tập chỉ tạo hồ sơ sách với tên, người biên soạn, nhà xuất bản, năm (giấy phép, xin phép, chính sách hiện để trống cho Quản trị); Quản trị điền mọi trường; không tên thì báo; ghi nhật ký người tạo', $hs_bt['ok'] && 'sach' === ( $t_bt['loai'] ?? '' ) && 'NXB thử' === ( $t_bt['nha_xuat_ban'] ?? '' ) && '' === (string) ( $t_bt['giay_phep'] ?? '' ) && '' === (string) ( $t_bt['xin_phep'] ?? '' ) && '' === (string) ( $t_bt['chinh_sach_hien'] ?? '' ) && $hs_qt['ok'] && 'web' === ( $t_qt['loai'] ?? '' ) && 'khong_can' === ( $t_qt['xin_phep'] ?? '' ) && ! $hs_rg['ok'] && 'them' === ( Viec::lich_su( 'ho_so', $hs_bt['id'], 1 )[0]['quyet'] ?? '' ), array( $t_bt, $t_qt ) );
+$dn_sai = $NCD::de_nghi_nguon( array( 'url' => 'khong-phai-url' ), $ai_ql );
+$dn_hop = Viec::dem_hop_viec();
+$dn     = $NCD::de_nghi_nguon( array( 'url' => 'https://example.org/nguon-de-nghi/', 'ly_do' => 'Có nhiều ca dao vùng miền', 'xin_phep' => 'chua' ), $ai_ql );
+$dn_v   = Viec::ds_cho( 50, $NCD::DE_NGHI );
+$h_ng   = $NCD::hien( 'nguon', 0, '' );
+$h_ch   = $NCD::hien( 'chong_rac', 0, '' );
+$h_hs   = $NCD::hien( 'ho_so', 0, '' );
+kt( 'Nguồn & cài đặt: đề nghị nguồn tự động mới thành việc cho người làm kỹ thuật (không vào Hộp việc, không bật gì), địa chỉ sai thì báo; Cài đặt chung gom chống rác, giờ máy chạy, trạng thái Google chỉ đọc (đường dẫn cũ "Chống rác" mở đúng thẻ); Hồ sơ nguồn có "+ Thêm hồ sơ nguồn" không giá trị mặc định', ! $dn_sai['ok'] && $dn['ok'] && $dn_hop === Viec::dem_hop_viec() && 'https://example.org/nguon-de-nghi/' === ( end( $dn_v )['noi_dung']['url'] ?? '' ) && str_contains( $h_ng, 'example.org/nguon-de-nghi/' ) && str_contains( $h_ch, 'nav-tab-active" href="' ) && str_contains( $h_ch, 'Cài đặt chung' ) && str_contains( $h_ch, 'Chống rác' ) && str_contains( $h_ch, 'Google' ) && str_contains( $h_ch, 'máy không đổi công tắc này' ) && ! str_contains( $h_ch, 'name="blog_public"' ) && str_contains( $h_hs, '+ Thêm hồ sơ nguồn' ) && str_contains( $h_hs, 'value="phongdao_luu_them_ho_so"' ) && ! str_contains( $h_hs, 'id="ths-xin_phep" name="xin_phep"><option value="">chưa rõ</option><option value="chua" selected' ), array( 'dn' => $dn, 'sai' => $dn_sai, 'hop' => array( $dn_hop, Viec::dem_hop_viec() ), 'dn_v' => $dn_v, 'ng' => str_contains( $h_ng, 'example.org/nguon-de-nghi/' ), 'ch' => array( str_contains( $h_ch, 'Cài đặt chung' ), str_contains( $h_ch, 'Chống rác' ), str_contains( $h_ch, 'máy không đổi công tắc này' ), str_contains( $h_ch, 'nav-tab-active" href="' ) ), 'hs' => array( str_contains( $h_hs, '+ Thêm hồ sơ nguồn' ), str_contains( $h_hs, 'value="phongdao_luu_them_ho_so"' ) ) ) );
+foreach ( $dn_v as $v_dn ) {
+	Viec::xoa( (int) $v_dn['id'] );
+}
+// Đối chiếu sách: nút riêng ở trang Sửa tác phẩm; giữ lời / sửa theo sách / ghi làm dị bản; thêm sách tại chỗ; chỉ người điền
+$bai_dc = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'post_title' => 'Bài đối chiếu thử', 'post_name' => 'bai-doi-chieu-thu' ) );
+wp_set_object_terms( $bai_dc, 'ca-dao', KhaiBao::THE_LOAI );
+LuuPhan::luu( $bai_dc, 'loi', array( 'dong' => array( 'Dòng đối chiếu một', 'Dòng đối chiếu hai' ), 'nguoi_lam' => NguoiLam::MAY_CHEP ), array( 'nguoi' => $ai_ql, 'goi' => KiemPhan::GOI_NGUOI, 'duyet' => true ) );
+$_GET   = array( 'id' => (string) $bai_dc );
+$h_dc   = $SUA::hien();
+$_GET   = array();
+$dc_giu = $SUA::luu_doi_chieu( $bai_dc, array( 'ho_so' => (string) $hs_bt['id'], 'trang' => '12', 'lam' => 'giu' ), $ai_ql );
+$l_giu  = PhanBai::lay( $bai_dc, 'loi' );
+$dc_moi_s = $SUA::luu_doi_chieu( $bai_dc, array( 'ho_so' => '0', 'sach_moi' => array( 'ten' => 'Sách của người chỉ soạn' ), 'lam' => 'giu' ), $chi_soan );
+$dc_moi = $SUA::luu_doi_chieu( $bai_dc, array( 'ho_so' => '0', 'sach_moi' => array( 'ten' => 'Sách mới tại chỗ', 'tac_gia' => 'Người soạn', 'nha_xuat_ban' => 'NXB', 'nam' => '2001' ), 'trang' => '7', 'lam' => 'di_ban', 'loi_sach' => "Dòng trong sách một\nDòng trong sách hai" ), $ai_ql );
+$db_dc  = (array) ( PhanBai::lay( $bai_dc, 'di_ban' )['muc'] ?? array() );
+$dc_sua = $SUA::luu_doi_chieu( $bai_dc, array( 'ho_so' => (string) $hs_bt['id'], 'trang' => '13', 'lam' => 'sua', 'loi_sach' => "Dòng theo sách một\nDòng theo sách hai" ), $ai_ql );
+$l_sua  = PhanBai::lay( $bai_dc, 'loi' );
+// Lưu lời qua ô Sửa lời không gửi phần đối chiếu: đối chiếu giữ nguyên
+$giu_dc = \Phongdao\GiaoTiep\BienTap\TamSua::doc( 'loi', array( 'dong' => "Dòng theo sách một\nDòng theo sách hai" ), $l_sua );
+kt( 'Đối chiếu sách: nút riêng ở trang Sửa tác phẩm, ô Sửa lời không còn phần đối chiếu; "giữ" ghi sách, trang, lời và người làm giữ nguyên', str_contains( $h_dc, '<summary class="button">Đối chiếu sách</summary>' ) && str_contains( $h_dc, 'Người đọc sẽ thấy' ) && ! str_contains( $h_dc, 'name="doi_chieu[ho_so]"' ) && $dc_giu['ok'] && $hs_bt['id'] === (int) ( $l_giu['doi_chieu']['ho_so'] ?? 0 ) && '12' === (string) ( $l_giu['doi_chieu']['trang'] ?? '' ) && array( 'Dòng đối chiếu một', 'Dòng đối chiếu hai' ) === $l_giu['dong'] && NguoiLam::MAY_CHEP === ( $l_giu['nguoi_lam'] ?? '' ), array( $dc_giu, $l_giu ) );
+kt( 'Đối chiếu sách: "+ Sách mới" tạo hồ sơ loại sách (người chỉ soạn không được); "ghi làm dị bản" thêm dị bản người viết ghi nguồn là sách, trang, lời đang đăng giữ; "sửa theo sách" đổi lời (người viết) kèm đối chiếu; lưu lời không gửi đối chiếu thì giữ đối chiếu', ! $dc_moi_s['ok'] && $dc_moi['ok'] && 1 === count( $db_dc ) && array( 'Dòng trong sách một', 'Dòng trong sách hai' ) === $db_dc[0]['dong'] && NguoiLam::NGUOI_VIET === $db_dc[0]['nguoi_lam'] && '7' === (string) ( $db_dc[0]['nguon']['trang'] ?? '' ) && 'sach' === ( $HSK::truong( (int) ( $db_dc[0]['nguon']['ho_so'] ?? 0 ) )['loai'] ?? '' ) && $dc_sua['ok'] && array( 'Dòng theo sách một', 'Dòng theo sách hai' ) === $l_sua['dong'] && NguoiLam::NGUOI_VIET === $l_sua['nguoi_lam'] && '13' === (string) ( $l_sua['doi_chieu']['trang'] ?? '' ) && '13' === (string) ( $giu_dc['gia_tri']['doi_chieu']['trang'] ?? '' ), array( $dc_moi, $db_dc, $dc_sua, $l_sua ) );
+wp_delete_post( $bai_dc, true );
+foreach ( array( $hs_bt['id'], $hs_qt['id'], (int) ( $db_dc[0]['nguon']['ho_so'] ?? 0 ) ) as $x_hs ) {
+	if ( $x_hs ) {
+		wp_delete_post( (int) $x_hs, true );
+	}
+}
 // ---------- Trang sửa gọn, cờ thành công tắc, đổi thể loại kèm 301 (T-189.5) ----------
 $bai_dtl = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'post_title' => 'Bài đổi thể loại thử', 'post_name' => 'bai-doi-the-loai-thu' ) );
 wp_set_object_terms( $bai_dtl, 'cau-do', KhaiBao::THE_LOAI );
@@ -2126,7 +2169,7 @@ $_GET = array( 'tt' => 'draft' );
 $ds_truy_van_truoc = $wpdb->num_queries;
 $ds_nhieu = $ds_lop::hien();
 $ds_truy_van = $wpdb->num_queries - $ds_truy_van_truoc;
-kt( 'wp-admin Tác phẩm: hơn 1.000 bài vẫn đếm thật, chỉ tải 30 dòng và có trang sau', str_contains( $ds_nhieu, '<strong>' . ( $ds_dem_goc + 1005 ) . '</strong> tác phẩm khớp' ) && 30 === substr_count( $ds_nhieu, 'data-nhan="ID"' ) && str_contains( $ds_nhieu, 'Trang sau' ), array( 'truy_van' => $ds_truy_van ) );
+kt( 'wp-admin Tác phẩm: hơn 1.000 bài vẫn đếm thật, chỉ tải 30 dòng và có trang sau', str_contains( $ds_nhieu, '<strong>' . ( $ds_dem_goc + 1005 ) . '</strong> tác phẩm khớp' ) && 30 === substr_count( $ds_nhieu, 'data-nhan="ID"' ) && str_contains( $ds_nhieu, 'Trang sau' ), array( 'truy_van' => $ds_truy_van, 'can' => $ds_dem_goc + 1005, 'tong' => preg_match( '#<strong>(\d+)</strong> tác phẩm khớp#', $ds_nhieu, $m_dsn ) ? $m_dsn[1] : '?', 'id' => substr_count( $ds_nhieu, 'data-nhan="ID"' ), 'sau' => str_contains( $ds_nhieu, 'Trang sau' ) ) );
 kt( 'wp-admin Tác phẩm: số truy vấn không tăng theo 30 dòng', $ds_truy_van <= 50, $ds_truy_van );
 $_GET = array( 'tt' => 'draft', 'paged' => '34' );
 kt( 'wp-admin Tác phẩm: bài sau mốc 1.000 còn trong trang phân trang', str_contains( $ds_lop::hien(), 'Trang 34 /' ) );
@@ -2652,6 +2695,7 @@ kt( 'bảng tóm tắt: dựng lại toàn bộ (bước nâng cấp chạy lạ
 // Danh sách Tác phẩm đọc từ bảng tóm tắt: lọc "câu đố thiếu đáp án", "tục ngữ thiếu nghĩa", có cờ; tab có số; hàng Sửa · Xem · Ẩn
 $DSTP2 = \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::class;
 wp_set_object_terms( $tt_b['cau-do'], 'cau-do', KhaiBao::THE_LOAI );
+$TT::xong(); // dòng của bài vừa đổi thể loại ghi xong trước khi đặt lượt đọc thử
 $wpdb->update( $TT::bang(), array( 'doc_7' => 5 ), array( 'post_id' => $tt_b['cau-do'] ) );
 $ids_cf  = $DSTP2::ids_loc( array( 'q' => 'tóm tắt thử', 'tt' => 'tat_ca', 'muc' => 'co_co' ), 50 );
 $ids_gt  = $DSTP2::ids_loc( array( 'q' => 'tóm tắt thử', 'tt' => 'publish', 'muc' => 'thieu_giai_thich' ), 50 );

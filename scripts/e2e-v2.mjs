@@ -489,6 +489,21 @@ try {
       chac(await bt.$eval('#lich-su', (e, ten) => e.textContent.includes('Chủ đề: sửa') && e.textContent.includes(ten), lan1.ten), 'Lịch sử trong wp-admin không ghi lần sửa chủ đề');
     });
 
+    await thu('wp-admin Sửa tác phẩm: nút riêng "Đối chiếu sách" — thêm sách mới ngay tại chỗ, ghi trang, "Người đọc sẽ thấy" đổi theo', async () => {
+      await di(bt, caDao);
+      const id = await bt.$eval('.dai-bien-tap', e => e.dataset.bai);
+      await di(bt, `/wp-admin/admin.php?page=phongdao-sua-tac-pham&id=${id}`);
+      chac(!(await bt.$('#phan-loi [name="doi_chieu[ho_so]"]')), 'ô Sửa lời vẫn còn phần đối chiếu');
+      await bam(bt, '#doi-chieu > summary');
+      await bam(bt, '#doi-chieu .phongdao-sach-moi > summary');
+      await datO(bt, '#dc-ten', 'Sách thử đầu-cuối');
+      await datO(bt, '#dc-trang', '9');
+      chac(await bt.$eval('[data-dc-xem]', e => e.textContent.includes('«Sách thử đầu-cuối», tr. 9')), 'dòng "Người đọc sẽ thấy" không đổi theo sách, trang');
+      await bamDoiTrang(bt, '#doi-chieu form button[type=submit]');
+      chac(await coChu(bt, 'Đã ghi đối chiếu sách'), 'không báo đã ghi đối chiếu');
+      chac(await bt.$eval('.phongdao-dc-hien', e => e.textContent.includes('«Sách thử đầu-cuối», tr. 9')), 'trang sửa không hiện đối chiếu vừa ghi');
+    });
+
     await thu('wp-admin Lịch sử: xem trước/sau rồi Khôi phục bản trước của Ý nghĩa, người đọc thấy bản cũ', async () => {
       const moi = 'Ý nghĩa thử từ biểu mẫu quản trị.';
       await di(bt, caDao);

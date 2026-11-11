@@ -29,6 +29,7 @@ final class SuaTacPham {
 		add_action( 'admin_post_phongdao_khoi_phuc', array( self::class, 'khoi_phuc' ) );
 		add_action( 'admin_post_phongdao_doi_trang_thai', array( self::class, 'doi_trang_thai' ) );
 		add_action( 'admin_post_phongdao_doi_the_loai', array( self::class, 'doi_the_loai' ) );
+		add_action( 'admin_post_phongdao_doi_chieu_sach', array( self::class, 'doi_chieu_sach' ) );
 	}
 
 	/** Tên trạng thái bài cho người đọc màn. */
@@ -75,11 +76,12 @@ final class SuaTacPham {
 		if ( null === $ctx ) {
 			return '<div class="wrap"><p>Bạn không có quyền sửa bài này.</p></div>';
 		}
+		$ctx['an_doi_chieu'] = true; // đối chiếu sách là nút riêng (khoi_doi_chieu), không nằm trong ô Sửa lời
 		$terms = get_the_terms( $id, KhaiBao::THE_LOAI );
 		$loai = is_array( $terms ) && $terms ? $terms[0]->slug : '';
 		$mo = Viec::mo( 'post', $id );
 		$ket_qua = sanitize_key( (string) ( $_GET['ket_qua'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc thông báo
-		$bao = array( 'da_luu_sang' => 'Đã lưu bài vừa rồi. Đây là bài tiếp theo trong danh sách.', 'da_luu' => 'Đã lưu phần bài.', 'da_luu_pl' => 'Đã lưu phân loại.', 'da_khoi_phuc' => 'Đã khôi phục bản trước; lần khôi phục được ghi vào Lịch sử.', 'nhap' => 'Đã lưu nháp vào Hộp việc; người đọc chưa thấy.', 'khong_doi' => 'Không có gì thay đổi.', 'dang' => 'Đã đăng: người đọc thấy bài.', 'an' => 'Đã ẩn bài khỏi người đọc; lấy lại bằng nút Đăng.', 've_nhap' => 'Đã chuyển về bản nháp.', 'loi' => 'Chưa lưu được. Kiểm lại dữ liệu và thử tiếp.', 'them' => 'Đã thêm bài (bản nháp). Viết tiếp các phần rồi bấm Đăng khi xong.', 'them_dang' => 'Đã thêm và đăng bài. Viết tiếp các phần nếu muốn.', 'doi_the_loai' => 'Đã đổi thể loại. Đường dẫn cũ tự chuyển sang đường mới; Lịch sử ghi lại lần đổi.' )[ $ket_qua ] ?? '';
+		$bao = array( 'da_luu_sang' => 'Đã lưu bài vừa rồi. Đây là bài tiếp theo trong danh sách.', 'da_luu' => 'Đã lưu phần bài.', 'da_luu_pl' => 'Đã lưu phân loại.', 'da_khoi_phuc' => 'Đã khôi phục bản trước; lần khôi phục được ghi vào Lịch sử.', 'nhap' => 'Đã lưu nháp vào Hộp việc; người đọc chưa thấy.', 'khong_doi' => 'Không có gì thay đổi.', 'dang' => 'Đã đăng: người đọc thấy bài.', 'an' => 'Đã ẩn bài khỏi người đọc; lấy lại bằng nút Đăng.', 've_nhap' => 'Đã chuyển về bản nháp.', 'loi' => 'Chưa lưu được. Kiểm lại dữ liệu và thử tiếp.', 'them' => 'Đã thêm bài (bản nháp). Viết tiếp các phần rồi bấm Đăng khi xong.', 'them_dang' => 'Đã thêm và đăng bài. Viết tiếp các phần nếu muốn.', 'doi_the_loai' => 'Đã đổi thể loại. Đường dẫn cũ tự chuyển sang đường mới; Lịch sử ghi lại lần đổi.', 'doi_chieu' => 'Đã ghi đối chiếu sách; Lịch sử ghi lại.' )[ $ket_qua ] ?? '';
 		if ( 'loi' === $ket_qua ) {
 			$khoa_loi = 'phongdao_sua_loi_' . $id . '_' . get_current_user_id();
 			$bao = (string) get_transient( $khoa_loi ) ?: $bao;
@@ -93,7 +95,7 @@ final class SuaTacPham {
 			$ra .= '<div class="notice ' . ( 'loi' === $ket_qua ? 'notice-error' : 'notice-success' ) . '"><p role="status">' . esc_html( $bao ) . ( $sau && 'loi' !== $ket_qua ? ' <a href="' . esc_url( self::url( $sau ) ) . '">Sang bài tiếp theo →</a>' : '' ) . '</p></div>';
 		}
 		// Cột chính: lời luôn hiện, rồi các phần — phần đã có mở sẵn để thấy nội dung, phần "Chưa có" gập lại
-		$chinh = self::loi_xem( $ctx['phan']['loi'] ?? null ) . '<h2>Các phần của bài</h2>';
+		$chinh = self::loi_xem( $ctx['phan']['loi'] ?? null ) . self::khoi_doi_chieu( $bai, $ctx ) . '<h2>Các phần của bài</h2>';
 		$an_sau = $sau ? '<input type="hidden" name="bai_sau" value="' . $sau . '">' : '';
 		// Phần chưa có gom thành một hàng "Thêm: …"; bấm mới mở ô (báo cáo trinh sát lần 2, mục 3.3). Cờ "Có thể không phải
 		// dân gian" là công tắc ở cột bên, không nằm trong danh sách phần (D-104, D-105).
@@ -142,6 +144,114 @@ final class SuaTacPham {
 		}
 		$ben .= self::cong_tac_co( $bai, $ctx ) . self::phan_loai( $bai, $loai ) . self::lich_su( $id );
 		return $ra . '<div class="phongdao-sua-bo"><div class="phongdao-sua-chinh">' . $chinh . '</div><aside class="phongdao-sua-ben" aria-label="Trạng thái, phân loại và lịch sử">' . $ben . '</aside></div></div>';
+	}
+
+	/**
+	 * Nút riêng "Đối chiếu sách" (D-104 ý 6, docs/32 mục 4.4): chọn sách hoặc "+ Sách mới" ngay tại chỗ (tên, người biên
+	 * soạn, nhà xuất bản, năm — tạo hồ sơ loại sách; người có quyền Biên tập làm được), trang, bản quét nếu có; dòng "Người
+	 * đọc sẽ thấy". Lời trong sách khác bản đang đăng: "Sửa lời theo sách" hoặc "Ghi bản trong sách làm dị bản". Chỉ người
+	 * điền; máy không tự điền sách, trang.
+	 */
+	private static function khoi_doi_chieu( \WP_Post $bai, array $ctx ): string {
+		$id   = (int) $bai->ID;
+		$loi  = $ctx['phan']['loi'] ?? null;
+		$dc   = (array) ( $loi['doi_chieu'] ?? array() );
+		$sach = \Phongdao\KhoLuu\HoSo::sach();
+		$hien = ! empty( $dc['ho_so'] ) ? 'Lời đã đối chiếu với «' . ( $sach[ (int) $dc['ho_so'] ] ?? (string) get_post_field( 'post_title', (int) $dc['ho_so'] ) ) . '»' . ( empty( $dc['trang'] ) ? '' : ', tr. ' . $dc['trang'] ) : 'Chưa đối chiếu sách.';
+		$chon = '<option value="0">— Chọn sách —</option>';
+		foreach ( $sach as $sid => $ten ) {
+			$chon .= '<option value="' . (int) $sid . '"' . selected( (int) ( $dc['ho_so'] ?? 0 ), $sid, false ) . '>' . esc_html( $ten ) . '</option>';
+		}
+		$moi = current_user_can( 'cadao_duyet' ) || current_user_can( NguonCaiDat::QUYEN )
+			? '<details class="phongdao-sach-moi"><summary>+ Sách mới</summary><p class="description">Tạo hồ sơ nguồn loại sách (giấy phép, xin phép do Quản trị điền sau).</p>'
+				. '<p><label for="dc-ten">Tên sách</label><br><input id="dc-ten" name="sach_moi[ten]" class="regular-text"></p><p><label for="dc-tg">Người biên soạn</label><br><input id="dc-tg" name="sach_moi[tac_gia]" class="regular-text"></p>'
+				. '<p><label for="dc-nxb">Nhà xuất bản</label><br><input id="dc-nxb" name="sach_moi[nha_xuat_ban]" class="regular-text"></p><p><label for="dc-nam">Năm</label><br><input id="dc-nam" name="sach_moi[nam]" class="small-text"></p></details>'
+			: '';
+		$dong = implode( "\n", (array) ( $loi['dong'] ?? array() ) );
+		return '<details class="phongdao-doi-chieu" id="doi-chieu"' . ( 'doi_chieu' === ( $_GET['phan'] ?? '' ) ? ' open' : '' ) . '><summary class="button">Đối chiếu sách</summary>' // phpcs:ignore WordPress.Security.NonceVerification -- chỉ mở lại khối vừa lưu
+			. '<p class="phongdao-dc-hien" role="status">' . esc_html( $hien ) . '</p>'
+			. '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="phongdao_doi_chieu_sach"><input type="hidden" name="id" value="' . $id . '">' . self::an_ve() . wp_nonce_field( 'phongdao_doi_chieu_' . $id, '_wpnonce', true, false )
+			. '<p><label for="dc-sach">Sách</label><br><select id="dc-sach" name="ho_so">' . $chon . '</select></p>' . $moi
+			. '<p><label for="dc-trang">Trang</label><br><input id="dc-trang" name="trang" class="small-text" value="' . esc_attr( (string) ( $dc['trang'] ?? '' ) ) . '"></p>'
+			. '<p><label for="dc-url">Đường dẫn bản quét <span class="description">không bắt buộc</span></label><br><input id="dc-url" name="url" type="url" class="regular-text" value="' . esc_attr( (string) ( $dc['url'] ?? '' ) ) . '"></p>'
+			. '<fieldset><legend>Lời trong sách</legend>'
+			. '<label><input type="radio" name="lam" value="giu" checked> Giống bản đang đăng</label><br>'
+			. '<label><input type="radio" name="lam" value="sua"> Khác: sửa lời theo sách</label><br>'
+			. '<label><input type="radio" name="lam" value="di_ban"> Khác: ghi bản trong sách làm dị bản</label></fieldset>'
+			. '<p><label for="dc-loi">Lời trong sách <span class="description">chỉ cần khi khác; gõ đúng như trong sách, mỗi dòng một câu</span></label><br><textarea id="dc-loi" name="loi_sach" rows="5" class="large-text">' . esc_textarea( $dong ) . '</textarea></p>'
+			. '<p class="description" data-dc-xem>Người đọc sẽ thấy: Lời đã đối chiếu với «tên sách», tr. N.</p>'
+			. '<p><button type="submit" class="button button-primary">Lưu đối chiếu</button></p></form></details>';
+	}
+
+	/**
+	 * Lưu đối chiếu sách: kiểm quyền, nonce; sách mới (vai Biên tập trở lên) tạo hồ sơ loại sách; rồi lưu qua đường lưu
+	 * phần (Lịch sử): "giữ" — lời giữ nguyên, ghi đối chiếu; "sửa" — lời theo sách (người viết) kèm đối chiếu; "dị bản" —
+	 * thêm một dị bản (người viết) mang đối chiếu, lời đang đăng giữ nguyên.
+	 *
+	 * @return array{ok:bool,loi:string}
+	 */
+	public static function luu_doi_chieu( int $id, array $p, int $nguoi ): array {
+		$bai = get_post( $id );
+		if ( ! $bai || KhaiBao::TAC_PHAM !== $bai->post_type || ! user_can( $nguoi, 'edit_post', $id ) ) {
+			return array( 'ok' => false, 'loi' => 'Bạn không có quyền sửa bài này.' );
+		}
+		$hs  = (int) ( $p['ho_so'] ?? 0 );
+		$moi = array_map( 'strval', (array) ( $p['sach_moi'] ?? array() ) );
+		if ( ! $hs && '' !== trim( $moi['ten'] ?? '' ) ) {
+			if ( ! user_can( $nguoi, 'cadao_duyet' ) && ! user_can( $nguoi, NguonCaiDat::QUYEN ) ) {
+				return array( 'ok' => false, 'loi' => 'Thêm sách mới cần quyền Biên tập.' );
+			}
+			$t = \Phongdao\KhoLuu\HoSo::them( (string) $moi['ten'], array_intersect_key( $moi, array_flip( \Phongdao\MienDuLieu\HoSoNguon::TRUONG_SACH ) ), false, $nguoi );
+			if ( ! $t['ok'] ) {
+				return array( 'ok' => false, 'loi' => $t['loi'] );
+			}
+			$hs = $t['id'];
+		}
+		if ( ! $hs || 'sach' !== ( \Phongdao\KhoLuu\HoSo::truong( $hs )['loai'] ?? '' ) ) {
+			return array( 'ok' => false, 'loi' => 'Chọn một sách, hoặc thêm sách mới.' );
+		}
+		$dc   = array_filter( array( 'ho_so' => $hs, 'trang' => trim( sanitize_text_field( (string) ( $p['trang'] ?? '' ) ) ), 'url' => esc_url_raw( trim( (string) ( $p['url'] ?? '' ) ) ) ) );
+		$lam  = in_array( $p['lam'] ?? '', array( 'giu', 'sua', 'di_ban' ), true ) ? (string) $p['lam'] : 'giu';
+		$loi  = \Phongdao\KhoLuu\PhanBai::lay( $id, 'loi' );
+		$dong = array_map( 'trim', explode( "\n", str_replace( "\r", '', trim( (string) ( $p['loi_sach'] ?? '' ) ) ) ) );
+		$nc   = array( 'nguoi' => $nguoi, 'goi' => \Phongdao\MienDuLieu\KiemPhan::GOI_NGUOI, 'duyet' => user_can( $nguoi, 'cadao_duyet' ) );
+		if ( 'di_ban' === $lam ) {
+			if ( '' === implode( '', $dong ) ) {
+				return array( 'ok' => false, 'loi' => 'Gõ lời trong sách để ghi làm dị bản.' );
+			}
+			$ds   = (array) ( \Phongdao\KhoLuu\PhanBai::lay( $id, 'di_ban' )['muc'] ?? array() );
+			$ds[] = array( 'dong' => $dong, 'nguoi_lam' => \Phongdao\MienDuLieu\NguoiLam::NGUOI_VIET, 'nguon' => $dc ); // dị bản ghi nguồn là sách, trang người điền
+			$kq   = \Phongdao\DichVu\LuuPhan\LuuPhan::luu( $id, 'di_ban', $ds, $nc );
+		} else {
+			if ( ! $loi ) {
+				return array( 'ok' => false, 'loi' => 'Bài chưa có lời để đối chiếu.' );
+			}
+			$v = array( 'doi_chieu' => $dc ) + $loi;
+			if ( 'sua' === $lam ) {
+				if ( '' === implode( '', $dong ) ) {
+					return array( 'ok' => false, 'loi' => 'Gõ lời trong sách để sửa theo.' );
+				}
+				$v['dong']      = $dong;
+				$v['nguoi_lam'] = \Phongdao\MienDuLieu\NguoiLam::NGUOI_VIET;
+			}
+			$kq = \Phongdao\DichVu\LuuPhan\LuuPhan::luu( $id, 'loi', $v, $nc );
+		}
+		return $kq['ok'] ? array( 'ok' => true, 'loi' => '' ) : array( 'ok' => false, 'loi' => implode( ' ', $kq['loi'] ) );
+	}
+
+	public static function doi_chieu_sach(): void {
+		$id = absint( $_POST['id'] ?? 0 );
+		if ( ! current_user_can( 'cadao_soan' ) || ! $id ) {
+			wp_die( 'Bạn không có quyền sửa bài này.', '', array( 'response' => 403 ) );
+		}
+		check_admin_referer( 'phongdao_doi_chieu_' . $id );
+		$kq = self::luu_doi_chieu( $id, wp_unslash( $_POST ), get_current_user_id() );
+		if ( ! $kq['ok'] ) {
+			set_transient( 'phongdao_sua_loi_' . $id . '_' . get_current_user_id(), $kq['loi'], MINUTE_IN_SECONDS );
+		}
+		self::$ve = self::ve_hop_le( wp_unslash( (string) ( $_POST['ve'] ?? '' ) ) );
+		wp_safe_redirect( add_query_arg( array( 'ket_qua' => $kq['ok'] ? 'doi_chieu' : 'loi', 'phan' => 'doi_chieu' ), self::url( $id ) ) . '#doi-chieu' );
+		exit;
 	}
 
 	/**

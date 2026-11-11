@@ -100,7 +100,7 @@ final class Viec {
 	 * Loại việc không nằm trong Hộp việc wp-admin (D-103): gợi ý chủ đề, vùng của máy là đề xuất trên bài, duyệt ở Bổ sung.
 	 * Mở thẳng bằng `loai=goi_y` vẫn xem được (đường dẫn cũ).
 	 */
-	public const NGOAI_HOP_VIEC = array( 'goi_y' );
+	public const NGOAI_HOP_VIEC = array( 'goi_y', 'de_nghi_nguon' );
 
 	/** Số việc đang chờ trong Hộp việc wp-admin (không tính gợi ý chủ đề, vùng — ở Bổ sung). */
 	public static function dem_hop_viec(): int {

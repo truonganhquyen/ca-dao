@@ -82,9 +82,14 @@ final class TamSua {
 	private static function form_loi( ?array $cu, array $ctx ): string {
 		$dc   = $cu['doi_chieu'] ?? array();
 		$sach = array( 0 => '— Chưa đối chiếu —' ) + $ctx['sach'];
-		return self::vung( 's-loi', 'dong', 'Lời · mỗi dòng một câu', implode( "\n", $cu['dong'] ?? array() ), 'dòng trống = ngắt khổ', 8 )
+		$tren = self::vung( 's-loi', 'dong', 'Lời · mỗi dòng một câu', implode( "\n", $cu['dong'] ?? array() ), 'dòng trống = ngắt khổ', 8 )
 			. ( $cu ? '<div class="notice">Lời đang đăng: sửa sẽ ghi lịch sử, phần lời thành "người viết". Không sửa theo trí nhớ; cần có nguồn.</div>' : '' )
-			. ( empty( $ctx['phan']['doan'] ) ? '' : '<p class="small muted">Bài đã chia ' . count( $ctx['phan']['doan']['muc'] ?? array() ) . ' đoạn theo số dòng: thêm hay bớt dòng thì sửa lại ở "Sửa đoạn".</p>' )
+			. ( empty( $ctx['phan']['doan'] ) ? '' : '<p class="small muted">Bài đã chia ' . count( $ctx['phan']['doan']['muc'] ?? array() ) . ' đoạn theo số dòng: thêm hay bớt dòng thì sửa lại ở "Sửa đoạn".</p>' );
+		// Trang Sửa tác phẩm có nút riêng "Đối chiếu sách" (D-104 ý 6): ô Sửa lời không còn phần đối chiếu (giữ nguyên khi lưu lời)
+		if ( ! empty( $ctx['an_doi_chieu'] ) ) {
+			return $tren;
+		}
+		return $tren
 			. '<fieldset class="nhom-o"><legend>Lời đã đối chiếu với <span class="small muted">chỉ người điền, máy không tự điền</span></legend>'
 			. self::chon( 's-dc-sach', 'doi_chieu[ho_so]', 'Sách', $sach, (int) ( $dc['ho_so'] ?? 0 ) )
 			. ( $ctx['sach'] ? '' : '<p class="small muted">Chưa có hồ sơ sách nào. Thêm ở Nguồn &amp; cài đặt.</p>' )
@@ -188,7 +193,8 @@ final class TamSua {
 			case 'loi':
 				$dong = explode( "\n", $chu( $f['dong'] ?? '' ) );
 				$doi  = array_map( 'trim', $dong ) !== array_map( 'trim', $cu['dong'] ?? array() );
-				$v    = array_diff_key( $cu ?? array(), array( 'doi_chieu' => 1 ) );
+				// Form không gửi phần đối chiếu (ô Sửa lời ở trang Sửa tác phẩm): giữ đối chiếu đang có
+				$v    = array_key_exists( 'doi_chieu', $f ) ? array_diff_key( $cu ?? array(), array( 'doi_chieu' => 1 ) ) : ( $cu ?? array() );
 				$v['dong']      = $dong;
 				$v['nguoi_lam'] = $doi || empty( $cu['nguoi_lam'] ) ? NguoiLam::NGUOI_VIET : $cu['nguoi_lam'];
 				$hs             = (int) ( $f['doi_chieu']['ho_so'] ?? 0 );

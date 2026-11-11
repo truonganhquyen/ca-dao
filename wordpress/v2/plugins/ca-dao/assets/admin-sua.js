@@ -44,6 +44,23 @@ document.addEventListener('input', e => {
   ds?.querySelectorAll('label.choice').forEach(l => { l.hidden = tim !== '' && !khongDau(l.textContent).includes(tim); });
 });
 
+// Đối chiếu sách (T-189): dòng "Người đọc sẽ thấy" đổi theo sách, trang đang chọn
+(() => {
+  const f = document.querySelector('#doi-chieu form');
+  if (!f) return;
+  const xem = f.querySelector('[data-dc-xem]');
+  const cap = () => {
+    const s = f.querySelector('#dc-sach');
+    const moi = f.querySelector('#dc-ten')?.value.trim();
+    const ten = moi || (s && s.value !== '0' ? s.options[s.selectedIndex].text : '');
+    const tr = f.querySelector('#dc-trang')?.value.trim();
+    xem.textContent = ten ? `Người đọc sẽ thấy: Lời đã đối chiếu với «${ten}»${tr ? `, tr. ${tr}` : ''}.` : 'Người đọc sẽ thấy: Lời đã đối chiếu với «tên sách», tr. N.';
+  };
+  f.addEventListener('input', cap);
+  f.addEventListener('change', cap);
+  cap();
+})();
+
 // Hàng "Thêm: …" (T-189): bấm tên phần chưa có thì mở đúng ô đó và đưa con trỏ tới (không có JavaScript: liên kết #phan-…)
 document.addEventListener('click', e => {
   const nut = e.target.closest?.('[data-mo-phan]');

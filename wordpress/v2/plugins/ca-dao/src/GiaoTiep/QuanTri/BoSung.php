@@ -27,6 +27,7 @@ final class BoSung {
 	 */
 	public static function doc_nhieu_thieu( int $so = 10 ): array {
 		global $wpdb;
+		\Phongdao\DichVu\TomTat\TomTat::xong();
 		// Đọc từ bảng tóm tắt bài (lượt đọc 7 ngày tính sẵn): một truy vấn, không đọc từng bài
 		return array_map( 'intval', $wpdb->get_col( $wpdb->prepare( 'SELECT post_id FROM ' . \Phongdao\DichVu\TomTat\TomTat::bang() . " WHERE trang_thai = 'publish' AND doc_7 > 0 AND thieu LIKE %s ORDER BY doc_7 DESC, post_id ASC LIMIT %d", '%,y_nghia,%', $so ) ) ?: array() ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- tên bảng của plugin
 	}
