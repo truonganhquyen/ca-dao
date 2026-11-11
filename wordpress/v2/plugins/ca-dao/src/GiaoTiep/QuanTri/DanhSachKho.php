@@ -38,8 +38,8 @@ final class DanhSachKho {
 		'chua'   => 'Chưa có thẻ Câu mới',
 		'co'     => 'Đang có thẻ Câu mới',
 	);
-	/** Cờ máy đặt khi đọc nguồn => chữ hiện cho người biên soạn. */
-	private const CO = array(
+	/** Cờ máy đặt khi đọc nguồn => chữ hiện cho người biên soạn (mọi nơi hiện cờ dùng chung, không in mã máy). */
+	public const CO = array(
 		'tho_tuc'       => 'có từ thô tục',
 		'hien_dai'      => 'nghi là câu hiện đại',
 		'can_xem'       => 'nguồn ghi cần xem',
@@ -48,6 +48,16 @@ final class DanhSachKho {
 
 	public static function dang_ky(): void {
 		add_action( 'admin_post_' . self::HANH_DONG, array( self::class, 'dua_vao' ) );
+	}
+
+	/**
+	 * Chữ của các cờ máy đặt khi đọc nguồn (vd. "có từ thô tục"); mã lạ thì ghi "cờ khác của nguồn", không in mã máy.
+	 *
+	 * @param array<int,mixed> $co
+	 * @return string[]
+	 */
+	public static function ten_co( array $co ): array {
+		return array_values( array_unique( array_map( static fn( $c ): string => self::CO[ (string) $c ] ?? 'cờ khác của nguồn', $co ) ) );
 	}
 
 	/**
@@ -126,9 +136,10 @@ final class DanhSachKho {
 	}
 
 	/**
-	 * Thẻ Câu mới đang mở và cặp chờ quyết trùng của đúng các câu trên trang (hai truy vấn, không theo từng dòng).
+	 * Thẻ Câu mới đang mở và cặp chờ quyết trùng của đúng các câu trên trang (ba truy vấn, không theo từng dòng). Cặp chờ
+	 * quyết trùng mang mã thẻ "Có thể trùng" đang mở (0 khi chưa có thẻ) để Kho mở thẳng đúng thẻ.
 	 *
-	 * @return array{the:array<int,int>,trung:array<int,bool>}
+	 * @return array{the:array<int,int>,trung:array<int,int>}
 	 */
 	private static function trang_thai_trang( array $ds ): array {
 		global $wpdb;
@@ -144,7 +155,13 @@ final class DanhSachKho {
 		$khoa  = array_map( static fn( int $i ): string => 'kho:' . $i, $ids );
 		$trung = array();
 		foreach ( $wpdb->get_col( $wpdb->prepare( 'SELECT a FROM ' . ChongTrung::bang( 'trung' ) . " WHERE trang_thai IN ('cho','de_sau') AND a IN (" . implode( ',', array_fill( 0, count( $khoa ), '%s' ) ) . ')', $khoa ) ) ?: array() as $a ) { // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			$trung[ (int) substr( (string) $a, 4 ) ] = true;
+			$trung[ (int) substr( (string) $a, 4 ) ] = 0;
+		}
+		if ( $trung ) {
+			$co_trung = array_keys( $trung );
+			foreach ( $wpdb->get_results( $wpdb->prepare( 'SELECT doi_tuong_id, MIN(id) AS dau FROM ' . Viec::bang() . " WHERE doi_tuong_loai = 'kho' AND loai = 'co_the_trung' AND trang_thai IN ('cho','de_sau') AND doi_tuong_id IN (" . implode( ',', array_fill( 0, count( $co_trung ), '%d' ) ) . ') GROUP BY doi_tuong_id', $co_trung ) ) ?: array() as $h ) { // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$trung[ (int) $h->doi_tuong_id ] = (int) $h->dau;
+			}
 		}
 		$bai = array_filter( array_map( static fn( object $m ): int => (int) $m->post_id, $ds ) );
 		if ( $bai ) {
@@ -188,7 +205,7 @@ final class DanhSachKho {
 		$cau  = '<strong>' . esc_html( $ten ) . '</strong><span class="phongdao-kho-loi">' . implode( '<br>', array_map( 'esc_html', array_slice( $dong, 0, 4 ) ) ) . '</span>'
 			. ( count( $dong ) > 4 ? '<span class="description">… ' . count( $dong ) . ' dòng</span>' : '' );
 		$them = array( count( (array) ( $d['chu_thich'] ?? array() ) ) . ' chú thích', count( (array) ( $d['di_ban'] ?? array() ) ) . ' dị bản' );
-		$co   = array_map( static fn( $c ): string => self::CO[ $c ] ?? (string) $c, (array) ( $d['co'] ?? array() ) );
+		$co   = self::ten_co( (array) ( $d['co'] ?? array() ) );
 		return $cau . '<span class="description">' . esc_html( implode( ' · ', $them ) ) . '</span>' . ( $co ? '<span class="phongdao-kho-co">Cờ: ' . esc_html( implode( ', ', $co ) ) . '</span>' : '' );
 	}
 
@@ -196,7 +213,7 @@ final class DanhSachKho {
 		$id   = (int) $m->id;
 		$cau  = self::o_cau( $m );
 
-		$ten_nguon = (string) ( $nguon[ $m->nguon_id ]['ten'] ?? $m->nguon_id );
+		$ten_nguon = NguonTuDong::ten( (string) $m->nguon_id );
 		$doc       = (string) $m->doc_trang;
 		$goc       = esc_html( $ten_nguon ) . '<br><span class="description">Lấy ' . esc_html( self::ngay( (string) $m->ngay_lay ) )
 			. ( '' === $doc ? ' · chưa đọc trang gốc' : ( preg_match( '/^\d{4}-/', $doc ) ? '' : ' · không đọc được trang gốc' ) ) . '</span>'
@@ -213,7 +230,8 @@ final class DanhSachKho {
 		if ( $the ) {
 			$tt[] = '<a href="' . esc_url( add_query_arg( array( 'page' => DanhSachViec::TRANG, 'viec' => $the ), admin_url( 'admin.php' ) ) ) . '">Thẻ Câu mới #' . $the . '</a>';
 		}
-		$trung = ! empty( $tt_trang['trung'][ $id ] );
+		$trung    = array_key_exists( $id, $tt_trang['trung'] );
+		$the_trung = (int) ( $tt_trang['trung'][ $id ] ?? 0 );
 		if ( $trung ) {
 			$tt[] = 'Đang chờ quyết trùng';
 		}
@@ -229,7 +247,10 @@ final class DanhSachKho {
 				. wp_nonce_field( self::HANH_DONG . '_' . $id, '_wpnonce', false, false )
 				. $dang . '<button type="submit" class="button button-small" aria-label="' . esc_attr( 'Đưa vào Hộp việc: câu #' . $id ) . '">Đưa vào Hộp việc</button></form>';
 		} else {
-			$lam = '<span class="description">' . esc_html( $the ? 'Đã có trong Hộp việc' : ( $trung ? 'Quyết trùng trước' : $ly_do ) ) . '</span>';
+			// "Quyết trùng trước" mở thẳng thẻ "Có thể trùng" của câu này (báo cáo trinh sát lần 2, mục 1.5)
+			$lam = $trung && ! $the && $the_trung
+				? '<a class="button button-small" href="' . esc_url( DanhSachViec::url( array( 'loai' => 'co_the_trung' ), 1, $the_trung ) ) . '">Quyết trùng trước</a>'
+				: '<span class="description">' . esc_html( $the ? 'Đã có trong Hộp việc' : ( $trung ? 'Quyết trùng trước' : $ly_do ) ) . '</span>';
 		}
 		return '<tr><td data-nhan="Chọn">' . $chon . '</td><td data-nhan="ID">' . $id . '</td><td data-nhan="Câu" class="phongdao-kho-cau">' . $cau . '</td><td data-nhan="Thể loại">' . esc_html( self::ten_loai( (string) $m->loai ) ) . '</td><td data-nhan="Nguồn">' . $goc . '</td><td data-nhan="Trạng thái">' . implode( '<br>', $tt ) . '</td><td data-nhan="Làm gì">' . $lam . '</td></tr>';
 	}
@@ -245,7 +266,7 @@ final class DanhSachKho {
 		$tt    = self::trang_thai_trang( $kq['ds'] );
 		$ds_nguon = array( '' => 'Mọi nguồn' );
 		foreach ( $wpdb->get_col( 'SELECT DISTINCT nguon_id FROM ' . Kho::bang() . ' ORDER BY nguon_id' ) ?: array() as $id ) { // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- không có giá trị ngoài
-			$ds_nguon[ (string) $id ] = (string) ( $nguon[ $id ]['ten'] ?? $id );
+			$ds_nguon[ (string) $id ] = isset( $nguon[ $id ]['ten'] ) && '' !== (string) $nguon[ $id ]['ten'] ? (string) $nguon[ $id ]['ten'] : 'Nguồn chưa đặt tên (' . $id . ')';
 		}
 		$ds_loai = array( '' => 'Mọi thể loại' );
 		foreach ( array_keys( TheLoai::TU_LOAI_GOC ) as $l ) {
@@ -278,7 +299,7 @@ final class DanhSachKho {
 			( $duyet ? '<button type="submit" form="' . self::FORM_LO . '" name="lam" value="dang" class="button button-primary">Xem trước và đăng</button>' : '' )
 				. '<button type="submit" form="' . self::FORM_LO . '" name="lam" value="dua_vao" class="button' . ( $duyet ? '' : ' button-primary' ) . '">Đưa vào Hộp việc…</button>'
 		) : '';
-		return '<div class="wrap phongdao-admin-tp phongdao-admin-kho"><h1>Kho</h1>'
+		return '<div class="wrap phongdao-admin-tp phongdao-admin-kho"><h1>Bài mới</h1><h2 class="phongdao-kho-dau">Câu trong Kho</h2>'
 			. '<p class="description">' . ( $duyet
 				? 'Câu máy đã thu thập từ nguồn, chưa lên trang. Đánh dấu câu muốn đăng rồi bấm "Xem trước và đăng": đọc lại một lượt, bấm Đăng là xong. Muốn quyết từng câu sau thì "Đưa vào Hộp việc". Không có gì được đăng khi bạn chưa bấm; máy không sửa lời.'
 				: 'Câu máy đã thu thập từ nguồn, chưa lên trang. Tự chọn câu muốn đăng: bấm "Đưa vào Hộp việc" để tạo thẻ Câu mới, rồi người có quyền duyệt quyết Đăng, Sửa rồi đăng hay Bỏ ở Hộp việc. Nút không tự đăng, không sửa lời.' ) . '</p>'

@@ -5,9 +5,10 @@ namespace Phongdao\GiaoTiep\QuanTri;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Mục menu "Phongdao" trong wp-admin (D-094, D-100; docs/28 mục 4.7): xếp theo việc hằng ngày — Bàn làm việc (mở khi
- * bấm "Phongdao" và ngay sau khi đăng nhập), Hộp việc (kèm số việc chờ), Tác phẩm, Kho, Nguồn & cài đặt (chỉ Quản trị),
- * Thao tác hàng loạt. "Sửa tác phẩm" là màn con mở từ danh sách, không nằm trên menu.
+ * Mục menu "Phongdao" trong wp-admin (D-100, D-103; docs/32 mục 3.2): ba dòng việc — **Hôm nay** (mở khi bấm "Phongdao"
+ * và ngay sau khi đăng nhập), **Bài mới** (Kho), **Hộp việc** (kèm số việc chờ), **Bổ sung**, rồi Tác phẩm, Nguồn & cài
+ * đặt (chỉ Quản trị). "Sửa tác phẩm" và "Thao tác hàng loạt" là màn con (mở từ danh sách, từ Hôm nay, từ màn kết quả),
+ * không nằm trên menu; khi mở, menu Phongdao vẫn mở và tô đúng mục người vừa đến. Không ẩn menu nào của WordPress (D-100).
  */
 final class Module implements \Phongdao\HaTang\Module {
 
@@ -19,6 +20,8 @@ final class Module implements \Phongdao\HaTang\Module {
 		add_filter( 'submenu_file', array( self::class, 'muc_dang_mo' ) );
 		add_filter( 'parent_file', array( self::class, 'menu_dang_mo' ) );
 		add_action( 'admin_bar_menu', array( self::class, 'them_moi' ), 80 );
+		add_action( 'load-index.php', array( self::class, 'trang_chao' ) );
+		add_action( 'transition_comment_status', array( self::class, 'binh_luan_doi' ), 10, 3 );
 		NguonCaiDat::dang_ky();
 		SuaTacPham::dang_ky();
 		DanhSachKho::dang_ky();
@@ -39,7 +42,21 @@ final class Module implements \Phongdao\HaTang\Module {
 				}
 			} );
 		}
-		add_submenu_page( $cha, 'Bàn làm việc', 'Bàn làm việc', 'cadao_soan', $cha, $ban );
+		add_submenu_page( $cha, 'Hôm nay', 'Hôm nay', 'cadao_soan', $cha, $ban );
+		$tep_goc = dirname( __DIR__, 3 ) . '/ca-dao.php';
+		$kho = add_submenu_page( $cha, 'Bài mới', 'Bài mới', 'cadao_soan', DanhSachKho::TRANG, static function (): void {
+			echo DanhSachKho::hien(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- lớp hiển thị thoát giá trị động
+		} );
+		if ( $kho ) {
+			add_action( 'admin_enqueue_scripts', static function ( string $trang ) use ( $kho, $tep_goc ): void {
+				if ( $trang === $kho ) {
+					wp_enqueue_style( 'phongdao-admin-tac-pham', plugins_url( 'assets/admin-tac-pham.css', $tep_goc ), array(), CADAO_PHIEN_BAN );
+					wp_enqueue_style( 'phongdao-admin-kho', plugins_url( 'assets/admin-kho.css', $tep_goc ), array( 'phongdao-admin-tac-pham' ), CADAO_PHIEN_BAN );
+					wp_enqueue_style( 'phongdao-admin-chon', plugins_url( 'assets/admin-chon.css', $tep_goc ), array(), CADAO_PHIEN_BAN );
+					wp_enqueue_script( 'phongdao-admin-chon', plugins_url( 'assets/admin-chon.js', $tep_goc ), array(), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
+				}
+			} );
+		}
 		$cho = \Phongdao\KhoLuu\Viec::dem_cho();
 		$moc = add_submenu_page( $cha, 'Hộp việc', 'Hộp việc' . ( $cho ? ' <span class="awaiting-mod count-' . $cho . '"><span class="pending-count">' . number_format_i18n( $cho ) . '</span></span>' : '' ), 'cadao_soan', DanhSachViec::TRANG, static function (): void {
 			echo DanhSachViec::hien(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- lớp hiển thị thoát giá trị động
@@ -52,6 +69,16 @@ final class Module implements \Phongdao\HaTang\Module {
 					wp_enqueue_style( 'phongdao-admin-chon', plugins_url( 'assets/admin-chon.css', $tep ), array(), CADAO_PHIEN_BAN );
 					wp_enqueue_script( 'phongdao-admin-chon', plugins_url( 'assets/admin-chon.js', $tep ), array(), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
 					wp_enqueue_script( 'phongdao-admin-hop-viec', plugins_url( 'assets/admin-hop-viec.js', $tep ), array(), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
+				}
+			} );
+		}
+		$bs = add_submenu_page( $cha, 'Bổ sung', 'Bổ sung', 'cadao_soan', BoSung::TRANG, static function (): void {
+			echo BoSung::hien(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- lớp hiển thị thoát giá trị động
+		} );
+		if ( $bs ) {
+			add_action( 'admin_enqueue_scripts', static function ( string $trang ) use ( $bs, $tep_goc ): void {
+				if ( $trang === $bs ) {
+					wp_enqueue_style( 'phongdao-admin-ban', plugins_url( 'assets/admin-ban.css', $tep_goc ), array(), CADAO_PHIEN_BAN );
 				}
 			} );
 		}
@@ -85,26 +112,17 @@ final class Module implements \Phongdao\HaTang\Module {
 				}
 			} );
 		}
-		$kho = add_submenu_page( $cha, 'Kho', 'Kho', 'cadao_soan', DanhSachKho::TRANG, static function (): void {
-			echo DanhSachKho::hien(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- lớp hiển thị thoát giá trị động
-		} );
-		if ( $kho ) {
-			add_action( 'admin_enqueue_scripts', static function ( string $trang ) use ( $kho ): void {
-				if ( $trang === $kho ) {
-					$tep = dirname( __DIR__, 3 ) . '/ca-dao.php';
-					wp_enqueue_style( 'phongdao-admin-tac-pham', plugins_url( 'assets/admin-tac-pham.css', $tep ), array(), CADAO_PHIEN_BAN );
-					wp_enqueue_style( 'phongdao-admin-kho', plugins_url( 'assets/admin-kho.css', $tep ), array( 'phongdao-admin-tac-pham' ), CADAO_PHIEN_BAN );
-					wp_enqueue_style( 'phongdao-admin-chon', plugins_url( 'assets/admin-chon.css', $tep ), array(), CADAO_PHIEN_BAN );
-					wp_enqueue_script( 'phongdao-admin-chon', plugins_url( 'assets/admin-chon.js', $tep ), array(), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
-				}
-			} );
-		}
 		// Nguồn & cài đặt giữ đường dẫn admin.php?page=phongdao (hồ sơ nguồn, máy đang làm… trỏ tới đây); chỉ Quản trị
 		add_submenu_page( $cha, 'Nguồn & cài đặt', 'Nguồn &amp; cài đặt', NguonCaiDat::QUYEN, self::TRANG, array( $this, 'hien' ) );
-		$lo = add_submenu_page( $cha, 'Thao tác hàng loạt', 'Thao tác hàng loạt', 'cadao_soan', TrangLo::TRANG, static function (): void {
+		// Màn con (đường dẫn cũ giữ): Lịch sử thao tác hàng loạt mở từ Hôm nay, từ màn kết quả; xem trước lô mở từ danh sách
+		$lo = add_submenu_page( '', 'Thao tác hàng loạt', 'Thao tác hàng loạt', 'cadao_soan', TrangLo::TRANG, static function (): void {
 			echo TrangLo::hien(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- lớp hiển thị thoát giá trị động
 		} );
 		if ( $lo ) {
+			add_action( 'load-' . $lo, static function (): void {
+				global $title;
+				$title = 'Thao tác hàng loạt'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- màn ẩn khỏi menu không có tiêu đề cho thẻ <title>
+			} );
 			add_action( 'admin_enqueue_scripts', static function ( string $trang ) use ( $lo ): void {
 				if ( $trang === $lo ) {
 					$tep = dirname( __DIR__, 3 ) . '/ca-dao.php';
@@ -118,7 +136,7 @@ final class Module implements \Phongdao\HaTang\Module {
 		}
 	}
 
-	/** Đăng nhập xong (không có đích riêng) thì người biên soạn vào Bàn làm việc, không vào trang chào mừng WordPress. */
+	/** Đăng nhập xong (không có đích riêng) thì người biên soạn vào Hôm nay, không vào trang chào mừng WordPress. */
 	public static function sau_dang_nhap( string $dich, string $yeu_cau, $nguoi ): string {
 		$mac_dinh = '' === $yeu_cau || in_array( untrailingslashit( $yeu_cau ), array( untrailingslashit( admin_url() ), untrailingslashit( admin_url( 'index.php' ) ) ), true );
 		if ( $mac_dinh && $nguoi instanceof \WP_User && $nguoi->has_cap( 'cadao_soan' ) ) {
@@ -141,16 +159,83 @@ final class Module implements \Phongdao\HaTang\Module {
 		}
 	}
 
-	/** Màn Sửa tác phẩm (ẩn khỏi menu) giữ menu Phongdao mở. */
-	public static function menu_dang_mo( $cha ) {
-		$trang = sanitize_key( (string) ( $_GET['page'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc để tô menu
-		return SuaTacPham::TRANG === $trang ? BanLamViec::TRANG : $cha;
+	/**
+	 * Mục menu nên tô cho một màn con (ẩn khỏi menu): Sửa tác phẩm → Tác phẩm; màn lô → nơi tạo lô (Kho → Bài mới, Tác
+	 * phẩm, Hộp việc), danh sách các lô → Hôm nay. '' khi không phải màn con của Phongdao.
+	 */
+	public static function muc_cha(): string {
+		// phpcs:disable WordPress.Security.NonceVerification -- chỉ đọc để tô menu
+		$trang = sanitize_key( (string) ( $_GET['page'] ?? '' ) );
+		if ( SuaTacPham::TRANG === $trang ) {
+			return DanhSachTacPham::TRANG;
+		}
+		if ( TrangLo::TRANG !== $trang ) {
+			return '';
+		}
+		$lo = absint( $_GET['lo'] ?? 0 );
+		// phpcs:enable
+		$v  = $lo ? \Phongdao\KhoLuu\Viec::lay( $lo ) : null;
+		$dt = $v && \Phongdao\KhoLuu\Viec::LO === $v['loai'] ? (string) ( $v['noi_dung']['doi_tuong'] ?? 'viec' ) : '';
+		return array( 'kho' => DanhSachKho::TRANG, 'post' => DanhSachTacPham::TRANG, 'viec' => DanhSachViec::TRANG )[ $dt ] ?? BanLamViec::TRANG;
 	}
 
-	/** Màn Sửa tác phẩm (ẩn khỏi menu) đánh dấu mục "Tác phẩm" đang mở. */
-	public static function muc_dang_mo( $muc ) {
+	/**
+	 * Màn con (Sửa tác phẩm, Thao tác hàng loạt) giữ menu Phongdao mở. WordPress gọi `get_admin_page_parent()` ngay sau bộ
+	 * lọc này; màn ẩn nằm trong `$submenu['']` nên hàm đó đặt lại cha thành rỗng (menu đóng). Quyền vào màn đã được kiểm
+	 * xong lúc này, nên gỡ đúng màn đang mở khỏi `$submenu['']` để cha đã lọc được giữ.
+	 */
+	public static function menu_dang_mo( $cha ) {
+		if ( '' === self::muc_cha() ) {
+			return $cha;
+		}
+		global $submenu;
 		$trang = sanitize_key( (string) ( $_GET['page'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc để tô menu
-		return SuaTacPham::TRANG === $trang ? DanhSachTacPham::TRANG : $muc;
+		if ( isset( $submenu[''] ) && is_array( $submenu[''] ) ) {
+			$submenu[''] = array_values( array_filter( $submenu[''], static fn( $m ): bool => ! is_array( $m ) || ( $m[2] ?? '' ) !== $trang ) ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- chỉ bỏ màn ẩn đang mở khỏi danh sách tìm cha
+		}
+		return BanLamViec::TRANG;
+	}
+
+	/** Màn con đánh dấu đúng mục người vừa đến (Tác phẩm, Bài mới, Hộp việc hay Hôm nay). */
+	public static function muc_dang_mo( $muc ) {
+		$cha = self::muc_cha();
+		return '' !== $cha ? $cha : $muc;
+	}
+
+	/**
+	 * Trang chào mừng WordPress (`/wp-admin/`): khung "Phongdao hôm nay" ở đầu (ba số, nút bắt đầu), giữ nguyên phần còn
+	 * lại của WordPress (D-104).
+	 */
+	public static function trang_chao(): void {
+		if ( ! current_user_can( 'cadao_soan' ) ) {
+			return;
+		}
+		add_action( 'admin_enqueue_scripts', static function (): void {
+			wp_enqueue_style( 'phongdao-admin-ban', plugins_url( 'assets/admin-ban.css', dirname( __DIR__, 3 ) . '/ca-dao.php' ), array(), CADAO_PHIEN_BAN );
+		} );
+		add_action( 'admin_notices', static function (): void {
+			echo BanLamViec::khung_wp(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- lớp hiển thị thoát giá trị động
+		} );
+	}
+
+	/**
+	 * Duyệt hay bỏ (thùng rác, tin rác) một cảm nghĩ ở màn Bình luận của WordPress thì thẻ "Người đọc gửi" đang
+	 * mở của bình luận đó tự đóng, ghi "Đã xử lý ở Bình luận" và người bấm (báo cáo trinh sát lần 2, mục 1.10). Thẻ đang
+	 * được quyết ở Hộp việc (trạng thái "đang làm") không bị đụng.
+	 */
+	public static function binh_luan_doi( $moi, $cu, $bl ): void {
+		if ( ! $bl instanceof \WP_Comment || $moi === $cu || ! in_array( (string) $moi, array( 'approved', 'spam', 'trash' ), true ) ) {
+			return;
+		}
+		global $wpdb;
+		$wpdb->query( $wpdb->prepare(
+			'UPDATE ' . \Phongdao\KhoLuu\Viec::bang() . " SET trang_thai = %s, quyet = 'binh_luan', nguoi_quyet = %d, quyet_luc = %s, truoc = %s, phien = phien + 1 WHERE doi_tuong_loai = 'comment' AND doi_tuong_id = %d AND loai = 'nguoi_doc' AND trang_thai IN ('cho','de_sau')",
+			\Phongdao\KhoLuu\Viec::XONG,
+			get_current_user_id(),
+			gmdate( 'Y-m-d H:i:s' ),
+			(string) wp_json_encode( array( 'trang_thai' => \Phongdao\KhoLuu\Viec::CHO, 'binh_luan' => (string) $moi ) ),
+			(int) $bl->comment_ID
+		) );
 	}
 
 	public function hien(): void {

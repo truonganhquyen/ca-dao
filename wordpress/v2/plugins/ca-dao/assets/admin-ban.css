@@ -1,10 +1,21 @@
-/* Bàn làm việc (T-180, T-188): bốn ô số bấm được, nút "Bắt đầu duyệt", khối thu gọn ở cuối trang. */
-.phongdao-ban-so { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 16px 0; padding: 0; list-style: none; }
+/* Hôm nay (đổi tên Bàn làm việc; T-180, T-188, T-189): 3 việc gấp nhất, ba ô theo ba dòng việc, khối thu gọn ở cuối. */
+.phongdao-ban-so { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 16px 0; padding: 0; list-style: none; }
 .phongdao-ban-so li { margin: 0; }
-.phongdao-ban .phongdao-ban-o { display: flex; flex-direction: column; gap: 4px; min-height: 44px; height: 100%; box-sizing: border-box; padding: 14px 16px; border: 1px solid #c3c4c7; border-radius: 8px; background: #fff; color: #1d2327; text-decoration: none; }
+.phongdao-ban .phongdao-ban-o { display: flex; flex-direction: column; gap: 4px; box-sizing: border-box; padding: 14px 16px; border: 1px solid #c3c4c7; border-radius: 8px; background: #fff; color: #1d2327; }
+.phongdao-ban-o h3 { margin: 0; font-size: 15px; }
+.phongdao-ban-o p { margin: 0; }
 .phongdao-ban-o strong { font-size: 28px; line-height: 1.2; color: #135e96; }
-.phongdao-ban .phongdao-ban-o:hover { border-color: #2271b1; }
-.phongdao-ban .phongdao-ban-o:focus-visible { outline: 3px solid #135e96; outline-offset: 2px; }
+.phongdao-ban-o .button { display: inline-flex; align-items: center; min-height: 44px; margin-top: 8px; }
+.phongdao-ban-gap { margin: 16px 0; padding: 8px 16px; border: 1px solid #c3c4c7; border-left: 4px solid #d63638; border-radius: 6px; background: #fff; }
+.phongdao-ban-gap h2 { margin: 8px 0; font-size: 16px; }
+.phongdao-ban-gap ol { margin: 0 0 8px 20px; }
+.phongdao-ban-gap li { margin: 0; }
+.phongdao-ban-gap a, .phongdao-nen-lam a, .phongdao-ban-lo a { display: inline-flex; align-items: center; min-height: 44px; }
+/* Khung "Phongdao hôm nay" ở đầu trang chào mừng WordPress */
+.phongdao-khung-wp { margin: 16px 20px 0 2px; padding: 4px 16px 8px; border: 1px solid #c3c4c7; border-radius: 8px; background: #f6f7f7; }
+.phongdao-khung-wp h2 { margin: 12px 0 0; font-size: 18px; }
+.phongdao-khung-wp .phongdao-ban-so { margin: 12px 0 4px; }
+.phongdao-khung-wp > p a { display: inline-flex; align-items: center; min-height: 44px; }
 .phongdao-ban-bat-dau { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin: 16px 0 24px; }
 .phongdao-ban-bat-dau .button-hero { display: inline-flex; align-items: center; min-height: 48px; }
 .phongdao-ban-gon { margin: 24px 0; border: 1px solid #c3c4c7; border-radius: 6px; background: #fff; overflow-x: auto; }

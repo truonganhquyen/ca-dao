@@ -126,7 +126,9 @@ final class DanhSachViec {
 			switch ( $v['loai'] ) {
 				case 'cau_moi':
 					$dong = array_values( array_filter( array_map( 'trim', explode( "\n", (string) ( $ten[ 'kho_loi:' . $id ] ?? '' ) ) ), 'strlen' ) );
-					$ra[ (int) $v['id'] ] = array( $ten_dt, implode( ' / ', array_slice( $dong, 0, 2 ) ) );
+					// Tên câu chính là dòng đầu thì hai dòng tóm tắt bắt đầu từ dòng thứ hai, không lặp
+					$bo_dau = isset( $dong[0] ) && trim( $ten_dt ) === $dong[0] ? 1 : 0;
+					$ra[ (int) $v['id'] ] = array( $ten_dt, implode( ' / ', array_slice( $dong, $bo_dau, 2 ) ) );
 					break;
 				case 'nhap_y_nghia':
 					$ra[ (int) $v['id'] ] = array( $ten_dt, ( empty( $n['ai'] ) ? 'Nháp: ' : 'Nháp có hỗ trợ AI: ' ) . self::gon( (string) ( $n['chu'] ?? '' ) ) );
@@ -176,6 +178,7 @@ final class DanhSachViec {
 			'hoan_tac'       => 'Hoàn tác',
 			'da_gop'         => 'Đã gộp',
 			'tach_duong_dan' => 'Cho đường dẫn riêng',
+			'binh_luan'      => 'Đã xử lý ở Bình luận',
 		)[ $v['quyet'] ] ?? $v['quyet'];
 	}
 
@@ -236,13 +239,15 @@ final class DanhSachViec {
 		// phpcs:disable WordPress.Security.NonceVerification -- chỉ hiện lời báo và form; máy chủ kiểm lại khi gửi
 		$da    = sanitize_text_field( wp_unslash( (string) ( $_GET['da'] ?? '' ) ) );
 		$vua   = (int) ( $_GET['vua'] ?? 0 );
+		$dang  = (int) ( $_GET['dang_bai'] ?? 0 );
 		$hoan  = (int) ( $_GET['hoan_viec'] ?? 0 );
 		$phien = (int) ( $_GET['hoan_phien'] ?? -1 );
 		// phpcs:enable
 		if ( '' === $da ) {
 			return '';
 		}
-		$o = '<div class="notice notice-info phongdao-hv-bao"><p role="status">' . esc_html( $da ) . ( $vua ? ' <a href="' . esc_url( self::url( $loc, (int) $loc['paged'], $vua ) ) . '">Xem lại thẻ vừa quyết</a>' : '' ) . '</p>';
+		$o = '<div class="notice notice-info phongdao-hv-bao"><p role="status">' . esc_html( $da ) . ( $vua ? ' <a href="' . esc_url( self::url( $loc, (int) $loc['paged'], $vua ) ) . '">Xem lại thẻ vừa quyết</a>' : '' ) . '</p>'
+			. self::lui_sau_dang( $dang, self::url( $loc, (int) $loc['paged'], (int) $loc['viec'] ) );
 		$v = $hoan ? Viec::lay( $hoan ) : null;
 		if ( $v && QuyetViec::co_the_hoan_tac( $v, get_current_user_id(), $phien ) ) {
 			$o .= '<form method="post" data-hv-hoan data-han="' . ( strtotime( $v['quyet_luc'] . ' UTC' ) + 10 ) . '" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="' . HopViec::HOAN_TAC . '"><input type="hidden" name="viec" value="' . $hoan . '"><input type="hidden" name="phien" value="' . (int) $v['phien'] . '">'
@@ -250,6 +255,21 @@ final class DanhSachViec {
 				. wp_nonce_field( HopViec::HOAN_TAC . $hoan, '_wpnonce', true, false ) . '<p><button class="button" type="submit">Hoàn tác trong 10 giây</button></p></form>';
 		}
 		return $o . '</div>';
+	}
+
+	/**
+	 * Lối lùi ngay sau khi Đăng một câu mới (báo cáo trinh sát lần 2, mục 1.3): "Xem bài · Ẩn nếu nhầm". Ẩn là một bấm, đi
+	 * đúng đường nút Ẩn của trang sửa (kiểm quyền, nonce, trạng thái lúc bấm; ghi Lịch sử), xong về lại Hộp việc.
+	 */
+	public static function lui_sau_dang( int $bai, string $ve ): string {
+		$p = $bai ? get_post( $bai ) : null;
+		if ( ! $p || \Phongdao\HaTang\KhaiBao::TAC_PHAM !== $p->post_type || 'publish' !== $p->post_status || ! current_user_can( 'edit_post', $bai ) ) {
+			return '';
+		}
+		return '<form class="phongdao-hv-lui" method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="phongdao_doi_trang_thai">'
+			. '<input type="hidden" name="id" value="' . $bai . '"><input type="hidden" name="trang_thai" value="private"><input type="hidden" name="trang_thai_cu" value="publish">'
+			. '<input type="hidden" name="quay_lai" value="' . esc_attr( $ve ) . '">' . wp_nonce_field( 'phongdao_doi_trang_thai_' . $bai, '_wpnonce', false, false )
+			. '<a class="button" href="' . esc_url( (string) get_permalink( $p ) ) . '">Xem bài</a> <button type="submit" class="button">Ẩn nếu nhầm</button></form>';
 	}
 
 	/**
@@ -264,13 +284,14 @@ final class DanhSachViec {
 			return $loc['viec'] ? $ve . '<p role="status">Không tìm thấy thẻ việc này.</p>' : '';
 		}
 		$tt  = self::TRANG_THAI[ $v['trang_thai'] ] ?? $v['trang_thai'];
-		$bao = '<p class="phongdao-viec-tt">Trạng thái: <strong>' . esc_html( $tt ) . '</strong></p>';
 		if ( ! in_array( $v['trang_thai'], array( Viec::CHO, Viec::DE_SAU ), true ) ) {
+			$bao   = '<p class="phongdao-viec-tt">Trạng thái: <strong>' . esc_html( $tt ) . '</strong></p>';
 			$nguoi = (int) $v['nguoi_quyet'] ? get_userdata( (int) $v['nguoi_quyet'] ) : null;
 			$luc   = '' !== (string) ( $v['quyet_luc'] ?? '' ) ? get_date_from_gmt( (string) $v['quyet_luc'], 'd/m/Y H:i' ) : '';
 			$ai    = trim( ( $nguoi ? $nguoi->display_name : '' ) . ( '' !== $luc ? ' · ' . $luc : '' ), ' ·' );
 			$quyet = '' !== $v['quyet'] ? '<p>Đã quyết: <strong>' . esc_html( self::nhan_quyet( $v ) ) . '</strong>' . ( '' !== $ai ? ' (' . esc_html( $ai ) . ')' : '' ) . '.</p>' : '<p>Thẻ đã đóng.</p>';
-			return $ve . $bao . $quyet . self::lien_bai( $v ) . self::tiep( $loc, $v ) . HopViec::the( $v, false );
+			$lien  = self::lien_bai( $v );
+			return $ve . $bao . $quyet . $lien . self::tiep( $loc, $v ) . HopViec::the( $v, false, '', '' === $lien );
 		}
 		$ma = array_map( static fn( array $x ): int => (int) $x['id'], $ds );
 		$i  = array_search( (int) $v['id'], $ma, true );
@@ -288,7 +309,9 @@ final class DanhSachViec {
 			. ( $vi ? '<span class="description">Thẻ ' . $vi . ' / ' . $tong . '</span>' : '' )
 			. ( $sau ? '<a class="button" data-hv="sau" href="' . esc_url( self::url( $loc, (int) $loc['paged'], $sau ) ) . '">Thẻ sau →</a>' : '' )
 			. '</nav><p class="description" data-hv="goi-y" hidden>Phím tắt: J thẻ sau, K thẻ trước; 1, 2, 3 bấm nút quyết theo thứ tự. Quyết xong tự sang thẻ kế.</p>';
-		return $ve . $bao . HopViec::the( $v, true, $tiep ) . self::lien_bai( $v ) . $di;
+		// Thẻ đang mở: không còn dòng "Trạng thái: Chờ"; có "Sửa bài · Xem bài" thì bỏ lối "Mở bài →" trùng
+		$lien = self::lien_bai( $v );
+		return $ve . HopViec::the( $v, true, $tiep, '' === $lien ) . $lien . $di;
 	}
 
 	/**
@@ -297,7 +320,7 @@ final class DanhSachViec {
 	 */
 	private static function nut_nhanh( array $loc, int $tong ): string {
 		if ( '' === $loc['loai'] ) {
-			return '<span class="description">Chọn một loại việc ở trên để làm nhanh nhiều thẻ.</span>' . TrangLo::nut_mo_lo();
+			return '<span class="description">Chọn một loại việc ở trên để làm nhanh nhiều thẻ.</span>' . TrangLo::nut_mo_lo( true );
 		}
 		$co  = QuyetViec::LOAI[ $loc['loai'] ][1];
 		$ten = mb_strtolower( QuyetViec::LOAI[ $loc['loai'] ][0] );
@@ -317,7 +340,8 @@ final class DanhSachViec {
 		if ( isset( $co['bo'] ) && 'nguoi_doc' !== $loc['loai'] ) {
 			$nut .= $mot( 'viec_bo', 'Bỏ', 'Bỏ %d thẻ ' . $ten . ' đã chọn? Làm ngay, không qua màn xem trước.' );
 		}
-		return $nut . TrangLo::nut_mo_lo();
+		// Chỉ một nút chính màu xanh: có nút làm nhanh chính (Đồng ý, Xem trước và đăng) thì "Làm theo lô…" là nút thường
+		return $nut . TrangLo::nut_mo_lo( ! str_contains( $nut, 'button-primary' ) );
 	}
 
 	public static function hien(): string {

@@ -6,13 +6,13 @@ Máy không chọn bài và không viết nội dung thay bạn. Lời, ý nghĩ
 
 ## Chọn bài
 
-Mở wp-admin → **Phongdao** → **Bàn làm việc**. Khối "Nên làm tuần này" có dòng **Viết ý nghĩa cho … bài đọc nhiều tuần này mà chưa có**. Đó là chỗ nên bắt đầu: người đọc đang mở những bài này.
+Mở wp-admin → **Phongdao** → **Bổ sung**. Khối **Bài đọc nhiều tuần này chưa có Ý nghĩa** liệt kê sẵn các bài. Đó là chỗ nên bắt đầu: người đọc đang mở những bài này.
 
 Nên trộn vài thể loại, ví dụ 10 ca dao, 10 tục ngữ, 5 đồng dao hoặc câu đố, 5 bài bạn biết rõ nguồn. Ghi tên bài vào bảng bên dưới trước khi làm.
 
 ## Mỗi bài làm gì
 
-Mở bài bằng **Sửa bài** (từ Bàn làm việc hoặc Phongdao → Tác phẩm), rồi làm những việc bạn thấy cần:
+Mở bài bằng **Sửa bài** (từ Bổ sung hoặc Phongdao → Tác phẩm), rồi làm những việc bạn thấy cần:
 
 - **Ý nghĩa:** viết, bấm **Lưu và hiện cho người đọc**.
 - **Từ khó:** thêm từ người đọc dễ không hiểu.

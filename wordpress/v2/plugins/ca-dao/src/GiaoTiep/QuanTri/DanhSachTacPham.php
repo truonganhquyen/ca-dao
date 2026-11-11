@@ -27,7 +27,7 @@ final class DanhSachTacPham {
 		'trash'   => 'Thùng rác',
 	);
 	private const MUC = array(
-		'tat_ca'         => 'Mọi mức',
+		'tat_ca'         => 'Không lọc',
 		'thieu_y_nghia'  => 'Thiếu ý nghĩa',
 		'thieu_loi'      => 'Thiếu lời',
 		'co_co'          => 'Có cờ nghi',
@@ -184,7 +184,7 @@ final class DanhSachTacPham {
 			$thieu[] = 'Ý nghĩa';
 		}
 		$may = PhanBai::lay( $id, 'nguon_may' );
-		$nguon_hien = $may ? (string) ( $nguon[ $may['nguon_id'] ?? '' ]['ten'] ?? $may['nguon_id'] ?? 'Nguồn tự động' ) : ( ! empty( $loi['nguon'] ) ? 'Nguồn người điền' : 'Chưa ghi nguồn cho Lời' );
+		$nguon_hien = $may ? NguonTuDong::ten( (string) ( $may['nguon_id'] ?? '' ) ) : ( ! empty( $loi['nguon'] ) ? 'Nguồn người điền' : 'Chưa ghi nguồn cho Lời' );
 		$ve = (int) ( $viec[ $id ]['so'] ?? 0 );
 		$lien = 'trash' === $bai->post_status || ! current_user_can( 'edit_post', $id ) ? '' : ( 'publish' === $bai->post_status || 'private' === $bai->post_status ? (string) get_permalink( $bai ) : (string) get_preview_post_link( $bai ) );
 		$ten = '' !== trim( $bai->post_title ) ? $bai->post_title : '(Chưa đặt tên)';
@@ -192,7 +192,7 @@ final class DanhSachTacPham {
 		$viec_lien = $ve ? '<a href="' . esc_url( add_query_arg( array( 'page' => DanhSachViec::TRANG, 'viec' => (int) $viec[ $id ]['dau'] ), admin_url( 'admin.php' ) ) ) . '">' . $ve . ' việc mở</a>' : '—';
 		$sua_lien = 'trash' !== $bai->post_status && current_user_can( 'edit_post', $id ) ? ' <a href="' . esc_url( SuaTacPham::url( $id, $ve_ds ) ) . '">Sửa bài</a>' : '';
 		$chon = $lo ? '<td data-nhan="Chọn"><input type="checkbox" name="ids[]" value="' . $id . '" id="chon-bai-' . $id . '"><label for="chon-bai-' . $id . '" class="screen-reader-text">Chọn bài #' . $id . '</label></td>' : '';
-		return '<tr>' . $chon . '<td data-nhan="ID">' . $id . '</td><td data-nhan="Tác phẩm"><strong>' . $ten . '</strong>' . $sua_lien . '</td><td data-nhan="Trạng thái">' . esc_html( $tt ) . '</td><td data-nhan="Thể loại">' . esc_html( $ten_loai ) . '</td><td data-nhan="Phần thiếu">' . esc_html( $thieu ? implode( ', ', $thieu ) : 'Đủ phần chính' ) . '</td><td data-nhan="Nguồn Lời">' . esc_html( $nguon_hien ) . '</td><td data-nhan="Việc">' . $viec_lien . '</td><td data-nhan="Sửa cuối">' . esc_html( mysql2date( 'd/m/Y H:i', $bai->post_modified ) ) . '</td></tr>';
+		return '<tr>' . $chon . '<td data-nhan="ID">' . $id . '</td><td data-nhan="Tác phẩm"><strong>' . $ten . '</strong>' . $sua_lien . '</td><td data-nhan="Trạng thái">' . esc_html( $tt ) . '</td><td data-nhan="Thể loại">' . esc_html( $ten_loai ) . '</td><td data-nhan="Phần thiếu">' . esc_html( $thieu ? implode( ', ', $thieu ) : 'Đủ phần chính' ) . '</td><td data-nhan="Nguồn">' . esc_html( $nguon_hien ) . '</td><td data-nhan="Việc">' . $viec_lien . '</td><td data-nhan="Sửa cuối">' . esc_html( mysql2date( 'd/m/Y H:i', $bai->post_modified ) ) . '</td></tr>';
 	}
 
 	public static function dang_ky(): void {
@@ -266,8 +266,8 @@ final class DanhSachTacPham {
 			. self::chon( 'tt', 'Trạng thái', self::TRANG_THAI, $loc['tt'] )
 			. self::chon( 'the_loai', 'Thể loại', $ds_the_loai, $loc['the_loai'] )
 			. self::chon( 'chu_de', 'Chủ đề', $ds_chu_de, $loc['chu_de'] )
-			. self::chon( 'muc', 'Phần và cờ', self::MUC, $loc['muc'] )
-			. self::chon( 'nguon', 'Nguồn Lời', self::tu_nguon( $nguon ), $loc['nguon'] )
+			. self::chon( 'muc', 'Còn thiếu, có cờ', self::MUC, $loc['muc'] )
+			. self::chon( 'nguon', 'Nguồn', self::tu_nguon( $nguon ), $loc['nguon'] )
 			. '<button class="button button-primary" type="submit">Tìm và lọc</button></form>';
 		// Làm theo lô (T-171): ô chọn và khối thao tác khi có bài khớp
 		$lo   = (int) $truy->found_posts > 0;
@@ -282,7 +282,7 @@ final class DanhSachTacPham {
 			. '<p class="phongdao-tp-tong" role="status"><strong>' . (int) $truy->found_posts . '</strong> tác phẩm khớp bộ lọc. Hiện ' . count( $truy->posts ) . ' mục trên trang này.</p>'
 			. ( $lo ? '<form method="post" class="phongdao-lo-form" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">' . TrangLo::khoi_chon_bai( $loc, (int) $truy->found_posts ) : '' )
 			. ( $lo ? TrangLo::chon_het( (int) $truy->found_posts, 'bài' ) : '' )
-			. '<table class="widefat striped"><thead><tr>' . ( $lo ? '<th scope="col">Chọn</th>' : '' ) . '<th scope="col">ID</th><th scope="col">Tác phẩm</th><th scope="col">Trạng thái</th><th scope="col">Thể loại</th><th scope="col">Phần thiếu</th><th scope="col">Nguồn Lời</th><th scope="col">Việc</th><th scope="col">Sửa cuối</th></tr></thead><tbody>'
+			. '<table class="widefat striped"><thead><tr>' . ( $lo ? '<th scope="col">Chọn</th>' : '' ) . '<th scope="col">ID</th><th scope="col">Tác phẩm</th><th scope="col">Trạng thái</th><th scope="col">Thể loại</th><th scope="col">Phần thiếu</th><th scope="col">Nguồn</th><th scope="col">Việc</th><th scope="col">Sửa cuối</th></tr></thead><tbody>'
 			. ( $dong ?: '<tr><td colspan="8">Không có tác phẩm khớp. Thử đổi bộ lọc.</td></tr>' ) . '</tbody></table>' . ( $lo ? '</form>' : '' ) . $phan_trang . ( $lo ? TrangLo::thanh_noi( 'bài', TrangLo::nut_mo_lo() ) : '' ) . '</div>';
 	}
 }

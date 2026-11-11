@@ -92,9 +92,13 @@ final class TrangLo {
 			. '<div class="phongdao-thanh-noi-nut">' . $nut . '<button type="button" class="button phongdao-thanh-noi-bo">Bỏ chọn</button></div></div>';
 	}
 
-	/** Nút "Làm theo lô…" của thanh nổi ở Tác phẩm, Hộp việc: mở khối lô ở đầu danh sách, đưa con trỏ tới ô Thao tác. */
-	public static function nut_mo_lo(): string {
-		return '<button type="button" class="button button-primary" data-mo-lo>Làm theo lô…</button>';
+	/**
+	 * Nút "Làm theo lô…" của thanh nổi ở Tác phẩm, Hộp việc: mở khối lô ở đầu danh sách, đưa con trỏ tới ô Thao tác.
+	 *
+	 * @param bool $chinh Là nút chính (xanh) của thanh; thanh đã có nút chính khác thì là nút thường.
+	 */
+	public static function nut_mo_lo( bool $chinh = true ): string {
+		return '<button type="button" class="button' . ( $chinh ? ' button-primary' : '' ) . '" data-mo-lo>Làm theo lô…</button>';
 	}
 
 	/**
@@ -225,12 +229,21 @@ final class TrangLo {
 			return '<div class="wrap"><h1>Thao tác hàng loạt</h1><p>Bạn không có quyền xem lô.</p></div>';
 		}
 		$id = absint( $_GET['lo'] ?? 0 ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc
+		$lo = $id ? Viec::lay( $id ) : null;
+		$lo = $lo && Viec::LO === $lo['loai'] && (string) get_current_user_id() === $lo['nguoi_tao'] ? $lo : null;
+		$kho_xem = $lo && self::la_kho( $lo ) && Viec::LO_XEM === $lo['trang_thai'];
+		// Xem trước từ Kho: tiêu đề nói rõ việc đang làm, lối về là Kho (báo cáo trinh sát lần 2, mục 1.6)
+		if ( $kho_xem ) {
+			$n_kho = count( (array) $lo['noi_dung']['muc'] );
+			$h     = '<div class="wrap phongdao-admin-tp phongdao-admin-lo"><h1>Xem trước: ' . esc_html( ( 'kho_dang' === $lo['noi_dung']['thao_tac'] ? 'đăng ' : 'đưa vào Hộp việc ' ) . number_format_i18n( $n_kho ) . ' câu từ Kho' ) . '</h1>' . self::lay_bao()
+				. '<p><a href="' . esc_url( DanhSachKho::url( (array) ( $lo['noi_dung']['loc'] ?? array() ) ) ) . '">← Về Kho</a></p>';
+			return $h . self::xem_truoc_cau( $lo ) . '</div>';
+		}
 		$h  = '<div class="wrap phongdao-admin-tp phongdao-admin-lo"><h1>Thao tác hàng loạt</h1>' . self::lay_bao();
 		if ( ! $id ) {
 			return $h . self::ds() . '</div>';
 		}
-		$lo = Viec::lay( $id );
-		if ( ! $lo || Viec::LO !== $lo['loai'] || (string) get_current_user_id() !== $lo['nguoi_tao'] ) {
+		if ( ! $lo ) {
 			return $h . '<p role="status">Không tìm thấy lô này, hoặc lô do người khác tạo.</p><p><a href="' . esc_url( self::url() ) . '">← Các lô của bạn</a></p></div>';
 		}
 		$nd    = $lo['noi_dung'];
@@ -362,7 +375,7 @@ final class TrangLo {
 			$m   = $cau[ $k ] ?? null;
 			if ( $kho ) {
 				$mo   = $m ? Viec::mo( 'kho', $k, UngVien::VIEC ) : array();
-				$hien = ! $m ? 'Không còn câu này' : ( (string) $m->trang_thai !== (string) $ban || (int) $m->post_id ? 'Đã đổi sau lúc xem trước (sẽ báo xung đột)' : ( $mo ? 'Đã có thẻ Câu mới #' . (int) $mo[0]['id'] . ( $dang ? ' (sẽ đăng qua thẻ đó)' : ' (sẽ bỏ qua)' ) : 'Chưa dùng' ) );
+				$hien = ! $m ? 'Không còn câu này' : ( (string) $m->trang_thai !== (string) $ban || (int) $m->post_id ? 'Đã đổi sau lúc xem trước (sẽ báo xung đột)' : ( $mo ? 'Đã có thẻ Câu mới #' . (int) $mo[0]['id'] . ( $dang ? ' (sẽ đăng qua thẻ đó)' : ' (sẽ bỏ qua)' ) : 'Chưa đăng' ) );
 			} else {
 				$v    = $the[ $mid ] ?? null;
 				$hien = ! $v ? 'Không còn thẻ này' : ( ! in_array( $v['trang_thai'], array( Viec::CHO, Viec::DE_SAU ), true ) ? 'Đã được quyết (sẽ bỏ qua)' : ( (int) $v['phien'] !== (int) $ban ? 'Đã đổi sau lúc xem trước (sẽ báo xung đột)' : ( Viec::DE_SAU === $v['trang_thai'] ? 'Để sau' : 'Chờ' ) ) );
@@ -372,22 +385,32 @@ final class TrangLo {
 			}
 			$nhan  = $kho ? 'câu #' . $mid : 'thẻ #' . $mid;
 			$o_cau = $m ? DanhSachKho::o_cau( $m ) : esc_html( 'Câu kho #' . $k );
-			$goc   = $m ? esc_html( (string) ( $nguon[ $m->nguon_id ]['ten'] ?? $m->nguon_id ) ) . ( '' === (string) $m->url ? '' : '<br><a href="' . esc_url( (string) $m->url ) . '" rel="noreferrer nofollow">Trang gốc</a>' ) : '';
+			$goc   = $m ? esc_html( NguonTuDong::ten( (string) $m->nguon_id ) ) . ( '' === (string) $m->url ? '' : '<br><a href="' . esc_url( (string) $m->url ) . '" rel="noreferrer nofollow">Trang gốc</a>' ) : '';
 			$dong .= '<tr><td data-nhan="Áp dụng"><input type="hidden" name="tren_trang[]" value="' . $mid . '"><input type="checkbox" name="giu[]" value="' . $mid . '" id="lo-giu-' . $mid . '"' . checked( ! isset( $bo[ $mid ] ), true, false ) . '><label for="lo-giu-' . $mid . '" class="screen-reader-text">' . esc_html( ( $dang ? 'Đăng: ' : 'Đưa vào Hộp việc: ' ) . $nhan ) . '</label></td>'
 				. '<td data-nhan="Câu" class="phongdao-kho-cau">' . $o_cau . ( $kho ? '' : ' <span class="description">' . self::lien_the( $mid ) . '</span>' ) . '</td>'
-				. '<td data-nhan="Thể loại">' . esc_html( $m ? DanhSachKho::ten_loai( (string) $m->loai ) : '' ) . '</td><td data-nhan="Nguồn">' . $goc . '</td><td data-nhan="Lúc này">' . esc_html( $hien ) . '</td></tr>';
+				. '<td data-nhan="Thể loại">' . esc_html( $m ? DanhSachKho::ten_loai( (string) $m->loai ) : '' ) . '</td><td data-nhan="Nguồn">' . $goc . '</td><td data-nhan="Tình trạng">' . esc_html( $hien ) . '</td></tr>';
 		}
 		$ap   = count( $muc ) - count( $bo );
+		$co_hv = $kho ? ' (cờ của nguồn để sẵn bỏ dấu; câu chờ quyết trùng bỏ qua)' : '';
+		// Hai dòng: việc sẽ xảy ra khi bấm, và cách bỏ ngoại lệ (báo cáo trinh sát lần 2, mục 1.6)
 		$giai = ! $dang
-			? 'Chưa có gì thay đổi. Mỗi câu đánh dấu sẽ có một thẻ Câu mới trong Hộp việc, giống bấm "Đưa vào Hộp việc" ở từng câu; chưa câu nào lên trang đọc. Câu máy vừa thấy có thể trùng sẽ thành thẻ "Có thể trùng" để bạn quyết trước.'
-			: 'Chưa có gì được đăng. Mỗi câu đánh dấu sẽ thành một tác phẩm Đã đăng, giống ' . ( $kho ? 'đưa vào Hộp việc rồi bấm Đăng ở thẻ đó' : 'bấm Đăng ở từng thẻ' ) . ': lời và dị bản chép từ kho, chú thích chỉ chép từ nguồn bật "Chép chú thích". Câu có cờ của nguồn (từ thô tục, nghi câu hiện đại, nguồn ghi cần xem…) đã để sẵn bỏ dấu — đánh dấu lại nếu bạn vẫn muốn đăng. Câu đang chờ quyết trùng sẽ bỏ qua' . ( $kho ? '; câu máy vừa thấy có thể trùng lúc đăng cũng bỏ qua và thành thẻ "Có thể trùng" ở Hộp việc' : '' ) . '. Đăng nhầm thì ẩn hoặc đưa vào thùng rác theo lô ở Tác phẩm.';
+			? array( 'Chưa có gì thay đổi. Mỗi câu đánh dấu sẽ thành một thẻ Câu mới trong Hộp việc; chưa câu nào lên trang đọc.', 'Bỏ dấu câu không muốn' . $co_hv . ', rồi bấm nút chính.' )
+			: array( 'Chưa có gì được đăng. Bấm nút chính thì mỗi câu đánh dấu thành một bài Đã đăng: lời chép từ kho, chú thích chỉ từ nguồn bật "Chép chú thích".', 'Bỏ dấu câu không muốn' . ( $kho ? $co_hv : ' (câu có cờ của nguồn để sẵn bỏ dấu; câu chờ quyết trùng bỏ qua)' ) . '. Đăng nhầm thì Ẩn ở Tác phẩm.' );
+		// Máy đánh "nghi là câu hiện đại": nhắc cân nhắc cờ "Có thể không phải dân gian" (máy không tự gắn)
+		$hien_dai = 0;
+		foreach ( $tren as [ $mid ] ) {
+			$hien_dai += isset( $cau[ $kho_id( (int) $mid ) ] ) && in_array( 'hien_dai', (array) ( Kho::du_lieu( $cau[ $kho_id( (int) $mid ) ] )['co'] ?? array() ), true ) ? 1 : 0;
+		}
+		$nhac = $dang && $hien_dai ? '<p class="description phongdao-lo-nhac">' . esc_html( $hien_dai . ' câu máy đánh “nghi là câu hiện đại”: nếu vẫn đăng, cân nhắc bật cờ “Có thể không phải dân gian” ở trang sửa bài (máy không tự bật).' ) . '</p>' : '';
 		$nut  = $dang ? 'Đăng ' . $ap . ' câu' : 'Đưa ' . $ap . ' câu vào Hộp việc';
 		$mau  = $dang ? 'Đăng %d câu' : 'Đưa %d câu vào Hộp việc';
 		[ $thanh, $ngoai ] = self::chon_lo( $muc, $tren, $bo, 'câu' );
-		return '<p class="description">' . esc_html( $giai ) . ' Bỏ dấu ở câu không muốn, bấm "Lưu bỏ chọn" nếu còn trang khác cần xem, rồi bấm nút chính. Mục đổi sau lúc xem trước sẽ được bỏ qua và báo xung đột.</p>'
+		// "Lưu bỏ chọn" chỉ cần khi lô có nhiều trang
+		$luu_bo = $so > 1 ? ' <button type="submit" name="lam" value="luu_bo" class="button">Lưu bỏ chọn trên trang này</button>' : '';
+		return '<p class="description">' . esc_html( $giai[0] ) . '<br>' . esc_html( $giai[1] ) . '</p>' . $nhac
 			. '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">' . self::an( $id, $trang ) . $thanh
-			. '<table class="widefat striped phongdao-lo-cau"><thead><tr><th scope="col">Áp dụng</th><th scope="col">Câu</th><th scope="col">Thể loại</th><th scope="col">Nguồn</th><th scope="col">Lúc này</th></tr></thead><tbody>' . $dong . '</tbody></table>'
-			. '<p class="phongdao-lo-nut"><button type="submit" name="lam" value="ap_dung" class="button button-primary" data-mau="' . esc_attr( $mau ) . '" data-ngoai="' . $ngoai . '">' . esc_html( $nut ) . ' (tính cả bỏ chọn trên trang này)</button> <button type="submit" name="lam" value="luu_bo" class="button">Lưu bỏ chọn trên trang này</button> <button type="submit" name="lam" value="huy" class="button">Huỷ lô</button></p>'
+			. '<table class="widefat striped phongdao-lo-cau"><thead><tr><th scope="col">Áp dụng</th><th scope="col">Câu</th><th scope="col">Thể loại</th><th scope="col">Nguồn</th><th scope="col">Tình trạng</th></tr></thead><tbody>' . $dong . '</tbody></table>'
+			. '<p class="phongdao-lo-nut"><button type="submit" name="lam" value="ap_dung" class="button button-primary" data-mau="' . esc_attr( $mau ) . '" data-ngoai="' . $ngoai . '">' . esc_html( $nut ) . ( $so > 1 ? ' (tính cả bỏ chọn trên trang này)' : '' ) . '</button>' . $luu_bo . ' <button type="submit" name="lam" value="huy" class="button">Huỷ lô</button></p>'
 			. '<p><label><input type="checkbox" name="tu_chay" value="1" checked> Tự chạy tiếp đến hết (mỗi lượt ' . Lo::moi_luot( (string) $lo['noi_dung']['thao_tac'] ) . ' mục; bỏ chọn thì bấm Tiếp tục từng lượt)</label></p></form>'
 			. self::phan_trang( $id, $trang, $so );
 	}

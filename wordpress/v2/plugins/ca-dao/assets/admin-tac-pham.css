@@ -117,3 +117,4 @@
 .phongdao-lo-gon[open] > .phongdao-lo-chon { margin-top: 0; border-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; }
 .phongdao-lo-gon > summary:focus-visible { outline: 3px solid #135e96; outline-offset: 2px; }
 .phongdao-lo-dem { font-weight: 400; color: #135e96; }
+.phongdao-lo-dem:not(:empty) { margin-left: .35em; }

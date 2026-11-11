@@ -98,8 +98,9 @@ final class SuaTacPham {
 			$ten = TamSua::TAM[ $phan ][0];
 			$cu = $ctx['phan'][ $phan ] ?? null;
 			$mo_phan = $phan === ( $_GET['phan'] ?? '' ) || ( null !== $cu && 'loi' !== $phan ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ mở lại phần vừa lưu
-			$chinh .= '<details class="phongdao-sua-phan" id="phan-' . esc_attr( $phan ) . '"' . ( $mo_phan ? ' open' : '' ) . '><summary>' . esc_html( $ten ) . ( null === $cu ? ' · Chưa có' : '' ) . '</summary>';
 			$ten_goc = str_starts_with( $ten, 'Sửa ' ) ? mb_substr( $ten, 4 ) : $ten;
+			// Phần chưa có: "Thêm ý nghĩa" (không phải "Sửa ý nghĩa · Chưa có")
+			$chinh .= '<details class="phongdao-sua-phan' . ( null === $cu ? ' chua-co' : '' ) . '" id="phan-' . esc_attr( $phan ) . '"' . ( $mo_phan ? ' open' : '' ) . '><summary>' . esc_html( null === $cu ? 'Thêm ' . $ten_goc : $ten ) . '</summary>';
 			$ten_goc = mb_strtoupper( mb_substr( $ten_goc, 0, 1 ) ) . mb_substr( $ten_goc, 1 );
 			$chinh .= CheDoSua::goc( $ten_goc, $cu, $ctx );
 			$chinh .= '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="phongdao_sua_phan">' . self::an_ve() . $an_sau . '<input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="phan" value="' . esc_attr( $phan ) . '">';
@@ -212,6 +213,13 @@ final class SuaTacPham {
 		}
 		$moi     = get_post_status( $id );
 		$ket_qua = ! $kq['ok'] ? 'loi' : ( 'Không có gì thay đổi.' === ( $kq['thong_bao'] ?? '' ) ? 'khong_doi' : ( array( 'publish' => 'dang', 'private' => 'an', 'draft' => 've_nhap' )[ $moi ] ?? 'da_luu' ) );
+		// Lối "Ẩn nếu nhầm" ngay sau khi Đăng ở Hộp việc: xong thì về lại đúng màn Hộp việc, lời báo ở đó
+		$quay_lai = esc_url_raw( wp_unslash( (string) ( $_POST['quay_lai'] ?? '' ) ) );
+		if ( '' !== $quay_lai && str_starts_with( $quay_lai, admin_url( 'admin.php?page=' . DanhSachViec::TRANG ) ) ) {
+			$chu = 'an' === $ket_qua ? 'Đã ẩn “' . get_post_field( 'post_title', $id ) . '” khỏi người đọc; lấy lại bằng nút Đăng ở trang sửa bài.' : ( 'loi' === $ket_qua ? 'Chưa ẩn được: ' . implode( ' ', $kq['loi'] ) : 'Bài không đổi trạng thái.' );
+			wp_safe_redirect( add_query_arg( 'da', rawurlencode( $chu ), remove_query_arg( array( 'da', 'dang_bai', 'vua', 'hoan_viec', 'hoan_phien' ), $quay_lai ) ) );
+			exit;
+		}
 		self::$ve = self::ve_hop_le( wp_unslash( (string) ( $_POST['ve'] ?? '' ) ) );
 		wp_safe_redirect( add_query_arg( 'ket_qua', $ket_qua, self::url( $id ) ) );
 		exit;
