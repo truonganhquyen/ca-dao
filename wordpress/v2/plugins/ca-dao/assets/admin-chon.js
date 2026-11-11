@@ -5,6 +5,9 @@
  *   Ở danh sách, khi đã chọn cả trang mà bộ lọc còn nhiều hơn thì có nút chuyển Phạm vi sang "Mọi … khớp bộ lọc".
  *   Ở trang xem trước lô (ô "Áp dụng" tên giu[]), nút "Đánh dấu cả … ở trang khác" gửi lên máy chủ; nút chính đếm lại
  *   ngay số mục sẽ áp dụng.
+ * - Thanh nổi ở đáy màn (T-188): khi đã đánh dấu mục mà khối lô ở đầu danh sách đã cuộn khuất, hiện số đã chọn, nút làm
+ *   tiếp (Kho: "Xem trước và đăng", "Đưa vào Hộp việc…"; Tác phẩm, Hộp việc: "Làm theo lô…" mở khối lô) và "Bỏ chọn".
+ *   Khối lô còn trong màn thì thanh ẩn, không che nút của khối.
  * Không có JavaScript thì thanh chọn không hiện; khối lô vẫn mở được bằng tay (thẻ <details>), từng ô vẫn đánh dấu được.
  */
 (() => {
@@ -21,6 +24,10 @@
   const het = thanh?.querySelector('.phongdao-chon-het-o');
   const nutLoc = thanh?.querySelector('.phongdao-chon-loc');
   const guiMayChu = !!nutLoc && 'gui' in nutLoc.dataset;
+  const noi = document.querySelector('.phongdao-thanh-noi');
+  const donViNoi = noi?.dataset.donVi || donVi;
+  // Khối lô đang trong màn (trừ dải đáy thanh nổi chiếm) thì không cần thanh nổi
+  const khoiThay = new Set();
 
   const capNhat = () => {
     const ds = cacO();
@@ -33,6 +40,12 @@
       if (n && !d.open) d.open = true;
     }
     for (const b of nutChinh) b.textContent = b.dataset.mau.replace('%d', String((Number(b.dataset.ngoai) || 0) + n));
+    if (noi) {
+      const hien = (n > 0 || theoLoc) && !khoiThay.size;
+      noi.hidden = !hien;
+      document.body.classList.toggle('phongdao-co-thanh-noi', hien);
+      noi.querySelector('.phongdao-thanh-noi-dem').textContent = theoLoc ? `Mọi ${tong} ${donViNoi} khớp bộ lọc` : `Đã chọn ${n} ${donViNoi}`;
+    }
     if (!thanh) return;
     if (!ds.length) { thanh.hidden = true; return; }
     thanh.hidden = false;
@@ -79,6 +92,31 @@
       if (d) d.open = true;
       capNhat();
       loc.focus();
+    });
+  }
+
+  if (noi && khoi.length && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver(ds => {
+      for (const x of ds) { if (x.isIntersecting) khoiThay.add(x.target); else khoiThay.delete(x.target); }
+      capNhat();
+    }, { rootMargin: '0px 0px -96px 0px' });
+    for (const d of khoi) io.observe(d);
+  }
+
+  // Thanh nổi: bỏ chọn hết; "Làm theo lô…" mở khối lô ở đầu danh sách và đưa con trỏ tới ô Thao tác
+  noi?.querySelector('.phongdao-thanh-noi-bo')?.addEventListener('click', () => {
+    for (const o of cacO()) o.checked = false;
+    if (chonO()) chonO().checked = true;
+    capNhat();
+    (het && !thanh.hidden ? het : cacO()[0])?.focus();
+  });
+  for (const b of document.querySelectorAll('[data-mo-lo]')) {
+    b.addEventListener('click', () => {
+      const d = khoi[0];
+      if (!d) return;
+      d.open = true;
+      d.scrollIntoView({ block: 'start' });
+      (d.querySelector('select') || d.querySelector('summary'))?.focus({ preventScroll: true });
     });
   }
 

@@ -14,9 +14,10 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Màn Kho trong wp-admin (docs/30 mục 2, 4.6; T-184): người biên soạn tự tìm, lọc câu đã thu thập và đưa một câu đủ điều
- * kiện vào Hộp việc. Kho là tư liệu riêng, không phải Hộp việc: nút chỉ tạo thẻ "Câu mới" đang chờ (UngVien), không đăng,
- * gộp, sửa lời hay bỏ câu. Chọn nhiều câu (hoặc mọi câu khớp bộ lọc) tạo một lô "Đưa vào Hộp việc" có xem trước (D-099);
- * đăng các câu đó vẫn ở Hộp việc. Dữ liệu kho chỉ hiện cho người có `cadao_soan`; không bao giờ ra trang người đọc.
+ * kiện vào Hộp việc. Kho là tư liệu riêng, không phải Hộp việc: nút "Đưa vào Hộp việc" chỉ tạo thẻ "Câu mới" đang chờ
+ * (UngVien), không đăng, gộp, sửa lời hay bỏ câu. Chọn nhiều câu (hoặc mọi câu khớp bộ lọc) tạo một lô có xem trước: "Đưa
+ * vào Hộp việc" (D-099) hoặc, với người có quyền duyệt, "Xem trước và đăng" một mạch (D-101) — vẫn một màn xem trước, vẫn
+ * do người bấm Đăng. Dữ liệu kho chỉ hiện cho người có `cadao_soan`; không bao giờ ra trang người đọc.
  */
 final class DanhSachKho {
 
@@ -222,9 +223,11 @@ final class DanhSachKho {
 			? '<input type="checkbox" name="ids[]" value="' . $id . '" form="' . self::FORM_LO . '" id="chon-kho-' . $id . '"><label for="chon-kho-' . $id . '" class="screen-reader-text">Chọn câu #' . $id . '</label>'
 			: '';
 		if ( '' === $ly_do && ! $the && ! $trung ) {
-			$lam = '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="' . self::HANH_DONG . '"><input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="quay_lai" value="' . esc_attr( $quay_lai ) . '">'
+			// Thao tác nhỏ trên hàng (không còn 30 nút chính trên một trang): xem trước và đăng một câu (gửi form lô), đưa vào Hộp việc
+			$dang = current_user_can( Lo::THAO_TAC['kho_dang'][2] ) ? '<button type="submit" form="' . self::FORM_LO . '" name="mot" value="' . $id . '" class="button button-small" aria-label="' . esc_attr( 'Xem trước và đăng: câu #' . $id ) . '">Xem trước và đăng</button>' : '';
+			$lam  = '<form method="post" class="phongdao-kho-lam" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="' . self::HANH_DONG . '"><input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="quay_lai" value="' . esc_attr( $quay_lai ) . '">'
 				. wp_nonce_field( self::HANH_DONG . '_' . $id, '_wpnonce', false, false )
-				. '<button type="submit" class="button button-primary" aria-label="' . esc_attr( 'Đưa vào Hộp việc: câu #' . $id ) . '">Đưa vào Hộp việc</button></form>';
+				. $dang . '<button type="submit" class="button button-small" aria-label="' . esc_attr( 'Đưa vào Hộp việc: câu #' . $id ) . '">Đưa vào Hộp việc</button></form>';
 		} else {
 			$lam = '<span class="description">' . esc_html( $the ? 'Đã có trong Hộp việc' : ( $trung ? 'Quyết trùng trước' : $ly_do ) ) . '</span>';
 		}
@@ -269,29 +272,43 @@ final class DanhSachKho {
 			. ( $loc['paged'] > 1 ? '<a class="button" href="' . esc_url( self::url( $loc, (int) $loc['paged'] - 1 ) ) . '">Trang trước</a>' : '' )
 			. ( $loc['paged'] < $so_trang ? '<a class="button" href="' . esc_url( self::url( $loc, (int) $loc['paged'] + 1 ) ) . '">Trang sau</a>' : '' ) . '</nav>' : '';
 		$so_chon = $kq['tong'] > 0 ? self::dem_chon( $loc ) : 0;
+		$duyet   = current_user_can( Lo::THAO_TAC['kho_dang'][2] );
+		$noi     = $so_chon ? TrangLo::thanh_noi(
+			'câu',
+			( $duyet ? '<button type="submit" form="' . self::FORM_LO . '" name="lam" value="dang" class="button button-primary">Xem trước và đăng</button>' : '' )
+				. '<button type="submit" form="' . self::FORM_LO . '" name="lam" value="dua_vao" class="button' . ( $duyet ? '' : ' button-primary' ) . '">Đưa vào Hộp việc…</button>'
+		) : '';
 		return '<div class="wrap phongdao-admin-tp phongdao-admin-kho"><h1>Kho</h1>'
-			. '<p class="description">Câu máy đã thu thập từ nguồn, chưa lên trang. Tự chọn câu muốn đăng: bấm "Đưa vào Hộp việc" để tạo thẻ Câu mới, rồi quyết Đăng, Sửa rồi đăng hay Bỏ ở Hộp việc. Nút không tự đăng, không sửa lời.</p>'
+			. '<p class="description">' . ( $duyet
+				? 'Câu máy đã thu thập từ nguồn, chưa lên trang. Đánh dấu câu muốn đăng rồi bấm "Xem trước và đăng": đọc lại một lượt, bấm Đăng là xong. Muốn quyết từng câu sau thì "Đưa vào Hộp việc". Không có gì được đăng khi bạn chưa bấm; máy không sửa lời.'
+				: 'Câu máy đã thu thập từ nguồn, chưa lên trang. Tự chọn câu muốn đăng: bấm "Đưa vào Hộp việc" để tạo thẻ Câu mới, rồi người có quyền duyệt quyết Đăng, Sửa rồi đăng hay Bỏ ở Hộp việc. Nút không tự đăng, không sửa lời.' ) . '</p>'
 			. $bao . $form
 			. '<p class="phongdao-tp-tong" role="status"><strong>' . (int) $kq['tong'] . '</strong> câu khớp bộ lọc. Hiện ' . count( $kq['ds'] ) . ' câu trên trang này.</p>'
-			. ( $kq['tong'] > 0 ? self::khoi_lo( $loc, $so_chon ) . TrangLo::chon_het( $so_chon, 'câu' ) : '' )
+			. ( $kq['tong'] > 0 ? self::khoi_lo( $loc, $so_chon, $duyet ) . TrangLo::chon_het( $so_chon, 'câu' ) : '' )
 			. '<table class="widefat striped"><thead><tr><th scope="col">Chọn</th><th scope="col">ID</th><th scope="col">Câu</th><th scope="col">Thể loại</th><th scope="col">Nguồn</th><th scope="col">Trạng thái</th><th scope="col">Làm gì</th></tr></thead><tbody>'
-			. ( $dong ?: '<tr><td colspan="7">Không có câu nào khớp. Thử đổi bộ lọc.</td></tr>' ) . '</tbody></table>' . $phan_trang . '</div>';
+			. ( $dong ?: '<tr><td colspan="7">Không có câu nào khớp. Thử đổi bộ lọc.</td></tr>' ) . '</tbody></table>' . $phan_trang . $noi . '</div>';
 	}
 
-	/** Khối "Đưa nhiều câu vào Hộp việc": phạm vi đã chọn trên trang / mọi câu khớp bộ lọc, sang bước xem trước của lô. */
-	private static function khoi_lo( array $loc, int $so ): string {
+	/**
+	 * Khối "Làm với nhiều câu": phạm vi đã chọn trên trang / mọi câu khớp bộ lọc, rồi "Xem trước và đăng" (người có quyền
+	 * duyệt, D-101) hoặc "Đưa vào Hộp việc" — cả hai sang một màn xem trước của lô. Nút "Xem trước và đăng" trên từng dòng
+	 * cũng gửi form này (tên `mot`).
+	 */
+	private static function khoi_lo( array $loc, int $so, bool $duyet ): string {
 		$an  = '';
 		foreach ( array( 'q', 'nguon', 'loai', 'tt', 'the' ) as $k ) {
 			$an .= '<input type="hidden" name="loc_' . $k . '" value="' . esc_attr( (string) $loc[ $k ] ) . '">';
 		}
 		$qua = $so > Lo::TOI_DA ? ' — một lô tối đa ' . number_format_i18n( Lo::TOI_DA ) . ' câu, lọc theo nguồn hoặc thể loại để chia nhỏ' : '';
-		return '<form id="' . self::FORM_LO . '" class="phongdao-lo-form" method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><details class="phongdao-lo-gon"><summary>Đưa nhiều câu vào Hộp việc<span class="phongdao-lo-dem" aria-live="polite"></span></summary><fieldset class="phongdao-lo-chon"><legend class="screen-reader-text">Đưa nhiều câu vào Hộp việc</legend>'
+		$ten = $duyet ? 'Đăng hoặc đưa nhiều câu vào Hộp việc' : 'Đưa nhiều câu vào Hộp việc';
+		return '<form id="' . self::FORM_LO . '" class="phongdao-lo-form" method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><details class="phongdao-lo-gon"><summary>' . esc_html( $ten ) . '<span class="phongdao-lo-dem" aria-live="polite"></span></summary><fieldset class="phongdao-lo-chon"><legend class="screen-reader-text">' . esc_html( $ten ) . '</legend>'
 			. '<input type="hidden" name="action" value="' . TrangLo::TAO_KHO . '">' . wp_nonce_field( TrangLo::TAO_KHO, '_wpnonce', false, false ) . $an
 			. '<fieldset class="phongdao-lo-pham-vi"><legend>Phạm vi</legend>'
 			. '<label><input type="radio" name="pham_vi" value="chon" checked> Các câu đã chọn trên trang này</label>'
 			. '<label><input type="radio" name="pham_vi" value="loc"' . disabled( 0 === $so, true, false ) . '> Mọi câu khớp bộ lọc còn đưa vào được (' . esc_html( number_format_i18n( $so ) ) . ' câu' . esc_html( $qua ) . ')</label></fieldset>'
-			. '<button type="submit" class="button">Xem trước</button>'
-			. '<p class="description">Chỉ tính câu Chưa dùng, có lời, chưa có thẻ Câu mới. Bước xem trước cho bỏ chọn ngoại lệ; chưa có gì thay đổi cho tới khi bấm Áp dụng. Đưa xong, màn kết quả có nút "Xem trước và đăng" đúng các câu vừa đưa vào.</p>'
+			. '<p class="phongdao-lo-nut">' . ( $duyet ? '<button type="submit" name="lam" value="dang" class="button button-primary">Xem trước và đăng</button> ' : '' )
+			. '<button type="submit" name="lam" value="dua_vao" class="button">' . ( $duyet ? 'Xem trước: đưa vào Hộp việc' : 'Xem trước' ) . '</button></p>'
+			. '<p class="description">Chỉ tính câu Chưa dùng, có lời, chưa có thẻ Câu mới. ' . ( $duyet ? '"Xem trước và đăng" mở một màn đọc lại rồi bấm Đăng, không qua Hộp việc; câu có cờ của nguồn để sẵn bỏ chọn, câu chờ quyết trùng bỏ qua. ' : '' ) . 'Màn xem trước cho bỏ chọn ngoại lệ; chưa có gì thay đổi cho tới khi bấm nút chính ở đó.</p>'
 			. '</fieldset></details></form>';
 	}
 
