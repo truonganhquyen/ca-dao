@@ -43,3 +43,15 @@ document.addEventListener('input', e => {
   const tim = khongDau(o.value.trim());
   ds?.querySelectorAll('label.choice').forEach(l => { l.hidden = tim !== '' && !khongDau(l.textContent).includes(tim); });
 });
+
+// Hàng "Thêm: …" (T-189): bấm tên phần chưa có thì mở đúng ô đó và đưa con trỏ tới (không có JavaScript: liên kết #phan-…)
+document.addEventListener('click', e => {
+  const nut = e.target.closest?.('[data-mo-phan]');
+  if (!nut) return;
+  const o = document.getElementById('phan-' + nut.dataset.moPhan);
+  if (!o) return;
+  e.preventDefault();
+  o.open = true;
+  o.scrollIntoView({ block: 'start', behavior: 'instant' });
+  (o.querySelector('textarea, input:not([type=hidden]), select') || o.querySelector('summary'))?.focus();
+});

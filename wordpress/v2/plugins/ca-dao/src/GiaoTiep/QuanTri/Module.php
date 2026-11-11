@@ -21,6 +21,9 @@ final class Module implements \Phongdao\HaTang\Module {
 		add_filter( 'parent_file', array( self::class, 'menu_dang_mo' ) );
 		add_action( 'admin_bar_menu', array( self::class, 'them_moi' ), 80 );
 		add_action( 'load-index.php', array( self::class, 'trang_chao' ) );
+		add_action( 'admin_enqueue_scripts', array( self::class, 'nap_chung' ) );
+		add_action( 'admin_footer', array( self::class, 'thanh_duoi' ) );
+		add_filter( 'admin_body_class', array( self::class, 'lop_than' ) );
 		add_action( 'transition_comment_status', array( self::class, 'binh_luan_doi' ), 10, 3 );
 		NguonCaiDat::dang_ky();
 		SuaTacPham::dang_ky();
@@ -215,6 +218,47 @@ final class Module implements \Phongdao\HaTang\Module {
 			$submenu[''] = array_values( array_filter( $submenu[''], static fn( $m ): bool => ! is_array( $m ) || ( $m[2] ?? '' ) !== $trang ) ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- chỉ bỏ màn ẩn đang mở khỏi danh sách tìm cha
 		}
 		return BanLamViec::TRANG;
+	}
+
+	/** Màn hiện tại là một màn Phongdao (có thanh dưới trên điện thoại) hay trang chào mừng WordPress. */
+	public static function la_man_phongdao(): bool {
+		$trang = sanitize_key( (string) ( $_GET['page'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc
+		return current_user_can( 'cadao_soan' ) && ( str_starts_with( $trang, 'phongdao' ) || ( '' === $trang && 'index.php' === ( $GLOBALS['pagenow'] ?? '' ) ) );
+	}
+
+	public static function nap_chung(): void {
+		if ( self::la_man_phongdao() ) {
+			wp_enqueue_style( 'phongdao-admin-chung', plugins_url( 'assets/admin-chung.css', dirname( __DIR__, 3 ) . '/ca-dao.php' ), array( 'dashicons' ), CADAO_PHIEN_BAN );
+		}
+	}
+
+	public static function lop_than( $lop ): string {
+		return (string) $lop . ( self::la_man_phongdao() ? ' phongdao-co-thanh-duoi' : '' );
+	}
+
+	/**
+	 * Thanh dưới cố định trên điện thoại (báo cáo trinh sát lần 2 mục 5.5): Hôm nay · Hộp việc · Bổ sung · Bài mới, tô mục
+	 * đang mở (màn con tô mục cha). Chỉ là liên kết; máy tính không hiện (CSS).
+	 */
+	public static function thanh_duoi(): void {
+		if ( ! self::la_man_phongdao() ) {
+			return;
+		}
+		$trang = sanitize_key( (string) ( $_GET['page'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc
+		$dang  = '' !== self::muc_cha() ? self::muc_cha() : $trang;
+		$cho   = \Phongdao\KhoLuu\Viec::dem_hop_viec();
+		$o     = '';
+		foreach (
+			array(
+				array( BanLamViec::TRANG, 'Hôm nay', 'dashicons-calendar-alt', '' ),
+				array( DanhSachViec::TRANG, 'Hộp việc', 'dashicons-yes-alt', $cho ? '<span class="phongdao-thanh-duoi-so">' . esc_html( number_format_i18n( $cho ) ) . '</span>' : '' ),
+				array( BoSung::TRANG, 'Bổ sung', 'dashicons-edit', '' ),
+				array( DanhSachKho::TRANG, 'Bài mới', 'dashicons-plus-alt', '' ),
+			) as [ $ma, $chu, $hinh, $so ]
+		) {
+			$o .= '<a href="' . esc_url( admin_url( 'admin.php?page=' . $ma ) ) . '"' . ( $ma === $dang ? ' aria-current="page"' : '' ) . '><span class="dashicons ' . esc_attr( $hinh ) . '" aria-hidden="true"></span><span>' . esc_html( $chu ) . ( '' === $so ? '' : ' ' . $so ) . '</span></a>';
+		}
+		echo '<nav class="phongdao-thanh-duoi" aria-label="Phongdao: đổi màn nhanh">' . $o . '</nav>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- đã thoát từng phần
 	}
 
 	/** Màn con đánh dấu đúng mục người vừa đến (Tác phẩm, Bài mới, Hộp việc hay Hôm nay). */

@@ -1,0 +1,18 @@
+/*
+ * Chung cho mọi màn Phongdao trong wp-admin (T-189, báo cáo trinh sát lần 2 mục 5.5): thanh dưới cố định trên điện thoại
+ * Hôm nay · Hộp việc · Bổ sung · Bài mới — đổi màn một chạm, không phải mở menu ☰. Máy tính không hiện (đã có menu trái).
+ */
+.phongdao-thanh-duoi { display: none; }
+@media (max-width: 782px) {
+	body.phongdao-co-thanh-duoi { --phongdao-thanh-duoi: calc(56px + env(safe-area-inset-bottom, 0px)); }
+	body.phongdao-co-thanh-duoi #wpbody-content { padding-bottom: calc(var(--phongdao-thanh-duoi) + 24px); }
+	.phongdao-thanh-duoi { position: fixed; z-index: 9991; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(4, 1fr); padding-bottom: env(safe-area-inset-bottom, 0px); background: #1d2327; box-shadow: 0 -2px 8px rgba(0, 0, 0, .2); }
+	.phongdao-thanh-duoi a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; color: #f0f0f1; font-size: 12px; text-decoration: none; }
+	.phongdao-thanh-duoi a .dashicons { font-size: 20px; width: 20px; height: 20px; }
+	.phongdao-thanh-duoi a[aria-current] { color: #72aee6; font-weight: 600; box-shadow: inset 0 3px 0 #72aee6; }
+	.phongdao-thanh-duoi a:focus-visible { outline: 3px solid #72aee6; outline-offset: -3px; }
+	.phongdao-thanh-duoi .phongdao-thanh-duoi-so { display: inline-block; min-width: 16px; padding: 0 4px; border-radius: 8px; background: #d63638; color: #fff; font-size: 11px; line-height: 16px; }
+	/* Thanh chọn nhiều ở đáy màn đứng trên thanh dưới */
+	body.phongdao-co-thanh-duoi .phongdao-thanh-noi { bottom: var(--phongdao-thanh-duoi); }
+	body.phongdao-co-thanh-duoi.phongdao-co-thanh-noi #wpbody-content { padding-bottom: calc(var(--phongdao-noi-cao, 104px) + var(--phongdao-thanh-duoi) + 24px); }
+}

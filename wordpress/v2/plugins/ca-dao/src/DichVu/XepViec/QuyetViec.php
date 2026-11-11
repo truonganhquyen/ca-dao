@@ -39,7 +39,10 @@ final class QuyetViec {
 	/**
 	 * @return array{ok:bool,loi:string[],thong_bao:string,chuyen:string} chuyen: đường dẫn nên mở tiếp (rỗng = về Hộp việc)
 	 */
-	public static function quyet( int $id, string $quyet, int $nguoi, bool $duyet, int $phien = -1 ): array {
+	/**
+	 * @param string $chu_sua Nháp ý nghĩa người đã sửa vài chữ ngay trên thẻ rồi bấm Duyệt (rỗng = duyệt đúng bản nháp).
+	 */
+	public static function quyet( int $id, string $quyet, int $nguoi, bool $duyet, int $phien = -1, string $chu_sua = '' ): array {
 		global $wpdb;
 		$v = Viec::lay( $id );
 		if ( ! $v || ! in_array( $v['trang_thai'], array( Viec::CHO, Viec::DE_SAU ), true ) ) {
@@ -62,7 +65,7 @@ final class QuyetViec {
 			return self::kq( false, 'Thẻ đã đổi ở phiên khác. Tải lại Hộp việc để xem quyết định mới.' );
 		}
 		try {
-			$kq = self::thuc_hien( $v, $quyet, $nguoi, $duyet );
+			$kq = self::thuc_hien( $v, $quyet, $nguoi, $duyet, $chu_sua );
 		} catch ( \Throwable $e ) {
 			$kq = self::kq( false, 'Chưa lưu được quyết định. Thử lại sau.' );
 		}
@@ -162,7 +165,7 @@ final class QuyetViec {
 	}
 
 	/** Chạy trong giao dịch đã giữ đúng phiên thẻ. */
-	private static function thuc_hien( array $v, string $quyet, int $nguoi, bool $duyet ): array {
+	private static function thuc_hien( array $v, string $quyet, int $nguoi, bool $duyet, string $chu_sua = '' ): array {
 		$id = $v['id'];
 		if ( Viec::DE_SAU === $quyet || 'de_sau' === $quyet ) {
 			if ( 'co_the_trung' === $v['loai'] ) {
@@ -200,17 +203,21 @@ final class QuyetViec {
 					return self::kq( false, 'Cần quyền duyệt.' );
 				}
 				$ai = ! empty( $v['noi_dung']['ai'] );
-				$kq = LuuPhan::luu(
+				// Sửa vài chữ ngay trên thẻ rồi Duyệt (báo cáo trinh sát lần 2, mục 2.3): người bấm lưu bản đã sửa, qua đúng
+				// đường lưu có Lịch sử; dấu "có hỗ trợ AI" giữ như bản nháp (máy không bỏ, không thêm)
+				$goc = (string) ( $v['noi_dung']['chu'] ?? '' );
+				$chu = '' !== trim( $chu_sua ) ? trim( $chu_sua ) : $goc;
+				$kq  = LuuPhan::luu(
 					(int) $v['doi_tuong_id'],
 					'y_nghia',
-					array( 'chu' => (string) ( $v['noi_dung']['chu'] ?? '' ), 'ai' => $ai, 'nguoi_lam' => $ai ? NguoiLam::AI_DA_DUYET : NguoiLam::NGUOI_VIET ),
+					array( 'chu' => $chu, 'ai' => $ai, 'nguoi_lam' => $ai ? NguoiLam::AI_DA_DUYET : NguoiLam::NGUOI_VIET ),
 					array( 'nguoi' => $nguoi, 'goi' => KiemPhan::GOI_NGUOI, 'duyet' => true )
 				);
 				if ( ! $kq['ok'] ) {
 					return self::kq( false, implode( ' ', $kq['loi'] ) );
 				}
-				Viec::dong( $id, Viec::XONG, 'duyet', $nguoi, $v['trang_thai'], array( 'phan_viec' => $kq['viec'] ) );
-				return self::kq( true, 'Đã duyệt; người đọc thấy ý nghĩa ngay.' );
+				Viec::dong( $id, Viec::XONG, 'duyet', $nguoi, $v['trang_thai'], array( 'phan_viec' => $kq['viec'] ) + ( $chu !== $goc ? array( 'da_sua' => true ) : array() ) );
+				return self::kq( true, $chu !== $goc ? 'Đã sửa và duyệt; người đọc thấy ý nghĩa ngay.' : 'Đã duyệt; người đọc thấy ý nghĩa ngay.' );
 			case 'can_xem':
 				Viec::dong( $id, Viec::XONG, 'xong', $nguoi, $v['trang_thai'] );
 				return self::kq( true, 'Đã đánh dấu xem xong.' );
