@@ -1,0 +1,16 @@
+/* Bàn làm việc (T-180, T-188): bốn ô số bấm được, nút "Bắt đầu duyệt", khối thu gọn ở cuối trang. */
+.phongdao-ban-so { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 16px 0; padding: 0; list-style: none; }
+.phongdao-ban-so li { margin: 0; }
+.phongdao-ban .phongdao-ban-o { display: flex; flex-direction: column; gap: 4px; min-height: 44px; height: 100%; box-sizing: border-box; padding: 14px 16px; border: 1px solid #c3c4c7; border-radius: 8px; background: #fff; color: #1d2327; text-decoration: none; }
+.phongdao-ban-o strong { font-size: 28px; line-height: 1.2; color: #135e96; }
+.phongdao-ban .phongdao-ban-o:hover { border-color: #2271b1; }
+.phongdao-ban .phongdao-ban-o:focus-visible { outline: 3px solid #135e96; outline-offset: 2px; }
+.phongdao-ban-bat-dau { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin: 16px 0 24px; }
+.phongdao-ban-bat-dau .button-hero { display: inline-flex; align-items: center; min-height: 48px; }
+.phongdao-ban-gon { margin: 24px 0; border: 1px solid #c3c4c7; border-radius: 6px; background: #fff; overflow-x: auto; }
+.phongdao-ban-gon > summary { display: flex; align-items: center; min-height: 44px; padding: 0 16px; font-weight: 600; cursor: pointer; }
+.phongdao-ban-gon > summary:focus-visible { outline: 3px solid #135e96; outline-offset: -3px; }
+.phongdao-ban-gon[open] > summary { border-bottom: 1px solid #dcdcde; }
+.phongdao-ban-gon > :not(summary) { margin-left: 16px; margin-right: 16px; }
+.phongdao-ban-gon > .widefat { width: calc(100% - 32px); }
+.phongdao-ban-gon .section { margin: 0; }

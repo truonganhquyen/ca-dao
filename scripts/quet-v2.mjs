@@ -188,9 +188,10 @@ try {
     if (thuMucAnh) await bt.screenshot({ path: path.join(thuMucAnh, 'admin-kho-390.png'), fullPage: true });
   }
   // Hộp việc admin (có khối Làm theo lô khi còn thẻ Chờ), Thao tác hàng loạt (T-171), Máy đang làm (T-179), Bàn làm việc (T-180), danh sách Tác phẩm (T-187)
-  for (const [duong, vung] of [['/wp-admin/admin.php?page=phongdao-hop-viec', '.phongdao-admin-viec'], ['/wp-admin/admin.php?page=phongdao-lo', '.phongdao-admin-lo'], ['/wp-admin/admin.php?page=phongdao&the=may', '.phongdao-nguon'], ['/wp-admin/admin.php?page=phongdao-ban-lam-viec', '.phongdao-ban'], ['/wp-admin/admin.php?page=phongdao-tac-pham', '.phongdao-admin-tp']]) {
+  // Hộp việc kiểu hộp thư (T-188) không còn bảng: kiểm khung danh sách + thẻ
+  for (const [duong, vung, can = 'table'] of [['/wp-admin/admin.php?page=phongdao-hop-viec', '.phongdao-admin-viec', '.phongdao-hv'], ['/wp-admin/admin.php?page=phongdao-lo', '.phongdao-admin-lo'], ['/wp-admin/admin.php?page=phongdao&the=may', '.phongdao-nguon'], ['/wp-admin/admin.php?page=phongdao-ban-lam-viec', '.phongdao-ban'], ['/wp-admin/admin.php?page=phongdao-tac-pham', '.phongdao-admin-tp']]) {
     const tl = await bt.goto(G + duong, { waitUntil: 'load', timeout: 120_000 });
-    if (tl.status() !== 200 || !(await bt.$(`${vung} table`))) { loi.push(`${duong}: không mở được`); continue; }
+    if (tl.status() !== 200 || !(await bt.$(`${vung} ${can}`))) { loi.push(`${duong}: không mở được`); continue; }
     const tran = await doTran(bt);
     if (tran) loi.push(`${duong}: tràn ngang ${tran}`);
     await bt.addScriptTag({ content: axeNguon });

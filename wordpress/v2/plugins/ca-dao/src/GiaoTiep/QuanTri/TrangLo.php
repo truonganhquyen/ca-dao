@@ -23,6 +23,12 @@ final class TrangLo {
 	/** admin-post tạo lô từ màn Kho. */
 	public const TAO_KHO = 'phongdao_lo_tao_kho';
 	private const MOI_TRANG = 30;
+	/**
+	 * Thao tác Hộp việc làm nhanh từ thanh nổi (T-188): vài thẻ đã đánh dấu trên trang, làm ngay sau hộp xác nhận ngắn, kết
+	 * quả vẫn ghi thành một lô (xem lại ở Thao tác hàng loạt). Nhiều hơn một lượt hay "mọi thẻ khớp bộ lọc" thì qua xem
+	 * trước như Làm theo lô. Đăng câu mới luôn qua xem trước.
+	 */
+	private const NHANH = array( 'viec_de_sau', 'viec_bo', 'goi_y_dong_y' );
 	private const TRANG_THAI = array(
 		Viec::LO_XEM  => 'Chờ xem trước',
 		Viec::LO_DANG => 'Đang chạy',
@@ -41,8 +47,9 @@ final class TrangLo {
 		return add_query_arg( array_filter( array( 'page' => self::TRANG, 'lo' => $lo ) + $them, static fn( $v ) => '' !== $v && 0 !== $v ), admin_url( 'admin.php' ) );
 	}
 
-	private static function bao( bool $ok, string $chu ): void {
-		set_transient( 'phongdao_lo_bao_' . get_current_user_id(), array( 'ok' => $ok, 'chu' => $chu ), MINUTE_IN_SECONDS );
+	/** @param int $lo lô để mở xem kết quả từng mục (lời báo có liên kết) */
+	private static function bao( bool $ok, string $chu, int $lo = 0 ): void {
+		set_transient( 'phongdao_lo_bao_' . get_current_user_id(), array( 'ok' => $ok, 'chu' => $chu, 'lo' => $lo ), MINUTE_IN_SECONDS );
 	}
 
 	/** Lời báo một lần sau khi chuyển trang (dùng chung cho Hộp việc và màn Lô). */
@@ -53,7 +60,8 @@ final class TrangLo {
 			return '';
 		}
 		delete_transient( $k );
-		return '<div class="notice ' . ( empty( $b['ok'] ) ? 'notice-error' : 'notice-success' ) . '"><p role="status">' . esc_html( (string) ( $b['chu'] ?? '' ) ) . '</p></div>';
+		$lo = (int) ( $b['lo'] ?? 0 );
+		return '<div class="notice ' . ( empty( $b['ok'] ) ? 'notice-error' : 'notice-success' ) . '"><p role="status">' . esc_html( (string) ( $b['chu'] ?? '' ) ) . ( $lo ? ' <a href="' . esc_url( self::url( $lo ) ) . '">Xem kết quả từng thẻ</a>' : '' ) . '</p></div>';
 	}
 
 	/**
@@ -135,12 +143,29 @@ final class TrangLo {
 		);
 		$pham_vi = 'loc' === ( $_POST['pham_vi'] ?? '' ) ? 'loc' : 'chon';
 		$ids     = 'loc' === $pham_vi ? Viec::ids_quan_tri( $loc['tt'], $loc['loai'], $loc['q'], Lo::TOI_DA ) : array_map( 'absint', (array) wp_unslash( $_POST['ids'] ?? array() ) );
-		$thao_tac = sanitize_key( (string) ( $_POST['thao_tac'] ?? '' ) );
+		// Nút trên thanh nổi (nhanh) thay cho ô chọn thao tác của khối lô
+		$nhanh    = sanitize_key( (string) ( $_POST['nhanh'] ?? '' ) );
+		$thao_tac = '' !== $nhanh ? $nhanh : sanitize_key( (string) ( $_POST['thao_tac'] ?? '' ) );
 		$kq       = 'viec' !== ( Lo::THAO_TAC[ $thao_tac ][1] ?? '' ) ? array( 'ok' => false, 'lo' => 0, 'loi' => 'Chọn một thao tác.' ) : Lo::tao( $thao_tac, $ids, $pham_vi, $loc, get_current_user_id() );
+		$ve       = add_query_arg( array_filter( array( 'page' => DanhSachViec::TRANG ) + $loc, static fn( $v ) => '' !== $v ), admin_url( 'admin.php' ) );
 		if ( ! $kq['ok'] ) {
 			self::bao( false, $kq['loi'] );
-			wp_safe_redirect( add_query_arg( array_filter( array( 'page' => DanhSachViec::TRANG ) + $loc, static fn( $v ) => '' !== $v ), admin_url( 'admin.php' ) ) );
+			wp_safe_redirect( $ve );
 			exit;
+		}
+		if ( in_array( $nhanh, self::NHANH, true ) && 'chon' === $pham_vi && count( $ids ) <= Lo::moi_luot( $nhanh ) ) {
+			$ad = Lo::ap_dung( $kq['lo'], get_current_user_id(), current_user_can( 'cadao_duyet' ) );
+			if ( $ad['ok'] && 0 === $ad['con'] ) {
+				$phan = array( $ad['dem']['thanh_cong'] . ' thẻ xong' );
+				foreach ( array( 'bo_qua' => 'bỏ qua', 'xung_dot' => 'đổi ở phiên khác, không làm', 'loi' => 'lỗi' ) as $ma => $chu ) {
+					if ( $ad['dem'][ $ma ] ) {
+						$phan[] = $ad['dem'][ $ma ] . ' ' . $chu;
+					}
+				}
+				self::bao( true, Lo::THAO_TAC[ $nhanh ][0] . ': ' . implode( ', ', $phan ) . '.', $kq['lo'] );
+				wp_safe_redirect( $ve );
+				exit;
+			}
 		}
 		wp_safe_redirect( self::url( $kq['lo'] ) );
 		exit;

@@ -712,7 +712,7 @@ $truy_van_viec_truoc = $wpdb->num_queries;
 $admin_viec = \Phongdao\GiaoTiep\QuanTri\DanhSachViec::hien();
 $truy_van_viec = $wpdb->num_queries - $truy_van_viec_truoc;
 $admin_tim = Viec::tim_quan_tri( Viec::CHO, 'can_xem', '', 1 );
-kt( 'wp-admin Hộp việc: hơn 1.000 thẻ đếm đủ, 30 dòng, lọc loại và phân trang', $admin_tim['tong'] === $dem_loc_nhieu && 30 === count( $admin_tim['ds'] ) && str_contains( $admin_viec, '<strong>' . $dem_loc_nhieu . '</strong> thẻ khớp' ) && 30 === substr_count( $admin_viec, 'data-nhan="Việc"' ) && str_contains( $admin_viec, 'Trang sau' ) );
+kt( 'wp-admin Hộp việc: hơn 1.000 thẻ đếm đủ, 30 dòng, lọc loại và phân trang', $admin_tim['tong'] === $dem_loc_nhieu && 30 === count( $admin_tim['ds'] ) && str_contains( $admin_viec, '<strong>' . $dem_loc_nhieu . '</strong> thẻ khớp' ) && 30 === substr_count( $admin_viec, '<li class="phongdao-hv-dong' ) && str_contains( $admin_viec, 'Trang sau' ) );
 kt( 'wp-admin Hộp việc: số truy vấn không tăng theo 30 dòng', $truy_van_viec <= 20, $truy_van_viec );
 $_GET = array( 'tt' => Viec::DE_SAU, 'viec' => (string) $id_de_sau );
 $admin_chi_tiet = \Phongdao\GiaoTiep\QuanTri\DanhSachViec::hien();
@@ -733,6 +733,87 @@ QuyetViec::quyet( $v_gio, 'xong', $ai_ql, true );
 $_GET = array( 'tt' => Viec::CHO, 'loai' => 'can_xem', 'viec' => (string) $v_gio );
 $h_da_quyet = \Phongdao\GiaoTiep\QuanTri\DanhSachViec::hien();
 kt( 'wp-admin Hộp việc: thẻ đã quyết ghi nhãn quyết định (không in mã, không in phiên), có lối Sửa bài và "Thẻ tiếp theo" cùng bộ lọc', str_contains( $h_da_quyet, 'Đã quyết: <strong>Đã xem, ổn rồi</strong>' ) && ! str_contains( $h_da_quyet, 'Phiên ' ) && str_contains( $h_da_quyet, 'page=phongdao-sua-tac-pham' ) && str_contains( $h_da_quyet, 'Thẻ tiếp theo' ) && str_contains( $h_da_quyet, 'loai=can_xem' ) && ! str_contains( $h_da_quyet, 'viec=' . $v_gio . '">Thẻ tiếp' ) );
+// ---------- Hộp việc kiểu hộp thư (T-188): danh sách + thẻ, tự sang thẻ kế, Hoàn tác, làm nhanh nhiều thẻ ----------
+$HV   = \Phongdao\GiaoTiep\BienTap\HopViec::class;
+$DSV  = \Phongdao\GiaoTiep\QuanTri\DanhSachViec::class;
+$ht   = array();
+foreach ( array( 'Lý do thử hộp thư một', 'Lý do thử hộp thư hai', 'Lý do thử hộp thư ba' ) as $ld_ht ) {
+	$ht[] = Viec::tao( array( 'loai' => 'can_xem', 'doi_tuong_loai' => 'post', 'doi_tuong_id' => $tp1, 'noi_dung' => array( 'ly_do' => array( $ld_ht ) ), 'nguoi_tao' => 'kiem_thu', 'uu_tien' => 99 ) );
+}
+$ht_n   = Viec::tao( array( 'loai' => 'nhap_y_nghia', 'doi_tuong_loai' => 'post', 'doi_tuong_id' => $tp1, 'phan' => 'y_nghia', 'noi_dung' => array( 'chu' => 'Nháp thử hộp thư.' ), 'nguoi_tao' => 'kiem_thu' ) );
+$hien_hv = static function ( array $g ) use ( $DSV ): string {
+	$_GET = $g;
+	return $DSV::hien();
+};
+$loc_ht = array( 'tt' => 'cho', 'loai' => 'can_xem' );
+$_GET   = $loc_ht;
+$h_ht   = $DSV::hien();
+kt( 'Hộp việc hộp thư: tab trạng thái và loại việc có số; mỗi thẻ trong danh sách có hai dòng nội dung; màn rộng mở sẵn thẻ đầu bên phải, form quyết gửi kèm đích là thẻ kế', str_contains( $h_ht, 'aria-label="Trạng thái thẻ"' ) && str_contains( $h_ht, 'Chờ <span class="phongdao-chip-so">' . number_format_i18n( Viec::dem( Viec::CHO ) ) . '</span>' ) && str_contains( $h_ht, 'aria-current="page">Cần xem <span class="phongdao-chip-so">' . number_format_i18n( Viec::dem( Viec::CHO, 'can_xem' ) ) . '</span>' ) && str_contains( $h_ht, '<span class="phongdao-hv-tom">Lý do thử hộp thư hai</span>' ) && str_contains( $h_ht, '<div class="phongdao-hv-phai" data-tu-chon>' ) && str_contains( $h_ht, 'id="viec-' . $ht[0] . '"' ) && str_contains( $h_ht, 'name="tiep" value="' . esc_attr( $DSV::url( $loc_ht, 1, $ht[1] ) ) . '"' ) && str_contains( $h_ht, '<li class="phongdao-hv-dong dang-chon">' ) && str_contains( $h_ht, 'data-hv="sau"' ) && ! str_contains( $h_ht, 'data-hv="truoc"' ) && str_contains( $h_ht, 'Thẻ 1 / ' . Viec::dem( Viec::CHO, 'can_xem' ) ) );
+kt( 'Hộp việc hộp thư: thanh nổi theo loại việc — Để sau làm nhanh có hộp xác nhận; thẻ Cần xem không có Bỏ; không chọn loại thì nhắc chọn loại', str_contains( $h_ht, 'name="nhanh" value="viec_de_sau" class="button" data-hoi="Để sau %d thẻ cần xem đã chọn?' ) && ! str_contains( $h_ht, 'name="nhanh" value="viec_bo"' ) && str_contains( $hien_hv( array( 'tt' => 'cho' ) ), 'Chọn một loại việc ở trên để làm nhanh nhiều thẻ.' ) && str_contains( $hien_hv( array( 'tt' => 'cho', 'loai' => 'nhap_y_nghia' ) ), 'name="nhanh" value="viec_bo"' ) );
+$_GET   = $loc_ht + array( 'viec' => (string) $ht[1] );
+$h_ht2  = $DSV::hien();
+kt( 'Hộp việc hộp thư: chọn một thẻ thì thẻ đó mở bên phải (màn hẹp chỉ hiện thẻ đó), có Thẻ trước / Thẻ sau (J/K) và vị trí thẻ', str_contains( $h_ht2, '<div class="phongdao-hv co-chon">' ) && str_contains( $h_ht2, 'id="viec-' . $ht[1] . '"' ) && ! str_contains( $h_ht2, 'id="viec-' . $ht[0] . '"' ) && str_contains( $h_ht2, 'data-hv="truoc" href="' . esc_url( $DSV::url( $loc_ht, 1, $ht[0] ) ) . '"' ) && str_contains( $h_ht2, 'data-hv="sau" href="' . esc_url( $DSV::url( $loc_ht, 1, $ht[2] ) ) . '"' ) && str_contains( $h_ht2, 'Thẻ 2 / ' ) && str_contains( $h_ht2, 'class="phongdao-hv-ve"' ) && str_contains( $h_ht2, 'name="tiep" value="' . esc_attr( $DSV::url( $loc_ht, 1, $ht[2] ) ) . '"' ) );
+// Quyết qua form (admin-post): đúng đích thì sang thẻ kế kèm "vua" và Hoàn tác; đích lạ bị bỏ; quyết hỏng thì ở lại
+$chan_die_ht = static fn() => static function ( $chu ): void {
+	throw new \RuntimeException( 'wp_die: ' . ( is_string( $chu ) ? $chu : 'lỗi' ) );
+};
+$chan_di_ht = static function ( $vi_tri ): string {
+	throw new \RuntimeException( 'redirect: ' . $vi_tri );
+};
+add_filter( 'wp_die_handler', $chan_die_ht );
+add_filter( 'wp_redirect', $chan_di_ht );
+$gui_ht = static function ( string $ham, string $nonce, array $than ) use ( $HV ): string {
+	$_POST    = $than + array( '_wpnonce' => wp_create_nonce( $nonce ) );
+	$_REQUEST = $_POST;
+	try {
+		$HV::$ham();
+		return 'không dừng';
+	} catch ( \RuntimeException $e ) {
+		return $e->getMessage();
+	}
+};
+$ve_ht   = $DSV::url( $loc_ht, 1, $ht[0] );
+$phien_0 = Viec::lay( $ht[0] )['phien'];
+$r_ht    = $gui_ht( 'nhan_form', $HV::HANH_DONG . $ht[0], array( 'viec' => (string) $ht[0], 'quyet' => 'de_sau', 'phien' => (string) $phien_0, 'tiep' => $DSV::url( $loc_ht, 1, $ht[1] ), '_wp_http_referer' => $ve_ht ) );
+$v_ht0   = Viec::lay( $ht[0] );
+$r_sai   = $gui_ht( 'nhan_form', $HV::HANH_DONG . $ht[0], array( 'viec' => (string) $ht[0], 'quyet' => 'xong', 'phien' => (string) $phien_0, 'tiep' => $DSV::url( $loc_ht, 1, $ht[1] ), '_wp_http_referer' => $ve_ht ) );
+$r_la    = $gui_ht( 'nhan_form', $HV::HANH_DONG . $ht[2], array( 'viec' => (string) $ht[2], 'quyet' => 'de_sau', 'phien' => (string) Viec::lay( $ht[2] )['phien'], 'tiep' => 'https://evil.example/wp-admin/admin.php?page=phongdao-hop-viec', '_wp_http_referer' => $DSV::url( $loc_ht, 1, $ht[2] ) ) );
+kt( 'Hộp việc hộp thư: quyết xong tự sang thẻ kế (đích form gửi kèm), có "vua" để xem lại và Hoàn tác; quyết hỏng thì ở lại thẻ đó; đích ngoài Hộp việc bị bỏ', str_contains( $r_ht, 'redirect: ' ) && str_contains( $r_ht, 'viec=' . $ht[1] ) && str_contains( $r_ht, 'vua=' . $ht[0] ) && str_contains( $r_ht, 'hoan_viec=' . $ht[0] ) && Viec::DE_SAU === $v_ht0['trang_thai'] && str_contains( $r_sai, 'viec=' . $ht[0] ) && ! str_contains( $r_sai, 'vua=' ) && ! str_contains( $r_la, 'evil.example' ) && str_contains( $r_la, 'viec=' . $ht[2] ), array( $r_ht, $r_sai, $r_la ) );
+$_GET   = $loc_ht + array( 'viec' => (string) $ht[1], 'da' => 'Đã để sau.', 'vua' => (string) $ht[0], 'hoan_viec' => (string) $ht[0], 'hoan_phien' => (string) $v_ht0['phien'] );
+$h_ht3  = $DSV::hien();
+$r_hoan = $gui_ht( 'nhan_hoan_tac', $HV::HOAN_TAC . $ht[0], array( 'viec' => (string) $ht[0], 'phien' => (string) $v_ht0['phien'], 'tiep' => $DSV::url( $loc_ht, 1, $ht[0] ), '_wp_http_referer' => $DSV::url( $loc_ht, 1, $ht[1] ) ) );
+kt( 'Hộp việc hộp thư: sau khi quyết, thẻ kế mở kèm lời báo, lối "Xem lại thẻ vừa quyết" và nút Hoàn tác 10 giây; Hoàn tác đưa về đúng thẻ vừa quyết, thẻ trở lại Chờ', str_contains( $h_ht3, 'Đã để sau.' ) && str_contains( $h_ht3, 'href="' . esc_url( $DSV::url( $loc_ht, 1, $ht[0] ) ) . '">Xem lại thẻ vừa quyết</a>' ) && str_contains( $h_ht3, 'name="action" value="' . $HV::HOAN_TAC . '"' ) && str_contains( $h_ht3, 'data-hv-hoan' ) && str_contains( $h_ht3, 'id="viec-' . $ht[1] . '"' ) && str_contains( $r_hoan, 'viec=' . $ht[0] ) && Viec::CHO === Viec::lay( $ht[0] )['trang_thai'], array( $r_hoan ) );
+remove_filter( 'wp_die_handler', $chan_die_ht );
+remove_filter( 'wp_redirect', $chan_di_ht );
+// Làm nhanh nhiều thẻ từ thanh nổi: vài thẻ đã chọn thì làm ngay (ghi thành lô), "mọi thẻ khớp bộ lọc" thì qua xem trước
+$TLH  = \Phongdao\GiaoTiep\QuanTri\TrangLo::class;
+add_filter( 'wp_die_handler', $chan_die_ht );
+add_filter( 'wp_redirect', $chan_di_ht );
+$gui_nhanh = static function ( array $than ) use ( $TLH ): string {
+	$_POST    = $than + array( '_wpnonce' => wp_create_nonce( 'phongdao_lo_tao' ), 'tt' => 'cho', 'loai' => 'can_xem', 'q' => '' );
+	$_REQUEST = $_POST;
+	try {
+		$TLH::tao();
+		return 'không dừng';
+	} catch ( \RuntimeException $e ) {
+		return $e->getMessage();
+	}
+};
+$r_nh   = $gui_nhanh( array( 'nhanh' => 'viec_de_sau', 'pham_vi' => 'chon', 'ids' => array( (string) $ht[0], (string) $ht[1] ) ) );
+$bao_nh = get_transient( 'phongdao_lo_bao_' . $ai_ql );
+$_GET   = $loc_ht;
+$h_nh   = $DSV::hien();
+$r_nhl  = $gui_nhanh( array( 'nhanh' => 'viec_de_sau', 'pham_vi' => 'loc', 'ids' => array() ) );
+$lo_nhl = Viec::ds_lo( $ai_ql, 1 )[0] ?? array();
+remove_filter( 'wp_die_handler', $chan_die_ht );
+remove_filter( 'wp_redirect', $chan_di_ht );
+$_POST = $_REQUEST = array();
+kt( 'Hộp việc hộp thư: "Để sau" làm nhanh 2 thẻ đã chọn chạy ngay, về Hộp việc, lời báo có lối xem kết quả từng thẻ; "mọi thẻ khớp bộ lọc" thì mở màn xem trước, chưa đổi gì', str_contains( $r_nh, 'page=phongdao-hop-viec' ) && ! str_contains( $r_nh, 'page=phongdao-lo' ) && Viec::DE_SAU === Viec::lay( $ht[0] )['trang_thai'] && Viec::DE_SAU === Viec::lay( $ht[1] )['trang_thai'] && str_contains( (string) ( $bao_nh['chu'] ?? '' ), 'Để sau: 2 thẻ xong' ) && (int) ( $bao_nh['lo'] ?? 0 ) > 0 && str_contains( $h_nh, 'Xem kết quả từng thẻ' ) && str_contains( $r_nhl, 'page=phongdao-lo&lo=' ) && Viec::LO_XEM === ( $lo_nhl['trang_thai'] ?? '' ) && Viec::CHO === ( Viec::lay( (int) ( $lo_nhl['noi_dung']['muc'][0][0] ?? 0 ) )['trang_thai'] ?? '' ), array( $r_nh, $bao_nh, $r_nhl ) );
+\Phongdao\DichVu\XuLyLo\Lo::huy( (int) ( $lo_nhl['id'] ?? 0 ), $ai_ql );
+foreach ( array_merge( $ht, array( $ht_n ) ) as $id_ht ) {
+	Viec::xoa( (int) $id_ht );
+}
+$_GET = array();
 wp_set_current_user( 0 );
 wp_set_current_user( $ai_ql );
 $_GET = array( 'id' => (string) $tp1 );
@@ -1057,7 +1138,7 @@ $h_hv_ql = \Phongdao\GiaoTiep\QuanTri\DanhSachViec::hien();
 wp_set_current_user( $soan_k );
 $h_hv_s  = \Phongdao\GiaoTiep\QuanTri\DanhSachViec::hien();
 wp_set_current_user( $ai_ql );
-kt( 'Hộp việc: thanh "Chọn tất cả trên trang này" nằm trong form lô, trước bảng, đếm mọi thẻ khớp bộ lọc', (bool) preg_match( '#<form method="post" class="phongdao-lo-form"[^>]*>.*<div class="phongdao-chon-het" hidden data-tong="\d+" data-don-vi="thẻ">.*<table class="widefat#s', $h_hv_ql ) );
+kt( 'Hộp việc: thanh "Chọn tất cả trên trang này" nằm trong form lô, trước danh sách, đếm mọi thẻ khớp bộ lọc', (bool) preg_match( '#<form method="post" id="phongdao-hv-lo" class="phongdao-lo-form"[^>]*>.*<div class="phongdao-chon-het" hidden data-tong="\d+" data-don-vi="thẻ">.*<ul class="phongdao-hv-ds">#s', $h_hv_ql ) );
 kt( 'Hộp việc: lệnh "Đăng (thẻ Câu mới từ nguồn)" trong Làm theo lô chỉ có với người có quyền duyệt', str_contains( $h_hv_ql, 'value="cau_moi_dang"' ) && ! str_contains( $h_hv_s, 'value="cau_moi_dang"' ) && str_contains( $h_hv_s, 'value="viec_de_sau"' ) );
 kt( 'Hộp việc: thanh nổi (ẩn tới khi đánh dấu thẻ) có nút "Làm theo lô…" mở khối lô', str_contains( $h_hv_ql, '<div class="phongdao-thanh-noi" hidden data-don-vi="thẻ">' ) && str_contains( $h_hv_ql, 'data-mo-lo>Làm theo lô…</button>' ) && str_contains( $h_hv_ql, 'phongdao-thanh-noi-bo' ) );
 // ---------- Kho "Xem trước và đăng" một mạch (D-101): không qua Hộp việc, vẫn một màn xem trước, vẫn do người bấm ----------
@@ -1464,6 +1545,40 @@ remove_filter( 'wp_redirect', $chan_di_lo );
 $_POST = $_REQUEST = array();
 $_GET  = array();
 kt( 'sửa xong quay về đúng danh sách đang lọc: nút Sửa bài mang địa chỉ danh sách, trang sửa có lối về và giữ lối đó sau khi lưu; địa chỉ lạ bị bỏ', str_contains( $h_ds_ve, 've=' . rawurlencode( $ds_loc ) ) && str_contains( $h_sua_v, 'đúng bộ lọc vừa xem' ) && str_contains( $h_sua_v, 'name="ve" value="' . esc_attr( $ds_loc ) . '"' ) && ! str_contains( $h_sua_l, 'đúng bộ lọc vừa xem' ) && str_contains( $r_ve, 've=' . rawurlencode( $ds_loc ) ), array( 'ds' => str_contains( $h_ds_ve, 've=' . rawurlencode( $ds_loc ) ), 'lien_sua' => preg_match( '/page=phongdao-sua-tac-pham[^"]*/', $h_ds_ve, $m_ve ) ? $m_ve[0] : '', 've_mong' => rawurlencode( $ds_loc ), 'sua' => str_contains( $h_sua_v, 'đúng bộ lọc vừa xem' ), 'an' => str_contains( $h_sua_v, 'name="ve" value="' . esc_attr( $ds_loc ) . '"' ), 'la' => ! str_contains( $h_sua_l, 'đúng bộ lọc vừa xem' ), 've' => $r_ve ) );
+// ---------- Sửa tác phẩm một màn hai cột, "Bài tiếp theo" trong danh sách đã lọc (T-188) ----------
+$_GET   = array( 'id' => (string) $tp1 );
+$h_hc   = $SUA::hien();
+$co_yn  = null !== PhanBai::lay( $tp1, 'y_nghia' );
+kt( 'Sửa tác phẩm hai cột: bên trái lời rồi các phần (phần đã có mở sẵn, "Sửa lời" gập vì lời đã hiện ở đầu); bên phải trạng thái, việc chờ, phân loại, lịch sử', str_contains( $h_hc, '<div class="phongdao-sua-bo"><div class="phongdao-sua-chinh"><section class="phongdao-loi-xem">' ) && strpos( $h_hc, '<aside class="phongdao-sua-ben"' ) < strpos( $h_hc, 'class="phongdao-trang-thai"' ) && strpos( $h_hc, '<aside class="phongdao-sua-ben"' ) < strpos( $h_hc, 'Việc đang chờ' ) && strpos( $h_hc, '<aside class="phongdao-sua-ben"' ) < strpos( $h_hc, 'id="phan-loai"' ) && strpos( $h_hc, '<aside class="phongdao-sua-ben"' ) < strpos( $h_hc, 'id="lich-su"' ) && str_contains( $h_hc, '<details class="phongdao-sua-phan" id="phan-loi">' ) && ( ! $co_yn || str_contains( $h_hc, '<details class="phongdao-sua-phan" id="phan-y_nghia" open>' ) ) && ! str_contains( $h_hc, 'data-bai-sau' ), array( $co_yn ) );
+$ds_tat  = add_query_arg( array( 'page' => 'phongdao-tac-pham', 'tt' => 'tat_ca' ), admin_url( 'admin.php' ) );
+$ids_tat = \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::ids_loc( array( 'tt' => 'tat_ca' ), 1000 );
+$p_hc    = (int) ( $ids_tat[0] ?? 0 );
+$sau_hc  = (int) ( $ids_tat[1] ?? 0 );
+$_GET    = array( 'id' => (string) $p_hc, 've' => $ds_tat );
+$h_hc2   = $SUA::hien();
+kt( 'Sửa tác phẩm: đến từ danh sách đã lọc thì có "Bài tiếp theo" đúng bài kế (giữ lối về danh sách), mỗi form phần mang bài kế, có tuỳ chọn lưu xong tự sang bài tiếp', $sau_hc > 0 && str_contains( $h_hc2, 'href="' . esc_url( $SUA::url( $sau_hc, $ds_tat ) ) . '" data-bai-sau>' ) && str_contains( $h_hc2, '<input type="hidden" name="bai_sau" value="' . $sau_hc . '">' ) && str_contains( $h_hc2, 'id="phongdao-sang-tiep"' ), array( $p_hc, $sau_hc ) );
+// Lưu một phần với "tự sang bài tiếp": mở bài kế; không chọn thì ở lại, vẫn mang lối sang bài kế
+$bcb_cu = PhanBai::lay( $p_hc, 'ban_co_biet' );
+add_filter( 'wp_die_handler', $chan_die_lo );
+add_filter( 'wp_redirect', $chan_di_lo );
+$luu_hc = static function ( array $them ) use ( $SUA, $p_hc, $sau_hc, $ds_tat ): string {
+	$_POST    = array( 'id' => (string) $p_hc, 'phan' => 'ban_co_biet', 'chu' => 'Bạn có biết thử chuyển bài.', 've' => $ds_tat, 'bai_sau' => (string) $sau_hc, '_wpnonce' => wp_create_nonce( 'phongdao_sua_phan_' . $p_hc . '_ban_co_biet' ) ) + $them;
+	$_REQUEST = $_POST;
+	try {
+		$SUA::luu();
+		return 'không dừng';
+	} catch ( \RuntimeException $e ) {
+		return $e->getMessage();
+	}
+};
+$r_sang = $luu_hc( array( 'sang' => '1' ) );
+$r_o    = $luu_hc( array() );
+remove_filter( 'wp_die_handler', $chan_die_lo );
+remove_filter( 'wp_redirect', $chan_di_lo );
+$_POST = $_REQUEST = array();
+$_GET  = array();
+LuuPhan::luu( $p_hc, 'ban_co_biet', $bcb_cu, array( 'nguoi' => $ai_ql, 'goi' => KiemPhan::GOI_NGUOI, 'duyet' => true ) );
+kt( 'Sửa tác phẩm: lưu xong có "tự sang bài tiếp" thì mở bài kế (giữ lối về danh sách); không chọn thì ở lại bài này, lối sang bài kế còn', str_contains( $r_sang, 'redirect: ' ) && str_contains( $r_sang, 'id=' . $sau_hc ) && str_contains( $r_sang, 'ket_qua=da_luu_sang' ) && str_contains( $r_sang, 've=' ) && str_contains( $r_o, 'id=' . $p_hc ) && str_contains( $r_o, 'bai_sau=' . $sau_hc ) && ! str_contains( $r_o, 'da_luu_sang' ), array( $r_sang, $r_o ) );
 
 // ---------- Bảng điều khiển máy, căn cứ nguồn trước khi quyết (T-179) ----------
 $DK = \Phongdao\DichVu\May\DieuKhien::class;
@@ -2186,6 +2301,8 @@ wp_set_current_user( 0 );
 $h_khach = $BLV::hien( $gio );
 wp_set_current_user( $ai_ql );
 kt( 'trang Bàn làm việc: người biên soạn xem được năm khối, không lộ nút đổi dữ liệu; khách không xem được', str_contains( $h_blv, '<h1>Bàn làm việc</h1>' ) && str_contains( $h_blv, 'Nên làm tuần này' ) && str_contains( $h_blv, 'Việc vào, ra' ) && str_contains( $h_blv, 'Tuổi thẻ đang mở' ) && str_contains( $h_blv, 'Ngoại lệ dữ liệu' ) && str_contains( $h_blv, 'Thử làm sâu 20–30 bài' ) && ! str_contains( $h_blv, '<form' ) && str_contains( $h_khach, 'không có quyền' ) );
+$dau_blv = Viec::tim_quan_tri( Viec::CHO, '', '', 1, 1 )['ds'][0] ?? null;
+kt( 'trang Bàn làm việc: mở đầu bằng bốn ô số bấm được và nút "Bắt đầu duyệt (N việc)" mở thẻ cần làm trước nhất ở Hộp việc; việc vào/ra, tuổi thẻ và Số liệu tuần thu gọn ở cuối', $dau_blv && str_contains( $h_blv, 'class="phongdao-ban-so"' ) && 4 === substr_count( $h_blv, 'class="phongdao-ban-o"' ) && str_contains( $h_blv, 'href="' . esc_url( \Phongdao\GiaoTiep\QuanTri\DanhSachViec::url( array(), 1, (int) $dau_blv['id'] ) ) . '">Bắt đầu duyệt (' . number_format_i18n( Viec::dem_cho() ) . ' việc)</a>' ) && strpos( $h_blv, 'Bắt đầu duyệt' ) < strpos( $h_blv, 'Nên làm tuần này' ) && str_contains( $h_blv, '<details class="phongdao-ban-gon"><summary>Việc vào, ra và tuổi thẻ</summary>' ) && str_contains( $h_blv, 'Theo cấp chất lượng' ) && str_contains( $h_blv, 'Lượt đọc 7 ngày' ) && strpos( $h_blv, 'Ngoại lệ dữ liệu' ) < strpos( $h_blv, 'phongdao-ban-gon' ) );
 foreach ( $the_blv as $id_blv ) {
 	Viec::xoa( (int) $id_blv );
 }
