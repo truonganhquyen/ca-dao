@@ -198,6 +198,6 @@ final class DanhSachViec {
 			. '<form class="phongdao-viec-loc" method="get" action="' . esc_url( admin_url( 'admin.php' ) ) . '"><input type="hidden" name="page" value="' . self::TRANG . '"><div><label for="phongdao-viec-q">Tìm ID, bài hoặc nội dung</label><input id="phongdao-viec-q" name="q" type="search" value="' . esc_attr( $loc['q'] ) . '"></div><div>' . $tt . '</div><div>' . $loai . '</div><button class="button button-primary" type="submit">Tìm và lọc</button></form>'
 			. '<p role="status"><strong>' . (int) $kq['tong'] . '</strong> thẻ khớp bộ lọc; hiện ' . count( $kq['ds'] ) . ' thẻ trên trang này.</p>'
 			. ( $lo ? '<form method="post" class="phongdao-lo-form" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">' . TrangLo::khoi_chon( $loc, (int) $kq['tong'] ) . $bang . '</form>' : $bang )
-			. $phan_trang . '</div>';
+			. $phan_trang . ( $lo ? TrangLo::thanh_noi( 'thẻ', TrangLo::nut_mo_lo() ) : '' ) . '</div>';
 	}
 }

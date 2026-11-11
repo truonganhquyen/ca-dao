@@ -42,6 +42,7 @@ final class Module implements \Phongdao\HaTang\Module {
 				if ( $trang === $moc ) {
 					$tep = dirname( __DIR__, 3 ) . '/ca-dao.php';
 					wp_enqueue_style( 'phongdao-admin-viec', plugins_url( 'assets/admin-viec.css', $tep ), array(), CADAO_PHIEN_BAN );
+					wp_enqueue_style( 'phongdao-admin-chon', plugins_url( 'assets/admin-chon.css', $tep ), array(), CADAO_PHIEN_BAN );
 					wp_enqueue_script( 'phongdao-admin-chon', plugins_url( 'assets/admin-chon.js', $tep ), array(), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
 				}
 			} );
@@ -54,6 +55,7 @@ final class Module implements \Phongdao\HaTang\Module {
 				if ( $trang === $ds ) {
 					$tep = dirname( __DIR__, 3 ) . '/ca-dao.php';
 					wp_enqueue_style( 'phongdao-admin-tac-pham', plugins_url( 'assets/admin-tac-pham.css', $tep ), array(), CADAO_PHIEN_BAN );
+					wp_enqueue_style( 'phongdao-admin-chon', plugins_url( 'assets/admin-chon.css', $tep ), array(), CADAO_PHIEN_BAN );
 					wp_enqueue_script( 'phongdao-admin-chon', plugins_url( 'assets/admin-chon.js', $tep ), array(), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
 				}
 			} );
@@ -84,6 +86,7 @@ final class Module implements \Phongdao\HaTang\Module {
 					$tep = dirname( __DIR__, 3 ) . '/ca-dao.php';
 					wp_enqueue_style( 'phongdao-admin-tac-pham', plugins_url( 'assets/admin-tac-pham.css', $tep ), array(), CADAO_PHIEN_BAN );
 					wp_enqueue_style( 'phongdao-admin-kho', plugins_url( 'assets/admin-kho.css', $tep ), array( 'phongdao-admin-tac-pham' ), CADAO_PHIEN_BAN );
+					wp_enqueue_style( 'phongdao-admin-chon', plugins_url( 'assets/admin-chon.css', $tep ), array(), CADAO_PHIEN_BAN );
 					wp_enqueue_script( 'phongdao-admin-chon', plugins_url( 'assets/admin-chon.js', $tep ), array(), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
 				}
 			} );
@@ -100,6 +103,7 @@ final class Module implements \Phongdao\HaTang\Module {
 					wp_enqueue_style( 'phongdao-admin-tac-pham', plugins_url( 'assets/admin-tac-pham.css', $tep ), array(), CADAO_PHIEN_BAN );
 					wp_enqueue_style( 'phongdao-admin-lo', plugins_url( 'assets/admin-lo.css', $tep ), array( 'phongdao-admin-tac-pham' ), CADAO_PHIEN_BAN );
 					wp_enqueue_script( 'phongdao-admin-lo', plugins_url( 'assets/admin-lo.js', $tep ), array(), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
+					wp_enqueue_style( 'phongdao-admin-chon', plugins_url( 'assets/admin-chon.css', $tep ), array(), CADAO_PHIEN_BAN );
 					wp_enqueue_script( 'phongdao-admin-chon', plugins_url( 'assets/admin-chon.js', $tep ), array(), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
 				}
 			} );
