@@ -18,7 +18,7 @@ export function phienBanRepo(goc = '.') {
 
 /**
  * Phiên bản site đang phục vụ, đọc từ ?ver= của tệp plugin, theme trong HTML một trang bài (khách xem):
- * MVP ca-dao.js, style.css; V2 (sau ngày chuyển, docs/29) do-luong.js, assets/giao-dien.css.
+ * MVP ca-dao.js, style.css; V2 (sau ngày chuyển, docs/luu-tru/29-chuyen-doi-v2.md) do-luong.js, assets/giao-dien.css.
  */
 export function phienBanTrang(html) {
   const plugin = html.match(/plugins\/ca-dao\/assets\/(?:ca-dao|do-luong)\.js\?ver=([0-9.]+)/)?.[1] ?? null;

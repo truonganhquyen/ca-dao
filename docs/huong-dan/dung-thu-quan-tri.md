@@ -1,8 +1,8 @@
 # Dùng thử màn quản trị mới
 
-Bạn thử ba việc thường làm trên màn quản trị mới (wp-admin → menu **Phongdao**). Thử trên điện thoại, rồi trên máy tính. Mỗi việc ghi lại vài dòng ngắn. Nhờ đó mình biết chỗ nào còn vướng trước khi chuyển hẳn lối vào biên tập từ trang `/bien-tap/` sang wp-admin.
+Bạn thử ba việc thường làm trên màn quản trị mới (wp-admin → menu **Phongdao**). Thử trên điện thoại, rồi trên máy tính. Mỗi việc ghi lại vài dòng ngắn. Nhờ đó mình biết chỗ nào còn vướng để sửa trong đợt 3.
 
-Chưa chuyển gì cả: trang `/bien-tap/` và nút Sửa trên trang đọc vẫn dùng như cũ cho tới khi bạn đồng ý.
+Bạn đã chốt (11/11/2026): đợt 3 sẽ gộp các trang `/bien-tap/` về wp-admin; nút Sửa trên trang đọc vẫn giữ. Trong lúc làm đợt 3, mỗi phần mới có link bản xem trước để bạn thử trước khi lên site (kế hoạch: `docs/32-ke-hoach-dot-3.md`).
 
 ## Thử ở đâu
 
@@ -43,4 +43,4 @@ Muốn duyệt cả trăm thẻ có xem lại từng dòng: mở khối **Làm t
 | Chỗ khó bấm, khó hiểu, phải cuộn nhiều | | | |
 | Lỗi (chụp màn hình nếu được) | | | |
 
-Gửi lại bảng này (hoặc vài dòng tương tự) trong tin nhắn. Mình sẽ sửa những chỗ vướng. Sau đó mới chuyển lối vào biên tập sang wp-admin, và vẫn giữ cách quay lại giao diện cũ nếu có lỗi.
+Gửi lại bảng này (hoặc vài dòng tương tự) trong tin nhắn. Mình sẽ sửa những chỗ vướng trong đợt 3.

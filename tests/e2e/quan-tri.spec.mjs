@@ -6,7 +6,7 @@
 // - KHÔNG BAO GIỜ bấm Đăng (máy không tự đăng bài); bài thử chỉ ở Bản nháp / Chờ duyệt.
 // - Không tạo giá trị trong bộ chủ đề, vùng, thể loại; không đụng bài, kho, nguồn thật.
 // - Mật khẩu chỉ đọc từ biến môi trường E2E_USER / E2E_PASS, không ghi vào tệp nào.
-// - Ảnh chụp quản trị lưu ở docs/e2e-review/screenshots/admin/ (đã .gitignore: có thể chứa kho thô, email).
+// - Ảnh chụp quản trị lưu ở docs/luu-tru/e2e-review-mvp/screenshots/admin/ (đã .gitignore: có thể chứa kho thô, email).
 import { test, expect, request as yeuCau } from '@playwright/test';
 import { chanDem, chup, BAI } from './chung.mjs';
 

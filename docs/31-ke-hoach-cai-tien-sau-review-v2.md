@@ -6,7 +6,7 @@
 | Trạng thái | **Kế hoạch triển khai; các mục ghi điều kiện chưa phải quyết định xây chức năng** |
 | Phạm vi | An toàn vận hành, biên tập, nguồn, chất lượng dữ liệu, tìm kiếm, hiệu năng và trải nghiệm người đọc |
 | Căn cứ | `docs/e2e-review/v2/REPORT.md`; đối chiếu bản đề xuất 0.1–4.4 và hai bản review người dùng cung cấp tại workspace (chưa thuộc PR này); khảo sát quản trị và mã V2 ngày 05/11/2026 |
-| Kế hoạch chuyên sâu | `docs/30-ke-hoach-quan-tri-bien-tap-v2.md` — nhánh quản trị theo D-096 |
+| Kế hoạch chuyên sâu | `docs/luu-tru/30-ke-hoach-quan-tri-bien-tap-v2.md` — nhánh quản trị theo D-096 (đã làm; tiếp theo là đợt 3, `docs/32`) |
 
 ## 1. Kết quả cần đạt
 
@@ -15,7 +15,7 @@
 3. **Kho hữu ích hơn:** chọn bài có nhu cầu đọc để bổ sung Ý nghĩa, từ khó và đối chiếu; tìm và khám phá không bỏ sót vì giới hạn ứng viên; trang đọc đạt trợ năng và ngân sách tải.
 4. **Đầu tư có điều kiện:** chỉ mở nguồn, thể loại, lớp học, cộng đồng hay bản đồ mở rộng khi có căn cứ nội dung, quyền và khả năng vận hành. Giữ WordPress và mô hình dữ liệu V2; xem xét đổi kiến trúc chỉ sau phép đo.
 
-Đây là **kế hoạch tổng**. D-096 và `docs/30` quyết định hướng quản trị; bản đề xuất 0.1–4.4 là đầu vào để xếp việc, **không tự biến mọi ý tưởng trong bản đó thành quyết định D-xxx**. Các hạng mục cần H1–H6 chỉ tiến tới bước nghiên cứu/bản mẫu trong phạm vi chưa cần quyết định; không chốt dữ liệu văn hoá, quyền nguồn, giao diện lớn hoặc mở công khai thay người sáng lập.
+Đây là **kế hoạch tổng**. D-096 và `docs/luu-tru/30-ke-hoach-quan-tri-bien-tap-v2.md` quyết định hướng quản trị; bản đề xuất 0.1–4.4 là đầu vào để xếp việc, **không tự biến mọi ý tưởng trong bản đó thành quyết định D-xxx**. Các hạng mục cần H1–H6 chỉ tiến tới bước nghiên cứu/bản mẫu trong phạm vi chưa cần quyết định; không chốt dữ liệu văn hoá, quyền nguồn, giao diện lớn hoặc mở công khai thay người sáng lập.
 
 ## 2. Danh mục ưu tiên có thể giao việc
 
@@ -26,8 +26,8 @@
 | **P0** | Hộp việc hiện có không mất thẻ khỏi tầm nhìn; sửa màn Duyệt từng thẻ trắng sau thẻ cuối; đếm/phân trang toàn kho, Để sau/đưa lại, Hoàn tác quyết định, phím tắt bàn phím | T-176 | Thử với hàng nghìn thẻ; mọi trạng thái tìm lại được; hai màn đếm cùng tập ra cùng số; thẻ cuối trả trạng thái hết việc; Hoàn tác đúng loại quyết định và báo trường hợp không thể hoàn tác; phím tắt không kích hoạt khi đang nhập liệu |
 | **P0** | Quyết việc và đổi trạng thái bài an toàn khi bấm đồng thời hoặc ghi thất bại | T-177 | Chỉ một quyết định thắng trên cùng phiên bản; cập nhật nội dung, trạng thái và nhật ký nhất quán; thử hai phiên, lỗi DB và chạy lại yêu cầu trên bản thử. D-097 bỏ phần triển khai thêm cho hai ca lỗi hiếm chống quyết trùng, ghi rủi ro còn lại |
 | **P0** | Đối soát trạng thái dự án và dữ liệu sau chuyển đổi | T-178 | Danh sách ID giải thích chênh 630/631, vè có Đoạn và các đường chuyển 301; cập nhật backlog theo bằng chứng triển khai; không sửa bài để ép khớp số, không tự đóng thẻ Cần xem |
-| **P1** | Quản trị nội dung chính trong wp-admin, Hộp việc, lịch sử và thao tác lô | T-167..T-172 | Theo `docs/30`; dùng chung dịch vụ, quyền từng đối tượng, kiểm xung đột; bản xem trước và dùng thử trước khi đổi lối vào |
-| **P1** | Màn Kho riêng để người quản trị tìm và tự chọn câu đưa vào Hộp việc | T-184 | Theo `docs/30`; chỉ tạo thẻ Câu mới đúng một lần cho câu đủ điều kiện, không đăng hay quyết nội dung thay người |
+| **P1** | Quản trị nội dung chính trong wp-admin, Hộp việc, lịch sử và thao tác lô | T-167..T-172 | Theo `docs/luu-tru/30-ke-hoach-quan-tri-bien-tap-v2.md`; dùng chung dịch vụ, quyền từng đối tượng, kiểm xung đột; bản xem trước và dùng thử trước khi đổi lối vào |
+| **P1** | Màn Kho riêng để người quản trị tìm và tự chọn câu đưa vào Hộp việc | T-184 | Theo `docs/luu-tru/30-ke-hoach-quan-tri-bien-tap-v2.md`; chỉ tạo thẻ Câu mới đúng một lần cho câu đủ điều kiện, không đăng hay quyết nội dung thay người |
 | **P1** | Hồ sơ nguồn và nội dung máy đưa vào có thể kiểm, ẩn và truy vết | T-179 | Hiện căn cứ/đường dẫn nguồn và phần chịu ảnh hưởng trước quyết; nhật ký trước/sau của hồ sơ nguồn; phân quyền đổi chính sách; sửa/ẩn/gỡ từng phần theo lằn ranh và quyền hiện có, không tự đổi giấy phép |
 | **P1** | Bàn làm việc và chất lượng kho: việc cần làm ngắn, danh sách ngoại lệ, thí điểm nội dung chuyên sâu | T-180 | Số việc vào/ra, tuổi việc và 10 việc nên làm tính từ dữ liệu hiện có; lọc bài thiếu, nghi trùng, nguồn chưa rõ; người biên tập chọn 20–30 bài để thử, đo thời gian và tác vụ hiểu/tra nguồn; không đặt chỉ tiêu điền kín cả kho |
 | **P1** | Tìm kiếm đủ và ổn định khi kho lớn | T-181 | Tập truy vấn đại diện và kho mẫu 1.000–10.000 bài; tổng và thứ tự không phụ thuộc 500 ứng viên chưa sắp; đo thời gian và truy vấn DB trước/sau, giữ thuật toán tìm không dấu |
@@ -44,7 +44,7 @@
 | **0.3** Ý nghĩa câu đố | **Làm P0:** T-174; giữ quy tắc Ý nghĩa do người duyệt |
 | **0.4** Cập nhật máy chủ | **Làm P0:** T-175, gồm diễn tập phục hồi |
 | **0.5** Tài liệu trạng thái | **Làm P0:** T-178, đối chiếu site và backlog cũ |
-| **1.1, 1.2** Hộp việc và hồ sơ bài trong admin | **Đã chốt hướng D-096:** T-167..T-169; `docs/30` |
+| **1.1, 1.2** Hộp việc và hồ sơ bài trong admin | **Đã chốt hướng D-096:** T-167..T-169; `docs/luu-tru/30-ke-hoach-quan-tri-bien-tap-v2.md` |
 | **1.3** Bảng điều khiển máy | **Thu gọn P1:** T-179 xem lịch, lỗi, hạn mức và tạm dừng từng việc nền; nút chạy thử/chạy ngay/gỡ lô chỉ thêm sau khi chứng minh phạm vi và đường khôi phục, không gỡ bài đã đăng bằng thao tác máy |
 | **1.4** Sửa/ẩn/gỡ nội dung máy đưa vào | **Làm P1 theo quyền từng phần:** T-179 và T-169; kiểm nguồn/giấy phép trước hành động; xoá nội dung gốc đã đăng thuộc H6 |
 | **1.5, 1.6** Duyệt nhóm, lịch sử/khôi phục | **Đã nằm trong D-096:** T-170, T-171; xem trước, ngoại lệ, nhật ký từng mục |

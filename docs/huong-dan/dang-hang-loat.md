@@ -42,6 +42,6 @@ Bấm **Đưa vào Hộp việc…** (thanh đáy màn) hoặc **Đưa vào Hộ
 ## Sau khi đăng
 
 - Bài mới hiện trên trang đọc và ở Phongdao → **Tác phẩm**.
-- **Google:** hiện site còn chặn Google. Khi mở, bài chỉ có lời vẫn chưa vào Google cho tới khi bạn viết Ý nghĩa.
+- **Google:** hiện site còn chặn Google. Khi bạn mở, mọi bài đã đăng đều lên Google, kể cả bài chưa có Ý nghĩa.
 - **Đăng nhầm:** ở Phongdao → Tác phẩm, đánh dấu bài → **Làm theo lô** → **Ẩn bài** hoặc **Đưa vào thùng rác**. Cả hai lấy lại được.
 - **Dừng giữa chừng** (mất mạng, lỡ đóng trang): mở Phongdao → **Thao tác hàng loạt**, chọn lô đó, bấm **Tiếp tục**. Câu đã đăng không bị đăng lại.

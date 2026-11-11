@@ -28,7 +28,7 @@ jobs:
       - name: Chạy cổng kiểm tra
         run: npm run kiem-tra
 
-  # Plugin WordPress (D-056, docs/24 mục 6): chạy trong WordPress Playground, cần Node ≥ 24.18
+  # Plugin WordPress (D-056, docs/luu-tru/24-wordpress.md mục 6; mã MVP gỡ ở T-192): chạy trong WordPress Playground, cần Node ≥ 24.18
   wordpress:
     runs-on: ubuntu-latest
     steps:

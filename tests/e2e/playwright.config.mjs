@@ -1,4 +1,4 @@
-// Khảo sát E2E site thật (docs/e2e-review/REPORT.md). Chạy: npm run e2e  (xem tests/e2e/README.md)
+// Khảo sát E2E site thật (docs/luu-tru/e2e-review-mvp/REPORT.md). Chạy: npm run e2e  (xem tests/e2e/README.md)
 // Dùng Chrome đã cài trên máy (channel 'chrome'), không tải trình duyệt riêng. Máy không có Chrome (ví dụ môi trường agent):
 // E2E_TRINH_DUYET=<đường dẫn Chromium>; mạng phải qua proxy: E2E_PROXY=<địa chỉ proxy> (cả trình duyệt lẫn yêu cầu API) — T-130.
 import { defineConfig } from '@playwright/test';

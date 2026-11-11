@@ -2,10 +2,10 @@
 
 | | |
 |---|---|
-| Phiên bản | 2.2 · 05/11/2026 (hướng quản trị admin chính: D-096; dữ liệu giữ D-094) |
+| Phiên bản | 2.3 · 11/11/2026 (đợt 3: D-103..D-107, `docs/32`; quản trị wp-admin: D-096, D-100; dữ liệu giữ D-094) |
 | Trạng thái | **Đã duyệt.** Đổi điều đã chốt ở đây phải ghi D-xxx; chi tiết kỹ thuật trong phạm vi do agent tự chọn và ghi trong PR |
 | Đọc khi | Mọi task V2 (`docs/22`, nhóm V2) |
-| Đọc kèm | `27` (sản phẩm cho người đọc), `28` (luồng nội dung, Bàn biên tập), `29` (chuyển dữ liệu, chuyển đổi), `30` (kế hoạch nâng cấp quản trị), AGENTS.md |
+| Đọc kèm | `27` (sản phẩm cho người đọc), `28` (luồng nội dung, biên tập), `32` (kế hoạch đợt 3), AGENTS.md; chuyển đổi và kế hoạch quản trị cũ ở `docs/luu-tru/` (`29`, `30`) |
 | Căn cứ | `docs/nghien-cuu/v2-backend-plugin-theme-2026-10-27.md` (đo trên plugin 0.33.2, theme 0.19.1) |
 
 ## 1. Quyết định gốc
@@ -13,11 +13,11 @@
 | Mặt | Chốt |
 |---|---|
 | Nền tảng | WordPress làm khung; viết mới toàn bộ plugin, theme, trang quản trị, mô hình dữ liệu (D-083) |
-| Cách làm | Xây song song trong `wordpress/v2/`, chuyển một lần, mở ngay sau khi chuyển; MVP đóng băng tính năng |
+| Cách làm | Xây song song trong `wordpress/v2/`, **đã chuyển 04/11/2026** (`docs/luu-tru/29-chuyen-doi-v2.md`); mã MVP còn trong repo cho kiểm thử chuyển đổi, gỡ ở T-192 |
 | Tài sản giữ | Thuật toán đã kiểm chứng được chuyển sang cấu trúc mới kèm kiểm thử (mục 12) |
 | Dữ liệu | Mỗi phần của bài lưu trong bài (post meta có schema), kèm người làm và nguồn; một bảng mới `wp_cadao_viec` cho việc chờ và nhật ký (D-084, D-094) |
 | Trang người đọc | Theme khối 1.0 + khối động `cadao/*` render trên máy chủ + JavaScript thuần nhỏ |
-| Quản trị | Hiện có D-094: sửa trên trang đọc + bốn trang `/bien-tap/…`. Đích D-096: wp-admin quản lý Tác phẩm và Hộp việc, sửa trên trang đọc là lối nhanh; một đường kiểm/lưu; không Gutenberg cho tác phẩm (`docs/30`) |
+| Quản trị | wp-admin là nơi làm việc (D-096, D-100); ba dòng việc Bài mới · Hộp việc · Bổ sung (D-103); sửa nhanh trên trang đọc giữ; `/bien-tap/` chuyển về wp-admin ở đợt 3 (D-104, `docs/32`); một đường kiểm/lưu; không Gutenberg cho tác phẩm |
 | Việc nền | WP-Cron theo lô (như MVP) + cron thật của máy chủ |
 | Không làm | Headless, Next.js, Astro, Meilisearch / Elasticsearch, Action Scheduler, React / bước dựng JavaScript, thư viện JavaScript ngoài, tài khoản người đọc |
 
@@ -25,23 +25,23 @@
 
 ```text
 wordpress/
-├── plugins/ca-dao/        MVP — máy chủ đang chạy; đóng băng tính năng
+├── plugins/ca-dao/        MVP — không còn chạy trên máy chủ; giữ cho kiểm thử chuyển đổi (gỡ ở T-192)
 ├── themes/ca-dao/         MVP
-├── v2/plugins/ca-dao/     V2 — máy chủ CHƯA lấy
+├── v2/plugins/ca-dao/     V2 — máy chủ đang chạy (từ 04/11/2026)
 ├── v2/themes/ca-dao/      V2
 ├── v2/tests/              kiểm thử V2 (đơn vị PHP thuần + Playground)
 ├── v2/blueprint.json      Playground cho bản xem trước V2
-├── may-chu/               kịch bản máy chủ (không đổi trong lúc xây)
-└── tests/                 kiểm thử MVP
+├── may-chu/               kịch bản máy chủ (mục 15)
+└── tests/                 kiểm thử MVP (gỡ ở T-192)
 
 design/v2/                 bộ thiết kế UX/UI bản cuối (D-092): mã nguồn bản mẫu, token, đặc tả, qa — không chạy trên site
 ```
 
 - Máy chủ (`cap-nhat-plugin.sh`) chép `wordpress/plugins/ca-dao` và `wordpress/themes/ca-dao` — trừ khi commit có tệp `wordpress/nguon-trien-khai` ghi `v2`, khi đó chép `wordpress/v2/plugins/ca-dao` và `wordpress/v2/themes/ca-dao`. Trước ngày chuyển gộp PR V2 vào `main` không đụng site thật.
-- **Lúc chuyển** (`docs/29` mục 5 bước 2): PR chuyển đổi chỉ thêm tệp đánh dấu và đặt 1.0.0; mã MVP để nguyên (bộ kiểm thử chuyển đổi cần nó, quay về commit cũ vẫn ra MVP). **Khi dọn dữ liệu cũ** (`docs/29` mục 6): chuyển `wordpress/v2/…` lên chỗ `wordpress/…`, bỏ tệp đánh dấu, xoá mã MVP (lịch sử Git vẫn giữ), đổi lệnh npm mặc định sang V2, chuyển `docs/20`, `docs/24` vào `docs/luu-tru/`. Mỗi lần thay mã, script làm mới quy tắc đường dẫn (`wp rewrite flush`) vì MVP và V2 lưu quy tắc khác nhau trong cơ sở dữ liệu.
+- **Lúc chuyển** (`docs/luu-tru/29-chuyen-doi-v2.md` mục 5 bước 2): PR chuyển đổi chỉ thêm tệp đánh dấu và đặt 1.0.0; mã MVP để nguyên (bộ kiểm thử chuyển đổi cần nó, quay về commit cũ vẫn ra MVP). **Khi dọn dữ liệu cũ** (`docs/luu-tru/29-chuyen-doi-v2.md` mục 6): chuyển `wordpress/v2/…` lên chỗ `wordpress/…`, bỏ tệp đánh dấu, xoá mã MVP (lịch sử Git vẫn giữ), đổi lệnh npm mặc định sang V2, chuyển `docs/20`, `docs/24` vào `docs/luu-tru/`. Mỗi lần thay mã, script làm mới quy tắc đường dẫn (`wp rewrite flush`) vì MVP và V2 lưu quy tắc khác nhau trong cơ sở dữ liệu.
 - Tên thư mục giữ `ca-dao` để kịch bản máy chủ không phải đổi (AGENTS.md, KHÔNG BAO GIỜ 15). Tên hiển thị của plugin: "Phongdao — Thư viện Văn học Dân gian Việt Nam"; theme: "Phongdao".
 - Phiên bản: plugin và theme V2 bắt đầu `0.1.0`, tăng ở mỗi PR (AGENTS.md); PR chuyển đổi đặt `1.0.0` và thêm `wordpress/nguon-trien-khai` (`v2`): máy chủ và `scripts/lib/phien-ban.mjs` (`kiem-site-that`) cùng đọc tệp này để biết lấy plugin, theme ở `wordpress/v2/`; trang V2 lộ số phiên bản qua `do-luong.js?ver=` và `giao-dien.css?ver=`.
-- PHP: đo phiên bản PHP của máy chủ ở T-141 (qua WP-CLI khi được đồng ý, hoặc người sáng lập xem FlashPanel); viết mã cho phiên bản đó, không thấp hơn 8.1. **Kết quả (T-141, 02/11/2026):** máy chủ chạy PHP 8.5 (người sáng lập chọn trong FlashPanel ở T-075, `docs/24` mục 6; tiêu đề HTTP không lộ số); V2 khai `Requires PHP: 8.3` — không dùng cú pháp chỉ có từ 8.4; máy CI có sẵn 8.3 cho bộ kiểm thuần, Playground kiểm ở 8.3.
+- PHP: đo phiên bản PHP của máy chủ ở T-141 (qua WP-CLI khi được đồng ý, hoặc người sáng lập xem FlashPanel); viết mã cho phiên bản đó, không thấp hơn 8.1. **Kết quả (T-141, 02/11/2026):** máy chủ chạy PHP 8.5 (người sáng lập chọn trong FlashPanel ở T-075, `docs/luu-tru/24-wordpress.md` mục 6; tiêu đề HTTP không lộ số); V2 khai `Requires PHP: 8.3` — không dùng cú pháp chỉ có từ 8.4; máy CI có sẵn 8.3 cho bộ kiểm thuần, Playground kiểm ở 8.3.
 
 ## 3. Cấu trúc plugin V2
 
@@ -68,7 +68,7 @@ wordpress/v2/plugins/ca-dao/
 │   │   │               LichSu: khôi phục lần sửa mới nhất khi chưa có thay đổi mới hơn; DauVetTrangThai: dấu vết đổi trạng thái
 │   │   ├── GopBai/      gộp tác phẩm trùng, giữ đường dẫn
 │   │   ├── DoLuong/, LuotDoc/, AnhChiaSe/, Seo/, DocTiep/, NguoiDoc/
-│   │   └── NhapDuLieuCu/  công cụ chuyển đổi (docs/29) — gỡ sau khi dọn dữ liệu cũ
+│   │   └── NhapDuLieuCu/  công cụ chuyển đổi (docs/luu-tru/29-chuyen-doi-v2.md) — gỡ sau khi dọn dữ liệu cũ
 │   ├── GiaoTiep/
 │   │   ├── Rest/        phongdao/v1 (mục 5)
 │   │   ├── Khoi/        đăng ký khối cadao/* (thư mục khoi/)
@@ -114,9 +114,11 @@ Cảm nghĩ ngắn của người đọc: bình luận WordPress, luôn chờ du
 
 Bỏ phân loại `tinh_huong` (thành tuyển tập loại `tinh_huong`) và `the_tho` (thành `hinh_thuc`).
 
-**Term meta (03/11/2026, đặt khi viết công cụ nhập — `docs/29`):** mục từ: lời giải là mô tả của term; `_phongdao_loi_giai` `{nguoi_lam: may_chep | nguoi_viet, nguon?: {ho_so, url?}}`, `_phongdao_wikidata` (bản đã xác nhận, dạng MVP), `_phongdao_anh` `{rieng?: ID ảnh, ghi_cong?, an?}`, `_phongdao_khoa` (khoá từ + lời giải để nối chú thích). Trò chơi: `_phongdao_cach_choi` `{so_nguoi?, do_tuoi?, do_dung?, buoc: [], nguoi_lam, nguon?: {ho_so, url?, ghi_chu?}, giay_phep?, wiki?}`. Mô-típ: `_phongdao_mo_tip_dau` (dấu nhóm của máy; tên do người đặt là tên term). Bộ chủ đề, bảng ánh xạ chủ đề, mô-típ đã đặt / bỏ qua giữ ở các tuỳ chọn MVP cùng tên (`cadao_bo_chu_de`, `cadao_anh_xa_chu_de`, `cadao_mo_tip_bo`, `cadao_mo_tip_bo_qua`).
+**Term meta (03/11/2026, đặt khi viết công cụ nhập — `docs/luu-tru/29-chuyen-doi-v2.md`):** mục từ: lời giải là mô tả của term; `_phongdao_loi_giai` `{nguoi_lam: may_chep | nguoi_viet, nguon?: {ho_so, url?}}`, `_phongdao_wikidata` (bản đã xác nhận, dạng MVP), `_phongdao_anh` `{rieng?: ID ảnh, ghi_cong?, an?}`, `_phongdao_khoa` (khoá từ + lời giải để nối chú thích). Trò chơi: `_phongdao_cach_choi` `{so_nguoi?, do_tuoi?, do_dung?, buoc: [], nguoi_lam, nguon?: {ho_so, url?, ghi_chu?}, giay_phep?, wiki?}`. Mô-típ: `_phongdao_mo_tip_dau` (dấu nhóm của máy; tên do người đặt là tên term). Bộ chủ đề, bảng ánh xạ chủ đề, mô-típ đã đặt / bỏ qua giữ ở các tuỳ chọn MVP cùng tên (`cadao_bo_chu_de`, `cadao_anh_xa_chu_de`, `cadao_mo_tip_bo`, `cadao_mo_tip_bo_qua`).
 
 ### 4.3. Phần của bài
+
+> Đợt 3 (D-105, `docs/32` mục 6): thêm phần "Hình ảnh trong bài" (ca dao, đồng dao), loại góp "Cách hiểu" của người đọc; câu đố hiển thị `y_nghia` là "Giải thích đáp án"; tục ngữ mới dùng bộ `nghia_*` + `dung_khi` thay `y_nghia`. Bảng dưới cập nhật khi các thay đổi đó được làm.
 
 Mỗi phần của tác phẩm là **một khoá post meta** `_phongdao_<phần>` (D-094), khai báo bằng `register_post_meta` trong `HaTang\KhaiBao` (danh mục phần ở `MienDuLieu\Phan`), không mở qua REST mặc định của WordPress. Giá trị là mảng PHP; hình dạng và lằn ranh kiểm ở `MienDuLieu\KiemPhan` (PHP thuần, có kiểm thử) mỗi lần lưu.
 
@@ -153,7 +155,7 @@ Trò chơi của đồng dao: quan hệ phân loại `tro_choi`, không phải p
 
 **Ràng buộc trong mã (`KiemPhan`, `LuuPhan`; có kiểm thử khẳng định):**
 - `loi`, `di_ban` không nhận `nguoi_lam` bắt đầu bằng `ai_`; nháp AI không bao giờ vào `loi`.
-- `ai_da_duyet`, `duyet_boi`, `duyet_luc` chỉ đặt qua route có quyền `cadao_duyet`, do người bấm; không lệnh WP-CLI, lịch chạy hay bước nhập nào ghi phần có `ai` bật vào bài (trừ bước nhập dữ liệu cũ mang đúng trạng thái người sáng lập đã duyệt trên MVP, `docs/29`).
+- `ai_da_duyet`, `duyet_boi`, `duyet_luc` chỉ đặt qua route có quyền `cadao_duyet`, do người bấm; không lệnh WP-CLI, lịch chạy hay bước nhập nào ghi phần có `ai` bật vào bài (trừ bước nhập dữ liệu cũ mang đúng trạng thái người sáng lập đã duyệt trên MVP, `docs/luu-tru/29-chuyen-doi-v2.md`).
 - `nguon`, `doi_chieu`, `noi`, `nguoi_ke`, `nam`, `sgk` không có giá trị mặc định, không do máy điền.
 - Mọi lần lưu ghi nhật ký vào `wp_cadao_viec`; lưu thất bại thì không ghi nửa chừng.
 
@@ -181,7 +183,7 @@ Một số phiên bản cơ sở dữ liệu duy nhất: tuỳ chọn `phongdao_
 
 ### 4.5. Cấp chất lượng và thân bài
 
-`MienDuLieu\CapChatLuong`: L0 có `loi` · L1 + thể loại + dòng mức kiểm · **L2 + `y_nghia` hoặc bộ `nghia_*`** · L3 + lời đã đối chiếu sách hoặc `boi_canh` hoặc `media` có giấy phép. Bài phân tích không tính (D-084). Lập chỉ mục: tác phẩm L2 trở lên.
+`MienDuLieu\CapChatLuong`: L0 có `loi` · L1 + thể loại + dòng mức kiểm · **L2 + `y_nghia` hoặc bộ `nghia_*`** · L3 + lời đã đối chiếu sách hoặc `boi_canh` hoặc `media` có giấy phép. Bài phân tích, cách hiểu của bạn đọc không tính (D-084, D-105). Cấp chỉ dùng nội bộ; lập chỉ mục không xét cấp (D-106, mục 10).
 
 `DichVu\LuuPhan` ghi `post_content` dạng chữ đơn giản (lời, dị bản, ý nghĩa) sau mỗi lần lưu — cho RSS và công cụ ngoài; trang người đọc dựng từ các phần, không đọc `post_content`; không ai sửa `post_content` bằng tay.
 
@@ -216,21 +218,15 @@ Mọi route biên tập: `permission_callback` kiểm quyền riêng + nonce RES
 - **Khối động** (`cadao/*`, render trên máy chủ, khối không có dữ liệu không in gì, CSS nạp khi khối có mặt): `loi`, `muc-kiem`, `nghia`, `chu-thich`, `di-ban`, `boi-canh`, `doan`, `thuc-hanh` (câu đố, trò chơi), `hanh-dong`, `tu-lieu`, `bien-soan`, `doc-tiep`, `gop`, `thuoc-tuyen-tap`, `the-bai`, `danh-sach`, `bo-loc`, `tuyen-tap`, `loi-vao`, `cau-hom-nay`, `ban-co-biet`, `ban-do`, `tim`, `do-vui`, `vai`.
 - **JavaScript thuần**, mô-đun nhỏ nạp theo trang: chạm từ (popover), lưu, chia sẻ, sao chép trích dẫn, trình chiếu, cỡ chữ / sáng tối, đọc cùng bé, tìm khi gõ, đố vui (nhớ tiến độ), vai, nhớ chỗ đọc. Tổng trên trang bài ≤ 21 KB; mọi thứ hoạt động cơ bản khi tắt JavaScript (`<details>`, form, liên kết).
 
-## 7. Biên tập: hiện trạng và hướng nâng cấp admin
+## 7. Biên tập: nơi làm việc
 
-**Hiện trạng D-094:** không có ứng dụng quản trị riêng. Màn mẫu nhóm B của `design/v2` (B01–B05) mô tả các đường đang dùng; chi tiết ở `docs/28` mục 4. Các dòng dưới đây mô tả hiện trạng, không phải màn admin đích của D-096.
-
-- **Chế độ sửa trên trang đọc.** Khi người xem có quyền `cadao_soan`, các khối `cadao/*` in thêm nút **Sửa** và dải "Đang sửa" (trạng thái bài, "Xem như người đọc", Ẩn / Đăng); khách không bao giờ nhận các phần này trong HTML. Nút Sửa mở **tấm sửa** (`<dialog>`: trượt từ dưới lên trên điện thoại, cột phải trên máy tính), lưu một phần qua `PUT /tac-pham/{id}/phan/{phan}`, rồi khối được vẽ lại từ máy chủ — người biên soạn thấy đúng như người đọc sẽ thấy. Trang tuyển tập, mục từ, trò chơi, mô-típ, chủ đề, vùng, thể loại làm cùng cách.
-- **Bốn trang biên tập** do plugin đăng ký đường dẫn và mẫu khối (`register_block_template`): `/bien-tap/` (Hộp việc), `/bien-tap/tac-pham/`, `/bien-tap/them/`, `/bien-tap/so-lieu/`; khối `cadao/hop-viec`, `cadao/ds-tac-pham`, `cadao/them-bai`, `cadao/so-lieu-tuan`. Chưa đăng nhập → chuyển tới trang đăng nhập rồi quay lại; không đủ quyền → 403 tiếng Việt. Luôn `noindex`, không có trong sitemap.
-- **Mã sửa:** một tệp JavaScript thuần `bien-tap.js` (không bước dựng, không thư viện), chỉ nạp khi người xem có quyền `cadao_soan`; ngân sách riêng ≤ 30 KB gzip, không tính vào ngân sách trang bài của người đọc. Không có JavaScript thì các trang biên tập vẫn đọc được và các quyết định chính của Hộp việc vẫn gửi được bằng form.
+- **wp-admin là nơi làm việc** (D-096, D-100): menu Phongdao xếp theo việc; đăng nhập vào Bàn làm việc (đợt 3 đổi tên **Hôm nay**). Ba dòng việc **Bài mới · Hộp việc · Bổ sung** (D-103); hiện trạng màn và đích đợt 3: `docs/28` mục 4, `docs/32`.
+- **Mã:** `GiaoTiep\QuanTri` (Bàn làm việc, Hộp việc, Tác phẩm, Sửa tác phẩm, Kho, Thao tác hàng loạt, Nguồn & cài đặt) gọi cùng dịch vụ với trang đọc: `DichVu\LuuPhan` + `MienDuLieu\KiemPhan` (mọi lần lưu một phần), `DichVu\XepViec\QuyetViec` (quyết thẻ), `DichVu\XuLyLo\Lo` (thao tác hàng loạt: chốt phạm vi → xem trước → áp dụng từng lượt, kết quả từng mục), `DichVu\LuuPhan\LichSu` (so trước/sau, khôi phục). Form gửi `admin-post.php`, có nonce, kiểm quyền, kiểm phiên.
+- **Sửa nhanh trên trang đọc** giữ (D-094, D-104): nút Sửa trên từng khối, tấm sửa, dải "Đang sửa" (trạng thái, Ẩn / Đăng, Xem như người đọc); `bien-tap.js` thuần, chỉ nạp cho người có `cadao_soan`; khách không bao giờ nhận các phần sửa.
+- **`/bien-tap/…`** (Hộp việc, Duyệt từng thẻ, Tác phẩm, Số liệu tuần, Thêm bài): còn chạy tới khi đợt 3 chuyển về wp-admin (D-104).
 - **Bộ nhớ đệm:** trang của người đăng nhập trả `Cache-Control: private, no-store`; đệm transient của khối chỉ dùng cho khách; lưu một phần xoá đệm của bài đó.
-- **Nguồn & cài đặt:** một trang PHP trong wp-admin (menu "Phongdao"), form gửi qua `admin-post.php` có nonce và kiểm quyền: hồ sơ nguồn, nguồn tự động, kho (tìm, Đã gộp, "Tách ra"), máy đang làm, cài đặt. Menu "Phongdao" còn có đường tắt tới Hộp việc.
-- **wp-admin hiện tại:** ẩn với vai Biên tập các menu không cần (Bài viết, Bình luận gốc, Công cụ…); liên kết "Sửa" của tác phẩm trong WordPress (thanh quản trị, `get_edit_post_link`) trỏ về trang bài; `post.php` của `tac_pham` chuyển hướng về trang bài.
-- Điện thoại trước (390 px), dùng một tay; máy tính có phím tắt ở Hộp việc. Đạt WCAG 2.2 AA như trang người đọc (cùng `quet:v2`).
-
-**Đích D-096 (`docs/30`, đang triển khai — đã có đăng hàng loạt từ Kho qua lô `kho_dua_vao` và `cau_moi_dang` (D-099, `DichVu\XuLyLo\Lo`), Bàn làm việc (việc nên làm, vào/ra, tuổi thẻ, ngoại lệ dữ liệu — `GiaoTiep\QuanTri\BanLamViec`, `DichVu\XepViec\SoViec`), Tác phẩm, Hộp việc, Sửa tác phẩm gồm phân loại, Lịch sử so trước/sau và khôi phục, Kho tự chọn câu, Lô thao tác trên Hộp việc và Tác phẩm qua `DichVu\XuLyLo\Lo`):** menu Phongdao trong wp-admin có Tác phẩm, Hộp việc, Nguồn và các danh mục. `tac_pham` đã có `show_ui`, nhưng `show_in_menu` đang tắt; bật danh sách phải kèm cột, lọc, phân trang, kiểm quyền và biểu mẫu riêng. Không mở sửa trực tiếp post meta mảng qua ô Trường tuỳ chỉnh hay REST mặc định. Trang sửa có cấu trúc gọi cùng `LuuPhan`/`KiemPhan` với lối sửa trên trang đọc. Hộp việc truy mọi trạng thái của `wp_cadao_viec`, có đếm đúng, lọc và phân trang; các thao tác lô gọi cùng dịch vụ quyết việc hoặc lưu phần, kiểm quyền/phiên bản từng mục và ghi kết quả từng mục. Lịch sử cho phép so sánh, khôi phục bằng sự kiện mới. Các đường `/bien-tap/…` giữ tới khi admin đạt tương đương trên điện thoại rồi mới chuyển lối vào.
-
-Việc tạo trang admin **không đòi chuyển dữ liệu** từ bảng việc sang bài WordPress. Nếu cần chỉ mục hoặc bản ghi tiến độ lô, đo trước trên bản thử và bổ sung bằng bước nâng cấp CSDL có thể chạy lại; không thay loại bài, URL, khoá meta hay hồ sơ nguồn chỉ để dựng giao diện. Kiểm thử vai và quyền từng đối tượng, tác phẩm đã sửa đồng thời, chạy lại lô, khách không thấy dữ liệu nội bộ, bộ lọc toàn kho và trang điện thoại nằm trong tiêu chí T-167..T-172.
+- **Giao diện quản trị:** PHP dựng HTML, JavaScript thuần nhỏ theo màn (`assets/admin-*.js`), không ứng dụng React, không bước dựng; điện thoại 390 px trước, WCAG 2.2 AA (`quet:v2` quét các màn admin chính). Không ẩn menu WordPress với vai nào (D-100).
+- Tác phẩm không mở sửa trực tiếp post meta mảng qua ô Trường tuỳ chỉnh hay REST mặc định; `show_in_menu` của `tac_pham` tắt — đợt 3 chuyển hướng danh sách và màn sửa gốc của WordPress sang màn Phongdao (D-104).
 
 ## 8. Tìm
 
@@ -248,8 +244,9 @@ Cron thật của máy chủ gọi WP-Cron mỗi 5 phút (như MVP); mỗi loạ
 
 ## 10. SEO, ảnh chia sẻ
 
-- `noindex` mọi trang khi `blog_public` tắt (tới H5). Sau khi mở: lập chỉ mục tác phẩm L2+, tuyển tập đã công khai, trang thể loại, trang chủ đề / vùng / mô-típ có ≥ 3 tác phẩm L2, mục từ có lời giải do dự án viết hoặc nguồn mở; còn lại `noindex`.
-- `<title>`: tác phẩm L2 "… — nghĩa và cách dùng"; tuyển tập "…: N câu có giải nghĩa" khi mọi câu có ý nghĩa. Mô tả lấy từ ý nghĩa.
+- `noindex` mọi trang khi `blog_public` tắt (công tắc chặn Google toàn site, Human Gate H5 — người sáng lập mở).
+- Khi đã mở (D-106): **mọi tác phẩm đã đăng được lập chỉ mục**, không xét độ đầy đủ; tuyển tập đã công khai; trang thể loại; trang chủ đề / vùng / mô-típ có từ 3 tác phẩm đã đăng; mục từ có lời giải do dự án viết hoặc nguồn mở (lời giải chép từ nguồn: không, D-068). Trang lọc, trang tìm, bài nháp / ẩn: `noindex`. Cấp L0–L3 chỉ dùng nội bộ (xếp việc, bài nổi bật, Câu hôm nay).
+- `<title>`: tác phẩm có Ý nghĩa (tục ngữ: nghĩa bóng) "… — nghĩa và cách dùng"; chưa có: tên + thể loại. Tuyển tập "…: N câu có giải nghĩa" khi mọi câu có ý nghĩa. Mô tả lấy từ ý nghĩa khi có, không thì từ lời.
 - JSON-LD: `WebSite` + `SearchAction`, `Organization` (tên mới), `CreativeWork` cho tác phẩm (`isBasedOn` chỉ khi đã đối chiếu), `DefinedTerm` cho mục từ, `CollectionPage` cho tuyển tập / phân loại, `BreadcrumbList`.
 - Sitemap chỉ gồm trang được lập chỉ mục; canonical về phongdao.com.
 - Ảnh chia sẻ 1200×630 vẽ bằng GD trên máy chủ (chuyển từ `anh-chia-se.php` cùng phông tự lưu): thể loại, 4 dòng đầu, dòng mức kiểm, tên miền; sinh lại khi lời đổi.
@@ -263,30 +260,7 @@ Cron thật của máy chủ gọi WP-Cron mỗi 5 phút (như MVP); mỗi loạ
 
 ## 12. Từ mã MVP sang V2
 
-| Tệp MVP (`inc/`) | V2 | Cách |
-|---|---|---|
-| `doc-cadao-me.php`, `trich.php` | `NhapNguon\CadaoMe` | **chuyển nguyên thuật toán** + kiểm thử |
-| `trung.php` | `ChongTrung`, `MienDuLieu\VanTay` | **chuyển nguyên** + kiểm thử |
-| `tim.php` | `ChiMucTim`, `MienDuLieu\BoDau` | chuyển thuật toán, dựng chỉ mục từ các phần, thêm gõ sai |
-| `do-luong.php`, `luot-doc.php`, `so-lieu.php` | `DoLuong`, `LuotDoc`, trang Số liệu tuần | chuyển; thêm `mong_co_cau` |
-| `an-toan.php` | `HaTang\AnToan` | chuyển |
-| `anh-chia-se.php` | `AnhChiaSe` | chuyển (cùng phông) |
-| `seo.php` | `Seo` | viết lại theo cấp L2 |
-| `the-tho.php`; nhận lục bát, tô dị bản, gắn nút chạm, chia đoạn trong `functions.php` của theme | `MienDuLieu\TheTho`, `ToChoKhac`, `ChiaDoan`, khối `loi`, `di-ban`, `doan` | chuyển thuật toán sang PHP thuần |
-| `kho.php`, `nguon-tu-dong.php` | `KhoLuu\Kho`, `UngVien`, trang Nguồn & cài đặt | giữ bảng; **bỏ tạo bài Chờ duyệt hằng ngày**, thay bằng thẻ "Câu mới" trong Hộp việc |
-| `gop-bai.php` | `GopBai` | viết lại trên các phần, giữ hành vi (dị bản, lượt đọc, cảm nghĩ, phân tích dồn sang, 301) |
-| `goi-y.php`, `mo-tip.php`, `wikidata.php` | `GoiY`, `NhapNguon\Wikidata` | chuyển logic gợi ý; mỗi gợi ý là một việc trong `wp_cadao_viec` |
-| `dong-dao.php` | phân loại `tro_choi`, `NhapNguon\Wikipedia`, khối `thuc-hanh`, Đọc cùng bé | chuyển |
-| `nguoi-doc.php`, `phan-tich.php` | `NguoiDoc` | chuyển (ô bẫy, giới hạn, Turnstile) |
-| `doc-tiep.php` | `DocTiep` | chuyển (mô-típ trước, rồi chủ đề, từ, địa danh, vùng) |
-| `ban-do.php` | khối `ban-do` | chuyển (SVG tự lưu, không dịch vụ ngoài) |
-| `da-luu.php`, `trich-dan.php` | khối `hanh-dong`, trang Đã lưu | chuyển; trích dẫn mang tên mới |
-| `tu-dien.php`, `sua-muc-tu.php` | phân loại `muc_tu`, sửa trên trang mục từ | viết lại |
-| `loai-bai.php`, `danh-sach.php`, `trang-chu.php`, `muc-kiem.php` | khai báo dữ liệu, khối, mẫu theme | viết lại |
-| `ban-bien-tap.php`, `trang-quan-tri.php`, `trang-trung.php`, `hieu-nhanh.php` | `GiaoTiep\BienTap`, `XepViec`, `LuuPhan` | viết lại; giữ lệnh nạp nháp AI theo lô (`wp phongdao nhap-nhap`, nháp thành việc chờ) |
-| `khoi-tho.php` | — | **bỏ** (không còn Gutenberg cho tác phẩm) |
-| `tuc-ngu-thanh-ngu.php`, `site-cu.php` | `HaTang\ChuyenHuong` | **bỏ**, chỉ giữ bảng chuyển hướng 301 |
-| `chinh-sach-du-lieu.php`, `trang-du-an.php` | — | **bỏ** mã sinh trang; nội dung trang tĩnh mang sang (`docs/29`) |
+Đã chuyển xong 04/11/2026. Bảng chuyển từng tệp MVP sang lớp V2: `docs/luu-tru/26-muc-7-12-truoc-dot-3.md`. Mã MVP (`wordpress/plugins`, `wordpress/themes`, `wordpress/tests`) còn trong repo cho kiểm thử chuyển đổi; gỡ ở T-192.
 
 ## 13. Kiểm thử, CI, lệnh
 
@@ -302,7 +276,8 @@ Cron thật của máy chủ gọi WP-Cron mỗi 5 phút (như MVP); mỗi loạ
 
 - Dữ liệu mẫu: chỉ chữ mẫu và các bài mẫu đã có trong kiểm thử MVP (D-050); không chép kho thô hay lời từ site thật vào repo (AGENTS.md, KHÔNG BAO GIỜ 14).
 - SQL chạy được trên SQLite (Playground) và MySQL; tránh cú pháp chỉ MySQL có.
-- CI: job `v2` (kiểm thử, quét) chạy khi chạm `wordpress/v2/`; job MVP giữ tới khi chuyển. Không có bản dựng JavaScript để so.
+- CI: job `v2` (kiểm thử, quét, e2e) chạy khi chạm `wordpress/v2/`; job `wordpress` (MVP) còn chạy tới khi gỡ mã MVP (T-192). Không có bản dựng JavaScript để so.
+- `npm run kiem-site-that`: site thật có đúng phiên bản plugin, theme của `main` không (chỉ đọc).
 - AGENTS.md "LUÔN LUÔN": task V2 chạy `npm run kiem-tra`, `npm run test:v2`, `npm run quet:v2` trước khi kết thúc.
 
 ## 14. Rủi ro kỹ thuật
@@ -313,5 +288,23 @@ Cron thật của máy chủ gọi WP-Cron mỗi 5 phút (như MVP); mỗi loạ
 | Lộ phần sửa cho khách qua bộ nhớ đệm | Phần sửa chỉ in khi người xem có quyền; trang người đăng nhập `private, no-store`; đệm transient chỉ cho khách; `quet:v2` kiểm HTML khách không có nút Sửa, không có `nguon_may` |
 | Meta của bài sai hình dạng | Mọi lần ghi qua `LuuPhan` + `KiemPhan` (PHP thuần, có kiểm thử); lệnh `wp phongdao kiem-phan` rà toàn bộ |
 | Khối động chậm | Đệm transient theo bài, xoá khi lưu một phần; `Cache-Control` cho khách khi kịch bản cập nhật biết xoá đệm; đo TTFB (MVP 0,40–0,67 s) |
-| Playground khác MySQL | Tránh SQL riêng của MySQL; chạy thử công cụ nhập trên site thật ở chế độ chỉ đọc trước (`docs/29`) |
-| Xây lâu, MVP cũ dần | Chỉ làm đúng phạm vi đợt 1–3; mọi thứ khác để đợt 5 |
+| Playground khác MySQL | Tránh SQL riêng của MySQL; đo lại trên MySQL/MariaDB khi đổi truy vấn nặng (`do:tim:v2`) |
+| Đợt 3 lớn, nhiều màn đổi cùng lúc | Làm theo thứ tự `docs/32` mục 8, mỗi bước một PR có bản xem trước; giữ đường cũ chuyển hướng |
+
+## 15. Máy chủ và triển khai (T-074, T-075; chuyển từ `docs/24` mục 8)
+
+**phongdao.com** (D-070; trước 26/10/2026 là cadao.sdigi.net, nay chuyển hướng 301) — VPS của người sáng lập (Ubuntu 24.04), quản lý bằng **FlashPanel** (gói miễn phí), web server Apache + PHP-FPM, MariaDB 10.11. Tên miền qua Cloudflare (proxy bật, chứng chỉ Let's Encrypt do FlashPanel cấp và gia hạn). VPS còn chạy **các site khác của người sáng lập**: chỉ đụng tới site cadao.
+
+| Thành phần | Cách làm |
+|---|---|
+| Site, PHP 8.5, SSL, cài WordPress | Người sáng lập bấm trong FlashPanel |
+| **Cách ly** | Gói miễn phí không có ô "Website Isolation" khi tạo site → *Cài Đặt → Update Owner* `cadao`: FlashPanel tạo tài khoản Linux riêng, pool PHP riêng, thêm vào nhóm `isolated` (ACL chặn vào `/home` của site khác) |
+| Bổ sung cách ly | `cai-dat.sh` gỡ `cadao` khỏi nhóm `www-data` (nhóm đó gửi lệnh được tới pool PHP chung của các site khác), `wp-config.php` quyền 600 |
+| Tiếng Việt, múi giờ, đường dẫn, plugin, cron | `wordpress/may-chu/cai-dat.sh` (chạy bằng root, chạy lại được) |
+| **Tự cập nhật sau khi gộp PR** (T-078, gia cố T-175) | Cron mỗi 5 phút chạy `tu-cap-nhat.sh` bằng tài khoản `cadao`: thấy `main` có commit mới thì lấy plugin/theme của đúng commit đó (V2 khi có `wordpress/nguon-trien-khai`, MVP khi không), kiểm cú pháp PHP, thay thư mục và giữ bản cũ tới khi kiểm trang chủ đạt. Lỗi giữa các bước chuyển thư mục hoặc trang chủ không đạt thì cố phục hồi bản cũ; nếu phục hồi thất bại, giữ thư mục `.ca-dao-cu` để xử lý tay, không tự xoá. Commit lỗi không được thử lại. Nhật ký `/home/cadao/cap-nhat.log`; các bản đã lên site ở `/home/cadao/.cap-nhat-lich-su` (50 bản gần nhất). Chạy tay: `cd /home/cadao && sudo -u cadao bash bin/cap-nhat-plugin.sh`. **Quay lại bản trước:** V2 → V2 dùng Revert hoặc `NHANH=<mã commit>`; V2 → MVP phải hoàn tác dữ liệu trước khi đổi mã — `docs/huong-dan/quay-lai-ban-truoc.md` |
+| Lịch chạy | `DISABLE_WP_CRON`; `/etc/cron.d/cadao-wordpress` chạy `wp cron event run --due-now` mỗi phút |
+| WP-CLI | `sudo -u cadao /home/cadao/bin/wp <lệnh>` |
+| Chặn công cụ tìm kiếm | `blog_public = 0` tới khi mở công khai (H5, T-053) — ô "Discourage search engines" của FlashPanel đã không có tác dụng, script đặt lại |
+| Sao lưu | Người sáng lập: FlashPanel → *Sao Lưu*, hằng ngày, gồm site và cơ sở dữ liệu cadao, lưu ra ngoài VPS (Google Drive…) |
+
+Agent vào VPS bằng khóa SSH riêng trên máy người sáng lập (không dùng mật khẩu). Không ghi IP, tài khoản hay thông tin các site khác vào repo.

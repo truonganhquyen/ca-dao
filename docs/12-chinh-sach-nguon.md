@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| Phiên bản | 2.0 · 23/10/2026 (nguồn web, Ca dao Mẹ, cách dùng chú thích: D-037, D-045, D-046) |
+| Phiên bản | 2.1 · 11/11/2026 (thêm nguồn trong quản trị: D-104) · 2.0 · 23/10/2026 (nguồn web, Ca dao Mẹ, cách dùng chú thích: D-037, D-045, D-046) |
 | Trạng thái | **Ổn định.** Danh sách tư liệu ở mục 8 **chưa xác minh** |
 | Đọc khi | Trước khi tạo tệp `content/nguon/`; khi thu thập từ một trang web; khi dùng chú thích của người khác |
 
@@ -37,10 +37,17 @@
 
 **Trên site WordPress (D-068, 26/10/2026):** chú thích, đáp án chép từ nguồn tự động (cadao.me) không còn dòng "Nguồn: …" dưới từng mục; các trang đã thu thập được ghi nhận ở trang **Chính sách thu thập dữ liệu** (`/chinh-sach-du-lieu/`). Ghi công theo giấy phép mở (CC BY-SA) vẫn ngay tại chỗ. Các mục dưới đây là quy ước của site Astro cũ, giữ làm tham khảo.
 
-- Mỗi tư liệu một tệp `content/nguon/src-<slug>.yaml` (mẫu: `templates/nguon.yaml`).
-- **Sách, tạp chí, luận văn, bản quét:** số trang ghi ở **chỗ dùng** (`nguon[].trang`). Hai lần in khác nhau → hai tệp nguồn, ghi rõ `tai_ban`. `da_xac_minh_ban_in: true` chỉ khi đã đối chiếu **toàn bộ** thông tin thư mục (R17).
-- **Trang web:** tệp nguồn ghi trang chủ ở `url`; mỗi chỗ dùng ghi `url` của **đúng trang** đã lấy, `ngay_truy_cap`, và `ban_luu_tru` (bản lưu Wayback Machine) cho lời của bài công khai (R22). Trang gốc có mất thì vẫn chứng minh được.
+- Mỗi tư liệu một **hồ sơ nguồn** trong WordPress (loại bài hồ sơ nguồn, `docs/28` mục 3.2; trước 25/10/2026 là tệp `content/nguon/*.yaml` của site Astro, đã gỡ).
+- **Sách, tạp chí, luận văn, bản quét:** số trang ghi ở **chỗ dùng** (ô "Trang" của phần hay của đối chiếu). Hai lần in khác nhau → hai hồ sơ, ghi rõ lần tái bản. Chỉ ghi "đã đối chiếu" khi đã xem chính trang sách đó (R17).
+- **Trang web:** hồ sơ ghi trang chủ; mỗi chỗ dùng ghi đường dẫn **đúng trang** đã lấy (máy ghi tự động cho câu từ nguồn tự động — chỉ người biên soạn thấy) và ngày lấy (R22). Trang gốc có mất thì vẫn chứng minh được.
 - Ảnh chụp trang sách làm bằng chứng nội bộ lưu ở nơi riêng tư, không đưa vào kho công khai nếu sách còn bản quyền.
+
+### 3.1. Thêm nguồn trong quản trị (đợt 3, D-104)
+
+- **Hồ sơ nguồn** (sách, trang web, người kể, tạp chí…) thêm bằng tay ở Nguồn & cài đặt; vai Biên tập thêm được hồ sơ sách, cả ngay trong tấm "Đối chiếu sách". Chỉ ghi điều người thêm biết chắc; thiếu thì để trống ("chưa rõ"), không đoán. Chính sách hiện với người đọc, trạng thái xin phép, giấy phép chỉ Quản trị đổi.
+- **Nhập câu từ tệp vào Kho**: câu người gõ lại từ một cuốn sách, gắn với hồ sơ sách đó; qua chống trùng, không đăng thẳng, máy không sửa lời. Dùng nội dung sách vẫn theo mục 4.
+- **Nguồn tự động mới** (máy tự đọc một trang web) không thêm bằng nút: ghi đề nghị (trang, lý do, tình trạng xin phép) → người sáng lập quyết về quyền dùng → người làm kỹ thuật viết bộ đọc riêng.
+- **Đối chiếu sách**: chỉ người điền sách, trang sau khi xem sách; máy không tự điền (lằn ranh `docs/28` mục 6.3).
 
 ## 4. Dùng nội dung của người khác
 

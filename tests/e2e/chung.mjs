@@ -4,7 +4,7 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 
 const goc = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')), '../..');
-export const THU_MUC_ANH = path.join(goc, 'docs/e2e-review/screenshots');
+export const THU_MUC_ANH = path.join(goc, 'docs/luu-tru/e2e-review-mvp/screenshots');
 // Ảnh trang quản trị có thể chứa kho thô, email: lưu riêng, không đưa vào repo công khai (.gitignore)
 export const THU_MUC_ANH_QT = path.join(THU_MUC_ANH, 'admin');
 
@@ -16,7 +16,7 @@ export async function chanDem(ctxHoacTrang) {
   await ctxHoacTrang.route(/\/wp-json\/cadao\/v1\/(luot-doc|su-kien)/, r => r.abort());
 }
 
-/** Chụp ảnh vào docs/e2e-review/screenshots/<dự án>-<tên>.png. */
+/** Chụp ảnh vào docs/luu-tru/e2e-review-mvp/screenshots/<dự án>-<tên>.png. */
 export async function chup(trang, ten, testInfo, { toanTrang = false, quanTri = false } = {}) {
   const thuMuc = quanTri ? THU_MUC_ANH_QT : THU_MUC_ANH;
   fs.mkdirSync(thuMuc, { recursive: true });

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Quét trợ năng giao diện WordPress (T-072; docs/20 mục 11): dựng WordPress trong Playground với plugin, theme
+// Quét trợ năng giao diện WordPress (T-072; docs/luu-tru/20-dac-ta-giao-dien.md mục 11, nay là docs/27 phụ lục B): dựng WordPress trong Playground với plugin, theme
 // và bài mẫu tổng hợp (wordpress/tests/blueprint-giao-dien.json), rồi chạy axe-core WCAG 2.2 A/AA trên trang chủ,
 // kho, thể loại và từng trang bài — điện thoại 360 px (sáng, tối) và máy tính; mở mọi <details>.
 // Cần Node ≥ 24.18 (Playground) và Chrome/Chromium (CHROME_PATH hoặc đường dẫn thường gặp).

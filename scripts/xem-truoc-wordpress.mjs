@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// In link bản xem trước WordPress cho PR (D-035, docs/24 mục 6): `npm run xem-truoc:wordpress [-- <nhánh>]`.
+// In link bản xem trước WordPress cho PR (D-035, docs/luu-tru/24-wordpress.md mục 6): `npm run xem-truoc:wordpress [-- <nhánh>]`.
 // Link mở WordPress Playground trên trình duyệt (máy tính hoặc điện thoại), cài plugin từ nhánh đã đẩy lên GitHub.
 import fs from 'node:fs';
 import { execSync } from 'node:child_process';
