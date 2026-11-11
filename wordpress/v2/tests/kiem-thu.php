@@ -1545,6 +1545,40 @@ remove_filter( 'wp_redirect', $chan_di_lo );
 $_POST = $_REQUEST = array();
 $_GET  = array();
 kt( 'sửa xong quay về đúng danh sách đang lọc: nút Sửa bài mang địa chỉ danh sách, trang sửa có lối về và giữ lối đó sau khi lưu; địa chỉ lạ bị bỏ', str_contains( $h_ds_ve, 've=' . rawurlencode( $ds_loc ) ) && str_contains( $h_sua_v, 'đúng bộ lọc vừa xem' ) && str_contains( $h_sua_v, 'name="ve" value="' . esc_attr( $ds_loc ) . '"' ) && ! str_contains( $h_sua_l, 'đúng bộ lọc vừa xem' ) && str_contains( $r_ve, 've=' . rawurlencode( $ds_loc ) ), array( 'ds' => str_contains( $h_ds_ve, 've=' . rawurlencode( $ds_loc ) ), 'lien_sua' => preg_match( '/page=phongdao-sua-tac-pham[^"]*/', $h_ds_ve, $m_ve ) ? $m_ve[0] : '', 've_mong' => rawurlencode( $ds_loc ), 'sua' => str_contains( $h_sua_v, 'đúng bộ lọc vừa xem' ), 'an' => str_contains( $h_sua_v, 'name="ve" value="' . esc_attr( $ds_loc ) . '"' ), 'la' => ! str_contains( $h_sua_l, 'đúng bộ lọc vừa xem' ), 've' => $r_ve ) );
+// ---------- Sửa tác phẩm một màn hai cột, "Bài tiếp theo" trong danh sách đã lọc (T-188) ----------
+$_GET   = array( 'id' => (string) $tp1 );
+$h_hc   = $SUA::hien();
+$co_yn  = null !== PhanBai::lay( $tp1, 'y_nghia' );
+kt( 'Sửa tác phẩm hai cột: bên trái lời rồi các phần (phần đã có mở sẵn, "Sửa lời" gập vì lời đã hiện ở đầu); bên phải trạng thái, việc chờ, phân loại, lịch sử', str_contains( $h_hc, '<div class="phongdao-sua-bo"><div class="phongdao-sua-chinh"><section class="phongdao-loi-xem">' ) && strpos( $h_hc, '<aside class="phongdao-sua-ben"' ) < strpos( $h_hc, 'class="phongdao-trang-thai"' ) && strpos( $h_hc, '<aside class="phongdao-sua-ben"' ) < strpos( $h_hc, 'Việc đang chờ' ) && strpos( $h_hc, '<aside class="phongdao-sua-ben"' ) < strpos( $h_hc, 'id="phan-loai"' ) && strpos( $h_hc, '<aside class="phongdao-sua-ben"' ) < strpos( $h_hc, 'id="lich-su"' ) && str_contains( $h_hc, '<details class="phongdao-sua-phan" id="phan-loi">' ) && ( ! $co_yn || str_contains( $h_hc, '<details class="phongdao-sua-phan" id="phan-y_nghia" open>' ) ) && ! str_contains( $h_hc, 'data-bai-sau' ), array( $co_yn ) );
+$ds_tat  = add_query_arg( array( 'page' => 'phongdao-tac-pham', 'tt' => 'tat_ca' ), admin_url( 'admin.php' ) );
+$ids_tat = \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::ids_loc( array( 'tt' => 'tat_ca' ), 1000 );
+$p_hc    = (int) ( $ids_tat[0] ?? 0 );
+$sau_hc  = (int) ( $ids_tat[1] ?? 0 );
+$_GET    = array( 'id' => (string) $p_hc, 've' => $ds_tat );
+$h_hc2   = $SUA::hien();
+kt( 'Sửa tác phẩm: đến từ danh sách đã lọc thì có "Bài tiếp theo" đúng bài kế (giữ lối về danh sách), mỗi form phần mang bài kế, có tuỳ chọn lưu xong tự sang bài tiếp', $sau_hc > 0 && str_contains( $h_hc2, 'href="' . esc_url( $SUA::url( $sau_hc, $ds_tat ) ) . '" data-bai-sau>' ) && str_contains( $h_hc2, '<input type="hidden" name="bai_sau" value="' . $sau_hc . '">' ) && str_contains( $h_hc2, 'id="phongdao-sang-tiep"' ), array( $p_hc, $sau_hc ) );
+// Lưu một phần với "tự sang bài tiếp": mở bài kế; không chọn thì ở lại, vẫn mang lối sang bài kế
+$bcb_cu = PhanBai::lay( $p_hc, 'ban_co_biet' );
+add_filter( 'wp_die_handler', $chan_die_lo );
+add_filter( 'wp_redirect', $chan_di_lo );
+$luu_hc = static function ( array $them ) use ( $SUA, $p_hc, $sau_hc, $ds_tat ): string {
+	$_POST    = array( 'id' => (string) $p_hc, 'phan' => 'ban_co_biet', 'chu' => 'Bạn có biết thử chuyển bài.', 've' => $ds_tat, 'bai_sau' => (string) $sau_hc, '_wpnonce' => wp_create_nonce( 'phongdao_sua_phan_' . $p_hc . '_ban_co_biet' ) ) + $them;
+	$_REQUEST = $_POST;
+	try {
+		$SUA::luu();
+		return 'không dừng';
+	} catch ( \RuntimeException $e ) {
+		return $e->getMessage();
+	}
+};
+$r_sang = $luu_hc( array( 'sang' => '1' ) );
+$r_o    = $luu_hc( array() );
+remove_filter( 'wp_die_handler', $chan_die_lo );
+remove_filter( 'wp_redirect', $chan_di_lo );
+$_POST = $_REQUEST = array();
+$_GET  = array();
+LuuPhan::luu( $p_hc, 'ban_co_biet', $bcb_cu, array( 'nguoi' => $ai_ql, 'goi' => KiemPhan::GOI_NGUOI, 'duyet' => true ) );
+kt( 'Sửa tác phẩm: lưu xong có "tự sang bài tiếp" thì mở bài kế (giữ lối về danh sách); không chọn thì ở lại bài này, lối sang bài kế còn', str_contains( $r_sang, 'redirect: ' ) && str_contains( $r_sang, 'id=' . $sau_hc ) && str_contains( $r_sang, 'ket_qua=da_luu_sang' ) && str_contains( $r_sang, 've=' ) && str_contains( $r_o, 'id=' . $p_hc ) && str_contains( $r_o, 'bai_sau=' . $sau_hc ) && ! str_contains( $r_o, 'da_luu_sang' ), array( $r_sang, $r_o ) );
 
 // ---------- Bảng điều khiển máy, căn cứ nguồn trước khi quyết (T-179) ----------
 $DK = \Phongdao\DichVu\May\DieuKhien::class;

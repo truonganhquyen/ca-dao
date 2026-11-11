@@ -12,9 +12,9 @@ Chưa chuyển gì cả: trang `/bien-tap/` và nút Sửa trên trang đọc v�
 ## Kịch bản 1 — Bài thiếu Ý nghĩa: sửa ba bài, quay về đúng danh sách
 
 1. Phongdao → **Tác phẩm** → ô "Phần và cờ" chọn **Thiếu ý nghĩa** → bấm **Tìm và lọc**.
-2. Ở một bài, bấm **Sửa bài**. Lời bài hiện ở đầu trang. Mở khối **Sửa ý nghĩa**, viết, bấm **Lưu và hiện cho người đọc** (hoặc **Lưu nháp** nếu chưa muốn hiện).
-3. Bấm **← Danh sách Tác phẩm (đúng bộ lọc vừa xem)**. Bạn phải quay về đúng danh sách "Thiếu ý nghĩa", đúng trang đang xem.
-4. Làm thêm hai bài nữa.
+2. Ở một bài, bấm **Sửa bài**. Trên máy tính, trang chia hai cột: bên trái lời bài (có số dòng) và các phần; bên phải trạng thái, phân loại, lịch sử. Phần đã có thì mở sẵn; phần **Chưa có** thì bấm để mở. Mở **Sửa ý nghĩa**, viết, bấm **Lưu và hiện cho người đọc** (hoặc **Lưu nháp** nếu chưa muốn hiện).
+3. Ở cột bên phải, đánh dấu **Lưu xong tự sang bài tiếp theo trong danh sách**. Viết Ý nghĩa cho bài kế rồi lưu: trang tự mở bài sau đó trong danh sách "Thiếu ý nghĩa". (Không đánh dấu thì sau khi lưu có lối **Sang bài tiếp theo →**.)
+4. Bấm **← Danh sách Tác phẩm (đúng bộ lọc vừa xem)**. Bạn phải quay về đúng danh sách "Thiếu ý nghĩa", đúng trang đang xem.
 
 Cách nhanh hơn để so sánh: ở danh sách, đánh dấu ba bài → khối **Làm theo lô** → Thao tác **Sửa một phần theo từng hàng**, Phần **Ý nghĩa** → **Xem trước**. Mỗi bài có một ô riêng; gõ xong bấm **Lưu giá trị trên trang này** để xem so trước/sau. Đánh dấu "Tôi đã đọc và duyệt" rồi bấm **Áp dụng**.
 

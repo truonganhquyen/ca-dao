@@ -1,4 +1,21 @@
-.phongdao-admin-sua { max-width: 940px; }
+.phongdao-admin-sua { max-width: 1360px; }
+/* Một màn hai cột (T-188): bên trái lời và các phần; bên phải trạng thái, phân loại, lịch sử — cố định khi cuộn ở màn rộng */
+.phongdao-sua-bo { display: grid; gap: 0 24px; align-items: start; }
+.phongdao-sua-chinh, .phongdao-sua-ben { min-width: 0; }
+@media (min-width: 1200px) {
+	.phongdao-sua-bo { grid-template-columns: minmax(0, 1fr) minmax(300px, 380px); }
+	.phongdao-sua-ben { position: sticky; top: 48px; max-height: calc(100vh - 64px); overflow-y: auto; padding-right: 4px; }
+	.phongdao-sua-ben .phongdao-trang-thai { margin-top: 16px; }
+}
+.phongdao-sua-ben h2 { font-size: 15px; }
+.phongdao-sua-ben .phongdao-sua-phan, .phongdao-sua-ben .phongdao-sua-viec { padding: 12px; }
+.phongdao-sua-ben .phongdao-chon-muc { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; max-height: 260px; }
+.phongdao-sua-ben .phongdao-chon-muc .choice { min-height: 36px; padding: 0 10px; border: 1px solid #c3c4c7; border-radius: 18px; background: #f6f7f7; }
+.phongdao-sua-ben .phongdao-chon-muc .choice:has(input:checked) { background: #f0f6fc; border-color: #2271b1; }
+.phongdao-sua-lien { display: flex; flex-wrap: wrap; gap: 4px 8px; }
+.phongdao-sang label { display: flex; align-items: center; gap: 8px; min-height: 44px; }
+.phongdao-sang input[type=checkbox] { width: 20px; height: 20px; margin: 0; }
+.phongdao-lich-cu summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; color: #2271b1; }
 .phongdao-admin-sua a:focus-visible, .phongdao-admin-sua button:focus-visible, .phongdao-admin-sua summary:focus-visible, .phongdao-admin-sua input:focus-visible, .phongdao-admin-sua textarea:focus-visible, .phongdao-admin-sua select:focus-visible { outline: 3px solid #2271b1; outline-offset: 2px; }
 .phongdao-sua-viec, .phongdao-sua-phan { background: #fff; border: 1px solid #c3c4c7; border-radius: 6px; margin: 16px 0; padding: 16px; }
 .phongdao-sua-viec h2 { margin: 0 0 8px; }

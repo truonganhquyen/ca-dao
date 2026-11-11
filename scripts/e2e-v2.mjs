@@ -425,7 +425,11 @@ try {
       const id = await bt.$eval('.dai-bien-tap', e => e.dataset.bai);
       await di(bt, `/wp-admin/admin.php?page=phongdao-sua-tac-pham&id=${id}`);
       chac(await bt.$('#phan-y_nghia form') && await coChu(bt, 'Việc đang chờ'), 'không mở được trang sửa có cấu trúc');
-      await bam(bt, '#phan-y_nghia summary');
+      // Một màn hai cột: lời và các phần bên trái, trạng thái và phân loại bên phải (màn rộng)
+      const [chinh, ben] = await bt.evaluate(() => ['.phongdao-sua-chinh', '.phongdao-sua-ben'].map(s => document.querySelector(s).getBoundingClientRect().toJSON()));
+      chac(ben.width > 0 && ben.left >= chinh.right - 1, 'trang sửa không chia hai cột ở màn rộng');
+      // Phần đã có mở sẵn; phần chưa có thì mở bằng tay
+      await bt.$eval('#phan-y_nghia', d => { d.open = true; });
       await datO(bt, '#phan-y_nghia textarea[name=chu]', moi);
       await bamDoiTrang(bt, '#phan-y_nghia button[name=duyet][value="1"]');
       chac(await coChu(bt, 'Đã lưu phần bài.'), 'wp-admin không báo lưu thành công');

@@ -11,6 +11,28 @@ document.addEventListener('click', e => {
   ds.lastElementChild?.querySelector('textarea, input:not([type=hidden])')?.focus();
 });
 
+// Điện thoại: các phần gập lại cho gọn (màn rộng mở sẵn phần đã có để thấy nội dung); phần vừa lưu vẫn mở
+if (window.matchMedia('(max-width: 782px)').matches) {
+  const vua = 'phan-' + (new URLSearchParams(location.search).get('phan') || '');
+  document.querySelectorAll('.phongdao-sua-chinh details.phongdao-sua-phan[open]').forEach(d => { if (d.id !== vua) d.open = false; });
+}
+
+// "Lưu xong tự sang bài tiếp theo" (đến từ danh sách đã lọc): nhớ trên máy; khi gửi một phần, thêm ô sang=1 vào form.
+const sang = document.getElementById('phongdao-sang-tiep');
+if (sang) {
+  try { sang.checked = localStorage.getItem('phongdao-sang-tiep') === '1'; } catch (e) { /* bộ nhớ bị chặn */ }
+  sang.addEventListener('change', () => { try { localStorage.setItem('phongdao-sang-tiep', sang.checked ? '1' : '0'); } catch (e) { /* bộ nhớ bị chặn */ } });
+  document.addEventListener('submit', e => {
+    const f = e.target;
+    if (!sang.checked || !(f instanceof HTMLFormElement) || !f.querySelector('input[name=bai_sau]')) return;
+    const o = document.createElement('input');
+    o.type = 'hidden';
+    o.name = 'sang';
+    o.value = '1';
+    f.append(o);
+  });
+}
+
 // Lọc danh sách mục phân loại dài (không dấu); tắt JavaScript thì vẫn chọn được, chỉ không có ô lọc.
 const khongDau = s => s.normalize('NFD').replace(/\p{M}/gu, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
 document.querySelectorAll('.phongdao-admin-sua [data-chi-js]').forEach(e => { e.hidden = false; });
