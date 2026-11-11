@@ -1,5 +1,5 @@
 // Bảo mật, cấu hình nhìn từ ngoài (chỉ đọc; không thử đăng nhập vào tài khoản thật).
-// Lỗi đã biết đánh dấu test.fail — xem docs/e2e-review/REPORT.md.
+// Lỗi đã biết đánh dấu test.fail — xem docs/luu-tru/e2e-review-mvp/REPORT.md.
 import { test, expect } from '@playwright/test';
 import { chup, BAI } from './chung.mjs';
 

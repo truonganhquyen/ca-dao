@@ -1,6 +1,6 @@
 # Khảo sát E2E phongdao.com (Playwright)
 
-Kịch bản đã dùng cho báo cáo `docs/e2e-review/REPORT.md`. Chạy trên **site thật** (mặc định `https://phongdao.com`),
+Kịch bản đã dùng cho báo cáo `docs/luu-tru/e2e-review-mvp/REPORT.md`. Chạy trên **site thật** (mặc định `https://phongdao.com`),
 bằng Chrome đã cài trên máy (không tải trình duyệt riêng).
 
 | Tệp | Nội dung | Ghi lên site? |
@@ -27,7 +27,7 @@ E2E_TRINH_DUYET=/opt/pw-browsers/chromium E2E_PROXY=$HTTPS_PROXY npm run e2e
 npx playwright show-report test-results/e2e       # xem dấu vết khi hỏng
 ```
 
-Ảnh chụp: `docs/e2e-review/screenshots/` (người đọc) và `docs/e2e-review/screenshots/admin/` (quản trị — **đã
+Ảnh chụp: `docs/luu-tru/e2e-review-mvp/screenshots/` (người đọc) và `docs/luu-tru/e2e-review-mvp/screenshots/admin/` (quản trị — **đã
 .gitignore** vì có thể chứa kho thô, email; không đưa lên repo công khai).
 
 ## Lỗi đã biết

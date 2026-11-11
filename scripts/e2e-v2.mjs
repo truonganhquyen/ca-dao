@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Kiểm thử đầu-cuối V2 (docs/29 mục 4): đi từng thao tác như người dùng thật trong Chrome, trên điện thoại 390 px.
+// Kiểm thử đầu-cuối V2 (docs/luu-tru/29-chuyen-doi-v2.md mục 4; lệnh ở docs/26 mục 13): đi từng thao tác như người dùng thật trong Chrome, trên điện thoại 390 px.
 //   npm run e2e:v2                          bản xem trước (Playground, dữ liệu mẫu): người đọc rồi người biên soạn
 //   npm run e2e:v2 -- --site https://…      site thật sau khi chuyển: chỉ người đọc, CHỈ ĐỌC — trình duyệt chặn mọi yêu cầu
 //                                           không phải GET/HEAD (không gửi form, không lượt đọc, không sự kiện đo lường)

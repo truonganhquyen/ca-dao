@@ -57,7 +57,7 @@ if (chinh < 24 || (chinh === 24 && phu < 18)) {
     if (r.status !== 0 || !kq.includes('KẾT QUẢ: ĐẠT')) hong = true;
   };
   chay('v2 · Playground', path.join(goc, 'tests', 'blueprint-kiem-thu.json'), path.join(goc, 'tests', '.ket-qua.txt'));
-  // Chuyển đổi (docs/29): plugin MVP tạo dữ liệu mẫu, rồi V2 thay chỗ trên cùng cơ sở dữ liệu như ngày chuyển
+  // Chuyển đổi (docs/luu-tru/29-chuyen-doi-v2.md): plugin MVP tạo dữ liệu mẫu, rồi V2 thay chỗ trên cùng cơ sở dữ liệu như ngày chuyển
   const tepMvp = path.join(goc, 'tests', '.chuyen-doi-mvp.json');
   fs.rmSync(tepMvp, { force: true });
   chay('v2 · chuyển đổi', path.join(goc, 'tests', 'chuyen-doi', 'blueprint.json'), path.join(goc, 'tests', '.ket-qua-chuyen-doi.txt'),

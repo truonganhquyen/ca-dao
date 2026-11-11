@@ -1,5 +1,5 @@
 // Chất lượng tìm kiếm qua API /wp-json/cadao/v1/tim (không qua giao diện, không ghi sự kiện "tìm không ra").
-// Lỗi đã biết đánh dấu test.fail — xem docs/e2e-review/REPORT.md.
+// Lỗi đã biết đánh dấu test.fail — xem docs/luu-tru/e2e-review-mvp/REPORT.md.
 import { test, expect } from '@playwright/test';
 import { timApi } from './chung.mjs';
 

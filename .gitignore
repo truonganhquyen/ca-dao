@@ -12,6 +12,7 @@ wordpress/tests/.anh-chia-se-thu.png
 # Khảo sát E2E (tests/e2e): kết quả chạy; ảnh trang quản trị có thể chứa kho thô, email — không đưa lên repo công khai
 test-results/
 docs/e2e-review/screenshots/admin/
+docs/luu-tru/e2e-review-mvp/screenshots/admin/
 
 # Bộ thiết kế V2 (D-092): bản dựng, ảnh chia sẻ, tài liệu HTML do máy sinh — chạy lại bằng design/v2/README.txt
 design/v2/dist/

@@ -34,7 +34,7 @@ cd /home/cadao && sudo -u cadao NHANH=<mã commit của bản muốn quay về> 
 
 ## Quay qua mốc V2 → MVP
 
-Đây là quy trình riêng, không dùng ngay nút Revert. Đọc `docs/29` mục 5, chọn mã commit MVP trước ngày chuyển và kiểm bản sao lưu đêm trước có trong FlashPanel (D-090 không yêu cầu thử khôi phục). Sau khi người sáng lập đồng ý cho lần ghi này:
+Đây là quy trình riêng, không dùng ngay nút Revert. Đọc `docs/luu-tru/29-chuyen-doi-v2.md` mục 5, chọn mã commit MVP trước ngày chuyển và kiểm bản sao lưu đêm trước có trong FlashPanel (D-090 không yêu cầu thử khôi phục). Sau khi người sáng lập đồng ý cho lần ghi này:
 
 1. Khi **mã V2 còn đang chạy**, agent dùng WP-CLI của site chạy `wp phongdao nhap --hoan-tac`; kiểm kết quả và đối chiếu số bài, quyết định còn lại. Nếu hoàn tác thất bại, dừng tại V2, không đổi mã.
 2. Dùng Cách 2 với `NHANH=<mã commit MVP>` hoặc gộp PR Revert của PR chuyển đổi. Script chọn đúng mã MVP vì commit đó chưa có `wordpress/nguon-trien-khai`.

@@ -120,7 +120,7 @@ Nguồn (Ca dao Mẹ · Wikisource · người đọc · nhập tay)
   → Hậu kiểm: góp ý, báo lỗi, "mong có câu này" → quay lại Hộp việc
 ```
 
-**Cấp chất lượng (nội bộ, máy tính, không hiện cho người đọc):** L0 có lời · L1 có thể loại và dòng mức kiểm · L2 có Ý nghĩa hoặc bộ nghĩa đã duyệt · L3 có thêm đối chiếu sách, bối cảnh hoặc media có quyền. Dùng để xếp việc, chọn bài nổi bật và quyết lập chỉ mục (L2 trở lên). Bài phân tích của người đọc không tính cấp. Không chặn đăng.
+**Cấp chất lượng (nội bộ, máy tính, không hiện cho người đọc):** L0 có lời · L1 có thể loại và dòng mức kiểm · L2 có Ý nghĩa hoặc bộ nghĩa đã duyệt · L3 có thêm đối chiếu sách, bối cảnh hoặc media có quyền. Dùng để xếp việc và chọn bài nổi bật; **không quyết lập chỉ mục** — mọi tác phẩm đã đăng được lập chỉ mục khi site mở cho Google (D-106). Bài phân tích, cách hiểu của người đọc không tính cấp. Không chặn đăng.
 
 ## 7. Lộ trình
 
@@ -130,7 +130,7 @@ Giả định khoảng 5 giờ/tuần của người sáng lập; mọi phần m
 |---|---|---|
 | **1 · Nền** | Khung V2, mô hình dữ liệu (phần của bài, bảng việc), nguồn vào + kho + chống trùng, tìm, công cụ nhập dữ liệu chạy được trên bản mẫu | — |
 | **2 · Trang đọc** | Theme 1.0, 5 mẫu thể loại, trang chủ lối vào, tuyển tập, tra cứu, người đọc góp, đo lường, SEO, an toàn | Xem bản xem trước (~1–2 giờ) |
-| **3 · Biên tập** | Giao diện D-094 đã có; nâng cấp admin chính theo `docs/30` bằng các bước độc lập, giữ Hộp việc và sửa nhanh | Dùng thử trên máy tính và điện thoại với danh sách, hàng chờ, sửa và xử lý lô |
+| **3 · Biên tập** | Giao diện D-094 đã có; nâng cấp admin chính theo `docs/luu-tru/30-ke-hoach-quan-tri-bien-tap-v2.md` (đã làm), rồi đợt 3 quản trị gọn theo `docs/32` (D-103..D-106), giữ Hộp việc và sửa nhanh | Dùng thử trên máy tính và điện thoại với danh sách, hàng chờ, sửa và xử lý lô |
 | **4 · Chuyển đổi và mở** | Thay plugin + theme, nhập dữ liệu trên site thật, kiểm, mở cho Google (H5) | Xác nhận sao lưu đêm trước, đọc báo cáo, kiểm trên điện thoại, bấm mở (~2 giờ) |
 | **5 · Mở rộng** | Đối chiếu sách Wikisource, Cho lớp học, giọng đọc, thể loại mới, truyện, dữ liệu mở, dọn dữ liệu cũ | Theo từng việc |
 

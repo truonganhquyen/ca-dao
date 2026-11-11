@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Kiểm thử plugin WordPress `ca-dao` trong WordPress Playground (docs/24 mục 6): `npm run test:wordpress`.
+// Kiểm thử plugin WordPress `ca-dao` trong WordPress Playground (docs/luu-tru/24-wordpress.md mục 6): `npm run test:wordpress`.
 // Cần Node ≥ 24.18 (yêu cầu của Playground) và mạng (tải WordPress lần đầu). Thêm --mang để thử bộ đọc trên cadao.me thật.
 import fs from 'node:fs';
 import os from 'node:os';

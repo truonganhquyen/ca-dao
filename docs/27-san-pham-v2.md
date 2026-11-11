@@ -2,10 +2,10 @@
 
 | | |
 |---|---|
-| Phiên bản | 1.2 · 02/11/2026 (D-084, D-085, D-087, D-088; bảng tím – lục, bộ thiết kế D-092; mỗi câu một dòng, Ý nghĩa, nhãn mức kiểm, ảnh chia sẻ D-093) |
+| Phiên bản | 1.3 · 11/11/2026 (đợt 3: D-105 trang bài ba tầng, tục ngữ, câu đố, ca dao hình ảnh, cách hiểu của bạn đọc, từ khó; D-106 lập chỉ mục) · 1.2 · 02/11/2026 (D-084, D-085, D-087, D-088; bảng tím – lục, bộ thiết kế D-092; mỗi câu một dòng, Ý nghĩa, nhãn mức kiểm, ảnh chia sẻ D-093) |
 | Trạng thái | **Đã duyệt.** Đổi hướng thẩm mỹ hay hành vi đã chốt là Human Gate H4, ghi D-xxx |
 | Đọc khi | Mọi task chạm trang người đọc (đợt 2, nhóm V2 trong `docs/22`) |
-| Đọc kèm | `26` (kỹ thuật: khối, mẫu, REST), `28` (nội dung đến từ đâu), `docs/20` mục 1, 10, 11 (token, câu chữ, trợ năng — vẫn áp dụng) |
+| Đọc kèm | `26` (kỹ thuật: khối, mẫu, REST), `28` (nội dung đến từ đâu), `32` (kế hoạch đợt 3, mục 4); câu chữ giao diện và trợ năng ở phụ lục A, B cuối tài liệu này |
 | Căn cứ | `docs/nghien-cuu/v2-ux-ui-2026-10-27.md`, khảo sát 27/10, báo cáo E2E 26/10, bản đề xuất *Phongdao Next Generation* mục 7–9 (S01–S18) |
 | Bộ thiết kế | **`design/v2/`** (D-092): 66 màn, 203 trạng thái, token, đặc tả từng màn. Dựng: `cd design/v2 && node source/build.mjs`, mở `exports/PHONGDAO_V2_Prototype.html`. Về hình ảnh, bộ thiết kế là chuẩn; về hành vi và nội dung, tài liệu này thắng khi hai bên lệch |
 
@@ -28,7 +28,7 @@ Tinh thần: **"Một trang sách cổ được chăm chút, đặt trong một 
 
 - Tên: **Thư viện Văn học Dân gian Việt Nam**; tên ngắn ở đầu trang điện thoại: **Phongdao**; khẩu hiệu "Đọc một câu. Hiểu một đời sống."
 - Tên xuất hiện ở: đầu, chân trang, `<title>` mặc định, trích dẫn (thông dụng, APA 7), JSON-LD `WebSite` / `Organization`, ảnh chia sẻ chung, trang Về dự án.
-- Câu chữ và từ cấm: `docs/20` mục 10 và AGENTS.md (không "bản gốc", "bản đúng", "bản chuẩn", "bản sai", "AI giải thích", "câu hay nhất"; bản đại diện gọi là "Bản tham chiếu"). Không dùng mã cấp L0–L3 hay "mức A/B" trên giao diện.
+- Câu chữ và từ cấm: phụ lục A và AGENTS.md (không "bản gốc", "bản đúng", "bản chuẩn", "bản sai", "AI giải thích", "câu hay nhất"; bản đại diện gọi là "Bản tham chiếu"). Không dùng mã cấp L0–L3 hay "mức A/B" trên giao diện.
 - Văn bản dự án tự viết đặt dấu theo SGK (hoà, thuỷ — D-038); lời trích giữ như nguồn.
 
 ## 3. Kiến trúc thông tin
@@ -120,16 +120,20 @@ Phần cuối chung (theo thứ tự, D-093): Chủ đề · Vùng · Thuộc tu
 
 **Người biên soạn đăng nhập** (D-093, D-094): trang bài thành chế độ sửa — dải "Đang sửa" (trạng thái, [Xem như người đọc]), mỗi khối có nút **Sửa** mở tấm sửa (Ý nghĩa: ô chữ, ô "Có hỗ trợ của AI", ô "đã duyệt", [Lưu] [Huỷ]); lưu qua REST `phongdao/v1` (quyền biên tập + nonce), ghi lịch sử. Chi tiết: `docs/28` mục 4.2. Người đọc không nhận các nút này trong HTML.
 
-Bài thiếu phần: "Bài đang được bổ sung. Bạn biết thêm? Góp ý" — máy không tự điền.
+**Đợt 3 (D-105, `docs/32` mục 4.1):** trang bài sắp lại ba tầng — **Đọc** (lời → Ý nghĩa của ban biên tập hoặc khối nghĩa theo thể loại → Từ khó → Dị bản) · **Hiểu thêm** (một khối có thẻ kèm số: Cách hiểu của bạn đọc · Bài cảm nhận · Cảm nghĩ; mỗi thẻ có nút viết) · **Đọc thêm** (cùng chủ đề, mô-típ, tuyển tập, "Lời này từ đâu?", ảnh để chia sẻ). Phần cuối chung ở trên chuyển theo khi làm.
+
+Bài chưa có Ý nghĩa: lời mời ấm thay câu cũ (vd. "Câu này chưa có lời giải nghĩa. Bạn hiểu câu này thế nào? Viết vài dòng để người đọc sau hiểu rõ hơn.") và nút **Chia sẻ cách hiểu** mở form nhanh ngay trên trang (mục 8.1); máy không tự điền. Chưa có nơi lưu truyền: "Ở quê bạn có câu này không? Góp" thay "chưa ghi nhận" (D-105).
 
 ### 6.1. Ca dao (S04)
 
 Lời (lục bát thụt câu lục — D-092; từ có chú thích nền tô vàng; từ có chú thích là nút chạm, popover nghĩa + nguồn theo chính sách) → nhãn mức kiểm (mục 6.0) → **Ý nghĩa** (2–3 câu ngắn, nền lục nhạt; "Có hỗ trợ của AI, đã được người biên soạn duyệt" khi có dấu) → thanh hành động → **Từ khó** (chú thích dạng ô: từ – lời giải, liên kết mục từ) → ▸ Dị bản (đánh số, tô chữ khác; nơi, người kể khi có) → Bạn có biết? → phần cuối chung.
 **Nghiệm thu:** lời hiện đúng từng ký tự như phần `loi`; trích dẫn đúng; tắt JavaScript vẫn đọc lời, chú thích ở cuối khối.
 
+**Đợt 3 (D-105):** bài vốn có nhiều cách hiểu đã được biết đến thì ban biên tập viết thành "Cách hiểu 1 / Cách hiểu 2" trong khối Ý nghĩa; khối tuỳ chọn **"Hình ảnh trong bài"** (mỗi dòng: hình ảnh → điều được nói tới) cho bài có ẩn dụ, dùng cả cho đồng dao. Cách hiểu của bạn đọc ở tầng Hiểu thêm, tách rõ với Ý nghĩa.
+
 ### 6.2. Tục ngữ – Thành ngữ (S05)
 
-Câu chữ to là tiêu đề (một dòng; dài thì ngắt theo vế) → nhãn mức kiểm → **Ý nghĩa** (trong 10 giây) → **Giải nghĩa chi tiết**: hai ô Nghĩa đen | Nghĩa bóng → **Dùng khi** (ví dụ đã biên tập) → **Câu gần nghĩa · trái nghĩa** (liên kết) — ba khối mở sẵn vì ngắn (D-092) → ▸ Giải nghĩa trong sách (đợt 5) → thanh hành động → phần cuối chung. Phần chép từ Wiktionary ghi "Nguồn: Wiktionary ↗ · CC BY-SA" ngay dưới. Thiếu nghĩa: dòng "Câu này chưa có ý nghĩa. Bạn giúp được? Góp ý".
+**Đợt 3 (D-105) — chuẩn mới:** câu ngắn (tối đa 2 vế, khoảng 60 chữ cái) là tiêu đề chữ to, **từ khó được tô cả trong câu tiêu đề**; câu dài (từ 3 dòng hoặc hơn khoảng 60 chữ cái) hiện như ca dao (tên là dòng đầu, lời đủ trong khung lời). Khối **Nghĩa**: **Nghĩa đen** (theo chữ) · **Nghĩa bóng** (bài học, hiện to nhất) · **Dùng khi** (ví dụ đã biên tập) → **Câu gần nghĩa · trái nghĩa** (liên kết) → thanh hành động → phần cuối chung. Bài tục ngữ mới không có ô Ý nghĩa riêng; bài cũ đã có Ý nghĩa vẫn hiện như cũ. Danh sách, thẻ: 2 dòng đầu rồi "…".
 
 ### 6.3. Vè và bài dài (S06)
 
@@ -143,7 +147,7 @@ Trẻ không cần đăng nhập, không thu dữ liệu; không tự phát âm 
 
 ### 6.5. Câu đố (S08)
 
-Câu hỏi (chữ lớn) → [Gợi ý] (`<details>`, khi có) → **[Hiện đáp án]** (`<details>`, hành động chính; tắt JavaScript vẫn mở được) → trong đó: đáp án, ảnh đáp án (Commons, ghi công, khi có), giải thích (khi có) → "Đố bạn bè ›" (vào Đố vui với chủ đề này) → câu đố cùng đáp án → phần cuối chung.
+Câu hỏi (chữ lớn) → [Gợi ý] (`<details>`, khi có) → **[Hiện đáp án]** (`<details>`, hành động chính; tắt JavaScript vẫn mở được) → trong đó: đáp án, ảnh đáp án (Commons, ghi công, khi có), **Giải thích đáp án** (D-105: vì sao đáp án là như vậy — mỗi dòng tả gì, chơi chữ, từ cổ; chỗ lưu của Ý nghĩa, người viết; nằm trong khối ẩn để không lộ đáp án) → "Đố bạn bè ›" (vào Đố vui với chủ đề này) → câu đố cùng đáp án → phần cuối chung.
 Đáp án nằm trong HTML (máy tìm kiếm vẫn đọc được), chỉ thu gọn khi hiển thị (D-087 (3), thay phần D-058).
 
 ### 6.6. Truyện (S09, đợt 5)
@@ -234,7 +238,7 @@ Lọc theo độ tuổi, số người, trong nhà / ngoài trời, cần đồ 
 
 ### 7.8. Hay bị nhầm là ca dao (`/hay-bi-nham/`)
 
-Danh sách câu có cờ "Nghi không phải dân gian", mỗi câu kèm lý do người biên soạn viết và nguồn của lý do. Trang công khai khi có ≥ 5 câu.
+Danh sách câu có cờ **"Có thể không phải dân gian"** (D-105; trước gọi "Nghi không phải dân gian"), mỗi câu kèm lý do người biên soạn viết và nguồn của lý do. Trang công khai khi có ≥ 5 câu.
 
 ### 7.9. Cho lớp học (S16, đợt 5)
 
@@ -245,6 +249,8 @@ Chọn lớp và bộ sách (nhớ trên máy) → bài học có bộ câu → 
 ### 8.1. Bạn muốn góp gì? (S17)
 
 Một khối cuối bài, chọn loại: Ở quê nói khác (dị bản) · Góp ý chú thích · Báo lỗi · Gửi số trang (tên sách, trang) · Cảm nghĩ ngắn · Viết cảm nhận (bài phân tích). Ô: nội dung → xuất xứ (nơi, người kể — không bắt buộc) → cam kết tự viết, đồng ý CC BY 4.0 → gửi. Không bắt tên thật, email, số điện thoại; ô bẫy + giới hạn mỗi giờ + Turnstile khi có khoá; báo lỗi vẫn giữ chữ đã gõ. Mọi thứ vào hàng chờ, không công bố tự động. Ghi âm không mở ở V2 (cần hồ sơ đồng ý, lằn ranh 3).
+
+**Đợt 3 (D-105):** thêm loại **Cách hiểu của bạn** — form nhanh ngay trên trang bài (một ô chữ có giới hạn độ dài, bút danh tuỳ chọn, cam kết tự viết + CC BY 4.0, cùng chống rác); vào Hộp việc chờ duyệt; được Hiện thì nằm ở tầng Hiểu thêm dưới Ý nghĩa, ghi bút danh và ngày. Ban biên tập có thể dựa vào một cách hiểu để tự viết lại Ý nghĩa và ghi công; máy không tự chép. Không tính vào cấp chất lượng.
 
 ### 8.2. Đã lưu (`/da-luu/`)
 
@@ -308,8 +314,8 @@ Không quảng cáo, không khối liên kết, không đo bên thứ ba, không
 
 ## 10. SEO và chia sẻ
 
-- Lập chỉ mục: tác phẩm L2+, tuyển tập đã công khai, trang thể loại, trang chủ đề / vùng / mô-típ có ≥ 3 tác phẩm L2, mục từ có lời giải dự án viết hoặc nguồn mở. Còn lại `noindex`. Bài phân tích không làm tác phẩm được lập chỉ mục (D-084).
-- `<title>` và mô tả: tác phẩm L2 "<tên> — nghĩa và cách dùng", mô tả từ Ý nghĩa; chưa L2: tên + thể loại, không hứa điều trang không có.
+- Lập chỉ mục (D-106, khi đã mở công tắc chặn Google toàn site — H5): **mọi tác phẩm đã đăng**, không xét độ đầy đủ; tuyển tập đã công khai; trang thể loại; trang chủ đề / vùng / mô-típ có từ 3 tác phẩm đã đăng; mục từ có lời giải dự án viết hoặc nguồn mở. Trang lọc, tìm, bài nháp / ẩn: `noindex`.
+- `<title>` và mô tả: tác phẩm có Ý nghĩa (tục ngữ: nghĩa bóng) "<tên> — nghĩa và cách dùng", mô tả từ Ý nghĩa; chưa có: tên + thể loại, mô tả từ lời — không hứa điều trang không có.
 - Ảnh chia sẻ 1200×630 mỗi tác phẩm (thể loại, 4 dòng đầu, nhãn mức kiểm, phongdao.com), nền đầu tiên của thể loại; ảnh chung cho trang khác.
 
 ### 10.1. Ảnh để chia sẻ (D-093)
@@ -338,3 +344,34 @@ Khối cuối bài cho người đọc tạo ảnh đăng mạng xã hội: xem 
 ## 13. Không làm
 
 Liên kết ra ngoài không liên quan; tra năm sinh, phong thuỷ, meme; bài văn dài viết lại nghĩa từng câu; tuyên bố "đã đối chiếu", "hàng đầu", số người dùng không kiểm được; mục lục lặp, đoạn nhắc lại, ảnh khung trống; cảnh báo "chưa kiểm chứng" để cuối bài; văn mẫu, dàn ý; truyện nước ngoài, thơ hiện đại để tăng số; tài khoản người đọc; bình luận mở; chấm điểm trẻ.
+
+## Phụ lục A. Câu chữ giao diện
+
+Chép từ `docs/luu-tru/20-dac-ta-giao-dien.md` mục 10 (11/11/2026, D-107), bỏ các dòng đã thay: nhãn mức A–D (thay bằng nhãn mức kiểm mục 6.0, D-093), "Hiểu trong 10 giây" (thành **Ý nghĩa**, D-093).
+
+| Vị trí | Nội dung |
+|---|---|
+| Ô tìm | "Gõ câu bạn nhớ, hoặc điều bạn đang cảm thấy…" |
+| Cờ gán nhầm | **"Có thể không phải dân gian"** — "Câu này thường được gọi là ca dao, nhưng [căn cứ]." (D-105) |
+| Cờ tranh luận | "Các nhà nghiên cứu còn có những cách hiểu khác nhau về [điểm]." |
+| Ghi công chú thích | "Tham khảo: [nguồn] ↗" (viết lại) · "Theo [nguồn] ↗" (trích nguyên văn) — chỉ khi chính sách nguồn cho hiện (D-068) |
+| Hỗ trợ AI | "Phần giải nghĩa có hỗ trợ của AI, đã được người biên soạn duyệt." |
+| Bài chưa có Ý nghĩa | Lời mời góp cách hiểu (mục 6, D-105) |
+| Tên bản đại diện | "Bản tham chiếu" |
+| Sao chép trích dẫn | "Đã sao chép. Cảm ơn bạn đã ghi nguồn!" |
+| Lời mời đóng góp | "Ở quê bạn câu này nói khác?" · "Bạn có sách? Gửi số trang" · "Ở quê bạn có câu này không? Góp" |
+
+**Từ cấm trong giao diện:** "bản gốc", "bản đúng", "bản chuẩn", "bản sai", "AI giải thích", "câu hay nhất". Không dùng mã mức ("mức A/B", "L2") trên giao diện người đọc — chỉ dùng tên nhãn bằng lời thường.
+
+## Phụ lục B. Trợ năng (WCAG 2.2 AA)
+
+Chép từ `docs/luu-tru/20-dac-ta-giao-dien.md` mục 11 (11/11/2026, D-107); áp dụng cho trang người đọc và khu quản trị.
+
+- `<html lang="vi">`; tiêu đề trang theo thứ bậc đúng.
+- Mọi điều khiển dùng được bằng bàn phím, viền focus rõ, và **không bị thanh trên / thanh dưới cố định che khi nhận focus** (2.4.11).
+- Vùng chạm tối thiểu 44×44 px.
+- Nhãn không chỉ dựa vào màu: luôn có chữ + biểu tượng.
+- Ảnh xem trước có văn bản thay thế là lời thơ.
+- Tôn trọng `prefers-reduced-motion`.
+- HTML ngữ nghĩa trước ARIA: `<button>`, `<dialog>`, `<details>`, `<nav>`, `<main>`; ARIA chỉ bổ sung khi HTML không đủ.
+- Trợ năng nằm trong Definition of Done của mọi task (`docs/22` mục 5), không để cuối dự án.

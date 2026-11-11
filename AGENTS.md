@@ -8,7 +8,7 @@ Tệp này dành cho mọi AI agent làm việc trong kho mã (Claude Code, Code
 
 **Hướng hiện tại — "Trung thực hơn hoàn hảo"** (D-039, chuyển WordPress D-054..D-056): xuất bản sớm, nội dung dày dần. Không chặn đăng vì lý do biên tập; nguồn không bắt buộc nhưng không được bịa. Site Astro cũ đã gỡ khỏi repo (D-071).
 
-**V2** (D-082..D-096): WordPress là khung, plugin/theme V2 ở `wordpress/v2/`; phongdao.com đã chạy V2 từ 04/11/2026, việc mở cho Google vẫn do người sáng lập quyết (H5). Mỗi phần của bài lưu trong bài (D-094). Hướng nâng cấp quản trị D-096: wp-admin là nơi quản lý nội dung chính, Hộp việc là hàng chờ, sửa trên trang đọc là lối nhanh; kế hoạch ở `docs/30-ke-hoach-quan-tri-bien-tap-v2.md`. Kế hoạch cải tiến chung sau review, bao gồm cả việc ngoài quản trị, ở `docs/31-ke-hoach-cai-tien-sau-review-v2.md`. Giao diện đang chạy vẫn theo D-094 cho tới khi triển khai từng bước. **MVP (`wordpress/plugins/ca-dao`, `wordpress/themes/ca-dao`) đóng băng tính năng:** chỉ sửa lỗi bảo mật, lỗi mất dữ liệu; mọi tính năng mới làm trong V2.
+**V2** (D-082..D-107): WordPress là khung, plugin/theme V2 ở `wordpress/v2/`; phongdao.com đã chạy V2 từ 04/11/2026, việc mở cho Google vẫn do người sáng lập quyết (H5); khi mở, mọi tác phẩm đã đăng được lập chỉ mục (D-106). Mỗi phần của bài lưu trong bài (D-094). wp-admin là nơi làm việc (D-096, D-100), việc biên tập chia ba dòng **Bài mới · Hộp việc · Bổ sung** (D-103); sửa nhanh trên trang đọc giữ. **Kế hoạch đợt 3** (khu quản trị, trang đọc, Google): `docs/32-ke-hoach-dot-3.md`. Kế hoạch cải tiến chung sau review, phần còn mở: `docs/31-ke-hoach-cai-tien-sau-review-v2.md`. **Mã MVP (`wordpress/plugins/ca-dao`, `wordpress/themes/ca-dao`) không còn chạy trên site:** giữ cho kiểm thử chuyển đổi, không thêm tính năng; gỡ ở T-192. Tài liệu thời MVP và kế hoạch đã xong ở `docs/luu-tru/` (D-107).
 
 ## Đọc trước khi làm
 
@@ -22,18 +22,16 @@ Tệp này dành cho mọi AI agent làm việc trong kho mã (Claude Code, Code
 |---|---|
 | **V2 — kỹ thuật** (cấu trúc mã, dữ liệu, REST, quyền, kiểm thử) | `docs/26-kien-truc-v2.md` |
 | **V2 — trang người đọc** (từng màn hình, SEO, đo lường, thiết kế) | `docs/27-san-pham-v2.md` |
-| **V2 — nguồn, kho, biên tập** | `docs/28-ban-bien-tap-v2.md` |
-| **V2 — nâng cấp quản trị, thao tác hàng loạt** | `docs/30-ke-hoach-quan-tri-bien-tap-v2.md` |
-| **V2 — lộ trình cải tiến chung sau review** (trang đọc, vận hành, dữ liệu, tìm kiếm, quản trị) | `docs/31-ke-hoach-cai-tien-sau-review-v2.md` |
-| **V2 — hình ảnh từng màn** (màu, bố cục, thành phần, trạng thái) | bộ thiết kế `design/v2/` (D-092; đọc `design/v2/README.txt`) |
-| **V2 — chuyển dữ liệu, ngày chuyển** | `docs/29-chuyen-doi-v2.md` |
-| **WordPress** (plugin, theme, nguồn tự động, kho, chuyển đổi, công cụ) | `docs/24-wordpress.md` |
-| **Gói nâng cấp 25/10/2026** (giao diện, nguồn nội dung, chống trùng, lượt đọc, người đọc góp phần, giọng đọc) | `docs/25-nang-cap-giao-dien-noi-dung.md` |
-| Giao diện, câu chữ, màu, phông | `docs/20-dac-ta-giao-dien.md` (phần WordPress ở cuối) |
+| **V2 — nguồn, kho, biên tập** (ba dòng việc, lằn ranh trong mã) | `docs/28-ban-bien-tap-v2.md` |
+| **V2 — đợt 3** (khu quản trị, trang đọc, Google; thứ tự làm, nghiệm thu) | `docs/32-ke-hoach-dot-3.md` |
+| **V2 — lộ trình cải tiến chung sau review** (phần còn mở: trang đọc, đối soát, hiệu năng, thử sản phẩm) | `docs/31-ke-hoach-cai-tien-sau-review-v2.md` |
+| **V2 — hình ảnh từng màn** (màu, bố cục, thành phần, trạng thái) | bộ thiết kế `design/v2/` (D-092; đọc `design/v2/README.txt`; màn nhóm B `/bien-tap/` không còn là chuẩn — D-104) |
+| **Máy chủ, triển khai, tự cập nhật** | `docs/26-kien-truc-v2.md` mục 15 |
+| Câu chữ giao diện, trợ năng | `docs/27-san-pham-v2.md` phụ lục A, B |
 | Nguồn, bản quyền, thu thập từ web, ghi công | `docs/12-chinh-sach-nguon.md` |
 | Hướng dẫn cho người biên soạn, người đọc | `docs/huong-dan/` |
-| Kiểm thử | `docs/24-wordpress.md` mục 6 (plugin) và `scripts/` |
-| Lưu trữ (đóng góp, ghi âm, cố vấn — sau Mốc C) | `docs/luu-tru/` (đọc README của thư mục) |
+| Kiểm thử, lệnh, CI | `docs/26-kien-truc-v2.md` mục 13 và `scripts/` |
+| Lưu trữ (MVP, chuyển đổi đã xong, kế hoạch đã xong; đóng góp, ghi âm, cố vấn — sau Mốc C) | `docs/luu-tru/` (đọc README của thư mục; tài liệu đang dùng thắng khi mâu thuẫn) |
 
 ## Chế độ tự thực thi
 
@@ -76,7 +74,7 @@ Ngoài các Human Gate này, agent phải tự quyết các chi tiết kỹ thu�
 3. **Không sửa lời** của dị bản hay bài đã có, trừ khi task nói rõ và đưa kèm nguồn (trang in hoặc URL).
 4. **Không tự đăng bài** (trạng thái Đăng / công khai), không tự đổi nguồn sang "được phép dùng", không tự chọn quyền sử dụng. Chỉ người biên soạn làm.
 5. **Không xóa, gộp, đổi đường dẫn** bài, dị bản, nguồn, mục từ đã có — kể cả khi công cụ báo nghi trùng. Báo lại để người biên soạn quyết (chỉ dùng công cụ gộp khi người biên soạn đã bấm).
-6. **Không thêm giá trị vào bộ chủ đề, vùng của dự án** nếu task không yêu cầu rõ (bảng ánh xạ trong docs/25 là nguồn).
+6. **Không thêm giá trị vào bộ chủ đề, vùng của dự án** nếu task không yêu cầu rõ (danh sách chủ đề, vùng ở `MienDuLieu\GoiY` — `CHU_DE`, `VUNG`; bảng ánh xạ gốc ở `docs/luu-tru/25-nang-cap-giao-dien-noi-dung.md`).
 7. **Không làm yếu, tắt hay bỏ qua kiểm thử** để qua cổng, và không hạ một kiểm thử từ bắt buộc xuống không chặn khi không có quyết định (D-xxx).
 8. **Không thêm:** cookie, theo dõi, quảng cáo, đăng nhập hay tài khoản người đọc, dịch vụ bên thứ ba khi người đọc chưa mở (ví dụ bản đồ ngoài), thu IP. Đo lường chỉ lượt đọc (D-064) và đúng năm sự kiện đã quyết: `tim_khong_ket_qua`, `trich_dan_sao_chep`, `chu_giai_mo` (D-047), `chia_se` (D-069), `mong_co_cau` (D-088). Thêm sự kiện mới phải có D-xxx và sửa dòng này.
 9. **Không đưa thông tin cá nhân** (email, số điện thoại, tên thật của người chọn ẩn danh, địa chỉ) vào bất kỳ tệp nào trong repo hay vào nội dung site. Email người dùng không được gửi đi đâu.

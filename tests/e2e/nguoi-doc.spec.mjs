@@ -1,5 +1,5 @@
 // Vai người đọc: trang chủ → tìm → lọc → trang bài → lưu, trích dẫn → 404. Chạy trên máy tính và điện thoại 390 px.
-// Lỗi đã biết đánh dấu test.fail(true, 'L-xx …') — xem docs/e2e-review/REPORT.md; khi sửa xong, bỏ dòng test.fail.
+// Lỗi đã biết đánh dấu test.fail(true, 'L-xx …') — xem docs/luu-tru/e2e-review-mvp/REPORT.md; khi sửa xong, bỏ dòng test.fail.
 import { test, expect } from '@playwright/test';
 import { chanDem, chup, ngheLoi, quetAxe, BAI } from './chung.mjs';
 
