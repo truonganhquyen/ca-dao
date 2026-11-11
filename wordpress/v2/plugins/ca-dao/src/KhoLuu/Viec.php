@@ -96,6 +96,18 @@ final class Viec {
 	}
 
 	/** Số việc đang chờ. */
+	/**
+	 * Loại việc không nằm trong Hộp việc wp-admin (D-103): gợi ý chủ đề, vùng của máy là đề xuất trên bài, duyệt ở Bổ sung.
+	 * Mở thẳng bằng `loai=goi_y` vẫn xem được (đường dẫn cũ).
+	 */
+	public const NGOAI_HOP_VIEC = array( 'goi_y' );
+
+	/** Số việc đang chờ trong Hộp việc wp-admin (không tính gợi ý chủ đề, vùng — ở Bổ sung). */
+	public static function dem_hop_viec(): int {
+		global $wpdb;
+		return (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . self::bang() . " WHERE trang_thai = %s AND loai NOT IN ('" . implode( "','", self::NGOAI_HOP_VIEC ) . "')", self::CHO ) );
+	}
+
 	public static function dem_cho(): int {
 		global $wpdb;
 		return (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . self::bang() . ' WHERE trang_thai = %s', self::CHO ) );
@@ -178,6 +190,8 @@ final class Viec {
 		if ( '' !== $loai ) {
 			$dk .= ' AND v.loai = %s';
 			$tham[] = $loai;
+		} else {
+			$dk .= " AND v.loai NOT IN ('" . implode( "','", self::NGOAI_HOP_VIEC ) . "')";
 		}
 		$noi = '';
 		if ( '' !== $tim ) {

@@ -28,6 +28,7 @@ final class Module implements \Phongdao\HaTang\Module {
 		DanhSachTacPham::dang_ky();
 		\Phongdao\DichVu\UngVien\NhapTep::dang_ky();
 		ThemTacPham::dang_ky();
+		BoSung::dang_ky();
 		TrangLo::dang_ky();
 	}
 
@@ -59,7 +60,7 @@ final class Module implements \Phongdao\HaTang\Module {
 				}
 			} );
 		}
-		$cho = \Phongdao\KhoLuu\Viec::dem_cho();
+		$cho = \Phongdao\KhoLuu\Viec::dem_hop_viec();
 		$moc = add_submenu_page( $cha, 'Hộp việc', 'Hộp việc' . ( $cho ? ' <span class="awaiting-mod count-' . $cho . '"><span class="pending-count">' . number_format_i18n( $cho ) . '</span></span>' : '' ), 'cadao_soan', DanhSachViec::TRANG, static function (): void {
 			echo DanhSachViec::hien(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- lớp hiển thị thoát giá trị động
 		} );

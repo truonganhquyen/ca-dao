@@ -18,14 +18,15 @@ Bạn đã chốt (11/11/2026): đợt 3 sẽ gộp các trang `/bien-tap/` về
 
 Cách nhanh hơn để so sánh: ở danh sách, đánh dấu ba bài → khối **Làm theo lô** → Thao tác **Sửa một phần theo từng hàng**, Phần **Ý nghĩa** → **Xem trước**. Mỗi bài có một ô riêng; gõ xong bấm **Lưu giá trị trên trang này** để xem so trước/sau. Đánh dấu "Tôi đã đọc và duyệt" rồi bấm **Áp dụng**.
 
-## Kịch bản 2 — Duyệt gợi ý: từng thẻ, rồi cả nhóm
+## Kịch bản 2 — Duyệt gợi ý chủ đề, vùng: cả nhóm, rồi từng bài
 
-1. Phongdao → **Hộp việc** → bấm tab **Gợi ý chủ đề, vùng**. Trên máy tính, danh sách ở bên trái, thẻ đầu tiên mở sẵn bên phải; mỗi dòng ghi "→ Chủ đề: …" để biết gợi ý gì mà không phải mở.
-2. Quyết một thẻ (Đồng ý, Để sau hoặc Bỏ). Màn tự sang thẻ kế; lời báo ở đầu có **Hoàn tác** trong 10 giây và **Xem lại thẻ vừa quyết**. Trên máy tính thử phím **J** / **K** để đổi thẻ, **1** / **2** / **3** để bấm nút.
-3. Đánh dấu khoảng năm thẻ bạn đồng ý (không đánh dấu thẻ không đồng ý). Ở đáy màn bấm **Đồng ý** → hộp hỏi lại → **OK**. Lời báo ghi số thẻ xong, có lối **Xem kết quả từng thẻ**.
-4. Mở một bài vừa đồng ý: có chủ đề/vùng mới. Ở trang Sửa tác phẩm của bài đó, khối Lịch sử có dòng ghi lại.
+Gợi ý của máy không còn nằm trong Hộp việc: chúng là đề xuất trên bài, duyệt ở **Bổ sung**.
 
-Muốn duyệt cả trăm thẻ có xem lại từng dòng: mở khối **Làm theo lô** ở đầu danh sách, chọn **Đồng ý gợi ý**, Phạm vi **Mọi thẻ khớp bộ lọc** → **Xem trước** → bỏ dấu ngoại lệ → **Áp dụng**.
+1. Phongdao → **Bổ sung** → khối **Gợi ý chủ đề, vùng của máy**. Mỗi nút là một nhóm (một chủ đề hay một vùng) kèm số bài.
+2. Bấm một nhóm. Màn liệt kê từng bài (tên, hai dòng lời, từ máy dựa vào), đánh dấu sẵn hết. Bỏ dấu bài không đúng.
+3. Bấm **Đồng ý các mục đã chọn**. Lời báo ghi số gợi ý đã gắn, có lối **Xem kết quả từng thẻ**. Bài bỏ dấu không bị gắn.
+4. Duyệt theo bài: ở Bổ sung, danh sách **Theo bài** mở mọi gợi ý của một bài trên một trang; đánh dấu rồi **Đồng ý** hoặc **Bỏ các mục đã chọn**.
+5. Mở một bài vừa đồng ý: có chủ đề/vùng mới. Gắn nhầm thì bỏ ở phần Phân loại của trang Sửa tác phẩm.
 
 ## Kịch bản 3 — Ẩn một nhóm bài, lấy lại một bài, xem lịch sử (chỉ trên bản xem trước)
 
