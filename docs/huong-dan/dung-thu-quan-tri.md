@@ -18,12 +18,14 @@ Chưa chuyển gì cả: trang `/bien-tap/` và nút Sửa trên trang đọc v�
 
 Cách nhanh hơn để so sánh: ở danh sách, đánh dấu ba bài → khối **Làm theo lô** → Thao tác **Sửa một phần theo từng hàng**, Phần **Ý nghĩa** → **Xem trước**. Mỗi bài có một ô riêng; gõ xong bấm **Lưu giá trị trên trang này** để xem so trước/sau. Đánh dấu "Tôi đã đọc và duyệt" rồi bấm **Áp dụng**.
 
-## Kịch bản 2 — Duyệt một nhóm gợi ý, chừa hai ngoại lệ
+## Kịch bản 2 — Duyệt gợi ý: từng thẻ, rồi cả nhóm
 
-1. Phongdao → **Hộp việc** → ô "Loại việc" chọn **Gợi ý chủ đề, vùng** → **Tìm và lọc**.
-2. Đánh dấu khoảng năm thẻ. Ở khối **Làm theo lô** chọn Thao tác **Đồng ý gợi ý**, Phạm vi **Các thẻ đã chọn trên trang này** → **Xem trước**.
-3. Ở bước xem trước, **bỏ dấu hai thẻ** bạn không đồng ý → **Áp dụng**.
-4. Xem bảng kết quả: số thẻ thành công, và hai thẻ "Bỏ qua — người bỏ khỏi lô". Mở một bài vừa đồng ý: có chủ đề/vùng mới. Ở trang Sửa tác phẩm của bài đó, khối Lịch sử có dòng ghi lại.
+1. Phongdao → **Hộp việc** → bấm tab **Gợi ý chủ đề, vùng**. Trên máy tính, danh sách ở bên trái, thẻ đầu tiên mở sẵn bên phải; mỗi dòng ghi "→ Chủ đề: …" để biết gợi ý gì mà không phải mở.
+2. Quyết một thẻ (Đồng ý, Để sau hoặc Bỏ). Màn tự sang thẻ kế; lời báo ở đầu có **Hoàn tác** trong 10 giây và **Xem lại thẻ vừa quyết**. Trên máy tính thử phím **J** / **K** để đổi thẻ, **1** / **2** / **3** để bấm nút.
+3. Đánh dấu khoảng năm thẻ bạn đồng ý (không đánh dấu thẻ không đồng ý). Ở đáy màn bấm **Đồng ý** → hộp hỏi lại → **OK**. Lời báo ghi số thẻ xong, có lối **Xem kết quả từng thẻ**.
+4. Mở một bài vừa đồng ý: có chủ đề/vùng mới. Ở trang Sửa tác phẩm của bài đó, khối Lịch sử có dòng ghi lại.
+
+Muốn duyệt cả trăm thẻ có xem lại từng dòng: mở khối **Làm theo lô** ở đầu danh sách, chọn **Đồng ý gợi ý**, Phạm vi **Mọi thẻ khớp bộ lọc** → **Xem trước** → bỏ dấu ngoại lệ → **Áp dụng**.
 
 ## Kịch bản 3 — Ẩn một nhóm bài, lấy lại một bài, xem lịch sử (chỉ trên bản xem trước)
 

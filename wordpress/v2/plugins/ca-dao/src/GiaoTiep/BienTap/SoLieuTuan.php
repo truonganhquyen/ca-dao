@@ -20,7 +20,13 @@ defined( 'ABSPATH' ) || exit;
  */
 final class SoLieuTuan {
 
-	public static function hien(): string {
+	/**
+	 * Số đếm của trang (dùng cả ở Bàn làm việc wp-admin): số bài đã đăng, theo cấp L0–L3, bài thiếu ý nghĩa, câu kho chưa
+	 * xử lý.
+	 *
+	 * @return array{bai:int,cap:array<int,int>,thieu:int,kho:int}
+	 */
+	public static function so(): array {
 		$ids = get_posts( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'numberposts' => -1, 'fields' => 'ids' ) );
 		update_meta_cache( 'post', $ids );
 		$cap    = array( 0 => 0, 1 => 0, 2 => 0, 3 => 0 );
@@ -33,11 +39,17 @@ final class SoLieuTuan {
 			}
 			$thieu += null === PhanBai::lay( (int) $id, 'y_nghia' ) ? 1 : 0;
 		}
-		$viec = Viec::dem_cho();
-		$kho  = Kho::dem();
-		$o    = '';
-		foreach ( array( array( 'book', count( $ids ), 'tác phẩm đã đăng' ), array( 'check', $cap[2] + $cap[3], 'bài đủ cấp L2 (lên Google khi mở)' ), array( 'calendar', $viec, 'việc đang chờ' ), array( 'layers', $kho['moi'], 'câu trong kho chưa xử lý' ) ) as [ $hinh, $so, $nhan ] ) {
-			$o .= '<div class="tile g-dip"><span class="entry-icon">' . Ve::icon( $hinh ) . '</span><strong class="so-to">' . number_format( (int) $so, 0, ',', '.' ) . '</strong><span>' . esc_html( $nhan ) . '</span></div>';
+		return array( 'bai' => count( $ids ), 'cap' => $cap, 'thieu' => $thieu, 'kho' => (int) ( Kho::dem()['moi'] ?? 0 ) );
+	}
+
+	public static function hien(): string {
+		$so    = self::so();
+		$cap   = $so['cap'];
+		$thieu = $so['thieu'];
+		$viec  = Viec::dem_cho();
+		$o     = '';
+		foreach ( array( array( 'book', $so['bai'], 'tác phẩm đã đăng' ), array( 'check', $cap[2] + $cap[3], 'bài đủ cấp L2 (lên Google khi mở)' ), array( 'calendar', $viec, 'việc đang chờ' ), array( 'layers', $so['kho'], 'câu trong kho chưa xử lý' ) ) as [ $hinh, $so_o, $nhan ] ) {
+			$o .= '<div class="tile g-dip"><span class="entry-icon">' . Ve::icon( $hinh ) . '</span><strong class="so-to">' . number_format( (int) $so_o, 0, ',', '.' ) . '</strong><span>' . esc_html( $nhan ) . '</span></div>';
 		}
 		$the_loai = '';
 		foreach ( DuLieuTrangChu::so_bai_the_loai() as $ma => $n ) {
@@ -58,26 +70,32 @@ final class SoLieuTuan {
 			. '<p class="small muted">Lượt đọc đếm khi trang bài hiện 5 giây, mỗi máy một lần mỗi ngày; lượt người biên soạn đang đăng nhập không tính. Không định danh người đọc: không cookie, không lưu địa chỉ mạng.</p>';
 	}
 
-	/** Đọc 7 ngày: tổng theo ngày, bài đọc nhiều, người đọc đến từ, câu tìm không ra (gợi ý biên soạn tiếp). */
-	private static function doc_7_ngay(): string {
+	/**
+	 * Đọc 7 ngày: tổng theo ngày, bài đọc nhiều, người đọc đến từ, câu tìm không ra (gợi ý biên soạn tiếp).
+	 *
+	 * @param int $cap cấp tiêu đề của khối (2 ở trang này, 3 khi lồng trong Bàn làm việc)
+	 */
+	public static function doc_7_ngay( int $cap = 2 ): string {
 		$dl   = \Phongdao\DichVu\DoLuong\DoLuong::class;
 		$ngay = $dl::theo_ngay( 7 );
-		$h    = '<section class="section"><h2>Lượt đọc 7 ngày: ' . number_format( array_sum( $ngay ), 0, ',', '.' ) . '</h2><p class="small muted">'
+		$h1   = 'h' . max( 2, min( 5, $cap ) );
+		$h2   = 'h' . max( 3, min( 6, $cap + 1 ) );
+		$h    = '<section class="section"><' . $h1 . '>Lượt đọc 7 ngày: ' . number_format( array_sum( $ngay ), 0, ',', '.' ) . '</' . $h1 . '><p class="small muted">'
 			. esc_html( implode( ' · ', array_map( static fn( $d, $so ) => wp_date( 'd/m', (int) strtotime( $d ) ) . ': ' . $so, array_keys( $ngay ), $ngay ) ) ) . '</p>';
 		$bai  = $dl::doc_nhieu( 7, 5 );
 		if ( $bai ) {
-			$h .= '<h3>Bài đọc nhiều</h3><ol>' . implode( '', array_map( static fn( $id, $so ) => '<li><a href="' . esc_url( (string) get_permalink( $id ) ) . '">' . esc_html( get_the_title( $id ) ) . '</a> — ' . (int) $so . '</li>', array_keys( $bai ), $bai ) ) . '</ol>';
+			$h .= '<' . $h2 . '>Bài đọc nhiều</' . $h2 . '><ol>' . implode( '', array_map( static fn( $id, $so ) => '<li><a href="' . esc_url( (string) get_permalink( $id ) ) . '">' . esc_html( get_the_title( $id ) ) . '</a> — ' . (int) $so . '</li>', array_keys( $bai ), $bai ) ) . '</ol>';
 		}
 		foreach ( array( 'gioi_thieu' => 'Người đọc đến từ', 'tim_khong_ket_qua' => 'Tìm mà chưa có (nên biên soạn)' ) as $loai => $tieu ) {
 			$ds = $dl::nhieu_nhat( $loai, 7, 8 );
 			if ( $ds ) {
-				$h .= '<h3>' . esc_html( $tieu ) . '</h3><ul>' . implode( '', array_map( static fn( $k, $so ) => '<li>' . esc_html( (string) $k ) . ' — ' . (int) $so . '</li>', array_keys( $ds ), $ds ) ) . '</ul>';
+				$h .= '<' . $h2 . '>' . esc_html( $tieu ) . '</' . $h2 . '><ul>' . implode( '', array_map( static fn( $k, $so ) => '<li>' . esc_html( (string) $k ) . ' — ' . (int) $so . '</li>', array_keys( $ds ), $ds ) ) . '</ul>';
 			}
 		}
 		// Câu trong kho người đọc bấm "Mong có câu này" (tên câu kho chỉ người biên soạn thấy ở trang này)
 		$mong = $dl::nhieu_nhat( 'mong_co_cau', 7, 8 );
 		if ( $mong ) {
-			$h .= '<h3>Người đọc mong có (câu đang chờ trong kho)</h3><ul>' . implode( '', array_map( static fn( $k, $so ) => '<li>' . esc_html( (string) ( \Phongdao\KhoLuu\Kho::lay( (int) substr( (string) $k, 4 ) )?->tieu_de ?? $k ) ) . ' — ' . (int) $so . '</li>', array_keys( $mong ), $mong ) ) . '</ul>';
+			$h .= '<' . $h2 . '>Người đọc mong có (câu đang chờ trong kho)</' . $h2 . '><ul>' . implode( '', array_map( static fn( $k, $so ) => '<li>' . esc_html( (string) ( \Phongdao\KhoLuu\Kho::lay( (int) substr( (string) $k, 4 ) )?->tieu_de ?? $k ) ) . ' — ' . (int) $so . '</li>', array_keys( $mong ), $mong ) ) . '</ul>';
 		}
 		return $h . '</section>';
 	}

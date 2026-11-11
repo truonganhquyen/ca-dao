@@ -30,6 +30,15 @@ final class HopViec {
 		add_action( 'admin_post_' . self::HOAN_TAC, array( self::class, 'nhan_hoan_tac' ) );
 	}
 
+	/**
+	 * Đích "tự sang thẻ kế" do Hộp việc wp-admin gửi kèm form (T-188): chỉ nhận đường dẫn tới chính màn Hộp việc trong
+	 * quản trị; còn lại bỏ qua (về trang vừa gửi như trước).
+	 */
+	private static function tiep(): string {
+		$tiep = esc_url_raw( wp_unslash( (string) ( $_POST['tiep'] ?? '' ) ) ); // phpcs:ignore WordPress.Security.NonceVerification -- nonce kiểm ở nơi gọi
+		return '' !== $tiep && str_starts_with( $tiep, admin_url( 'admin.php?page=' . \Phongdao\GiaoTiep\QuanTri\DanhSachViec::TRANG ) ) ? $tiep : '';
+	}
+
 	public static function nhan_form(): void {
 		$id    = (int) ( $_POST['viec'] ?? 0 ); // phpcs:ignore WordPress.Security.NonceVerification -- kiểm ngay dưới
 		$quyet = sanitize_key( (string) ( $_POST['quyet'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification
@@ -39,7 +48,12 @@ final class HopViec {
 		$phien = isset( $_POST['phien'] ) && ctype_digit( (string) $_POST['phien'] ) ? (int) $_POST['phien'] : PHP_INT_MAX; // phpcs:ignore WordPress.Security.NonceVerification -- nonce đã kiểm trên
 		$kq   = QuyetViec::quyet( $id, $quyet, get_current_user_id(), current_user_can( 'cadao_duyet' ), $phien );
 		$ve   = (string) wp_get_referer() ?: home_url( '/bien-tap/' );
-		$dich = $kq['chuyen'] ?: remove_query_arg( array( 'da', 'hoan_viec', 'hoan_phien' ), $ve );
+		// Quyết được thì sang thẻ kế (Hộp việc wp-admin), kèm lối xem lại thẻ vừa quyết; quyết hỏng thì ở lại thẻ này
+		$tiep = $kq['ok'] && ! $kq['chuyen'] ? self::tiep() : '';
+		$dich = $kq['chuyen'] ?: remove_query_arg( array( 'da', 'hoan_viec', 'hoan_phien', 'vua' ), '' !== $tiep ? $tiep : $ve );
+		if ( '' !== $tiep ) {
+			$dich = add_query_arg( 'vua', $id, $dich );
+		}
 		$v_sau = $kq['ok'] ? Viec::lay( $id ) : null;
 		$co_hoan = QuyetViec::co_the_hoan_tac( $v_sau, get_current_user_id(), (int) ( $v_sau['phien'] ?? -1 ) );
 		if ( $co_hoan ) {
@@ -59,7 +73,8 @@ final class HopViec {
 		$phien = isset( $_POST['phien'] ) && ctype_digit( (string) $_POST['phien'] ) ? (int) $_POST['phien'] : -1; // phpcs:ignore WordPress.Security.NonceVerification -- nonce đã kiểm trên
 		$kq = QuyetViec::hoan_tac( $id, $phien, get_current_user_id() );
 		$ve = (string) wp_get_referer() ?: home_url( '/bien-tap/' );
-		$dich = remove_query_arg( array( 'da', 'hoan_viec', 'hoan_phien' ), $ve );
+		$tiep = self::tiep();
+		$dich = remove_query_arg( array( 'da', 'hoan_viec', 'hoan_phien', 'vua' ), '' !== $tiep ? $tiep : $ve );
 		wp_safe_redirect( add_query_arg( 'da', rawurlencode( $kq['ok'] ? $kq['thong_bao'] : 'Chưa xong: ' . implode( ' ', $kq['loi'] ) ), $dich ) );
 		exit;
 	}
@@ -139,8 +154,12 @@ final class HopViec {
 		return $khung . '<div class="ds-viec">' . implode( '', array_map( array( self::class, 'the' ), $ds ) ) . '</div>' . $phan_trang;
 	}
 
-	/** Một thẻ việc: đủ thông tin để quyết ngay trên thẻ. */
-	public static function the( array $v, bool $co_form = true ): string {
+	/**
+	 * Một thẻ việc: đủ thông tin để quyết ngay trên thẻ.
+	 *
+	 * @param string $tiep Đường dẫn thẻ kế (Hộp việc wp-admin): quyết xong thì sang đó.
+	 */
+	public static function the( array $v, bool $co_form = true, string $tiep = '' ): string {
 		[ $ten, $nut ] = QuyetViec::LOAI[ $v['loai'] ] ?? array( $v['loai'], array() );
 		$tieu_de = '';
 		$than    = '';
@@ -240,6 +259,7 @@ final class HopViec {
 			. '<header class="tv-dau"><span class="tv-loai">' . esc_html( $ten ) . '</span><span class="small muted">' . esc_html( $ly_do ) . '</span></header>'
 			. '<h3>' . esc_html( $tieu_de ?: 'Việc #' . $v['id'] ) . '</h3>' . $than
 			. ( $co_form ? '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="tv-nut"><input type="hidden" name="action" value="' . self::HANH_DONG . '"><input type="hidden" name="viec" value="' . (int) $v['id'] . '"><input type="hidden" name="phien" value="' . (int) $v['phien'] . '">'
+				. ( '' === $tiep ? '' : '<input type="hidden" name="tiep" value="' . esc_attr( $tiep ) . '">' )
 				. wp_nonce_field( self::HANH_DONG . $v['id'], '_wpnonce', true, false ) . $form . '</form>' : '' )
 			. ( '' === $mo ? '' : '<a class="tv-mo" href="' . esc_url( $mo ) . '">Mở bài ' . Ve::icon( 'arrow' ) . '</a>' ) . '</article>';
 	}

@@ -319,12 +319,14 @@ try {
 
     await thu('wp-admin Hộp việc: lọc thẻ, mở đúng form quyết và dùng được ở điện thoại', async () => {
       await di(bt, '/wp-admin/admin.php?page=phongdao-hop-viec&tt=cho&loai=nhap_y_nghia');
-      chac(await bt.$('.phongdao-admin-viec .widefat tbody tr a[href*="viec="]'), 'danh sách admin không có thẻ nháp');
-      const dich = await bt.$eval('.phongdao-admin-viec .widefat tbody tr a[href*="viec="]', e => e.href);
+      chac(await bt.$('.phongdao-hv-ds a[href*="viec="]'), 'danh sách admin không có thẻ nháp');
+      const dich = await bt.$eval('.phongdao-hv-ds a[href*="viec="]', e => e.href);
       await bt.goto(dich, { waitUntil: 'load', timeout: 120_000 });
       chac(await bt.$('.phongdao-admin-viec article.the-viec form input[name="_wpnonce"]') && await bt.$('.phongdao-admin-viec article.the-viec form input[name="phien"]'), 'thẻ admin không dùng form quyết có nonce và phiên');
       await bt.setViewport({ width: 390, height: 844 });
       chac(await bt.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'màn Hộp việc admin tràn ngang ở 390 px');
+      // Điện thoại: đã mở một thẻ thì chỉ hiện thẻ đó (danh sách ẩn), có lối về danh sách
+      chac(await bt.$eval('.phongdao-hv-trai', e => !e.offsetParent) && await bt.$eval('.phongdao-hv-ve a', e => !!e.offsetParent), 'điện thoại: mở thẻ mà danh sách vẫn chiếm màn hoặc thiếu lối về danh sách');
       await bt.setViewport({ width: 1280, height: 800 });
     });
 
@@ -360,14 +362,41 @@ try {
       chac(JSON.stringify(await bt.evaluate(() => window.__phimQuyet)) === JSON.stringify(nut), 'phím 1/2/3 không chọn đúng nút');
     });
 
+    await thu('wp-admin Hộp việc hộp thư: danh sách và thẻ cạnh nhau, J/K đổi thẻ, quyết xong tự sang thẻ kế, Hoàn tác về đúng thẻ', async () => {
+      await di(bt, '/wp-admin/admin.php?page=phongdao-hop-viec');
+      const ds = await bt.$$eval('.phongdao-hv-ds .phongdao-hv-mo', as => as.map(a => new URL(a.href).searchParams.get('viec')));
+      chac(ds.length >= 2, `Hộp việc không đủ 2 thẻ để thử (thấy ${ds.length})`);
+      const [trai, phai] = await bt.evaluate(() => ['.phongdao-hv-trai', '.phongdao-hv-phai'].map(s => document.querySelector(s).getBoundingClientRect().toJSON()));
+      chac(phai.width > 0 && phai.left >= trai.right - 1, 'màn rộng không đặt danh sách và thẻ cạnh nhau');
+      chac(await bt.$(`.phongdao-hv-phai article#viec-${ds[0]}`), 'màn rộng không mở sẵn thẻ đầu danh sách');
+      chac(await bt.$eval('.phongdao-hv-phai [data-hv="goi-y"]', e => !e.hidden), 'không hiện hướng dẫn phím tắt khi JavaScript chạy');
+      await bt.evaluate(() => document.activeElement?.blur());
+      await Promise.all([bt.waitForNavigation({ waitUntil: 'load' }), bt.keyboard.press('j')]);
+      chac(new URL(bt.url()).searchParams.get('viec') === ds[1] && await bt.$(`.phongdao-hv-phai article#viec-${ds[1]}`), 'J không mở thẻ sau');
+      await Promise.all([bt.waitForNavigation({ waitUntil: 'load' }), bt.keyboard.press('k')]);
+      chac(new URL(bt.url()).searchParams.get('viec') === ds[0], 'K không về thẻ trước');
+      // Để sau một thẻ người đọc gửi: tự sang thẻ kế, lời báo có Hoàn tác; Hoàn tác đưa về đúng thẻ đó, thẻ trở lại Chờ
+      await di(bt, '/wp-admin/admin.php?page=phongdao-hop-viec&loai=nguoi_doc');
+      const id = await bt.$eval('.phongdao-hv-phai article.the-viec', a => a.id.replace('viec-', '')).catch(() => '');
+      chac(id, 'không có thẻ Người đọc gửi để thử');
+      await bamDoiTrang(bt, '.phongdao-hv-phai button[name=quyet][value=de_sau]');
+      chac(new URL(bt.url()).searchParams.get('vua') === id && await bt.$('[data-hv-hoan] button:not([disabled])'), 'quyết xong không sang thẻ kế kèm nút Hoàn tác còn hạn');
+      chac(!(await bt.$(`.phongdao-hv-phai article#viec-${id}`)), 'quyết xong vẫn mở thẻ vừa quyết');
+      await bamDoiTrang(bt, '[data-hv-hoan] button');
+      chac(new URL(bt.url()).searchParams.get('viec') === id && await bt.$(`.phongdao-hv-phai article#viec-${id} button[name=quyet][value=de_sau]`), 'Hoàn tác không đưa về đúng thẻ vừa quyết ở Chờ');
+    });
+
     await thu('wp-admin Hộp việc: Duyệt nháp ý nghĩa → người đọc thấy, thẻ đóng không hiện nút quyết', async () => {
       await di(bt, `/wp-admin/admin.php?page=phongdao-hop-viec&tt=cho&loai=nhap_y_nghia&q=${encodeURIComponent(yNghia)}`);
-      const dich = await bt.$eval('.phongdao-admin-viec .widefat tbody tr a[href*="viec="]', e => e.href).catch(() => '');
+      const dich = await bt.$eval('.phongdao-hv-ds a[href*="viec="]', e => e.href).catch(() => '');
       chac(dich, 'không tìm thấy đúng thẻ nháp ý nghĩa trong admin');
       await bt.goto(dich, { waitUntil: 'load', timeout: 120_000 });
       chac(await coChu(bt, yNghia), 'chi tiết thẻ không có đúng nháp cần duyệt');
       await bamDoiTrang(bt, '.phongdao-admin-viec article.the-viec button[name=quyet][value=duyet]');
-      chac(await coChu(bt, 'Đã duyệt') && !(await bt.$('.phongdao-admin-viec article.the-viec button[name=quyet]')), 'quyết trong admin chưa đóng thẻ hoặc còn nút quyết');
+      chac(await coChu(bt, 'Đã duyệt'), 'quyết trong admin không báo đã duyệt');
+      // Quyết xong tự sang thẻ kế (ở đây hết thẻ khớp tìm); xem lại thẻ vừa quyết qua lối trong lời báo
+      await bamDoiTrang(bt, '.phongdao-hv-bao a');
+      chac(!(await bt.$('.phongdao-admin-viec article.the-viec button[name=quyet]')), 'thẻ đã quyết còn nút quyết');
       // Quyết xong không phải ngõ cụt: ghi nhãn quyết định, có lối sang bài và sang thẻ kế (hoặc báo hết thẻ)
       chac(await coChu(bt, 'Đã quyết: Duyệt') && !(await bt.$eval('.phongdao-viec-tt', e => e.textContent.includes('Phiên'))), 'thẻ đã quyết chưa ghi nhãn quyết định dễ đọc');
       chac(!(await bt.$eval('article.the-viec', e => e.textContent.includes('chưa duyệt') || e.textContent.includes('người đọc chưa thấy'))), 'thẻ đã duyệt vẫn ghi "chưa duyệt" / "người đọc chưa thấy"');

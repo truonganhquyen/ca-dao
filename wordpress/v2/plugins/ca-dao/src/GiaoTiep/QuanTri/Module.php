@@ -31,7 +31,14 @@ final class Module implements \Phongdao\HaTang\Module {
 			echo BanLamViec::hien(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- lớp hiển thị thoát giá trị động
 		};
 		$cha = BanLamViec::TRANG;
-		add_menu_page( 'Phongdao', 'Phongdao', 'cadao_soan', $cha, $ban, 'dashicons-book-alt', 3 );
+		$moc_ban = add_menu_page( 'Phongdao', 'Phongdao', 'cadao_soan', $cha, $ban, 'dashicons-book-alt', 3 );
+		if ( $moc_ban ) {
+			add_action( 'admin_enqueue_scripts', static function ( string $trang ) use ( $moc_ban ): void {
+				if ( $trang === $moc_ban ) {
+					wp_enqueue_style( 'phongdao-admin-ban', plugins_url( 'assets/admin-ban.css', dirname( __DIR__, 3 ) . '/ca-dao.php' ), array(), CADAO_PHIEN_BAN );
+				}
+			} );
+		}
 		add_submenu_page( $cha, 'Bàn làm việc', 'Bàn làm việc', 'cadao_soan', $cha, $ban );
 		$cho = \Phongdao\KhoLuu\Viec::dem_cho();
 		$moc = add_submenu_page( $cha, 'Hộp việc', 'Hộp việc' . ( $cho ? ' <span class="awaiting-mod count-' . $cho . '"><span class="pending-count">' . number_format_i18n( $cho ) . '</span></span>' : '' ), 'cadao_soan', DanhSachViec::TRANG, static function (): void {
@@ -44,6 +51,7 @@ final class Module implements \Phongdao\HaTang\Module {
 					wp_enqueue_style( 'phongdao-admin-viec', plugins_url( 'assets/admin-viec.css', $tep ), array(), CADAO_PHIEN_BAN );
 					wp_enqueue_style( 'phongdao-admin-chon', plugins_url( 'assets/admin-chon.css', $tep ), array(), CADAO_PHIEN_BAN );
 					wp_enqueue_script( 'phongdao-admin-chon', plugins_url( 'assets/admin-chon.js', $tep ), array(), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
+					wp_enqueue_script( 'phongdao-admin-hop-viec', plugins_url( 'assets/admin-hop-viec.js', $tep ), array(), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
 				}
 			} );
 		}

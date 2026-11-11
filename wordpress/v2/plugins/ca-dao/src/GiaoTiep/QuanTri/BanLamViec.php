@@ -15,9 +15,11 @@ use Phongdao\KhoLuu\Viec;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Bàn làm việc trong wp-admin (T-180, docs/31 mục 2): việc nên làm tính từ dữ liệu hiện có (mỗi dòng mở đúng danh sách đã
- * lọc), việc vào / ra theo tuần, tuổi thẻ đang mở, danh sách ngoại lệ dữ liệu và lối thử làm sâu 20–30 bài. Chỉ đọc; không
- * đặt chỉ tiêu điền kín cả kho, không chọn bài hay viết nội dung thay người biên soạn.
+ * Bàn làm việc trong wp-admin (T-180, docs/31 mục 2; T-188): mở đầu bằng bốn ô số bấm được và nút "Bắt đầu duyệt" (mở thẻ
+ * cần làm trước nhất ở Hộp việc, quyết xong tự sang thẻ kế); việc nên làm tính từ dữ liệu hiện có (mỗi dòng mở đúng danh
+ * sách đã lọc), ngoại lệ dữ liệu, lối thử làm sâu 20–30 bài; cuối trang thu gọn việc vào / ra, tuổi thẻ và Số liệu tuần
+ * (gộp từ `/bien-tap/so-lieu/`, D-100). Chỉ đọc; không đặt chỉ tiêu điền kín cả kho, không chọn bài hay viết nội dung
+ * thay người biên soạn.
  */
 final class BanLamViec {
 
@@ -30,8 +32,49 @@ final class BanLamViec {
 			return '<div class="wrap"><p>Bạn không có quyền xem trang này.</p></div>';
 		}
 		$bay_gio = $bay_gio ?? time();
-		return '<div class="wrap phongdao-ban"><h1>Bàn làm việc</h1><p class="description">Tính từ dữ liệu lúc mở trang. Mỗi dòng mở đúng danh sách để làm tiếp. Không có chỉ tiêu phải điền kín cả kho: bài nào cần thì làm.</p>'
-			. self::khoi_nen_lam( $bay_gio ) . self::khoi_vao_ra( $bay_gio ) . self::khoi_tuoi( $bay_gio ) . self::khoi_ngoai_le() . self::khoi_thu_sau() . '</div>';
+		return '<div class="wrap phongdao-ban"><h1>Bàn làm việc</h1>'
+			. self::khoi_dau() . self::khoi_nen_lam( $bay_gio ) . self::khoi_ngoai_le() . self::khoi_thu_sau()
+			. '<details class="phongdao-ban-gon"><summary>Việc vào, ra và tuổi thẻ</summary>' . self::khoi_vao_ra( $bay_gio ) . self::khoi_tuoi( $bay_gio ) . '</details>'
+			. '<details class="phongdao-ban-gon"><summary>Số liệu tuần: bài theo thể loại, cấp chất lượng, lượt đọc</summary>' . self::khoi_so_lieu() . '</details>'
+			. '<p class="description">Tính từ dữ liệu lúc mở trang. Mỗi dòng mở đúng danh sách để làm tiếp. Không có chỉ tiêu phải điền kín cả kho: bài nào cần thì làm.</p></div>';
+	}
+
+	/** Bốn ô số bấm được và nút "Bắt đầu duyệt": mở thẻ cần làm trước nhất (ưu tiên cao, cũ trước) trong Hộp việc. */
+	private static function khoi_dau(): string {
+		$cho   = Viec::dem_cho();
+		$loai  = Viec::dem_loai( Viec::CHO );
+		$thieu = array( 'tt' => 'publish', 'muc' => 'thieu_y_nghia' );
+		$o     = '';
+		foreach (
+			array(
+				array( $cho, 'việc đang chờ', DanhSachViec::url( array() ) ),
+				array( (int) ( $loai['cau_moi'] ?? 0 ), 'câu mới từ nguồn', DanhSachViec::url( array( 'loai' => 'cau_moi' ) ) ),
+				array( DanhSachTacPham::dem_loc( $thieu ), 'bài đã đăng chưa có ý nghĩa', DanhSachTacPham::url_loc( $thieu ) ),
+				array( (int) ( $loai['nguoi_doc'] ?? 0 ), 'nội dung người đọc gửi', DanhSachViec::url( array( 'loai' => 'nguoi_doc' ) ) ),
+			) as [ $so, $nhan, $url ]
+		) {
+			$o .= '<li><a class="phongdao-ban-o" href="' . esc_url( $url ) . '"><strong>' . esc_html( number_format_i18n( (int) $so ) ) . '</strong> <span>' . esc_html( $nhan ) . '</span></a></li>';
+		}
+		$dau = $cho ? ( Viec::tim_quan_tri( Viec::CHO, '', '', 1, 1 )['ds'][0] ?? null ) : null;
+		$nut = $dau
+			? '<p class="phongdao-ban-bat-dau"><a class="button button-primary button-hero" href="' . esc_url( DanhSachViec::url( array(), 1, (int) $dau['id'] ) ) . '">Bắt đầu duyệt (' . esc_html( number_format_i18n( $cho ) ) . ' việc)</a> <span class="description">Mở thẻ cần làm trước nhất; quyết xong tự sang thẻ kế.</span></p>'
+			: '<p class="phongdao-ban-bat-dau" role="status">Không còn việc chờ quyết.</p>';
+		return '<ul class="phongdao-ban-so">' . $o . '</ul>' . $nut;
+	}
+
+	/** Số liệu tuần (gộp từ `/bien-tap/so-lieu/`): bài theo thể loại, theo cấp chất lượng, lượt đọc 7 ngày. */
+	private static function khoi_so_lieu(): string {
+		$so   = \Phongdao\GiaoTiep\BienTap\SoLieuTuan::so();
+		$hang = static fn( array $ds ): string => implode( '', array_map( static fn( string $nhan, int $n ): string => '<tr><th scope="row">' . esc_html( $nhan ) . '</th><td>' . esc_html( number_format_i18n( $n ) ) . '</td></tr>', array_keys( $ds ), $ds ) );
+		$loai = array();
+		foreach ( \Phongdao\DichVu\DungTrang\DuLieuTrangChu::so_bai_the_loai() as $ma => $n ) {
+			$loai[ \Phongdao\MienDuLieu\TheLoai::DS[ $ma ] ?? $ma ] = (int) $n;
+		}
+		$cap = array_combine( array( 'L0 · có lời', 'L1 · có thể loại', 'L2 · có ý nghĩa', 'L3 · có đối chiếu sách / bối cảnh' ), array_map( 'intval', $so['cap'] ) );
+		return '<h2>Số liệu tuần</h2><p>' . esc_html( number_format_i18n( $so['bai'] ) ) . ' tác phẩm đã đăng · ' . esc_html( number_format_i18n( $so['cap'][2] + $so['cap'][3] ) ) . ' bài đủ cấp L2 (lên Google khi mở) · ' . esc_html( number_format_i18n( $so['kho'] ) ) . ' câu trong kho chưa xử lý.</p>'
+			. '<h3>Theo thể loại</h3><table class="widefat striped phongdao-ban-so-lieu"><caption class="screen-reader-text">Số bài đã đăng theo thể loại</caption><tbody>' . $hang( $loai ) . '</tbody></table>'
+			. '<h3>Theo cấp chất lượng</h3><table class="widefat striped phongdao-ban-so-lieu"><caption class="screen-reader-text">Số bài đã đăng theo cấp chất lượng</caption><tbody>' . $hang( $cap ) . '</tbody></table><p class="description">Cấp tính tự động, chỉ người biên soạn thấy, không chặn đăng.</p>'
+			. \Phongdao\GiaoTiep\BienTap\SoLieuTuan::doc_7_ngay( 3 );
 	}
 
 	private static function hop_viec( array $q = array() ): string {
