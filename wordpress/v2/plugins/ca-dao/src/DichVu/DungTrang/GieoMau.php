@@ -124,12 +124,29 @@ final class GieoMau {
 	}
 
 	/**
+	 * Gợi ý chủ đề mẫu cho bản xem trước (màn Bổ sung → duyệt gợi ý theo nhóm, T-189.4): mỗi bài mẫu đã đăng chưa có chủ đề
+	 * "Lao động" nhận một đề xuất máy chờ duyệt. Chỉ blueprint xem trước gọi (qua gieo_kho); không chạy trên site thật.
+	 */
+	private static function gieo_goi_y(): void {
+		$t = get_term_by( 'name', 'Lao động', 'chu_de' );
+		if ( ! $t instanceof \WP_Term ) {
+			return;
+		}
+		foreach ( get_posts( array( 'post_type' => \Phongdao\HaTang\KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'numberposts' => 20, 'fields' => 'ids' ) ) as $id ) {
+			if ( ! has_term( (int) $t->term_id, 'chu_de', (int) $id ) && ! \Phongdao\KhoLuu\Viec::mo( 'post', (int) $id, 'goi_y' ) ) {
+				\Phongdao\KhoLuu\Viec::tao( array( 'loai' => 'goi_y', 'doi_tuong_loai' => 'post', 'doi_tuong_id' => (int) $id, 'noi_dung' => array( 'loai' => 'chu_de', 'ma' => $t->slug, 'ly_do' => 'gợi ý mẫu của bản xem trước' ), 'nguoi_tao' => 'may' ) );
+			}
+		}
+	}
+
+	/**
 	 * Câu kho mẫu cho bản xem trước (màn Kho wp-admin, T-184): chữ tự đặt, không phải lời thật; nguồn "mau" không có hồ sơ.
 	 * Chỉ blueprint xem trước gọi; không chạy trên site thật.
 	 *
 	 * @return int[] ID kho
 	 */
 	public static function gieo_kho(): array {
+		self::gieo_goi_y();
 		$ra = array();
 		// Chữ mỗi câu khác hẳn nhau (máy chống trùng không coi là cùng một câu); là danh sách từ, không phải lời dân gian
 		$mau = array(

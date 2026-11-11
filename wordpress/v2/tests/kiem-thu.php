@@ -85,7 +85,7 @@ kt( 'menu Phongdao theo ba dòng việc: Hôm nay · Bài mới · Hộp việc 
 kt( 'Thao tác hàng loạt vẫn mở được bằng đường dẫn cũ (màn con)', false !== has_action( get_plugin_page_hookname( \Phongdao\GiaoTiep\QuanTri\TrangLo::TRANG, '' ) ) );
 kt( 'menu wp-admin có trang Tác phẩm, Hộp việc thật; Sửa tác phẩm vẫn mở được (màn con)', false !== has_action( get_plugin_page_hookname( \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::TRANG, $BLV ) ) && false !== has_action( get_plugin_page_hookname( \Phongdao\GiaoTiep\QuanTri\DanhSachViec::TRANG, $BLV ) ) && false !== has_action( get_plugin_page_hookname( \Phongdao\GiaoTiep\QuanTri\SuaTacPham::TRANG, '' ) ) );
 $muc_hv = array_values( array_filter( $submenu[ $BLV ] ?? array(), static fn( array $m ): bool => \Phongdao\GiaoTiep\QuanTri\DanhSachViec::TRANG === $m[2] ) )[0][0] ?? '';
-kt( 'mục Hộp việc trên menu kèm số việc đang chờ', ( 0 === Viec::dem_cho() && 'Hộp việc' === $muc_hv ) || str_contains( $muc_hv, 'awaiting-mod' ), $muc_hv );
+kt( 'mục Hộp việc trên menu kèm số việc đang chờ', ( 0 === Viec::dem_hop_viec() && 'Hộp việc' === $muc_hv ) || str_contains( $muc_hv, 'awaiting-mod' ), $muc_hv );
 $ql_dn = wp_get_current_user();
 kt( 'đăng nhập xong người biên soạn vào Bàn làm việc; có đích riêng thì giữ; người không có quyền biên soạn không đổi', str_contains( \Phongdao\GiaoTiep\QuanTri\Module::sau_dang_nhap( admin_url(), '', $ql_dn ), 'page=' . $BLV ) && str_contains( \Phongdao\GiaoTiep\QuanTri\Module::sau_dang_nhap( admin_url(), admin_url(), $ql_dn ), 'page=' . $BLV ) && admin_url( 'edit.php' ) === \Phongdao\GiaoTiep\QuanTri\Module::sau_dang_nhap( admin_url( 'edit.php' ), admin_url( 'edit.php' ), $ql_dn ) && admin_url() === \Phongdao\GiaoTiep\QuanTri\Module::sau_dang_nhap( admin_url(), '', new WP_User( 0 ) ) );
 // Như WordPress chạy: bộ lọc parent_file rồi get_admin_page_parent() (màn ẩn nằm trong $submenu['']) — menu phải còn mở
@@ -2485,7 +2485,7 @@ $h_khach = $BLV::hien( $gio );
 wp_set_current_user( $ai_ql );
 kt( 'trang Hôm nay: người biên soạn xem được 3 việc gấp, ba dòng việc, nên làm và các khối thu gọn, không lộ nút đổi dữ liệu; khách không xem được', str_contains( $h_blv, '<h1>Hôm nay</h1>' ) && str_contains( $h_blv, 'việc gấp nhất' ) && strpos( $h_blv, 'việc gấp nhất' ) < strpos( $h_blv, 'class="phongdao-ban-so"' ) && str_contains( $h_blv, 'báo lỗi' ) && strpos( $h_blv, 'báo lỗi' ) < strpos( $h_blv, 'class="phongdao-ban-so"' ) && str_contains( $h_blv, 'Lịch sử thao tác hàng loạt' ) && str_contains( $h_blv, 'Nên làm tuần này' ) && str_contains( $h_blv, 'Việc vào, ra' ) && str_contains( $h_blv, 'Tuổi thẻ đang mở' ) && str_contains( $h_blv, 'Ngoại lệ dữ liệu' ) && str_contains( $h_blv, 'Thử làm sâu 20–30 bài' ) && ! str_contains( $h_blv, '<form' ) && str_contains( $h_khach, 'không có quyền' ) );
 $dau_blv = Viec::tim_quan_tri( Viec::CHO, '', '', 1, 1 )['ds'][0] ?? null;
-kt( 'trang Hôm nay: ba ô Bài mới · Hộp việc · Bổ sung, mỗi ô một nút bắt đầu; nút "Bắt đầu duyệt (N việc)" mở thẻ cần làm trước nhất ở Hộp việc; ngoại lệ, việc vào/ra, tuổi thẻ và Số liệu tuần thu gọn ở cuối', $dau_blv && str_contains( $h_blv, 'class="phongdao-ban-so"' ) && 3 === substr_count( $h_blv, 'class="phongdao-ban-o"' ) && str_contains( $h_blv, '<h3>Bài mới</h3>' ) && str_contains( $h_blv, '<h3>Hộp việc</h3>' ) && str_contains( $h_blv, '<h3>Bổ sung</h3>' ) && str_contains( $h_blv, esc_url( \Phongdao\GiaoTiep\QuanTri\BoSung::url() ) . '">Bắt đầu bổ sung</a>' ) && str_contains( $h_blv, esc_url( \Phongdao\GiaoTiep\QuanTri\DanhSachKho::url( UngVien::goi_y_hom_nay()['ids'] ? array( 'goi_y' => 'hom_nay' ) : array() ) ) . '">Chọn câu để đăng</a>' ) && str_contains( $h_blv, 'href="' . esc_url( \Phongdao\GiaoTiep\QuanTri\DanhSachViec::url( array(), 1, (int) $dau_blv['id'] ) ) . '">Bắt đầu duyệt (' . number_format_i18n( Viec::dem_cho() ) . ' việc)</a>' ) && strpos( $h_blv, 'Bắt đầu duyệt' ) < strpos( $h_blv, 'Nên làm tuần này' ) && str_contains( $h_blv, '<details class="phongdao-ban-gon"><summary>Việc vào, ra và tuổi thẻ</summary>' ) && str_contains( $h_blv, 'Theo cấp chất lượng' ) && str_contains( $h_blv, 'Lượt đọc 7 ngày' ) && strpos( $h_blv, 'phongdao-ban-gon' ) < strpos( $h_blv, 'Ngoại lệ dữ liệu' ) );
+kt( 'trang Hôm nay: ba ô Bài mới · Hộp việc · Bổ sung, mỗi ô một nút bắt đầu; nút "Bắt đầu duyệt (N việc)" mở thẻ cần làm trước nhất ở Hộp việc; ngoại lệ, việc vào/ra, tuổi thẻ và Số liệu tuần thu gọn ở cuối', $dau_blv && str_contains( $h_blv, 'class="phongdao-ban-so"' ) && 3 === substr_count( $h_blv, 'class="phongdao-ban-o"' ) && str_contains( $h_blv, '<h3>Bài mới</h3>' ) && str_contains( $h_blv, '<h3>Hộp việc</h3>' ) && str_contains( $h_blv, '<h3>Bổ sung</h3>' ) && str_contains( $h_blv, esc_url( \Phongdao\GiaoTiep\QuanTri\BoSung::url() ) . '">Bắt đầu bổ sung</a>' ) && str_contains( $h_blv, esc_url( \Phongdao\GiaoTiep\QuanTri\DanhSachKho::url( UngVien::goi_y_hom_nay()['ids'] ? array( 'goi_y' => 'hom_nay' ) : array() ) ) . '">Chọn câu để đăng</a>' ) && str_contains( $h_blv, 'href="' . esc_url( \Phongdao\GiaoTiep\QuanTri\DanhSachViec::url( array(), 1, (int) $dau_blv['id'] ) ) . '">Bắt đầu duyệt (' . number_format_i18n( Viec::dem_hop_viec() ) . ' việc)</a>' ) && strpos( $h_blv, 'Bắt đầu duyệt' ) < strpos( $h_blv, 'Nên làm tuần này' ) && str_contains( $h_blv, '<details class="phongdao-ban-gon"><summary>Việc vào, ra và tuổi thẻ</summary>' ) && str_contains( $h_blv, 'Theo cấp chất lượng' ) && str_contains( $h_blv, 'Lượt đọc 7 ngày' ) && strpos( $h_blv, 'phongdao-ban-gon' ) < strpos( $h_blv, 'Ngoại lệ dữ liệu' ) );
 // Số liệu tuần nhớ 1 giờ (Hôm nay mở nhanh): lần mở sau đọc bản đã nhớ, ghi giờ tính
 $nho_sl = get_transient( \Phongdao\GiaoTiep\QuanTri\BanLamViec::NHO_SO_LIEU );
 wp_set_current_user( $chi_soan );
@@ -2508,6 +2508,56 @@ $h_bs0 = \Phongdao\GiaoTiep\QuanTri\BoSung::hien();
 wp_set_current_user( $ai_ql );
 $thieu_bs = array( 'tt' => 'publish', 'muc' => 'thieu_y_nghia', 'xep' => 'doc' );
 $dau_bs   = \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::ids_loc( $thieu_bs, 1 )[0] ?? 0;
+// ---------- Bổ sung: duyệt gợi ý chủ đề, vùng theo nhóm / theo bài; Hộp việc chỉ việc cần quyết (T-189.4) ----------
+$BS    = \Phongdao\GiaoTiep\QuanTri\BoSung::class;
+$t_bs  = wp_insert_term( 'Chủ đề thử bổ sung', 'chu_de', array( 'slug' => 'chu-de-thu-bo-sung' ) );
+$bs_b  = array();
+$bs_v  = array();
+foreach ( array( 'một', 'hai', 'ba' ) as $i_bs => $so_bs ) {
+	$bs_b[ $i_bs ] = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'post_title' => 'Bài gợi ý thử ' . $so_bs, 'post_name' => 'bai-goi-y-thu-' . $i_bs ) );
+	wp_set_object_terms( $bs_b[ $i_bs ], 'ca-dao', KhaiBao::THE_LOAI );
+	$bs_v[ $i_bs ] = Viec::tao( array( 'loai' => 'goi_y', 'doi_tuong_loai' => 'post', 'doi_tuong_id' => $bs_b[ $i_bs ], 'noi_dung' => array( 'loai' => 'chu_de', 'ma' => 'chu-de-thu-bo-sung', 'ly_do' => 'từ thử ' . $so_bs ), 'nguoi_tao' => 'may' ) );
+}
+$_GET     = array();
+$h_hv_bs  = \Phongdao\GiaoTiep\QuanTri\DanhSachViec::hien();
+$_GET     = array( 'loai' => 'goi_y' );
+$h_hv_gy  = \Phongdao\GiaoTiep\QuanTri\DanhSachViec::hien();
+$_GET     = array();
+kt( 'Hộp việc chỉ việc cần quyết: gợi ý chủ đề, vùng không nằm trong danh sách, tab, số việc của Hộp việc (vẫn mở được bằng đường dẫn cũ loai=goi_y)', ! str_contains( $h_hv_bs, 'viec=' . $bs_v[0] . '"' ) && ! str_contains( $h_hv_bs, 'loai=goi_y' ) && str_contains( $h_hv_gy, 'viec=' . $bs_v[0] ) && Viec::dem_hop_viec() === Viec::dem_cho() - Viec::dem( Viec::CHO, 'goi_y' ) );
+$nhom_bs = $BS::nhom_goi_y()['chu_de:chu-de-thu-bo-sung'] ?? null;
+$h_bs_c  = $BS::hien();
+$_GET    = array( 'page' => $BS::TRANG, 'xem' => 'goi_y', 'nhom' => 'chu_de:chu-de-thu-bo-sung' );
+$h_bs_n  = $BS::hien();
+$_GET    = array( 'page' => $BS::TRANG, 'xem' => 'goi_y', 'bai' => (string) $bs_b[1] );
+$h_bs_b  = $BS::hien();
+$_GET    = array();
+kt( 'Bổ sung: gợi ý gom theo nhóm (một chủ đề kèm số); màn nhóm liệt kê từng bài, đánh dấu sẵn, kèm lý do máy dựa vào; màn theo bài có mọi gợi ý của bài; người có quyền duyệt có "Đồng ý các mục đã chọn"', $nhom_bs && 3 === count( $nhom_bs['ids'] ) && str_contains( $h_bs_c, 'Gợi ý chủ đề, vùng của máy' ) && ( str_contains( $h_bs_c, 'nhom=chu_de%3Achu-de-thu-bo-sung' ) || str_contains( $h_bs_c, 'nhom=chu_de:chu-de-thu-bo-sung' ) ) && 3 === substr_count( $h_bs_n, 'name="ids[]"' ) && 3 === substr_count( $h_bs_n, '" checked>' ) && str_contains( $h_bs_n, 'Máy dựa vào: từ thử hai' ) && str_contains( $h_bs_n, 'Đồng ý các mục đã chọn' ) && 1 === substr_count( $h_bs_b, 'name="ids[]"' ) && str_contains( $h_bs_b, 'Bài gợi ý thử hai' ), array( $nhom_bs ) );
+// Đồng ý hai gợi ý (bỏ dấu ngoại lệ thứ ba), rồi Bỏ gợi ý còn lại: mỗi lần là một lô, máy không tự gắn
+$bat_bs = static function ( $vi_tri ): string {
+	throw new \RuntimeException( 'redirect: ' . $vi_tri );
+};
+add_filter( 'wp_redirect', $bat_bs );
+$gui_bs = static function ( array $than ) use ( $BS ): string {
+	$_POST = $_REQUEST = $than + array( 'action' => $BS::HANH_DONG, '_wpnonce' => wp_create_nonce( $BS::HANH_DONG ), 've' => $BS::url_goi_y( array( 'nhom' => 'chu_de:chu-de-thu-bo-sung' ) ) );
+	try {
+		$BS::nhan_goi_y();
+		return 'không dừng';
+	} catch ( \RuntimeException $e ) {
+		return $e->getMessage();
+	}
+};
+$r_bs_dy = $gui_bs( array( 'lam' => 'dong_y', 'ids' => array( (string) $bs_v[0], (string) $bs_v[1] ) ) );
+$bao_bs  = get_transient( 'phongdao_lo_bao_' . $ai_ql );
+$r_bs_bo = $gui_bs( array( 'lam' => 'bo', 'ids' => array( (string) $bs_v[2] ) ) );
+$_POST   = $_REQUEST = array();
+remove_filter( 'wp_redirect', $bat_bs );
+kt( 'Bổ sung: "Đồng ý các mục đã chọn" gắn đúng chủ đề cho đúng các bài đã chọn (bài bỏ dấu không gắn), ghi thành lô có kết quả từng bài, về lại màn nhóm; "Bỏ" đóng gợi ý còn lại, không gắn', str_contains( $r_bs_dy, 'page=phongdao-bo-sung' ) && has_term( 'chu-de-thu-bo-sung', 'chu_de', $bs_b[0] ) && has_term( 'chu-de-thu-bo-sung', 'chu_de', $bs_b[1] ) && ! has_term( 'chu-de-thu-bo-sung', 'chu_de', $bs_b[2] ) && Viec::XONG === Viec::lay( $bs_v[0] )['trang_thai'] && Viec::BO === Viec::lay( $bs_v[2] )['trang_thai'] && str_contains( (string) ( $bao_bs['chu'] ?? '' ), 'Đã đồng ý 2 gợi ý' ) && (int) ( $bao_bs['lo'] ?? 0 ) > 0 && ! isset( $BS::nhom_goi_y()['chu_de:chu-de-thu-bo-sung'] ), array( $r_bs_dy, $r_bs_bo, $bao_bs ) );
+foreach ( $bs_b as $id_bs ) {
+	wp_delete_post( $id_bs, true );
+}
+if ( is_array( $t_bs ) ) {
+	wp_delete_term( (int) $t_bs['term_id'], 'chu_de' );
+}
 // ---------- Bảng tóm tắt bài (T-189.2, docs/32 mục 3.9) ----------
 $TT   = \Phongdao\DichVu\TomTat\TomTat::class;
 $tt_b = array();

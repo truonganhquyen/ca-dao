@@ -218,16 +218,17 @@ final class DanhSachViec {
 
 	/** Tab trạng thái (Chờ, Để sau có số) và tab loại việc có số của trạng thái đang xem. */
 	private static function tab( array $loc ): string {
-		$so = array( Viec::CHO => Viec::dem( Viec::CHO ), Viec::DE_SAU => Viec::dem( Viec::DE_SAU ) );
+		$so = array( Viec::CHO => Viec::dem( Viec::CHO ) - Viec::dem( Viec::CHO, 'goi_y' ), Viec::DE_SAU => Viec::dem( Viec::DE_SAU ) - Viec::dem( Viec::DE_SAU, 'goi_y' ) );
 		$o  = '<nav class="phongdao-hv-tab" aria-label="Trạng thái thẻ">';
 		foreach ( self::TRANG_THAI as $ma => $ten ) {
 			$o .= '<a class="phongdao-chip" href="' . esc_url( self::url( array( 'tt' => $ma, 'loai' => '', 'q' => '' ) ) ) . '"' . ( $ma === $loc['tt'] ? ' aria-current="page"' : '' ) . '>' . esc_html( $ten ) . ( isset( $so[ $ma ] ) ? ' <span class="phongdao-chip-so">' . esc_html( number_format_i18n( $so[ $ma ] ) ) . '</span>' : '' ) . '</a>';
 		}
 		$o  .= '</nav>';
-		$dem = 'tat_ca' === $loc['tt'] ? array() : array_intersect_key( Viec::dem_loai( $loc['tt'] ), QuyetViec::LOAI );
+		// Gợi ý chủ đề, vùng không còn là thẻ Hộp việc (D-103): duyệt ở Bổ sung
+		$dem = 'tat_ca' === $loc['tt'] ? array() : array_diff_key( array_intersect_key( Viec::dem_loai( $loc['tt'] ), QuyetViec::LOAI ), array_flip( Viec::NGOAI_HOP_VIEC ) );
 		$o  .= '<nav class="phongdao-hv-tab" aria-label="Loại việc"><a class="phongdao-chip" href="' . esc_url( self::url( array( 'loai' => '' ) + $loc ) ) . '"' . ( '' === $loc['loai'] ? ' aria-current="page"' : '' ) . '>Tất cả' . ( $dem ? ' <span class="phongdao-chip-so">' . esc_html( number_format_i18n( array_sum( $dem ) ) ) . '</span>' : '' ) . '</a>';
 		foreach ( QuyetViec::LOAI as $ma => [ $ten ] ) {
-			if ( 'tat_ca' !== $loc['tt'] && empty( $dem[ $ma ] ) && $ma !== $loc['loai'] ) {
+			if ( ( 'tat_ca' !== $loc['tt'] && empty( $dem[ $ma ] ) && $ma !== $loc['loai'] ) || ( in_array( $ma, Viec::NGOAI_HOP_VIEC, true ) && $ma !== $loc['loai'] ) ) {
 				continue;
 			}
 			$o .= '<a class="phongdao-chip" href="' . esc_url( self::url( array( 'loai' => $ma ) + $loc ) ) . '"' . ( $ma === $loc['loai'] ? ' aria-current="page"' : '' ) . '>' . esc_html( $ten ) . ( isset( $dem[ $ma ] ) ? ' <span class="phongdao-chip-so">' . esc_html( number_format_i18n( (int) $dem[ $ma ] ) ) . '</span>' : '' ) . '</a>';

@@ -10,13 +10,13 @@
 
 ## Đang chạy
 
-- **phongdao.com chạy V2** (Thư viện Văn học Dân gian Việt Nam; plugin 1.0.45, theme 1.0.2) từ 04/11/2026: WordPress trên VPS, máy chủ tự cập nhật sau mỗi PR gộp vào `main` (`docs/26` mục 15). **Site còn chặn Google** (công tắc toàn site, Human Gate H5 — người sáng lập mở khi quyết).
+- **phongdao.com chạy V2** (Thư viện Văn học Dân gian Việt Nam; plugin 1.0.46, theme 1.0.2) từ 04/11/2026: WordPress trên VPS, máy chủ tự cập nhật sau mỗi PR gộp vào `main` (`docs/26` mục 15). **Site còn chặn Google** (công tắc toàn site, Human Gate H5 — người sáng lập mở khi quyết).
 - **Trang người đọc** (`docs/27`): trang chủ, danh sách theo thể loại, chủ đề, vùng; trang bài cho năm thể loại (lời mỗi câu một dòng, nhãn mức kiểm, Ý nghĩa, từ khó chạm để xem, dị bản, "Lời này từ đâu?", trích dẫn, chia sẻ, ảnh để chia sẻ, trình chiếu, cỡ chữ, Đọc cùng bé); Tìm (gõ không dấu, gợi ý gõ sai); Từ điển, Bản đồ, Tuyển tập, Khám phá, Một câu ngẫu nhiên; Đã lưu; Góp (dị bản, chú thích, báo lỗi, số trang, cảm nghĩ, bài cảm nhận).
 - **Khu biên tập trong wp-admin** (`docs/28` mục 4), sau đợt 1–2 (10–11/11/2026) và bước đầu đợt 3:
   - **Menu theo ba dòng việc:** Hôm nay · Bài mới · Hộp việc · Bổ sung · Tác phẩm · Nguồn & cài đặt.
   - **Hôm nay** (trước là Bàn làm việc): 3 việc gấp nhất, ba ô Bài mới · Hộp việc · Bổ sung có nút bắt đầu, Nên làm tuần này, số liệu tuần thu gọn (nhớ 1 giờ); đăng nhập vào thẳng đây. Trang chào mừng WordPress có khung "Phongdao hôm nay".
-  - **Bổ sung** (bản đầu): bài đọc nhiều chưa có Ý nghĩa, danh sách ưu tiên có nút Bắt đầu.
-  - **Hộp việc** kiểu hộp thư: danh sách và thẻ cạnh nhau, quyết xong tự sang thẻ kế, Hoàn tác 10 giây, phím tắt, làm nhanh nhiều thẻ.
+  - **Bổ sung:** bài đọc nhiều chưa có Ý nghĩa, danh sách ưu tiên có nút Bắt đầu; **gợi ý chủ đề, vùng của máy** duyệt theo nhóm (một chủ đề / vùng: bỏ dấu ngoại lệ, Đồng ý) hoặc theo bài — không còn là thẻ trong Hộp việc.
+  - **Hộp việc** kiểu hộp thư, chỉ việc cần người quyết (có thể trùng, nháp chờ duyệt, người đọc gửi, cần xem): danh sách và thẻ cạnh nhau, quyết xong tự sang thẻ kế, Hoàn tác 10 giây, phím tắt, làm nhanh nhiều thẻ.
   - **Tác phẩm:** tab trạng thái kèm số, nút lọc nhanh (Thiếu ý nghĩa, Có cờ), "Thêm bộ lọc" (còn thiếu theo thể loại, xếp bài đọc nhiều trước), mỗi hàng Sửa · Xem · Ẩn; điện thoại dạng thẻ ba dòng; chọn hàng loạt, Làm theo lô. Đọc từ **bảng tóm tắt bài** (mỗi bài một dòng tính sẵn) nên mở nhanh cả khi kho lớn.
   - **Sửa tác phẩm:** một màn hai cột, "Bài tiếp theo".
   - **Bài mới (Kho):** lọc nhanh **Máy gợi ý hôm nay** (máy thôi tạo thẻ Câu mới hằng ngày), **Để dành**, **Đề nghị đăng** (thay "Đưa vào Hộp việc"); lọc theo mong có, có chú thích, không cờ, câu ngắn / dài; Xem trước và đăng một mạch, màn kết quả có "Xem bài · Ẩn nếu nhầm"; **nhập câu từ tệp** (vào Kho qua chống trùng, không đăng thẳng); **Thêm tác phẩm** ngay trong wp-admin; điện thoại dạng thẻ.
@@ -35,7 +35,7 @@
   - khu quản trị (D-104);
   - trang đọc và nội dung (D-105);
   - mọi tác phẩm đã đăng được lập chỉ mục khi site mở cho Google (D-106).
-- Task: T-189 (khu quản trị), T-190 (trang đọc), T-191 (Google), T-192 (gỡ mã cũ). Thứ tự làm: `docs/32` mục 8. Bước 1 (sửa nhanh, menu mới, Hôm nay — T-189.1) bước 2 (bảng tóm tắt bài, Tác phẩm gọn, bản điện thoại — T-189.2) và phần Bài mới của bước 3 (T-189.3) đã làm.
+- Task: T-189 (khu quản trị), T-190 (trang đọc), T-191 (Google), T-192 (gỡ mã cũ). Thứ tự làm: `docs/32` mục 8. Bước 1 (sửa nhanh, menu mới, Hôm nay — T-189.1) bước 2 (bảng tóm tắt bài, Tác phẩm gọn, bản điện thoại — T-189.2) và bước 3 (Bài mới — T-189.3; Bổ sung duyệt gợi ý, Hộp việc chỉ việc cần quyết — T-189.4) đã làm.
 - Báo cáo căn cứ: `docs/e2e-review/v2-quan-tri-2/BAO-CAO.md`.
 
 ## Đang chờ người sáng lập

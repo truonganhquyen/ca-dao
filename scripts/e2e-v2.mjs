@@ -817,6 +817,22 @@ try {
       await bam(bt, '.phongdao-thanh-noi-bo');
     });
 
+    await thu('wp-admin Bổ sung: duyệt gợi ý theo nhóm — chọn một chủ đề / vùng, Đồng ý các bài đã chọn trong ≤ 5 bấm; Hộp việc không còn gợi ý', async () => {
+      await bt.setViewport({ width: 1280, height: 800 });
+      await di(bt, '/wp-admin/admin.php?page=phongdao-hop-viec');
+      chac(!(await bt.$('nav[aria-label="Loại việc"] a[href*="loai=goi_y"]')), 'Hộp việc còn tab Gợi ý chủ đề, vùng');
+      await di(bt, '/wp-admin/admin.php?page=phongdao-bo-sung');
+      const nhom = await bt.$eval('.phongdao-bs-nhom a', a => a.href).catch(() => '');
+      chac(nhom, 'Bổ sung không có nhóm gợi ý nào (dữ liệu mẫu có gợi ý chủ đề "Lao động")');
+      let bam_ = 1; // mở Bổ sung
+      await bamDoiTrang(bt, '.phongdao-bs-nhom a'); bam_++;
+      const so = await bt.$$eval('.phongdao-bs-ds input[name="ids[]"]:checked', os => os.length);
+      chac(so > 0, 'màn nhóm không có gợi ý đánh dấu sẵn');
+      await bamDoiTrang(bt, '.phongdao-bs-goi-y button[name=lam][value=dong_y]'); bam_++;
+      chac(await coChu(bt, `Đã đồng ý ${so} gợi ý`), `không báo đã đồng ý ${so} gợi ý`);
+      chac(bam_ <= 5, `duyệt một nhóm tốn ${bam_} bấm`);
+    });
+
     await thu('wp-admin Tác phẩm và Bài mới trên điện thoại: mỗi mục một thẻ ba dòng, bộ lọc gập, thấy mục ngay màn đầu', async () => {
       await bt.setViewport({ width: 390, height: 844 });
       for (const [duong, ten] of [['/wp-admin/admin.php?page=phongdao-tac-pham&tt=tat_ca', 'Tác phẩm'], ['/wp-admin/admin.php?page=phongdao-kho', 'Bài mới']]) {

@@ -69,7 +69,7 @@ final class BanLamViec {
 	 * @return array{kho:int,cho:int,dau:int,thieu:int}
 	 */
 	public static function so_ba_dong(): array {
-		$cho = Viec::dem_cho();
+		$cho = Viec::dem_hop_viec();
 		$dau = $cho ? (int) ( Viec::tim_quan_tri( Viec::CHO, '', '', 1, 1 )['ds'][0]['id'] ?? 0 ) : 0;
 		return array(
 			'goi_y'   => count( \Phongdao\DichVu\UngVien\UngVien::goi_y_hom_nay()['ids'] ),
@@ -174,7 +174,7 @@ final class BanLamViec {
 			array( $cho['cau_moi'] ?? 0, ( $cho['cau_moi'] ?? 0 ) . ' câu mới từ nguồn chờ quyết', self::hop_viec( array( 'loai' => 'cau_moi' ) ), array() ),
 			array( $cho['co_the_trung'] ?? 0, ( $cho['co_the_trung'] ?? 0 ) . ' cặp câu có thể trùng chờ quyết', self::hop_viec( array( 'loai' => 'co_the_trung' ) ), array() ),
 			array( array_sum( $nd ) - $bao_loi, ( array_sum( $nd ) - $bao_loi ) . ' nội dung người đọc gửi khác (dị bản, góp ý, cảm nghĩ, bài cảm nhận)', self::hop_viec( array( 'loai' => 'nguoi_doc' ) ), array() ),
-			array( $cho['goi_y'] ?? 0, ( $cho['goi_y'] ?? 0 ) . ' gợi ý chủ đề, vùng chờ xem', self::hop_viec( array( 'loai' => 'goi_y' ) ), array() ),
+			array( $cho['goi_y'] ?? 0, ( $cho['goi_y'] ?? 0 ) . ' gợi ý chủ đề, vùng của máy chờ duyệt ở Bổ sung', BoSung::url_goi_y(), array() ),
 			array( $cho['can_xem'] ?? 0, ( $cho['can_xem'] ?? 0 ) . ' bài "Cần xem" sau chuyển dữ liệu', self::hop_viec( array( 'loai' => 'can_xem' ) ), array() ),
 			array( $tuoi['tren_30'], $tuoi['tren_30'] . ' thẻ đã mở quá 30 ngày', self::hop_viec(), array() ),
 		);
