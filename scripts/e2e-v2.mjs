@@ -798,6 +798,25 @@ try {
       await bam(bt, '.phongdao-thanh-noi-bo');
     });
 
+    await thu('wp-admin Tác phẩm và Bài mới trên điện thoại: mỗi mục một thẻ ba dòng, bộ lọc gập, thấy mục ngay màn đầu', async () => {
+      await bt.setViewport({ width: 390, height: 844 });
+      for (const [duong, ten] of [['/wp-admin/admin.php?page=phongdao-tac-pham&tt=tat_ca', 'Tác phẩm'], ['/wp-admin/admin.php?page=phongdao-kho', 'Bài mới']]) {
+        await di(bt, duong);
+        chac(await bt.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${ten} tràn ngang ở 390 px`);
+        chac(!(await bt.$eval('details.phongdao-tp-them', d => d.open)), `${ten}: bộ lọc không gập sẵn trên điện thoại`);
+        const hang = await bt.$$eval('.phongdao-tp-bang tbody tr', trs => trs.map(tr => Math.round(tr.getBoundingClientRect().height)));
+        chac(hang.length > 0, `${ten}: không có mục nào`);
+        const dau = await bt.$eval('.phongdao-tp-bang tbody tr', tr => Math.round(tr.getBoundingClientRect().top + scrollY));
+        chac(dau < 844, `${ten}: mục đầu tiên nằm dưới màn đầu (y = ${dau})`);
+        chac(Math.max(...hang) <= 260, `${ten}: thẻ cao ${Math.max(...hang)} px (30 mục phải gọn trong khoảng 8 màn)`);
+        chac(await bt.$eval('.phongdao-tp-bang tbody tr .phongdao-tp-dong2', e => !!e.offsetParent), `${ten}: thẻ không có dòng thứ hai (trạng thái, thể loại)`);
+      }
+      await bt.setViewport({ width: 1280, height: 800 });
+      await di(bt, '/wp-admin/admin.php?page=phongdao-tac-pham&tt=tat_ca');
+      chac(await bt.$$eval('.phongdao-tp-tab .phongdao-chip', as => as.map(a => a.textContent.replace(/[\d.]+/g, '').trim()).join('|')) === 'Tất cả|Đã đăng|Bản nháp|Đã ẩn|Thùng rác', 'Tác phẩm không có tab trạng thái kèm số');
+      chac(await bt.$('.phongdao-tp-hanh a[href*="phongdao-sua-tac-pham"]') && await bt.$('.phongdao-tp-nhanh a.button'), 'Tác phẩm thiếu Sửa · Xem · Ẩn trên hàng hoặc nút lọc nhanh');
+    });
+
     await thu('wp-admin Hộp việc: Đăng câu mới → "Đã đăng …" kèm Xem bài và Ẩn nếu nhầm; Ẩn một bấm, người đọc không còn thấy', async () => {
       await bt.setViewport({ width: 1280, height: 800 });
       let the = '';

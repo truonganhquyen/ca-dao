@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class CaiDat implements Module {
 
-	public const PHIEN_BAN_CSDL = 11;
+	public const PHIEN_BAN_CSDL = 12;
 
 	/** Tuỳ chọn lưu phiên bản lược đồ đã cài. */
 	public const TUY_CHON = 'phongdao_csdl';
@@ -77,7 +77,32 @@ final class CaiDat implements Module {
 			// Bước 11 (T-187): lịch chọn câu mới hằng ngày đúng 06:00 giờ Việt Nam (trước chạy 13:00 vì hẹn theo UTC)
 			\Phongdao\DichVu\NhapNguon\NguonTuDong::hen_lai_lich_ngay();
 		}
+		if ( $da_cai < 12 && ! self::buoc_12() ) {
+			return; // không ghi phiên bản lược đồ mới để lượt sau thử lại
+		}
 		update_option( self::TUY_CHON, self::PHIEN_BAN_CSDL, false );
+	}
+
+	/**
+	 * Bước 12 (docs/32 mục 3.9): bảng tóm tắt bài. Chạy lại được (dbDelta giữ dữ liệu). Kho vừa (≤ 3.000 tác phẩm) dựng ngay
+	 * để danh sách đúng từ lần mở đầu; kho lớn dựng theo lô bằng việc nền. Hẹn việc nền tính lượt đọc 7 ngày hằng ngày.
+	 */
+	private static function buoc_12(): bool {
+		global $wpdb;
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		$bang = \Phongdao\DichVu\TomTat\TomTat::bang();
+		dbDelta( \Phongdao\DichVu\TomTat\TomTat::sql_tao( $bang, $wpdb->get_charset_collate() ) );
+		if ( false === $wpdb->query( 'SELECT doc_7 FROM ' . $bang . ' LIMIT 0' ) ) { // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- tên bảng của plugin
+			return false;
+		}
+		$so = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status <> 'auto-draft'", KhaiBao::TAC_PHAM ) );
+		if ( $so <= 3000 ) {
+			\Phongdao\DichVu\TomTat\TomTat::dung_lai_ngay();
+		} else {
+			\Phongdao\DichVu\TomTat\TomTat::bat_dau_dung_lai();
+		}
+		\Phongdao\DichVu\TomTat\TomTat::hen_lich();
+		return true;
 	}
 
 	/** Bước 2 (D-094): bảng việc, các thể loại cố định, đường dẫn /<thể loại>/<tên>/. */

@@ -1541,7 +1541,8 @@ $h_dstp = \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::hien();
 $ids_tp = \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::ids_loc( array( 'q' => 'Bài lô tác phẩm', 'tt' => 'tat_ca' ), $LO::TOI_DA );
 kt( 'danh sách Tác phẩm: thanh nổi (ẩn tới khi đánh dấu bài) có nút "Làm theo lô…"', str_contains( $h_dstp, '<div class="phongdao-thanh-noi" hidden data-don-vi="bài">' ) && str_contains( $h_dstp, 'data-mo-lo>Làm theo lô…</button>' ) );
 kt( 'danh sách Tác phẩm: thanh "Chọn tất cả trên trang này" trước bảng, đếm mọi bài khớp bộ lọc', (bool) preg_match( '#<div class="phongdao-chon-het" hidden data-tong="(\d+)" data-don-vi="bài">#', $h_dstp, $m_ch ) && count( $ids_tp ) === (int) $m_ch[1] && strpos( $h_dstp, 'phongdao-chon-het' ) < strpos( $h_dstp, '<table class="widefat' ), $m_ch ?? null );
-kt( 'danh sách Tác phẩm: ô chọn, khối Làm theo lô có mục phân loại có sẵn; "mọi bài khớp bộ lọc" lấy đủ bài kể cả thùng rác', str_contains( $h_dstp, 'name="ids[]" value="' . $tp_lo[1] . '"' ) && str_contains( $h_dstp, 'value="phongdao_lo_tao_bai"' ) && str_contains( $h_dstp, 'value="chu_de:' . $t_x . '"' ) && str_contains( $h_dstp, 'value="bai_an"' ) && 4 === count( array_intersect( $ids_tp, $tp_lo ) ), $ids_tp );
+$ids_rac = \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::ids_loc( array( 'q' => 'Bài lô tác phẩm', 'tt' => 'trash' ), $LO::TOI_DA );
+kt( 'danh sách Tác phẩm: ô chọn, khối Làm theo lô có mục phân loại có sẵn; "mọi bài khớp bộ lọc" ở tab Tất cả lấy đủ bài trừ thùng rác (như WordPress), tab Thùng rác lấy bài trong thùng rác', str_contains( $h_dstp, 'name="ids[]" value="' . $tp_lo[1] . '"' ) && str_contains( $h_dstp, 'value="phongdao_lo_tao_bai"' ) && str_contains( $h_dstp, 'value="chu_de:' . $t_x . '"' ) && str_contains( $h_dstp, 'value="bai_an"' ) && 3 === count( array_intersect( $ids_tp, $tp_lo ) ) && ! in_array( $tp_lo[3], $ids_tp, true ) && in_array( $tp_lo[3], $ids_rac, true ), array( $ids_tp, $ids_rac ) );
 add_filter( 'wp_die_handler', $chan_die_lo );
 add_filter( 'wp_redirect', $chan_di_lo );
 $g_tp    = $gui_lo( $ai_ql, 'tao_bai', array( 'thao_tac' => 'pl_them', 'muc_pl' => 'chu_de:' . $t_y, 'pham_vi' => 'loc', 'loc_q' => 'Bài lô tác phẩm', 'loc_tt' => 'tat_ca' ), 'phongdao_lo_tao_bai' );
@@ -1552,7 +1553,7 @@ remove_filter( 'wp_redirect', $chan_di_lo );
 $_POST = $_REQUEST = array();
 wp_set_current_user( $ai_ql );
 $lo_tp = Viec::ds_lo( $ai_ql, 1 )[0] ?? array();
-kt( 'lô Tác phẩm qua admin-post: "mọi bài khớp bộ lọc" chốt đủ 4 bài và sang xem trước; thao tác của Hộp việc bị từ chối; người đọc bị chặn', str_contains( $g_tp, 'page=phongdao-lo&lo=' ) && 'loc' === ( $lo_tp['noi_dung']['pham_vi'] ?? '' ) && 4 === count( $lo_tp['noi_dung']['muc'] ?? array() ) && str_contains( $g_tp_vc, 'page=phongdao-tac-pham' ) && str_starts_with( $g_tp_dg, 'wp_die' ), array( $g_tp, $g_tp_vc, $g_tp_dg ) );
+kt( 'lô Tác phẩm qua admin-post: "mọi bài khớp bộ lọc" ở tab Tất cả chốt đủ 3 bài (bài trong thùng rác không tính) và sang xem trước; thao tác của Hộp việc bị từ chối; người đọc bị chặn', str_contains( $g_tp, 'page=phongdao-lo&lo=' ) && 'loc' === ( $lo_tp['noi_dung']['pham_vi'] ?? '' ) && 3 === count( $lo_tp['noi_dung']['muc'] ?? array() ) && str_contains( $g_tp_vc, 'page=phongdao-tac-pham' ) && str_starts_with( $g_tp_dg, 'wp_die' ), array( $g_tp, $g_tp_vc, $g_tp_dg ) );
 $_GET = array();
 foreach ( $tp_lo as $b_lo ) {
 	wp_delete_post( $b_lo, true );
@@ -2431,8 +2432,69 @@ $uu_bs = \Phongdao\GiaoTiep\QuanTri\BoSung::uu_tien();
 wp_set_current_user( 0 );
 $h_bs0 = \Phongdao\GiaoTiep\QuanTri\BoSung::hien();
 wp_set_current_user( $ai_ql );
-$thieu_bs = array( 'tt' => 'publish', 'muc' => 'thieu_y_nghia' );
+$thieu_bs = array( 'tt' => 'publish', 'muc' => 'thieu_y_nghia', 'xep' => 'doc' );
 $dau_bs   = \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::ids_loc( $thieu_bs, 1 )[0] ?? 0;
+// ---------- Bảng tóm tắt bài (T-189.2, docs/32 mục 3.9) ----------
+$TT   = \Phongdao\DichVu\TomTat\TomTat::class;
+$tt_b = array();
+foreach ( array( 'ca-dao' => 'Ca dao tóm tắt thử', 'tuc-ngu' => 'Tục ngữ tóm tắt thử', 'cau-do' => 'Câu đố tóm tắt thử' ) as $tl_tt => $ten_tt ) {
+	$tt_b[ $tl_tt ] = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'post_title' => $ten_tt, 'post_name' => sanitize_title( $ten_tt ) ) );
+	wp_set_object_terms( $tt_b[ $tl_tt ], $tl_tt, KhaiBao::THE_LOAI );
+	LuuPhan::luu( $tt_b[ $tl_tt ], 'loi', array( 'dong' => array( $ten_tt . ' dòng một', $ten_tt . ' dòng hai' ), 'nguoi_lam' => NguoiLam::NGUOI_VIET ), $ncq );
+}
+LuuPhan::luu( $tt_b['tuc-ngu'], 'nghia_bong', array( 'chu' => 'Nghĩa bóng thử của bảng tóm tắt.', 'nguoi_lam' => NguoiLam::NGUOI_VIET ), $ncq );
+LuuPhan::luu( $tt_b['cau-do'], 'dap_an', array( 'chu' => 'Đáp án thử', 'nguoi_lam' => NguoiLam::NGUOI_VIET ), $ncq );
+$d_cd = $TT::lay( $tt_b['ca-dao'] );
+$d_tn = $TT::lay( $tt_b['tuc-ngu'] );
+$d_cq = $TT::lay( $tt_b['cau-do'] );
+kt( 'bảng tóm tắt: lưu một phần thì dòng của bài ghi ngay — thể loại, trạng thái, cấp, còn thiếu theo thể loại (ca dao thiếu Ý nghĩa; tục ngữ có nghĩa bóng thì không thiếu Ý nghĩa nhưng thiếu nghĩa đen; câu đố thiếu giải thích, không nằm trong "thiếu Ý nghĩa")', $d_cd && 'ca-dao' === $d_cd['the_loai'] && 'publish' === $d_cd['trang_thai'] && 1 === (int) $d_cd['cap'] && in_array( 'y_nghia', $TT::thieu( $d_cd ), true ) && in_array( 'tu_kho', $TT::thieu( $d_cd ), true ) && $d_tn && ! in_array( 'y_nghia', $TT::thieu( $d_tn ), true ) && in_array( 'nghia_tn', $TT::thieu( $d_tn ), true ) && $d_cq && ! in_array( 'y_nghia', $TT::thieu( $d_cq ), true ) && ! in_array( 'dap_an', $TT::thieu( $d_cq ), true ) && in_array( 'giai_thich', $TT::thieu( $d_cq ), true ), array( $d_cd, $d_tn, $d_cq ) );
+LuuPhan::luu( $tt_b['ca-dao'], 'y_nghia', array( 'chu' => 'Ý nghĩa thử của bảng tóm tắt.', 'nguoi_lam' => NguoiLam::NGUOI_VIET ), $ncq );
+LuuPhan::luu( $tt_b['ca-dao'], 'co_nghi', array( 'ly_do' => 'Lý do thử của bảng tóm tắt.', 'nguoi_lam' => NguoiLam::NGUOI_VIET ), $ncq );
+wp_update_post( array( 'ID' => $tt_b['tuc-ngu'], 'post_status' => 'private' ) );
+wp_set_object_terms( $tt_b['cau-do'], 'dong-dao', KhaiBao::THE_LOAI );
+$d_cd2 = $TT::lay( $tt_b['ca-dao'] );
+$d_tn2 = $TT::lay( $tt_b['tuc-ngu'] );
+$d_cq2 = $TT::lay( $tt_b['cau-do'] );
+kt( 'bảng tóm tắt: thêm Ý nghĩa → hết "thiếu Ý nghĩa", lên cấp 2; bật cờ → có cờ; đổi trạng thái, đổi thể loại → dòng đổi theo trong cùng lượt', ! in_array( 'y_nghia', $TT::thieu( $d_cd2 ), true ) && 2 === (int) $d_cd2['cap'] && 1 === (int) $d_cd2['co'] && 'private' === $d_tn2['trang_thai'] && 'dong-dao' === $d_cq2['the_loai'] && in_array( 'y_nghia', $TT::thieu( $d_cq2 ), true ), array( $d_cd2, $d_tn2, $d_cq2 ) );
+// Dựng lại toàn bộ: xoá sạch bảng rồi dựng lại cho đủ mọi tác phẩm (trừ bản nháp tự động)
+$wpdb->query( 'DELETE FROM ' . $TT::bang() );
+$n_dl   = $TT::dung_lai_ngay();
+$n_bai  = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status <> 'auto-draft'", KhaiBao::TAC_PHAM ) );
+$n_dong = (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . $TT::bang() );
+kt( 'bảng tóm tắt: dựng lại toàn bộ (bước nâng cấp chạy lại được, lệnh) cho đủ mọi tác phẩm, dòng đúng như lúc lưu', $n_dl === $n_bai && $n_dong === $n_bai && $d_cd2['thieu'] === ( $TT::lay( $tt_b['ca-dao'] )['thieu'] ?? '' ), array( $n_dl, $n_bai, $n_dong ) );
+// Danh sách Tác phẩm đọc từ bảng tóm tắt: lọc "câu đố thiếu đáp án", "tục ngữ thiếu nghĩa", có cờ; tab có số; hàng Sửa · Xem · Ẩn
+$DSTP2 = \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::class;
+wp_set_object_terms( $tt_b['cau-do'], 'cau-do', KhaiBao::THE_LOAI );
+$wpdb->update( $TT::bang(), array( 'doc_7' => 5 ), array( 'post_id' => $tt_b['cau-do'] ) );
+$ids_cf  = $DSTP2::ids_loc( array( 'q' => 'tóm tắt thử', 'tt' => 'tat_ca', 'muc' => 'co_co' ), 50 );
+$ids_gt  = $DSTP2::ids_loc( array( 'q' => 'tóm tắt thử', 'tt' => 'publish', 'muc' => 'thieu_giai_thich' ), 50 );
+$ids_ntn = $DSTP2::ids_loc( array( 'q' => 'tóm tắt thử', 'tt' => 'tat_ca', 'muc' => 'thieu_nghia_tn' ), 50 );
+$ids_doc = $DSTP2::ids_loc( array( 'q' => 'tóm tắt thử', 'tt' => 'publish', 'xep' => 'doc' ), 50 );
+$_GET   = array( 'q' => 'tóm tắt thử', 'tt' => 'tat_ca' );
+$h_tp2  = $DSTP2::hien();
+$_GET   = array();
+kt( 'danh sách Tác phẩm: lọc theo bảng tóm tắt (có cờ, câu đố thiếu giải thích, tục ngữ thiếu nghĩa đen / bóng), xếp bài đọc nhiều trước', array( $tt_b['ca-dao'] ) === $ids_cf && array( $tt_b['cau-do'] ) === $ids_gt && array( $tt_b['tuc-ngu'] ) === $ids_ntn && $tt_b['cau-do'] === ( $ids_doc[0] ?? 0 ), array( $ids_cf, $ids_gt, $ids_ntn, $ids_doc ) );
+kt( 'danh sách Tác phẩm: tab trạng thái kèm số (Tất cả · Đã đăng · Bản nháp · Đã ẩn · Thùng rác), nút lọc nhanh Thiếu ý nghĩa / Có cờ, bộ lọc còn lại trong "Thêm bộ lọc"; mỗi hàng Sửa · Xem · Ẩn (Ẩn chỉ với bài đã đăng, gửi form riêng ngoài bảng); điện thoại có dòng 2 (trạng thái · thể loại) và dòng 3 (còn thiếu, cờ)', str_contains( $h_tp2, 'aria-label="Trạng thái bài"' ) && 5 === substr_count( $h_tp2, 'class="phongdao-chip"' ) && str_contains( $h_tp2, '>Thùng rác <span class="phongdao-chip-so">' ) && str_contains( $h_tp2, '">Thiếu ý nghĩa</a>' ) && str_contains( $h_tp2, 'class="phongdao-tp-nhanh"' ) && str_contains( $h_tp2, '<summary>Thêm bộ lọc</summary>' ) && str_contains( $h_tp2, 'aria-label="Sửa bài #' . $tt_b['ca-dao'] . '">Sửa</a>' ) && str_contains( $h_tp2, 'form="phongdao-an-' . $tt_b['ca-dao'] . '"' ) && str_contains( $h_tp2, '<form id="phongdao-an-' . $tt_b['ca-dao'] . '"' ) && ! str_contains( $h_tp2, 'form="phongdao-an-' . $tt_b['tuc-ngu'] . '"' ) && str_contains( $h_tp2, '<span class="phongdao-tp-dong2">Đã đăng · Ca dao</span>' ) && str_contains( $h_tp2, 'Thiếu: Giải thích đáp án' ) && str_contains( $h_tp2, '<strong>Có cờ</strong>' ) );
+// Nút Ẩn trên hàng: đi đúng đường nút Ẩn (người bấm, có Lịch sử), về lại đúng danh sách kèm lời báo
+$bat_tp = static function ( $vi_tri ): string {
+	throw new \RuntimeException( 'redirect: ' . $vi_tri );
+};
+add_filter( 'wp_redirect', $bat_tp );
+$ve_tp = $DSTP2::url_loc( array( 'q' => 'tóm tắt thử', 'tt' => 'tat_ca' ) );
+$_POST = $_REQUEST = array( 'id' => (string) $tt_b['ca-dao'], 'trang_thai' => 'private', 'trang_thai_cu' => 'publish', 'quay_lai' => $ve_tp, '_wpnonce' => wp_create_nonce( 'phongdao_doi_trang_thai_' . $tt_b['ca-dao'] ) );
+try {
+	\Phongdao\GiaoTiep\QuanTri\SuaTacPham::doi_trang_thai();
+	$r_an_tp = 'không dừng';
+} catch ( \RuntimeException $e ) {
+	$r_an_tp = $e->getMessage();
+}
+$_POST = $_REQUEST = array();
+remove_filter( 'wp_redirect', $bat_tp );
+kt( 'danh sách Tác phẩm: bấm Ẩn trên hàng → bài Đã ẩn, có Lịch sử, bảng tóm tắt đổi theo, về lại đúng danh sách kèm lời báo', 'private' === get_post_status( $tt_b['ca-dao'] ) && 'private' === ( $TT::lay( $tt_b['ca-dao'] )['trang_thai'] ?? '' ) && str_contains( $r_an_tp, 'page=phongdao-tac-pham' ) && str_contains( rawurldecode( $r_an_tp ), 'Đã ẩn “Ca dao tóm tắt thử”' ), $r_an_tp );
+foreach ( $tt_b as $id_tt ) {
+	wp_delete_post( $id_tt, true );
+}
+kt( 'bảng tóm tắt: xoá hẳn bài thì xoá dòng', null === $TT::lay( $tt_b['ca-dao'] ) );
 kt( 'màn Bổ sung: danh sách ưu tiên có số đúng bộ lọc Tác phẩm; "Bắt đầu" mở bài đầu ở trang sửa kèm lối về danh sách đã lọc; không có form; khách không xem được', str_contains( $h_bs, '<h1>Bổ sung</h1>' ) && str_contains( $h_bs, 'Danh sách ưu tiên' ) && \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::dem_loc( $thieu_bs ) === $uu_bs[0][1] && ( ! $dau_bs || $uu_bs[0][3] === \Phongdao\GiaoTiep\QuanTri\SuaTacPham::url( (int) $dau_bs, \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::url_loc( $thieu_bs ) ) ) && ! str_contains( $h_bs, '<form' ) && str_contains( $h_bs0, 'không có quyền' ), $uu_bs );
 foreach ( $the_blv as $id_blv ) {
 	Viec::xoa( (int) $id_blv );

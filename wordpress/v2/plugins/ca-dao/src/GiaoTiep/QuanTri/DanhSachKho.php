@@ -252,7 +252,9 @@ final class DanhSachKho {
 				? '<a class="button button-small" href="' . esc_url( DanhSachViec::url( array( 'loai' => 'co_the_trung' ), 1, $the_trung ) ) . '">Quyết trùng trước</a>'
 				: '<span class="description">' . esc_html( $the ? 'Đã có trong Hộp việc' : ( $trung ? 'Quyết trùng trước' : $ly_do ) ) . '</span>';
 		}
-		return '<tr><td data-nhan="Chọn">' . $chon . '</td><td data-nhan="ID">' . $id . '</td><td data-nhan="Câu" class="phongdao-kho-cau">' . $cau . '</td><td data-nhan="Thể loại">' . esc_html( self::ten_loai( (string) $m->loai ) ) . '</td><td data-nhan="Nguồn">' . $goc . '</td><td data-nhan="Trạng thái">' . implode( '<br>', $tt ) . '</td><td data-nhan="Làm gì">' . $lam . '</td></tr>';
+		// Điện thoại (thẻ ba dòng): câu; thể loại · nguồn; trạng thái và nút — các cột ID, Thể loại, Nguồn ẩn
+		$dong2 = '<span class="phongdao-tp-dong2">' . esc_html( self::ten_loai( (string) $m->loai ) . ' · ' . $ten_nguon ) . '</span>';
+		return '<tr><td class="phongdao-tp-chon" data-nhan="Chọn">' . $chon . '</td><td class="phongdao-tp-an-dt" data-nhan="ID">' . $id . '</td><td class="phongdao-kho-cau phongdao-tp-ten" data-nhan="Câu">' . $cau . $dong2 . '</td><td class="phongdao-tp-an-dt" data-nhan="Thể loại">' . esc_html( self::ten_loai( (string) $m->loai ) ) . '</td><td class="phongdao-tp-an-dt" data-nhan="Nguồn">' . $goc . '</td><td class="phongdao-kho-tt" data-nhan="Trạng thái">' . implode( '<br>', $tt ) . '</td><td class="phongdao-kho-lam-o" data-nhan="Làm gì">' . $lam . '</td></tr>';
 	}
 
 	public static function hien(): string {
@@ -279,12 +281,16 @@ final class DanhSachKho {
 			$mo  = (int) ( $ket['viec'] ?? 0 ) ? ' <a href="' . esc_url( add_query_arg( array( 'page' => DanhSachViec::TRANG, 'viec' => (int) $ket['viec'] ), admin_url( 'admin.php' ) ) ) . '">Mở thẻ</a>' : '';
 			$bao = '<div class="notice ' . ( empty( $ket['ok'] ) ? 'notice-error' : 'notice-success' ) . '"><p role="status">' . esc_html( (string) ( $ket['chu'] ?? '' ) ) . $mo . '</p></div>';
 		}
-		$form = '<form class="phongdao-tp-loc" method="get" action="' . esc_url( admin_url( 'admin.php' ) ) . '"><input type="hidden" name="page" value="' . self::TRANG . '"><div class="phongdao-tp-truong"><label for="phongdao-kho-q">Tìm ID hoặc chữ trong lời</label><input id="phongdao-kho-q" type="search" name="q" value="' . esc_attr( (string) $loc['q'] ) . '"></div>'
+		// Ô tìm luôn hiện; bộ lọc còn lại gập trong "Thêm bộ lọc" (mở sẵn khi đang dùng) — điện thoại thấy câu ngay màn đầu
+		$dang_loc = '' !== $loc['nguon'] || '' !== $loc['loai'] || 'moi' !== $loc['tt'] || 'tat_ca' !== $loc['the'];
+		$form = '<form class="phongdao-tp-tim" method="get" action="' . esc_url( admin_url( 'admin.php' ) ) . '"><input type="hidden" name="page" value="' . self::TRANG . '">'
+			. '<div class="phongdao-tp-tim-o"><label for="phongdao-kho-q">Tìm ID hoặc chữ trong lời</label><input id="phongdao-kho-q" type="search" name="q" value="' . esc_attr( (string) $loc['q'] ) . '"><button class="button button-primary" type="submit">Tìm</button></div>'
+			. '<details class="phongdao-tp-them"' . ( $dang_loc ? ' open' : '' ) . '><summary>Thêm bộ lọc' . ( $dang_loc ? ' (đang dùng)' : '' ) . '</summary><div class="phongdao-tp-loc">'
 			. self::chon( 'nguon', 'Nguồn', $ds_nguon, (string) $loc['nguon'] )
 			. self::chon( 'loai', 'Thể loại', $ds_loai, (string) $loc['loai'] )
 			. self::chon( 'tt', 'Trạng thái', self::TRANG_THAI, (string) $loc['tt'] )
 			. self::chon( 'the', 'Hộp việc', self::THE, (string) $loc['the'] )
-			. '<button class="button button-primary" type="submit">Tìm và lọc</button></form>';
+			. '<button class="button" type="submit">Lọc</button></div></details></form>';
 		$bao     .= TrangLo::lay_bao();
 		$quay_lai = self::url( $loc, (int) $loc['paged'] );
 		$dong     = implode( '', array_map( static fn( object $m ): string => self::dong( $m, $tt, $nguon, $quay_lai ), $kq['ds'] ) );
@@ -306,7 +312,7 @@ final class DanhSachKho {
 			. $bao . $form
 			. '<p class="phongdao-tp-tong" role="status"><strong>' . (int) $kq['tong'] . '</strong> câu khớp bộ lọc. Hiện ' . count( $kq['ds'] ) . ' câu trên trang này.</p>'
 			. ( $kq['tong'] > 0 ? self::khoi_lo( $loc, $so_chon, $duyet ) . TrangLo::chon_het( $so_chon, 'câu' ) : '' )
-			. '<table class="widefat striped"><thead><tr><th scope="col">Chọn</th><th scope="col">ID</th><th scope="col">Câu</th><th scope="col">Thể loại</th><th scope="col">Nguồn</th><th scope="col">Trạng thái</th><th scope="col">Làm gì</th></tr></thead><tbody>'
+			. '<table class="widefat striped phongdao-tp-bang"><thead><tr><th scope="col">Chọn</th><th scope="col">ID</th><th scope="col">Câu</th><th scope="col">Thể loại</th><th scope="col">Nguồn</th><th scope="col">Trạng thái</th><th scope="col">Làm gì</th></tr></thead><tbody>'
 			. ( $dong ?: '<tr><td colspan="7">Không có câu nào khớp. Thử đổi bộ lọc.</td></tr>' ) . '</tbody></table>' . $phan_trang . $noi . '</div>';
 	}
 

@@ -2,16 +2,15 @@
 
 namespace Phongdao\GiaoTiep\QuanTri;
 
-use Phongdao\DichVu\DoLuong\DoLuong;
-use Phongdao\KhoLuu\PhanBai;
 use Phongdao\KhoLuu\Viec;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Màn **Bổ sung** trong wp-admin (D-103, docs/32 mục 3.5): làm bài đã đăng đầy đủ hơn, không chỉ tiêu. Bài đọc nhiều chưa
- * có Ý nghĩa lên đầu; mỗi dòng của danh sách ưu tiên có nút "Bắt đầu" mở bài đầu tiên ở trang Sửa tác phẩm, kèm lối "Bài
- * tiếp theo" (lưu xong sang bài kế, như đợt 2). Chỉ đọc và dẫn đường; máy không viết nội dung, không tự gắn phân loại.
+ * Màn **Bổ sung** trong wp-admin (D-103, docs/32 mục 3.5): làm bài đã đăng đầy đủ hơn, không chỉ tiêu. Đọc từ bảng tóm tắt
+ * bài. Bài đọc nhiều chưa có Ý nghĩa lên đầu; danh sách ưu tiên (thiếu Ý nghĩa, tục ngữ thiếu nghĩa, câu đố thiếu đáp án
+ * rồi thiếu giải thích, thiếu từ khó, thiếu đối chiếu sách, có cờ) xếp bài đọc nhiều trước; nút "Bắt đầu" mở bài đầu ở
+ * trang Sửa tác phẩm kèm lối "Bài tiếp theo". Chỉ đọc và dẫn đường; máy không viết nội dung, không tự gắn phân loại.
  */
 final class BoSung {
 
@@ -27,8 +26,9 @@ final class BoSung {
 	 * @return int[]
 	 */
 	public static function doc_nhieu_thieu( int $so = 10 ): array {
-		$ds = array_filter( DoLuong::doc_nhieu( 7, 60 ), static fn( int $id ): bool => 'publish' === get_post_status( $id ) && null === PhanBai::lay( $id, 'y_nghia' ), ARRAY_FILTER_USE_KEY );
-		return array_slice( array_map( 'intval', array_keys( $ds ) ), 0, $so );
+		global $wpdb;
+		// Đọc từ bảng tóm tắt bài (lượt đọc 7 ngày tính sẵn): một truy vấn, không đọc từng bài
+		return array_map( 'intval', $wpdb->get_col( $wpdb->prepare( 'SELECT post_id FROM ' . \Phongdao\DichVu\TomTat\TomTat::bang() . " WHERE trang_thai = 'publish' AND doc_7 > 0 AND thieu LIKE %s ORDER BY doc_7 DESC, post_id ASC LIMIT %d", '%,y_nghia,%', $so ) ) ?: array() ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- tên bảng của plugin
 	}
 
 	/**
@@ -41,7 +41,12 @@ final class BoSung {
 		$ra = array();
 		foreach (
 			array(
-				array( 'Bài đã đăng chưa có Ý nghĩa', array( 'tt' => 'publish', 'muc' => 'thieu_y_nghia' ) ),
+				array( 'Bài đã đăng chưa có Ý nghĩa', array( 'tt' => 'publish', 'muc' => 'thieu_y_nghia', 'xep' => 'doc' ) ),
+				array( 'Tục ngữ thiếu nghĩa đen / nghĩa bóng', array( 'tt' => 'publish', 'muc' => 'thieu_nghia_tn', 'xep' => 'doc' ) ),
+				array( 'Câu đố thiếu đáp án', array( 'tt' => 'publish', 'muc' => 'thieu_dap_an', 'xep' => 'doc' ) ),
+				array( 'Câu đố thiếu giải thích đáp án', array( 'tt' => 'publish', 'muc' => 'thieu_giai_thich', 'xep' => 'doc' ) ),
+				array( 'Thiếu từ khó', array( 'tt' => 'publish', 'muc' => 'thieu_tu_kho', 'xep' => 'doc' ) ),
+				array( 'Thiếu đối chiếu sách', array( 'tt' => 'publish', 'muc' => 'thieu_doi_chieu', 'xep' => 'doc' ) ),
 				array( 'Bài có cờ nghi cần xem lại', array( 'muc' => 'co_co' ) ),
 			) as [ $ten, $loc ]
 		) {
