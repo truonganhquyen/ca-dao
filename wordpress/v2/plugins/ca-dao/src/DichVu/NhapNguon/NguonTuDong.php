@@ -84,9 +84,10 @@ final class NguonTuDong implements Module {
 	}
 
 	/** Tên hiển thị của một nguồn tự động; chưa cấu hình thì giữ mã. */
+	/** Tên nguồn tự động để hiện cho người biên soạn; nguồn chưa có tên thì "nguồn chưa đặt tên", không in mã máy. */
 	public static function ten( string $id ): string {
 		$ten = (string) ( self::tat_ca()[ $id ]['ten'] ?? '' );
-		return '' !== $ten ? $ten : $id;
+		return '' !== $ten ? $ten : 'nguồn chưa đặt tên';
 	}
 
 	public static function lay( string $id ): ?array {

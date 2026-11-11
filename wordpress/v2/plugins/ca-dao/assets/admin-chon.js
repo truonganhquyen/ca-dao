@@ -6,9 +6,12 @@
  *   Ở danh sách, khi đã chọn cả trang mà bộ lọc còn nhiều hơn thì có nút chuyển Phạm vi sang "Mọi … khớp bộ lọc".
  *   Ở trang xem trước lô (ô "Áp dụng" tên giu[]), nút "Đánh dấu cả … ở trang khác" gửi lên máy chủ; nút chính đếm lại
  *   ngay số mục sẽ áp dụng.
- * - Thanh nổi ở đáy màn (T-188): khi đã đánh dấu mục thì hiện số đã chọn, nút làm tiếp (Kho: "Xem trước và đăng", "Đưa
- *   vào Hộp việc…"; Hộp việc: làm nhanh; Tác phẩm, Hộp việc: "Làm theo lô…" mở khối lô) và "Bỏ chọn". Khối lô đang mở và
- *   còn trong màn thì thanh ẩn, không che nút của khối.
+ * - Thanh nổi (T-188, T-189): số đã chọn, nút làm tiếp (Kho: "Xem trước và đăng", "Đưa vào Hộp việc…"; Hộp việc: làm
+ *   nhanh; Tác phẩm, Hộp việc: "Làm theo lô…" mở khối lô) và "Bỏ chọn".
+ *   · Máy tính (≥ 783 px): nằm trong thanh "Chọn tất cả" ở đầu danh sách, thanh dính ở trên khi cuộn; luôn hiện, nút mờ
+ *     khi chưa chọn gì — đánh dấu không làm danh sách xô xuống, không che hàng cuối (báo cáo trinh sát lần 2, mục 1.2).
+ *   · Điện thoại: ở đáy màn khi đã đánh dấu, trang chừa đúng chiều cao thanh để hàng cuối không bị che. Khối lô đang mở
+ *     và còn trong màn thì thanh ẩn, không che nút của khối.
  * Không có JavaScript thì thanh chọn không hiện; khối lô vẫn mở được bằng tay (thẻ <details>), từng ô vẫn đánh dấu được.
  */
 (() => {
@@ -30,6 +33,16 @@
   // Khối lô đang mở và còn trong màn (trừ dải đáy thanh nổi chiếm) thì không cần thanh nổi
   const khoiThay = new Set();
   const khoiChe = () => [...khoiThay].some(d => d.open);
+  // Máy tính: thanh nổi chuyển vào thanh "Chọn tất cả" ở đầu danh sách; điện thoại: về đáy màn
+  const rong = window.matchMedia('(min-width: 783px)');
+  const choCu = noi ? document.createComment('thanh-noi') : null;
+  if (noi) noi.after(choCu);
+  const tren = () => !!(noi && thanh && rong.matches);
+  const datCho = () => {
+    if (!noi) return;
+    if (tren() && noi.parentElement !== thanh) { thanh.append(noi); noi.classList.add('o-tren'); }
+    else if (!tren() && noi.classList.contains('o-tren')) { choCu.before(noi); noi.classList.remove('o-tren'); }
+  };
 
   const capNhat = () => {
     const ds = cacO();
@@ -43,10 +56,20 @@
     }
     for (const b of nutChinh) b.textContent = b.dataset.mau.replace('%d', String((Number(b.dataset.ngoai) || 0) + n));
     if (noi) {
-      const hien = (n > 0 || theoLoc) && !khoiChe();
-      noi.hidden = !hien;
-      document.body.classList.toggle('phongdao-co-thanh-noi', hien);
-      noi.querySelector('.phongdao-thanh-noi-dem').textContent = theoLoc ? `Mọi ${tong} ${donViNoi} khớp bộ lọc` : `Đã chọn ${n} ${donViNoi}`;
+      const co = n > 0 || theoLoc;
+      if (tren()) {
+        // Luôn hiện ở đầu danh sách; chưa chọn gì thì nút mờ
+        noi.hidden = false;
+        document.body.classList.remove('phongdao-co-thanh-noi');
+        for (const b of noi.querySelectorAll('button')) b.disabled = !co;
+      } else {
+        for (const b of noi.querySelectorAll('button')) b.disabled = false;
+        const hien = co && !khoiChe();
+        noi.hidden = !hien;
+        document.body.classList.toggle('phongdao-co-thanh-noi', hien);
+        if (hien) document.body.style.setProperty('--phongdao-noi-cao', `${Math.ceil(noi.getBoundingClientRect().height)}px`);
+      }
+      noi.querySelector('.phongdao-thanh-noi-dem').textContent = theoLoc ? `Mọi ${tong} ${donViNoi} khớp bộ lọc` : (n ? `Đã chọn ${n} ${donViNoi}` : `Chưa chọn ${donViNoi} nào`);
     }
     if (!thanh) return;
     if (!ds.length) { thanh.hidden = true; return; }
@@ -124,5 +147,7 @@
   }
 
   document.addEventListener('change', e => { if (e.target.matches?.('input[name=pham_vi]')) capNhat(); });
+  rong.addEventListener?.('change', () => { datCho(); capNhat(); });
+  datCho();
   capNhat();
 })();

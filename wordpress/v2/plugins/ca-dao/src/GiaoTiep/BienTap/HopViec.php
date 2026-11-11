@@ -50,7 +50,7 @@ final class HopViec {
 		$ve   = (string) wp_get_referer() ?: home_url( '/bien-tap/' );
 		// Quyết được thì sang thẻ kế (Hộp việc wp-admin), kèm lối xem lại thẻ vừa quyết; quyết hỏng thì ở lại thẻ này
 		$tiep = $kq['ok'] && ! $kq['chuyen'] ? self::tiep() : '';
-		$dich = $kq['chuyen'] ?: remove_query_arg( array( 'da', 'hoan_viec', 'hoan_phien', 'vua' ), '' !== $tiep ? $tiep : $ve );
+		$dich = $kq['chuyen'] ?: remove_query_arg( array( 'da', 'hoan_viec', 'hoan_phien', 'vua', 'dang_bai' ), '' !== $tiep ? $tiep : $ve );
 		if ( '' !== $tiep ) {
 			$dich = add_query_arg( 'vua', $id, $dich );
 		}
@@ -59,7 +59,17 @@ final class HopViec {
 		if ( $co_hoan ) {
 			$dich = add_query_arg( array( 'hoan_viec' => $id, 'hoan_phien' => $v_sau['phien'] ), $dich );
 		}
-		$thong_bao = $kq['ok'] ? $kq['thong_bao'] . ( $co_hoan || $kq['chuyen'] ? '' : ' Quyết định này không có Hoàn tác nhanh.' ) : 'Chưa xong: ' . implode( ' ', $kq['loi'] );
+		// Đăng câu mới: lời báo ghi tên bài, kèm lối Xem bài · Ẩn nếu nhầm (một bấm, có nhật ký) thay cho câu "không có Hoàn tác nhanh"
+		$bai_dang = 0;
+		if ( $kq['ok'] && 'dang' === $quyet && 'cau_moi' === ( $v_sau['loai'] ?? '' ) ) {
+			$bai_dang = (int) ( Kho::lay( (int) $v_sau['doi_tuong_id'] )?->post_id ?? 0 );
+		}
+		if ( $bai_dang && 'publish' === get_post_status( $bai_dang ) ) {
+			$thong_bao = 'Đã đăng “' . get_post_field( 'post_title', $bai_dang ) . '”.';
+			$dich      = add_query_arg( 'dang_bai', $bai_dang, $dich );
+		} else {
+			$thong_bao = $kq['ok'] ? $kq['thong_bao'] . ( $co_hoan || $kq['chuyen'] ? '' : ' Quyết định này không có Hoàn tác nhanh.' ) : 'Chưa xong: ' . implode( ' ', $kq['loi'] );
+		}
 		wp_safe_redirect( add_query_arg( 'da', rawurlencode( $thong_bao ), $dich ) );
 		exit;
 	}
@@ -74,7 +84,7 @@ final class HopViec {
 		$kq = QuyetViec::hoan_tac( $id, $phien, get_current_user_id() );
 		$ve = (string) wp_get_referer() ?: home_url( '/bien-tap/' );
 		$tiep = self::tiep();
-		$dich = remove_query_arg( array( 'da', 'hoan_viec', 'hoan_phien', 'vua' ), '' !== $tiep ? $tiep : $ve );
+		$dich = remove_query_arg( array( 'da', 'hoan_viec', 'hoan_phien', 'vua', 'dang_bai' ), '' !== $tiep ? $tiep : $ve );
 		wp_safe_redirect( add_query_arg( 'da', rawurlencode( $kq['ok'] ? $kq['thong_bao'] : 'Chưa xong: ' . implode( ' ', $kq['loi'] ) ), $dich ) );
 		exit;
 	}
@@ -157,23 +167,28 @@ final class HopViec {
 	/**
 	 * Một thẻ việc: đủ thông tin để quyết ngay trên thẻ.
 	 *
-	 * @param string $tiep Đường dẫn thẻ kế (Hộp việc wp-admin): quyết xong thì sang đó.
+	 * @param string $tiep  Đường dẫn thẻ kế (Hộp việc wp-admin): quyết xong thì sang đó.
+	 * @param bool   $lo_mo Có lối "Mở bài →" ở cuối thẻ (Hộp việc wp-admin đã có "Sửa bài · Xem bài" thì tắt, không lặp).
 	 */
-	public static function the( array $v, bool $co_form = true, string $tiep = '' ): string {
+	public static function the( array $v, bool $co_form = true, string $tiep = '', bool $lo_mo = true ): string {
 		[ $ten, $nut ] = QuyetViec::LOAI[ $v['loai'] ] ?? array( $v['loai'], array() );
 		$tieu_de = '';
 		$than    = '';
 		$ly_do   = '';
 		$g       = 'ca-dao';
 		$mo      = '';
+		$an_ten  = false;
 		if ( 'cau_moi' === $v['loai'] ) {
 			$m = Kho::lay( (int) $v['doi_tuong_id'] );
 			if ( $m ) {
 				$d       = Kho::du_lieu( $m );
 				$g       = TheLoai::TU_LOAI_GOC[ $m->loai ] ?? 'ca-dao';
 				$tieu_de = $m->tieu_de ?: (string) strtok( $m->loi, "\n" );
+				// Tên câu chính là dòng đầu: không in lại làm tiêu đề (vẫn giữ cho trình đọc màn hình)
+				$an_ten  = trim( $tieu_de ) === trim( (string) strtok( $m->loi, "\n" ) );
 				$than    = Ve::loi( array_slice( array_values( array_filter( explode( "\n", $m->loi ), 'strlen' ) ), 0, 8 ), 'ca-dao' === $g ? 'lucbat' : '', array(), array( 'nhom' => 'hv-' . $v['id'] ) )
-					. '<p class="small muted">' . esc_html( TheLoai::DS[ $g ] . ' · ' . count( (array) ( $d['chu_thich'] ?? array() ) ) . ' chú thích · ' . count( (array) ( $d['di_ban'] ?? array() ) ) . ' dị bản' . ( empty( $d['co'] ) ? '' : ' · cờ: ' . implode( ', ', (array) $d['co'] ) ) ) . '</p>';
+					. '<p class="small muted">' . esc_html( TheLoai::DS[ $g ] . ' · ' . count( (array) ( $d['chu_thich'] ?? array() ) ) . ' chú thích · ' . count( (array) ( $d['di_ban'] ?? array() ) ) . ' dị bản' ) . '</p>'
+					. ( empty( $d['co'] ) ? '' : '<p class="tv-co">Cờ của nguồn: ' . esc_html( implode( ', ', \Phongdao\GiaoTiep\QuanTri\DanhSachKho::ten_co( (array) $d['co'] ) ) ) . '</p>' );
 				$ly_do = ( empty( $v['noi_dung']['chon_boi'] ) ? '' : 'người chọn từ Kho · ' ) . 'nguồn: ' . \Phongdao\DichVu\NhapNguon\NguonTuDong::ten( (string) $m->nguon_id );
 				// Căn cứ trước khi quyết (T-179): trang gốc máy đã lấy — chỉ người biên soạn thấy thẻ này
 				if ( '' !== (string) $m->url ) {
@@ -186,7 +201,8 @@ final class HopViec {
 				$tieu_de = $bai->post_title;
 				$mo      = (string) get_permalink( $bai );
 				$than    = Ve::loi( array_slice( PhanBai::lay( $bai->ID, 'loi' )['dong'] ?? array(), 0, 4 ), '', array(), array( 'nhom' => 'hv-' . $v['id'] ) )
-					. '<div class="nhap-ai"><span class="tag">' . ( empty( $v['noi_dung']['ai'] ) ? 'Nháp' : 'AI' ) . ( in_array( $v['trang_thai'], array( Viec::CHO, Viec::DE_SAU ), true ) ? ' · chưa duyệt' : '' ) . '</span><p>' . esc_html( (string) ( $v['noi_dung']['chu'] ?? '' ) ) . '</p></div>';
+					. '<div class="nhap-ai"><span class="tag">' . ( empty( $v['noi_dung']['ai'] ) ? 'Nháp' : 'AI' ) . ( in_array( $v['trang_thai'], array( Viec::CHO, Viec::DE_SAU ), true ) ? ' · chưa duyệt' : '' ) . '</span><p class="nhap-chu">' . esc_html( (string) ( $v['noi_dung']['chu'] ?? '' ) ) . '</p>'
+						. '<p class="small muted">' . esc_html( 'Người viết: ' . self::nguoi_viet( $v ) . ( empty( $v['noi_dung']['ai'] ) ? '' : ' · có hỗ trợ AI' ) ) . '</p></div>';
 				$ly_do   = 'người đọc chưa thấy';
 			}
 		} elseif ( 'nguoi_doc' === $v['loai'] ) {
@@ -257,11 +273,21 @@ final class HopViec {
 		}
 		return '<article class="the-viec g-' . esc_attr( $g ) . '" data-loai="' . esc_attr( $v['loai'] ) . '" id="viec-' . (int) $v['id'] . '">'
 			. '<header class="tv-dau"><span class="tv-loai">' . esc_html( $ten ) . '</span><span class="small muted">' . esc_html( $ly_do ) . '</span></header>'
-			. '<h3>' . esc_html( $tieu_de ?: 'Việc #' . $v['id'] ) . '</h3>' . $than
+			. '<h3' . ( $an_ten ? ' class="screen-reader-text"' : '' ) . '>' . esc_html( $tieu_de ?: 'Việc #' . $v['id'] ) . '</h3>' . $than
 			. ( $co_form ? '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="tv-nut"><input type="hidden" name="action" value="' . self::HANH_DONG . '"><input type="hidden" name="viec" value="' . (int) $v['id'] . '"><input type="hidden" name="phien" value="' . (int) $v['phien'] . '">'
 				. ( '' === $tiep ? '' : '<input type="hidden" name="tiep" value="' . esc_attr( $tiep ) . '">' )
 				. wp_nonce_field( self::HANH_DONG . $v['id'], '_wpnonce', true, false ) . $form . '</form>' : '' )
-			. ( '' === $mo ? '' : '<a class="tv-mo" href="' . esc_url( $mo ) . '">Mở bài ' . Ve::icon( 'arrow' ) . '</a>' ) . '</article>';
+			. ( '' === $mo || ! $lo_mo ? '' : '<a class="tv-mo" href="' . esc_url( $mo ) . '">Mở bài ' . Ve::icon( 'arrow' ) . '</a>' ) . '</article>';
+	}
+
+	/** Người viết một nháp: tên người trong site, hoặc "máy (agent soạn theo lô)" khi do lệnh nạp nháp tạo. */
+	public static function nguoi_viet( array $v ): string {
+		$tao = (string) ( $v['nguoi_tao'] ?? '' );
+		if ( ctype_digit( $tao ) && (int) $tao > 0 ) {
+			$u = get_userdata( (int) $tao );
+			return $u ? $u->display_name : 'người dùng #' . $tao;
+		}
+		return 'may' === $tao ? 'máy (agent soạn theo lô)' : ( '' === $tao ? 'chưa rõ' : $tao );
 	}
 
 	/** @return array{0:string,1:string[],2:string,3:string} [tên, các dòng, nhãn nơi ở, đường dẫn mở] của một mục 'bai:…' / 'kho:…' */

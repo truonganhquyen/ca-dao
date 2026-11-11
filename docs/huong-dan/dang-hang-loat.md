@@ -6,9 +6,9 @@ Nút **Xem trước và đăng** chỉ hiện với tài khoản có quyền duy
 
 ## Bước 1: chọn câu ở Kho
 
-1. Mở wp-admin → **Phongdao** → **Kho**.
+1. Mở wp-admin → **Phongdao** → **Bài mới** (câu trong Kho).
 2. Lọc theo nguồn hoặc thể loại nếu muốn, ví dụ chỉ Tục ngữ.
-3. Đánh dấu ô **Chọn** ở các câu muốn đăng. Ở đáy màn hiện thanh **Đã chọn … câu** với nút **Xem trước và đăng** và **Đưa vào Hộp việc…**; không cần cuộn lên đầu trang. Muốn chọn phạm vi khác (mọi câu khớp bộ lọc), mở khối **Đăng hoặc đưa nhiều câu vào Hộp việc** ở đầu danh sách.
+3. Đánh dấu ô **Chọn** ở các câu muốn đăng. Thanh **Đã chọn … câu** (nút **Xem trước và đăng** và **Đưa vào Hộp việc…**) nằm ở đầu danh sách trên máy tính, dính ở trên khi cuộn; trên điện thoại hiện ở đáy màn. Không cần cuộn lên đầu trang. Muốn chọn phạm vi khác (mọi câu khớp bộ lọc), mở khối **Đăng hoặc đưa nhiều câu vào Hộp việc** ở đầu danh sách.
    - Chọn nhanh: bấm ô **Chọn tất cả … câu trên trang này** ngay trên bảng; bấm lại để bỏ chọn hết.
    - Chọn một dải (máy tính): bấm ô đầu, giữ phím **Shift** rồi bấm ô cuối, mọi câu ở giữa được chọn theo.
    - Lấy hết mọi trang: chọn tất cả trên trang rồi bấm **Chọn mọi … câu khớp bộ lọc** (hoặc mở khối ở đầu danh sách và chọn **Mọi câu khớp bộ lọc**).
@@ -44,4 +44,4 @@ Bấm **Đưa vào Hộp việc…** (thanh đáy màn) hoặc **Đưa vào Hộ
 - Bài mới hiện trên trang đọc và ở Phongdao → **Tác phẩm**.
 - **Google:** hiện site còn chặn Google. Khi bạn mở, mọi bài đã đăng đều lên Google, kể cả bài chưa có Ý nghĩa.
 - **Đăng nhầm:** ở Phongdao → Tác phẩm, đánh dấu bài → **Làm theo lô** → **Ẩn bài** hoặc **Đưa vào thùng rác**. Cả hai lấy lại được.
-- **Dừng giữa chừng** (mất mạng, lỡ đóng trang): mở Phongdao → **Thao tác hàng loạt**, chọn lô đó, bấm **Tiếp tục**. Câu đã đăng không bị đăng lại.
+- **Dừng giữa chừng** (mất mạng, lỡ đóng trang): mở Phongdao → **Hôm nay** → **Lịch sử thao tác hàng loạt**, chọn lô đó, bấm **Tiếp tục**. Câu đã đăng không bị đăng lại.

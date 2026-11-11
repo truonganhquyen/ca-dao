@@ -15,55 +15,118 @@ use Phongdao\KhoLuu\Viec;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Bàn làm việc trong wp-admin (T-180, docs/31 mục 2; T-188): mở đầu bằng bốn ô số bấm được và nút "Bắt đầu duyệt" (mở thẻ
- * cần làm trước nhất ở Hộp việc, quyết xong tự sang thẻ kế); việc nên làm tính từ dữ liệu hiện có (mỗi dòng mở đúng danh
- * sách đã lọc), ngoại lệ dữ liệu, lối thử làm sâu 20–30 bài; cuối trang thu gọn việc vào / ra, tuổi thẻ và Số liệu tuần
- * (gộp từ `/bien-tap/so-lieu/`, D-100). Chỉ đọc; không đặt chỉ tiêu điền kín cả kho, không chọn bài hay viết nội dung
- * thay người biên soạn.
+ * Màn **Hôm nay** trong wp-admin (đổi tên Bàn làm việc; D-103, docs/32 mục 3.2): "3 việc gấp nhất" ở đầu (báo lỗi, vi
+ * phạm của người đọc trước), ba ô theo ba dòng việc Bài mới · Hộp việc · Bổ sung (mỗi ô một nút bắt đầu), Nên làm tuần
+ * này, rồi các khối thu gọn: ngoại lệ dữ liệu, thử làm sâu, việc vào / ra và tuổi thẻ, Số liệu tuần (nhớ 1 giờ để mở
+ * nhanh, báo cáo trinh sát lần 2 mục 1.9), lối Lịch sử thao tác hàng loạt. Chỉ đọc; không đặt chỉ tiêu điền kín cả kho,
+ * không chọn bài hay viết nội dung thay người biên soạn. Trang chào mừng WordPress có khung "Phongdao hôm nay" (khung_wp).
  */
 final class BanLamViec {
 
+	/** Giữ đường dẫn cũ của Bàn làm việc (sổ tay, dấu trang, lối sau đăng nhập). */
 	public const TRANG = 'phongdao-ban-lam-viec';
 
 	public const HUONG_DAN = 'https://github.com/truonganhquyen/ca-dao/blob/main/docs/huong-dan/thu-lam-sau.md';
+
+	/** Khoá nhớ Số liệu tuần (1 giờ). */
+	public const NHO_SO_LIEU = 'phongdao_so_lieu_tuan';
+
+	public static function url(): string {
+		return admin_url( 'admin.php?page=' . self::TRANG );
+	}
 
 	public static function hien( ?int $bay_gio = null ): string {
 		if ( ! current_user_can( 'cadao_soan' ) ) {
 			return '<div class="wrap"><p>Bạn không có quyền xem trang này.</p></div>';
 		}
 		$bay_gio = $bay_gio ?? time();
-		return '<div class="wrap phongdao-ban"><h1>Bàn làm việc</h1>'
-			. self::khoi_dau() . self::khoi_nen_lam( $bay_gio ) . self::khoi_ngoai_le() . self::khoi_thu_sau()
+		$nen     = self::viec_nen_lam( $bay_gio );
+		return '<div class="wrap phongdao-ban"><h1>Hôm nay</h1>'
+			. self::khoi_gap( array_slice( $nen, 0, 3 ) ) . self::khoi_dau() . self::khoi_nen_lam( array_slice( $nen, 3 ), (bool) $nen )
+			. '<details class="phongdao-ban-gon"><summary>Ngoại lệ dữ liệu và hồ sơ nguồn chưa rõ</summary>' . self::khoi_ngoai_le() . '</details>'
+			. '<details class="phongdao-ban-gon"><summary>Thử làm sâu 20–30 bài</summary>' . self::khoi_thu_sau() . '</details>'
 			. '<details class="phongdao-ban-gon"><summary>Việc vào, ra và tuổi thẻ</summary>' . self::khoi_vao_ra( $bay_gio ) . self::khoi_tuoi( $bay_gio ) . '</details>'
 			. '<details class="phongdao-ban-gon"><summary>Số liệu tuần: bài theo thể loại, cấp chất lượng, lượt đọc</summary>' . self::khoi_so_lieu() . '</details>'
-			. '<p class="description">Tính từ dữ liệu lúc mở trang. Mỗi dòng mở đúng danh sách để làm tiếp. Không có chỉ tiêu phải điền kín cả kho: bài nào cần thì làm.</p></div>';
+			. '<p class="phongdao-ban-lo"><a href="' . esc_url( TrangLo::url() ) . '">Lịch sử thao tác hàng loạt</a> · các lô bạn đã chạy, kết quả từng mục.</p>'
+			. '<p class="description">Tính từ dữ liệu lúc mở trang (Số liệu tuần nhớ trong 1 giờ). Mỗi dòng mở đúng danh sách để làm tiếp. Không có chỉ tiêu phải điền kín cả kho: bài nào cần thì làm.</p></div>';
 	}
 
-	/** Bốn ô số bấm được và nút "Bắt đầu duyệt": mở thẻ cần làm trước nhất (ưu tiên cao, cũ trước) trong Hộp việc. */
-	private static function khoi_dau(): string {
-		$cho   = Viec::dem_cho();
-		$loai  = Viec::dem_loai( Viec::CHO );
-		$thieu = array( 'tt' => 'publish', 'muc' => 'thieu_y_nghia' );
-		$o     = '';
-		foreach (
-			array(
-				array( $cho, 'việc đang chờ', DanhSachViec::url( array() ) ),
-				array( (int) ( $loai['cau_moi'] ?? 0 ), 'câu mới từ nguồn', DanhSachViec::url( array( 'loai' => 'cau_moi' ) ) ),
-				array( DanhSachTacPham::dem_loc( $thieu ), 'bài đã đăng chưa có ý nghĩa', DanhSachTacPham::url_loc( $thieu ) ),
-				array( (int) ( $loai['nguoi_doc'] ?? 0 ), 'nội dung người đọc gửi', DanhSachViec::url( array( 'loai' => 'nguoi_doc' ) ) ),
-			) as [ $so, $nhan, $url ]
-		) {
-			$o .= '<li><a class="phongdao-ban-o" href="' . esc_url( $url ) . '"><strong>' . esc_html( number_format_i18n( (int) $so ) ) . '</strong> <span>' . esc_html( $nhan ) . '</span></a></li>';
+	/** "3 việc gấp nhất": ba việc đầu của Nên làm tuần này (báo lỗi, vi phạm của người đọc luôn đứng trước). */
+	private static function khoi_gap( array $ds ): string {
+		if ( ! $ds ) {
+			return '<p class="phongdao-ban-gap" role="status">Không có việc gấp.</p>';
 		}
-		$dau = $cho ? ( Viec::tim_quan_tri( Viec::CHO, '', '', 1, 1 )['ds'][0] ?? null ) : null;
-		$nut = $dau
-			? '<p class="phongdao-ban-bat-dau"><a class="button button-primary button-hero" href="' . esc_url( DanhSachViec::url( array(), 1, (int) $dau['id'] ) ) . '">Bắt đầu duyệt (' . esc_html( number_format_i18n( $cho ) ) . ' việc)</a> <span class="description">Mở thẻ cần làm trước nhất; quyết xong tự sang thẻ kế.</span></p>'
-			: '<p class="phongdao-ban-bat-dau" role="status">Không còn việc chờ quyết.</p>';
-		return '<ul class="phongdao-ban-so">' . $o . '</ul>' . $nut;
+		$o = '';
+		foreach ( $ds as $x ) {
+			$o .= '<li><a href="' . esc_url( $x['url'] ) . '">' . esc_html( $x['chu'] ) . '</a></li>';
+		}
+		return '<section class="phongdao-ban-gap" aria-labelledby="phongdao-gap"><h2 id="phongdao-gap">' . esc_html( count( $ds ) ) . ' việc gấp nhất</h2><ol>' . $o . '</ol></section>';
 	}
 
-	/** Số liệu tuần (gộp từ `/bien-tap/so-lieu/`): bài theo thể loại, theo cấp chất lượng, lượt đọc 7 ngày. */
+	/**
+	 * Số của ba dòng việc: câu Kho còn đăng được (Bài mới), việc đang chờ (Hộp việc) và thẻ đầu tiên, bài đã đăng chưa có
+	 * ý nghĩa (Bổ sung).
+	 *
+	 * @return array{kho:int,cho:int,dau:int,thieu:int}
+	 */
+	public static function so_ba_dong(): array {
+		$cho = Viec::dem_cho();
+		$dau = $cho ? (int) ( Viec::tim_quan_tri( Viec::CHO, '', '', 1, 1 )['ds'][0]['id'] ?? 0 ) : 0;
+		return array(
+			'kho'   => DanhSachKho::dem_chon( DanhSachKho::loc_tu( array() ) ),
+			'cho'   => $cho,
+			'dau'   => $dau,
+			'thieu' => DanhSachTacPham::dem_loc( array( 'tt' => 'publish', 'muc' => 'thieu_y_nghia' ) ),
+		);
+	}
+
+	/**
+	 * Ba ô theo ba dòng việc, mỗi ô một số và một nút bắt đầu. Nút Hộp việc ("Bắt đầu duyệt") mở thẻ cần làm trước nhất
+	 * (ưu tiên cao, cũ trước); quyết xong tự sang thẻ kế.
+	 *
+	 * @param string $lop thêm lớp cho danh sách (khung ở trang chào mừng WordPress dùng bản gọn)
+	 */
+	public static function ba_o( string $lop = '' ): string {
+		$so  = self::so_ba_dong();
+		$o   = array(
+			array( 'Bài mới', $so['kho'], 'câu trong Kho chưa đăng', 'Chọn câu để đăng', DanhSachKho::url() ),
+			array( 'Hộp việc', $so['cho'], 'việc đang chờ quyết', $so['dau'] ? 'Bắt đầu duyệt (' . number_format_i18n( $so['cho'] ) . ' việc)' : 'Mở Hộp việc', $so['dau'] ? DanhSachViec::url( array(), 1, $so['dau'] ) : DanhSachViec::url( array() ) ),
+			array( 'Bổ sung', $so['thieu'], 'bài đã đăng chưa có ý nghĩa', 'Bắt đầu bổ sung', BoSung::url() ),
+		);
+		$ra = '';
+		foreach ( $o as $i => [ $ten, $n, $nhan, $nut, $url ] ) {
+			$ra .= '<li class="phongdao-ban-o"><h3>' . esc_html( $ten ) . '</h3><p><strong>' . esc_html( number_format_i18n( (int) $n ) ) . '</strong> <span>' . esc_html( $nhan ) . '</span></p>'
+				. '<p><a class="button' . ( 1 === $i ? ' button-primary' : '' ) . '" href="' . esc_url( $url ) . '">' . esc_html( $nut ) . '</a></p></li>';
+		}
+		return '<ul class="phongdao-ban-so' . ( '' === $lop ? '' : ' ' . esc_attr( $lop ) ) . '">' . $ra . '</ul>';
+	}
+
+	/** Ba ô theo ba dòng việc (Bài mới · Hộp việc · Bổ sung). */
+	private static function khoi_dau(): string {
+		return '<h2 class="screen-reader-text">Ba dòng việc</h2>' . self::ba_o();
+	}
+
+	/** Khung "Phongdao hôm nay" ở đầu trang chào mừng WordPress: ba số và nút bắt đầu, lối sang màn Hôm nay đầy đủ. */
+	public static function khung_wp(): string {
+		if ( ! current_user_can( 'cadao_soan' ) ) {
+			return '';
+		}
+		return '<section class="phongdao-ban phongdao-khung-wp" aria-labelledby="phongdao-khung-wp"><h2 id="phongdao-khung-wp">Phongdao hôm nay</h2>'
+			. self::ba_o( 'gon' ) . '<p><a href="' . esc_url( self::url() ) . '">Mở màn Hôm nay đầy đủ →</a></p></section>';
+	}
+
+	/** Số liệu tuần (gộp từ `/bien-tap/so-lieu/`): bài theo thể loại, theo cấp chất lượng, lượt đọc 7 ngày. Nhớ 1 giờ. */
 	private static function khoi_so_lieu(): string {
+		$nho = get_transient( self::NHO_SO_LIEU );
+		if ( is_array( $nho ) && isset( $nho['html'], $nho['luc'] ) ) {
+			return (string) $nho['html'] . '<p class="description">Tính lúc ' . esc_html( wp_date( 'H:i d/m/Y', (int) $nho['luc'] ) ) . '; tính lại sau 1 giờ.</p>';
+		}
+		$html = self::tinh_so_lieu();
+		set_transient( self::NHO_SO_LIEU, array( 'html' => $html, 'luc' => time() ), HOUR_IN_SECONDS );
+		return $html . '<p class="description">Vừa tính; nhớ trong 1 giờ.</p>';
+	}
+
+	private static function tinh_so_lieu(): string {
 		$so   = \Phongdao\GiaoTiep\BienTap\SoLieuTuan::so();
 		$hang = static fn( array $ds ): string => implode( '', array_map( static fn( string $nhan, int $n ): string => '<tr><th scope="row">' . esc_html( $nhan ) . '</th><td>' . esc_html( number_format_i18n( $n ) ) . '</td></tr>', array_keys( $ds ), $ds ) );
 		$loai = array();
@@ -120,10 +183,14 @@ final class BanLamViec {
 		return $ra;
 	}
 
-	private static function khoi_nen_lam( int $bay_gio ): string {
-		$ds = self::viec_nen_lam( $bay_gio );
+	/**
+	 * Nên làm tuần này: các việc sau "3 việc gấp nhất".
+	 *
+	 * @param bool $co_gap đã có việc gấp ở đầu trang (không còn việc nào khác thì chỉ ghi một dòng)
+	 */
+	private static function khoi_nen_lam( array $ds, bool $co_gap ): string {
 		if ( ! $ds ) {
-			return '<h2>Nên làm tuần này</h2><p>Hết việc gấp. Có thể mở <a href="' . esc_url( DanhSachTacPham::url_loc( array( 'tt' => 'publish', 'muc' => 'thieu_y_nghia' ) ) ) . '">bài chưa có ý nghĩa</a> nếu muốn làm thêm.</p>';
+			return '<h2>Nên làm tuần này</h2><p>' . ( $co_gap ? 'Không còn việc nào khác ngoài các việc gấp ở trên.' : 'Hết việc gấp.' ) . ' Có thể mở <a href="' . esc_url( BoSung::url() ) . '">Bổ sung</a> nếu muốn làm thêm.</p>';
 		}
 		$o = '';
 		foreach ( $ds as $x ) {

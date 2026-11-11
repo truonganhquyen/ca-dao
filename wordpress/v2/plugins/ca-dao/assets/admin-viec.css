@@ -159,6 +159,7 @@
 .phongdao-admin-viec .phongdao-lo-gon[open] > .phongdao-lo-chon { margin-top: 0; border-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; }
 .phongdao-admin-viec .phongdao-lo-gon > summary:focus-visible { outline: 3px solid #135e96; outline-offset: 2px; }
 .phongdao-admin-viec .phongdao-lo-dem { font-weight: 400; color: #135e96; }
+.phongdao-admin-viec .phongdao-lo-dem:not(:empty) { margin-left: .35em; }
 .phongdao-admin-viec .phongdao-viec-tiep, .phongdao-admin-viec .phongdao-viec-bai { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 16px 0; }
 .phongdao-admin-viec .phongdao-viec-tiep .button, .phongdao-admin-viec .phongdao-viec-bai .button { min-height: 44px; display: inline-flex; align-items: center; }
 
@@ -201,3 +202,9 @@
 	.phongdao-hv-phai[data-tu-chon] { display: none; }
 	.phongdao-hv.co-chon > .phongdao-hv-trai { display: none; }
 }
+
+/* Thẻ gọn (báo cáo trinh sát lần 2, mục 1.4): chữ nháp to và rõ như lời, cờ của nguồn bằng chữ, lối lùi sau khi Đăng */
+.phongdao-admin-viec .nhap-ai .nhap-chu { font-size: 15px; line-height: 1.6; color: #1d2327; }
+.phongdao-admin-viec .tv-co { margin: 4px 0; font-weight: 600; color: #8a2424; }
+.phongdao-hv-lui { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 8px; }
+.phongdao-hv-lui .button { min-height: 44px; display: inline-flex; align-items: center; }

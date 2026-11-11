@@ -11,14 +11,22 @@
 .phongdao-chon-het .button { min-height: 44px; }
 @media (max-width: 782px) { .phongdao-chon-meo { display: none; } }
 
-/* Thanh nổi ở đáy màn khi đã đánh dấu mục: số đã chọn và nút làm tiếp, không phải cuộn lên khối "Làm theo lô" */
+/* Máy tính: thanh "Chọn tất cả" dính ở trên khi cuộn và chứa thanh nổi (số đã chọn, nút làm tiếp) — không che hàng cuối */
+@media (min-width: 783px) {
+	.phongdao-chon-het { position: sticky; top: 32px; z-index: 20; box-shadow: 0 2px 6px rgba(0, 0, 0, .08); }
+	.phongdao-chon-het .phongdao-thanh-noi.o-tren { position: static; z-index: auto; flex: 1 1 auto; justify-content: flex-end; padding: 0; border: 0; background: none; box-shadow: none; }
+	.phongdao-chon-het:has(.o-tren) .phongdao-chon-meo { display: none; }
+	.phongdao-thanh-noi.o-tren .button:disabled { opacity: .6; }
+}
+
+/* Điện thoại (và máy tính khi không có thanh "Chọn tất cả"): thanh nổi ở đáy màn khi đã đánh dấu mục */
 .phongdao-thanh-noi { position: fixed; z-index: 9990; bottom: 0; left: 160px; right: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 8px 20px; background: #fff; border-top: 1px solid #c3c4c7; box-shadow: 0 -2px 8px rgba(0, 0, 0, .12); }
 .phongdao-thanh-noi[hidden] { display: none; }
 .phongdao-thanh-noi-dem { margin: 0; font-weight: 600; }
 .phongdao-thanh-noi-nut { display: flex; flex-wrap: wrap; gap: 8px; }
 .phongdao-thanh-noi .button { min-height: 44px; display: inline-flex; align-items: center; }
 body.folded .phongdao-thanh-noi { left: 36px; }
-body.phongdao-co-thanh-noi #wpbody-content { padding-bottom: 120px; }
+body.phongdao-co-thanh-noi #wpbody-content { padding-bottom: calc(var(--phongdao-noi-cao, 104px) + 24px); }
 @media (max-width: 960px) { body.auto-fold .phongdao-thanh-noi { left: 36px; } }
 @media (max-width: 782px) {
 	body.auto-fold .phongdao-thanh-noi, .phongdao-thanh-noi { left: 0; padding: 8px 12px; }
