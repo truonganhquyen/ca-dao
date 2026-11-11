@@ -1,13 +1,14 @@
 /**
  * Ô chọn ở danh sách Tác phẩm / Hộp việc / Kho và ở trang xem trước lô (T-187).
- * - Khối "Làm theo lô" gọn: thu lại thành một dòng, tự mở và đếm khi người đánh dấu bài/thẻ/câu.
+ * - Khối "Làm theo lô" gọn: thu lại thành một dòng, đếm khi người đánh dấu bài/thẻ/câu. Màn có thanh nổi thì khối không tự
+ *   mở (không đẩy danh sách xuống); nút "Làm theo lô…" của thanh mở khối. Màn không có thanh nổi thì khối tự mở.
  * - Thanh "Chọn tất cả trên trang này": ô ba trạng thái (chưa / một phần / hết), giữ Shift để chọn cả một dải.
  *   Ở danh sách, khi đã chọn cả trang mà bộ lọc còn nhiều hơn thì có nút chuyển Phạm vi sang "Mọi … khớp bộ lọc".
  *   Ở trang xem trước lô (ô "Áp dụng" tên giu[]), nút "Đánh dấu cả … ở trang khác" gửi lên máy chủ; nút chính đếm lại
  *   ngay số mục sẽ áp dụng.
- * - Thanh nổi ở đáy màn (T-188): khi đã đánh dấu mục mà khối lô ở đầu danh sách đã cuộn khuất, hiện số đã chọn, nút làm
- *   tiếp (Kho: "Xem trước và đăng", "Đưa vào Hộp việc…"; Tác phẩm, Hộp việc: "Làm theo lô…" mở khối lô) và "Bỏ chọn".
- *   Khối lô còn trong màn thì thanh ẩn, không che nút của khối.
+ * - Thanh nổi ở đáy màn (T-188): khi đã đánh dấu mục thì hiện số đã chọn, nút làm tiếp (Kho: "Xem trước và đăng", "Đưa
+ *   vào Hộp việc…"; Hộp việc: làm nhanh; Tác phẩm, Hộp việc: "Làm theo lô…" mở khối lô) và "Bỏ chọn". Khối lô đang mở và
+ *   còn trong màn thì thanh ẩn, không che nút của khối.
  * Không có JavaScript thì thanh chọn không hiện; khối lô vẫn mở được bằng tay (thẻ <details>), từng ô vẫn đánh dấu được.
  */
 (() => {
@@ -26,8 +27,9 @@
   const guiMayChu = !!nutLoc && 'gui' in nutLoc.dataset;
   const noi = document.querySelector('.phongdao-thanh-noi');
   const donViNoi = noi?.dataset.donVi || donVi;
-  // Khối lô đang trong màn (trừ dải đáy thanh nổi chiếm) thì không cần thanh nổi
+  // Khối lô đang mở và còn trong màn (trừ dải đáy thanh nổi chiếm) thì không cần thanh nổi
   const khoiThay = new Set();
+  const khoiChe = () => [...khoiThay].some(d => d.open);
 
   const capNhat = () => {
     const ds = cacO();
@@ -37,11 +39,11 @@
     for (const d of khoi) {
       const dem = d.querySelector('.phongdao-lo-dem');
       if (dem) dem.textContent = theoLoc ? (thanh ? ` — mọi ${tong} ${donVi} khớp bộ lọc` : ' — mọi mục khớp bộ lọc') : (n ? ` — đã chọn ${n}` : '');
-      if (n && !d.open) d.open = true;
+      if (n && !d.open && !noi) d.open = true;
     }
     for (const b of nutChinh) b.textContent = b.dataset.mau.replace('%d', String((Number(b.dataset.ngoai) || 0) + n));
     if (noi) {
-      const hien = (n > 0 || theoLoc) && !khoiThay.size;
+      const hien = (n > 0 || theoLoc) && !khoiChe();
       noi.hidden = !hien;
       document.body.classList.toggle('phongdao-co-thanh-noi', hien);
       noi.querySelector('.phongdao-thanh-noi-dem').textContent = theoLoc ? `Mọi ${tong} ${donViNoi} khớp bộ lọc` : `Đã chọn ${n} ${donViNoi}`;
@@ -102,6 +104,7 @@
     }, { rootMargin: '0px 0px -96px 0px' });
     for (const d of khoi) io.observe(d);
   }
+  for (const d of khoi) d.addEventListener('toggle', capNhat);
 
   // Thanh nổi: bỏ chọn hết; "Làm theo lô…" mở khối lô ở đầu danh sách và đưa con trỏ tới ô Thao tác
   noi?.querySelector('.phongdao-thanh-noi-bo')?.addEventListener('click', () => {

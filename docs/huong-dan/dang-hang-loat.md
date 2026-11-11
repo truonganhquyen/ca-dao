@@ -8,7 +8,7 @@ Nút **Xem trước và đăng** chỉ hiện với tài khoản có quyền duy
 
 1. Mở wp-admin → **Phongdao** → **Kho**.
 2. Lọc theo nguồn hoặc thể loại nếu muốn, ví dụ chỉ Tục ngữ.
-3. Đánh dấu ô **Chọn** ở các câu muốn đăng. Khối **Đăng hoặc đưa nhiều câu vào Hộp việc** ở đầu danh sách tự mở và đếm số câu đã chọn. Khi bạn cuộn xuống và khối đó khuất, ở đáy màn hiện thanh **Đã chọn … câu** với nút **Xem trước và đăng** và **Đưa vào Hộp việc…**, không cần cuộn lên.
+3. Đánh dấu ô **Chọn** ở các câu muốn đăng. Ở đáy màn hiện thanh **Đã chọn … câu** với nút **Xem trước và đăng** và **Đưa vào Hộp việc…**; không cần cuộn lên đầu trang. Muốn chọn phạm vi khác (mọi câu khớp bộ lọc), mở khối **Đăng hoặc đưa nhiều câu vào Hộp việc** ở đầu danh sách.
    - Chọn nhanh: bấm ô **Chọn tất cả … câu trên trang này** ngay trên bảng; bấm lại để bỏ chọn hết.
    - Chọn một dải (máy tính): bấm ô đầu, giữ phím **Shift** rồi bấm ô cuối, mọi câu ở giữa được chọn theo.
    - Lấy hết mọi trang: chọn tất cả trên trang rồi bấm **Chọn mọi … câu khớp bộ lọc** (hoặc mở khối ở đầu danh sách và chọn **Mọi câu khớp bộ lọc**).

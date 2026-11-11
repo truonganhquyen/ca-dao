@@ -76,7 +76,7 @@ const doi = async (tab, fn, arg, bao, ms = 15_000) => {
 const bam = async (tab, sel) => {
   const b = await tab.waitForSelector(sel, { visible: true, timeout: 15_000 }).catch(() => null);
   chac(b, `không thấy ${sel}`);
-  await b.evaluate(e => e.scrollIntoView({ block: 'center', inline: 'nearest' }));
+  await b.evaluate(e => e.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' }));
   await b.click();
 };
 // Bấm rồi chờ trang mới (form gửi thẳng, tải lại sau khi lưu). Không dựa vào sự kiện chuyển trang của puppeteer: Chrome mới
@@ -581,7 +581,8 @@ try {
       chac(await coChu(bt, `Chọn tất cả ${n} bài trên trang này`), 'thanh chọn không ghi số bài trên trang');
       await bam(bt, '.phongdao-chon-het-o');
       chac(await dem() === n && await trangThai() === 'het', `bấm "Chọn tất cả" mà chỉ chọn ${await dem()}/${n} bài`);
-      chac(await bt.$eval('details.phongdao-lo-gon', (d, so) => d.open && d.querySelector('.phongdao-lo-dem').textContent.includes(`đã chọn ${so}`), n), 'chọn tất cả mà khối Làm theo lô không mở, không đếm');
+      chac(await bt.$eval('details.phongdao-lo-gon', (d, so) => !d.open && d.querySelector('.phongdao-lo-dem').textContent.includes(`đã chọn ${so}`), n), 'chọn tất cả mà khối Làm theo lô không đếm, hoặc tự mở đẩy danh sách xuống');
+      chac(await bt.$eval('.phongdao-thanh-noi', (t, so) => !t.hidden && t.textContent.includes(`Đã chọn ${so} bài`), n), 'chọn tất cả mà thanh ở đáy màn không hiện số đã chọn');
       await bam(bt, '.phongdao-chon-het-o');
       chac(await dem() === 0 && await trangThai() === 'chua', 'bấm lại "Chọn tất cả" mà không bỏ chọn hết');
       // Bấm ô thứ nhất, giữ Shift bấm ô thứ ba: chọn cả ba
@@ -628,6 +629,7 @@ try {
       const lam = async thaoTac => {
         await di(bt, `/wp-admin/admin.php?page=phongdao-tac-pham&q=${id}`);
         await bam(bt, `input[name="ids[]"][value="${id}"]`);
+        await bam(bt, '.phongdao-thanh-noi [data-mo-lo]');
         await bt.select('#phongdao-lo-tp-thao-tac', thaoTac);
         const v = await bt.$$eval('#phongdao-lo-tp-muc option', os => os.find(o => o.textContent.trim() === 'Lao động')?.value || '');
         chac(v, 'không có chủ đề "Lao động" để chọn');
@@ -651,7 +653,11 @@ try {
       const id = await bt.$eval('.dai-bien-tap', e => e.dataset.bai);
       await di(bt, `/wp-admin/admin.php?page=phongdao-tac-pham&q=${id}`);
       await bam(bt, `input[name="ids[]"][value="${id}"]`);
-      chac(await bt.$eval('details.phongdao-lo-gon', d => d.open && d.querySelector('.phongdao-lo-dem').textContent.includes('đã chọn 1')), 'đánh dấu bài mà khối Làm theo lô không tự mở, không đếm');
+      chac(await bt.$eval('.phongdao-thanh-noi', t => !t.hidden && t.textContent.includes('Đã chọn 1 bài')), 'đánh dấu bài mà thanh ở đáy màn không hiện, không đếm');
+      // "Làm theo lô…" trên thanh mở khối lô; khối đang mở trong màn thì thanh ẩn, không che nút của khối
+      await bam(bt, '.phongdao-thanh-noi [data-mo-lo]');
+      chac(await bt.$eval('details.phongdao-lo-gon', d => d.open && d.querySelector('.phongdao-lo-dem').textContent.includes('đã chọn 1')), '"Làm theo lô…" không mở khối lô hoặc khối không đếm');
+      await bt.waitForSelector('.phongdao-thanh-noi[hidden]', { timeout: 15_000 });
       await bt.select('#phongdao-lo-tp-thao-tac', 'sua_phan');
       await bt.select('#phongdao-lo-tp-phan', 'y_nghia');
       await bamDoiTrang(bt, '.phongdao-lo-chon [type=submit]');
@@ -674,18 +680,13 @@ try {
       const chon = await bt.$$eval('input[name="ids[]"][form=phongdao-kho-lo]', os => os.map(o => o.value));
       chac(chon.length >= 2, `màn Kho không có đủ câu để chọn nhiều (thấy ${chon.length})`);
       chac(await bt.$eval('.phongdao-thanh-noi', d => d.hidden), 'thanh nổi đã hiện khi chưa chọn câu nào');
-      // Thử trên khổ điện thoại: chọn câu, cuộn xuống cuối (khối lô ở đầu khuất) thì thanh nổi hiện số đã chọn và nút đăng
+      // Thử trên khổ điện thoại: chọn câu thì thanh ở đáy màn hiện số đã chọn và nút đăng; khối lô ở đầu không tự mở
       await bt.setViewport({ width: 390, height: 844 });
       for (const id of chon.slice(0, 2)) await bam(bt, `input[name="ids[]"][value="${id}"]`);
-      await bt.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
       await bt.waitForSelector('.phongdao-thanh-noi:not([hidden])', { visible: true, timeout: 15_000 });
       chac(await coChu(bt, 'Đã chọn 2 câu'), 'thanh nổi không đếm 2 câu đã chọn');
+      chac(!(await bt.$eval('details.phongdao-lo-gon', d => d.open)), 'khối lô tự mở dù đã có thanh ở đáy màn');
       chac(await bt.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'màn Kho có thanh nổi tràn ngang ở 390 px');
-      // Cuộn lên đầu (khối lô hiện) thì thanh nổi ẩn, không che nút của khối
-      await bt.evaluate(() => window.scrollTo(0, 0));
-      await bt.waitForSelector('.phongdao-thanh-noi[hidden]', { timeout: 15_000 });
-      await bt.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-      await bt.waitForSelector('.phongdao-thanh-noi:not([hidden])', { visible: true, timeout: 15_000 });
       // Đi thẳng tới một màn xem trước Đăng, không qua Hộp việc (D-101)
       await bamDoiTrang(bt, '.phongdao-thanh-noi button[name=lam][value=dang]');
       chac(await coChu(bt, 'Chờ xem trước') && await coChu(bt, 'Đăng từ Kho') && await coChu(bt, 'Chưa có gì được đăng') && await coChu(bt, 'Kho mẫu'), 'Kho không sang thẳng màn xem trước Đăng có lời');
