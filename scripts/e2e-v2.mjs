@@ -586,18 +586,22 @@ try {
       chac(await coChu(k, giai), 'người đọc không thấy lời giải mới');
     });
 
-    await thu('wp-admin Kho: tự chọn một câu đưa vào Hộp việc đúng một lần, thẻ ghi người chọn', async () => {
+    await thu('wp-admin Bài mới: Để dành một câu (không tạo thẻ, không vào Hộp việc), lọc Để dành thấy câu, Bỏ dấu', async () => {
       await di(bt, '/wp-admin/admin.php?page=phongdao-kho');
-      chac(await coChu(bt, 'câu khớp bộ lọc'), 'không mở được màn Kho');
-      const id = await bt.$eval('form input[name=action][value=phongdao_kho_dua_vao]', o => o.form.querySelector('input[name=id]').value);
-      await bamDoiTrang(bt, `form:has(input[name=id][value="${id}"]) button[type=submit]:not([name=mot])`);
+      chac(await coChu(bt, 'câu khớp bộ lọc'), 'không mở được màn Bài mới (Kho)');
+      chac(!(await coChu(bt, 'Đưa vào Hộp việc')), 'Bài mới còn nút "Đưa vào Hộp việc"');
+      const id = await bt.$eval('form input[name=action][value=phongdao_kho_danh_dau]', o => o.form.querySelector('input[name=id]').value);
+      await bamDoiTrang(bt, `form:has(input[name=action][value=phongdao_kho_danh_dau]):has(input[name=id][value="${id}"]) button[type=submit]:not([name=mot])`);
       const bao = await bt.$eval('.phongdao-admin-kho .notice', e => e.textContent.trim()).catch(() => '(không có thông báo)');
-      chac(bao.includes(`Đã đưa câu #${id} vào Hộp việc`), `không báo đã đưa câu vào Hộp việc — thấy: ${bao}`);
-      chac(!(await bt.$(`input[name=id][value="${id}"]`)), 'câu đã có thẻ vẫn còn nút đưa vào');
-      // Mở đúng thẻ từ lối "Mở thẻ" của thông báo (đi thẳng tới địa chỉ, không chờ sự kiện chuyển trang sau cú bấm)
-      const mo = await bt.$eval('.phongdao-admin-kho .notice a[href*="phongdao-hop-viec"]', a => a.href);
-      await di(bt, mo.replace(G, ''));
-      chac(await coChu(bt, 'người chọn từ Kho'), 'thẻ Câu mới không ghi người chọn từ Kho');
+      chac(bao.includes('Để dành') && bao.includes(`#${id}`), `không báo đã Để dành — thấy: ${bao}`);
+      await di(bt, '/wp-admin/admin.php?page=phongdao-kho&danh=de_danh');
+      chac(await bt.$(`input[name=id][value="${id}"]`), 'câu Để dành không còn trong danh sách lọc Để dành');
+      await di(bt, '/wp-admin/admin.php?page=phongdao-hop-viec&tt=cho&loai=cau_moi');
+      chac(await coChu(bt, '0 thẻ khớp bộ lọc') || await coChu(bt, 'Không có thẻ phù hợp'), 'Để dành mà Hộp việc có thẻ Câu mới');
+      // Bỏ dấu: câu về như cũ
+      await di(bt, '/wp-admin/admin.php?page=phongdao-kho&danh=de_danh');
+      await bamDoiTrang(bt, `form:has(input[name=id][value="${id}"]):has(input[name=lam][value=bo]) button[type=submit]:not([name=mot])`);
+      chac((await bt.$eval('.phongdao-admin-kho .notice', e => e.textContent)).includes('Đã bỏ dấu 1 câu'), 'Bỏ dấu không báo');
       // Khách không bao giờ thấy màn Kho (bị đưa sang trang đăng nhập)
       const tl = await k.goto(G + '/wp-admin/admin.php?page=phongdao-kho', { waitUntil: 'domcontentloaded', timeout: 120_000 });
       chac(!(await coChu(k, 'Câu kho mẫu')) && !(await coChu(k, 'Tục ngữ kho mẫu')), `khách thấy dữ liệu kho (HTTP ${tl.status()})`);
@@ -638,13 +642,28 @@ try {
       chac(await dem() === 0 && await bt.$eval('input[name=pham_vi][value=chon]', r => r.checked), 'bỏ chọn hết mà còn ô chọn hoặc Phạm vi vẫn là mọi bài');
     });
 
-    await thu('wp-admin Lô: Để sau mọi thẻ Câu mới khớp bộ lọc — xem trước, áp dụng, kết quả từng mục', async () => {
-      await di(bt, '/wp-admin/admin.php?page=phongdao-hop-viec&tt=cho&loai=cau_moi');
+    await thu('wp-admin Lô: Để sau (hoặc Bỏ nháp) mọi thẻ một loại khớp bộ lọc — xem trước, áp dụng, kết quả từng mục', async () => {
+      // Loại việc có thẻ Chờ và có nút Để sau (dữ liệu mẫu không còn thẻ Câu mới: câu mới nằm ở Bài mới)
+      const loaiCo = () => bt.$$eval('nav[aria-label="Loại việc"] a.phongdao-chip', as => as.map(a => new URL(a.href).searchParams.get('loai')).filter(l => l && l !== 'co_the_trung').sort((x, y) => (x === 'nguoi_doc') - (y === 'nguoi_doc')));
+      await di(bt, '/wp-admin/admin.php?page=phongdao-hop-viec&tt=cho');
+      let loai = await loaiCo();
+      if (!loai.length) {
+        // Các bước trước đã quyết hết thẻ mẫu: tạo một nháp ý nghĩa (người biên soạn "Lưu nháp") để có thẻ Chờ
+        await di(bt, caDao);
+        await bam(bt, '[data-action=mo-tam][data-tam=y_nghia]');
+        await datO(bt, 'dialog#tam-y_nghia[open] textarea[name=chu]', 'Nháp thử lô Để sau.');
+        await bamDoiTrang(bt, 'dialog#tam-y_nghia button[name=duyet][value=""]');
+        await di(bt, '/wp-admin/admin.php?page=phongdao-hop-viec&tt=cho');
+        loai = await loaiCo();
+      }
+      chac(loai.length, 'Hộp việc mẫu không có loại thẻ nào để thử lô Để sau');
+      await di(bt, `/wp-admin/admin.php?page=phongdao-hop-viec&tt=cho&loai=${loai[0]}`);
       chac(await bt.$('.phongdao-lo-chon'), 'Hộp việc không có khối Làm theo lô');
       // Khối lô thu gọn khi chưa chọn thẻ nào: mở bằng tay để chọn "mọi thẻ khớp bộ lọc"
       chac(!(await bt.$eval('details.phongdao-lo-gon', d => d.open)), 'khối Làm theo lô mở sẵn khi chưa chọn thẻ nào');
       await bam(bt, 'details.phongdao-lo-gon > summary');
-      await bt.select('#phongdao-lo-thao-tac', 'viec_de_sau');
+      // Nháp ý nghĩa chỉ có Duyệt / Bỏ nháp; các loại khác có Để sau
+      await bt.select('#phongdao-lo-thao-tac', loai[0] === 'nhap_y_nghia' ? 'viec_bo' : 'viec_de_sau');
       await bam(bt, 'input[name=pham_vi][value=loc]');
       await bamDoiTrang(bt, '.phongdao-lo-chon [type=submit]');
       chac(await coChu(bt, 'Chờ xem trước') && await bt.$('input[name="giu[]"]'), 'không sang bước xem trước');
@@ -652,8 +671,8 @@ try {
       await bamDoiTrang(bt, 'button[name=lam][value=ap_dung]');
       await doi(bt, () => document.body.innerText.includes('Lô đã chạy xong.'), null, 'lô không chạy xong', 60_000);
       chac(await coChu(bt, `Thành công ${so}`), `kết quả không ghi ${so} mục thành công`);
-      await di(bt, '/wp-admin/admin.php?page=phongdao-hop-viec&tt=cho&loai=cau_moi');
-      chac(await coChu(bt, '0 thẻ khớp bộ lọc') || await coChu(bt, 'Không có thẻ phù hợp'), 'còn thẻ Câu mới ở Chờ sau lô Để sau');
+      await di(bt, `/wp-admin/admin.php?page=phongdao-hop-viec&tt=cho&loai=${loai[0]}`);
+      chac(await coChu(bt, '0 thẻ khớp bộ lọc') || await coChu(bt, 'Không có thẻ phù hợp'), `còn thẻ loại ${loai[0]} ở Chờ sau lô`);
     });
 
     await thu('wp-admin Lô Tác phẩm: thêm một chủ đề có sẵn qua xem trước, người đọc thấy; gỡ lại theo lô', async () => {
@@ -817,28 +836,22 @@ try {
       chac(await bt.$('.phongdao-tp-hanh a[href*="phongdao-sua-tac-pham"]') && await bt.$('.phongdao-tp-nhanh a.button'), 'Tác phẩm thiếu Sửa · Xem · Ẩn trên hàng hoặc nút lọc nhanh');
     });
 
-    await thu('wp-admin Hộp việc: Đăng câu mới → "Đã đăng …" kèm Xem bài và Ẩn nếu nhầm; Ẩn một bấm, người đọc không còn thấy', async () => {
+    await thu('wp-admin Bài mới: Xem trước và đăng một câu → màn kết quả có "Bài vừa đăng" kèm Xem bài · Ẩn nếu nhầm; Ẩn một bấm, người đọc không còn thấy', async () => {
       await bt.setViewport({ width: 1280, height: 800 });
-      let the = '';
-      for (const tt of ['cho', 'de_sau']) {
-        await di(bt, `/wp-admin/admin.php?page=phongdao-hop-viec&tt=${tt}&loai=cau_moi`);
-        the = await bt.$eval('.phongdao-hv-ds a.phongdao-hv-mo', a => a.href).catch(() => '');
-        if (the) break;
-      }
-      chac(the, 'không còn thẻ Câu mới nào để thử Đăng');
-      await di(bt, the.replace(G, ''));
-      chac(!(await bt.$('.phongdao-hv-phai .phongdao-viec-tt')), 'thẻ đang mở vẫn có dòng "Trạng thái: Chờ"');
-      chac(!(await bt.$('.phongdao-hv-phai .tv-mo')) || !(await bt.$('.phongdao-hv-phai .phongdao-viec-bai')), 'thẻ có cả "Mở bài →" lẫn "Sửa bài · Xem bài"');
-      await bamDoiTrang(bt, '.phongdao-hv-phai article.the-viec button[name=quyet][value=dang]');
-      const bao = await bt.$eval('.phongdao-hv-bao', e => e.innerText).catch(() => '(không có lời báo)');
-      chac(bao.includes('Đã đăng “') && !bao.includes('không có Hoàn tác nhanh'), `lời báo sau khi Đăng không ghi tên bài — thấy: ${bao}`);
-      const xem = await bt.$eval('.phongdao-hv-lui a', a => a.href).catch(() => '');
-      chac(xem, 'sau khi Đăng không có lối "Xem bài"');
+      await di(bt, '/wp-admin/admin.php?page=phongdao-kho');
+      const mot = await bt.$eval('button[name=mot]', b => b.value).catch(() => '');
+      chac(mot, 'Bài mới không còn câu nào để thử đăng');
+      await bamDoiTrang(bt, `button[name=mot][value="${mot}"]`);
+      await bamDoiTrang(bt, 'button[name=lam][value=ap_dung]');
+      await doi(bt, () => document.body.innerText.includes('Lô đã chạy xong.'), null, 'lô đăng một câu không chạy xong', 120_000);
+      chac(await coChu(bt, 'Bài vừa đăng'), 'màn kết quả không có "Bài vừa đăng"');
+      const xem = await bt.$eval('.phongdao-lo-lui .phongdao-hv-lui a', a => a.href).catch(() => '');
+      chac(xem, 'bài vừa đăng không có lối "Xem bài"');
       const tl1 = await k.goto(xem, { waitUntil: 'load', timeout: 120_000 });
       chac(tl1.status() === 200, `người đọc không mở được bài vừa đăng (HTTP ${tl1.status()})`);
-      await bamDoiTrang(bt, '.phongdao-hv-lui button[type=submit]');
-      chac(await coChu(bt, 'Đã ẩn “'), 'bấm "Ẩn nếu nhầm" mà không báo đã ẩn, hoặc không về Hộp việc');
-      chac(bt.url().includes('page=phongdao-hop-viec'), 'Ẩn nếu nhầm xong không về Hộp việc');
+      await bamDoiTrang(bt, '.phongdao-lo-lui .phongdao-hv-lui button[type=submit]');
+      chac(await coChu(bt, 'Đã ẩn “'), 'bấm "Ẩn nếu nhầm" mà không báo đã ẩn');
+      chac(bt.url().includes('page=phongdao-lo'), 'Ẩn nếu nhầm xong không về màn kết quả');
       const tl2 = await k.goto(xem, { waitUntil: 'load', timeout: 120_000 });
       chac(tl2.status() === 404, `bài đã ẩn mà người đọc vẫn mở được (HTTP ${tl2.status()})`);
     });

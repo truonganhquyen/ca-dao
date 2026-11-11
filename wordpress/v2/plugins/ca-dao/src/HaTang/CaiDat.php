@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class CaiDat implements Module {
 
-	public const PHIEN_BAN_CSDL = 12;
+	public const PHIEN_BAN_CSDL = 13;
 
 	/** Tuỳ chọn lưu phiên bản lược đồ đã cài. */
 	public const TUY_CHON = 'phongdao_csdl';
@@ -80,6 +80,9 @@ final class CaiDat implements Module {
 		if ( $da_cai < 12 && ! self::buoc_12() ) {
 			return; // không ghi phiên bản lược đồ mới để lượt sau thử lại
 		}
+		if ( $da_cai < 13 ) {
+			self::buoc_13();
+		}
 		update_option( self::TUY_CHON, self::PHIEN_BAN_CSDL, false );
 	}
 
@@ -103,6 +106,37 @@ final class CaiDat implements Module {
 		}
 		\Phongdao\DichVu\TomTat\TomTat::hen_lich();
 		return true;
+	}
+
+	/**
+	 * Bước 13 (D-104, docs/32 mục 6): máy thôi tạo thẻ Câu mới hằng ngày; thẻ Câu mới đang mở (Chờ, Để sau) đưa về Kho —
+	 * câu đánh dấu "Để dành" (ghi người đã chọn câu đó nếu có), thẻ đóng với quyết định "Chuyển về Bài mới". Không mất câu
+	 * nào, không đăng gì. Chạy lại được (chỉ còn thẻ đang mở mới chuyển).
+	 */
+	public static function buoc_13(): int {
+		global $wpdb;
+		$so = 0;
+		foreach ( $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . Viec::bang() . " WHERE loai = %s AND doi_tuong_loai = 'kho' AND trang_thai IN ('cho','de_sau') ORDER BY id", \Phongdao\DichVu\UngVien\UngVien::VIEC ), ARRAY_A ) ?: array() as $hang ) {
+			$v     = Viec::doc( $hang );
+			$nguoi = (int) ( $v['noi_dung']['chon_boi'] ?? 0 );
+			$m     = Kho::lay( (int) $v['doi_tuong_id'] );
+			if ( $m && 'moi' === $m->trang_thai && ! (int) $m->post_id && ! \Phongdao\DichVu\UngVien\DanhDau::cua( (int) $m->id ) ) {
+				Viec::tao(
+					array(
+						'loai'           => \Phongdao\DichVu\UngVien\DanhDau::VIEC,
+						'trang_thai'     => \Phongdao\DichVu\UngVien\DanhDau::DANH,
+						'doi_tuong_loai' => 'kho',
+						'doi_tuong_id'   => (int) $m->id,
+						'phan'           => 'de_danh',
+						'noi_dung'       => array( 'loai' => 'de_danh', 'tu_the' => (int) $v['id'] ),
+						'nguoi_tao'      => $nguoi ? (string) $nguoi : 'chuyen_doi',
+					)
+				);
+			}
+			Viec::dong( (int) $v['id'], Viec::XONG, 'chuyen_kho', 0, (string) $v['trang_thai'] );
+			++$so;
+		}
+		return $so;
 	}
 
 	/** Bước 2 (D-094): bảng việc, các thể loại cố định, đường dẫn /<thể loại>/<tên>/. */

@@ -57,8 +57,14 @@ final class ThemBai {
 			),
 			get_current_user_id()
 		);
+		// Gửi từ màn Thêm tác phẩm trong wp-admin: lỗi thì về lại đó, lưu xong mở trang Sửa tác phẩm
+		$quan_tri = 'quan_tri' === ( $_POST['tu'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification -- nonce đã kiểm trên
 		if ( ! $kq['ok'] ) {
-			wp_safe_redirect( add_query_arg( 'da', rawurlencode( 'Chưa lưu: ' . implode( ' ', $kq['loi'] ) ), home_url( '/bien-tap/them/' ) ) );
+			wp_safe_redirect( add_query_arg( 'da', rawurlencode( 'Chưa lưu: ' . implode( ' ', $kq['loi'] ) ), $quan_tri ? \Phongdao\GiaoTiep\QuanTri\ThemTacPham::url() : home_url( '/bien-tap/them/' ) ) );
+			exit;
+		}
+		if ( $quan_tri ) {
+			wp_safe_redirect( add_query_arg( 'ket_qua', 'publish' === get_post_status( $kq['bai'] ) ? 'them_dang' : 'them', \Phongdao\GiaoTiep\QuanTri\SuaTacPham::url( $kq['bai'] ) ) );
 			exit;
 		}
 		$url = 'publish' === get_post_status( $kq['bai'] ) ? (string) get_permalink( $kq['bai'] ) : (string) get_preview_post_link( $kq['bai'] );

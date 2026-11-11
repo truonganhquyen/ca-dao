@@ -46,30 +46,69 @@ final class UngVien implements Module {
 		);
 	}
 
-	/** Lịch hằng ngày: mỗi nguồn đang bật chọn "số câu mỗi ngày" câu mới vào Hộp việc. */
+	/** Danh sách "Máy gợi ý hôm nay" (tuỳ chọn không tự nạp): ngày tính và mã câu kho. */
+	public const GOI_Y = 'phongdao_goi_y_hom_nay';
+
+	/**
+	 * Lịch hằng ngày (D-104, docs/32 mục 3.3): máy **thôi tạo thẻ Câu mới**; mỗi nguồn đang bật chọn "số câu mỗi ngày" câu
+	 * theo cùng quy tắc, ghi thành danh sách "Máy gợi ý hôm nay" — một bộ lọc ở Bài mới (Kho). Người chọn và bấm đăng.
+	 */
 	public static function chon_hang_ngay(): void {
 		if ( \Phongdao\DichVu\May\DieuKhien::dang_dung( 'chon_cau' ) ) {
 			return; // người quản trị tạm dừng ở bảng điều khiển máy
 		}
+		$ids = array();
 		foreach ( array_keys( NguonTuDong::tat_ca() ) as $id ) {
 			$n = NguonTuDong::lay( (string) $id );
 			if ( $n && $n['bat'] && $n['so_bai_moi_ngay'] > 0 ) {
-				$so = self::chon( $n, (int) $n['so_bai_moi_ngay'] );
-				NguonTuDong::ghi( $n, 'chọn câu mới', array( 'cau' => $so ) );
+				$ds  = self::goi_y( $n, (int) $n['so_bai_moi_ngay'] );
+				$ids = array_merge( $ids, $ds );
+				NguonTuDong::ghi( $n, 'gợi ý câu hôm nay', array( 'cau' => count( $ds ) ) );
 				NguonTuDong::luu( $n );
 			}
 		}
+		update_option( self::GOI_Y, array( 'ngay' => wp_date( 'Y-m-d' ), 'ids' => array_values( array_unique( $ids ) ) ), false );
+	}
+
+	/** @return array{ngay:string,ids:int[]} danh sách "Máy gợi ý hôm nay" lần tính gần nhất */
+	public static function goi_y_hom_nay(): array {
+		$g = get_option( self::GOI_Y, array() );
+		return array( 'ngay' => (string) ( $g['ngay'] ?? '' ), 'ids' => array_map( 'intval', (array) ( $g['ids'] ?? array() ) ) );
 	}
 
 	/**
-	 * Chọn tối đa $so câu mới của một nguồn: câu "mới" đã đọc trang, có lời; xoay vòng theo loại (mỗi loại một câu rồi sang
-	 * loại kế — loại nhập kho sau không phải chờ hết ca dao); bỏ câu mang cờ nguồn chọn bỏ qua, câu đang chờ quyết trùng,
-	 * câu đã có việc "Câu mới" đang mở.
+	 * Chọn tối đa $so câu mới của một nguồn và tạo thẻ Câu mới cho từng câu (lệnh `wp phongdao cau-moi`; lịch hằng ngày
+	 * không còn gọi — chỉ ghi danh sách gợi ý).
 	 *
 	 * @return int số việc "Câu mới" đã thêm
 	 */
 	public static function chon( array $nguon, int $so ): int {
+		$them = 0;
+		foreach ( self::goi_y( $nguon, $so ) as $id ) {
+			if ( self::tao_the( $id, array( 'nguon_id' => $nguon['id'] ), 'may', 40 )['moi'] ) {
+				++$them;
+			}
+		}
+		return $them;
+	}
+
+	/**
+	 * Câu đáng đăng trước của một nguồn, tối đa $so câu: câu người đọc bấm "Mong có" (7 ngày) đứng trước; rồi câu "mới" đã
+	 * đọc trang, có lời, xoay vòng theo loại (mỗi loại một câu rồi sang loại kế). Bỏ câu mang cờ nguồn chọn bỏ qua, câu
+	 * đang chờ quyết trùng, câu đã có việc "Câu mới" đang mở. Không ghi gì ngoài bước so trùng của máy.
+	 *
+	 * @return int[] mã câu kho
+	 */
+	public static function goi_y( array $nguon, int $so ): array {
 		global $wpdb;
+		$ra    = array();
+		$bo_co = $nguon['bo_qua_co'] ?? array();
+		foreach ( array_keys( \Phongdao\DichVu\DoLuong\DoLuong::nhieu_nhat( 'mong_co_cau', 7, 20 ) ) as $khoa ) {
+			$k = str_starts_with( (string) $khoa, 'kho:' ) ? Kho::lay( (int) substr( (string) $khoa, 4 ) ) : null;
+			if ( count( $ra ) < $so && $k && (string) $k->nguon_id === (string) $nguon['id'] && '' === self::chua_chon_duoc( $k ) && ! array_intersect( (array) ( Kho::du_lieu( $k )['co'] ?? array() ), $bo_co ) && ! ChongTrung::dang_cho( (int) $k->id ) ) {
+				$ra[] = (int) $k->id;
+			}
+		}
 		$bang  = Kho::bang();
 		$bo_co = $nguon['bo_qua_co'] ?? array();
 		$loai  = $nguon['loai_lay'] ?: $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT loai FROM $bang WHERE nguon_id = %s", $nguon['id'] ) );
@@ -77,7 +116,7 @@ final class UngVien implements Module {
 		foreach ( $loai as $l ) {
 			$dong[] = array( 'dk' => $wpdb->prepare( 'loai = %s', $l ), 'sau' => 0, 'cho' => array(), 'het' => false );
 		}
-		$lay = static function ( array &$d ) use ( $wpdb, $bang, $nguon, $bo_co ): int {
+		$lay = static function ( array &$d ) use ( $wpdb, $bang, $nguon, $bo_co, &$ra ): int {
 			while ( ! $d['het'] ) {
 				if ( ! $d['cho'] ) {
 					$d['cho'] = $wpdb->get_results( $wpdb->prepare( "SELECT id, du_lieu FROM $bang WHERE nguon_id = %s AND trang_thai = 'moi' AND doc_trang LIKE '2%%' AND loi <> '' AND {$d['dk']} AND id > %d ORDER BY id ASC LIMIT 50", $nguon['id'], $d['sau'] ) ) ?: array();
@@ -89,7 +128,7 @@ final class UngVien implements Module {
 				$muc      = array_shift( $d['cho'] );
 				$d['sau'] = (int) $muc->id;
 				$co       = ( json_decode( (string) $muc->du_lieu, true ) ?: array() )['co'] ?? array();
-				if ( array_intersect( (array) $co, $bo_co ) || Viec::mo( 'kho', (int) $muc->id, self::VIEC ) ) {
+				if ( array_intersect( (array) $co, $bo_co ) || in_array( (int) $muc->id, $ra, true ) || Viec::mo( 'kho', (int) $muc->id, self::VIEC ) ) {
 					continue;
 				}
 				// Chống trùng: câu trùng thì đã gắn vào tác phẩm có sẵn; câu nghi trùng chờ người quyết
@@ -100,22 +139,21 @@ final class UngVien implements Module {
 			}
 			return 0;
 		};
-		$them = 0;
-		while ( $them < $so && array_filter( $dong, static fn( array $d ): bool => ! $d['het'] ) ) {
+		while ( count( $ra ) < $so && array_filter( $dong, static fn( array $d ): bool => ! $d['het'] ) ) {
 			foreach ( array_keys( $dong ) as $k ) {
 				if ( $dong[ $k ]['het'] ) {
 					continue;
 				}
 				$id = $lay( $dong[ $k ] );
-				if ( $id && self::tao_the( $id, array( 'nguon_id' => $nguon['id'] ), 'may', 40 )['moi'] ) {
-					++$them;
+				if ( $id ) {
+					$ra[] = $id;
 				}
-				if ( $them >= $so ) {
+				if ( count( $ra ) >= $so ) {
 					break;
 				}
 			}
 		}
-		return $them;
+		return $ra;
 	}
 
 	/** Thẻ Câu mới người tự chọn từ Kho đứng trước câu máy chọn (40). */
@@ -227,6 +265,11 @@ final class UngVien implements Module {
 	public static function phan_tu_kho( object $muc, int $bai = 0 ): array {
 		global $wpdb;
 		$nguon = NguonTuDong::lay( (string) $muc->nguon_id ) ?? NguonTuDong::mac_dinh();
+		// Câu nhập từ tệp: lời là chữ người gõ từ sách (người viết), nguồn là hồ sơ người chọn lúc nhập — máy không điền
+		$nhap  = NhapTep::NGUON === (string) $muc->nguon_id;
+		if ( $nhap ) {
+			$nguon = array( 'ho_so' => (int) ( Kho::du_lieu( $muc )['ho_so'] ?? 0 ), 'chep_chu_thich' => false ) + $nguon;
+		}
 		$goc   = static fn( array $n ): array => empty( $n['ho_so'] ) ? array() : array( 'nguon' => array( 'ho_so' => (int) $n['ho_so'] ) );
 		$khoa  = array( 'kho:' . $muc->id );
 		if ( $bai ) {
@@ -235,7 +278,7 @@ final class UngVien implements Module {
 		$gop  = $wpdb->get_results( 'SELECT * FROM ' . Kho::bang() . " WHERE trang_thai = 'da_gop' AND gop_vao IN (" . implode( ',', array_map( static fn( $k ) => $wpdb->prepare( '%s', $k ), $khoa ) ) . ') ORDER BY id' ) ?: array();
 		$cac  = array_merge( array( array( $muc, $nguon ) ), array_map( static fn( $m ) => array( $m, NguonTuDong::lay( (string) $m->nguon_id ) ?? NguonTuDong::mac_dinh() ), $gop ) );
 		$phan = array(
-			'loi'       => array( 'dong' => explode( "\n", (string) $muc->loi ), 'nguoi_lam' => NguoiLam::MAY_CHEP ) + $goc( $nguon ),
+			'loi'       => array( 'dong' => explode( "\n", (string) $muc->loi ), 'nguoi_lam' => $nhap ? NguoiLam::NGUOI_VIET : NguoiLam::MAY_CHEP ) + $goc( $nguon ),
 			'nguon_may' => array( 'nguon_id' => (string) $muc->nguon_id, 'url_goc' => (string) $muc->url, 'ma_goc' => (string) $muc->ma_goc, 'ngay_lay' => substr( (string) $muc->ngay_lay, 0, 10 ) ),
 		);
 		// Dị bản: của câu chính giữ thứ tự; thêm lời câu gộp làm dị bản, dị bản của câu đã gộp — bỏ cái đã có

@@ -27,17 +27,31 @@ Mỗi lần tối đa 2.000 câu. Kho nhiều hơn thì lọc theo nguồn hoặ
    - Đọc xong mà muốn đăng hết: bấm ô **Chọn tất cả … câu trên trang này** ngay trên bảng (giữ Shift để chọn một dải). Lô dài hơn một trang thì bấm thêm **Đánh dấu cả … câu đang bỏ dấu ở trang khác**. Nút chính đếm lại ngay số câu sẽ đăng. Chưa có gì được đăng cho tới khi bạn bấm nút chính.
    - Câu đang chờ quyết trùng sẽ được bỏ qua. Lúc đăng, máy so trùng lại từng câu; câu vừa thấy có thể trùng cũng được bỏ qua và thành thẻ **Có thể trùng** ở Hộp việc. Quyết thẻ đó trước rồi đăng sau.
 2. Bấm **Đăng … câu**. Máy làm từng lượt 25 câu; để trang mở cho tới khi hiện **Lô đã chạy xong.**
-3. Màn kết quả có liên kết tới từng bài vừa đăng và nút **Về Kho** (giữ bộ lọc lúc chọn).
+3. Màn kết quả có liên kết tới từng bài vừa đăng và nút **Về Kho** (giữ bộ lọc lúc chọn). Mục **Bài vừa đăng** có **Xem bài · Ẩn nếu nhầm** cho từng bài: lỡ tay thì một bấm là ẩn (lấy lại bằng nút Đăng ở trang sửa bài).
 
 Mỗi câu được đăng giống hệt khi đưa vào Hộp việc rồi bấm Đăng ở thẻ: lời và dị bản chép từ kho, chú thích chỉ chép từ nguồn bật "Chép chú thích". Máy không điền nguồn, không đánh dấu "đã duyệt".
 
-## Muốn quyết từng câu sau
+## Muốn quyết sau: Để dành
 
-Bấm **Đưa vào Hộp việc…** (thanh đáy màn) hoặc **Đưa vào Hộp việc** trên từng dòng. Mỗi câu thành một thẻ Câu mới để quyết Đăng, Sửa rồi đăng hay Bỏ ở Hộp việc.
+Bấm **Để dành** trên dòng (hoặc chọn nhiều câu rồi bấm **Để dành** ở thanh chọn). Câu nằm lại Bài mới, có dấu "Để dành"; bấm lọc nhanh **Để dành** ở đầu danh sách để xem lại. Bấm **Bỏ dấu** nếu đổi ý. Dấu chỉ để lọc: không đăng gì, không tạo việc trong Hộp việc.
 
-- Đưa nhiều câu cũng qua một màn xem trước; bấm **Đưa … câu vào Hộp việc**.
-- Khi hiện **Lô đã chạy xong.**, người có quyền duyệt có nút **Xem trước và đăng … câu vừa đưa vào**: chỉ gồm đúng các câu vừa đưa, không lẫn thẻ Câu mới có từ trước.
-- Muốn quyết từng câu: bấm **Mở Hộp việc: mọi thẻ Câu mới** (danh sách này có cả các thẻ Câu mới từ trước), rồi mở từng thẻ. Sau mỗi lần quyết có nút **Thẻ tiếp theo**.
+Tài khoản chỉ biên soạn thấy nút **Đề nghị đăng** thay cho Để dành; người có quyền duyệt thấy số câu đề nghị ở màn **Hôm nay** và lọc nhanh **Đề nghị đăng** ở Bài mới.
+
+## Máy gợi ý hôm nay
+
+Mỗi sáng (06:00) máy chọn vài câu đáng đăng của các nguồn đang bật (câu người đọc bấm "Mong có" trước, rồi xoay vòng các thể loại). Máy không còn tạo thẻ Câu mới trong Hộp việc: bấm lọc nhanh **Máy gợi ý hôm nay** ở đầu Bài mới, chọn câu rồi **Xem trước và đăng** như mọi câu khác.
+
+Bộ lọc khác trong **Thêm bộ lọc → Đặc điểm**: người đọc mong có, có chú thích của nguồn, không có cờ, câu ngắn, câu dài.
+
+## Nhập câu từ tệp
+
+Câu bạn đã gõ từ một cuốn sách: cuối trang Bài mới, mở **Nhập câu từ tệp vào Kho**.
+
+1. Chọn **Hồ sơ nguồn** (cuốn sách) và **Thể loại**.
+2. Dán danh sách vào ô, mỗi câu cách nhau **một dòng trống**; hoặc chọn tệp chữ (.txt).
+3. Bấm **Đưa vào Kho**. Máy tách câu, so trùng với bài đã có; **không đăng câu nào**. Câu vào Kho với nguồn "Nhập từ tệp", rồi bạn chọn và đăng như mọi câu khác.
+
+Khi đăng, lời ghi là chữ người gõ, nguồn là đúng cuốn sách bạn chọn. Máy không sửa lời, không tự điền sách hay trang.
 
 ## Sau khi đăng
 

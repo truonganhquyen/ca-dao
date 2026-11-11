@@ -309,6 +309,20 @@ final class TrangLo {
 		}
 		if ( in_array( $thao_tac, array( 'cau_moi_dang', 'kho_dang' ), true ) ) {
 			$ve    = 'kho_dang' === $thao_tac ? '<p class="phongdao-lo-tiep"><a class="button button-primary" href="' . esc_url( DanhSachKho::url( (array) ( $lo['noi_dung']['loc'] ?? array() ) ) ) . '">Về Kho</a></p>' : '';
+			// Lối lùi ngay sau khi Đăng (báo cáo trinh sát lần 2, mục 1.3): mỗi bài vừa đăng có Xem bài · Ẩn nếu nhầm (một bấm, có Lịch sử)
+			$lui = '';
+			foreach ( array_slice( (array) ( $lo['sau']['ket_qua'] ?? array() ), 0, 30, true ) as $muc => $kq ) {
+				if ( 'thanh_cong' !== ( $kq[0] ?? '' ) ) {
+					continue;
+				}
+				$kho_id = 'kho_dang' === $thao_tac ? (int) $muc : (int) ( Viec::lay( (int) $muc )['doi_tuong_id'] ?? 0 );
+				$bai    = (int) ( Kho::lay( $kho_id )?->post_id ?? 0 );
+				$form   = $bai ? DanhSachViec::lui_sau_dang( $bai, self::url( (int) $lo['id'] ) ) : '';
+				if ( '' !== $form ) {
+					$lui .= '<li><strong>' . esc_html( (string) get_post_field( 'post_title', $bai ) ) . '</strong>' . $form . '</li>';
+				}
+			}
+			$ve .= '' === $lui ? '' : '<h2>Bài vừa đăng</h2><ul class="phongdao-lo-lui">' . $lui . '</ul>';
 			$trung = false;
 			foreach ( (array) ( $lo['sau']['ket_qua'] ?? array() ) as $kq ) {
 				$trung = $trung || ( 'bo_qua' === ( $kq[0] ?? '' ) && str_contains( (string) ( $kq[1] ?? '' ), 'trùng' ) );
@@ -628,6 +642,10 @@ final class TrangLo {
 	public static function tao_kho(): void {
 		if ( ! current_user_can( 'cadao_soan' ) ) {
 			wp_die( 'Bạn không có quyền tạo lô.', '', array( 'response' => 403 ) );
+		}
+		// "Để dành / Đề nghị đăng" các câu đã chọn: chỉ là dấu, không cần lô hay xem trước
+		if ( 'de_danh' === ( $_POST['lam'] ?? '' ) && ! absint( $_POST['mot'] ?? 0 ) ) {
+			DanhSachKho::danh_dau();
 		}
 		check_admin_referer( self::TAO_KHO );
 		$vao = array();

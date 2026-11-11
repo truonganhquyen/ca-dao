@@ -174,12 +174,12 @@ try {
     for (const v of kqAdmin.violations) for (const n of v.nodes.slice(0, 3)) loi.push(`${duongAdmin}: [${v.id}] ${v.help} — ${n.target.join(' ')}`);
     if (thuMucAnh) await bt.screenshot({ path: path.join(thuMucAnh, 'admin-sua-390.png'), fullPage: true });
   }
-  // Màn Kho (T-184): danh sách câu thu thập có nút "Đưa vào Hộp việc"; quét ở 390 px như trang sửa
+  // Màn Bài mới (Kho; T-184, T-189): danh sách câu thu thập có nút "Để dành" / "Đề nghị đăng"; quét ở 390 px như trang sửa
   const duongKho = '/wp-admin/admin.php?page=phongdao-kho';
   const tlKho = await bt.goto(G + duongKho, { waitUntil: 'load', timeout: 120_000 });
   if (tlKho.status() !== 200 || !(await bt.$('.phongdao-admin-kho table'))) loi.push(`${duongKho}: không mở được màn Kho`);
   else {
-    if (!(await bt.$('.phongdao-admin-kho input[name=action][value=phongdao_kho_dua_vao]'))) loi.push(`${duongKho}: dữ liệu mẫu không có câu nào đưa vào Hộp việc được`);
+    if (!(await bt.$('.phongdao-admin-kho input[name=action][value=phongdao_kho_danh_dau]'))) loi.push(`${duongKho}: dữ liệu mẫu không có câu nào để dành được`);
     const tranKho = await doTran(bt);
     if (tranKho) loi.push(`${duongKho}: tràn ngang ${tranKho}`);
     await bt.addScriptTag({ content: axeNguon });

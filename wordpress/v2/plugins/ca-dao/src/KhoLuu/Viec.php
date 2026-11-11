@@ -169,7 +169,7 @@ final class Viec {
 		if ( ! in_array( $trang_thai, array_merge( array( 'tat_ca' ), $hop_le ), true ) ) {
 			$trang_thai = self::CHO;
 		}
-		$dk = "v.loai <> 'sua' AND v.trang_thai IN ('cho','de_sau','xong','bo')";
+		$dk = "v.loai NOT IN ('sua','danh_dau') AND v.trang_thai IN ('cho','de_sau','xong','bo')";
 		$tham = array();
 		if ( 'tat_ca' !== $trang_thai ) {
 			$dk .= ' AND v.trang_thai = %s';

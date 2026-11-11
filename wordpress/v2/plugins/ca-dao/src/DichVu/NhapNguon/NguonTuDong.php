@@ -86,6 +86,9 @@ final class NguonTuDong implements Module {
 	/** Tên hiển thị của một nguồn tự động; chưa cấu hình thì giữ mã. */
 	/** Tên nguồn tự động để hiện cho người biên soạn; nguồn chưa có tên thì "nguồn chưa đặt tên", không in mã máy. */
 	public static function ten( string $id ): string {
+		if ( \Phongdao\DichVu\UngVien\NhapTep::NGUON === $id ) {
+			return 'Nhập từ tệp';
+		}
 		$ten = (string) ( self::tat_ca()[ $id ]['ten'] ?? '' );
 		return '' !== $ten ? $ten : 'nguồn chưa đặt tên';
 	}
