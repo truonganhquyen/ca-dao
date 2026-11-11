@@ -82,6 +82,7 @@ final class DanhSachTacPham {
 	 */
 	private static function tu( array $loc ): string {
 		global $wpdb;
+		TomTat::xong(); // bài vừa đổi trong lượt này: ghi dòng trước khi lọc
 		$tt = 'tat_ca' === $loc['tt'] ? self::KHONG_RAC : array( (string) $loc['tt'] );
 		$dk = array(
 			$wpdb->prepare( 'p.post_type = %s', KhaiBao::TAC_PHAM ),

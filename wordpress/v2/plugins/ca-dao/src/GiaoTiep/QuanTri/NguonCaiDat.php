@@ -23,9 +23,55 @@ final class NguonCaiDat {
 	public const QUYEN = 'cadao_nguon';
 
 	public static function dang_ky(): void {
-		foreach ( array( 'nguon', 'ho_so', 'turnstile', 'may' ) as $viec ) {
+		foreach ( array( 'nguon', 'ho_so', 'turnstile', 'may', 'them_ho_so', 'de_nghi' ) as $viec ) {
 			add_action( 'admin_post_phongdao_luu_' . $viec, array( self::class, 'nhan_' . $viec ) );
 		}
+	}
+
+	/** Loại việc "Đề nghị nguồn tự động mới": việc cho người làm kỹ thuật, không vào Hộp việc. */
+	public const DE_NGHI = 'de_nghi_nguon';
+
+	/** Thêm hồ sơ nguồn (Quản trị, mọi trường). */
+	public static function nhan_them_ho_so(): void {
+		self::kiem( 'phongdao_luu_them_ho_so' );
+		$p  = wp_unslash( $_POST );
+		$kq = HoSo::them( (string) ( $p['ten'] ?? '' ), array_intersect_key( $p, array_flip( HoSoNguon::TRUONG ) ) + array( 'chep_chu_thich' => ! empty( $p['chep_chu_thich'] ) ), true, get_current_user_id() );
+		if ( $kq['ok'] ) {
+			set_transient( 'phongdao_nguon_bao_' . get_current_user_id(), 'Đã thêm hồ sơ nguồn.', MINUTE_IN_SECONDS );
+			wp_safe_redirect( add_query_arg( array( 'page' => Module::TRANG, 'the' => 'ho_so', 'ho_so' => $kq['id'] ), admin_url( 'admin.php' ) ) );
+			exit;
+		}
+		self::ve( 'ho_so', $kq['loi'] );
+	}
+
+	/**
+	 * Đề nghị nguồn tự động mới (D-104 ý 5): ghi trang web, lý do, tình trạng xin phép thành một việc cho người làm kỹ thuật
+	 * (nguồn tự động cần mã riêng cho từng trang web và quyết định về quyền dùng). Không bật gì, không đọc trang nào.
+	 *
+	 * @return array{ok:bool,loi:string}
+	 */
+	public static function de_nghi_nguon( array $p, int $nguoi ): array {
+		$goc = trim( (string) ( $p['url'] ?? '' ) );
+		$url = preg_match( '#^https?://[^\s/$.?\#].\S*$#i', $goc ) ? esc_url_raw( $goc ) : ''; // esc_url_raw tự thêm http:// nên kiểm chuỗi gốc trước
+		if ( '' === $url ) {
+			return array( 'ok' => false, 'loi' => 'Cần địa chỉ trang web (bắt đầu bằng http:// hoặc https://).' );
+		}
+		$xp = sanitize_key( (string) ( $p['xin_phep'] ?? '' ) );
+		Viec::tao(
+			array(
+				'loai'           => self::DE_NGHI,
+				'doi_tuong_loai' => 'nguon',
+				'noi_dung'       => array( 'url' => $url, 'ly_do' => sanitize_textarea_field( (string) ( $p['ly_do'] ?? '' ) ), 'xin_phep' => isset( HoSoNguon::XIN_PHEP[ $xp ] ) ? $xp : '' ),
+				'nguoi_tao'      => (string) $nguoi,
+			)
+		);
+		return array( 'ok' => true, 'loi' => '' );
+	}
+
+	public static function nhan_de_nghi(): void {
+		self::kiem( 'phongdao_luu_de_nghi' );
+		$kq = self::de_nghi_nguon( wp_unslash( $_POST ), get_current_user_id() );
+		self::ve( 'nguon', $kq['ok'] ? 'Đã ghi đề nghị. Người làm kỹ thuật sẽ xem trang này và quyền dùng trước khi viết bộ đọc.' : $kq['loi'] );
 	}
 
 	// ---------- Lưu (tách khỏi admin-post để kiểm thử gọi thẳng) ----------
@@ -45,7 +91,7 @@ final class NguonCaiDat {
 		NguonTuDong::luu( $n );
 		NguonTuDong::hen_lich();
 		self::ghi_dau_vet( 'nguon', 0, mb_substr( $id, 0, 32 ), $cu, self::cai_dat( $n ) );
-		return $n['bat'] ? 'Đã lưu. Nguồn đang bật: máy đọc theo lịch, câu mới vào Hộp việc mỗi ngày.' : 'Đã lưu. Nguồn đang tắt.';
+		return $n['bat'] ? 'Đã lưu. Nguồn đang bật: máy đọc theo lịch, mỗi sáng gợi ý câu ở Bài mới (Máy gợi ý hôm nay).' : 'Đã lưu. Nguồn đang tắt.';
 	}
 
 	/** @return string lời báo */
@@ -193,12 +239,18 @@ final class NguonCaiDat {
 
 	public static function hien( string $the, int $ho_so, string $bao ): string {
 		$cac = array(
-			'nguon'     => 'Nguồn tự động',
-			'ho_so'     => 'Hồ sơ nguồn',
-			'may'       => 'Máy đang làm',
-			'chong_rac' => 'Chống rác',
+			'nguon' => 'Nguồn tự động',
+			'ho_so' => 'Hồ sơ nguồn',
+			'may'   => 'Máy đang làm',
+			'chung' => 'Cài đặt chung',
 		);
+		$the = 'chong_rac' === $the ? 'chung' : $the; // đường dẫn cũ
 		$the = isset( $cac[ $the ] ) ? $the : 'nguon';
+		$nho = get_transient( 'phongdao_nguon_bao_' . get_current_user_id() );
+		if ( is_string( $nho ) && '' === $bao ) {
+			delete_transient( 'phongdao_nguon_bao_' . get_current_user_id() );
+			$bao = $nho;
+		}
 		$h   = '<div class="wrap phongdao-nguon"><h1>Nguồn &amp; cài đặt</h1>'
 			. ( '' !== $bao ? '<div class="notice notice-success"><p>' . esc_html( $bao ) . '</p></div>' : '' )
 			. '<nav class="nav-tab-wrapper" aria-label="Phần của trang">';
@@ -210,10 +262,10 @@ final class NguonCaiDat {
 			$h .= $ho_so ? self::sua_ho_so( $ho_so ) : self::ds_ho_so();
 		} elseif ( 'may' === $the ) {
 			$h .= self::may();
-		} elseif ( 'chong_rac' === $the ) {
-			$h .= self::chong_rac();
+		} elseif ( 'chung' === $the ) {
+			$h .= self::chung();
 		} else {
-			$h .= self::nguon();
+			$h .= self::nguon() . self::khoi_de_nghi();
 		}
 		return $h . '</div>';
 	}
@@ -233,11 +285,11 @@ final class NguonCaiDat {
 				$loai .= '<label style="margin-right:12px"><input type="checkbox" name="loai_lay[]" value="' . esc_attr( $ma ) . '"' . checked( in_array( $ma, (array) $n['loai_lay'], true ), true, false ) . '> ' . esc_html( $ten ) . '</label>';
 			}
 			$than = '<input type="hidden" name="nguon" value="' . esc_attr( (string) $id ) . '"><table class="form-table" role="presentation"><tbody>'
-				. '<tr><th scope="row">Bật</th><td><label><input type="checkbox" name="bat" value="1"' . checked( ! empty( $n['bat'] ), true, false ) . '> Máy đọc nguồn này theo lịch, mỗi ngày chọn câu mới vào Hộp việc</label></td></tr>'
-				. '<tr><th scope="row"><label for="so-' . esc_attr( (string) $id ) . '">Số câu mới mỗi ngày</label></th><td><input type="number" min="1" max="50" id="so-' . esc_attr( (string) $id ) . '" name="so_bai_moi_ngay" value="' . (int) $n['so_bai_moi_ngay'] . '"></td></tr>'
+				. '<tr><th scope="row">Bật</th><td><label><input type="checkbox" name="bat" value="1"' . checked( ! empty( $n['bat'] ), true, false ) . '> Máy đọc nguồn này theo lịch, mỗi sáng gợi ý câu ở Bài mới</label></td></tr>'
+				. '<tr><th scope="row"><label for="so-' . esc_attr( (string) $id ) . '">Số câu gợi ý mỗi ngày</label></th><td><input type="number" min="1" max="50" id="so-' . esc_attr( (string) $id ) . '" name="so_bai_moi_ngay" value="' . (int) $n['so_bai_moi_ngay'] . '"></td></tr>'
 				. '<tr><th scope="row">Loại lấy</th><td>' . $loai . '</td></tr>'
 				. '<tr><th scope="row">Chép chú thích</th><td><label><input type="checkbox" name="chep_chu_thich" value="1"' . checked( ! empty( $n['chep_chu_thich'] ), true, false ) . '> Chép chú thích, lời giải đáp án của nguồn khi người bấm Đăng</label></td></tr>'
-				. '<tr><th scope="row">Bỏ câu có từ thô tục</th><td><label><input type="checkbox" name="bo_tho_tuc" value="1"' . checked( in_array( 'tho_tuc', (array) $n['bo_qua_co'], true ), true, false ) . '> Không chọn vào Hộp việc</label></td></tr>'
+				. '<tr><th scope="row">Bỏ câu có từ thô tục</th><td><label><input type="checkbox" name="bo_tho_tuc" value="1"' . checked( in_array( 'tho_tuc', (array) $n['bo_qua_co'], true ), true, false ) . '> Không đưa vào gợi ý hôm nay</label></td></tr>'
 				. '</tbody></table>';
 			$nk = '';
 			foreach ( array_slice( (array) $n['nhat_ky'], 0, 8 ) as $d ) {
@@ -250,8 +302,63 @@ final class NguonCaiDat {
 		return $h;
 	}
 
+	/** Form "Thêm hồ sơ nguồn" (Quản trị): mọi trường để trống / "chưa rõ" sẵn — không giá trị mặc định nào. */
+	private static function form_them_ho_so(): string {
+		$chon = static function ( string $k, string $nhan, array $ds ): string {
+			$o = '<option value="">chưa rõ</option>';
+			foreach ( $ds as $ma => $ten ) {
+				$o .= '<option value="' . esc_attr( $ma ) . '">' . esc_html( $ten ) . '</option>';
+			}
+			return '<tr><th scope="row"><label for="ths-' . $k . '">' . esc_html( $nhan ) . '</label></th><td><select id="ths-' . $k . '" name="' . $k . '">' . $o . '</select></td></tr>';
+		};
+		$o = static fn( string $k, string $nhan ): string => '<tr><th scope="row"><label for="ths-' . $k . '">' . esc_html( $nhan ) . '</label></th><td><input class="regular-text" id="ths-' . $k . '" name="' . $k . '"></td></tr>';
+		$than = '<table class="form-table" role="presentation"><tbody>'
+			. '<tr><th scope="row"><label for="ths-ten">Tên</label></th><td><input class="regular-text" id="ths-ten" name="ten" required></td></tr>'
+			. $chon( 'loai', 'Loại', HoSoNguon::LOAI ) . $o( 'tac_gia', 'Tác giả, người biên soạn' ) . $o( 'nha_xuat_ban', 'Nhà xuất bản' ) . $o( 'nam', 'Năm' ) . $o( 'url', 'Đường dẫn' )
+			. $o( 'giay_phep', 'Giấy phép' ) . $o( 'ghi_cong', 'Cách ghi công' ) . $chon( 'xin_phep', 'Xin phép', HoSoNguon::XIN_PHEP ) . $chon( 'chinh_sach_hien', 'Hiện với người đọc', HoSoNguon::CHINH_SACH )
+			. '<tr><th scope="row">Chép chú thích</th><td><label><input type="checkbox" name="chep_chu_thich" value="1"> Được chép chú thích, lời giải của nguồn này</label></td></tr>'
+			. $o( 'ghi_chu', 'Ghi chú' ) . '</tbody></table>';
+		return '<details class="phongdao-them-ho-so"><summary class="button">+ Thêm hồ sơ nguồn</summary><p class="description">Sách, trang web, người kể, tạp chí… Thiếu thì để trống ("chưa rõ"); không đoán. Người có quyền Biên tập thêm được hồ sơ sách ngay trong tấm Đối chiếu sách.</p>'
+			. self::form( 'phongdao_luu_them_ho_so', $than, 'Thêm hồ sơ' ) . '</details>';
+	}
+
+	/** Đề nghị nguồn tự động mới: form và danh sách đề nghị đã ghi. */
+	private static function khoi_de_nghi(): string {
+		$xp = '<option value="">chưa rõ</option>';
+		foreach ( HoSoNguon::XIN_PHEP as $ma => $ten ) {
+			$xp .= '<option value="' . esc_attr( $ma ) . '">' . esc_html( $ten ) . '</option>';
+		}
+		$than = '<table class="form-table" role="presentation"><tbody>'
+			. '<tr><th scope="row"><label for="dn-url">Trang web</label></th><td><input class="regular-text" type="url" id="dn-url" name="url" required placeholder="https://"></td></tr>'
+			. '<tr><th scope="row"><label for="dn-ly-do">Lý do</label></th><td><textarea class="large-text" id="dn-ly-do" name="ly_do" rows="3"></textarea></td></tr>'
+			. '<tr><th scope="row"><label for="dn-xp">Tình trạng xin phép</label></th><td><select id="dn-xp" name="xin_phep">' . $xp . '</select></td></tr></tbody></table>';
+		$ds = '';
+		foreach ( array_merge( Viec::ds_cho( 50, self::DE_NGHI ) ) as $v ) {
+			$n   = (array) $v['noi_dung'];
+			$ds .= '<li><a href="' . esc_url( (string) ( $n['url'] ?? '' ) ) . '" rel="noopener nofollow">' . esc_html( (string) ( $n['url'] ?? '' ) ) . '</a> · ' . esc_html( HoSoNguon::XIN_PHEP[ $n['xin_phep'] ?? '' ] ?? 'xin phép chưa rõ' ) . ( '' === (string) ( $n['ly_do'] ?? '' ) ? '' : ' · ' . esc_html( (string) $n['ly_do'] ) ) . '</li>';
+		}
+		return '<h2>Đề nghị nguồn tự động mới</h2><p>Mỗi trang web cần bộ đọc riêng và quyết định về quyền dùng, nên đề nghị thành một việc cho người làm kỹ thuật; không bật gì ngay.</p>'
+			. self::form( 'phongdao_luu_de_nghi', $than, 'Ghi đề nghị' ) . ( '' === $ds ? '' : '<h3>Đề nghị đang chờ</h3><ul>' . $ds . '</ul>' );
+	}
+
+	/**
+	 * Cài đặt chung (D-104 ý 5): gom công tắc rải rác — chống rác (Turnstile), giờ máy chạy (xem; tạm dừng ở Máy đang làm),
+	 * trạng thái chặn Google toàn site (chỉ đọc kèm hướng dẫn: mở là quyết định của người sáng lập, Human Gate H5).
+	 */
+	private static function chung(): string {
+		$chan = '0' === (string) get_option( 'blog_public', '1' );
+		$gio  = static fn( string $viec ): string => ( $t = wp_next_scheduled( $viec ) ) ? wp_date( 'H:i d/m/Y', $t ) : 'chưa hẹn';
+		return '<h2>Google</h2><p role="status">' . ( $chan
+				? '<strong>Site đang chặn Google</strong> (WordPress → Cài đặt → Đọc → "Ngăn công cụ tìm kiếm đánh chỉ mục"). Khi bỏ chặn, mọi tác phẩm đã đăng lên Google, kể cả bài chưa có Ý nghĩa.'
+				: '<strong>Site đang mở cho Google.</strong> Mọi tác phẩm đã đăng được lập chỉ mục; trang lọc, tìm, nháp, ẩn thì không.' ) . '</p>'
+			. '<p class="description">Mở hay chặn Google là quyết định của người sáng lập; máy không đổi công tắc này.</p>'
+			. '<h2>Giờ máy chạy</h2><ul><li>Gợi ý câu hôm nay (Bài mới): lần tới ' . esc_html( $gio( NguonTuDong::LICH_NGAY ) ) . '</li><li>Lượt đọc 7 ngày của bảng tóm tắt bài: lần tới ' . esc_html( $gio( \Phongdao\DichVu\TomTat\TomTat::VIEC_DOC ) ) . '</li></ul>'
+			. '<p>Tạm dừng, chạy lại từng việc nền ở <a href="' . esc_url( add_query_arg( array( 'page' => Module::TRANG, 'the' => 'may' ), admin_url( 'admin.php' ) ) ) . '">Máy đang làm</a>.</p>'
+			. '<h2>Chống rác</h2>' . self::chong_rac();
+	}
+
 	private static function ds_ho_so(): string {
-		$h = '<p>Mỗi nguồn một hồ sơ: loại, giấy phép, cách ghi công, trạng thái xin phép, chính sách hiện với người đọc. Thiếu thì để trống ("chưa rõ"), không đoán.</p>'
+		$h = self::form_them_ho_so() . '<p>Mỗi nguồn một hồ sơ: loại, giấy phép, cách ghi công, trạng thái xin phép, chính sách hiện với người đọc. Thiếu thì để trống ("chưa rõ"), không đoán.</p>'
 			. '<table class="widefat striped"><thead><tr><th scope="col">Tên</th><th scope="col">Loại</th><th scope="col">Xin phép</th><th scope="col">Hiện với người đọc</th><th scope="col">Chép chú thích</th></tr></thead><tbody>';
 		$ds = get_posts( array( 'post_type' => KhaiBao::HO_SO_NGUON, 'post_status' => 'publish', 'numberposts' => 500, 'orderby' => 'title', 'order' => 'ASC' ) );
 		foreach ( $ds as $p ) {
@@ -279,7 +386,7 @@ final class NguonCaiDat {
 		};
 		$than = '<input type="hidden" name="ho_so" value="' . (int) $id . '"><table class="form-table" role="presentation"><tbody>'
 			. '<tr><th scope="row"><label for="hs-ten">Tên</label></th><td><input class="regular-text" id="hs-ten" name="ten" value="' . esc_attr( $p->post_title ) . '"></td></tr>'
-			. $chon( 'loai', 'Loại', HoSoNguon::LOAI ) . $o( 'url', 'Đường dẫn' ) . $o( 'tac_gia', 'Tác giả, người biên soạn' ) . $o( 'nam', 'Năm' ) . $o( 'giay_phep', 'Giấy phép' ) . $o( 'ghi_cong', 'Cách ghi công' )
+			. $chon( 'loai', 'Loại', HoSoNguon::LOAI ) . $o( 'url', 'Đường dẫn' ) . $o( 'tac_gia', 'Tác giả, người biên soạn' ) . $o( 'nha_xuat_ban', 'Nhà xuất bản' ) . $o( 'nam', 'Năm' ) . $o( 'giay_phep', 'Giấy phép' ) . $o( 'ghi_cong', 'Cách ghi công' )
 			. $chon( 'xin_phep', 'Xin phép', HoSoNguon::XIN_PHEP ) . $chon( 'chinh_sach_hien', 'Hiện với người đọc', HoSoNguon::CHINH_SACH )
 			. '<tr><th scope="row">Chép chú thích</th><td><label><input type="checkbox" name="chep_chu_thich" value="1"' . checked( ! empty( $t['chep_chu_thich'] ), true, false ) . '> Được chép chú thích, lời giải của nguồn này</label></td></tr>'
 			. $o( 'ghi_chu', 'Ghi chú' ) . '</tbody></table>';

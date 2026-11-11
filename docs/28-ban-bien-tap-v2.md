@@ -46,7 +46,7 @@ Trạng thái tác phẩm: `nhap` (người đang soạn) · `publish` (đã đ�
 
 Mỗi nguồn (Ca dao Mẹ, Wikipedia, Wiktionary, Commons, Wikidata, sách, người kể, người đọc, người biên soạn) có: loại, tên, tác giả, năm, giấy phép, mẫu ghi công, trạng thái xin phép, chính sách hiện (tại chỗ / Thông tin tư liệu / ẩn), "Chép chú thích". Thiếu thông tin thì để trống, hiện "chưa rõ". **Trạng thái xin phép và giấy phép chỉ người sáng lập đổi** (H3); đổi chính sách hiện → trang nhắc "Đổi ở đây là đổi chính sách — cần ghi quyết định".
 
-**Đợt 3 (D-104):** thêm hồ sơ nguồn bằng tay trong Nguồn & cài đặt; vai Biên tập thêm được hồ sơ sách (cả ngay trong tấm Đối chiếu sách); chính sách hiện với người đọc, trạng thái xin phép, giấy phép vẫn chỉ Quản trị đổi (mục 6.4). Nhập câu từ tệp (câu gõ từ một cuốn sách) vào Kho gắn với một hồ sơ, qua chống trùng, không đăng thẳng.
+**Đợt 3 (D-104, đã làm — plugin 1.0.48):** hồ sơ có thêm trường "Nhà xuất bản"; thêm hồ sơ nguồn bằng tay trong Nguồn & cài đặt (`HoSo::them`, ghi nhật ký người tạo); vai Biên tập thêm được hồ sơ sách (cả ngay trong tấm Đối chiếu sách); chính sách hiện với người đọc, trạng thái xin phép, giấy phép vẫn chỉ Quản trị đổi (mục 6.4). Nhập câu từ tệp (câu gõ từ một cuốn sách) vào Kho gắn với một hồ sơ, qua chống trùng, không đăng thẳng.
 
 ### 3.3. Câu mới (ứng viên)
 

@@ -10,7 +10,7 @@
 
 ## Đang chạy
 
-- **phongdao.com chạy V2** (Thư viện Văn học Dân gian Việt Nam; plugin 1.0.47, theme 1.0.2) từ 04/11/2026: WordPress trên VPS, máy chủ tự cập nhật sau mỗi PR gộp vào `main` (`docs/26` mục 15). **Site còn chặn Google** (công tắc toàn site, Human Gate H5 — người sáng lập mở khi quyết).
+- **phongdao.com chạy V2** (Thư viện Văn học Dân gian Việt Nam; plugin 1.0.48, theme 1.0.2) từ 04/11/2026: WordPress trên VPS, máy chủ tự cập nhật sau mỗi PR gộp vào `main` (`docs/26` mục 15). **Site còn chặn Google** (công tắc toàn site, Human Gate H5 — người sáng lập mở khi quyết).
 - **Trang người đọc** (`docs/27`): trang chủ, danh sách theo thể loại, chủ đề, vùng; trang bài cho năm thể loại (lời mỗi câu một dòng, nhãn mức kiểm, Ý nghĩa, từ khó chạm để xem, dị bản, "Lời này từ đâu?", trích dẫn, chia sẻ, ảnh để chia sẻ, trình chiếu, cỡ chữ, Đọc cùng bé); Tìm (gõ không dấu, gợi ý gõ sai); Từ điển, Bản đồ, Tuyển tập, Khám phá, Một câu ngẫu nhiên; Đã lưu; Góp (dị bản, chú thích, báo lỗi, số trang, cảm nghĩ, bài cảm nhận).
 - **Khu biên tập trong wp-admin** (`docs/28` mục 4), sau đợt 1–2 (10–11/11/2026) và bước đầu đợt 3:
   - **Menu theo ba dòng việc:** Hôm nay · Bài mới · Hộp việc · Bổ sung · Tác phẩm · Nguồn & cài đặt.
@@ -22,7 +22,8 @@
   - **Sửa tác phẩm:** một màn hai cột, "Bài tiếp theo"; phần chưa có gom thành hàng "Thêm: …"; cờ "Có thể không phải dân gian" là công tắc ở cột bên (bật cần lý do và nguồn); **Đổi thể loại** (người có quyền duyệt; đường cũ tự chuyển 301, có Lịch sử); điện thoại: trạng thái và Đăng / Ẩn ngay dưới tên bài.
   - **Bài mới (Kho):** lọc nhanh **Máy gợi ý hôm nay** (máy thôi tạo thẻ Câu mới hằng ngày), **Để dành**, **Đề nghị đăng** (thay "Đưa vào Hộp việc"); lọc theo mong có, có chú thích, không cờ, câu ngắn / dài; Xem trước và đăng một mạch, màn kết quả có "Xem bài · Ẩn nếu nhầm"; **nhập câu từ tệp** (vào Kho qua chống trùng, không đăng thẳng); **Thêm tác phẩm** ngay trong wp-admin; điện thoại dạng thẻ.
   - **Thao tác hàng loạt:** có xem trước, kết quả từng mục.
-  - **Nguồn & cài đặt** (Quản trị).
+  - **Nguồn & cài đặt** (Quản trị): nguồn tự động, **thêm hồ sơ nguồn bằng tay**, **đề nghị nguồn tự động mới** (thành việc cho người làm kỹ thuật), máy đang làm, **Cài đặt chung** (chống rác, giờ máy chạy, trạng thái chặn Google chỉ đọc).
+  - **Đối chiếu sách:** nút riêng ở trang Sửa tác phẩm — chọn sách hoặc "+ Sách mới" ngay tại chỗ (vai Biên tập làm được), trang, bản quét; "Sửa lời theo sách" hoặc "Ghi bản trong sách làm dị bản". Chỉ người điền.
   - Sửa nhanh trên trang đọc vẫn dùng. Các trang `/bien-tap/` còn chạy tới khi đợt 3 chuyển về wp-admin.
 - **Lằn ranh trong mã, có kiểm thử khẳng định** (`docs/28` mục 6):
   - máy không viết lời hay nguồn, không tự đăng, không đặt dấu duyệt;
@@ -36,7 +37,7 @@
   - khu quản trị (D-104);
   - trang đọc và nội dung (D-105);
   - mọi tác phẩm đã đăng được lập chỉ mục khi site mở cho Google (D-106).
-- Task: T-189 (khu quản trị), T-190 (trang đọc), T-191 (Google), T-192 (gỡ mã cũ). Thứ tự làm: `docs/32` mục 8. Bước 1 (sửa nhanh, menu mới, Hôm nay — T-189.1) bước 2 (bảng tóm tắt bài, Tác phẩm gọn, bản điện thoại — T-189.2) bước 3 (Bài mới — T-189.3; Bổ sung duyệt gợi ý, Hộp việc chỉ việc cần quyết — T-189.4) và bước 4 (Hộp việc không tải lại trang, điện thoại, trang sửa gọn, cờ công tắc, đổi thể loại — T-189.5) đã làm.
+- Task: T-189 (khu quản trị), T-190 (trang đọc), T-191 (Google), T-192 (gỡ mã cũ). Thứ tự làm: `docs/32` mục 8. Bước 1 (sửa nhanh, menu mới, Hôm nay — T-189.1) bước 2 (bảng tóm tắt bài, Tác phẩm gọn, bản điện thoại — T-189.2) bước 3 (Bài mới — T-189.3; Bổ sung duyệt gợi ý, Hộp việc chỉ việc cần quyết — T-189.4) bước 4 (Hộp việc không tải lại trang, điện thoại, trang sửa gọn, cờ công tắc, đổi thể loại — T-189.5) và bước 5 (Nguồn & cài đặt, Đối chiếu sách — T-189.6) đã làm.
 - Báo cáo căn cứ: `docs/e2e-review/v2-quan-tri-2/BAO-CAO.md`.
 
 ## Đang chờ người sáng lập

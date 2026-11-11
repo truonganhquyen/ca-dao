@@ -84,3 +84,11 @@
 	.phongdao-sua-dau-dt { display: block; margin: 0 0 12px; }
 	.phongdao-sua-ben > .phongdao-trang-thai { display: none; }
 }
+/* Đối chiếu sách: nút riêng dưới lời (T-189, docs/32 mục 4.4) */
+.phongdao-doi-chieu { margin: 8px 0 16px; }
+.phongdao-doi-chieu > summary { display: inline-flex; align-items: center; min-height: 44px; cursor: pointer; }
+.phongdao-doi-chieu[open] { padding: 0 12px 8px; border: 1px solid #c3c4c7; border-radius: 6px; background: #fff; }
+.phongdao-doi-chieu[open] > summary { margin: 8px 0; }
+.phongdao-dc-hien { font-weight: 600; }
+.phongdao-doi-chieu fieldset label { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; }
+.phongdao-sach-moi summary { display: inline-flex; align-items: center; min-height: 44px; cursor: pointer; color: #135e96; font-weight: 600; }

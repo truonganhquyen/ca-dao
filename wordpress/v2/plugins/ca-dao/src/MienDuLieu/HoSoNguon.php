@@ -33,7 +33,10 @@ final class HoSoNguon {
 	);
 
 	/** Trường của hồ sơ (ngoài tên = tiêu đề bài, khoá = tên đường dẫn). */
-	public const TRUONG = array( 'loai', 'url', 'tac_gia', 'nam', 'giay_phep', 'ghi_cong', 'xin_phep', 'chinh_sach_hien', 'chep_chu_thich', 'ghi_chu' );
+	public const TRUONG = array( 'loai', 'url', 'tac_gia', 'nha_xuat_ban', 'nam', 'giay_phep', 'ghi_cong', 'xin_phep', 'chinh_sach_hien', 'chep_chu_thich', 'ghi_chu' );
+
+	/** Trường của hồ sơ sách mà vai Biên tập điền được (D-104 ý 5, 6); giấy phép, xin phép, chính sách hiện chỉ Quản trị đổi. */
+	public const TRUONG_SACH = array( 'tac_gia', 'nha_xuat_ban', 'nam' );
 
 	/**
 	 * Chuẩn hoá: chỉ trường đã biết; lựa chọn ngoài danh sách thành trống; không thêm giá trị mặc định nào.
