@@ -142,7 +142,7 @@
     nut.forEach(n => { n.disabled = true; });
     loi.hidden = true;
     const d = await goi('/tac-pham/' + bai + '/phan/' + f.dataset.phan, du);
-    if (d.ok) { tai_lai(d.thong_bao || 'Đã lưu.', d.doi ? d.viec : 0); return; }
+    if (d.ok) { window.phongdaoNhapDo?.daLuu(f); tai_lai(d.thong_bao || 'Đã lưu.', d.doi ? d.viec : 0); return; }
     nut.forEach(n => { n.disabled = false; });
     loi.textContent = (d.loi || ['Chưa lưu được.']).join(' ');
     loi.hidden = false;

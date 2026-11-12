@@ -482,6 +482,30 @@ try {
       chac(await coChu(k, moi), 'người đọc không thấy Ý nghĩa vừa duyệt trong wp-admin');
     });
 
+    await thu('wp-admin giữ chữ: hàng từ khó thiếu lời giải / quá dài còn nguyên; lưu một phần giữ chữ phần khác', async () => {
+      await bt.$eval('#phan-hinh_anh', d => { d.open = true; });
+      await datO(bt, '#phan-hinh_anh textarea[name=chu]', '[UX-TEST] Phần chữ chưa lưu cần giữ');
+      await bt.$eval('#phan-chu_thich', d => { d.open = true; });
+      await bam(bt, '#phan-chu_thich [data-action=them-muc]');
+      const last = '#phan-chu_thich li.muc-sua:last-child';
+      await datO(bt, `${last} input[name$="[tu]"]`, '[UX-TEST] Từ kỹ thuật');
+      await bamDoiTrang(bt, '#phan-chu_thich button[type=submit]');
+      chac(await coChu(bt, 'cần điền Lời giải'), 'hàng điền dở không báo thiếu');
+      chac(await bt.$eval(`${last} input[name$="[tu]"]`, o => o.value) === '[UX-TEST] Từ kỹ thuật', 'từ vừa gõ đã mất');
+      chac(await bt.$eval('#phan-hinh_anh textarea[name=chu]', o => o.value) === '[UX-TEST] Phần chữ chưa lưu cần giữ', 'chữ ở phần khác đã mất');
+      await datO(bt, `${last} textarea[name$="[loi_giai]"]`, 'a'.repeat(4001));
+      await bamDoiTrang(bt, '#phan-chu_thich button[type=submit]');
+      chac(await bt.$eval(`${last} textarea[name$="[loi_giai]"]`, o => o.value.length) === 4001, 'lỗi giới hạn làm mất đầu vào');
+      await datO(bt, `${last} textarea[name$="[loi_giai]"]`, '[UX-TEST] Lời giải kỹ thuật');
+      await bamDoiTrang(bt, '#phan-chu_thich button[type=submit]');
+      chac(await coChu(bt, 'Đã lưu phần bài.'), 'không lưu được hàng sau khi sửa lỗi');
+      chac(await bt.$eval('#phan-hinh_anh textarea[name=chu]', o => o.value) === '[UX-TEST] Phần chữ chưa lưu cần giữ', 'lưu thành công phần khác làm mất chữ');
+      await bt.$eval('#phan-chu_thich', d => { d.open = true; });
+      await bam(bt, `${last} input[name$="[xoa]"]`);
+      await bamDoiTrang(bt, '#phan-chu_thich button[type=submit]');
+      await bt.evaluate(() => document.querySelectorAll('form[data-giu-nhap]').forEach(f => window.phongdaoNhapDo.daLuu(f)));
+    });
+
     await thu('wp-admin Sửa tác phẩm: đổi một chủ đề có sẵn, người đọc thấy đúng, Lịch sử ghi lại, trả về như cũ', async () => {
       await di(bt, caDao);
       const id = await bt.$eval('.dai-bien-tap', e => e.dataset.bai);
@@ -537,6 +561,7 @@ try {
         return [...li.querySelectorAll('.phongdao-so-sanh li.bo del')].map(e => e.textContent.replace(/^bỏ: /, '').trim()).filter(t => t && !t.startsWith('('));
       });
       chac(cu, 'không có lần sửa Ý nghĩa nào khôi phục được trong Lịch sử');
+      if (await bt.$eval('#lich-su li[data-thu]', li => li.closest('details.phongdao-lich-cu')?.open === false)) await bam(bt, '#lich-su .phongdao-lich-cu > summary');
       chac(await bt.$eval('#lich-su li[data-thu] .phongdao-so-sanh', e => e.textContent.includes('thêm: ')), 'so sánh không đánh dấu dòng thêm');
       await bamDoiTrang(bt, '#lich-su li[data-thu] form.phongdao-khoi-phuc [type=submit]');
       chac(await coChu(bt, 'Đã khôi phục bản trước'), 'không báo đã khôi phục');
