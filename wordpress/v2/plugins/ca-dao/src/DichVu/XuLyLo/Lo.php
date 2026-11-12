@@ -416,11 +416,14 @@ final class Lo {
 		}
 		$yc = new \WP_REST_Request( 'POST', '/phongdao/v1/tac-pham/' . $id . '/phan/' . $phan );
 		// Thân yêu cầu trước: set_body_params thay cả nhóm tham số POST, đặt sau sẽ xoá mất id / phan
-		$yc->set_body_params( array( 'chu' => $moi, 'ai' => empty( $ts['ai'] ) ? '' : '1', 'duyet' => empty( $ts['duyet'] ) ? '' : '1' ) );
+		$yc->set_body_params( array( 'chu' => $moi, 'ai' => empty( $ts['ai'] ) ? '' : '1', 'duyet' => empty( $ts['duyet'] ) ? '' : '1', 'phien_phan' => \Phongdao\DichVu\LuuPhan\LuuPhan::phien( $id, $phan, $hien ) ) );
 		$yc->set_url_params( array( 'id' => $id, 'phan' => $phan ) );
 		$kq = \Phongdao\GiaoTiep\BienTap\Module::luu_phan( $yc );
 		if ( $kq['ok'] ) {
 			return array( 'thanh_cong', (string) ( $kq['thong_bao'] ?? 'Đã lưu.' ) );
+		}
+		if ( ! empty( $kq['xung_dot'] ) ) {
+			return array( 'xung_dot', 'Phần này của bài đã đổi sau lúc xem trước.' );
 		}
 		$loi = implode( ' ', (array) ( $kq['loi'] ?? array() ) );
 		return array( str_contains( $loi, 'thể loại' ) || str_contains( $loi, 'Không có phần' ) ? 'bo_qua' : 'loi', $loi );

@@ -326,6 +326,7 @@ $yc_tk   = new WP_REST_Request( 'POST', '/phongdao/v1/tac-pham/' . $tk_bai . '/p
 $yc_tk->set_body_params( array( 'muc' => array( array( 'tu' => 'hái hoa', 'loi_giai' => 'Lời giải thử một.' ), array( 'tu' => 'trèo cao', 'loi_giai' => 'Gõ sai thử.' ) ) ) );
 $yc_tk->set_param( 'id', $tk_bai );
 $yc_tk->set_param( 'phan', 'chu_thich' );
+$yc_tk->set_param( 'phien_phan', LuuPhan::phien( $tk_bai, 'chu_thich', PhanBai::lay( $tk_bai, 'chu_thich' ) ) );
 $kq_tk = \Phongdao\GiaoTiep\BienTap\Module::luu_phan( $yc_tk );
 $_GET  = array( 'id' => (string) $tk_bai );
 $h_tk_sua = \Phongdao\GiaoTiep\QuanTri\SuaTacPham::hien();
@@ -734,6 +735,10 @@ $h = $xem( $tp1 );
 kt( 'người biên soạn: dải "Đang sửa", nút Sửa trên khối, tấm sửa lời / ý nghĩa / từ khó / dị bản, lịch sử', str_contains( $h, 'class="dai-bien-tap' ) && str_contains( $h, 'data-tam="loi"' ) && str_contains( $h, 'id="tam-loi"' ) && str_contains( $h, 'id="tam-y_nghia"' ) && str_contains( $h, 'id="tam-chu_thich"' ) && str_contains( $h, 'id="tam-di_ban"' ) && str_contains( $h, 'id="lich-su"' ), substr( $h, 0, 300 ) );
 kt( 'người biên soạn: dòng nguồn gốc (máy chép từ…) và nguồn đã ẩn vẫn thấy trong tấm sửa', str_contains( $h, 'Lời: máy chép' ) && ! str_contains( $h, 'id="tam-nghia_den"' ) );
 $rest = static function ( string $duong, array $than ) {
+	// Client thử mở phiên hiện tại trước khi gửi; các ca stale/missing riêng không dùng helper này.
+	if ( preg_match( '#^/tac-pham/(\d+)/phan/([a-z_]+)$#', $duong, $m ) && ! array_key_exists( 'phien_phan', $than ) ) {
+		$than['phien_phan'] = LuuPhan::phien( (int) $m[1], $m[2], PhanBai::lay( (int) $m[1], $m[2] ) );
+	}
 	$yc = new WP_REST_Request( 'POST', '/phongdao/v1' . $duong );
 	$yc->set_body_params( $than );
 	return rest_do_request( $yc );
@@ -1672,6 +1677,7 @@ $yc_cs = new WP_REST_Request( 'POST', '/phongdao/v1/tac-pham/' . $tp1 . '/phan/y
 $yc_cs->set_body_params( array( 'chu' => 'Thử người chỉ soạn bấm hiện.', 'duyet' => '1' ) );
 $yc_cs->set_param( 'id', $tp1 );
 $yc_cs->set_param( 'phan', 'y_nghia' );
+$yc_cs->set_param( 'phien_phan', LuuPhan::phien( $tp1, 'y_nghia', PhanBai::lay( $tp1, 'y_nghia' ) ) );
 $kq_cs = \Phongdao\GiaoTiep\BienTap\Module::luu_phan( $yc_cs );
 wp_set_current_user( $cs_truoc );
 $the_cs = array_values( array_filter( Viec::mo( 'post', $tp1, 'nhap_y_nghia' ), static fn( array $v ): bool => 'Thử người chỉ soạn bấm hiện.' === ( $v['noi_dung']['chu'] ?? '' ) ) );
@@ -1953,7 +1959,7 @@ $bat_co = static function ( $vi_tri ): string {
 };
 add_filter( 'wp_redirect', $bat_co );
 $gui_co = static function ( array $than ) use ( $SUA, $bai_dtl ): string {
-	$_POST = $_REQUEST = $than + array( 'id' => (string) $bai_dtl, 'phan' => 'co_nghi', '_wpnonce' => wp_create_nonce( 'phongdao_sua_phan_' . $bai_dtl . '_co_nghi' ) );
+	$_POST = $_REQUEST = $than + array( 'id' => (string) $bai_dtl, 'phan' => 'co_nghi', 'phien_phan' => LuuPhan::phien( $bai_dtl, 'co_nghi', PhanBai::lay( $bai_dtl, 'co_nghi' ) ), '_wpnonce' => wp_create_nonce( 'phongdao_sua_phan_' . $bai_dtl . '_co_nghi' ) );
 	try {
 		$SUA::luu();
 		return 'không dừng';
@@ -1989,7 +1995,7 @@ $bcb_cu = PhanBai::lay( $p_hc, 'ban_co_biet' );
 add_filter( 'wp_die_handler', $chan_die_lo );
 add_filter( 'wp_redirect', $chan_di_lo );
 $luu_hc = static function ( array $them ) use ( $SUA, $p_hc, $sau_hc, $ds_tat ): string {
-	$_POST    = array( 'id' => (string) $p_hc, 'phan' => 'ban_co_biet', 'chu' => 'Bạn có biết thử chuyển bài.', 've' => $ds_tat, 'bai_sau' => (string) $sau_hc, '_wpnonce' => wp_create_nonce( 'phongdao_sua_phan_' . $p_hc . '_ban_co_biet' ) ) + $them;
+	$_POST    = array( 'id' => (string) $p_hc, 'phan' => 'ban_co_biet', 'phien_phan' => LuuPhan::phien( $p_hc, 'ban_co_biet', PhanBai::lay( $p_hc, 'ban_co_biet' ) ), 'chu' => 'Bạn có biết thử chuyển bài.', 've' => $ds_tat, 'bai_sau' => (string) $sau_hc, '_wpnonce' => wp_create_nonce( 'phongdao_sua_phan_' . $p_hc . '_ban_co_biet' ) ) + $them;
 	$_REQUEST = $_POST;
 	try {
 		$SUA::luu();
@@ -3071,6 +3077,41 @@ kt( 'chỉ Quản trị có quyền Nguồn & cài đặt; Biên tập không', 
 
 do_action( 'wp_enqueue_scripts' );
 kt( 'theme nạp giao-dien.css, fit.js, doc.js (hoãn, cuối trang)', wp_style_is( 'phongdao-giao-dien', 'enqueued' ) && wp_script_is( 'phongdao-fit', 'enqueued' ) && wp_script_is( 'phongdao-doc', 'enqueued' ) );
+
+// ---------- Phiên phần bài (T-195): client mở cũ, thiếu phiên, khác phần và lỗi giữa lượt ghi ----------
+wp_set_current_user( $ai_ql );
+$p_xd = wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'draft', 'post_title' => '[UX-TEST] Phiên phần bài', 'post_author' => $ai_ql ) );
+wp_set_object_terms( $p_xd, 'ca-dao', KhaiBao::THE_LOAI );
+$gui_xd = static function ( string $phan, array $vao ) use ( $p_xd ): array {
+	$yc = new WP_REST_Request( 'POST', '/phongdao/v1/tac-pham/' . $p_xd . '/phan/' . $phan );
+	$yc->set_body_params( $vao );
+	$yc->set_param( 'id', $p_xd );
+	$yc->set_param( 'phan', $phan );
+	return \Phongdao\GiaoTiep\BienTap\Module::luu_phan( $yc );
+};
+$ma_xd = LuuPhan::phien( $p_xd, 'y_nghia', null );
+$a_xd = $gui_xd( 'y_nghia', array( 'chu' => '[UX-TEST] Bản A', 'duyet' => '1', 'phien_phan' => $ma_xd ) );
+$nv_xd = wp_insert_user( array( 'user_login' => 'editor_phien_thu', 'user_pass' => wp_generate_password(), 'role' => 'editor' ) );
+wp_set_current_user( $nv_xd );
+$b_xd = $gui_xd( 'y_nghia', array( 'chu' => '[UX-TEST] Bản B', 'duyet' => '1', 'phien_phan' => $ma_xd ) );
+kt( 'hai tài khoản: A lưu, B gửi phiên cũ bị chặn, bản A và đúng một dòng lịch sử còn nguyên', $a_xd['ok'] && ! $b_xd['ok'] && ! empty( $b_xd['xung_dot'] ) && '[UX-TEST] Bản A' === PhanBai::lay( $p_xd, 'y_nghia' )['chu'] && 1 === count( Viec::lich_su( 'post', $p_xd, 20 ) ), array( $a_xd, $b_xd ) );
+kt( 'xung đột cho đối chiếu bản mới và lựa chọn rõ, không tự hợp nhất; không trả dữ liệu phần khác', str_contains( $b_xd['so_ban_moi'] ?? '', '[UX-TEST] Bản A' ) && str_contains( $b_xd['so_ban_moi'] ?? '', 'name="phien_phan"' ) && ! isset( $b_xd['hien_tai'] ) );
+$khong_ma = $gui_xd( 'y_nghia', array( 'chu' => '[UX-TEST] Thiếu phiên', 'duyet' => '1' ) );
+kt( 'request thiếu phiên không được tự dùng phiên mới để ghi', ! $khong_ma['ok'] && ! empty( $khong_ma['xung_dot'] ) && '[UX-TEST] Bản A' === PhanBai::lay( $p_xd, 'y_nghia' )['chu'] );
+$ma_sau_a = LuuPhan::phien( $p_xd, 'y_nghia', PhanBai::lay( $p_xd, 'y_nghia' ) );
+$ha_xd = $gui_xd( 'hinh_anh', array( 'chu' => '[UX-TEST] Phần khác', 'phien_phan' => LuuPhan::phien( $p_xd, 'hinh_anh', null ) ) );
+kt( 'sửa phần khác không làm dấu phiên của Ý nghĩa đổi', $ha_xd['ok'] && $ma_sau_a === LuuPhan::phien( $p_xd, 'y_nghia', PhanBai::lay( $p_xd, 'y_nghia' ) ) );
+$b_chon = $gui_xd( 'y_nghia', array( 'chu' => '[UX-TEST] Bản B đã đối chiếu', 'duyet' => '1', 'phien_phan' => $b_xd['phien_moi'] ) );
+kt( 'người đã đối chiếu gửi đúng phiên mới thì lưu được, phần khác vẫn giữ', $b_chon['ok'] && '[UX-TEST] Bản B đã đối chiếu' === PhanBai::lay( $p_xd, 'y_nghia' )['chu'] && '[UX-TEST] Phần khác' === PhanBai::lay( $p_xd, 'hinh_anh' )['chu'] );
+$cu_xd = PhanBai::lay( $p_xd, 'y_nghia' );
+$ls_xd = count( Viec::lich_su( 'post', $p_xd, 20 ) );
+$chan_xd = static function ( int $id ) use ( $p_xd ): void { if ( $id === $p_xd ) { throw new RuntimeException( 'Lỗi ghi tổng hợp trong phép thử' ); } };
+add_action( 'pre_post_update', $chan_xd );
+$hong_xd = $gui_xd( 'y_nghia', array( 'chu' => '[UX-TEST] Chưa được xác nhận', 'duyet' => '1', 'phien_phan' => LuuPhan::phien( $p_xd, 'y_nghia', $cu_xd ) ) );
+remove_action( 'pre_post_update', $chan_xd );
+kt( 'lỗi sau ghi meta/nhật ký trước bản tổng hợp: rollback cả phần và lịch sử, không báo đã lưu', ! $hong_xd['ok'] && $cu_xd === PhanBai::lay( $p_xd, 'y_nghia' ) && $ls_xd === count( Viec::lich_su( 'post', $p_xd, 20 ) ), $hong_xd );
+wp_delete_post( $p_xd, true );
+wp_set_current_user( $ai_ql );
 
 $tong = $GLOBALS['v2_dat'] + $GLOBALS['v2_hong'];
 ra( "\nKẾT QUẢ: " . ( $GLOBALS['v2_hong'] ? "HỎNG {$GLOBALS['v2_hong']} / $tong" : "ĐẠT $tong" ) );

@@ -49,6 +49,7 @@ final class TamSua {
 		$than    = self::than( $phan, $cu, $ctx );
 		$id = 'tam-' . $phan;
 		return '<dialog class="tam-sua" id="' . $id . '" aria-labelledby="' . $id . '-tieu-de"><form method="post" class="tam-khung" data-phan="' . esc_attr( $phan ) . '" data-giu-nhap="' . (int) ( $ctx['id'] ?? 0 ) . ':' . esc_attr( $phan ) . '" data-phien-soan="' . esc_attr( NhapDo::phien() ) . '">'
+			. '<input type="hidden" name="phien_phan" value="' . esc_attr( \Phongdao\DichVu\LuuPhan\LuuPhan::phien( (int) ( $ctx['id'] ?? 0 ), $phan, $cu ) ) . '">'
 			. '<header class="tam-dau"><h2 id="' . $id . '-tieu-de">' . esc_html( $tieu_de ) . '</h2><button type="button" class="nut-dong" data-action="dong-tam" aria-label="Đóng"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></svg></button></header>'
 			. '<div class="tam-than">' . $than . '<p class="tam-loi" role="alert" hidden></p></div>'
 			. '<footer class="tam-chan"><button type="button" class="btn" data-action="dong-tam">Huỷ</button>' . self::nut_luu( $phan, $ctx, 'btn primary', 'btn' ) . '</footer></form></dialog>';
@@ -186,6 +187,13 @@ final class TamSua {
 	}
 
 	// ---------- Đọc form ----------
+
+	/** Chỉ người đang sửa nhận bản đối chiếu; chọn checkbox là quyết định dùng đầu vào của mình trên bản mới. */
+	public static function doi_chieu_phien( ?array $cu, string $phien ): string {
+		$dong = \Phongdao\MienDuLieu\SoSanh::dong( $cu );
+		return '<details class="disclosure" data-phien-moi><summary>Đối chiếu bản đang lưu</summary><pre>'
+			. esc_html( $dong ? implode( "\n", $dong ) : '(Phần này đang trống)' ) . '</pre><label class="choice"><input type="checkbox" name="phien_phan" value="' . esc_attr( $phien ) . '">Tôi đã đối chiếu; dùng phần đang nhập rồi bấm nút Lưu phù hợp.</label></details>';
+	}
 
 	/** Hàng trống có thể bỏ; hàng đã điền một phần phải được giữ và báo thiếu. */
 	public static function loi_form( string $phan, array $f ): array {

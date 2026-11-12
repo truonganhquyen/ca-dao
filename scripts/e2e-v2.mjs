@@ -74,6 +74,7 @@ const doi = async (tab, fn, arg, bao, ms = 15_000) => {
 };
 // Đưa phần tử ra giữa màn trước khi bấm: thanh nổi ở đáy màn (wp-admin) không che chỗ bấm
 const bam = async (tab, sel) => {
+	await tab.bringToFront(); // hai tab: thao tác ở tab đang hiện như người dùng thực
   const b = await tab.waitForSelector(sel, { visible: true, timeout: 15_000 }).catch(() => null);
   chac(b, `không thấy ${sel}`);
   await b.evaluate(e => e.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' }));
@@ -1019,6 +1020,44 @@ try {
       chac(bt.url().includes('page=phongdao-lo'), 'Ẩn nếu nhầm xong không về màn kết quả');
       const tl2 = await k.goto(xem, { waitUntil: 'load', timeout: 120_000 });
       chac(tl2.status() === 404, `bài đã ẩn mà người đọc vẫn mở được (HTTP ${tl2.status()})`);
+    });
+    await thu('phiên phần bài: wp-admin và sửa nhanh chặn bản cũ, giữ chữ, đối chiếu rồi mới lưu tiếp', async () => {
+      await di(bt, '/wp-admin/admin.php?page=phongdao-them');
+      await datO(bt, '#them-loi', '[UX-TEST] Dòng kỹ thuật kiểm phiên phần bài');
+      await datO(bt, '#them-ten', '[UX-TEST] Hai tab sửa phần');
+      await bamDoiTrang(bt, 'button[type=submit][name=dang][value="0"]');
+      const id = await bt.$eval('#phan-loi input[name=id]', o => o.value);
+      const edit = `/wp-admin/admin.php?page=phongdao-sua-tac-pham&id=${id}`;
+      const bt2 = await moTab(trinhDuyet.defaultBrowserContext(), 'người biên soạn · tab cũ');
+      try {
+        await di(bt2, edit);
+        for (const tab of [bt, bt2]) await tab.$eval('#phan-y_nghia', d => { d.open = true; });
+        await datO(bt, '#phan-y_nghia textarea[name=chu]', '[UX-TEST] Bản A');
+        await bamDoiTrang(bt, '#phan-y_nghia button[name=duyet][value="1"]');
+        await datO(bt2, '#phan-y_nghia textarea[name=chu]', '[UX-TEST] Bản B đang nhập');
+        await bamDoiTrang(bt2, '#phan-y_nghia button[name=duyet][value="1"]');
+        chac(await coChu(bt2, 'Phần này đã đổi'), 'wp-admin không báo xung đột');
+        chac(await bt2.$eval('#phan-y_nghia textarea[name=chu]', o => o.value) === '[UX-TEST] Bản B đang nhập', 'xung đột làm mất chữ B');
+        await bam(bt2, '#phan-y_nghia [data-phien-moi] > summary');
+        chac(await bt2.$eval('#phan-y_nghia [data-phien-moi] pre', o => o.textContent.includes('[UX-TEST] Bản A')), 'không thấy bản A để đối chiếu');
+        await bam(bt2, '#phan-y_nghia [data-phien-moi] input[type=checkbox]');
+        await bamDoiTrang(bt2, '#phan-y_nghia button[name=duyet][value="1"]');
+        chac(await coChu(bt2, 'Đã lưu phần bài.'), 'không lưu được sau khi đã đối chiếu');
+        const preview = await bt2.$eval('.phongdao-sua-lien a', a => { const u = new URL(a.parentElement.querySelectorAll('a')[1].href); return u.pathname + u.search; });
+        await di(bt, preview); await di(bt2, preview);
+        for (const tab of [bt, bt2]) await bam(tab, '[data-action=mo-tam][data-tam=y_nghia]');
+        await datO(bt, '#tam-y_nghia textarea[name=chu]', '[UX-TEST] Bản C sửa nhanh');
+        await bamDoiTrang(bt, '#tam-y_nghia button[name=duyet][value="1"]');
+        await datO(bt2, '#tam-y_nghia textarea[name=chu]', '[UX-TEST] Bản D sửa nhanh');
+        await bam(bt2, '#tam-y_nghia button[name=duyet][value="1"]');
+        await doi(bt2, () => !!document.querySelector('#tam-y_nghia [data-phien-moi]'), null, 'sửa nhanh không giữ hộp đối chiếu khi xung đột');
+        chac(await bt2.$eval('#tam-y_nghia textarea[name=chu]', o => o.value) === '[UX-TEST] Bản D sửa nhanh', 'sửa nhanh làm mất đầu vào');
+        await bam(bt2, '#tam-y_nghia [data-phien-moi] > summary');
+        await bam(bt2, '#tam-y_nghia [data-phien-moi] input[type=checkbox]');
+        await bamDoiTrang(bt2, '#tam-y_nghia button[name=duyet][value="1"]');
+        await di(bt, edit);
+        chac(await bt.$eval('#phan-y_nghia textarea[name=chu]', o => o.value) === '[UX-TEST] Bản D sửa nhanh', 'không lưu đúng bản đã chọn sau đối chiếu');
+      } finally { await bt2.close(); }
     });
   }
 } catch (e) {

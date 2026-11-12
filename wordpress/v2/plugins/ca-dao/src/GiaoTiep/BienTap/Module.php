@@ -117,6 +117,17 @@ final class Module implements \Phongdao\HaTang\Module {
 			return array( 'ok' => false, 'loi' => array( 'Phần này chưa sửa được ở đây.' ) );
 		}
 		$vao = (array) $yc->get_body_params();
+		$phien = is_string( $vao['phien_phan'] ?? null ) ? $vao['phien_phan'] : '';
+		$kq = LuuPhan::trong_phien( $id, $phan, $phien, static fn( ?array $cu ): array => self::doc_va_luu( $id, $phan, $vao, $cu ) );
+		if ( ! empty( $kq['xung_dot'] ) ) {
+			$kq['so_ban_moi'] = TamSua::doi_chieu_phien( $kq['hien_tai'], $kq['phien_moi'] );
+			unset( $kq['hien_tai'] );
+		}
+		return $kq;
+	}
+
+	/** Đọc form sau khi giữ khóa và so đúng bản đã mở. */
+	private static function doc_va_luu( int $id, string $phan, array $vao, ?array $cu ): array {
 		$loi_form = TamSua::loi_form( $phan, $vao );
 		if ( $loi_form ) {
 			return array( 'ok' => false, 'loi' => $loi_form, 'doi' => false, 'viec' => 0 );
@@ -124,7 +135,7 @@ final class Module implements \Phongdao\HaTang\Module {
 		if ( ! current_user_can( 'cadao_duyet' ) ) {
 			unset( $vao['duyet'] ); // chỉ người có quyền duyệt mới "hiện cho người đọc"; còn lại luôn là nháp
 		}
-		$doc = TamSua::doc( $phan, $vao, PhanBai::lay( $id, $phan ) );
+		$doc = TamSua::doc( $phan, $vao, $cu );
 		if ( null !== $doc['nhap'] ) {
 			$viec = Viec::tao(
 				array(
