@@ -90,6 +90,12 @@ final class SuaTacPham {
 		}
 		$sau = self::bai_sau( $id );
 		$phan_loi = sanitize_key( (string) ( $_GET['phan'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc form đã được giữ theo phiên
+		if ( isset( TamSua::TAM[ $phan_loi ] ) && in_array( $ket_qua, array( 'da_luu', 'khong_doi', 'nhap' ), true ) ) {
+			$bao .= ' Phần: ' . TamSua::nhan( $phan_loi, $loai ) . '.';
+			if ( 'da_luu' === $ket_qua ) {
+				$bao .= 'publish' === $bai->post_status ? ' Trang người đọc đã cập nhật.' : ' Bài chưa công khai; khách chưa thấy phần này.';
+			}
+		}
 		$form_loi = 'loi' === $ket_qua ? NhapDo::lay( (string) ( $_GET['nhap_do'] ?? '' ), $id, $phan_loi ) : null;
 		$ctx['form_loi'] = null !== $form_loi ? array( 'phan' => $phan_loi, 'vao' => $form_loi ) : null;
 		$ra  = '<div class="wrap phongdao-admin-sua"><h1>Sửa tác phẩm #' . $id . ': ' . esc_html( $bai->post_title ) . '</h1>';

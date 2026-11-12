@@ -155,7 +155,13 @@ final class Module implements \Phongdao\HaTang\Module {
 			return array( 'ok' => (bool) $viec, 'loi' => array(), 'viec' => 0, 'thong_bao' => 'Đã lưu nháp vào Hộp việc; người đọc chưa thấy.' );
 		}
 		$kq = LuuPhan::luu( $id, $phan, $doc['gia_tri'], self::nc() );
+		$loai = (string) \Phongdao\DichVu\DungTrang\DocBai::the_loai( get_post( $id ) );
+		$ten = TamSua::nhan( $phan, $loai );
+		$kq['loi'] = TamSua::nhan_loi( $phan, $kq['loi'], $loai );
 		$bao = $kq['ok'] ? ( $kq['doi'] ? 'Đã lưu.' : 'Không có gì thay đổi.' ) : '';
+		if ( $kq['ok'] && $kq['doi'] ) {
+			$bao .= ' Phần: ' . $ten . '. ' . ( 'publish' === get_post_status( $id ) ? 'Trang người đọc đã cập nhật.' : 'Bài chưa công khai; khách chưa thấy phần này.' );
+		}
 		if ( $kq['ok'] && 'chu_thich' === $phan ) {
 			// Từ không có trong lời: nhắc kiểm chính tả, vẫn lưu (chú thích chung) — D-105
 			$thieu = \Phongdao\MienDuLieu\TuKho::thieu( (array) ( PhanBai::lay( $id, 'loi' )['dong'] ?? array() ), array_column( (array) ( $doc['gia_tri']['muc'] ?? $doc['gia_tri'] ?? array() ), 'tu' ) );

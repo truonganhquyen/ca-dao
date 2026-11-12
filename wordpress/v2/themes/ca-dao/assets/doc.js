@@ -211,11 +211,13 @@
     const theo = h => pan.findIndex(p => h && (p.id === h || p.querySelector('#' + CSS.escape(h))));
     const tu = theo(location.hash.slice(1));
     mo(tu < 0 ? +ht.dataset.mo || 0 : tu);
+	const moForm = h => { if (h === 'cach-hieu-form') { const d = $('[data-form-cach-hieu]', ht); if (d) d.open = true; } };
+	moForm(location.hash.slice(1));
     nut.forEach((n, j) => n.addEventListener('click', () => mo(j)));
     $('[role=tablist]', ht).addEventListener('keydown', e => {
       const i = nut.indexOf(document.activeElement), k = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: nut.length - 1 }[e.key];
       if (i >= 0 && k !== undefined) { e.preventDefault(); mo((k + nut.length) % nut.length, true); }
     });
-    document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"]'); const i = a ? theo(a.getAttribute('href').slice(1)) : -1; if (i >= 0) mo(i); });
+    document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"]'); const h = a?.getAttribute('href').slice(1); const i = a ? theo(h) : -1; if (i >= 0) { mo(i); moForm(h); } });
   }
 })();
