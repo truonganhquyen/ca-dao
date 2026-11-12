@@ -24,6 +24,10 @@ final class Module implements \Phongdao\HaTang\Module {
 		add_action( 'admin_enqueue_scripts', array( self::class, 'nap_chung' ) );
 		add_action( 'admin_footer', array( self::class, 'thanh_duoi' ) );
 		add_filter( 'admin_body_class', array( self::class, 'lop_than' ) );
+		// Lối gốc WordPress của tác phẩm (danh sách, màn sửa, thêm mới) chuyển sang màn Phongdao; không ẩn menu nào (D-100, D-104)
+		add_action( 'load-edit.php', array( self::class, 'chuyen_loi_goc' ) );
+		add_action( 'load-post.php', array( self::class, 'chuyen_loi_goc' ) );
+		add_action( 'load-post-new.php', array( self::class, 'chuyen_loi_goc' ) );
 		add_action( 'transition_comment_status', array( self::class, 'binh_luan_doi' ), 10, 3 );
 		NguonCaiDat::dang_ky();
 		SuaTacPham::dang_ky();
@@ -218,6 +222,35 @@ final class Module implements \Phongdao\HaTang\Module {
 			$submenu[''] = array_values( array_filter( $submenu[''], static fn( $m ): bool => ! is_array( $m ) || ( $m[2] ?? '' ) !== $trang ) ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- chỉ bỏ màn ẩn đang mở khỏi danh sách tìm cha
 		}
 		return BanLamViec::TRANG;
+	}
+
+	/**
+	 * Đích Phongdao cho lối gốc WordPress của tác phẩm (báo cáo trinh sát lần 2 mục 5.3): `edit.php?post_type=tac_pham` →
+	 * Tác phẩm; `post.php?post=…&action=edit` của tác phẩm → Sửa tác phẩm; `post-new.php?post_type=tac_pham` → Thêm tác
+	 * phẩm. '' = không chuyển (loại bài khác, thao tác khác như thùng rác, khôi phục của WordPress).
+	 *
+	 * @param array<string,mixed> $q
+	 */
+	public static function dich_loi_goc( string $man, array $q ): string {
+		if ( 'edit.php' === $man && \Phongdao\HaTang\KhaiBao::TAC_PHAM === ( $q['post_type'] ?? '' ) && empty( $q['action'] ) && empty( $q['action2'] ) ) {
+			return admin_url( 'admin.php?page=' . DanhSachTacPham::TRANG );
+		}
+		if ( 'post-new.php' === $man && \Phongdao\HaTang\KhaiBao::TAC_PHAM === ( $q['post_type'] ?? '' ) ) {
+			return ThemTacPham::url();
+		}
+		$id = absint( $q['post'] ?? 0 );
+		if ( 'post.php' === $man && 'edit' === ( $q['action'] ?? '' ) && $id && \Phongdao\HaTang\KhaiBao::TAC_PHAM === get_post_type( $id ) ) {
+			return SuaTacPham::url( $id );
+		}
+		return '';
+	}
+
+	public static function chuyen_loi_goc(): void {
+		$dich = self::dich_loi_goc( (string) ( $GLOBALS['pagenow'] ?? '' ), wp_unslash( $_GET ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc để chuyển hướng
+		if ( '' !== $dich && 'GET' === ( $_SERVER['REQUEST_METHOD'] ?? 'GET' ) ) {
+			wp_safe_redirect( $dich );
+			exit;
+		}
 	}
 
 	/** Màn hiện tại là một màn Phongdao (có thanh dưới trên điện thoại) hay trang chào mừng WordPress. */

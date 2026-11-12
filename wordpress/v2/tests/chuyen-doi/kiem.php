@@ -246,7 +246,7 @@ kt( 'trang vè nhiều phần: bối cảnh, tiêu đề hai phần, đủ dòng
 kt( 'cảm nghĩ vẫn nối đúng bài (giữ ID)', 1 === (int) get_comments( array( 'post_id' => $id['a'], 'count' => true ) ) );
 kt( 'nhập xong: khách không còn thấy trang nâng cấp', 'xong' === get_option( NhapLam::TRANG_THAI ) && ! NhapLam::dang_nang_cap() );
 wp_set_current_user( 1 );
-$hv = do_blocks( '<!-- wp:cadao/hop-viec /-->' );
+$hv = implode( '', array_map( static fn( $v ) => \Phongdao\GiaoTiep\BienTap\HopViec::the( $v ), \Phongdao\KhoLuu\Viec::ds_cho( 200, 'can_xem' ) ) );
 kt( 'Hộp việc có thẻ Cần xem với nút "Đã xem, ổn rồi" và đường mở bài', str_contains( $hv, 'data-loai="can_xem"' ) && str_contains( $hv, 'Đã xem, ổn rồi' ) && str_contains( $hv, 'có khối «core/image»' ), $hv );
 wp_set_current_user( 0 );
 

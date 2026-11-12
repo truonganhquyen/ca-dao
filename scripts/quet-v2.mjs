@@ -132,7 +132,8 @@ try {
   }
   // Người biên soạn (D-094): đăng nhập rồi quét các trang biên tập và trang bài ở chế độ sửa (trợ năng, tràn ngang;
   // không tính ngân sách — mã sửa chỉ nạp cho người biên soạn). Bỏ qua thanh quản trị của WordPress khi chạy axe.
-  const DS_BIEN_TAP = ['/bien-tap/', '/bien-tap/tac-pham/', '/bien-tap/them/', '/bien-tap/so-lieu/', '/tu-dien/ben-mau-bac/', '/ca-dao/dong-mau-mot-cua-bai/', '/ve/ve-mau/']; // trang bài để cuối: bước sau mở tấm sửa trên trang cuối
+  // Trang `/bien-tap/…` đã gộp về wp-admin (chuyển hướng 301): Hộp việc, Tác phẩm, Thêm tác phẩm, Hôm nay quét ở phần wp-admin bên dưới.
+  const DS_BIEN_TAP = ['/tu-dien/ben-mau-bac/', '/ca-dao/dong-mau-mot-cua-bai/', '/ve/ve-mau/']; // trang bài để cuối: bước sau mở tấm sửa trên trang cuối
   const bt = await trinhDuyet.newPage();
   await bt.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
   if (!(await dangNhap(bt, G, 'quét v2'))) loi.push('không đăng nhập được người biên soạn');
@@ -147,7 +148,7 @@ try {
     await bt.evaluate(() => document.fonts.ready);
     const t = await doTran(bt);
     if (t) loi.push(`${duong} (biên tập): trang tràn ngang ${t}`);
-    if (!(await bt.$('.dai-bien-tap, .hv-dau, .ds-tp, .empty, [data-them-bai], .so-lieu, #sua-muc-tu'))) loi.push(`${duong} (biên tập): không thấy giao diện biên tập — đăng nhập hỏng?`);
+    if (!(await bt.$('.dai-bien-tap, #sua-muc-tu'))) loi.push(`${duong} (biên tập): không thấy giao diện biên tập — đăng nhập hỏng?`);
     await axeBt(duong);
     if (thuMucAnh) await bt.screenshot({ path: path.join(thuMucAnh, (duong.replace(/\W+/g, '-').replace(/^-|-$/g, '')) + '-bien-tap-390.png'), fullPage: true });
   }
@@ -190,7 +191,7 @@ try {
   // Hộp việc admin (có khối Làm theo lô khi còn thẻ Chờ), Thao tác hàng loạt (T-171), Máy đang làm (T-179), Hôm nay (T-180, T-189),
   // Bổ sung và khung "Phongdao hôm nay" ở trang chào mừng WordPress (T-189), danh sách Tác phẩm (T-187)
   // Hộp việc kiểu hộp thư (T-188) không còn bảng: kiểm khung danh sách + thẻ
-  for (const [duong, vung, can = 'table'] of [['/wp-admin/admin.php?page=phongdao-hop-viec', '.phongdao-admin-viec', '.phongdao-hv'], ['/wp-admin/admin.php?page=phongdao-lo', '.phongdao-admin-lo'], ['/wp-admin/admin.php?page=phongdao&the=may', '.phongdao-nguon'], ['/wp-admin/admin.php?page=phongdao-ban-lam-viec', '.phongdao-ban', '.phongdao-ban-so'], ['/wp-admin/admin.php?page=phongdao-bo-sung', '.phongdao-bo-sung'], ['/wp-admin/', '.phongdao-khung-wp', '.phongdao-ban-so'], ['/wp-admin/admin.php?page=phongdao-tac-pham', '.phongdao-admin-tp']]) {
+  for (const [duong, vung, can = 'table'] of [['/wp-admin/admin.php?page=phongdao-hop-viec', '.phongdao-admin-viec', '.phongdao-hv'], ['/wp-admin/admin.php?page=phongdao-lo', '.phongdao-admin-lo'], ['/wp-admin/admin.php?page=phongdao&the=may', '.phongdao-nguon'], ['/wp-admin/admin.php?page=phongdao-ban-lam-viec', '.phongdao-ban', '.phongdao-ban-so'], ['/wp-admin/admin.php?page=phongdao-bo-sung', '.phongdao-bo-sung'], ['/wp-admin/', '.phongdao-khung-wp', '.phongdao-ban-so'], ['/wp-admin/admin.php?page=phongdao-tac-pham', '.phongdao-admin-tp'], ['/wp-admin/admin.php?page=phongdao-them', '.phongdao-them', 'form[data-them-bai]']]) {
     const tl = await bt.goto(G + duong, { waitUntil: 'load', timeout: 120_000 });
     if (tl.status() !== 200 || !(await bt.$(`${vung} ${can}`))) { loi.push(`${duong}: không mở được`); continue; }
     const tran = await doTran(bt);

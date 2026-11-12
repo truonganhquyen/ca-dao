@@ -2,7 +2,7 @@
 
 Bạn thử ba việc thường làm trên màn quản trị mới (wp-admin → menu **Phongdao**). Thử trên điện thoại, rồi trên máy tính. Mỗi việc ghi lại vài dòng ngắn. Nhờ đó mình biết chỗ nào còn vướng để sửa trong đợt 3.
 
-Bạn đã chốt (11/11/2026): đợt 3 sẽ gộp các trang `/bien-tap/` về wp-admin; nút Sửa trên trang đọc vẫn giữ. Trong lúc làm đợt 3, mỗi phần mới có link bản xem trước để bạn thử trước khi lên site (kế hoạch: `docs/32-ke-hoach-dot-3.md`).
+Bạn đã chốt (11/11/2026): đợt 3 gộp các trang `/bien-tap/` về wp-admin (đã làm: đường dẫn cũ tự mở màn tương ứng trong wp-admin); nút Sửa trên trang đọc vẫn giữ, dải "Đang sửa" có thêm lối "Mở trang sửa đầy đủ". Trong lúc làm đợt 3, mỗi phần mới có link bản xem trước để bạn thử trước khi lên site (kế hoạch: `docs/32-ke-hoach-dot-3.md`).
 
 ## Thử ở đâu
 
