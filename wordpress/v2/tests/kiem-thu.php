@@ -3113,5 +3113,57 @@ kt( 'lỗi sau ghi meta/nhật ký trước bản tổng hợp: rollback cả ph
 wp_delete_post( $p_xd, true );
 wp_set_current_user( $ai_ql );
 
+// ---------- Ảnh minh hoạ: tệp thật, lưu chung, quyền, lịch sử và trang đọc ----------
+$AM = \Phongdao\KhoLuu\AnhMinhHoa::class;
+$anh_fixture = get_page_by_path( 'ux-test-anh-ky-thuat', OBJECT, 'attachment' );
+$anh_id = (int) ( $anh_fixture->ID ?? 0 );
+kt( 'ảnh mẫu 960×540 được tải tại site, có kích thước và cỡ đáp ứng', $anh_id && $AM::hop_le( $anh_id ) && 960 === wp_get_attachment_metadata( $anh_id )['width'] && str_contains( \Phongdao\GiaoTiep\Khoi\AnhMinhHoa::html( $anh_id ), 'srcset=' ) );
+$p_anh = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_title' => '[UX-TEST] Luồng ảnh', 'post_status' => 'draft' ) );
+wp_set_object_terms( $p_anh, 'ca-dao', KhaiBao::THE_LOAI );
+LuuPhan::luu( $p_anh, 'loi', array( 'dong' => array( '[UX-TEST] Dòng kỹ thuật' ), 'nguoi_lam' => NguoiLam::NGUOI_VIET ), array( 'nguoi' => $ai_ql, 'goi' => KiemPhan::GOI_NGUOI ) );
+$gui_anh = static function ( int $anh, ?string $phien = null ) use ( $p_anh ): array {
+	$r = new WP_REST_Request( 'POST' );
+	$r->set_body_params( array( 'attachment_id' => $anh, 'phien_phan' => $phien ?? LuuPhan::phien( $p_anh, 'media', PhanBai::lay( $p_anh, 'media' ) ) ) );
+	$r['id'] = $p_anh; $r['phan'] = 'media';
+	return \Phongdao\GiaoTiep\BienTap\Module::luu_phan( $r );
+};
+$phien_anh_trong = LuuPhan::phien( $p_anh, 'media', null );
+$luu_anh = $gui_anh( $anh_id );
+$tp_anh = \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_post( $p_anh ) );
+kt( 'gắn ảnh qua cùng dịch vụ, bản nháp giữ trạng thái; mapper và renderer có ảnh', $luu_anh['ok'] && 'draft' === get_post_status( $p_anh ) && $anh_id === $tp_anh['anh_minh_hoa'] && str_contains( TacPham::hien( $tp_anh ), 'phongdao-anh-minh-hoa' ) );
+$cu_anh = PhanBai::lay( $p_anh, 'media' );
+$sai_anh = $gui_anh( $p_anh );
+kt( 'ID không phải ảnh bị chặn, phần đang lưu giữ nguyên', ! $sai_anh['ok'] && $cu_anh === PhanBai::lay( $p_anh, 'media' ) );
+$bad_file = wp_upload_bits( 'ux-test-hong.png', null, 'UX-TEST khong phai du lieu anh' );
+$bad_id = (int) wp_insert_attachment( array( 'post_title' => '[UX-TEST] Tệp hỏng', 'post_mime_type' => 'image/png', 'post_status' => 'inherit' ), $bad_file['file'] );
+$bad_result = $gui_anh( $bad_id );
+kt( 'tệp gắn MIME ảnh nhưng không đọc được kích thước bị chặn trước ghi', ! $bad_result['ok'] && $cu_anh === PhanBai::lay( $p_anh, 'media' ) );
+wp_delete_attachment( $bad_id, true );
+$tab_anh_cu = $gui_anh( 0, $phien_anh_trong );
+kt( 'hai tab ảnh dùng bảo vệ phiên, tab cũ không gỡ ảnh mới', ! $tab_anh_cu['ok'] && ! empty( $tab_anh_cu['xung_dot'] ) && $cu_anh === PhanBai::lay( $p_anh, 'media' ) );
+wp_set_current_user( $chi_soan );
+$cam_anh = $gui_anh( 0 );
+kt( 'người không có quyền tải tệp không lưu thay ảnh', ! $cam_anh['ok'] && $cu_anh === PhanBai::lay( $p_anh, 'media' ) );
+wp_set_current_user( $ai_ql );
+$bo_anh = $gui_anh( 0 );
+kt( 'bỏ ảnh chỉ gỡ liên kết, tệp vẫn tồn tại trong Thư viện', $bo_anh['ok'] && null === PhanBai::lay( $p_anh, 'media' ) && $AM::hop_le( $anh_id ) );
+$phuc_anh = LuuPhan::khoi_phuc( $bo_anh['viec'], array( 'nguoi' => $ai_ql, 'goi' => KiemPhan::GOI_NGUOI ) );
+kt( 'khôi phục từ lịch sử đưa lại đúng ảnh, so sánh thấy ID tệp trước/sau', $phuc_anh['ok'] && $anh_id === $AM::id( PhanBai::lay( $p_anh, 'media' ) ) && str_contains( implode( "\n", \Phongdao\MienDuLieu\SoSanh::dong( $cu_anh ) ), 'Tệp trong Thư viện (ID): ' . $anh_id ) );
+$media_khac = array( 'muc' => array( array( 'attachment_id' => 98765, 'loai' => 'giong_nguoi' ), array( 'attachment_id' => $anh_id, 'loai' => 'anh' ) ) );
+$doc_bo_anh = \Phongdao\GiaoTiep\BienTap\TamSua::doc( 'media', array( 'attachment_id' => '0' ), $media_khac );
+kt( 'form quản lý một ảnh giữ nguyên media loại khác', array( array( 'attachment_id' => 98765, 'loai' => 'giong_nguoi' ) ) === $doc_bo_anh['gia_tri'] );
+update_post_meta( $anh_id, $AM::GHI_CONG, '[UX-TEST] <script>alert(1)</script> https://example.org/credit' );
+$html_anh = \Phongdao\GiaoTiep\Khoi\AnhMinhHoa::html( $anh_id );
+kt( 'ghi công hiện đúng chỗ, escape chữ và giữ đường dẫn; alt không lấy từ tên tệp', str_contains( $html_anh, '&lt;script&gt;' ) && ! str_contains( $html_anh, '<script>' ) && str_contains( $html_anh, 'href="https://example.org/credit"' ) && str_contains( $html_anh, 'alt="[UX-TEST] Lưới chữ nhật hai màu"' ) );
+delete_post_meta( $anh_id, $AM::GHI_CONG );
+$tp_anh['the_loai'] = 'cau-do'; $tp_anh['dap_an'] = '[UX-TEST] Đáp án';
+$h_do_anh = TacPham::hien( $tp_anh );
+$d_anh = new DOMDocument(); @$d_anh->loadHTML( '<?xml encoding="UTF-8">' . $h_do_anh );
+$xp_anh = new DOMXPath( $d_anh );
+kt( 'ảnh câu đố chỉ nằm trong details đáp án đang đóng, không lộ ở phần trước', 1 === $xp_anh->query( '//details[@class="answer" and not(@open)]//figure[@class="phongdao-anh-minh-hoa"]' )->length && 1 === $xp_anh->query( '//figure[@class="phongdao-anh-minh-hoa"]' )->length );
+$tp_anh['dap_an'] = '';
+kt( 'câu đố chưa có đáp án không đưa ảnh ra ngoài', ! str_contains( TacPham::hien( $tp_anh ), 'phongdao-anh-minh-hoa' ) );
+wp_delete_post( $p_anh, true );
+
 $tong = $GLOBALS['v2_dat'] + $GLOBALS['v2_hong'];
 ra( "\nKẾT QUẢ: " . ( $GLOBALS['v2_hong'] ? "HỎNG {$GLOBALS['v2_hong']} / $tong" : "ĐẠT $tong" ) );

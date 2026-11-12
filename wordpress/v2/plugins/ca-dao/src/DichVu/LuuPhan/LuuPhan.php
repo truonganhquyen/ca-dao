@@ -76,6 +76,9 @@ final class LuuPhan {
 		if ( $loi ) {
 			return self::hong( ...$loi );
 		}
+		if ( 'media' === $phan && ( $loi_anh = self::kiem_anh( $sach ) ) ) {
+			return self::hong( $loi_anh );
+		}
 		$truoc = PhanBai::lay( $bai->ID, $phan );
 		if ( KiemPhan::noi_dung( $truoc ) === $sach ) {
 			return self::xong( false, 0 );
@@ -110,6 +113,9 @@ final class LuuPhan {
 			return self::hong( 'Bài của lần sửa này không còn.' );
 		}
 		$cu = is_array( $viec['truoc'] ) ? $viec['truoc'] : null;
+		if ( 'media' === $phan && ( $loi_anh = self::kiem_anh( $cu ) ) ) {
+			return self::hong( $loi_anh );
+		}
 		[ , $loi ] = KiemPhan::kiem( $phan, KiemPhan::noi_dung( $cu ), self::ngu_canh_kiem( $bai, $nc ) );
 		if ( $loi ) {
 			return self::hong( ...$loi );
@@ -176,6 +182,15 @@ final class LuuPhan {
 		/** Sau khi lưu một phần: dựng lại chỉ mục tìm, xoá đệm của bài (T-144, T-152). */
 		do_action( 'phongdao_da_luu_phan', $bai->ID, $phan, $viec );
 		return self::xong( true, $viec );
+	}
+
+	private static function kiem_anh( ?array $media ): string {
+		foreach ( $media['muc'] ?? array() as $m ) {
+			if ( 'anh' === ( $m['loai'] ?? '' ) && ! \Phongdao\KhoLuu\AnhMinhHoa::hop_le( (int) $m['attachment_id'] ) ) {
+				return 'Ảnh không còn hoặc định dạng chưa dùng được. Chọn một ảnh JPEG, PNG, GIF, WebP hoặc AVIF đã tải vào Thư viện của site.';
+			}
+		}
+		return '';
 	}
 
 	private static function nc( array $nc ): array {

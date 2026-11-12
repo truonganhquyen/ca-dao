@@ -198,6 +198,7 @@ final class GieoMau {
 	/** @return array<string,int> tên đường dẫn => ID các tác phẩm mẫu (đã có thì giữ) */
 	public static function gieo( int $nguoi ): array {
 		$ra = array();
+		$anh = self::anh_mau();
 		foreach ( self::BAI as $ten => $bai ) {
 			$co = get_page_by_path( $ten, OBJECT, KhaiBao::TAC_PHAM );
 			if ( $co ) {
@@ -224,7 +225,31 @@ final class GieoMau {
 				LuuPhan::luu( $id, $phan, $gia_tri, array( 'nguoi' => $nguoi, 'goi' => KiemPhan::GOI_NGUOI, 'duyet' => true ) );
 			}
 			$ra[ $ten ] = $id;
+			if ( $anh ) {
+				LuuPhan::luu( $id, 'media', array( array( 'attachment_id' => $anh, 'loai' => 'anh' ) ), array( 'nguoi' => $nguoi, 'goi' => KiemPhan::GOI_NGUOI ) );
+			}
 		}
 		return $ra;
+	}
+
+	/** Ảnh lưới kỹ thuật trong blueprint; không phải ảnh minh hoạ văn hoá hoặc một xác nhận bản quyền. */
+	private static function anh_mau(): int {
+		$co = get_page_by_path( 'ux-test-anh-ky-thuat', OBJECT, 'attachment' );
+		if ( $co ) {
+			return (int) $co->ID;
+		}
+		$tep = dirname( __DIR__, 3 ) . '/du-lieu-mau/anh-ky-thuat.png';
+		if ( ! is_file( $tep ) ) {
+			return 0;
+		}
+		$upload = wp_upload_bits( 'ux-test-anh-ky-thuat.png', null, file_get_contents( $tep ) );
+		if ( $upload['error'] ) {
+			return 0;
+		}
+		$id = (int) wp_insert_attachment( array( 'post_title' => '[UX-TEST] Ảnh lưới kỹ thuật', 'post_name' => 'ux-test-anh-ky-thuat', 'post_mime_type' => 'image/png', 'post_excerpt' => '[UX-TEST] Ảnh kiểm giao diện, không phải tư liệu văn hoá.', 'post_status' => 'inherit' ), $upload['file'] );
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+		wp_update_attachment_metadata( $id, wp_generate_attachment_metadata( $id, $upload['file'] ) );
+		update_post_meta( $id, '_wp_attachment_image_alt', '[UX-TEST] Lưới chữ nhật hai màu' );
+		return $id;
 	}
 }

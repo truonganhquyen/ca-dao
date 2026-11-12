@@ -587,7 +587,14 @@ final class SuaTacPham {
 				default => '<li class="giu"><span aria-hidden="true">  </span>' . $chu . '</li>',
 			};
 		}
-		return '<details class="phongdao-so-sanh"><summary>Xem trước/sau</summary><ul>' . $o . '</ul></details>';
+		$anh = '';
+		if ( 'media' === ( $r['phan'] ?? '' ) ) {
+			foreach ( array( 'truoc' => 'Ảnh trước', 'sau' => 'Ảnh sau' ) as $key => $label ) {
+				$id = \Phongdao\KhoLuu\AnhMinhHoa::id( $r[ $key ] );
+				$anh .= '<div><strong>' . $label . '</strong>' . ( $id ? \Phongdao\GiaoTiep\Khoi\AnhMinhHoa::html( $id ) : '<p>Không gắn ảnh.</p>' ) . '</div>';
+			}
+		}
+		return '<details class="phongdao-so-sanh"><summary>Xem trước/sau</summary><ul>' . $o . '</ul>' . $anh . '</details>';
 	}
 
 	/** Nút "Khôi phục bản trước": kiểm quyền trên bài của lần sửa và nonce từng dòng; ghi qua LichSu. */

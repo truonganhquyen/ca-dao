@@ -86,6 +86,7 @@ final class TrangTacPham {
 				)
 			),
 			'hinh_anh_ai'  => ! empty( $phan['hinh_anh']['ai'] ),
+			'anh_minh_hoa' => (int) ( array_values( array_filter( $phan['media']['muc'] ?? array(), static fn( array $m ): bool => 'anh' === ( $m['loai'] ?? '' ) ) )[0]['attachment_id'] ?? 0 ),
 			'dap_an'       => (string) ( $phan['dap_an']['chu'] ?? '' ),
 			'goi_y'        => (string) ( $phan['goi_y']['chu'] ?? '' ),
 			'cau_hoi'      => (string) ( $phan['cau_hoi']['chu'] ?? '' ),
