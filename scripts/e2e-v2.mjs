@@ -322,7 +322,7 @@ try {
       const href = await bt.$eval('#wpbody-content a[href*="/cau-do/cau-do-mau/"]', e => e.href).catch(() => '');
       chac(href, 'danh sách Câu đố thiếu giải thích không có câu đố mẫu');
       await bt.goto(href, { waitUntil: 'load', timeout: 120_000 });
-      chac(await bt.$('button[data-tam="y_nghia"]') && await coChu(bt, 'Thêm ý nghĩa'), 'trang câu đố không cho người biên soạn thêm Ý nghĩa');
+      chac(await bt.$('button[data-tam="y_nghia"]') && await coChu(bt, 'Thêm giải thích đáp án'), 'trang câu đố không cho người biên soạn thêm Giải thích đáp án');
       await di(k, T.cauDo);
       chac(!(await k.$('button[data-tam="y_nghia"]')) && !(await coChu(k, 'Bài đang được bổ sung ý nghĩa')) && !(await coChu(k, 'Câu này chưa có lời giải nghĩa')), 'khách thấy điều khiển hoặc lời nhắc thiếu Ý nghĩa');
     });
@@ -841,6 +841,8 @@ try {
       await bamDoiTrang(bt, 'button[name=lam][value=ap_dung]');
       chac(await coChu(bt, 'Lô đã chạy xong.') && await coChu(bt, 'Thành công 1'), 'lô sửa từng hàng không thành công');
       await di(k, T.cauDo);
+      // Câu đố: giải nghĩa là "Giải thích đáp án", nằm trong khối "Hiện đáp án" — mở khối như người đọc rồi mới đọc
+      await k.$eval('details.answer', d => { d.open = true; }).catch(() => {});
       chac(await coChu(k, moi), 'người đọc không thấy Ý nghĩa vừa duyệt theo lô');
     });
 
