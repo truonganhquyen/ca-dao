@@ -15,7 +15,7 @@ use Phongdao\MienDuLieu\VanTay;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Thêm bài `/bien-tap/them/` (docs/28 mục 4.4; màn mẫu B04): chọn thể loại, dán lời, máy nhận thể thơ và báo trùng
+ * Thêm bài (nhận form của màn Thêm tác phẩm trong wp-admin — D-104; docs/28 mục 4.4; màn mẫu B04): chọn thể loại, dán lời, máy nhận thể thơ và báo trùng
  * (chỉ báo, không chặn — D-054), Lưu nháp hoặc Đăng; xong mở trang bài để sửa tiếp. Form gửi `admin-post.php`.
  */
 final class ThemBai {
@@ -24,23 +24,6 @@ final class ThemBai {
 
 	public static function dang_ky(): void {
 		add_action( 'admin_post_' . self::HANH_DONG, array( self::class, 'nhan_form' ) );
-	}
-
-	public static function hien(): string {
-		$da   = sanitize_text_field( wp_unslash( (string) ( $_GET['da'] ?? '' ) ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc
-		$loai = '';
-		foreach ( TheLoai::DS as $ma => $ten ) {
-			$loai .= '<label class="chip-chon"><input type="radio" name="the_loai" value="' . esc_attr( $ma ) . '"' . checked( 'ca-dao', $ma, false ) . '><span>' . esc_html( $ten ) . '</span></label>';
-		}
-		return '<p class="eyebrow">Biên tập</p><h1>Thêm bài</h1>' . ( '' === $da ? '' : '<p class="notice" role="status">' . esc_html( $da ) . '</p>' )
-			. '<form class="them-bai" method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" data-them-bai><input type="hidden" name="action" value="' . self::HANH_DONG . '">' . wp_nonce_field( self::HANH_DONG, '_wpnonce', true, false )
-			. '<fieldset class="nhom-o"><legend>Thể loại</legend><div class="row">' . $loai . '</div></fieldset>'
-			. '<div class="o-nhap"><label for="them-loi">Lời · dán vào, mỗi dòng một câu <span class="small muted">không sửa theo trí nhớ</span></label><textarea id="them-loi" name="loi" rows="8" required></textarea></div>'
-			. '<div id="them-phan-tich" class="phan-tich" aria-live="polite"><p class="small muted">Dán lời để máy nhận thể thơ và kiểm trùng.</p></div>'
-			. '<div class="o-nhap"><label for="them-ten">Tên bài <span class="small muted">để trống = dòng đầu</span></label><input id="them-ten" name="ten" type="text"></div>'
-			. '<div class="o-nhap"><label for="them-nguon">Nguồn <span class="small muted">sách, trang, đường dẫn, hoặc người kể (cần đồng ý) — không bắt buộc</span></label><input id="them-nguon" name="nguon" type="text"></div>'
-			. '<div class="actions"><button type="submit" name="dang" value="0" class="btn primary">Lưu nháp</button>' . ( current_user_can( 'cadao_duyet' ) ? '<button type="submit" name="dang" value="1" class="btn">Đăng ngay</button>' : '' ) . '</div>'
-			. '<p class="small muted">Lưu nháp rồi sửa tiếp ngay trên trang bài (ý nghĩa, từ khó, chủ đề). Không bắt buộc đủ phần mới được đăng.</p></form>';
 	}
 
 	public static function nhan_form(): void {
@@ -60,7 +43,7 @@ final class ThemBai {
 		// Gửi từ màn Thêm tác phẩm trong wp-admin: lỗi thì về lại đó, lưu xong mở trang Sửa tác phẩm
 		$quan_tri = 'quan_tri' === ( $_POST['tu'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification -- nonce đã kiểm trên
 		if ( ! $kq['ok'] ) {
-			wp_safe_redirect( add_query_arg( 'da', rawurlencode( 'Chưa lưu: ' . implode( ' ', $kq['loi'] ) ), $quan_tri ? \Phongdao\GiaoTiep\QuanTri\ThemTacPham::url() : home_url( '/bien-tap/them/' ) ) );
+			wp_safe_redirect( add_query_arg( 'da', rawurlencode( 'Chưa lưu: ' . implode( ' ', $kq['loi'] ) ), \Phongdao\GiaoTiep\QuanTri\ThemTacPham::url() ) );
 			exit;
 		}
 		if ( $quan_tri ) {

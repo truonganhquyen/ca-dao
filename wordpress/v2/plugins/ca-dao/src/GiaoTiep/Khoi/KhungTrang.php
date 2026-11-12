@@ -69,7 +69,7 @@ final class KhungTrang {
 			. '<nav class="desktop-nav" aria-label="Điều hướng chính">' . $menu . '</nav>'
 			. '<form class="header-search" role="search" action="' . esc_url( Ve::url( 'tim' ) ) . '"><label class="sr-only" for="header-q">Tìm trong thư viện</label><input id="header-q" name="q" placeholder="Tìm câu, từ…" type="search"></form>'
 			. ( self::bien_tap()
-				? Ve::lien_ket( 'bien-tap', Ve::icon( 'check' ) . ' Hộp việc <span class="dem">' . \Phongdao\KhoLuu\Viec::dem_cho() . '</span>', 'btn compact ghost header-saved' )
+				? Ve::lien_ket( 'bien-tap', Ve::icon( 'check' ) . ' Hộp việc <span class="dem">' . \Phongdao\KhoLuu\Viec::dem_hop_viec() . '</span>', 'btn compact ghost header-saved' )
 				: Ve::lien_ket( 'da-luu', Ve::icon( 'save' ) . ' Đã lưu', 'btn compact ghost header-saved' ) )
 			. Ve::lien_ket( 'tim', Ve::icon( 'search' ) . ' Tìm', 'btn compact ghost mobile-search' )
 			. '<button type="button" class="btn compact" data-action="theme" aria-label="Đổi sáng tối">' . Ve::icon( 'sun' ) . '</button>'

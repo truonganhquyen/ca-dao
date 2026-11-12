@@ -17,7 +17,7 @@
 | Tài sản giữ | Thuật toán đã kiểm chứng được chuyển sang cấu trúc mới kèm kiểm thử (mục 12) |
 | Dữ liệu | Mỗi phần của bài lưu trong bài (post meta có schema), kèm người làm và nguồn; một bảng mới `wp_cadao_viec` cho việc chờ và nhật ký (D-084, D-094) |
 | Trang người đọc | Theme khối 1.0 + khối động `cadao/*` render trên máy chủ + JavaScript thuần nhỏ |
-| Quản trị | wp-admin là nơi làm việc (D-096, D-100); ba dòng việc Bài mới · Hộp việc · Bổ sung (D-103); sửa nhanh trên trang đọc giữ; `/bien-tap/` chuyển về wp-admin ở đợt 3 (D-104, `docs/32`); một đường kiểm/lưu; không Gutenberg cho tác phẩm |
+| Quản trị | wp-admin là nơi làm việc (D-096, D-100); ba dòng việc Bài mới · Hộp việc · Bổ sung (D-103); sửa nhanh trên trang đọc giữ; `/bien-tap/` đã gộp về wp-admin (D-104, `docs/32`; chuyển hướng 301); một đường kiểm/lưu; không Gutenberg cho tác phẩm |
 | Việc nền | WP-Cron theo lô (như MVP) + cron thật của máy chủ |
 | Không làm | Headless, Next.js, Astro, Meilisearch / Elasticsearch, Action Scheduler, React / bước dựng JavaScript, thư viện JavaScript ngoài, tài khoản người đọc |
 
@@ -73,7 +73,7 @@ wordpress/v2/plugins/ca-dao/
 │   │   ├── Rest/        phongdao/v1 (mục 5)
 │   │   ├── Khoi/        đăng ký khối cadao/* (thư mục khoi/)
 │   │   ├── Cli/         wp phongdao …
-│   │   ├── BienTap/     trang /bien-tap/…, nạp mã sửa cho người có quyền, chế độ sửa trên trang đọc
+│   │   ├── BienTap/     thẻ Hộp việc, nhận form Thêm bài, nạp mã sửa cho người có quyền, chế độ sửa trên trang đọc
 │   │   └── QuanTri/     trang Nguồn & cài đặt (PHP), ẩn menu thừa
 │   └── HaTang/          KhaiBao (loại bài, phân loại, khoá meta, đường dẫn), CaiDat (bảng, nâng cấp CSDL), LichChay, BoNhoDem, AnToan, ChuyenHuong
 ├── khoi/<ten>/          block.json, render.php, style.css, view.js (nếu cần)
@@ -224,7 +224,7 @@ Mọi route biên tập: `permission_callback` kiểm quyền riêng + nonce RES
 - **wp-admin là nơi làm việc** (D-096, D-100): menu Phongdao theo ba dòng việc **Hôm nay · Bài mới · Hộp việc · Bổ sung · Tác phẩm · Nguồn & cài đặt**; đăng nhập vào Hôm nay (`page=phongdao-ban-lam-viec`, giữ đường dẫn cũ của Bàn làm việc); trang chào mừng WordPress có khung "Phongdao hôm nay" (móc `load-index.php` → `admin_notices`). Màn con (Sửa tác phẩm, Thao tác hàng loạt) không lên menu nhưng menu vẫn mở và tô đúng mục (`QuanTri\Module::muc_cha`). Ba dòng việc **Bài mới · Hộp việc · Bổ sung** (D-103); hiện trạng màn và đích đợt 3: `docs/28` mục 4, `docs/32`.
 - **Mã:** `GiaoTiep\QuanTri` (Hôm nay `BanLamViec`, Bài mới `DanhSachKho`, Hộp việc, Bổ sung `BoSung`, Tác phẩm, Sửa tác phẩm, Thao tác hàng loạt, Nguồn & cài đặt) gọi cùng dịch vụ với trang đọc: `DichVu\LuuPhan` + `MienDuLieu\KiemPhan` (mọi lần lưu một phần), `DichVu\XepViec\QuyetViec` (quyết thẻ), `DichVu\XuLyLo\Lo` (thao tác hàng loạt: chốt phạm vi → xem trước → áp dụng từng lượt, kết quả từng mục), `DichVu\LuuPhan\LichSu` (so trước/sau, khôi phục). Form gửi `admin-post.php`, có nonce, kiểm quyền, kiểm phiên.
 - **Sửa nhanh trên trang đọc** giữ (D-094, D-104): nút Sửa trên từng khối, tấm sửa, dải "Đang sửa" (trạng thái, Ẩn / Đăng, Xem như người đọc); `bien-tap.js` thuần, chỉ nạp cho người có `cadao_soan`; khách không bao giờ nhận các phần sửa.
-- **`/bien-tap/…`** (Hộp việc, Duyệt từng thẻ, Tác phẩm, Số liệu tuần, Thêm bài): còn chạy tới khi đợt 3 chuyển về wp-admin (D-104).
+- **`/bien-tap/…`** đã gộp về wp-admin (D-104, plugin 1.0.49): `TrangCoDinh\Module::dich_quan_tri()` chuyển hướng 301 — `/bien-tap/` → Hộp việc (giữ `viec`, `loai`, `tt=de_sau`), `/bien-tap/tac-pham/` → Tác phẩm (`loc=thieu-y-nghia` → `muc=thieu_y_nghia`, `loc=ban-nhap` → `tt=draft`, `q`), `/bien-tap/them/` → Thêm tác phẩm, `/bien-tap/so-lieu/` → Hôm nay; wp-admin tự đòi đăng nhập. Khối `cadao/hop-viec`, `ds-tac-pham`, `them-bai`, `so-lieu-tuan` và bốn mẫu trang biên tập của theme đã gỡ. Lối gốc WordPress của tác phẩm (`edit.php?post_type=tac_pham`, `post.php?action=edit`, `post-new.php?post_type=tac_pham`) chuyển sang Tác phẩm / Sửa tác phẩm / Thêm tác phẩm (`QuanTri\Module::dich_loi_goc()`; thùng rác, khôi phục và loại bài khác giữ nguyên); menu WordPress không ẩn (D-100).
 - **Bộ nhớ đệm:** trang của người đăng nhập trả `Cache-Control: private, no-store`; đệm transient của khối chỉ dùng cho khách; lưu một phần xoá đệm của bài đó.
 - **Giao diện quản trị:** PHP dựng HTML, JavaScript thuần nhỏ theo màn (`assets/admin-*.js`), không ứng dụng React, không bước dựng; điện thoại 390 px trước, WCAG 2.2 AA (`quet:v2` quét các màn admin chính). Không ẩn menu WordPress với vai nào (D-100).
 - Tác phẩm không mở sửa trực tiếp post meta mảng qua ô Trường tuỳ chỉnh hay REST mặc định; `show_in_menu` của `tac_pham` tắt — đợt 3 chuyển hướng danh sách và màn sửa gốc của WordPress sang màn Phongdao (D-104).

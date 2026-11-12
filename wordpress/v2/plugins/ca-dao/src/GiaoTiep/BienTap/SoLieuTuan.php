@@ -15,7 +15,7 @@ use Phongdao\MienDuLieu\TheLoai;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Số liệu tuần `/bien-tap/so-lieu/` (docs/28 mục 4.6; màn mẫu B05): số bài, theo thể loại, theo cấp L0–L3, việc chờ, kho,
+ * Số liệu tuần (nay hiện ở màn Hôm nay trong wp-admin — D-104; docs/28 mục 4.6; màn mẫu B05): số bài, theo thể loại, theo cấp L0–L3, việc chờ, kho,
  * kèm "Nên làm tuần này". Lượt đọc, câu tìm không ra, sao chép, chia sẻ thêm khi có phần đo lường. Không định danh người đọc.
  */
 final class SoLieuTuan {
@@ -40,34 +40,6 @@ final class SoLieuTuan {
 			$thieu += null === PhanBai::lay( (int) $id, 'y_nghia' ) ? 1 : 0;
 		}
 		return array( 'bai' => count( $ids ), 'cap' => $cap, 'thieu' => $thieu, 'kho' => (int) ( Kho::dem()['moi'] ?? 0 ) );
-	}
-
-	public static function hien(): string {
-		$so    = self::so();
-		$cap   = $so['cap'];
-		$thieu = $so['thieu'];
-		$viec  = Viec::dem_cho();
-		$o     = '';
-		foreach ( array( array( 'book', $so['bai'], 'tác phẩm đã đăng' ), array( 'check', $cap[2] + $cap[3], 'bài đủ cấp L2 (lên Google khi mở)' ), array( 'calendar', $viec, 'việc đang chờ' ), array( 'layers', $so['kho'], 'câu trong kho chưa xử lý' ) ) as [ $hinh, $so_o, $nhan ] ) {
-			$o .= '<div class="tile g-dip"><span class="entry-icon">' . Ve::icon( $hinh ) . '</span><strong class="so-to">' . number_format( (int) $so_o, 0, ',', '.' ) . '</strong><span>' . esc_html( $nhan ) . '</span></div>';
-		}
-		$the_loai = '';
-		foreach ( DuLieuTrangChu::so_bai_the_loai() as $ma => $n ) {
-			$the_loai .= '<tr><th scope="row">' . esc_html( TheLoai::DS[ $ma ] ) . '</th><td>' . (int) $n . '</td></tr>';
-		}
-		$bang_cap = '';
-		foreach ( array( 'L0 · có lời', 'L1 · có thể loại', 'L2 · có ý nghĩa', 'L3 · có đối chiếu sách / bối cảnh' ) as $i => $nhan ) {
-			$bang_cap .= '<tr><th scope="row">' . esc_html( $nhan ) . '</th><td>' . (int) $cap[ $i ] . '</td></tr>';
-		}
-		return '<p class="eyebrow">Biên tập</p><h1>Số liệu tuần</h1><div class="tiles so-lieu">' . $o . '</div>'
-			. '<section class="section"><h2>Nên làm tuần này</h2><ol class="nen-lam">'
-			. ( $thieu ? '<li><strong>Viết ý nghĩa cho ' . (int) $thieu . ' bài còn thiếu</strong> — <a href="' . esc_url( home_url( '/bien-tap/tac-pham/?loc=thieu-y-nghia' ) ) . '">mở danh sách</a></li>' : '' )
-			. ( $viec ? '<li><strong>' . (int) $viec . ' việc chờ quyết</strong> — <a href="' . esc_url( home_url( '/bien-tap/' ) ) . '">mở Hộp việc</a></li>' : '' )
-			. '<li><strong>Thêm câu người đọc cần</strong> — <a href="' . esc_url( home_url( '/bien-tap/them/' ) ) . '">Thêm bài</a></li></ol></section>'
-			. '<section class="section"><h2>Theo thể loại</h2><table class="bang-so"><tbody>' . $the_loai . '</tbody></table></section>'
-			. '<section class="section"><h2>Theo cấp chất lượng</h2><table class="bang-so"><tbody>' . $bang_cap . '</tbody></table><p class="small muted">Cấp tính tự động, chỉ người biên soạn thấy, không chặn đăng.</p></section>'
-			. self::doc_7_ngay()
-			. '<p class="small muted">Lượt đọc đếm khi trang bài hiện 5 giây, mỗi máy một lần mỗi ngày; lượt người biên soạn đang đăng nhập không tính. Không định danh người đọc: không cookie, không lưu địa chỉ mạng.</p>';
 	}
 
 	/**

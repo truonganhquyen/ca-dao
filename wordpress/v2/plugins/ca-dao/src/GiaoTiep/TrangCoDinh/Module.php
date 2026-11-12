@@ -36,6 +36,26 @@ final class Module implements \Phongdao\HaTang\Module {
 		return str_starts_with( self::dang_xem(), 'bien-tap' );
 	}
 
+	/**
+	 * Màn wp-admin thay cho một trang `/bien-tap/…` cũ (D-104): Hộp việc (giữ `viec`, `loai`, `tt` Để sau), Tác phẩm (bộ lọc
+	 * "thiếu ý nghĩa" → `muc=thieu_y_nghia`), Thêm tác phẩm, Hôm nay (Số liệu tuần).
+	 *
+	 * @param array<string,mixed> $q tham số trên đường dẫn cũ
+	 */
+	public static function dich_quan_tri( string $trang, array $q ): string {
+		$di = static fn( string $p, array $them = array() ): string => add_query_arg( array( 'page' => $p ) + array_filter( $them, static fn( $v ) => '' !== (string) $v ), admin_url( 'admin.php' ) );
+		switch ( $trang ) {
+			case 'bien-tap/tac-pham':
+				return $di( 'phongdao-tac-pham', array( 'muc' => 'thieu-y-nghia' === ( $q['loc'] ?? '' ) ? 'thieu_y_nghia' : '', 'tt' => 'ban-nhap' === ( $q['loc'] ?? '' ) ? 'draft' : '', 'q' => rawurlencode( sanitize_text_field( (string) ( $q['q'] ?? '' ) ) ) ) );
+			case 'bien-tap/them':
+				return $di( 'phongdao-them' );
+			case 'bien-tap/so-lieu':
+				return $di( 'phongdao-ban-lam-viec' );
+			default:
+				return $di( 'phongdao-hop-viec', array( 'viec' => absint( $q['viec'] ?? 0 ) ?: '', 'loai' => sanitize_key( (string) ( $q['loai'] ?? '' ) ), 'tt' => 'de_sau' === ( $q['tt'] ?? '' ) ? 'de_sau' : '' ) );
+		}
+	}
+
 	public const BIEN = 'phongdao_trang';
 
 	public function dang_ky(): void {
@@ -59,6 +79,18 @@ final class Module implements \Phongdao\HaTang\Module {
 				}
 			},
 			2
+		);
+		// Trang biên tập `/bien-tap/…` đã gộp về wp-admin (D-104): chuyển hướng 301 sang màn tương ứng (giữ thẻ, loại việc,
+		// bộ lọc thiếu ý nghĩa); wp-admin tự đòi đăng nhập
+		add_action(
+			'template_redirect',
+			static function (): void {
+				if ( self::la_bien_tap() ) {
+					wp_safe_redirect( self::dich_quan_tri( self::dang_xem(), wp_unslash( $_GET ) ), 301 ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc để chuyển hướng
+					exit;
+				}
+			},
+			0
 		);
 		// Trang biên tập: chưa đăng nhập → trang đăng nhập rồi quay lại; không đủ quyền → 403
 		add_action(

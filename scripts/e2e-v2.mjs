@@ -295,10 +295,30 @@ try {
     chac(await dangNhap(bt, G, TEN), 'không đăng nhập được người biên soạn');
     const yNghia = 'Ý nghĩa thử đầu-cuối do người biên soạn viết.';
 
-    await thu('Câu đố thiếu Ý nghĩa: bộ lọc dẫn tới nút Thêm ý nghĩa, khách không thấy lời nhắc thiếu', async () => {
-      await di(bt, '/bien-tap/tac-pham/?loc=thieu-y-nghia');
-      const href = await bt.$eval('.ds-tp a.dtp-lien-ket[href*="/cau-do/cau-do-mau/"]', e => e.href).catch(() => '');
-      chac(href, 'bộ lọc Thiếu ý nghĩa không có câu đố mẫu');
+    await thu('Trang biên tập cũ /bien-tap/… chuyển về wp-admin; lối gốc WordPress của tác phẩm mở màn Phongdao', async () => {
+      const den = async (duong, page, them = {}) => {
+        await di(bt, duong);
+        const u = new URL(bt.url());
+        chac(u.pathname.endsWith('/wp-admin/admin.php') && u.searchParams.get('page') === page && Object.entries(them).every(([k2, v]) => u.searchParams.get(k2) === v), `${duong} không mở ${page} (${bt.url()})`);
+      };
+      await den('/bien-tap/', 'phongdao-hop-viec');
+      await den('/bien-tap/?loai=nguoi_doc&tt=de_sau', 'phongdao-hop-viec', { loai: 'nguoi_doc', tt: 'de_sau' });
+      await den('/bien-tap/tac-pham/?loc=thieu-y-nghia', 'phongdao-tac-pham', { muc: 'thieu_y_nghia' });
+      await den('/bien-tap/them/', 'phongdao-them');
+      await den('/bien-tap/so-lieu/', 'phongdao-ban-lam-viec');
+      await den('/wp-admin/edit.php?post_type=tac_pham', 'phongdao-tac-pham');
+      await den('/wp-admin/post-new.php?post_type=tac_pham', 'phongdao-them');
+      // Menu WordPress không bị ẩn: mục "Tác phẩm" gốc vẫn còn trong menu trái
+      chac(await bt.$('#adminmenu a[href*="edit.php?post_type=tac_pham"]'), 'menu WordPress mất mục Tác phẩm gốc');
+      // Khách mở /bien-tap/ thì sang trang đăng nhập (wp-admin tự đòi đăng nhập), không thấy Hộp việc
+      await di(k, '/bien-tap/');
+      chac(/wp-login\.php/.test(k.url()) && !(await coChu(k, 'Hộp việc')), `khách mở /bien-tap/ không sang trang đăng nhập (${k.url()})`);
+    });
+
+    await thu('Câu đố thiếu giải thích: danh sách ở wp-admin Tác phẩm dẫn tới nút Thêm ý nghĩa, khách không thấy lời nhắc thiếu', async () => {
+      await di(bt, '/wp-admin/admin.php?page=phongdao-tac-pham&muc=thieu_giai_thich');
+      const href = await bt.$eval('#wpbody-content a[href*="/cau-do/cau-do-mau/"]', e => e.href).catch(() => '');
+      chac(href, 'danh sách Câu đố thiếu giải thích không có câu đố mẫu');
       await bt.goto(href, { waitUntil: 'load', timeout: 120_000 });
       chac(await bt.$('button[data-tam="y_nghia"]') && await coChu(bt, 'Thêm ý nghĩa'), 'trang câu đố không cho người biên soạn thêm Ý nghĩa');
       await di(k, T.cauDo);
@@ -313,6 +333,9 @@ try {
       chac(await bt.$('dialog#tam-y_nghia button[name=duyet][value="1"]') && !(await bt.$('dialog#tam-y_nghia input[name=duyet]')), 'tấm sửa Ý nghĩa chưa có hai nút "Lưu nháp" / "Lưu và hiện cho người đọc"');
       await bamDoiTrang(bt, 'dialog#tam-y_nghia button[name=duyet][value=""]');
       await baoCo(bt, 'nháp vào Hộp việc');
+      // Dải "Đang sửa" có lối "Mở trang sửa đầy đủ" (wp-admin Sửa tác phẩm của đúng bài)
+      const id = await bt.$eval('.dai-bien-tap', e => e.dataset.bai);
+      chac(await bt.$(`.dai-bien-tap a[href*="page=phongdao-sua-tac-pham"][href*="id=${id}"]`), 'dải Đang sửa thiếu lối "Mở trang sửa đầy đủ"');
       await di(k, caDao);
       chac(!(await coChu(k, yNghia)), 'người đọc đã thấy nháp');
     });
@@ -330,33 +353,26 @@ try {
       await bt.setViewport({ width: 1280, height: 800 });
     });
 
-    await thu('Hộp việc: J/K đổi thẻ, phím số chọn nút, không kích hoạt khi đang nhập hoặc focus nút', async () => {
-      await di(bt, '/bien-tap/?tung=1');
-      chac(await bt.$('.tung-the [data-hv="sau"]'), 'không có thẻ sau để thử J/K');
-      chac(await bt.$eval('[data-hv="goi-y"]', e => !e.hidden), 'không hiện hướng dẫn phím tắt khi JavaScript chạy');
-      const dau = bt.url();
-      const theDau = await bt.$eval('.tung-the article.the-viec', e => e.id);
-      await Promise.all([bt.waitForNavigation({ waitUntil: 'load' }), bt.keyboard.press('j')]);
-      chac(bt.url() !== dau && await bt.$('.tung-the [data-hv="truoc"]'), 'J không tới thẻ sau');
-      await Promise.all([bt.waitForNavigation({ waitUntil: 'load' }), bt.keyboard.press('k')]);
-      chac(theDau === await bt.$eval('.tung-the article.the-viec', e => e.id), 'K không về thẻ trước');
+    await thu('wp-admin Hộp việc: phím số chọn nút, phím tắt không kích hoạt khi đang nhập hoặc focus nút', async () => {
+      await di(bt, '/wp-admin/admin.php?page=phongdao-hop-viec');
+      chac(await bt.$('.phongdao-hv-phai article.the-viec form button[name="quyet"]'), 'không có thẻ mở sẵn để thử phím tắt');
       const veDau = bt.url();
       await bt.evaluate(() => {
         window.__phimQuyet = [];
-        const f = document.querySelector('.tung-the form');
-        f.addEventListener('submit', e => { e.preventDefault(); window.__phimQuyet.push(e.submitter?.value); });
+        // Chặn gửi ở pha bắt (trước cả bộ gửi không tải lại trang): chỉ ghi nút được chọn
+        window.addEventListener('submit', e => { e.preventDefault(); e.stopImmediatePropagation(); window.__phimQuyet.push(e.submitter?.value); }, true);
         const o = document.createElement('input');
         o.id = 'kiem-phim-nhap';
-        document.querySelector('.tung-the').prepend(o);
+        document.querySelector('.phongdao-hv-phai').prepend(o);
         o.focus();
       });
       await bt.keyboard.press('j');
       await bt.keyboard.press('1');
       chac(bt.url() === veDau && 0 === await bt.evaluate(() => window.__phimQuyet.length), 'phím tắt chạy khi đang nhập');
-      await bt.focus('.tung-the button[name="quyet"]');
+      await bt.focus('.phongdao-hv-phai form button[name="quyet"]');
       await bt.keyboard.press('j');
       chac(bt.url() === veDau, 'J chạy khi focus ở nút');
-      const nut = await bt.$$eval('.tung-the button[name="quyet"]', ds => ds.slice(0, 3).map(n => n.value));
+      const nut = await bt.$$eval('.phongdao-hv-phai form button[name="quyet"]:not([disabled])', ds => ds.slice(0, 3).map(n => n.value));
       await bt.evaluate(() => { document.getElementById('kiem-phim-nhap').remove(); document.activeElement.blur(); });
       for (let i = 0; i < nut.length; i++) await bt.keyboard.press(String(i + 1));
       chac(JSON.stringify(await bt.evaluate(() => window.__phimQuyet)) === JSON.stringify(nut), 'phím 1/2/3 không chọn đúng nút');
@@ -527,24 +543,28 @@ try {
       if (cu.length) chac(await coChu(k, cu[0]), `người đọc không thấy bản cũ "${cu[0]}"`);
     });
 
-    await thu('Hộp việc: Để sau rồi Hoàn tác trong 10 giây, sau đó xử lý thẻ', async () => {
-      await di(bt, '/bien-tap/?loai=nguoi_doc');
-      const id = await bt.$$eval('article.the-viec[data-loai=nguoi_doc]', as => as.find(a => a.textContent.includes('Góp thử đầu-cuối'))?.id);
+    // Thẻ người đọc gửi có chữ `chu`, tìm bằng ô "Tìm thẻ" của Hộp việc; trả ID thẻ đầu tiên khớp
+    const theGop = async (tab, chu, tt = 'cho') => {
+      await di(tab, `/wp-admin/admin.php?page=phongdao-hop-viec&loai=nguoi_doc&tt=${tt}&q=${encodeURIComponent(chu)}`);
+      return tab.$$eval('.phongdao-hv-ds .phongdao-hv-mo', as => as.map(a => new URL(a.href).searchParams.get('viec')));
+    };
+    await thu('wp-admin Hộp việc: Để sau thẻ góp của người đọc rồi Hoàn tác trong 10 giây, sau đó xử lý thẻ', async () => {
+      const [id] = await theGop(bt, 'Góp thử đầu-cuối');
       chac(id, 'không có thẻ góp vừa gửi');
-      await bamDoiTrang(bt, `#${id} button[name=quyet][value=de_sau]`);
+      await di(bt, `/wp-admin/admin.php?page=phongdao-hop-viec&loai=nguoi_doc&viec=${id}`);
+      await bamDoiTrang(bt, `.phongdao-hv-phai article#viec-${id} button[name=quyet][value=de_sau]`);
       chac(await bt.$('[data-hv-hoan] button:not([disabled])'), 'Để sau không hiện nút Hoàn tác còn hạn');
       await bamDoiTrang(bt, '[data-hv-hoan] button');
-      chac(await coChu(bt, 'Đã hoàn tác quyết định thẻ') && await bt.$(`#${id}`), 'Hoàn tác không đưa thẻ về Chờ');
-      const nutXong = `#${id} button[name=quyet][value=xong]`;
+      chac(await bt.$(`.phongdao-hv-phai article#viec-${id} button[name=quyet][value=de_sau]`), 'Hoàn tác không đưa thẻ về Chờ');
+      const nutXong = `.phongdao-hv-phai article#viec-${id} button[name=quyet][value=xong]`;
       // Cuộn ngay: CSS của trang dùng smooth scrolling, nên kiểm hit-test trước khi cuộn xong có thể trúng thanh dưới.
       await bt.$eval(nutXong, e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
       chac(await bt.$eval(nutXong, e => { const r = e.getBoundingClientRect(); return e === document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); }), 'nút Đã xử lý bị thanh điều hướng che');
       await bamDoiTrang(bt, nutXong);
-      await di(bt, '/bien-tap/?loai=nguoi_doc');
-      chac(!(await bt.$(`#${id}`)), 'thẻ vẫn còn sau khi xử lý');
+      chac(!(await theGop(bt, 'Góp thử đầu-cuối')).includes(id), 'thẻ vẫn còn ở Chờ sau khi xử lý');
     });
 
-    await thu('Hộp việc hai phiên: thẻ đã quyết ở phiên khác thì màn cũ bị chặn, báo rõ, không quyết chồng', async () => {
+    await thu('wp-admin Hộp việc hai phiên: thẻ đã quyết ở phiên khác thì màn cũ bị chặn, báo rõ, không quyết chồng', async () => {
       const chu = 'Góp thử hai phiên: dòng một nên đọc khác.';
       await di(k, '/gop/');
       await bam(k, 'input[name=loai][value=bao_loi]');
@@ -554,25 +574,26 @@ try {
       chac(await coChu(k, 'Cảm ơn bạn!'), 'người đọc chưa gửi được góp thử');
       const bt2 = await moTab(trinhDuyet.defaultBrowserContext(), 'người biên soạn (phiên 2)');
       try {
-        await di(bt, '/bien-tap/?loai=nguoi_doc');
-        await di(bt2, '/bien-tap/?loai=nguoi_doc');
-        const tim = tab => tab.$$eval('article.the-viec[data-loai=nguoi_doc]', (as, c) => as.find(a => a.textContent.includes(c))?.id, chu);
-        const id = await tim(bt);
-        chac(id && id === await tim(bt2), 'hai phiên không cùng thấy thẻ góp vừa gửi');
-        // Đưa thẻ trình duyệt lên trước và cuộn tức thì (trang cuộn mượt): cú bấm không trúng thanh điều hướng dưới
+        const [id] = await theGop(bt, chu);
+        chac(id, 'không có thẻ góp vừa gửi');
+        const mo = `/wp-admin/admin.php?page=phongdao-hop-viec&loai=nguoi_doc&viec=${id}`;
+        await di(bt, mo);
+        await di(bt2, mo);
+        chac(await bt2.$(`.phongdao-hv-phai article#viec-${id}`), 'hai phiên không cùng mở thẻ góp vừa gửi');
+        // Đưa thẻ trình duyệt lên trước và cuộn tức thì (trang cuộn mượt): cú bấm không trúng thanh dính
         const bamThe = async (tab, nut) => {
+          const sel = `.phongdao-hv-phai article#viec-${id} button[name=quyet][value=${nut}]`;
           await tab.bringToFront();
-          await tab.$eval(`#${id} button[name=quyet][value=${nut}]`, e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
-          await bamDoiTrang(tab, `#${id} button[name=quyet][value=${nut}]`);
+          await tab.$eval(sel, e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+          await bamDoiTrang(tab, sel);
         };
         await bamThe(bt, 'de_sau');
         await bamThe(bt2, 'xong'); // màn cũ: vẫn thấy thẻ ở Chờ
         chac(await coChu(bt2, 'Thẻ đã đổi ở phiên khác'), 'màn cũ không báo thẻ đã đổi ở phiên khác');
-        await di(bt2, '/bien-tap/?loai=nguoi_doc&tt=de_sau');
-        chac(await bt2.$(`#${id}`), 'thẻ không còn ở Để sau: màn cũ đã quyết chồng');
+        await di(bt2, mo + '&tt=de_sau');
+        chac(await bt2.$(`.phongdao-hv-phai article#viec-${id}`), 'thẻ không còn ở Để sau: màn cũ đã quyết chồng');
         await bamThe(bt2, 'xong'); // màn mới tải lại thì quyết được
-        await di(bt2, '/bien-tap/?loai=nguoi_doc&tt=de_sau');
-        chac(!(await bt2.$(`#${id}`)), 'màn đã tải lại vẫn không quyết được thẻ');
+        chac(!(await theGop(bt2, chu, 'de_sau')).includes(id), 'màn đã tải lại vẫn không quyết được thẻ');
       } finally {
         await bt2.close();
         await bt.bringToFront();
@@ -595,16 +616,16 @@ try {
 
     let baiMoi = '';
     const loiMoi = 'Câu thử đầu cuối không có thật';
-    await thu('Thêm bài: dán lời, máy nhận thể thơ, đăng ngay', async () => {
-      await di(bt, '/bien-tap/them/');
-      await bam(bt, 'label.chip-chon:has(input[name=the_loai][value="tuc-ngu"])');
+    await thu('wp-admin Thêm tác phẩm: dán lời, máy nhận thể thơ, đăng ngay, mở trang Sửa tác phẩm của bài', async () => {
+      await di(bt, '/wp-admin/admin.php?page=phongdao-them');
+      await bam(bt, 'label.phongdao-them-loai:has(input[name=the_loai][value="tuc-ngu"])');
       chac(await bt.$eval('input[name=the_loai][value="tuc-ngu"]', o => o.checked), 'chọn thể loại không được');
       await bt.type('form[data-them-bai] [name=loi]', loiMoi);
       await doi(bt, () => /Máy nhận/.test(document.getElementById('them-phan-tich')?.textContent || ''), null, 'máy không nhận thể thơ');
-      chac(await bt.$eval('form[data-them-bai] [name=ten]', o => o.value) === loiMoi, 'tên không tự lấy dòng đầu');
       await bamDoiTrang(bt, 'form[data-them-bai] button[name=dang][value="1"]');
-      baiMoi = new URL(bt.url()).pathname;
-      chac(baiMoi.startsWith('/tuc-ngu/') && await coChu(bt, loiMoi), `không mở bài vừa đăng (${baiMoi})`);
+      chac(new URL(bt.url()).searchParams.get('page') === 'phongdao-sua-tac-pham' && await coChu(bt, loiMoi), `đăng xong không mở trang Sửa tác phẩm của bài (${bt.url()})`);
+      baiMoi = new URL(await bt.$eval('.phongdao-sua-lien a[href*="preview"], .phongdao-sua-lien a:nth-of-type(2)', a => a.href)).pathname;
+      chac(baiMoi.startsWith('/tuc-ngu/'), `bài vừa đăng không nằm ở /tuc-ngu/ (${baiMoi})`);
       await di(k, baiMoi);
       chac(await coChu(k, loiMoi), 'người đọc không thấy bài vừa đăng');
     });

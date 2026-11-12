@@ -62,7 +62,7 @@ final class CheDoSua {
 			: ( $sua['duyet'] ? '<button type="button" class="btn compact primary" data-action="trang-thai" data-trang-thai="publish">Đăng</button>' : '' );
 		return '<div class="dai-bien-tap no-print" role="region" aria-label="Chế độ sửa" data-bai="' . (int) $sua['id'] . '" data-trang-thai="' . esc_attr( $sua['trang_thai'] ) . '"><span class="dbt-trai">' . Ve::icon( 'edit' ) . '<strong>Đang sửa</strong><span class="tag-pill plain">' . esc_html( $tt ) . '</span>'
 			. ( '' === $cuoi ? '' : '<span class="small muted">sửa lần cuối ' . esc_html( self::ngay( $cuoi ) ) . '</span>' ) . '</span>'
-			. '<span class="dbt-phai"><button type="button" class="btn compact" data-action="xem-nhu-doc-gia" aria-pressed="false">Xem như người đọc</button>' . $nut . '</span></div>';
+			. '<span class="dbt-phai"><a class="btn compact ghost" href="' . esc_url( \Phongdao\GiaoTiep\QuanTri\SuaTacPham::url( (int) $sua['id'] ) ) . '">Mở trang sửa đầy đủ</a><button type="button" class="btn compact" data-action="xem-nhu-doc-gia" aria-pressed="false">Xem như người đọc</button>' . $nut . '</span></div>';
 	}
 
 	/** Dòng nguồn gốc nhỏ dưới một phần (chỉ người biên soạn thấy): ai làm, từ đâu. */
