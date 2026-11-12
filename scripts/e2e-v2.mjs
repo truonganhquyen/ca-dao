@@ -324,7 +324,7 @@ try {
       await bt.goto(href, { waitUntil: 'load', timeout: 120_000 });
       chac(await bt.$('button[data-tam="y_nghia"]') && await coChu(bt, 'Thêm ý nghĩa'), 'trang câu đố không cho người biên soạn thêm Ý nghĩa');
       await di(k, T.cauDo);
-      chac(!(await k.$('button[data-tam="y_nghia"]')) && !(await coChu(k, 'Bài đang được bổ sung ý nghĩa')) && !(await coChu(k, 'Bạn hiểu câu này thế nào?')), 'khách thấy điều khiển hoặc lời nhắc thiếu Ý nghĩa');
+      chac(!(await k.$('button[data-tam="y_nghia"]')) && !(await coChu(k, 'Bài đang được bổ sung ý nghĩa')) && !(await coChu(k, 'Câu này chưa có lời giải nghĩa')), 'khách thấy điều khiển hoặc lời nhắc thiếu Ý nghĩa');
     });
 
     await thu('Biên tập: sửa ý nghĩa chưa duyệt → nháp, người đọc chưa thấy', async () => {
@@ -606,7 +606,7 @@ try {
     await thu('Cách hiểu của bạn đọc: ba thẻ Hiểu thêm; khách gửi bằng form nhanh trên bài chưa có Ý nghĩa, chưa hiện ngay; người biên soạn bấm Hiện ở Hộp việc; khách thấy ở phần Cách hiểu', async () => {
       const bai = '/ca-dao/cau-mau-thu-hai/', chu = 'Cách hiểu thử đầu-cuối: câu nói về lòng biết ơn.';
       await di(k, bai);
-      chac(await coChu(k, 'Bạn hiểu câu này thế nào?'), 'bài chưa có Ý nghĩa không mời chia sẻ cách hiểu');
+      chac(await coChu(k, 'Câu này chưa có lời giải nghĩa'), 'bài chưa có Ý nghĩa không mời chia sẻ cách hiểu');
       chac(await k.$eval('[data-hieu-them] [role=tablist]', e => !e.hidden) && 3 === (await k.$$('[data-hieu-them] [role=tab]')).length, 'Hiểu thêm chưa thành ba thẻ khi có JavaScript');
       await bam(k, '#ht-nut-cam-nghi');
       chac(await k.$eval('#cach-hieu', e => e.hidden) && await k.$eval('#cam-nghi', e => !e.hidden && e.getAttribute('role') === 'tabpanel'), 'bấm thẻ Cảm nghĩ không đổi phần');

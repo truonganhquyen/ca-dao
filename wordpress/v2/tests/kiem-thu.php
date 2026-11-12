@@ -258,7 +258,7 @@ kt( 'trang bài thật: chủ đề dẫn tới trang chủ đề, nút Sao ché
 kt( 'khách không nhận địa chỉ gốc máy đã lấy, người làm, giao diện sửa', ! str_contains( $h, 'nguon-an.example' ) && ! str_contains( $h, 'may_chep' ) && ! preg_match( '/nut-sua|dai-bien-tap|tam-sua/', $h ) );
 kt( 'chưa đối chiếu sách → nhãn "Bản lưu truyền phổ biến"', str_contains( $h, 'Bản lưu truyền phổ biến' ) && ! str_contains( $h, 'pill checked' ) );
 $h = $xem( $mau_id['cau-do-mau'] );
-kt( 'câu đố: Gợi ý và "Hiện đáp án" thu gọn (tắt JavaScript vẫn mở được), không nhắc thiếu ý nghĩa', str_contains( $h, '<details class="answer"><summary>Hiện đáp án</summary>' ) && str_contains( $h, '<summary>Gợi ý</summary>' ) && ! str_contains( $h, 'Bài đang được bổ sung ý nghĩa' ) && ! str_contains( $h, 'Bạn hiểu câu này thế nào?' ) && ! str_contains( $h, 'data-tam="y_nghia"' ) );
+kt( 'câu đố: Gợi ý và "Hiện đáp án" thu gọn (tắt JavaScript vẫn mở được), không nhắc thiếu ý nghĩa', str_contains( $h, '<details class="answer"><summary>Hiện đáp án</summary>' ) && str_contains( $h, '<summary>Gợi ý</summary>' ) && ! str_contains( $h, 'Bài đang được bổ sung ý nghĩa' ) && ! str_contains( $h, 'Câu này chưa có lời giải nghĩa' ) && ! str_contains( $h, 'data-tam="y_nghia"' ) );
 wp_set_current_user( $ai_ql );
 $get_truoc = $_GET;
 $_GET = array( 'muc' => 'thieu_giai_thich' );
