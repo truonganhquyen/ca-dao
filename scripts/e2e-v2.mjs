@@ -1090,6 +1090,17 @@ try {
       chac(!(await k.$('.phongdao-anh-minh-hoa')), 'ảnh của bài nháp hiện cho khách');
       await bamDoiTrang(bt, '.phongdao-sua-ben form:has(input[name=trang_thai][value=publish]) button[type=submit]');
       const publicUrl = await bt.$eval('.phongdao-sua-lien a:nth-child(2)', e => e.href);
+      const fault = r => {
+        if (r.url().includes('admin-ajax.php') && (r.postData() || '').includes('action=get-attachment')) r.respond({ status: 403, contentType: 'application/json', body: '{"success":false}' });
+        else r.continue();
+      };
+      await bt.setRequestInterception(true); bt.on('request', fault);
+      try {
+        await bt.reload({ waitUntil: 'load' });
+        await doi(bt, () => document.querySelector('[data-anh-bao]').textContent.includes('Chọn lại ảnh'), null, 'lỗi đọc ảnh không có hướng xử lý');
+        chac(await bt.$eval('#phan-media [name=attachment_id]', e => e.value) === idAnh, 'lỗi đọc ảnh tự thay liên kết đang lưu');
+      } finally { await bt.setRequestInterception(false); bt.off('request', fault); }
+      await bt.reload({ waitUntil: 'load' });
       await k.goto(publicUrl, { waitUntil: 'load' });
       await k.waitForSelector('.phongdao-anh-minh-hoa img');
       chac(await k.$eval('.phongdao-anh-minh-hoa img', i => i.naturalWidth > 0 && i.alt === '[UX-TEST] Ảnh tải từ màn sửa' && i.hasAttribute('width')), 'khách thiếu tệp/alt/kích thước ảnh');
