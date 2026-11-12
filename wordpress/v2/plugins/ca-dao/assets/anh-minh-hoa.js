@@ -56,7 +56,13 @@
     const restore = () => {
       const id = Number(input.value);
       if (!id) return show(null);
-      if (window.wp?.media) wp.media.attachment(id).fetch().then(a => show(a));
+      if (window.wp?.media) wp.media.attachment(id).fetch().then(a => {
+        if (Number(input.value) === id) show(a);
+      }).catch(() => {
+        if (Number(input.value) !== id) return;
+        preview.textContent = 'Không đọc được ảnh đã chọn.';
+        status.textContent = 'Chọn lại ảnh trong Thư viện trước khi lưu; ảnh chưa được thay tự động.';
+      });
     };
     window.addEventListener('load', restore, { once: true });
   });
