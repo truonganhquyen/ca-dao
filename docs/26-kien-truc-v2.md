@@ -133,6 +133,7 @@ Mỗi phần (hoặc mỗi mục trong phần dạng danh sách) mang:
 | `di_ban` | danh sách `{dong: [], noi?, nguoi_ke?, nam?}` | mọi | `may_chep`, `nguoi_viet`, `doc_gia_gop` |
 | `y_nghia` | `{chu, ai, duyet_boi, duyet_luc}` — 2–3 câu; tên hiển thị "Ý nghĩa" (trước gọi `hieu_nhanh`) | mọi | `nguoi_viet`, `ai_da_duyet` |
 | `nghia_den`, `nghia_bong`, `dung_khi` | `{chu, ai}` | tục ngữ – thành ngữ | `nguoi_viet`, `ai_da_duyet`, `may_chep` (Wiktionary, CC BY-SA) |
+| `hinh_anh` | `{chu, ai}` — mỗi dòng "hình ảnh → điều được nói tới" | ca dao, đồng dao | `nguoi_viet`, `ai_da_duyet` (D-105; máy không chép) |
 | `gan_nghia` | danh sách `{tac_pham_id, quan_he: gan / trai}` | tục ngữ – thành ngữ | `nguoi_viet` |
 | `giai_sach` | `{chu}` (chính tả xưa) | mọi | `may_chep` (sách hết bản quyền) |
 | `chu_thich` | danh sách `{tu?, loi_giai, muc_tu_id?, vi_tri?}` | mọi | `may_chep`, `nguoi_viet` |
@@ -183,6 +184,8 @@ Một số phiên bản cơ sở dữ liệu duy nhất: tuỳ chọn `phongdao_
 **Hộp việc là một truy vấn** trên `wp_cadao_viec` (`trang_thai = cho`, xếp theo `uu_tien`). Máy thêm việc khi: chọn câu mới từ kho mỗi ngày, chống trùng thấy "có thể trùng", gợi ý chủ đề / vùng / mô-típ / Wikidata / đối chiếu sách, nạp nháp theo lô, câu được "mong có" mà kho có, người đọc gửi góp ý / dị bản / số trang / báo lỗi (bài `gop_y` giữ từ MVP, việc trỏ tới bài đó), cảm nghĩ, bài phân tích chờ duyệt, bước nhập dữ liệu cũ gặp bài "Cần xem".
 
 ### 4.5. Cấp chất lượng và thân bài
+
+`MienDuLieu\TuKho` (T-190.2): khoá so khớp từ khó theo tiếng (chữ thường, bỏ dấu thanh + ghi dấu thanh, NFC), lần đầu trong cả bài, báo từ không có trong lời; `Ve::loi` / `Ve::loi_doan` dùng chung.
 
 `MienDuLieu\CapChatLuong`: L0 có `loi` · L1 + thể loại + dòng mức kiểm · **L2 + `y_nghia` hoặc bộ `nghia_*`** · L3 + lời đã đối chiếu sách hoặc `boi_canh` hoặc `media` có giấy phép. Bài phân tích, cách hiểu của bạn đọc không tính (D-084, D-105). Cấp chỉ dùng nội bộ; lập chỉ mục không xét cấp (D-106, mục 10).
 

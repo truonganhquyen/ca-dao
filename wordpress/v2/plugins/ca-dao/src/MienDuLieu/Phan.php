@@ -30,6 +30,8 @@ final class Phan {
 			'nghia_den'   => array( 'dang' => self::MOT, 'the_loai' => array( 'tuc-ngu' ), 'nguoi_lam' => array( NguoiLam::NGUOI_VIET, NguoiLam::AI_DA_DUYET, NguoiLam::MAY_CHEP ), 'may' => true, 'truong' => array( 'chu' => 'chu!', 'ai' => 'bool' ) ),
 			'nghia_bong'  => array( 'dang' => self::MOT, 'the_loai' => array( 'tuc-ngu' ), 'nguoi_lam' => array( NguoiLam::NGUOI_VIET, NguoiLam::AI_DA_DUYET, NguoiLam::MAY_CHEP ), 'may' => true, 'truong' => array( 'chu' => 'chu!', 'ai' => 'bool' ) ),
 			'dung_khi'    => array( 'dang' => self::MOT, 'the_loai' => array( 'tuc-ngu' ), 'nguoi_lam' => array( NguoiLam::NGUOI_VIET, NguoiLam::AI_DA_DUYET, NguoiLam::MAY_CHEP ), 'may' => true, 'truong' => array( 'chu' => 'chu!', 'ai' => 'bool' ) ),
+			// Ca dao, đồng dao (D-105): mỗi dòng một cặp "hình ảnh → điều được nói tới"; người viết, có AI hỗ trợ thì phải được duyệt
+			'hinh_anh'    => array( 'dang' => self::MOT, 'the_loai' => array( 'ca-dao', 'dong-dao' ), 'nguoi_lam' => self::NGHIA, 'may' => false, 'truong' => array( 'chu' => 'chu!', 'ai' => 'bool' ) ),
 			'gan_nghia'   => array( 'dang' => self::DS, 'the_loai' => array( 'tuc-ngu' ), 'nguoi_lam' => null, 'may' => false, 'truong' => array( 'tac_pham_id' => 'id!', 'quan_he' => 'chon:gan|trai!' ) ),
 			'giai_sach'   => array( 'dang' => self::MOT, 'the_loai' => null, 'nguoi_lam' => array( NguoiLam::MAY_CHEP ), 'may' => true, 'truong' => array( 'chu' => 'chu!' ) ),
 			'chu_thich'   => array( 'dang' => self::DS, 'the_loai' => null, 'nguoi_lam' => array( NguoiLam::MAY_CHEP, NguoiLam::NGUOI_VIET ), 'may' => true, 'truong' => array( 'tu' => 'chu_ngan', 'loi_giai' => 'chu!', 'muc_tu_id' => 'id', 'vi_tri' => 'ds_so' ) ),

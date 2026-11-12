@@ -134,7 +134,13 @@ final class Module implements \Phongdao\HaTang\Module {
 			return array( 'ok' => (bool) $viec, 'loi' => array(), 'viec' => 0, 'thong_bao' => 'Đã lưu nháp vào Hộp việc; người đọc chưa thấy.' );
 		}
 		$kq = LuuPhan::luu( $id, $phan, $doc['gia_tri'], self::nc() );
-		return $kq + array( 'thong_bao' => $kq['ok'] ? ( $kq['doi'] ? 'Đã lưu.' : 'Không có gì thay đổi.' ) : '' );
+		$bao = $kq['ok'] ? ( $kq['doi'] ? 'Đã lưu.' : 'Không có gì thay đổi.' ) : '';
+		if ( $kq['ok'] && 'chu_thich' === $phan ) {
+			// Từ không có trong lời: nhắc kiểm chính tả, vẫn lưu (chú thích chung) — D-105
+			$thieu = \Phongdao\MienDuLieu\TuKho::thieu( (array) ( PhanBai::lay( $id, 'loi' )['dong'] ?? array() ), array_column( (array) ( $doc['gia_tri']['muc'] ?? $doc['gia_tri'] ?? array() ), 'tu' ) );
+			$bao  .= $thieu ? ' Không thấy từ ' . implode( ', ', array_map( static fn( string $t ): string => '«' . $t . '»', $thieu ) ) . ' trong lời, kiểm lại chính tả.' : '';
+		}
+		return $kq + array( 'thong_bao' => $bao );
 	}
 
 	/** Đăng / Ẩn / về nháp. Đăng cần quyền duyệt. Ghi một dòng nhật ký. */

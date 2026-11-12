@@ -117,7 +117,8 @@ final class Ve {
 	 * Lời: mỗi câu một dòng (data-fit cho fit.js, --dai cho CSS khi tắt JavaScript — D-093).
 	 *
 	 * @param string[] $dong   các câu của lời, giữ nguyên như nguồn
-	 * @param string[] $tu     từ có chú thích: lần xuất hiện đầu trong mỗi dòng thành liên kết tới khối Từ khó
+	 * @param string[] $tu     từ có chú thích: lần xuất hiện đầu trong cả bài thành liên kết tới khối Từ khó (so khớp
+	 *                         không phân biệt hoa thường, kiểu bỏ dấu — MienDuLieu\TuKho)
 	 * @param array{so_dong?:bool,nhom?:string,max?:string,san?:string} $tuy
 	 */
 	public static function loi( array $dong, string $kieu = 'lucbat', array $tu = array(), array $tuy = array() ): string {
@@ -126,8 +127,9 @@ final class Ve {
 			$dai = max( $dai, mb_strlen( $d ) + ( 'lucbat' === $kieu && 0 === $i % 2 ? 3 : 0 ) );
 		}
 		$html = self::khung_loi( $kieu, $dai, $tuy );
+		$tim  = \Phongdao\MienDuLieu\TuKho::tim( array_values( $dong ), $tu );
 		foreach ( array_values( $dong ) as $i => $d ) {
-			$html .= self::dong( $d, $kieu, $tu, empty( $tuy['so_dong'] ) ? 0 : $i + 1 );
+			$html .= self::dong( $d, $kieu, $tim[ $i ] ?? array(), empty( $tuy['so_dong'] ) ? 0 : $i + 1 );
 		}
 		return $html . '</div></div>';
 	}
@@ -152,6 +154,16 @@ final class Ve {
 		$so   = ! empty( $tuy['so_dong'] );
 		$moi  = $cd['dai'] ? 5 : 1;
 		$dem  = 0;
+		// Từ khó: lần đầu trong cả bài, tính trên mọi dòng theo thứ tự
+		$moi_dong = array();
+		foreach ( $cd['doan'] as $d ) {
+			foreach ( $d['kho'] as $kho ) {
+				foreach ( $kho as $l ) {
+					$moi_dong[] = (string) $l;
+				}
+			}
+		}
+		$tim = \Phongdao\MienDuLieu\TuKho::tim( $moi_dong, $tu );
 		$than = '';
 		$muc  = '';
 		foreach ( $cd['doan'] as $d ) {
@@ -160,8 +172,8 @@ final class Ve {
 			foreach ( $d['kho'] as $kho ) {
 				$o .= '<div class="kho">';
 				foreach ( $kho as $l ) {
+					$o .= self::dong( $l, $kieu, $tim[ $dem ] ?? array(), $so && 0 === ( $dem + 1 ) % $moi ? $dem + 1 : 0 );
 					++$dem;
-					$o .= self::dong( $l, $kieu, $tu, $so && 0 === $dem % $moi ? $dem : 0 );
 				}
 				$o .= '</div>';
 			}
@@ -191,21 +203,48 @@ final class Ve {
 			. ' style="' . esc_attr( $kieu_css ) . '">';
 	}
 
-	/** Một dòng lời; $so > 0 thì ghi số dòng bên lề. Từ có chú thích (lần đầu trong dòng) thành liên kết. */
-	private static function dong( string $d, string $kieu, array $tu, int $so ): string {
-		$chu = 'proverb' === $kieu
-			? implode( ' ', array_map( static fn( string $v ): string => '<span class="ve">' . esc_html( $v ) . '</span>', preg_split( '/(?<=,)\s+|\s+(?=—)/u', $d ) ?: array( $d ) ) )
-			: esc_html( $d );
-		foreach ( array_filter( $tu ) as $t ) {
-			$t   = esc_html( $t );
-			$chu = (string) preg_replace_callback(
-				'/(?<![\p{L}])' . preg_quote( $t, '/' ) . '(?![\p{L}])/u',
-				static fn( array $m ): string => '<a class="word" href="#chu-thich" aria-label="Xem chú thích từ ' . $m[0] . '">' . $m[0] . '</a>',
-				$chu,
-				1
+	/**
+	 * Một dòng lời; $so > 0 thì ghi số dòng bên lề. $doan: chỗ từ có chú thích trong dòng (TuKho::tim), thành liên kết.
+	 *
+	 * @param list<array{0:int,1:int}> $doan
+	 */
+	private static function dong( string $d, string $kieu, array $doan, int $so ): string {
+		if ( 'proverb' === $kieu ) {
+			// Tục ngữ: mỗi vế một khối (ngắt ở dấu phẩy, gạch ngang); từ khó nằm trọn trong vế
+			$manh = preg_split( '/(?<=,)\s+|\s+(?=—)/u', $d, -1, PREG_SPLIT_OFFSET_CAPTURE ) ?: array( array( $d, 0 ) );
+			$chu  = implode(
+				' ',
+				array_map(
+					static function ( array $m ) use ( $d, $doan ): string {
+						$dau = mb_strlen( substr( $d, 0, (int) $m[1] ) );
+						$trong = array_values( array_filter( $doan, static fn( array $x ): bool => $x[0] >= $dau && $x[1] <= $dau + mb_strlen( (string) $m[0] ) ) );
+						return '<span class="ve">' . self::to_tu( (string) $m[0], $trong, $dau ) . '</span>';
+					},
+					$manh
+				)
 			);
+		} else {
+			$chu = self::to_tu( $d, $doan );
 		}
 		return '<span class="line">' . ( $so ? '<span class="ln" aria-hidden="true">' . sprintf( '%02d', $so ) . '</span>' : '' ) . $chu . '</span>';
+	}
+
+	/** Thoát chữ và bọc các đoạn từ khó [đầu, sau cuối] (vị trí ký tự, trừ $lech) thành liên kết tới khối Từ khó. */
+	private static function to_tu( string $s, array $doan, int $lech = 0 ): string {
+		$o  = '';
+		$vt = 0;
+		$n  = mb_strlen( $s );
+		foreach ( $doan as [ $a, $b ] ) {
+			$a -= $lech;
+			$b -= $lech;
+			if ( $a < $vt || $b > $n || $a >= $b ) {
+				continue;
+			}
+			$w  = esc_html( mb_substr( $s, $a, $b - $a ) );
+			$o .= esc_html( mb_substr( $s, $vt, $a - $vt ) ) . '<a class="word" href="#chu-thich" aria-label="Xem chú thích từ ' . $w . '">' . $w . '</a>';
+			$vt = $b;
+		}
+		return $o . esc_html( mb_substr( $s, $vt ) );
 	}
 
 	/**

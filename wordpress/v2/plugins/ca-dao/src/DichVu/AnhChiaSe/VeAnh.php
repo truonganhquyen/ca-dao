@@ -53,7 +53,7 @@ final class VeAnh {
 
 	/**
 	 * Nội dung ảnh của một tác phẩm (dữ liệu trang của GiaoTiep\Khoi\TacPham): lời (bài trên 8 dòng: 4 dòng đầu + "…"),
-	 * ý nghĩa (câu đố thì không — không lộ đáp án), đường dẫn ngắn; bài có cờ ghi thêm "Nghi không phải dân gian".
+	 * ý nghĩa (câu đố thì không — không lộ đáp án), đường dẫn ngắn; bài có cờ ghi thêm "Có thể không phải dân gian".
 	 *
 	 * @return array{the_loai:string,dong:string[],luc_bat:bool,cau:bool,y_nghia:string,cau_do:bool,ten_mien:string,duong:string}
 	 */
@@ -63,7 +63,7 @@ final class VeAnh {
 		$url    = parse_url( (string) ( $tp['url'] ?? '' ) ) ?: array();
 		$host   = (string) ( $url['host'] ?? '' );
 		return array(
-			'the_loai' => (string) ( $tp['ten_the_loai'] ?? '' ) . ( empty( $tp['co_nghi'] ) ? '' : ' · Nghi không phải dân gian' ),
+			'the_loai' => (string) ( $tp['ten_the_loai'] ?? '' ) . ( empty( $tp['co_nghi'] ) ? '' : ' · Có thể không phải dân gian' ),
 			'dong'     => count( $dong ) > 8 ? array_merge( array_slice( $dong, 0, 4 ), array( '…' ) ) : $dong,
 			'luc_bat'  => 'lucbat' === ( $tp['kieu'] ?? '' ),
 			'cau'      => 'proverb' === ( $tp['kieu'] ?? '' ),

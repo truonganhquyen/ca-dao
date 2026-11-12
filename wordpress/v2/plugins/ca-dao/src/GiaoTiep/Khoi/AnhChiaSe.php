@@ -96,7 +96,7 @@ final class AnhChiaSe {
 		return '<section class="block acs" id="anh-chia-se" aria-labelledby="acs-' . $ma . '"><h2 id="acs-' . $ma . '">Ảnh để chia sẻ</h2>'
 			. '<p class="small muted">Chọn khổ và nền rồi tải ảnh để đăng Facebook, Zalo. Ảnh luôn kèm tên thư viện và đường dẫn bài' . ( $cau_do ? '; không lộ đáp án' : '' ) . '.</p>'
 			. '<div class="acs-khung"><figure class="anh-chia-se" data-nen="' . $nen[0] . '" data-fit-h aria-label="Xem trước ảnh chia sẻ">' . $hinh . ( $cau_do ? '<span class="dau-hoi" aria-hidden="true">?</span>' : '' )
-			. '<div class="acs-trong"><span class="acs-the-loai">' . esc_html( $tp['ten_the_loai'] . ( empty( $tp['co_nghi'] ) ? '' : ' · Nghi không phải dân gian' ) ) . '</span>'
+			. '<div class="acs-trong"><span class="acs-the-loai">' . esc_html( $tp['ten_the_loai'] . ( empty( $tp['co_nghi'] ) ? '' : ' · Có thể không phải dân gian' ) ) . '</span>'
 			. Ve::loi( $dong, $tp['kieu'], array(), array( 'max' => 'proverb' === $tp['kieu'] ? 'w0.085' : 'w0.06', 'nhom' => 'acs-' . $tp['ma'], 'san' => '8' ) )
 			. ( '' !== $y ? '<p class="acs-y-nghia">' . esc_html( $y ) . '</p>' : '' ) . ( $cau_do ? '<p class="acs-y-nghia hien">Lời giải ở phongdao.com</p>' : '' )
 			. '<div class="acs-chan"><span class="logo" aria-hidden="true">P</span><span>Thư viện Văn học Dân gian Việt Nam<small>' . esc_html( wp_parse_url( home_url(), PHP_URL_HOST ) . '/' . $k . '/…' ) . '</small></span></div></div></figure>'

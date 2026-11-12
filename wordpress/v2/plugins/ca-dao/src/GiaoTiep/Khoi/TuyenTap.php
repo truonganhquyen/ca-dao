@@ -115,7 +115,7 @@ final class TuyenTap {
 		$ghi = '' === $m['ghi_chu'] ? '' : '<p class="small"><strong>' . ( 'tinh_huong' === $loai ? 'Hợp khi:' : 'Ghi chú:' ) . '</strong> ' . esc_html( $m['ghi_chu'] ) . '</p>';
 		return '<article class="collection-item g-' . esc_attr( $g ) . '" id="cau-' . $n . '"><span class="num">' . $so . '</span><div class="ci-than">'
 			. '<div class="the-dau"><span class="tag"><span class="ci-so">' . $so . ' · </span>' . esc_html( $tp['ten_the_loai'] ?: 'Tác phẩm' ) . '</span>' . Ve::nut_chep( $tp['url'], $tp['the_loai'] ) . '</div>'
-			. ( '' === $tp['co_nghi'] ? '' : '<p class="flag">Nghi không phải dân gian</p>' )
+			. ( '' === $tp['co_nghi'] ? '' : '<p class="flag">Có thể không phải dân gian</p>' )
 			. Ve::loi( $tp['loi'], $tp['kieu'], array(), array( 'nhom' => 'tuyen-tap' ) )
 			. $ghi
 			. ( empty( $tp['y_nghia']['chu'] )

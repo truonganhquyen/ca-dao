@@ -56,9 +56,9 @@ final class SuaTacPham {
 	/** @return string[] */
 	private static function phan_theo_loai( string $loai ): array {
 		$ra = array();
-		$rieng = array( 'nghia_den' => 'tuc-ngu', 'nghia_bong' => 'tuc-ngu', 'dung_khi' => 'tuc-ngu', 'cau_hoi' => 'cau-do', 'dap_an' => 'cau-do', 'goi_y' => 'cau-do', 'boi_canh' => 've', 'doan' => 've' );
+		$rieng = array( 'nghia_den' => 'tuc-ngu', 'nghia_bong' => 'tuc-ngu', 'dung_khi' => 'tuc-ngu', 'hinh_anh' => 'ca-dao|dong-dao', 'cau_hoi' => 'cau-do', 'dap_an' => 'cau-do', 'goi_y' => 'cau-do', 'boi_canh' => 've', 'doan' => 've' );
 		foreach ( array_keys( TamSua::TAM ) as $phan ) {
-			if ( ! isset( $rieng[ $phan ] ) || $loai === $rieng[ $phan ] ) {
+			if ( ! isset( $rieng[ $phan ] ) || in_array( $loai, explode( '|', $rieng[ $phan ] ), true ) ) {
 				$ra[] = $phan;
 			}
 		}
@@ -100,18 +100,20 @@ final class SuaTacPham {
 		// Phần chưa có gom thành một hàng "Thêm: …"; bấm mới mở ô (báo cáo trinh sát lần 2, mục 3.3). Cờ "Có thể không phải
 		// dân gian" là công tắc ở cột bên, không nằm trong danh sách phần (D-104, D-105).
 		$them = array();
-		foreach ( self::phan_theo_loai( $loai ) as $phan ) {
+		// Tục ngữ: chuẩn là Nghĩa đen · Nghĩa bóng · Dùng khi; bài mới không có ô Ý nghĩa riêng, bài cũ đã có Ý nghĩa vẫn sửa được (D-105)
+		$ds_phan = array_values( array_filter( self::phan_theo_loai( $loai ), static fn( string $p ): bool => ! ( 'y_nghia' === $p && 'tuc-ngu' === $loai && null === ( $ctx['phan']['y_nghia'] ?? null ) ) ) );
+		foreach ( $ds_phan as $phan ) {
 			if ( 'co_nghi' !== $phan && null === ( $ctx['phan'][ $phan ] ?? null ) && $phan !== ( $_GET['phan'] ?? '' ) ) { // phpcs:ignore WordPress.Security.NonceVerification -- chỉ mở lại phần vừa lưu
-				$ten_t  = TamSua::TAM[ $phan ][0];
+				$ten_t  = TamSua::ten( $phan, (string) $loai );
 				$them[] = '<a class="button button-small" href="#phan-' . esc_attr( $phan ) . '" data-mo-phan="' . esc_attr( $phan ) . '">' . esc_html( str_starts_with( $ten_t, 'Sửa ' ) ? mb_substr( $ten_t, 4 ) : $ten_t ) . '</a>';
 			}
 		}
 		$chinh .= $them ? '<p class="phongdao-sua-them"><strong>Thêm:</strong> ' . implode( ' ', $them ) . '</p>' : '';
-		foreach ( self::phan_theo_loai( $loai ) as $phan ) {
+		foreach ( $ds_phan as $phan ) {
 			if ( 'co_nghi' === $phan ) {
 				continue;
 			}
-			$ten = TamSua::TAM[ $phan ][0];
+			$ten = TamSua::ten( $phan, (string) $loai );
 			$cu = $ctx['phan'][ $phan ] ?? null;
 			$mo_phan = $phan === ( $_GET['phan'] ?? '' ) || ( null !== $cu && 'loi' !== $phan ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ mở lại phần vừa lưu
 			$ten_goc = str_starts_with( $ten, 'Sửa ' ) ? mb_substr( $ten, 4 ) : $ten;
@@ -119,6 +121,11 @@ final class SuaTacPham {
 			$chinh .= '<details class="phongdao-sua-phan' . ( null === $cu ? ' chua-co' : '' ) . '" id="phan-' . esc_attr( $phan ) . '"' . ( $mo_phan ? ' open' : '' ) . '><summary>' . esc_html( null === $cu ? 'Thêm ' . $ten_goc : $ten ) . '</summary>';
 			$ten_goc = mb_strtoupper( mb_substr( $ten_goc, 0, 1 ) ) . mb_substr( $ten_goc, 1 );
 			$chinh .= CheDoSua::goc( $ten_goc, $cu, $ctx );
+			if ( 'chu_thich' === $phan && $cu ) {
+				// Từ không có trong lời: nhắc kiểm chính tả (vẫn lưu được — chú thích chung)
+				$thieu_tu = \Phongdao\MienDuLieu\TuKho::thieu( (array) ( $ctx['phan']['loi']['dong'] ?? array() ), array_column( (array) ( $cu['muc'] ?? array() ), 'tu' ) );
+				$chinh   .= $thieu_tu ? '<div class="notice notice-warning inline"><p>' . esc_html( 'Không thấy từ ' . implode( ', ', array_map( static fn( string $t ): string => '«' . $t . '»', $thieu_tu ) ) . ' trong lời, kiểm lại chính tả.' ) . '</p></div>' : '';
+			}
 			$chinh .= '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="phongdao_sua_phan">' . self::an_ve() . $an_sau . '<input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="phan" value="' . esc_attr( $phan ) . '">';
 			$chinh .= wp_nonce_field( 'phongdao_sua_phan_' . $id . '_' . $phan, '_wpnonce', true, false );
 			$chinh .= TamSua::than( $phan, $cu, $ctx ) . '<p class="phongdao-sua-nut">' . TamSua::nut_luu( $phan, $ctx, 'button button-primary', 'button', 'Lưu phần này' ) . '</p></form></details>';
@@ -248,6 +255,9 @@ final class SuaTacPham {
 		$kq = self::luu_doi_chieu( $id, wp_unslash( $_POST ), get_current_user_id() );
 		if ( ! $kq['ok'] ) {
 			set_transient( 'phongdao_sua_loi_' . $id . '_' . get_current_user_id(), $kq['loi'], MINUTE_IN_SECONDS );
+		} elseif ( ! empty( $_POST['trang_doc'] ) ) {
+			wp_safe_redirect( self::trang_doc( $id ) ); // gửi từ tấm "Đối chiếu sách" trên trang đọc
+			exit;
 		}
 		self::$ve = self::ve_hop_le( wp_unslash( (string) ( $_POST['ve'] ?? '' ) ) );
 		wp_safe_redirect( add_query_arg( array( 'ket_qua' => $kq['ok'] ? 'doi_chieu' : 'loi', 'phan' => 'doi_chieu' ), self::url( $id ) ) . '#doi-chieu' );
@@ -317,6 +327,12 @@ final class SuaTacPham {
 		return array( 'ok' => true, 'loi' => '', 'cu' => $cu, 'moi' => $moi );
 	}
 
+	/** Trang đọc của bài (đã đăng: đường dẫn thật; chưa đăng: bản xem trước). */
+	public static function trang_doc( int $id ): string {
+		clean_post_cache( $id );
+		return 'publish' === get_post_status( $id ) ? (string) get_permalink( $id ) : (string) get_preview_post_link( $id );
+	}
+
 	/** Form "Đổi thể loại" (admin-post): kiểm quyền, nonce; về lại trang sửa kèm lời báo. */
 	public static function doi_the_loai(): void {
 		$id = absint( $_POST['id'] ?? 0 );
@@ -327,6 +343,9 @@ final class SuaTacPham {
 		$kq = self::doi_the_loai_bai( $id, sanitize_key( (string) ( $_POST['the_loai'] ?? '' ) ), get_current_user_id() );
 		if ( ! $kq['ok'] ) {
 			set_transient( 'phongdao_sua_loi_' . $id . '_' . get_current_user_id(), $kq['loi'], MINUTE_IN_SECONDS );
+		} elseif ( ! empty( $_POST['trang_doc'] ) ) {
+			wp_safe_redirect( self::trang_doc( $id ) ); // gửi từ tấm "Đổi thể loại" trên trang đọc: mở đường dẫn mới
+			exit;
 		}
 		self::$ve = self::ve_hop_le( wp_unslash( (string) ( $_POST['ve'] ?? '' ) ) );
 		wp_safe_redirect( add_query_arg( 'ket_qua', $kq['ok'] ? 'doi_the_loai' : 'loi', self::url( $id ) ) . '#phan-loai' );
@@ -590,6 +609,10 @@ final class SuaTacPham {
 			set_transient( 'phongdao_sua_loi_' . $id . '_' . get_current_user_id(), implode( ' ', $kq['loi'] ), MINUTE_IN_SECONDS );
 		}
 		$ket_qua = ! $kq['ok'] ? 'loi' : ( $kq['doi'] ? 'da_luu_pl' : 'khong_doi' );
+		if ( $kq['ok'] && ! empty( $_POST['trang_doc'] ) ) {
+			wp_safe_redirect( self::trang_doc( $id ) . '#doc-them' ); // gửi từ tấm "Sửa phân loại" trên trang đọc
+			exit;
+		}
 		self::$ve = self::ve_hop_le( wp_unslash( (string) ( $_POST['ve'] ?? '' ) ) );
 		wp_safe_redirect( add_query_arg( array( 'ket_qua' => $ket_qua, 'phan_loai' => $tax ), self::url( $id ) ) . '#phan-loai-' . $tax );
 		exit;

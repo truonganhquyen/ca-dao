@@ -132,7 +132,8 @@
 
   document.addEventListener('submit', async e => {
     const f = e.target.closest('dialog.tam-sua form');
-    if (!f) return;
+    // Sửa phân loại, Đổi thể loại: gửi thường (cùng đường lưu wp-admin), máy chủ chuyển lại trang đọc
+    if (!f || f.hasAttribute('data-gui-thuong')) return;
     e.preventDefault();
     const nut = [...f.querySelectorAll('[type=submit]')], loi = f.querySelector('.tam-loi');
     // Nút đã bấm mang giá trị riêng (Lưu nháp / Lưu và hiện cho người đọc): FormData không tự kèm nút bấm
