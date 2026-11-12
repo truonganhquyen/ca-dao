@@ -48,7 +48,7 @@ final class TamSua {
 		$tieu_de = self::ten( $phan, (string) ( $ctx['the_loai'] ?? '' ) );
 		$than    = self::than( $phan, $cu, $ctx );
 		$id = 'tam-' . $phan;
-		return '<dialog class="tam-sua" id="' . $id . '" aria-labelledby="' . $id . '-tieu-de"><form method="post" class="tam-khung" data-phan="' . esc_attr( $phan ) . '">'
+		return '<dialog class="tam-sua" id="' . $id . '" aria-labelledby="' . $id . '-tieu-de"><form method="post" class="tam-khung" data-phan="' . esc_attr( $phan ) . '" data-giu-nhap="' . (int) ( $ctx['id'] ?? 0 ) . ':' . esc_attr( $phan ) . '" data-phien-soan="' . esc_attr( NhapDo::phien() ) . '">'
 			. '<header class="tam-dau"><h2 id="' . $id . '-tieu-de">' . esc_html( $tieu_de ) . '</h2><button type="button" class="nut-dong" data-action="dong-tam" aria-label="Đóng"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></svg></button></header>'
 			. '<div class="tam-than">' . $than . '<p class="tam-loi" role="alert" hidden></p></div>'
 			. '<footer class="tam-chan"><button type="button" class="btn" data-action="dong-tam">Huỷ</button>' . self::nut_luu( $phan, $ctx, 'btn primary', 'btn' ) . '</footer></form></dialog>';
@@ -127,7 +127,7 @@ final class TamSua {
 		$id = 's-doan-' . $i;
 		return '<li class="muc-sua">' . self::o( "$id-ten", $p . '[tieu_de]', 'Tiêu đề đoạn', (string) ( $m['tieu_de'] ?? '' ), 'không bắt buộc' )
 			. '<div class="field-grid">' . self::o( "$id-tu", $p . '[tu_dong]', 'Từ dòng', (string) ( $m['tu_dong'] ?? '' ), '', 'number' ) . self::o( "$id-den", $p . '[den_dong]', 'Đến dòng', (string) ( $m['den_dong'] ?? '' ), '', 'number' ) . '</div>'
-			. self::hop( "$id-xoa", $p . '[xoa]', 'Xoá đoạn này', false ) . '</li>';
+			. self::hop( "$id-xoa", $p . '[xoa]', 'Xoá đoạn này', ! empty( $m['xoa'] ) ) . '</li>';
 	}
 
 	/** Danh sách mục (từ khó, dị bản): mỗi mục một khối; thêm bằng mẫu, xoá bằng ô đánh dấu. */
@@ -144,7 +144,7 @@ final class TamSua {
 	private static function muc( string $phan, string $i, array $m, array $ctx ): string {
 		$p     = "muc[$i]";
 		$id    = 's-' . $phan . '-' . $i;
-		$goc   = '__i__' === $i ? '' : $i;
+		$goc   = (string) ( $m['_goc_form'] ?? ( '__i__' === $i ? '' : $i ) );
 		$nguoi = isset( $m['nguoi_lam'] ) ? array( NguoiLam::MAY_CHEP => 'máy chép', NguoiLam::NGUOI_VIET => 'người viết', NguoiLam::DOC_GIA_GOP => 'người đọc góp' )[ $m['nguoi_lam'] ] ?? '' : '';
 		$than  = 'di_ban' === $phan
 			? self::vung( "$id-dong", $p . '[dong]', 'Lời', implode( "\n", $m['dong'] ?? array() ), '', 4 )
@@ -154,7 +154,7 @@ final class TamSua {
 		return '<li class="muc-sua"><input type="hidden" name="' . $p . '[goc]" value="' . esc_attr( $goc ) . '">'
 			. ( '' === $nguoi ? '' : '<p class="small muted">' . esc_html( 'Hiện: ' . $nguoi ) . '</p>' )
 			. $than . self::nguon( $id, $p . '[nguon]', $m['nguon'] ?? array(), $ctx )
-			. self::hop( "$id-xoa", $p . '[xoa]', 'Xoá mục này', false ) . '</li>';
+			. self::hop( "$id-xoa", $p . '[xoa]', 'Xoá mục này', ! empty( $m['xoa'] ) ) . '</li>';
 	}
 
 	/** Nguồn của một mục: hồ sơ nguồn, trang, đường dẫn — trống = chưa rõ (không điền sẵn gì). */
@@ -186,6 +186,25 @@ final class TamSua {
 	}
 
 	// ---------- Đọc form ----------
+
+	/** Hàng trống có thể bỏ; hàng đã điền một phần phải được giữ và báo thiếu. */
+	public static function loi_form( string $phan, array $f ): array {
+		$loi = array();
+		if ( 'chu_thich' !== $phan ) {
+			return $loi;
+		}
+		$i = 0;
+		foreach ( (array) ( $f['muc'] ?? array() ) as $k => $m ) {
+			if ( '__i__' === (string) $k || ! is_array( $m ) || ! empty( $m['xoa'] ) ) {
+				continue;
+			}
+			++$i;
+			if ( '' !== trim( (string) ( $m['tu'] ?? '' ) ) && '' === trim( (string) ( $m['loi_giai'] ?? '' ) ) ) {
+				$loi[] = 'Từ khó ' . $i . ': cần điền Lời giải. Hàng đang nhập được giữ lại.';
+			}
+		}
+		return $loi;
+	}
 
 	/**
 	 * Form gửi lên → giá trị phần (null = xoá) hoặc nháp (ý nghĩa chưa duyệt).

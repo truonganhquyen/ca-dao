@@ -62,6 +62,7 @@ Q-008 (tài trợ). Không câu nào chặn task kỹ thuật hiện tại.
 
 - Đang dùng: `docs/00` (nền), `01` (quyết định), `02` (tệp này), `03` (quy trình), `12` (nguồn), `22` (backlog), `26` (kỹ thuật V2), `27` (sản phẩm), `28` (luồng nội dung, biên tập), `31` (cải tiến sau review, phần còn mở), `32` (đợt 3), `docs/huong-dan/` (hướng dẫn người sáng lập).
 - Lưu trữ (không còn dùng hằng ngày, giữ nguyên văn): `docs/luu-tru/` — danh mục ở `docs/luu-tru/README.md`.
+- Kế hoạch bổ sung theo phạm vi người sáng lập chốt ngày 12/11: [giữ chữ, chống ghi đè, ảnh minh hoạ và thử nội dung](33-ke-hoach-cai-tien-bien-tap-va-anh.md); mới lập kế hoạch, chưa triển khai. Bốn mục loại khỏi đợt được ghi rõ trong kế hoạch.
 
 ## Lệnh điều hành
 

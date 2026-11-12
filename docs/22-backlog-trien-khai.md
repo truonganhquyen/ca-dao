@@ -165,6 +165,12 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-191 | Google (D-106; `docs/32` mục 5): mọi tác phẩm đã đăng được lập chỉ mục, trang chủ đề / vùng / mô-típ từ 3 bài đã đăng, `<title>` "nghĩa và cách dùng" chỉ khi có Ý nghĩa; công tắc toàn site (H5) không đổi | A | T-151 | — | READY |
 | T-192 | Gỡ phần cũ không còn dùng (`docs/32` mục 7): mã MVP (plugin, theme, kiểm thử, job CI `wordpress`), bộ khảo sát E2E Playwright của site MVP, sau khi kiểm công cụ chuyển đổi và kiểm thử V2 không còn cần | A | T-189 | — | DONE |
 | T-193 | Dọn tài liệu (D-107): tài liệu thời MVP và kế hoạch đã xong vào `docs/luu-tru/`; viết lại `docs/02`; cập nhật `00`, `01`, `12`, `26`, `27`, `28`, AGENTS.md; `docs/32` kế hoạch đợt 3 | A | T-188 | — | DONE |
+| **V2 · Biên tập an toàn và ảnh minh hoạ (`docs/33`, phạm vi người sáng lập chốt 12/11)** ||||||
+| T-194 | Giữ đầu vào lỗi, phần chưa lưu theo tab/phiên; báo hàng từ khó điền dở; không mở lại bốn mục đã loại (`docs/33` mục 1, 3.1) | A | T-189 | — | IN_PROGRESS |
+| T-195 | Chặn bản mở cũ ghi đè ở lưu phần chung; giữ chữ khi xung đột; kiểm hai tài khoản và thao tác ghi (`docs/33` mục 3.2) | A | T-194 | — | BLOCKED |
+| T-196 | Ảnh minh hoạ tuỳ chọn: chọn/tải, gắn bài, xem trước, khách thấy, thay/bỏ/khôi phục; không mở nguồn văn bản (`docs/33` mục 4) | A | T-195 | — | BLOCKED |
+| T-197 | Nhãn lưu/lỗi theo thể loại; Hiểu thêm trống gọn và tuyển tập chưa có nội dung trung thực (`docs/33` mục 5) | A | T-196 | — | BLOCKED |
+| T-198 | QA mẫu quan hệ/lối đọc trẻ, 10 bài thuộc 5 thể loại, một tuyển tập và thử tác vụ; người biên soạn quyết nội dung (`docs/33` mục 6, 8) | N+A | T-197 | — | BLOCKED |
 | **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
 | T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
 | T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | IN_PROGRESS |
@@ -913,6 +919,16 @@ Phần còn thiếu gom thành **T-185** (`READY`, xếp sau các việc của `
 **T-193 (11/11/2026, xong):** chuyển vào `docs/luu-tru/` (giữ nguyên văn, danh mục ở `docs/luu-tru/README.md`): `20-dac-ta-giao-dien`, `24-wordpress` (mục 8 máy chủ chép sang `docs/26` mục 15), `25-nang-cap-giao-dien-noi-dung`, `29-chuyen-doi-v2`, `30-ke-hoach-quan-tri-bien-tap-v2`, ba hướng dẫn thời MVP, báo cáo khảo sát E2E MVP 26/10 và ảnh, `02` cũ, mục 4 + 7 cũ của `28`, mục 7 + 12 cũ của `26`. Câu chữ giao diện và trợ năng của `20` chép thành phụ lục A, B của `docs/27`. Đường dẫn trong mã (chú thích, thư mục ảnh của bộ khảo sát Playwright) và AGENTS.md trỏ chỗ mới. Các task cũ trong mục này còn nhắc `docs/20`, `24`, `25`, `29`, `30`: tìm ở `docs/luu-tru/` cùng tên.
 
 **Lưu ý trạng thái:** T-143..T-157 là backlog xây mới trước ngày chuyển; trạng thái đã đối soát theo bằng chứng ở T-178.3 (10/11/2026), phần còn thiếu ở T-185. Nhóm T-166..T-183 theo dõi **nâng cấp mới**, không dùng các trạng thái cũ để suy ra chức năng đã có. T-178 đối soát backlog lịch sử theo bằng chứng, không đổi trạng thái hàng loạt theo suy đoán.
+
+### Biên tập an toàn và ảnh minh hoạ — T-194..T-198
+
+Người sáng lập yêu cầu tự động triển khai `docs/33` ngày 13/11/2026, giữ bốn ngoại lệ tại mục 1 của kế hoạch. Không sửa parser/lời, token nguồn, hiển thị nguồn/cờ/xem trước sách; không mở việc restore/census DB làm cổng chặn.
+
+- **T-194:** lỗi đầu vào giữ nguyên dữ liệu/hàng đang nhập, HTML được escape; vé lỗi theo người/phiên/bài/phần chỉ đọc một lần; phần chưa lưu theo tab không mất khi lưu phần khác; dọn sau lưu/hết hạn/đổi tài khoản. Hàng từ khó điền dở báo thiếu Lời giải. Có hồi quy WordPress và browser trong bốn lệnh chính.
+- **T-195:** dấu phiên bắt buộc trên đường lưu trực tiếp, kiểm và ghi trong lượt có khóa; hai tab/tài khoản gửi bản cũ bị chặn mà không mất chữ; khác phần không xung đột giả; có kiểm thao tác ghi, lịch sử và lỗi ghi.
+- **T-196:** ảnh tuỳ chọn chọn/tải/gắn/xem trước/lưu/hiện; thay/bỏ/khôi phục không xoá tệp; giữ media loại khác, quyền và ghi công ảnh; nháp, câu đố, guest và ngân sách được kiểm.
+- **T-197:** nhãn/ lỗi rõ theo thể loại; Hiểu thêm chưa có nội dung không trải sẵn form dài, góp vẫn có consent/duyệt; kiểm 390/1440, bàn phím và no-JS. Không thay các phần nguồn đã loại.
+- **T-198:** người biên soạn quyết 10 bài/5 thể loại và một tuyển tập thực; rà QA mẫu quan hệ/lối đọc trẻ, thử tác vụ tự nguyện. Agent chuẩn bị công cụ/biểu mẫu và báo kỹ thuật, không tự phán nội dung hoặc đăng bài thật.
 
 ## 4. User story
 

@@ -118,6 +118,7 @@ final class Module implements \Phongdao\HaTang\Module {
 				if ( $trang === $sua ) {
 					$tep = dirname( __DIR__, 3 ) . '/ca-dao.php';
 					wp_enqueue_style( 'phongdao-admin-sua', plugins_url( 'assets/admin-sua.css', $tep ), array(), CADAO_PHIEN_BAN );
+					wp_enqueue_script( 'phongdao-giu-nhap', plugins_url( 'assets/giu-nhap.js', $tep ), array(), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
 					wp_enqueue_script( 'phongdao-admin-sua', plugins_url( 'assets/admin-sua.js', $tep ), array(), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
 				}
 			} );

@@ -8,6 +8,7 @@ use Phongdao\DichVu\XepViec\QuyetViec;
 use Phongdao\GiaoTiep\BienTap\CheDoSua;
 use Phongdao\GiaoTiep\BienTap\Module as BienTap;
 use Phongdao\GiaoTiep\BienTap\TamSua;
+use Phongdao\GiaoTiep\BienTap\NhapDo;
 use Phongdao\HaTang\KhaiBao;
 use Phongdao\KhoLuu\Viec;
 use Phongdao\MienDuLieu\SoSanh;
@@ -88,6 +89,8 @@ final class SuaTacPham {
 			delete_transient( $khoa_loi );
 		}
 		$sau = self::bai_sau( $id );
+		$phan_loi = sanitize_key( (string) ( $_GET['phan'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc form đã được giữ theo phiên
+		$form_loi = 'loi' === $ket_qua ? NhapDo::lay( (string) ( $_GET['nhap_do'] ?? '' ), $id, $phan_loi ) : null;
 		$ra  = '<div class="wrap phongdao-admin-sua"><h1>Sửa tác phẩm #' . $id . ': ' . esc_html( $bai->post_title ) . '</h1>';
 		$ra .= '<p class="phongdao-sua-lien"><a href="' . esc_url( '' !== self::$ve ? self::$ve : admin_url( 'admin.php?page=' . DanhSachTacPham::TRANG ) ) . '">← Danh sách Tác phẩm' . ( '' !== self::$ve ? ' (đúng bộ lọc vừa xem)' : '' ) . '</a> · <a href="' . esc_url( get_preview_post_link( $bai ) ) . '">Xem trên trang đọc</a>'
 			. ( $sau ? ' · <a href="' . esc_url( self::url( $sau ) ) . '" data-bai-sau>Bài tiếp theo trong danh sách →</a>' : '' ) . '</p>';
@@ -126,9 +129,10 @@ final class SuaTacPham {
 				$thieu_tu = \Phongdao\MienDuLieu\TuKho::thieu( (array) ( $ctx['phan']['loi']['dong'] ?? array() ), array_column( (array) ( $cu['muc'] ?? array() ), 'tu' ) );
 				$chinh   .= $thieu_tu ? '<div class="notice notice-warning inline"><p>' . esc_html( 'Không thấy từ ' . implode( ', ', array_map( static fn( string $t ): string => '«' . $t . '»', $thieu_tu ) ) . ' trong lời, kiểm lại chính tả.' ) . '</p></div>' : '';
 			}
-			$chinh .= '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="phongdao_sua_phan">' . self::an_ve() . $an_sau . '<input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="phan" value="' . esc_attr( $phan ) . '">';
+			$loi_o_day = null !== $form_loi && $phan === $phan_loi;
+			$chinh .= '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" data-giu-nhap="' . $id . ':' . esc_attr( $phan ) . '" data-phien-soan="' . esc_attr( NhapDo::phien() ) . '"' . ( $loi_o_day ? ' data-giu-loi="1"' : '' ) . '><input type="hidden" name="action" value="phongdao_sua_phan">' . self::an_ve() . $an_sau . '<input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="phan" value="' . esc_attr( $phan ) . '">';
 			$chinh .= wp_nonce_field( 'phongdao_sua_phan_' . $id . '_' . $phan, '_wpnonce', true, false );
-			$chinh .= TamSua::than( $phan, $cu, $ctx ) . '<p class="phongdao-sua-nut">' . TamSua::nut_luu( $phan, $ctx, 'button button-primary', 'button', 'Lưu phần này' ) . '</p></form></details>';
+			$chinh .= TamSua::than( $phan, $loi_o_day ? NhapDo::de_hien( $phan, $form_loi, $cu ) : $cu, $ctx ) . '<p class="phongdao-sua-nut">' . TamSua::nut_luu( $phan, $ctx, 'button button-primary', 'button', 'Lưu phần này' ) . '</p></form></details>';
 		}
 		// Cột bên: trạng thái, nguồn, việc chờ, cờ, phân loại, lịch sử. Điện thoại: trạng thái và Đăng / Ẩn ngay dưới tên bài.
 		$ra .= '<div class="phongdao-sua-dau-dt">' . self::thanh_trang_thai( $bai ) . '</div>';
@@ -641,8 +645,10 @@ final class SuaTacPham {
 		$yc->set_param( 'phan', $phan );
 		$yc->set_body_params( wp_unslash( $_POST ) );
 		$kq = BienTap::luu_phan( $yc );
+		$ve_nhap = '';
 		if ( ! $kq['ok'] ) {
 			set_transient( 'phongdao_sua_loi_' . $id . '_' . get_current_user_id(), implode( ' ', $kq['loi'] ?? array() ), MINUTE_IN_SECONDS );
+			$ve_nhap = NhapDo::giu( $id, $phan, wp_unslash( $_POST ) );
 		}
 		$ket_qua = ! $kq['ok'] ? 'loi' : ( ! empty( $kq['thong_bao'] ) && str_contains( $kq['thong_bao'], 'nháp' ) ? 'nhap' : ( ! empty( $kq['doi'] ) ? 'da_luu' : 'khong_doi' ) );
 		self::$ve = self::ve_hop_le( wp_unslash( (string) ( $_POST['ve'] ?? '' ) ) );
@@ -650,10 +656,10 @@ final class SuaTacPham {
 		$sau = absint( $_POST['bai_sau'] ?? 0 );
 		$sau = $sau && $sau !== $id && self::sua_duoc( $sau ) ? $sau : 0;
 		if ( $kq['ok'] && $sau && ! empty( $_POST['sang'] ) ) {
-			wp_safe_redirect( add_query_arg( 'ket_qua', 'da_luu_sang', self::url( $sau ) ) );
+			wp_safe_redirect( add_query_arg( array( 'ket_qua' => 'da_luu_sang', 'da_luu_bai' => $id, 'da_luu_phan' => $phan ), self::url( $sau ) ) );
 			exit;
 		}
-		wp_safe_redirect( add_query_arg( array_filter( array( 'ket_qua' => $ket_qua, 'phan' => $phan, 'bai_sau' => $sau ) ), self::url( $id ) ) . '#phan-' . $phan );
+		wp_safe_redirect( add_query_arg( array_filter( array( 'ket_qua' => $ket_qua, 'phan' => $phan, 'bai_sau' => $sau, 'nhap_do' => $ve_nhap ) ), self::url( $id ) ) . '#phan-' . $phan );
 		exit;
 	}
 }
