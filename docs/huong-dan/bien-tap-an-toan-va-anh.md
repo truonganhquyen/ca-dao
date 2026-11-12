@@ -12,6 +12,8 @@ Lỗi dữ liệu không xoá đầu vào vừa gửi. Hàng Từ khó đã có 
 
 Khi thấy **Phần này đã đổi**, mở **Đối chiếu bản đang lưu**. Chữ đang nhập vẫn còn. Đọc bản mới, tự sửa phần mình đang viết; chỉ đánh dấu đã đối chiếu khi đã quyết dùng phần đang nhập. Sau đó bấm đúng nút lưu. Hệ thống không tự ghép hai bản hoặc tự duyệt nội dung.
 
+Khôi phục từ Lịch sử cũng kiểm bản mới trong lượt ghi. Nếu có người vừa sửa, mở lại Lịch sử để đối chiếu; lần khôi phục cũ không được dùng để đè phần vừa lưu. Duyệt một phần trong Hộp việc vẫn giữ trạng thái nháp/ẩn của tác phẩm; chỉ bài đã đăng mới hiện thay đổi cho khách.
+
 ## Gắn một ảnh minh hoạ
 
 1. Mở **Ảnh minh hoạ** trong hàng Thêm hoặc các phần của bài. Phần **Hình ảnh trong bài** là ô chữ về hình tượng, không phải nơi tải tệp.

@@ -211,6 +211,8 @@ Mọi route biên tập: `permission_callback` kiểm quyền riêng + nonce RES
 
 ### 5.1. Quyền
 
+Chốt caller (T-198): khôi phục phần bài lấy cùng khóa và kiểm lại phiên trong giao dịch trước khi ghi; xung đột chỉ trả lời báo, không trả snapshot nội bộ qua REST. Duyệt nháp và hoàn tác duyệt trong Hộp việc lấy khóa bài ngay sau START TRANSACTION, trước lượt đọc nhất quán để bản chữ tổng hợp nhận các phần vừa commit. Caller Hộp việc sở hữu giao dịch truyền ngữ cảnh PHP nội bộ `trong_giao_dich` khi khôi phục, không mở COMMIT lồng; REST không nhận cờ này từ client. Giữ CAS phiên của thẻ việc đang có.
+
 Ảnh minh hoạ (T-196): cùng `POST /tac-pham/{id}/phan/media`, form gửi `attachment_id` (0 = bỏ liên kết) và `phien_phan`. Tấm sửa chuyển thành danh sách `media.muc` hiện có, thay các mục `loai=anh` và giữ loại khác. Không đổi bảng/schema phần bài. Cần quyền tải tệp; khi lưu hoặc khôi phục kiểm attachment là ảnh raster còn đọc được tại site. Tải tệp và metadata dùng quyền/nonce của Thư viện WordPress; ghi công là attachment meta `_phongdao_anh_ghi_cong`, đọc được ghi công Commons cũ khi có. Alt/chú thích/ghi công dùng chung theo tệp, lịch sử phần bài chỉ khôi phục liên kết. `wp.media` chỉ nạp ở wp-admin; trang đọc nhận ảnh đáp ứng qua mapper/renderer, ảnh câu đố nằm trong đáp án.
 
 | Quyền | Cho phép | Gán sẵn |
