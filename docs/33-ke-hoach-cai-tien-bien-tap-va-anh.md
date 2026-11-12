@@ -1,6 +1,8 @@
 # 33 · Kế hoạch cải tiến biên tập và ảnh minh hoạ
 
-**Ngày 12/11/2026 · kế hoạch theo phạm vi người sáng lập vừa chốt · chưa triển khai mã.**
+**Ngày 12/11/2026 · bắt đầu tự động triển khai 13/11/2026 theo lệnh người sáng lập.**
+
+Tiến độ: giữ chữ (plugin 1.0.53) đã đạt 255 PHP + 523 WordPress + 55 chuyển đổi, quét 0 lỗi, E2E 47 bước/0 lỗi/0 bỏ qua. Chống ghi đè đang thực hiện; ảnh, trạng thái trống và pilot chưa nghiệm thu. Không dùng kết quả phần mềm để đánh dấu nội dung thật đã được duyệt.
 
 Mục tiêu là làm việc biên soạn tin cậy hơn, thêm được ảnh minh hoạ vào tác phẩm và làm trang đọc gọn hơn. Giữ WordPress V2, ba dòng việc Bài mới · Hộp việc · Bổ sung và dịch vụ lưu dùng chung.
 
@@ -169,8 +171,8 @@ Bàn giao gồm: bản xem trước, ảnh màn quan trọng, log bốn gate, c�
 
 ## 9. Trạng thái và ranh giới thực hiện
 
-- Lượt hiện tại chỉ lập kế hoạch; chưa đổi mã, vai tài khoản, dữ liệu bài hoặc production.
-- Chưa cấp mã task mới hoặc đổi task đang có thành DONE. Khi bắt đầu triển khai, phân rã vào backlog theo từng bản sửa, nối với kế hoạch này; không coi việc cũ đã DONE là bằng chứng lỗi mới đã được sửa.
+- Đã mở T-194..T-198 theo từng đầu ra trong backlog. T-194 sẵn sàng review sau đủ cổng; các phần sau tiếp tục theo phụ thuộc, không coi việc cũ đã DONE là bằng chứng lỗi mới đã được sửa.
+- Lệnh tự động triển khai không thay người biên soạn quyết nội dung hoặc tự mở Google. Kiểm ghi/chạy browser dùng dữ liệu kỹ thuật ở môi trường thử.
 - Nội dung, quyền ảnh, xoá/gộp/đổi đường dẫn bài đã đăng, schema lớn và UX lớn vẫn theo đúng Human Gate liên quan. Không yêu cầu chốt thêm để hoàn tất việc lập kế hoạch này.
 - Google/SEO đang dừng, audio, AI nội bộ, nâng cấp tìm kiếm/bản đồ và làm giàu đồng loạt không thuộc đợt này.
 - Các ghi nhận chưa xác minh về backup/DB vẫn là chưa xác minh; theo chỉ đạo mới, chúng không thành đầu việc hoặc cổng chặn của kế hoạch.
