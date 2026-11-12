@@ -626,11 +626,17 @@ try {
       chac(id, 'Hộp việc không có thẻ cách hiểu vừa gửi');
       await di(bt, `/wp-admin/admin.php?page=phongdao-hop-viec&loai=nguoi_doc&viec=${id}`);
       chac(await coChu(bt, 'có tham khảo cách hiểu của bạn đọc'), 'thẻ cách hiểu không nhắc tự viết lại khi dùng làm gốc cho Ý nghĩa');
+      // Sửa chữ và tên hiển thị ngay trên thẻ rồi bấm "Hiện trên trang" (gửi không tải lại trang)
+      const daSua = 'Cách hiểu thử đầu-cuối đã sửa: câu nói về lòng biết ơn cha mẹ.';
+      chac(await bt.$(`#nd-chu-${id}`) && await bt.$eval(`#nd-ten-${id}`, o => o.value) === 'Bút danh thử', 'thẻ cách hiểu không có ô sửa chữ và tên hiển thị');
+      await datO(bt, `#nd-chu-${id}`, daSua);
+      await datO(bt, `#nd-ten-${id}`, 'Bút danh đã sửa');
       await bamDoiTrang(bt, `.phongdao-hv-phai article#viec-${id} button[name=quyet][value=duyet]`);
+      chac(await coChu(bt, 'bản người đọc gửi giữ trong nhật ký'), 'hiện xong không báo đã lưu chữ, tên đã sửa');
       await di(k, bai);
       await bam(k, '#ht-nut-cach-hieu');
-      chac(await k.$eval('#cach-hieu', (e, c) => !e.hidden && e.innerText.includes(c) && e.innerText.includes('Bút danh thử'), chu), 'khách chưa thấy cách hiểu đã duyệt (kèm bút danh) ở phần Cách hiểu');
-      chac(!(await k.$eval('.work-main', (e, c) => e.innerText.includes(c), chu)), 'cách hiểu lẫn vào khung lời và Ý nghĩa');
+      chac(await k.$eval('#cach-hieu', (e, c) => !e.hidden && e.innerText.includes(c) && e.innerText.includes('Bút danh đã sửa') && !e.innerText.includes('Bút danh thử'), daSua), 'khách chưa thấy bản cách hiểu đã sửa (chữ, tên hiển thị) ở phần Cách hiểu');
+      chac(!(await k.$eval('.work-main', (e, c) => e.innerText.includes(c), daSua)), 'cách hiểu lẫn vào khung lời và Ý nghĩa');
     });
 
     await thu('Trang đọc (chế độ sửa): "Sửa phân loại" gắn một chủ đề có sẵn, quay lại trang đọc, người đọc thấy; gỡ lại như cũ', async () => {

@@ -2468,6 +2468,33 @@ kt(
 	&& ! str_contains( (string) strstr( $h, 'id="hieu-them"', true ), 'Cách hiểu mẫu' ) && ! in_array( (int) $ch['id'], array_column( \Phongdao\DichVu\DungTrang\DocBai::cam_nghi( $bai_g ), 'id' ), true ) && $cap_truoc === $cap_ch() && $yn_truoc === PhanBai::lay( $bai_g, 'y_nghia' ),
 	$kq_ch
 );
+// Người duyệt sửa chữ và tên hiển thị của cách hiểu / cảm nghĩ ngay trên thẻ trước khi hiện; bản người đọc gửi giữ trong nhật ký
+$_SERVER['REMOTE_ADDR'] = '203.0.113.10';
+wp_set_current_user( 0 );
+$ch2   = $NG::luu( array( 'loai' => 'cach_hieu', 'bai' => $bai_g, 'noi_dung' => 'Cach hieu go sai chinh ta, so dien thoai 0900000000.', 'ten' => 'Ten that Nguyen Van A', 'tu_viet' => '1', 'dong_y' => '1' ) );
+$cn2   = $NG::luu( array( 'loai' => 'cam_nghi', 'bai' => $bai_g, 'noi_dung' => 'Cảm nghĩ thử để sửa tên.', 'ten' => 'Tên thật cần bỏ', 'dong_y' => '1' ) );
+$v_ch2 = Viec::mo( 'comment', $ch2['id'], 'nguoi_doc' )[0] ?? array();
+$v_cn2 = Viec::mo( 'comment', $cn2['id'], 'nguoi_doc' )[0] ?? array();
+wp_set_current_user( $chi_soan );
+$the_cs2 = \Phongdao\GiaoTiep\BienTap\HopViec::the( $v_ch2 );
+wp_set_current_user( $ai_ql );
+$the_ch2 = \Phongdao\GiaoTiep\BienTap\HopViec::the( $v_ch2 );
+$kq_ch2  = QuyetViec::quyet( (int) $v_ch2['id'], 'duyet', $ai_ql, true, -1, 'Cách hiểu đã sửa chính tả, bỏ số điện thoại.', 'Bạn đọc ở Huế' );
+$kq_cn2  = QuyetViec::quyet( (int) $v_cn2['id'], 'duyet', $ai_ql, true, -1, '', '   ' );
+$bl_ch2  = get_comment( $ch2['id'] );
+$bl_cn2  = get_comment( $cn2['id'] );
+$tv_ch2  = Viec::lay( (int) $v_ch2['id'] );
+wp_set_current_user( 0 );
+$h_sua_nd = TacPham::hien( (array) \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_post( $bai_g ) ) );
+kt(
+	'Hộp việc: người có quyền duyệt sửa chữ và tên hiển thị của cách hiểu / cảm nghĩ ngay trên thẻ rồi bấm Hiện (tên để trống → "Một bạn đọc"); trang chỉ hiện bản đã sửa; bản người đọc gửi giữ trong nhật ký của thẻ; người không có quyền duyệt không có ô sửa',
+	str_contains( $the_ch2, 'name="chu" form="hv-form-' . $v_ch2['id'] . '"' ) && str_contains( $the_ch2, 'name="ten" form="hv-form-' . $v_ch2['id'] . '" maxlength="80" value="Ten that Nguyen Van A"' ) && ! str_contains( $the_cs2, 'name="ten" form=' )
+	&& $kq_ch2['ok'] && str_contains( $kq_ch2['thong_bao'], 'bản người đọc gửi giữ trong nhật ký' ) && 'Cách hiểu đã sửa chính tả, bỏ số điện thoại.' === $bl_ch2->comment_content && 'Bạn đọc ở Huế' === $bl_ch2->comment_author && '1' === (string) $bl_ch2->comment_approved && 'cach_hieu' === $bl_ch2->comment_type
+	&& 'Cach hieu go sai chinh ta, so dien thoai 0900000000.' === ( $tv_ch2['truoc']['goc']['chu'] ?? '' ) && 'Ten that Nguyen Van A' === ( $tv_ch2['truoc']['goc']['ten'] ?? '' )
+	&& $kq_cn2['ok'] && 'Một bạn đọc' === $bl_cn2->comment_author && 'Cảm nghĩ thử để sửa tên.' === $bl_cn2->comment_content
+	&& str_contains( $h_sua_nd, 'Cách hiểu đã sửa chính tả' ) && str_contains( $h_sua_nd, 'Bạn đọc ở Huế' ) && ! str_contains( $h_sua_nd, '0900000000' ) && ! str_contains( $h_sua_nd, 'Ten that Nguyen Van A' ) && ! str_contains( $h_sua_nd, 'Tên thật cần bỏ' ),
+	array( $kq_ch2, $kq_cn2, $tv_ch2['truoc'] ?? null )
+);
 // Người đọc gửi (T-177.11): gửi lại cùng nội dung không thành hai bản; lỗi tạo thẻ không để nội dung nằm ngoài Hộp việc;
 // nội dung đã đổi ở màn khác của WordPress thì thẻ không làm ngược (không kéo từ thùng rác ra đăng)
 $_SERVER['REMOTE_ADDR'] = '203.0.113.7';

@@ -40,9 +40,11 @@ final class QuyetViec {
 	 * @return array{ok:bool,loi:string[],thong_bao:string,chuyen:string} chuyen: đường dẫn nên mở tiếp (rỗng = về Hộp việc)
 	 */
 	/**
-	 * @param string $chu_sua Nháp ý nghĩa người đã sửa vài chữ ngay trên thẻ rồi bấm Duyệt (rỗng = duyệt đúng bản nháp).
+	 * @param string      $chu_sua Nháp ý nghĩa (hoặc cảm nghĩ, cách hiểu người đọc gửi) người đã sửa ngay trên thẻ rồi bấm
+	 *                             Duyệt / Hiện (rỗng = giữ đúng bản đang có).
+	 * @param string|null $ten_sua Tên hiển thị của cảm nghĩ, cách hiểu người đã sửa trên thẻ (null = giữ).
 	 */
-	public static function quyet( int $id, string $quyet, int $nguoi, bool $duyet, int $phien = -1, string $chu_sua = '' ): array {
+	public static function quyet( int $id, string $quyet, int $nguoi, bool $duyet, int $phien = -1, string $chu_sua = '', ?string $ten_sua = null ): array {
 		global $wpdb;
 		$v = Viec::lay( $id );
 		if ( ! $v || ! in_array( $v['trang_thai'], array( Viec::CHO, Viec::DE_SAU ), true ) ) {
@@ -65,7 +67,7 @@ final class QuyetViec {
 			return self::kq( false, 'Thẻ đã đổi ở phiên khác. Tải lại Hộp việc để xem quyết định mới.' );
 		}
 		try {
-			$kq = self::thuc_hien( $v, $quyet, $nguoi, $duyet, $chu_sua );
+			$kq = self::thuc_hien( $v, $quyet, $nguoi, $duyet, $chu_sua, $ten_sua );
 		} catch ( \Throwable $e ) {
 			$kq = self::kq( false, 'Chưa lưu được quyết định. Thử lại sau.' );
 		}
@@ -165,7 +167,7 @@ final class QuyetViec {
 	}
 
 	/** Chạy trong giao dịch đã giữ đúng phiên thẻ. */
-	private static function thuc_hien( array $v, string $quyet, int $nguoi, bool $duyet, string $chu_sua = '' ): array {
+	private static function thuc_hien( array $v, string $quyet, int $nguoi, bool $duyet, string $chu_sua = '', ?string $ten_sua = null ): array {
 		$id = $v['id'];
 		if ( Viec::DE_SAU === $quyet || 'de_sau' === $quyet ) {
 			if ( 'co_the_trung' === $v['loai'] ) {
@@ -244,7 +246,7 @@ final class QuyetViec {
 				if ( 'duyet' === $quyet && ! $duyet ) {
 					return self::kq( false, 'Cần quyền duyệt để hiện nội dung người đọc gửi.' );
 				}
-				return self::quyet_nguoi_doc( $v, $quyet, $nguoi );
+				return self::quyet_nguoi_doc( $v, $quyet, $nguoi, $chu_sua, $ten_sua );
 			case 'co_the_trung':
 				$a = (string) $v['noi_dung']['a'];
 				$b = (string) $v['noi_dung']['b'];
@@ -276,14 +278,17 @@ final class QuyetViec {
 	 * thể đã đổi ở màn Bình luận/Bài viết của WordPress. Đã đúng trạng thái cần thì chỉ đóng thẻ; đã vào thùng rác thì không
 	 * tự lấy ra để hiện; làm xong thì đọc lại trạng thái, chưa đúng thì báo lỗi để giao dịch huỷ.
 	 */
-	private static function quyet_nguoi_doc( array $v, string $quyet, int $nguoi ): array {
+	private static function quyet_nguoi_doc( array $v, string $quyet, int $nguoi, string $chu_sua = '', ?string $ten_sua = null ): array {
 		$dt   = (int) $v['doi_tuong_id'];
 		$bl   = 'comment' === $v['doi_tuong_loai'];
-		$ten  = $bl ? 'Cảm nghĩ' : 'Nội dung';
+		$ten  = $bl ? ( 'cach_hieu' === ( $v['noi_dung']['loai'] ?? '' ) ? 'Cách hiểu' : 'Cảm nghĩ' ) : 'Nội dung';
 		$tt   = self::tt_nguoi_doc( $v['doi_tuong_loai'], $dt );
 		$dich = array( 'duyet' => 'hien', 'xong' => 'xong', 'bo' => 'rac' )[ $quyet ];
 		$the  = 'bo' === $quyet ? Viec::BO : Viec::XONG;
-		$dong = static fn( string $chu ): array => Viec::dong( $v['id'], $the, $quyet, $nguoi, $v['trang_thai'], array( 'noi_dung' => $tt ) ) ? self::kq( true, $chu ) : self::kq( false, 'Chưa ghi được trạng thái việc.' );
+		$goc  = array(); // bản người đọc gửi, giữ trong nhật ký của thẻ khi người duyệt đã sửa chữ / tên trước khi hiện
+		$dong = static function ( string $chu ) use ( $v, $the, $quyet, $nguoi, $tt, &$goc ): array {
+			return Viec::dong( $v['id'], $the, $quyet, $nguoi, $v['trang_thai'], array( 'noi_dung' => $tt ) + $goc ) ? self::kq( true, $chu ) : self::kq( false, 'Chưa ghi được trạng thái việc.' );
+		};
 		if ( '' === $tt ) {
 			return 'bo' === $quyet ? $dong( $ten . ' này đã bị xoá ở nơi khác; đã đóng thẻ.' ) : self::kq( false, $ten . ' này đã bị xoá ở nơi khác. Bấm Bỏ để đóng thẻ.' );
 		}
@@ -295,6 +300,23 @@ final class QuyetViec {
 		}
 		if ( 'khac' === $tt ) {
 			return self::kq( false, $ten . ' này đang ở trạng thái khác (đã hẹn giờ hoặc tương tự); xử lý ở màn của WordPress.' );
+		}
+		if ( $bl && 'duyet' === $quyet && ( '' !== trim( $chu_sua ) || null !== $ten_sua ) ) {
+			// Người duyệt sửa chính tả, bỏ thông tin cá nhân, đổi tên hiển thị ngay trên thẻ rồi bấm Hiện (cùng giao dịch)
+			$c       = get_comment( $dt );
+			$dai     = 'cach_hieu' === ( $c->comment_type ?? '' ) ? \Phongdao\MienDuLieu\GopNguoiDoc::DAI_CACH_HIEU : \Phongdao\MienDuLieu\GopNguoiDoc::DAI_CAM_NGHI;
+			$chu_moi = '' !== trim( $chu_sua ) ? mb_substr( trim( str_replace( "\r\n", "\n", $chu_sua ) ), 0, $dai ) : (string) $c->comment_content;
+			$ten_moi = null === $ten_sua ? (string) $c->comment_author : mb_substr( trim( (string) preg_replace( '/\s+/u', ' ', $ten_sua ) ), 0, 80 );
+			$ten_moi = '' !== $ten_moi ? $ten_moi : 'Một bạn đọc';
+			if ( $chu_moi !== (string) $c->comment_content || $ten_moi !== (string) $c->comment_author ) {
+				$goc = array( 'goc' => array( 'chu' => (string) $c->comment_content, 'ten' => (string) $c->comment_author ), 'da_sua' => true );
+				$sua = wp_update_comment( wp_slash( array( 'comment_ID' => $dt, 'comment_content' => $chu_moi, 'comment_author' => $ten_moi ) ), true );
+				clean_comment_cache( $dt );
+				$c_sau = get_comment( $dt );
+				if ( is_wp_error( $sua ) || false === $sua || ! $c_sau || $ten_moi !== (string) $c_sau->comment_author ) {
+					return self::kq( false, 'Chưa lưu được chữ đã sửa; thẻ vẫn mở.' );
+				}
+			}
 		}
 		if ( $bl ) {
 			wp_set_comment_status( $dt, 'duyet' === $quyet ? 'approve' : 'trash' );
@@ -309,7 +331,7 @@ final class QuyetViec {
 		if ( self::tt_nguoi_doc( $v['doi_tuong_loai'], $dt ) !== $dich ) {
 			return self::kq( false, 'Chưa đổi được trạng thái ' . mb_strtolower( $ten ) . '; thẻ vẫn mở.' );
 		}
-		return $dong( 'duyet' === $quyet ? 'Đã hiện trên trang.' : ( 'bo' === $quyet ? 'Đã bỏ.' : 'Đã đánh dấu xử lý xong.' ) );
+		return $dong( 'duyet' === $quyet ? 'Đã hiện trên trang.' . ( $goc ? ' Đã lưu chữ, tên đã sửa; bản người đọc gửi giữ trong nhật ký của thẻ.' : '' ) : ( 'bo' === $quyet ? 'Đã bỏ.' : 'Đã đánh dấu xử lý xong.' ) );
 	}
 
 	/** Chỉ khôi phục nếu phần bài còn đúng bản của lần Duyệt và chưa có lượt sửa mới hơn. */

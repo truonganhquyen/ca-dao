@@ -47,7 +47,8 @@ final class HopViec {
 		}
 		$phien = isset( $_POST['phien'] ) && ctype_digit( (string) $_POST['phien'] ) ? (int) $_POST['phien'] : PHP_INT_MAX; // phpcs:ignore WordPress.Security.NonceVerification -- nonce đã kiểm trên
 		$chu_sua = 'duyet' === $quyet && isset( $_POST['chu'] ) ? sanitize_textarea_field( wp_unslash( (string) $_POST['chu'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification -- nonce đã kiểm trên
-		$kq   = QuyetViec::quyet( $id, $quyet, get_current_user_id(), current_user_can( 'cadao_duyet' ), $phien, $chu_sua );
+		$ten_sua = 'duyet' === $quyet && isset( $_POST['ten'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['ten'] ) ) : null; // phpcs:ignore WordPress.Security.NonceVerification -- nonce đã kiểm trên
+		$kq   = QuyetViec::quyet( $id, $quyet, get_current_user_id(), current_user_can( 'cadao_duyet' ), $phien, $chu_sua, $ten_sua );
 		$ve   = (string) wp_get_referer() ?: admin_url( 'admin.php?page=' . \Phongdao\GiaoTiep\QuanTri\DanhSachViec::TRANG );
 		// Quyết được thì sang thẻ kế (Hộp việc wp-admin), kèm lối xem lại thẻ vừa quyết; quyết hỏng thì ở lại thẻ này
 		$tiep = $kq['ok'] && ! $kq['chuyen'] ? self::tiep() : '';
@@ -153,6 +154,15 @@ final class HopViec {
 			$than    = '<blockquote class="small">' . nl2br( esc_html( mb_strlen( $chu ) > 800 ? mb_substr( $chu, 0, 799 ) . '…' : $chu ) ) . '</blockquote>'
 				. ( $them ? '<p class="small muted">' . esc_html( implode( ' · ', $them ) ) . '</p>' : '' );
 			$ly_do   = 'chờ duyệt, người đọc chưa thấy';
+			// Cảm nghĩ, cách hiểu còn chờ: người có quyền duyệt sửa chữ và tên hiển thị ngay trên thẻ, rồi bấm "Hiện trên trang"
+			// (ô nằm ngoài form quyết, gửi kèm bằng thuộc tính form; bản người đọc gửi giữ trong nhật ký của thẻ)
+			if ( 'comment' === $v['doi_tuong_loai'] && $c && $co_form && current_user_can( 'cadao_duyet' ) && in_array( $v['trang_thai'], array( Viec::CHO, Viec::DE_SAU ), true ) ) {
+				$vid  = (int) $v['id'];
+				$dai  = 'cach_hieu' === $c->comment_type ? \Phongdao\MienDuLieu\GopNguoiDoc::DAI_CACH_HIEU : \Phongdao\MienDuLieu\GopNguoiDoc::DAI_CAM_NGHI;
+				$than = '<div class="nd-sua"><p><label for="nd-chu-' . $vid . '">Nội dung — sửa được trước khi hiện (chính tả, bỏ thông tin cá nhân)</label><br><textarea class="nhap-chu nhap-sua" id="nd-chu-' . $vid . '" name="chu" form="hv-form-' . $vid . '" rows="4" maxlength="' . $dai . '">' . esc_textarea( $chu ) . '</textarea></p>'
+					. '<p><label for="nd-ten-' . $vid . '">Tên hiển thị</label><br><input type="text" class="regular-text" id="nd-ten-' . $vid . '" name="ten" form="hv-form-' . $vid . '" maxlength="80" value="' . esc_attr( (string) $c->comment_author ) . '"></p>'
+					. '<p class="small muted">Sửa xong bấm "Hiện trên trang". Bản người đọc gửi được giữ trong nhật ký của thẻ.</p></div>';
+			}
 			if ( 'cach_hieu' === $loai ) {
 				// Cách hiểu không thay Ý nghĩa; muốn dùng làm gốc thì người biên soạn tự viết lại (máy không chép)
 				$than .= '<p class="small muted">Hiện trên trang thì cách hiểu nằm ở tầng "Hiểu thêm", tách riêng với Ý nghĩa của ban biên tập. Muốn dùng làm gốc cho Ý nghĩa: tự viết lại'
