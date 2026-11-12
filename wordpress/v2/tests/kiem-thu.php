@@ -265,7 +265,7 @@ $_GET = array( 'muc' => 'thieu_giai_thich' );
 $ds_thieu_cau_do = \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::hien();
 $_GET = $get_truoc;
 $h_sua_cau_do = $xem( $mau_id['cau-do-mau'] );
-kt( 'câu đố từ danh sách "Câu đố thiếu giải thích đáp án" (wp-admin Tác phẩm) mở được nút Thêm ý nghĩa khi người biên soạn sửa', str_contains( $ds_thieu_cau_do, esc_html( get_the_title( $mau_id['cau-do-mau'] ) ) ) && str_contains( $h_sua_cau_do, 'data-tam="y_nghia"' ) && str_contains( $h_sua_cau_do, 'Thêm ý nghĩa' ) );
+kt( 'câu đố từ danh sách "Câu đố thiếu giải thích đáp án" (wp-admin Tác phẩm) mở được nút Thêm giải thích đáp án khi người biên soạn sửa', str_contains( $ds_thieu_cau_do, esc_html( get_the_title( $mau_id['cau-do-mau'] ) ) ) && str_contains( $h_sua_cau_do, 'data-tam="y_nghia"' ) && str_contains( $h_sua_cau_do, 'Thêm giải thích đáp án' ) );
 wp_set_current_user( 0 );
 $h = $xem( $mau_id['tuc-ngu-mau-ngan'] );
 kt( 'tục ngữ thật: câu là tiêu đề, khối Nghĩa có Nghĩa bóng (hiện to nhất), Dùng khi 2 ví dụ', str_contains( $h, '<h1 class="read-title"><span class="verse-box"><span class="verse proverb"' ) && str_contains( $h, 'id="nghia"><h2>Nghĩa</h2>' ) && str_contains( $h, '<div class="nghia-bong"><h3>Nghĩa bóng</h3>' ) && 2 === substr_count( (string) strstr( (string) strstr( $h, '<ul class="uses">' ), '</ul>', true ), '<li>' ) );
@@ -302,6 +302,7 @@ delete_option( 'cadao_turnstile_site' );
 kt( 'form cách hiểu có ô chống rác Turnstile khi người quản trị đã dán khoá', str_contains( $ht_ts, 'class="cf-turnstile" data-sitekey="khoa-site-thu"' ) );
 
 // ---------- Trang đọc theo thể loại và từ khó (D-105, docs/32 mục 4.2, 4.5, 4.6, 4.9) ----------
+$viec_moc_tl = (int) $wpdb->get_var( 'SELECT MAX(id) FROM ' . Viec::bang() );
 $nc_tl = array( 'nguoi' => $ai_ql, 'goi' => KiemPhan::GOI_NGUOI, 'duyet' => true );
 $bai_tl = static function ( string $ten, string $the_loai, array $dong ) use ( $nc_tl ): int {
 	$id = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'post_title' => $ten, 'post_name' => sanitize_title( $ten ) ) );
@@ -343,7 +344,7 @@ wp_set_current_user( 0 );
 $h_tn_ngan = $xem( $tn_ngan );
 $h_tn_dai  = $xem( $tn_dai );
 kt( 'tục ngữ ngắn: câu là tiêu đề, từ khó được tô ngay trong câu tiêu đề; có Nghĩa bóng thì không mời chia sẻ cách hiểu', str_contains( (string) strstr( (string) strstr( $h_tn_ngan, '<h1 class="read-title">' ), '</h1>', true ), '<a class="word" href="#chu-thich" aria-label="Xem chú thích từ kẻ trồng cây">kẻ trồng cây</a>' ) && ! str_contains( $h_tn_ngan, 'Câu này chưa có lời giải nghĩa' ) );
-kt( 'tục ngữ dài (từ 3 dòng): hiện như ca dao — tên là dòng đầu, cỡ tiêu đề thường; lời đủ trong khung lời, không phải kiểu câu là tiêu đề', str_contains( $h_tn_dai, '<h1 class="read-title">Dòng tục ngữ dài thứ nhất</h1>' ) && ! str_contains( $h_tn_dai, 'verse proverb' ) && 3 === substr_count( (string) strstr( $h_tn_dai, 'class="work-main"' ), '<span class="line">' ) );
+kt( 'tục ngữ dài (từ 3 dòng): hiện như ca dao — tên là dòng đầu, cỡ tiêu đề thường; lời đủ trong khung lời, không phải kiểu câu là tiêu đề', str_contains( $h_tn_dai, '<h1 class="read-title">Dòng tục ngữ dài thứ nhất</h1>' ) && ! str_contains( $tn_dai_chinh = (string) strstr( (string) strstr( $h_tn_dai, '<header class="work-head">' ), 'class="work-rest"', true ), 'verse proverb' ) && 3 === substr_count( $tn_dai_chinh, '<span class="line">' ), substr( (string) strstr( $h_tn_dai, '<h1' ), 0, 300 ) );
 wp_set_current_user( $ai_ql );
 $h_tn_sua = $xem( $tn_dai );
 $_GET     = array( 'id' => (string) $tn_dai );
@@ -407,8 +408,9 @@ kt(
 	&& str_contains( $tl_tam, 'name="action" value="phongdao_doi_the_loai"' ) && str_contains( $tl_tam, 'đường cũ tự chuyển' ) && ! str_contains( $ha_khach, 'tam-phan-loai' ) && ! str_contains( $ha_khach, 'data-gui-thuong' ),
 	substr( $pl_tam, 0, 600 )
 );
-$cs_tl = (int) wp_insert_user( array( 'user_login' => 'chisoan-trang-doc', 'user_pass' => wp_generate_password(), 'role' => 'subscriber' ) );
-( new WP_User( $cs_tl ) )->add_cap( 'cadao_soan' );
+// Người chỉ soạn: vai Biên tập (sửa được bài) nhưng không có quyền duyệt
+$cs_tl = (int) wp_insert_user( array( 'user_login' => 'chisoan-trang-doc', 'user_pass' => wp_generate_password(), 'role' => 'editor' ) );
+( new WP_User( $cs_tl ) )->add_cap( 'cadao_duyet', false );
 wp_set_current_user( $cs_tl );
 $ha_cs = $xem( $ha_bai );
 wp_set_current_user( $ai_ql );
@@ -428,6 +430,8 @@ kt( 'người đọc: bài chưa có nơi lưu truyền thì mời "Ở quê b�
 foreach ( array( $tk_bai, $tn_ngan, $tn_dai, $cd_bai, $ha_bai ) as $x ) {
 	wp_delete_post( $x, true );
 }
+// Thẻ máy tự tạo cho các bài thử (gợi ý, có thể trùng): dọn để số đếm của Hộp việc ở phần sau không lệch
+$wpdb->query( $wpdb->prepare( 'DELETE FROM ' . Viec::bang() . " WHERE id > %d AND trang_thai IN ('cho', 'de_sau')", $viec_moc_tl ) );
 kt( 'trang không phải tác phẩm: khối không in gì', '' === trim( $xem( $trang ) ) );
 
 // ---------- Danh sách: Tất cả, thể loại ----------
