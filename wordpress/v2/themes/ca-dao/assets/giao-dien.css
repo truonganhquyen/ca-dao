@@ -190,5 +190,14 @@ details.block>summary{justify-content:flex-start;gap:10px}details.block>summary:
 @media print{.thu-gon .doan[data-sau]{display:block!important}.doc-toan-bai,.doc-tiep-doan{display:none!important}}
 /* Màn 320 px: giữ nút sáng/tối trong khung đầu trang mà vẫn đủ vùng chạm. */
 @media(max-width:359px){.site-header .mobile-search{padding-inline:10px}}
+/* Trang bài ba tầng (D-105): Đọc · Hiểu thêm · Đọc thêm. Tầng Hiểu thêm: ba thẻ khi có JavaScript, ba phần liền nhau khi tắt. */
+.tang{margin:40px 0;padding-top:24px;border-top:1px solid var(--line)}.tang-dau{margin:0 0 8px;color:var(--tim);font-size:15px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.ht-nut{display:flex;flex-wrap:wrap;gap:4px 8px;margin:8px 0 20px;border-bottom:1px solid var(--line)}.ht-nut [role=tab]{min-height:44px;padding:8px 12px;border:0;border-bottom:3px solid transparent;background:none;color:var(--muc);font-size:16px;font-weight:600;cursor:pointer}.ht-nut [role=tab][aria-selected=true]{border-bottom-color:var(--tim);color:var(--tim)}.ht-nut [role=tab]:focus-visible{outline:2px solid var(--tim);outline-offset:2px}
+.ht-so{display:inline-block;min-width:22px;margin-left:4px;padding:0 6px;border-radius:11px;background:var(--panel);font-size:14px;text-align:center}
+.ht-phan{margin:0 0 28px}.ht-phan[hidden]{display:none}.ht-ten{margin:24px 0 12px;font-size:20px}.ht-muc{margin:0 0 12px}.ht-bai{padding:14px 0;border-bottom:1px solid var(--line)}.ht-bai h4{margin:0 0 6px;font-size:18px}
+.ht-tom{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin:0 0 6px}.ht-viet{margin:16px 0 0}
+.form-cach-hieu{margin:20px 0 0;padding:20px;border:1px solid var(--line);border-radius:4px;background:var(--panel)}.form-cach-hieu h4{margin:0 0 4px;font-size:18px}.moi-cach-hieu p{margin:0 0 12px}.moi-cach-hieu p:last-child{margin:0}
+@media(max-width:767px){.tang{margin:32px 0}.form-cach-hieu{padding:16px}}
+@media print{.ht-nut,.form-cach-hieu,.moi-cach-hieu .btn{display:none!important}.ht-phan[hidden]{display:block!important}}
 /* Chế độ tối theo cài đặt máy khi người đọc chưa bấm chọn */
 @media (prefers-color-scheme:dark){:root:not([data-theme=light]){--giay:#17151B;--white:#1F1C24;--panel:#24212A;--muc:#EFEBE4;--nhat:#B4AEA6;--tim:#BCA8F4;--tim-dam:#D4C7F8;--tim-nhat:#2E2648;--tim-vien:#4A3D72;--tim-giay:#221E2E;--luc:#86CFA8;--luc-nhat:#1B3328;--luc-vien:#2F5E46;--to:#4A3F12;--to-vien:#8C7426;--loi:#F2958B;--green:#86CFA8;--blue:#8DB6E3;--ochre:#E0BE72;--line:#38343F;--control-line:#8E8799;--focus:#BCA8F4;--tren-tim:#17151B;--bong:0 1px 2px rgba(0,0,0,.3);color-scheme:dark;--nhan-d:#B8AB93;--nhan-co:#B0B0B0;--nen-vang:#2A2414;--nen-tim:#221E2E;--nen-luc:#18261F;--nen-xanh:#172231;--nen-dat:#24211C;--nen-hong:#2C1A24;--vang-dam:#E6B860;--hong:#F09ABF;--xanh:#8DB6E3}}

@@ -58,7 +58,7 @@ final class DocBai {
 			}
 		}
 		$tp['dap_an_them'] = '' === $tp['dap_an'] ? '' : \Phongdao\GiaoTiep\Khoi\DiaDanh::html( \Phongdao\GiaoTiep\Khoi\DiaDanh::cua_dap_an( $tp['dap_an'] ) ?? array(), 'thumbnail' );
-		return array( 'cam_nghi' => self::cam_nghi( $bai->ID ) ) + $tp;
+		return array( 'cam_nghi' => self::cam_nghi( $bai->ID ), 'cach_hieu' => self::cam_nghi( $bai->ID, 'cach_hieu' ) ) + $tp;
 	}
 
 	/**
@@ -96,8 +96,12 @@ final class DocBai {
 		return $ra;
 	}
 
-	/** Cảm nghĩ đã duyệt của bài (cũ trước). @return list<array{id:int,ten:string,chu:string,ngay:string}> */
-	public static function cam_nghi( int $id ): array {
+	/**
+	 * Cảm nghĩ (hoặc cách hiểu của bạn đọc, `$loai = 'cach_hieu'`) đã được người bấm Hiện, cũ trước.
+	 *
+	 * @return list<array{id:int,ten:string,chu:string,ngay:string}>
+	 */
+	public static function cam_nghi( int $id, string $loai = 'comment' ): array {
 		return array_map(
 			static fn( \WP_Comment $c ): array => array(
 				'id'   => (int) $c->comment_ID,
@@ -105,7 +109,7 @@ final class DocBai {
 				'chu'  => (string) $c->comment_content,
 				'ngay' => (string) mysql2date( 'd/m/Y', $c->comment_date ),
 			),
-			get_comments( array( 'post_id' => $id, 'status' => 'approve', 'type' => 'comment', 'order' => 'ASC', 'number' => 50 ) ) ?: array()
+			get_comments( array( 'post_id' => $id, 'status' => 'approve', 'type' => $loai, 'order' => 'ASC', 'number' => 50 ) ) ?: array()
 		);
 	}
 

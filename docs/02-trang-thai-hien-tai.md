@@ -37,7 +37,7 @@
   - khu quản trị (D-104);
   - trang đọc và nội dung (D-105);
   - mọi tác phẩm đã đăng được lập chỉ mục khi site mở cho Google (D-106).
-- Task: T-189 (khu quản trị), T-190 (trang đọc), T-191 (Google), T-192 (gỡ mã cũ). Thứ tự làm: `docs/32` mục 8. Bước 1 (sửa nhanh, menu mới, Hôm nay — T-189.1) bước 2 (bảng tóm tắt bài, Tác phẩm gọn, bản điện thoại — T-189.2) bước 3 (Bài mới — T-189.3; Bổ sung duyệt gợi ý, Hộp việc chỉ việc cần quyết — T-189.4) bước 4 (Hộp việc không tải lại trang, điện thoại, trang sửa gọn, cờ công tắc, đổi thể loại — T-189.5) bước 5 (Nguồn & cài đặt, Đối chiếu sách — T-189.6) và bước 6 (gộp `/bien-tap/` về wp-admin — T-189.7) đã làm. Bước Google (T-191) **tạm dừng theo người sáng lập (12/11/2026)**; làm trước trang bài ba tầng và "Cách hiểu của bạn đọc" (T-190).
+- Task: T-189 (khu quản trị), T-190 (trang đọc), T-191 (Google), T-192 (gỡ mã cũ). Thứ tự làm: `docs/32` mục 8. Bước 1 (sửa nhanh, menu mới, Hôm nay — T-189.1) bước 2 (bảng tóm tắt bài, Tác phẩm gọn, bản điện thoại — T-189.2) bước 3 (Bài mới — T-189.3; Bổ sung duyệt gợi ý, Hộp việc chỉ việc cần quyết — T-189.4) bước 4 (Hộp việc không tải lại trang, điện thoại, trang sửa gọn, cờ công tắc, đổi thể loại — T-189.5) bước 5 (Nguồn & cài đặt, Đối chiếu sách — T-189.6) và bước 6 (gộp `/bien-tap/` về wp-admin — T-189.7) đã làm. Bước Google (T-191) **tạm dừng theo người sáng lập (12/11/2026)**; làm trước trang bài ba tầng và "Cách hiểu của bạn đọc" (T-190). Trang bài ba tầng (Đọc · Hiểu thêm · Đọc thêm) và Cách hiểu của bạn đọc (form nhanh trên trang, duyệt ở Hộp việc, hiện ở Hiểu thêm) đã làm — T-190.1, plugin 1.0.50, theme 1.0.4.
 - Báo cáo căn cứ: `docs/e2e-review/v2-quan-tri-2/BAO-CAO.md`.
 
 ## Đang chờ người sáng lập

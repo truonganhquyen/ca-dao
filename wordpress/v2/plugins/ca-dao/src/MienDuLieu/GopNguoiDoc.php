@@ -15,6 +15,7 @@ final class GopNguoiDoc {
 		'bao_loi'   => array( 'Báo lỗi', false ),
 		'so_trang'  => array( 'Gửi số trang', false ),
 		'cam_nghi'  => array( 'Cảm nghĩ ngắn', true ),
+		'cach_hieu' => array( 'Cách hiểu', true ),
 		'phan_tich' => array( 'Viết cảm nhận / bài phân tích', false ),
 		'vi_pham'   => array( 'Báo vi phạm', false ),
 	);
@@ -32,6 +33,7 @@ final class GopNguoiDoc {
 		'bai'       => 'Không thấy bài này.',
 		'thieu'     => 'Xin chọn loại góp, ghi nội dung và đánh dấu đồng ý.',
 		'thieu_pt'  => 'Xin ghi tiêu đề, bài viết (ít nhất 200 chữ cái), và đánh dấu cam kết tự viết, đồng ý giấy phép.',
+		'thieu_ch'  => 'Xin viết cách hiểu của bạn, đánh dấu "Tôi tự viết" và đồng ý giấy phép.',
 		'bay'       => 'Không gửi được.',
 		'nhieu'     => 'Bạn đã gửi nhiều lần trong giờ này. Nội dung vẫn ở trên máy bạn; xin thử lại sau ít phút.',
 		'turnstile' => 'Chưa qua bước kiểm tra chống tin rác. Xin thử lại.',
@@ -41,6 +43,9 @@ final class GopNguoiDoc {
 	public const DAI_NOI_DUNG = 4000;
 
 	public const DAI_CAM_NGHI = 2000;
+
+	/** Cách hiểu của bạn đọc (D-105): vài dòng, form nhanh ngay trên trang bài. */
+	public const DAI_CACH_HIEU = 1000;
 
 	public const DAI_PHAN_TICH = 20000;
 
@@ -73,6 +78,15 @@ final class GopNguoiDoc {
 			);
 			$du = '' !== $sach['tieu_de'] && mb_strlen( (string) preg_replace( '/[^\p{L}]/u', '', $sach['noi_dung'] ) ) >= 200 && ! empty( $p['tu_viet'] ) && ! empty( $p['dong_y'] );
 			return array( $du ? null : 'thieu_pt', $sach );
+		}
+		if ( 'cach_hieu' === $loai ) {
+			// Chỉ chữ và bút danh tuỳ chọn; không có ô tên thật, email, nơi nghe, người kể (D-105)
+			$sach += array(
+				'noi_dung' => $chu( 'noi_dung', self::DAI_CACH_HIEU ),
+				'ten'      => $ngan( 'ten', 80 ),
+			);
+			$du = '' !== $sach['noi_dung'] && ! empty( $p['tu_viet'] ) && ! empty( $p['dong_y'] );
+			return array( $du ? null : 'thieu_ch', $sach );
 		}
 		$sach += array(
 			'noi_dung' => $chu( 'noi_dung', 'cam_nghi' === $loai ? self::DAI_CAM_NGHI : self::DAI_NOI_DUNG ),

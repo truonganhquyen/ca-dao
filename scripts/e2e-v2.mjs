@@ -240,6 +240,8 @@ try {
       await di(t, caDao);
       chac(await coChu(t, dongDau), 'không thấy lời');
       chac(await t.$$eval('[data-chi-js], [data-action=mong-co-cau]', bs => bs.every(b => b.hidden)), 'nút chỉ chạy bằng JavaScript vẫn hiện');
+      // Hiểu thêm: tắt JavaScript thì ba phần nằm liền nhau, mỗi phần một tiêu đề, không phần nào bị giấu
+      if (await t.$('[data-hieu-them]')) chac(3 === await t.$$eval('[data-hieu-them] .ht-phan', ps => ps.filter(p => !p.hidden && p.offsetParent).length) && await coChu(t, 'Cách hiểu của bạn đọc'), 'tắt JavaScript: tầng Hiểu thêm không hiện đủ ba phần');
       await ctx.close();
       tabDangChay = k;
     });
@@ -322,7 +324,7 @@ try {
       await bt.goto(href, { waitUntil: 'load', timeout: 120_000 });
       chac(await bt.$('button[data-tam="y_nghia"]') && await coChu(bt, 'Thêm ý nghĩa'), 'trang câu đố không cho người biên soạn thêm Ý nghĩa');
       await di(k, T.cauDo);
-      chac(!(await k.$('button[data-tam="y_nghia"]')) && !(await coChu(k, 'Bài đang được bổ sung ý nghĩa')), 'khách thấy điều khiển hoặc lời nhắc thiếu Ý nghĩa');
+      chac(!(await k.$('button[data-tam="y_nghia"]')) && !(await coChu(k, 'Bài đang được bổ sung ý nghĩa')) && !(await coChu(k, 'Câu này chưa có lời giải nghĩa')), 'khách thấy điều khiển hoặc lời nhắc thiếu Ý nghĩa');
     });
 
     await thu('Biên tập: sửa ý nghĩa chưa duyệt → nháp, người đọc chưa thấy', async () => {
@@ -599,6 +601,36 @@ try {
         await bt.bringToFront();
         tabDangChay = bt;
       }
+    });
+
+    await thu('Cách hiểu của bạn đọc: ba thẻ Hiểu thêm; khách gửi bằng form nhanh trên bài chưa có Ý nghĩa, chưa hiện ngay; người biên soạn bấm Hiện ở Hộp việc; khách thấy ở phần Cách hiểu', async () => {
+      const bai = '/ca-dao/cau-mau-thu-hai/', chu = 'Cách hiểu thử đầu-cuối: câu nói về lòng biết ơn.';
+      await di(k, bai);
+      chac(await coChu(k, 'Câu này chưa có lời giải nghĩa'), 'bài chưa có Ý nghĩa không mời chia sẻ cách hiểu');
+      chac(await k.$eval('[data-hieu-them] [role=tablist]', e => !e.hidden) && 3 === (await k.$$('[data-hieu-them] [role=tab]')).length, 'Hiểu thêm chưa thành ba thẻ khi có JavaScript');
+      await bam(k, '#ht-nut-cam-nghi');
+      chac(await k.$eval('#cach-hieu', e => e.hidden) && await k.$eval('#cam-nghi', e => !e.hidden && e.getAttribute('role') === 'tabpanel'), 'bấm thẻ Cảm nghĩ không đổi phần');
+      await k.keyboard.press('Home');
+      chac(await k.$eval('#ht-nut-cach-hieu', e => e === document.activeElement && e.getAttribute('aria-selected') === 'true'), 'phím Home không về thẻ đầu');
+      await k.keyboard.press('ArrowLeft');
+      chac(await k.$eval('#ht-nut-cam-nghi', e => e === document.activeElement && e.getAttribute('aria-selected') === 'true'), 'phím mũi tên không đổi thẻ');
+      await bam(k, 'a[data-mo-cach-hieu]');
+      chac(await k.$eval('#cach-hieu', e => !e.hidden), '"Chia sẻ cách hiểu" không mở phần Cách hiểu');
+      await datO(k, '#cach-hieu-chu', chu);
+      await datO(k, '#cach-hieu-ten', 'Bút danh thử');
+      await bam(k, '#cach-hieu-form input[name=tu_viet]');
+      await bam(k, '#cach-hieu-form input[name=dong_y]');
+      await bamDoiTrang(k, '#cach-hieu-form [type=submit]');
+      chac(new URL(k.url()).hash === '#cach-hieu' && await coChu(k, 'Cách hiểu đã tới người biên soạn') && !(await coChu(k, chu)), `gửi xong không báo đã tới người biên soạn, hoặc đã hiện ngay (${k.url()})`);
+      const [id] = await theGop(bt, 'Cách hiểu thử đầu-cuối');
+      chac(id, 'Hộp việc không có thẻ cách hiểu vừa gửi');
+      await di(bt, `/wp-admin/admin.php?page=phongdao-hop-viec&loai=nguoi_doc&viec=${id}`);
+      chac(await coChu(bt, 'có tham khảo cách hiểu của bạn đọc'), 'thẻ cách hiểu không nhắc tự viết lại khi dùng làm gốc cho Ý nghĩa');
+      await bamDoiTrang(bt, `.phongdao-hv-phai article#viec-${id} button[name=quyet][value=duyet]`);
+      await di(k, bai);
+      await bam(k, '#ht-nut-cach-hieu');
+      chac(await k.$eval('#cach-hieu', (e, c) => !e.hidden && e.innerText.includes(c) && e.innerText.includes('Bút danh thử'), chu), 'khách chưa thấy cách hiểu đã duyệt (kèm bút danh) ở phần Cách hiểu');
+      chac(!(await k.$eval('.work-main', (e, c) => e.innerText.includes(c), chu)), 'cách hiểu lẫn vào khung lời và Ý nghĩa');
     });
 
     await thu('Biên tập: sửa lời rồi Hoàn tác', async () => {

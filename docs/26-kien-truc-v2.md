@@ -118,7 +118,7 @@ Bỏ phân loại `tinh_huong` (thành tuyển tập loại `tinh_huong`) và `t
 
 ### 4.3. Phần của bài
 
-> Đợt 3 (D-105, `docs/32` mục 6): thêm phần "Hình ảnh trong bài" (ca dao, đồng dao), loại góp "Cách hiểu" của người đọc; câu đố hiển thị `y_nghia` là "Giải thích đáp án"; tục ngữ mới dùng bộ `nghia_*` + `dung_khi` thay `y_nghia`. Bảng dưới cập nhật khi các thay đổi đó được làm.
+> Đợt 3 (D-105, `docs/32` mục 6): thêm phần "Hình ảnh trong bài" (ca dao, đồng dao), loại góp "Cách hiểu" của người đọc (**đã làm, plugin 1.0.50:** bình luận `comment_type = cach_hieu`, chờ duyệt, chỉ bút danh — không email, địa chỉ mạng, trình duyệt; thẻ `nguoi_doc` có `noi_dung.loai = cach_hieu`; đọc bằng `DocBai::cam_nghi( $id, 'cach_hieu' )`, hiện ở `GiaoTiep\Khoi\HieuThem`); câu đố hiển thị `y_nghia` là "Giải thích đáp án"; tục ngữ mới dùng bộ `nghia_*` + `dung_khi` thay `y_nghia`. Bảng dưới cập nhật khi các thay đổi đó được làm.
 
 Mỗi phần của tác phẩm là **một khoá post meta** `_phongdao_<phần>` (D-094), khai báo bằng `register_post_meta` trong `HaTang\KhaiBao` (danh mục phần ở `MienDuLieu\Phan`), không mở qua REST mặc định của WordPress. Giá trị là mảng PHP; hình dạng và lằn ranh kiểm ở `MienDuLieu\KiemPhan` (PHP thuần, có kiểm thử) mỗi lần lưu.
 

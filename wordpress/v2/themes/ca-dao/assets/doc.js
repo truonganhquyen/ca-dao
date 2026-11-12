@@ -202,4 +202,20 @@
     const n = $('input[name^="nen-"]:checked', k); if (n) $('.anh-chia-se', k).dataset.nen = n.value;
     requestAnimationFrame(fit);
   });
+  // Hiểu thêm (D-105): ba phần thành ba thẻ, mở sẵn phần nhiều bài nhất; liên kết tới một phần thì mở phần đó
+  const ht = $('[data-hieu-them]');
+  if (ht) {
+    const nut = $$('[role=tab]', ht), pan = $$('.ht-phan', ht);
+    const mo = (i, f) => { nut.forEach((n, j) => { n.setAttribute('aria-selected', i === j); n.tabIndex = i === j ? 0 : -1; pan[j].hidden = i !== j; }); if (f) nut[i].focus(); };
+    pan.forEach((p, j) => { p.setAttribute('role', 'tabpanel'); p.setAttribute('aria-labelledby', nut[j].id); $('.ht-ten', p).classList.add('sr-only'); });
+    const theo = h => pan.findIndex(p => h && (p.id === h || p.querySelector('#' + CSS.escape(h))));
+    const tu = theo(location.hash.slice(1));
+    mo(tu < 0 ? +ht.dataset.mo || 0 : tu);
+    nut.forEach((n, j) => n.addEventListener('click', () => mo(j)));
+    $('[role=tablist]', ht).addEventListener('keydown', e => {
+      const i = nut.indexOf(document.activeElement), k = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: nut.length - 1 }[e.key];
+      if (i >= 0 && k !== undefined) { e.preventDefault(); mo((k + nut.length) % nut.length, true); }
+    });
+    document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"]'); const i = a ? theo(a.getAttribute('href').slice(1)) : -1; if (i >= 0) mo(i); });
+  }
 })();
