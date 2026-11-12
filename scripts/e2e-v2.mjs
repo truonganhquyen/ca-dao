@@ -561,6 +561,7 @@ try {
         return [...li.querySelectorAll('.phongdao-so-sanh li.bo del')].map(e => e.textContent.replace(/^bỏ: /, '').trim()).filter(t => t && !t.startsWith('('));
       });
       chac(cu, 'không có lần sửa Ý nghĩa nào khôi phục được trong Lịch sử');
+      if (await bt.$eval('#lich-su li[data-thu]', li => li.closest('details.phongdao-lich-cu')?.open === false)) await bam(bt, '#lich-su .phongdao-lich-cu > summary');
       chac(await bt.$eval('#lich-su li[data-thu] .phongdao-so-sanh', e => e.textContent.includes('thêm: ')), 'so sánh không đánh dấu dòng thêm');
       await bamDoiTrang(bt, '#lich-su li[data-thu] form.phongdao-khoi-phuc [type=submit]');
       chac(await coChu(bt, 'Đã khôi phục bản trước'), 'không báo đã khôi phục');
