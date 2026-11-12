@@ -1145,6 +1145,7 @@ try {
         chac(await k.$eval('[data-form-cach-hieu]', d => d.open), 'bàn phím không mở được form');
         chac(await k.$$eval('#cach-hieu-form input[type=checkbox][required]', os => os.length) === 2, 'mở gọn làm mất cam kết hoặc đồng ý giấy phép');
         chac(await k.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `form tràn ngang ${width} px`);
+        await k.goto('about:blank'); // mở liên kết trực tiếp từ trang khác, có HTTP response để kiểm
         await di(k, MAU.cauDo + '#cach-hieu-form');
         chac(await k.$eval('[data-form-cach-hieu]', d => d.open) && await k.$eval('#cach-hieu-chu', e => e.getBoundingClientRect().height > 0), 'liên kết trực tiếp không mở form');
       }
