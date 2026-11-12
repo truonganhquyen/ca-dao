@@ -35,7 +35,7 @@
     if (f.querySelector('[data-nhap-do-bao]')) return;
     const p = document.createElement('p'); p.dataset.nhapDoBao = '1'; p.setAttribute('role', 'status');
     p.textContent = 'Đã lấy lại phần đang nhập trên tab này. Chưa lưu vào bài. ';
-    const b = document.createElement('button'); b.type = 'button'; b.textContent = 'Bỏ phần chưa lưu';
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'button btn'; b.textContent = 'Bỏ phần chưa lưu';
     b.addEventListener('click', () => { changed.delete(f); remove(key(f)); leaving = true; location.reload(); });
     p.append(b); (f.querySelector('.tam-than') || f).prepend(p);
   };

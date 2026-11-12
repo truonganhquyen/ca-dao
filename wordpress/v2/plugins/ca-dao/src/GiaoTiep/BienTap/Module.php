@@ -40,6 +40,7 @@ final class Module implements \Phongdao\HaTang\Module {
 		}
 		$tep = dirname( __DIR__, 3 ) . '/ca-dao.php';
 		wp_enqueue_script( 'phongdao-giu-nhap', plugins_url( 'assets/giu-nhap.js', $tep ), array(), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
+		wp_enqueue_style( 'phongdao-giu-nhap', plugins_url( 'assets/giu-nhap.css', $tep ), array(), CADAO_PHIEN_BAN );
 		wp_enqueue_script( 'phongdao-bien-tap', plugins_url( 'assets/bien-tap.js', $tep ), array( 'phongdao-giu-nhap' ), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
 		wp_add_inline_script(
 			'phongdao-bien-tap',
