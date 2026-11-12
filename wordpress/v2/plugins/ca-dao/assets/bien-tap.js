@@ -146,5 +146,7 @@
     nut.forEach(n => { n.disabled = false; });
     loi.textContent = (d.loi || ['Chưa lưu được.']).join(' ');
     loi.hidden = false;
+    f.querySelector('[data-phien-moi]')?.remove();
+    if (d.so_ban_moi) loi.insertAdjacentHTML('afterend', d.so_ban_moi);
   });
 })();

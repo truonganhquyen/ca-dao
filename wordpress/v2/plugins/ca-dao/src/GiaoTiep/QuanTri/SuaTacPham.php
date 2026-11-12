@@ -91,6 +91,7 @@ final class SuaTacPham {
 		$sau = self::bai_sau( $id );
 		$phan_loi = sanitize_key( (string) ( $_GET['phan'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc form đã được giữ theo phiên
 		$form_loi = 'loi' === $ket_qua ? NhapDo::lay( (string) ( $_GET['nhap_do'] ?? '' ), $id, $phan_loi ) : null;
+		$ctx['form_loi'] = null !== $form_loi ? array( 'phan' => $phan_loi, 'vao' => $form_loi ) : null;
 		$ra  = '<div class="wrap phongdao-admin-sua"><h1>Sửa tác phẩm #' . $id . ': ' . esc_html( $bai->post_title ) . '</h1>';
 		$ra .= '<p class="phongdao-sua-lien"><a href="' . esc_url( '' !== self::$ve ? self::$ve : admin_url( 'admin.php?page=' . DanhSachTacPham::TRANG ) ) . '">← Danh sách Tác phẩm' . ( '' !== self::$ve ? ' (đúng bộ lọc vừa xem)' : '' ) . '</a> · <a href="' . esc_url( get_preview_post_link( $bai ) ) . '">Xem trên trang đọc</a>'
 			. ( $sau ? ' · <a href="' . esc_url( self::url( $sau ) ) . '" data-bai-sau>Bài tiếp theo trong danh sách →</a>' : '' ) . '</p>';
@@ -130,9 +131,16 @@ final class SuaTacPham {
 				$chinh   .= $thieu_tu ? '<div class="notice notice-warning inline"><p>' . esc_html( 'Không thấy từ ' . implode( ', ', array_map( static fn( string $t ): string => '«' . $t . '»', $thieu_tu ) ) . ' trong lời, kiểm lại chính tả.' ) . '</p></div>' : '';
 			}
 			$loi_o_day = null !== $form_loi && $phan === $phan_loi;
+			$phien_moi = \Phongdao\DichVu\LuuPhan\LuuPhan::phien( $id, $phan, $cu );
+			$phien_form = $loi_o_day ? (string) ( $form_loi['phien_phan'] ?? '' ) : $phien_moi;
 			$chinh .= '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" data-giu-nhap="' . $id . ':' . esc_attr( $phan ) . '" data-phien-soan="' . esc_attr( NhapDo::phien() ) . '"' . ( $loi_o_day ? ' data-giu-loi="1"' : '' ) . '><input type="hidden" name="action" value="phongdao_sua_phan">' . self::an_ve() . $an_sau . '<input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="phan" value="' . esc_attr( $phan ) . '">';
 			$chinh .= wp_nonce_field( 'phongdao_sua_phan_' . $id . '_' . $phan, '_wpnonce', true, false );
-			$chinh .= TamSua::than( $phan, $loi_o_day ? NhapDo::de_hien( $phan, $form_loi, $cu ) : $cu, $ctx ) . '<p class="phongdao-sua-nut">' . TamSua::nut_luu( $phan, $ctx, 'button button-primary', 'button', 'Lưu phần này' ) . '</p></form></details>';
+			$chinh .= '<input type="hidden" name="phien_phan" value="' . esc_attr( $phien_form ) . '">';
+			$chinh .= TamSua::than( $phan, $loi_o_day ? NhapDo::de_hien( $phan, $form_loi, $cu ) : $cu, $ctx );
+			if ( $loi_o_day && ! hash_equals( $phien_moi, $phien_form ) ) {
+				$chinh .= TamSua::doi_chieu_phien( $cu, $phien_moi );
+			}
+			$chinh .= '<p class="phongdao-sua-nut">' . TamSua::nut_luu( $phan, $ctx, 'button button-primary', 'button', 'Lưu phần này' ) . '</p></form></details>';
 		}
 		// Cột bên: trạng thái, nguồn, việc chờ, cờ, phân loại, lịch sử. Điện thoại: trạng thái và Đăng / Ẩn ngay dưới tên bài.
 		$ra .= '<div class="phongdao-sua-dau-dt">' . self::thanh_trang_thai( $bai ) . '</div>';
@@ -276,8 +284,12 @@ final class SuaTacPham {
 	private static function cong_tac_co( \WP_Post $bai, array $ctx ): string {
 		$id  = (int) $bai->ID;
 		$cu  = $ctx['phan']['co_nghi'] ?? null;
-		$an  = '<input type="hidden" name="action" value="phongdao_sua_phan">' . self::an_ve() . '<input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="phan" value="co_nghi">' . wp_nonce_field( 'phongdao_sua_phan_' . $id . '_co_nghi', '_wpnonce', true, false );
-		$sua = '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">' . $an . TamSua::than( 'co_nghi', $cu, $ctx ) . '<p><button type="submit" class="button button-primary">' . ( $cu ? 'Lưu lý do' : 'Bật cờ' ) . '</button></p></form>';
+		$phien = \Phongdao\DichVu\LuuPhan\LuuPhan::phien( $id, 'co_nghi', $cu );
+		$form = 'co_nghi' === ( $ctx['form_loi']['phan'] ?? '' ) ? $ctx['form_loi']['vao'] : null;
+		$phien_form = null !== $form ? (string) ( $form['phien_phan'] ?? '' ) : $phien;
+		$an  = '<input type="hidden" name="action" value="phongdao_sua_phan">' . self::an_ve() . '<input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="phan" value="co_nghi"><input type="hidden" name="phien_phan" value="' . esc_attr( $phien_form ) . '">' . wp_nonce_field( 'phongdao_sua_phan_' . $id . '_co_nghi', '_wpnonce', true, false );
+		$doi_chieu = null !== $form && ! hash_equals( $phien, $phien_form ) ? TamSua::doi_chieu_phien( $cu, $phien ) : '';
+		$sua = '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" data-giu-nhap="' . $id . ':co_nghi" data-phien-soan="' . esc_attr( NhapDo::phien() ) . '"' . ( null !== $form ? ' data-giu-loi="1"' : '' ) . '>' . $an . TamSua::than( 'co_nghi', null !== $form ? NhapDo::de_hien( 'co_nghi', $form, $cu ) : $cu, $ctx ) . $doi_chieu . '<p><button type="submit" class="button button-primary">' . ( $cu ? 'Lưu lý do' : 'Bật cờ' ) . '</button></p></form>';
 		$tat = $cu ? '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">' . $an . '<input type="hidden" name="ly_do" value=""><button type="submit" class="button">Tắt cờ</button></form>' : '';
 		return '<section class="phongdao-sua-co" id="phan-co_nghi"><h2>Cờ "Có thể không phải dân gian"</h2>'
 			. '<p class="phongdao-sua-co-tt" role="status">' . ( $cu ? '<strong>Đang bật.</strong> ' . esc_html( (string) ( $cu['ly_do'] ?? '' ) ) : 'Đang tắt.' ) . '</p>'

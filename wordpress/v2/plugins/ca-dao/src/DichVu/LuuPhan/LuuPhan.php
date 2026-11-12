@@ -21,6 +21,47 @@ defined( 'ABSPATH' ) || exit;
  */
 final class LuuPhan {
 
+	/** Dấu của chính bản đã dựng form, kèm lần sửa để phân biệt cả khôi phục về cùng chữ. */
+	public static function phien( int $bai, string $phan, ?array $gia_tri ): string {
+		return hash( 'sha256', wp_json_encode( array( $bai, $phan, $gia_tri, Viec::moi_nhat_sua( $bai, $phan ) ) ) );
+	}
+
+	/** Entry point lưu trực tiếp: khóa bài, đọc mới, so phiên rồi mới đọc form/ghi; không mở giao dịch lồng. */
+	public static function trong_phien( int $bai, string $phan, string $phien, callable $ghi ): array {
+		global $wpdb;
+		if ( false === $wpdb->query( 'START TRANSACTION' ) ) {
+			return self::hong( 'Chưa mở được lượt lưu. Phần đang nhập chưa được ghi; thử lại sau.' );
+		}
+		try {
+			$id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE ID = %d FOR UPDATE", $bai ) );
+			if ( null === $id || (int) $id !== $bai ) {
+				throw new \RuntimeException( 'khong_co_bai' );
+			}
+			clean_post_cache( $bai );
+			$cu = PhanBai::lay( $bai, $phan );
+			$moi = self::phien( $bai, $phan, $cu );
+			if ( ! hash_equals( $moi, $phien ) ) {
+				$wpdb->query( 'ROLLBACK' );
+				return self::hong( 'Phần này đã đổi hoặc phiên mở bài không còn hợp lệ. Đối chiếu bản đang lưu trước khi lưu tiếp; chữ đang nhập vẫn được giữ.' )
+					+ array( 'xung_dot' => true, 'phien_moi' => $moi, 'hien_tai' => $cu );
+			}
+			$kq = $ghi( $cu );
+			if ( empty( $kq['ok'] ) ) {
+				$wpdb->query( 'ROLLBACK' );
+				clean_post_cache( $bai );
+				return $kq;
+			}
+			if ( false === $wpdb->query( 'COMMIT' ) ) {
+				throw new \RuntimeException( 'commit' );
+			}
+			return $kq;
+		} catch ( \Throwable $e ) {
+			$wpdb->query( 'ROLLBACK' );
+			clean_post_cache( $bai );
+			return self::hong( 'Chưa lưu được phần bài và lịch sử. Chữ đang nhập chưa được xác nhận; thử lại sau.' );
+		}
+	}
+
 	/**
 	 * @param array{nguoi:int,goi:string,duyet?:bool,luc?:string} $nc
 	 * @return array{ok:bool,loi:string[],doi:bool,viec:int}

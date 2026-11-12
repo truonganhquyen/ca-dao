@@ -207,6 +207,8 @@ Người đọc gửi (góp ý, dị bản, số trang, báo lỗi), cảm nghĩ
 
 Mọi route biên tập: `permission_callback` kiểm quyền riêng + nonce REST; mọi lần lưu đi qua `LuuPhan` (kiểm lằn ranh, ghi nhật ký); trả lỗi tiếng Việt; không trả dữ liệu cá nhân thừa. REST mặc định của WordPress cho `tac_pham`, `ho_so_nguon` và các khoá `_phongdao_*` tắt.
 
+**Contract đang chạy của lưu từng phần (T-195; thay mô tả PUT ở hàng Tác phẩm phía trên):** `POST /tac-pham/{id}/phan/{phan}`, body là các trường form và `phien_phan` của bản đã mở. wp-admin qua `admin-post.php?action=phongdao_sua_phan` và sửa nhanh cùng gọi đường lưu này. Thiếu/sai phiên trả `{ok:false, xung_dot:true, loi:[...], phien_moi, so_ban_moi}`; không tự lấy phiên hiện tại để ghi tiếp. `so_ban_moi` là HTML đã escape cho người có quyền sửa đối chiếu, chỉ khi họ chọn dùng phần đang nhập thì gửi phiên mới. Đọc/so/ghi trực tiếp giữ khóa bài trong cùng giao dịch; lỗi thì rollback và xoá cache bài. Lô sửa từng hàng giữ kiểm bản xem trước hiện có và gửi phiên vào cùng đường lưu. Các mô tả route khác ở bảng này chưa được đồng bộ bởi T-195.
+
 ### 5.1. Quyền
 
 | Quyền | Cho phép | Gán sẵn |
