@@ -35,7 +35,7 @@ final class TacPham {
 			: esc_html( $tp['tieu_de'] );
 		$y = empty( $tp['y_nghia']['chu'] )
 			? ( $sua ? '<div class="meaning trong" data-chi-sua><div class="meaning-head"><h2>Ý nghĩa</h2>' . $nut( 'y_nghia', 'Thêm ý nghĩa' ) . '</div><p class="small muted">Chưa có ý nghĩa' . ( $sua['nhap'] ? ' · có ' . count( $sua['nhap'] ) . ' nháp chờ duyệt trong Hộp việc' : '' ) . '.</p></div>'
-				: '<div class="notice">Bài đang được bổ sung ý nghĩa. Bạn biết thêm? ' . Ve::lien_ket( 'gop', 'Góp ý' ) . '</div>' )
+				: ( $tuc_ngu && ! empty( $tp['nghia_bong'] ) ? '' : self::moi_cach_hieu( ctype_digit( (string) $tp['ma'] ) ) ) )
 			: Ve::y_nghia( $tp['y_nghia']['chu'], ! empty( $tp['y_nghia']['ai'] ), 'Ý nghĩa', $nut( 'y_nghia', 'Sửa' ) ) . $goc( 'Ý nghĩa', 'y_nghia' );
 		if ( $cau_do ) {
 			// Câu đố: đáp án thu gọn sau nút "Hiện đáp án", tắt JavaScript vẫn mở được (D-087)
@@ -62,6 +62,13 @@ final class TacPham {
 				. $goc( 'Lời', 'loi' ) . $muc_kiem . $y;
 
 		$sau = '';
+		// Tầng Đọc (D-105): lời → Ý nghĩa (tục ngữ: khối nghĩa) → Từ khó → Dị bản
+		if ( $tuc_ngu && ( ! empty( $tp['nghia_den'] ) || ! empty( $tp['nghia_bong'] ) || $sua ) ) {
+			$sau .= Ve::khoi( 'Giải nghĩa chi tiết', '<div class="two-col"><div class="mini"><h3>Nghĩa đen</h3><p>' . esc_html( $tp['nghia_den'] ?: ( $sua ? 'Chưa có.' : '' ) ) . '</p>' . $nut( 'nghia_den', 'Sửa nghĩa đen' ) . '</div><div class="mini"><h3>Nghĩa bóng</h3><p>' . esc_html( ( $tp['nghia_bong'] ?? '' ) ?: ( $sua ? 'Chưa có.' : '' ) ) . '</p>' . $nut( 'nghia_bong', 'Sửa nghĩa bóng' ) . '</div></div>', 'tint-luc' );
+		}
+		if ( ! empty( $tp['dung_khi'] ) || ( $sua && $tuc_ngu ) ) {
+			$sau .= Ve::khoi( 'Dùng khi', ( $tp['dung_khi'] ? '<ul class="uses">' . implode( '', array_map( static fn( string $x ): string => '<li>' . esc_html( $x ) . '</li>', $tp['dung_khi'] ) ) . '</ul>' : '<p class="small muted">Chưa có.</p>' ), 'tint-xanh', '', $nut( 'dung_khi', 'Sửa' ) );
+		}
 		if ( $sua ) {
 			$sau .= '<section class="block tint-dat no-print" data-chi-sua><div class="block-dau"><h2>Cờ “Nghi không phải dân gian”</h2>' . $nut( 'co_nghi', empty( $tp['co_nghi'] ) ? 'Gắn cờ' : 'Sửa' ) . '</div><p class="small muted">' . ( empty( $tp['co_nghi'] ) ? 'Chưa gắn cờ.' : esc_html( 'Đang gắn: ' . $tp['co_nghi'] ) ) . '</p></section>';
 			if ( ! $tp['chu_thich'] ) {
@@ -93,12 +100,6 @@ final class TacPham {
 			}
 			$sau .= Ve::khoi_gon( 'Dị bản · ' . count( $tp['di_ban'] ), ( $sua ? '<p class="row no-print">' . $nut( 'di_ban', 'Sửa dị bản' ) . '</p>' . $goc( 'Dị bản', 'di_ban' ) : '' ) . $o, 'di-ban', 'tim' );
 		}
-		if ( $tuc_ngu && ( ! empty( $tp['nghia_den'] ) || ! empty( $tp['nghia_bong'] ) || $sua ) ) {
-			$sau .= Ve::khoi( 'Giải nghĩa chi tiết', '<div class="two-col"><div class="mini"><h3>Nghĩa đen</h3><p>' . esc_html( $tp['nghia_den'] ?: ( $sua ? 'Chưa có.' : '' ) ) . '</p>' . $nut( 'nghia_den', 'Sửa nghĩa đen' ) . '</div><div class="mini"><h3>Nghĩa bóng</h3><p>' . esc_html( ( $tp['nghia_bong'] ?? '' ) ?: ( $sua ? 'Chưa có.' : '' ) ) . '</p>' . $nut( 'nghia_bong', 'Sửa nghĩa bóng' ) . '</div></div>', 'tint-luc' );
-		}
-		if ( ! empty( $tp['dung_khi'] ) || ( $sua && $tuc_ngu ) ) {
-			$sau .= Ve::khoi( 'Dùng khi', ( $tp['dung_khi'] ? '<ul class="uses">' . implode( '', array_map( static fn( string $x ): string => '<li>' . esc_html( $x ) . '</li>', $tp['dung_khi'] ) ) . '</ul>' : '<p class="small muted">Chưa có.</p>' ), 'tint-xanh', '', $nut( 'dung_khi', 'Sửa' ) );
-		}
 		$nhan_cuoi = '';
 		foreach ( $tp['chu_de'] as $c ) {
 			$nhan_cuoi .= self::nhan_lien_ket( $c, 'chu-de', 'Chủ đề: ', 'tag-pill' );
@@ -108,11 +109,20 @@ final class TacPham {
 		foreach ( $tp['tuyen_tap'] as $t ) {
 			$nhan_cuoi .= self::nhan_lien_ket( $t, 'tuyen-tap', 'Có trong tuyển tập: ', 'tag-pill plain' );
 		}
-		$sau .= '<div class="work-tags">' . $nhan_cuoi . '</div>' . self::tu_lieu( $tp )
+		// phpcs:disable WordPress.Security.NonceVerification -- chỉ đọc lời báo sau khi gửi
+		$gui       = sanitize_key( wp_unslash( (string) ( $_GET['gop'] ?? '' ) ) );
+		$gui_ch    = 'cach_hieu' === ( $_GET['gop_loai'] ?? '' );
+		$bao_ch    = $gui_ch ? array( 'gui' => $gui, 'ma' => sanitize_key( wp_unslash( (string) ( $_GET['ma'] ?? '' ) ) ) ) : array();
+		// phpcs:enable
+		$bai_that  = ctype_digit( (string) $tp['ma'] );
+		// Tầng Hiểu thêm: Cách hiểu của bạn đọc · Bài cảm nhận · Cảm nghĩ (bài thật; dữ liệu mẫu không có form gửi)
+		$sau .= $bai_that ? HieuThem::hien( (int) $tp['ma'], $tp, $bao_ch ) : '';
+		// Tầng Đọc thêm: phân loại, có trong tuyển tập, Đọc tiếp (cùng mô-típ, chủ đề…), Lời này từ đâu?, ảnh để chia sẻ
+		$sau .= '<section class="tang" id="doc-them" aria-labelledby="doc-them-tieu-de"><h2 class="tang-dau" id="doc-them-tieu-de">Đọc thêm</h2>'
+			. '<div class="work-tags">' . $nhan_cuoi . '</div>'
 			. ( empty( $tp['doc_tiep'] ) ? '' : Ve::khoi( 'Đọc tiếp', '<div class="grid two doc-tiep">' . implode( '', array_map( array( DanhSach::class, 'the' ), $tp['doc_tiep'] ) ) . '</div>', '', 'doc-tiep' ) )
-			. AnhChiaSe::hien( $tp )
-			// phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc lời báo sau khi gửi
-			. ( ctype_digit( (string) $tp['ma'] ) ? GopTuLieu::cuoi_bai( (int) $tp['ma'], $tp['cam_nghi'] ?? array(), 'da_gui' === ( $_GET['gop'] ?? '' ) ) : '' )
+			. self::tu_lieu( $tp ) . AnhChiaSe::hien( $tp ) . '</section>'
+			. ( $bai_that ? GopTuLieu::cuoi_bai( (int) $tp['ma'], 'da_gui' === $gui && ! $gui_ch ) : '' )
 			. ( $sua ? CheDoSua::lich_su( $sua ) : '' );
 
 		return ( $sua ? CheDoSua::dai( $sua ) : '' )
@@ -122,6 +132,12 @@ final class TacPham {
 			. '<p class="read-sub">' . Ve::so_lieu( $tp['so_lieu'] ) . '</p></header>'
 			. '<div class="work-layout"><div class="work-main">' . Ve::the_loi( $than_loi, $tp['url'], $tuc_ngu ? 'Ý nghĩa' : 'Lời', 'Lời và ý nghĩa', $nut( 'loi', 'Sửa lời' ) ) . '</div>' . Ve::cong_cu( $tp ) . '<div class="work-rest">' . $sau . '</div></div>'
 			. ( $sua ? CheDoSua::tam( $sua, (string) $tp['the_loai'] ) : '' );
+	}
+
+	/** Bài chưa có Ý nghĩa: mời bạn đọc chia sẻ cách hiểu (form nhanh ở tầng Hiểu thêm; D-105). */
+	private static function moi_cach_hieu( bool $co_form ): string {
+		return '<div class="notice moi-cach-hieu"><p>Câu này chưa có lời giải nghĩa. Bạn hiểu câu này thế nào? Viết vài dòng để người đọc sau hiểu rõ hơn.</p>'
+			. ( $co_form ? '<p><a class="btn" href="#cach-hieu-form" data-mo-cach-hieu>' . Ve::icon( 'pen' ) . 'Chia sẻ cách hiểu</a></p>' : '' ) . '</div>';
 	}
 
 	/** Nhãn dẫn tới trang phân loại: $muc là tên (dữ liệu mẫu) hoặc [tên, đường dẫn]. */

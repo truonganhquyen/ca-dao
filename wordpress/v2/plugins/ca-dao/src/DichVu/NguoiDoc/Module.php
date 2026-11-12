@@ -34,7 +34,8 @@ final class Module implements \Phongdao\HaTang\Module {
 			'wp_enqueue_scripts',
 			static function (): void {
 				$site = NhanGui::turnstile()['site'];
-				$co   = 'gop' === TrangCoDinh::dang_xem() || ( is_page() && has_shortcode( (string) get_post_field( 'post_content', get_queried_object_id() ), 'cadao_viet_phan_tich' ) );
+				// Trang bài cũng có form (Cách hiểu của bạn đọc, D-105)
+				$co   = 'gop' === TrangCoDinh::dang_xem() || is_singular( \Phongdao\HaTang\KhaiBao::TAC_PHAM ) || ( is_page() && has_shortcode( (string) get_post_field( 'post_content', get_queried_object_id() ), 'cadao_viet_phan_tich' ) );
 				if ( '' !== $site && $co ) {
 					wp_enqueue_script( 'phongdao-turnstile', 'https://challenges.cloudflare.com/turnstile/v0/api.js', array(), null, array( 'strategy' => 'defer', 'in_footer' => true ) ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- dịch vụ ngoài, người quản trị bật
 				}

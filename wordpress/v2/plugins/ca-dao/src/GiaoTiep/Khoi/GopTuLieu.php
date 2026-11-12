@@ -51,7 +51,8 @@ final class GopTuLieu {
 			. '<input type="hidden" name="bai" value="' . ( $bai ? (int) $bai->ID : 0 ) . '"><input type="hidden" name="vi_pham" value="' . max( 0, $vi_pham ) . '">'
 			. '<fieldset><legend>Loại đóng góp <span aria-hidden="true">*</span></legend>';
 		foreach ( GopNguoiDoc::LOAI as $ma_loai => [ $nhan, $can_bai ] ) {
-			if ( ( 'vi_pham' === $ma_loai && 'vi_pham' !== $loai ) || ( $can_bai && ! $bai ) ) {
+			// Cách hiểu gửi bằng form nhanh trên trang bài (tầng Hiểu thêm), không qua trang Góp
+			if ( 'cach_hieu' === $ma_loai || ( 'vi_pham' === $ma_loai && 'vi_pham' !== $loai ) || ( $can_bai && ! $bai ) ) {
 				continue;
 			}
 			$h .= '<label class="choice"><input type="radio" name="loai" value="' . esc_attr( $ma_loai ) . '" required' . checked( $loai ?: 'di_ban', $ma_loai, false ) . '> ' . esc_html( $nhan ) . '</label>';
@@ -74,12 +75,8 @@ final class GopTuLieu {
 		return $h;
 	}
 
-	/**
-	 * Cuối trang bài: lối góp và các cảm nghĩ đã duyệt (mỗi cảm nghĩ có liên kết Báo vi phạm).
-	 *
-	 * @param list<array{id:int,ten:string,chu:string,ngay:string}> $cam_nghi
-	 */
-	public static function cuoi_bai( int $bai_id, array $cam_nghi, bool $da_gui ): string {
+	/** Cuối trang bài: các lối góp (cảm nghĩ, bài cảm nhận, cách hiểu đã duyệt nằm ở tầng Hiểu thêm — HieuThem). */
+	public static function cuoi_bai( int $bai_id, bool $da_gui ): string {
 		$goc = Ve::url( 'gop' );
 		$h   = '<section class="section" id="gop" aria-labelledby="gop-tieu-de"><h2 id="gop-tieu-de">Bạn muốn góp gì?</h2>'
 			. ( $da_gui ? '<div class="notice success" role="status"><strong>Cảm ơn bạn!</strong> Nội dung đã tới người biên soạn; chỉ hiện sau khi được duyệt.</div>' : '' )
@@ -88,22 +85,6 @@ final class GopTuLieu {
 			$h .= '<a class="gop-nut" href="' . esc_url( add_query_arg( array( 'loai' => $loai, 'bai' => $bai_id ), $goc ) . '#gop-form' ) . '">' . Ve::icon( $icon ) . '<span>' . esc_html( $chu ) . '</span></a>';
 		}
 		$h .= '</div></section>';
-		$pt = PhanTich::cua_bai( $bai_id );
-		if ( $pt ) {
-			$h .= '<section class="section" id="cam-nhan" aria-labelledby="cam-nhan-tieu-de"><h2 id="cam-nhan-tieu-de">Cảm nhận – phân tích</h2>';
-			foreach ( $pt as $p ) {
-				$h .= '<div class="list-row"><div><h3><a href="' . esc_url( (string) get_permalink( $p ) ) . '">' . esc_html( $p->post_title ) . '</a></h3><p class="small muted">' . esc_html( PhanTich::nguoi_viet( $p ) ) . '</p></div></div>';
-			}
-			$h .= '</section>';
-		}
-		if ( $cam_nghi ) {
-			$h .= '<section class="section" id="cam-nghi" aria-labelledby="cam-nghi-tieu-de"><h2 id="cam-nghi-tieu-de">Cảm nghĩ của bạn đọc</h2>';
-			foreach ( $cam_nghi as $c ) {
-				$h .= '<article class="card"><p>' . nl2br( esc_html( $c['chu'] ) ) . '</p><p class="small muted">' . esc_html( $c['ten'] . ' · ' . $c['ngay'] ) . ' · <a href="'
-					. esc_url( add_query_arg( array( 'loai' => 'vi_pham', 'bai' => $bai_id, 'vi_pham' => $c['id'] ), $goc ) . '#gop-form' ) . '">Báo vi phạm</a></p></article>';
-			}
-			$h .= '</section>';
-		}
 		return $h;
 	}
 }

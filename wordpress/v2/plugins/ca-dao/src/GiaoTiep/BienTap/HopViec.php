@@ -153,6 +153,11 @@ final class HopViec {
 			$than    = '<blockquote class="small">' . nl2br( esc_html( mb_strlen( $chu ) > 800 ? mb_substr( $chu, 0, 799 ) . '…' : $chu ) ) . '</blockquote>'
 				. ( $them ? '<p class="small muted">' . esc_html( implode( ' · ', $them ) ) . '</p>' : '' );
 			$ly_do   = 'chờ duyệt, người đọc chưa thấy';
+			if ( 'cach_hieu' === $loai ) {
+				// Cách hiểu không thay Ý nghĩa; muốn dùng làm gốc thì người biên soạn tự viết lại (máy không chép)
+				$than .= '<p class="small muted">Hiện trên trang thì cách hiểu nằm ở tầng "Hiểu thêm", tách riêng với Ý nghĩa của ban biên tập. Muốn dùng làm gốc cho Ý nghĩa: tự viết lại'
+					. ( $bai ? ' ở <a href="' . esc_url( \Phongdao\GiaoTiep\QuanTri\SuaTacPham::url( $bai->ID ) ) . '">trang Sửa tác phẩm</a>' : '' ) . ', ghi "có tham khảo cách hiểu của bạn đọc ' . esc_html( $them[0] ?? '' ) . '".</p>';
+			}
 		} elseif ( 'goi_y' === $v['loai'] ) {
 			$bai = get_post( (int) $v['doi_tuong_id'] );
 			if ( $bai ) {

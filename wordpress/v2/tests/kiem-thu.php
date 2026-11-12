@@ -258,7 +258,7 @@ kt( 'trang bài thật: chủ đề dẫn tới trang chủ đề, nút Sao ché
 kt( 'khách không nhận địa chỉ gốc máy đã lấy, người làm, giao diện sửa', ! str_contains( $h, 'nguon-an.example' ) && ! str_contains( $h, 'may_chep' ) && ! preg_match( '/nut-sua|dai-bien-tap|tam-sua/', $h ) );
 kt( 'chưa đối chiếu sách → nhãn "Bản lưu truyền phổ biến"', str_contains( $h, 'Bản lưu truyền phổ biến' ) && ! str_contains( $h, 'pill checked' ) );
 $h = $xem( $mau_id['cau-do-mau'] );
-kt( 'câu đố: Gợi ý và "Hiện đáp án" thu gọn (tắt JavaScript vẫn mở được), không nhắc thiếu ý nghĩa', str_contains( $h, '<details class="answer"><summary>Hiện đáp án</summary>' ) && str_contains( $h, '<summary>Gợi ý</summary>' ) && ! str_contains( $h, 'Bài đang được bổ sung ý nghĩa' ) && ! str_contains( $h, 'data-tam="y_nghia"' ) );
+kt( 'câu đố: Gợi ý và "Hiện đáp án" thu gọn (tắt JavaScript vẫn mở được), không nhắc thiếu ý nghĩa', str_contains( $h, '<details class="answer"><summary>Hiện đáp án</summary>' ) && str_contains( $h, '<summary>Gợi ý</summary>' ) && ! str_contains( $h, 'Bài đang được bổ sung ý nghĩa' ) && ! str_contains( $h, 'Bạn hiểu câu này thế nào?' ) && ! str_contains( $h, 'data-tam="y_nghia"' ) );
 wp_set_current_user( $ai_ql );
 $get_truoc = $_GET;
 $_GET = array( 'muc' => 'thieu_giai_thich' );
@@ -270,7 +270,36 @@ wp_set_current_user( 0 );
 $h = $xem( $mau_id['tuc-ngu-mau-ngan'] );
 kt( 'tục ngữ thật: câu là tiêu đề, Giải nghĩa chi tiết, Dùng khi 2 ví dụ', str_contains( $h, '<h1 class="read-title"><span class="verse-box"><span class="verse proverb"' ) && str_contains( $h, 'Giải nghĩa chi tiết' ) && 2 === substr_count( (string) strstr( (string) strstr( $h, '<ul class="uses">' ), '</ul>', true ), '<li>' ) );
 $h = $xem( $mau_id['cau-mau-thu-hai'] );
-kt( 'bài chưa có ý nghĩa: nói "đang bổ sung", không tự điền', str_contains( $h, 'Bài đang được bổ sung ý nghĩa' ) && ! str_contains( $h, 'class="meaning"' ) );
+$ch_form = (string) strstr( (string) strstr( $h, '<form id="cach-hieu-form"' ), '</form>', true );
+kt( 'bài chưa có ý nghĩa: mời "Bạn hiểu câu này thế nào?" kèm nút "Chia sẻ cách hiểu" tới form nhanh ở tầng Hiểu thêm; không tự điền', str_contains( $h, 'Câu này chưa có lời giải nghĩa. Bạn hiểu câu này thế nào? Viết vài dòng để người đọc sau hiểu rõ hơn.' ) && str_contains( $h, 'href="#cach-hieu-form"' ) && str_contains( $h, 'Chia sẻ cách hiểu' ) && '' !== $ch_form && ! str_contains( $h, 'Bài đang được bổ sung ý nghĩa' ) && ! str_contains( $h, 'class="meaning"' ) );
+kt(
+	'form "Chia sẻ cách hiểu": gửi admin-post có nonce, một ô chữ tối đa 1.000 ký tự, bút danh tuỳ chọn, cam kết tự viết và đồng ý CC BY 4.0 bắt buộc, ô bẫy; không có ô tên thật, email, số điện thoại, nơi nghe',
+	str_contains( $ch_form, 'action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"' ) && str_contains( $ch_form, 'name="_wpnonce"' ) && str_contains( $ch_form, 'name="loai" value="cach_hieu"' ) && str_contains( $ch_form, 'name="bai" value="' . $mau_id['cau-mau-thu-hai'] . '"' )
+	&& str_contains( $ch_form, 'name="noi_dung" rows="4" maxlength="1000" required' ) && str_contains( $ch_form, 'name="ten" maxlength="80"' ) && str_contains( $ch_form, 'name="tu_viet" value="1" required' ) && str_contains( $ch_form, 'name="dong_y" value="1" required' ) && str_contains( $ch_form, 'CC BY 4.0' ) && str_contains( $ch_form, 'name="web"' )
+	&& ! preg_match( '/type="email"|type="tel"|name="email"|name="noi_nghe"|name="nguoi_ke"/', $ch_form ),
+	$ch_form
+);
+$vi_tri = static fn( string $kim ): int => (int) strpos( $h, $kim );
+kt(
+	'trang bài ba tầng: Đọc (lời, Ý nghĩa, Từ khó, Dị bản) → Hiểu thêm (Cách hiểu của bạn đọc · Bài cảm nhận · Cảm nghĩ, mỗi phần có số và nút viết) → Đọc thêm (phân loại, Đọc tiếp, Lời này từ đâu?, ảnh chia sẻ) → Bạn muốn góp gì?',
+	$vi_tri( 'class="work-main"' ) < $vi_tri( 'id="hieu-them"' ) && $vi_tri( 'id="hieu-them"' ) < $vi_tri( 'id="doc-them"' ) && $vi_tri( 'id="doc-them"' ) < $vi_tri( 'class="work-tags"' ) && $vi_tri( 'class="work-tags"' ) < $vi_tri( 'id="tu-lieu"' ) && $vi_tri( 'id="tu-lieu"' ) < $vi_tri( 'id="gop"' )
+	&& 3 === substr_count( $h, 'class="ht-phan"' ) && str_contains( $h, '<h3 class="ht-ten">Cách hiểu của bạn đọc <span class="ht-so">0</span></h3>' ) && str_contains( $h, '<h3 class="ht-ten">Bài cảm nhận <span class="ht-so">' ) && str_contains( $h, '<h3 class="ht-ten">Cảm nghĩ <span class="ht-so">' )
+	&& str_contains( $h, 'role="tablist" aria-label="Hiểu thêm" data-chi-js hidden' ) && str_contains( $h, 'loai=phan_tich&#038;bai=' . $mau_id['cau-mau-thu-hai'] ) && str_contains( $h, 'loai=cam_nghi&#038;bai=' . $mau_id['cau-mau-thu-hai'] ) && str_contains( $h, 'Viết cảm nhận' ) && str_contains( $h, 'Viết cảm nghĩ' )
+);
+$h_doc = $xem( $mau_id['dong-mau-mot-cua-bai'] );
+kt( 'tầng Đọc: Từ khó, Dị bản ngay sau lời, trước Hiểu thêm', (int) strpos( $h_doc, 'id="chu-thich"' ) < (int) strpos( $h_doc, 'id="di-ban"' ) && (int) strpos( $h_doc, 'id="di-ban"' ) < (int) strpos( $h_doc, 'id="hieu-them"' ) && (int) strpos( $h_doc, 'class="work-main"' ) < (int) strpos( $h_doc, 'id="chu-thich"' ) );
+$h_tn = $xem( $mau_id['tuc-ngu-mau-ngan'] );
+kt( 'tục ngữ: khối nghĩa (Giải nghĩa chi tiết, Dùng khi) thuộc tầng Đọc, trước Hiểu thêm', (int) strpos( $h_tn, 'Giải nghĩa chi tiết' ) < (int) strpos( $h_tn, 'id="hieu-them"' ) && (int) strpos( $h_tn, 'Dùng khi' ) < (int) strpos( $h_tn, 'id="hieu-them"' ) && str_contains( $h_tn, 'id="hieu-them"' ) );
+$HT = \Phongdao\GiaoTiep\Khoi\HieuThem::class;
+$c_gia = array( 'id' => 1, 'ten' => 'Bạn đọc', 'chu' => 'Chữ', 'ngay' => '01/01/2026' );
+$ht_mo = $HT::hien( $mau_id['cau-mau-thu-hai'], array( 'cach_hieu' => array(), 'cam_nghi' => array( $c_gia, $c_gia ) ) );
+$ht_gui = $HT::hien( $mau_id['cau-mau-thu-hai'], array( 'cach_hieu' => array(), 'cam_nghi' => array( $c_gia, $c_gia ) ), array( 'gui' => 'da_gui' ) );
+$ht_loi = $HT::hien( $mau_id['cau-mau-thu-hai'], array(), array( 'gui' => 'loi', 'ma' => 'thieu_ch' ) );
+kt( 'Hiểu thêm: mở sẵn phần nhiều bài nhất (Cảm nghĩ), vừa gửi cách hiểu thì mở phần Cách hiểu kèm lời cảm ơn; gửi thiếu thì báo đúng lỗi cạnh form', str_contains( $ht_mo, 'data-mo="2"' ) && str_contains( $ht_mo, 'id="ht-nut-cam-nghi" aria-controls="cam-nghi" aria-selected="true"' ) && str_contains( $ht_gui, 'data-mo="0"' ) && str_contains( $ht_gui, 'Cách hiểu đã tới người biên soạn' ) && str_contains( $ht_loi, 'Xin viết cách hiểu của bạn' ), array( substr( $ht_mo, 0, 400 ) ) );
+update_option( 'cadao_turnstile_site', 'khoa-site-thu', false );
+$ht_ts = $HT::form( $mau_id['cau-mau-thu-hai'] );
+delete_option( 'cadao_turnstile_site' );
+kt( 'form cách hiểu có ô chống rác Turnstile khi người quản trị đã dán khoá', str_contains( $ht_ts, 'class="cf-turnstile" data-sitekey="khoa-site-thu"' ) );
 kt( 'trang không phải tác phẩm: khối không in gì', '' === trim( $xem( $trang ) ) );
 
 // ---------- Danh sách: Tất cả, thể loại ----------
@@ -2276,6 +2305,37 @@ $kq = \Phongdao\DichVu\XepViec\QuyetViec::quyet( (int) $v_bl['id'], 'duyet', $ai
 wp_set_current_user( 0 );
 $h = TacPham::hien( (array) \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_post( $bai_g ) ) );
 kt( 'người biên soạn bấm Hiện → cảm nghĩ lên trang kèm tên hiển thị và "Báo vi phạm"', $kq['ok'] && str_contains( $h, 'Cảm nghĩ mẫu của bạn đọc.' ) && str_contains( $h, 'Bút danh mẫu' ) && str_contains( $h, 'loai=vi_pham' ), $kq );
+// Cách hiểu của bạn đọc (D-105): form nhanh trên trang → Hộp việc → người bấm Hiện mới lên tầng Hiểu thêm
+$_SERVER['REMOTE_ADDR'] = '203.0.113.9';
+$ch_thieu = $NG::luu( array( 'loai' => 'cach_hieu', 'bai' => $bai_g, 'noi_dung' => 'Cách hiểu chưa cam kết.', 'dong_y' => '1' ) );
+$ch_ko_bai = \Phongdao\MienDuLieu\GopNguoiDoc::kiem( array( 'loai' => 'cach_hieu', 'noi_dung' => 'x', 'tu_viet' => '1', 'dong_y' => '1' ) )[0];
+$ch = $NG::luu( array( 'loai' => 'cach_hieu', 'bai' => $bai_g, 'noi_dung' => str_repeat( 'Cách hiểu mẫu của bạn đọc. ', 60 ), 'ten' => 'Bút danh cách hiểu', 'tu_viet' => '1', 'dong_y' => '1', 'email' => 'ai@example.org' ) );
+$ch_bl = get_comment( $ch['id'] );
+$v_ch  = Viec::mo( 'comment', $ch['id'], 'nguoi_doc' )[0] ?? array();
+kt(
+	'cách hiểu: thiếu cam kết tự viết → chưa gửi; không gắn bài → chưa gửi; đủ → bình luận loại cach_hieu chờ duyệt, cắt ở 1.000 ký tự, chỉ giữ bút danh (không email, địa chỉ mạng, trình duyệt), thẻ Người đọc gửi loại Cách hiểu',
+	'thieu_ch' === $ch_thieu['ma'] && 'bai' === $ch_ko_bai && $ch['ok'] && $ch_bl && 'cach_hieu' === $ch_bl->comment_type && '0' === (string) $ch_bl->comment_approved && 1000 === mb_strlen( $ch_bl->comment_content ) && '' === $ch_bl->comment_author_email && '' === $ch_bl->comment_author_IP && '' === $ch_bl->comment_agent && 'Bút danh cách hiểu' === $ch_bl->comment_author && 'cach_hieu' === ( $v_ch['noi_dung']['loai'] ?? '' ),
+	array( $ch_thieu, $ch_ko_bai, $ch )
+);
+kt( 'trang Góp không có loại Cách hiểu (chỉ gửi bằng form nhanh trên trang bài)', ! str_contains( \Phongdao\GiaoTiep\Khoi\GopTuLieu::hien( '', $bai_g, '', '', 0 ), 'value="cach_hieu"' ) );
+$h = TacPham::hien( (array) \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_post( $bai_g ) ) );
+kt( 'cách hiểu chưa duyệt không hiện trên trang', ! str_contains( $h, 'Cách hiểu mẫu của bạn đọc.' ) );
+wp_set_current_user( $ai_ql );
+$hv_ch = \Phongdao\GiaoTiep\BienTap\HopViec::the( $v_ch );
+kt( 'Hộp việc: thẻ "Cách hiểu" có "Hiện trên trang"; nhắc muốn dùng làm gốc cho Ý nghĩa thì tự viết lại và ghi công (máy không chép)', str_contains( $hv_ch, 'Cách hiểu — ' ) && str_contains( $hv_ch, 'Hiện trên trang' ) && str_contains( $hv_ch, 'Cách hiểu mẫu của bạn đọc.' ) && str_contains( $hv_ch, 'có tham khảo cách hiểu của bạn đọc Bút danh cách hiểu' ) && str_contains( $hv_ch, 'page=phongdao-sua-tac-pham' ), $hv_ch );
+$cap_ch    = static fn(): ?int => \Phongdao\MienDuLieu\CapChatLuong::tinh( PhanBai::tat_ca( $bai_g, KhaiBao::TAC_PHAM ), \Phongdao\DichVu\DungTrang\DocBai::the_loai( get_post( $bai_g ) ) );
+$cap_truoc = $cap_ch();
+$yn_truoc  = PhanBai::lay( $bai_g, 'y_nghia' );
+$kq_ch     = QuyetViec::quyet( (int) $v_ch['id'], 'duyet', $ai_ql, true );
+wp_set_current_user( 0 );
+$h    = TacPham::hien( (array) \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_post( $bai_g ) ) );
+$h_ht = (string) strstr( (string) strstr( $h, 'id="hieu-them"' ), 'id="doc-them"', true );
+kt(
+	'bấm Hiện → cách hiểu lên tầng Hiểu thêm (dưới Ý nghĩa), ghi bút danh và ngày, có "Báo vi phạm"; không lẫn vào Ý nghĩa hay Cảm nghĩ; Ý nghĩa và cấp chất lượng không đổi',
+	$kq_ch['ok'] && str_contains( $h_ht, 'Cách hiểu mẫu của bạn đọc.' ) && str_contains( $h_ht, 'Bút danh cách hiểu · ' ) && str_contains( $h_ht, 'vi_pham=' . $ch['id'] ) && str_contains( $h_ht, 'Cách hiểu của bạn đọc <span class="ht-so">1</span>' )
+	&& ! str_contains( (string) strstr( $h, 'id="hieu-them"', true ), 'Cách hiểu mẫu' ) && ! in_array( (int) $ch['id'], array_column( \Phongdao\DichVu\DungTrang\DocBai::cam_nghi( $bai_g ), 'id' ), true ) && $cap_truoc === $cap_ch() && $yn_truoc === PhanBai::lay( $bai_g, 'y_nghia' ),
+	$kq_ch
+);
 // Người đọc gửi (T-177.11): gửi lại cùng nội dung không thành hai bản; lỗi tạo thẻ không để nội dung nằm ngoài Hộp việc;
 // nội dung đã đổi ở màn khác của WordPress thì thẻ không làm ngược (không kéo từ thùng rác ra đăng)
 $_SERVER['REMOTE_ADDR'] = '203.0.113.7';
@@ -2463,7 +2523,7 @@ kt( 'gửi lại không đổi gì: không ghi; ảnh riêng không phải ảnh
 $h_smt = \Phongdao\GiaoTiep\Khoi\DanhSach::hien( new WP_Query( array( 'muc_tu' => 'ben-mau-bac' ) ) );
 kt( 'trang mục từ: nguồn lời giải người điền hiện; ảnh Wikidata đã ẩn', ! $hs_smt || str_contains( $h_smt, 'Nguồn lời giải: ' . $hs_smt->post_title ), substr( $h_smt, 0, 500 ) );
 wp_set_current_user( $u_cu );
-kt( 'trang bài liệt kê bài cảm nhận đã duyệt (bài chờ duyệt thì không)', str_contains( $h, 'Cảm nhận – phân tích' ) && str_contains( $h, 'Một cách đọc bài mẫu' ) && ! str_contains( $h, 'Cảm nhận mẫu</a>' ) );
+kt( 'trang bài: tầng Hiểu thêm, phần Bài cảm nhận liệt kê bài đã duyệt kèm tên, hai dòng đầu, người viết (bài chờ duyệt thì không)', str_contains( $h, '<h3 class="ht-ten">Bài cảm nhận <span class="ht-so">' ) && str_contains( $h, 'Một cách đọc bài mẫu</a></h4><p class="ht-tom">' ) && ! str_contains( $h, 'Cảm nhận mẫu</a>' ) );
 
 // ---------- Đo lường, an toàn ----------
 wp_set_current_user( 0 );

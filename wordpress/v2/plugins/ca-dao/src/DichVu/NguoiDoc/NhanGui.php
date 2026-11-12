@@ -83,7 +83,8 @@ final class NhanGui {
 		}
 		$bai_id  = $bai ? $bai->ID : 0;
 		$ten_bai = $bai ? $bai->post_title : 'không gắn bài';
-		if ( 'cam_nghi' === $d['loai'] ) {
+		if ( 'cam_nghi' === $d['loai'] || 'cach_hieu' === $d['loai'] ) {
+			// Cảm nghĩ và cách hiểu của bạn đọc: bình luận chờ duyệt (cách hiểu mang loại bình luận riêng `cach_hieu`)
 			$id   = (int) wp_insert_comment(
 				array(
 					'comment_post_ID'      => $bai_id,
@@ -94,7 +95,7 @@ final class NhanGui {
 					'comment_agent'        => '',
 					'comment_content'      => $d['noi_dung'],
 					'comment_approved'     => 0,
-					'comment_type'         => 'comment',
+					'comment_type'         => 'cach_hieu' === $d['loai'] ? 'cach_hieu' : 'comment',
 					'user_id'              => 0,
 				)
 			);
@@ -204,7 +205,11 @@ final class NhanGui {
 		$p  = wp_unslash( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification -- kiểm ngay dưới
 		$kq = wp_verify_nonce( (string) ( $p['_wpnonce'] ?? '' ), self::HANH_DONG ) ? self::luu( $p ) : array( 'ok' => false, 'ma' => 'cu', 'id' => 0, 'bai' => (int) ( $p['bai'] ?? 0 ) );
 		$goc = home_url( '/gop/' );
-		if ( $kq['ok'] ) {
+		$cach_hieu = 'cach_hieu' === ( $p['loai'] ?? '' ) && $kq['bai'];
+		if ( $cach_hieu ) {
+			// Form nhanh trên trang bài: quay lại đúng tầng Hiểu thêm, lời báo nằm cạnh form
+			$toi = add_query_arg( array( 'gop' => $kq['ok'] ? 'da_gui' : 'loi', 'gop_loai' => 'cach_hieu', 'ma' => $kq['ok'] ? false : $kq['ma'] ), (string) get_permalink( $kq['bai'] ) ) . '#cach-hieu';
+		} elseif ( $kq['ok'] ) {
 			$toi = $kq['bai'] ? add_query_arg( 'gop', 'da_gui', (string) get_permalink( $kq['bai'] ) ) . '#gop' : add_query_arg( 'gui', 'da_gui', $goc );
 		} else {
 			$toi = add_query_arg(
