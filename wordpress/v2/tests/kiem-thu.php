@@ -3176,5 +3176,36 @@ $kp_trong = \Phongdao\GiaoTiep\Khoi\KhamPha::hien( 'kham-pha' );
 kt( 'lối vào tuyển tập chưa có nội dung công khai nói đang chuẩn bị, không quảng bá trình chiếu sẵn', str_contains( $kp_trong, 'Chưa có tuyển tập công khai' ) && str_contains( $kp_trong, 'Các bộ theo dịp đang được chuẩn bị' ) && ! str_contains( $kp_trong, 'Đọc liền một chủ đề, trình chiếu cả bộ' ) );
 foreach ( $tt_hien as $tt_mock ) { wp_update_post( array( 'ID' => $tt_mock->ID, 'post_status' => 'publish' ) ); }
 
+// Khôi phục phải nguyên tử; khi Hộp việc sở hữu giao dịch, không được COMMIT lồng làm mất khả năng rollback.
+wp_set_current_user( $ai_ql );
+$p_undo_tx = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'draft', 'post_title' => '[UX-TEST] Giao dịch khôi phục' ) );
+wp_set_object_terms( $p_undo_tx, 'ca-dao', KhaiBao::THE_LOAI );
+$nc_undo_tx = array( 'nguoi' => $ai_ql, 'goi' => KiemPhan::GOI_NGUOI, 'duyet' => true );
+LuuPhan::luu( $p_undo_tx, 'loi', array( 'dong' => array( '[UX-TEST] Lời kỹ thuật' ), 'nguoi_lam' => NguoiLam::NGUOI_VIET ), $nc_undo_tx );
+LuuPhan::luu( $p_undo_tx, 'y_nghia', array( 'chu' => '[UX-TEST] Trước', 'nguoi_lam' => NguoiLam::NGUOI_VIET ), $nc_undo_tx );
+$v_undo_tx = LuuPhan::luu( $p_undo_tx, 'y_nghia', array( 'chu' => '[UX-TEST] Sau', 'nguoi_lam' => NguoiLam::NGUOI_VIET ), $nc_undo_tx );
+$cu_undo_tx = PhanBai::lay( $p_undo_tx, 'y_nghia' );
+$n_undo_tx = count( Viec::lich_su( 'post', $p_undo_tx, 50 ) );
+$fail_undo_tx = static function ( int $id ) use ( $p_undo_tx ): void { if ( $id === $p_undo_tx ) { throw new RuntimeException( '[UX-TEST] Lỗi ghi bản chữ khi khôi phục' ); } };
+add_action( 'pre_post_update', $fail_undo_tx );
+$hong_undo_tx = LuuPhan::khoi_phuc( $v_undo_tx['viec'], $nc_undo_tx );
+remove_action( 'pre_post_update', $fail_undo_tx );
+kt( 'khôi phục lỗi giữa meta/nhật ký và bản chữ: không báo thành công, rollback toàn bộ', ! $hong_undo_tx['ok'] && $cu_undo_tx === PhanBai::lay( $p_undo_tx, 'y_nghia' ) && $n_undo_tx === count( Viec::lich_su( 'post', $p_undo_tx, 50 ) ) && str_contains( (string) get_post_field( 'post_content', $p_undo_tx ), '[UX-TEST] Sau' ) );
+$wpdb->query( 'START TRANSACTION' );
+LuuPhan::khoa_bai( $p_undo_tx );
+$trong_undo_tx = LuuPhan::khoi_phuc( $v_undo_tx['viec'], $nc_undo_tx + array( 'trong_giao_dich' => true ) );
+$wpdb->query( 'ROLLBACK' ); clean_post_cache( $p_undo_tx );
+kt( 'caller sở hữu giao dịch khôi phục: rollback ngoài vẫn trả cả phần và lịch sử, không COMMIT lồng', $trong_undo_tx['ok'] && $cu_undo_tx === PhanBai::lay( $p_undo_tx, 'y_nghia' ) && $n_undo_tx === count( Viec::lich_su( 'post', $p_undo_tx, 50 ) ) );
+$ok_undo_tx = LuuPhan::khoi_phuc( $v_undo_tx['viec'], $nc_undo_tx );
+kt( 'sau lỗi ghi có thể khôi phục lại một lần, bản chữ và lịch sử đúng', $ok_undo_tx['ok'] && '[UX-TEST] Trước' === PhanBai::lay( $p_undo_tx, 'y_nghia' )['chu'] && str_contains( (string) get_post_field( 'post_content', $p_undo_tx ), '[UX-TEST] Trước' ) && $n_undo_tx + 1 === count( Viec::lich_su( 'post', $p_undo_tx, 50 ) ) );
+$card_undo_tx = Viec::tao( array( 'loai' => 'nhap_y_nghia', 'doi_tuong_loai' => 'post', 'doi_tuong_id' => $p_undo_tx, 'phan' => 'y_nghia', 'noi_dung' => array( 'chu' => '[UX-TEST] Duyệt trong nháp', 'ai' => false ), 'nguoi_tao' => (string) $ai_ql ) );
+$duyet_nhap_tx = \Phongdao\DichVu\XepViec\QuyetViec::quyet( $card_undo_tx, 'duyet', $ai_ql, true, 0 );
+kt( 'duyệt phần của bài nháp không tự đăng bài và lời báo không nói khách đã thấy', $duyet_nhap_tx['ok'] && 'draft' === get_post_status( $p_undo_tx ) && str_contains( $duyet_nhap_tx['thong_bao'], 'Bài chưa công khai' ) && ! str_contains( $duyet_nhap_tx['thong_bao'], 'Người đọc thấy' ) );
+wp_update_post( array( 'ID' => $p_undo_tx, 'post_status' => 'publish' ) );
+$card_publish_tx = Viec::tao( array( 'loai' => 'nhap_y_nghia', 'doi_tuong_loai' => 'post', 'doi_tuong_id' => $p_undo_tx, 'phan' => 'y_nghia', 'noi_dung' => array( 'chu' => '[UX-TEST] Duyệt trong bài đã đăng', 'ai' => false ), 'nguoi_tao' => (string) $ai_ql ) );
+$duyet_publish_tx = \Phongdao\DichVu\XepViec\QuyetViec::quyet( $card_publish_tx, 'duyet', $ai_ql, true, 0 );
+kt( 'duyệt phần của bài đã đăng báo đúng ảnh hưởng tới trang người đọc', $duyet_publish_tx['ok'] && str_contains( $duyet_publish_tx['thong_bao'], 'Người đọc thấy ý nghĩa trên trang bài' ) );
+wp_delete_post( $p_undo_tx, true );
+
 $tong = $GLOBALS['v2_dat'] + $GLOBALS['v2_hong'];
 ra( "\nKẾT QUẢ: " . ( $GLOBALS['v2_hong'] ? "HỎNG {$GLOBALS['v2_hong']} / $tong" : "ĐẠT $tong" ) );

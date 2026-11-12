@@ -62,6 +62,10 @@ final class QuyetViec {
 		if ( false === $wpdb->query( 'START TRANSACTION' ) ) {
 			return self::kq( false, 'Chưa mở được lượt quyết việc. Thử lại sau.' );
 		}
+		if ( 'nhap_y_nghia' === $v['loai'] && 'duyet' === $quyet && ! LuuPhan::khoa_bai( (int) $v['doi_tuong_id'] ) ) {
+			$wpdb->query( 'ROLLBACK' );
+			return self::kq( false, 'Không khóa được bài để duyệt. Thử lại sau.' );
+		}
 		if ( ! Viec::giu( $id, $v['phien'] ) ) {
 			$wpdb->query( 'ROLLBACK' );
 			return self::kq( false, 'Thẻ đã đổi ở phiên khác. Tải lại Hộp việc để xem quyết định mới.' );
@@ -103,8 +107,13 @@ final class QuyetViec {
 	/** Ghi một sự kiện hoàn tác mới và trả thẻ về đúng trạng thái trước, trong một giao dịch có kiểm phiên. */
 	public static function hoan_tac( int $id, int $phien, int $nguoi ): array {
 		global $wpdb;
+		$khoa = Viec::lay( $id );
 		if ( false === $wpdb->query( 'START TRANSACTION' ) ) {
 			return self::kq( false, 'Chưa mở được lượt hoàn tác. Thử lại sau.' );
+		}
+		if ( $khoa && 'nhap_y_nghia' === $khoa['loai'] && 'duyet' === $khoa['quyet'] && ! LuuPhan::khoa_bai( (int) $khoa['doi_tuong_id'] ) ) {
+			$wpdb->query( 'ROLLBACK' );
+			return self::kq( false, 'Không khóa được bài để hoàn tác. Thử lại sau.' );
 		}
 		$v = Viec::lay( $id );
 		if ( ! self::co_the_hoan_tac( $v, $nguoi, $phien ) ) {
@@ -114,7 +123,7 @@ final class QuyetViec {
 		$truoc = $v['truoc']['trang_thai'];
 		$phan_viec = 0;
 		if ( 'nhap_y_nghia' === $v['loai'] && 'duyet' === $v['quyet'] ) {
-			$kq = LuuPhan::khoi_phuc( (int) $v['truoc']['phan_viec'], array( 'nguoi' => $nguoi, 'goi' => KiemPhan::GOI_NGUOI, 'duyet' => true ) );
+			$kq = LuuPhan::khoi_phuc( (int) $v['truoc']['phan_viec'], array( 'nguoi' => $nguoi, 'goi' => KiemPhan::GOI_NGUOI, 'duyet' => true, 'trong_giao_dich' => true ) );
 			if ( ! $kq['ok'] || ! $kq['doi'] ) {
 				$wpdb->query( 'ROLLBACK' );
 				clean_post_cache( (int) $v['doi_tuong_id'] );
@@ -219,7 +228,9 @@ final class QuyetViec {
 					return self::kq( false, implode( ' ', $kq['loi'] ) );
 				}
 				Viec::dong( $id, Viec::XONG, 'duyet', $nguoi, $v['trang_thai'], array( 'phan_viec' => $kq['viec'] ) + ( $chu !== $goc ? array( 'da_sua' => true ) : array() ) );
-				return self::kq( true, $chu !== $goc ? 'Đã sửa và duyệt; người đọc thấy ý nghĩa ngay.' : 'Đã duyệt; người đọc thấy ý nghĩa ngay.' );
+				$bao = ( $chu !== $goc ? 'Đã sửa và duyệt. ' : 'Đã duyệt. ' )
+					. ( 'publish' === get_post_status( (int) $v['doi_tuong_id'] ) ? 'Người đọc thấy ý nghĩa trên trang bài.' : 'Bài chưa công khai; khách chưa thấy phần này.' );
+				return self::kq( true, $bao );
 			case 'can_xem':
 				Viec::dong( $id, Viec::XONG, 'xong', $nguoi, $v['trang_thai'] );
 				return self::kq( true, 'Đã đánh dấu xem xong.' );
