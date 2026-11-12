@@ -22,6 +22,7 @@ final class TamSua {
 		'nghia_den'   => array( 'Sửa nghĩa đen', 'chu_ai' ),
 		'nghia_bong'  => array( 'Sửa nghĩa bóng', 'chu_ai' ),
 		'dung_khi'    => array( 'Sửa "Dùng khi"', 'chu_ai' ),
+		'hinh_anh'    => array( 'Sửa "Hình ảnh trong bài"', 'chu_ai' ),
 		'goi_y'       => array( 'Sửa gợi ý', 'chu_ai' ),
 		'ban_co_biet' => array( 'Sửa "Bạn có biết"', 'chu_ai' ),
 		'cau_hoi'     => array( 'Sửa câu hỏi', 'chu' ),
@@ -33,14 +34,19 @@ final class TamSua {
 		'doan'        => array( 'Chia đoạn', 'doan' ),
 	);
 
+	/** Tên tấm sửa theo thể loại: giải nghĩa của câu đố là "Giải thích đáp án" (cùng chỗ lưu với Ý nghĩa, D-105). */
+	public static function ten( string $phan, string $the_loai = '' ): string {
+		return 'y_nghia' === $phan && 'cau-do' === $the_loai ? 'Sửa giải thích đáp án' : (string) ( self::TAM[ $phan ][0] ?? $phan );
+	}
+
 	// ---------- Dựng form ----------
 
 	/**
 	 * @param array{ho_so:array<int,string>,sach:array<int,string>,duyet:bool} $ctx
 	 */
 	public static function ve( string $phan, ?array $cu, array $ctx ): string {
-		[ $tieu_de ] = self::TAM[ $phan ];
-		$than = self::than( $phan, $cu, $ctx );
+		$tieu_de = self::ten( $phan, (string) ( $ctx['the_loai'] ?? '' ) );
+		$than    = self::than( $phan, $cu, $ctx );
 		$id = 'tam-' . $phan;
 		return '<dialog class="tam-sua" id="' . $id . '" aria-labelledby="' . $id . '-tieu-de"><form method="post" class="tam-khung" data-phan="' . esc_attr( $phan ) . '">'
 			. '<header class="tam-dau"><h2 id="' . $id . '-tieu-de">' . esc_html( $tieu_de ) . '</h2><button type="button" class="nut-dong" data-action="dong-tam" aria-label="Đóng"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></svg></button></header>'
@@ -67,7 +73,7 @@ final class TamSua {
 		return match ( $kieu ) {
 			'loi'       => self::form_loi( $cu, $ctx ),
 			'y_nghia'   => self::form_y_nghia( $cu, $ctx ),
-			'chu_ai'    => self::vung( "s-$phan", 'chu', 'dung_khi' === $phan ? 'Mỗi dòng một ví dụ' : 'Nội dung', (string) ( $cu['chu'] ?? '' ) ) . self::hop( "s-$phan-ai", 'ai', 'Có hỗ trợ của AI', ! empty( $cu['ai'] ) ) . ( $ctx['duyet'] ? '' : '<p class="small muted">Phần có hỗ trợ AI cần người có quyền duyệt lưu.</p>' ),
+			'chu_ai'    => self::vung( "s-$phan", 'chu', array( 'dung_khi' => 'Mỗi dòng một ví dụ', 'hinh_anh' => 'Mỗi dòng một cặp: hình ảnh → điều được nói tới (vd. tấm lụa đào → thân phận người con gái)' )[ $phan ] ?? 'Nội dung', (string) ( $cu['chu'] ?? '' ) ) . self::hop( "s-$phan-ai", 'ai', 'Có hỗ trợ của AI', ! empty( $cu['ai'] ) ) . ( $ctx['duyet'] ? '' : '<p class="small muted">Phần có hỗ trợ AI cần người có quyền duyệt lưu.</p>' ),
 			'chu'       => self::vung( "s-$phan", 'chu', 'Nội dung', (string) ( $cu['chu'] ?? '' ), '', 3 ),
 			'co_nghi'   => self::vung( "s-$phan", 'ly_do', 'Lý do (để trống = gỡ cờ)', (string) ( $cu['ly_do'] ?? '' ) ) . self::nguon( "s-$phan", 'nguon', $cu['nguon'] ?? array(), $ctx ),
 			'chu_thich' => self::form_ds( $phan, $cu, $ctx ),

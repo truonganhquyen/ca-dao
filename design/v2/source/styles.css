@@ -199,3 +199,9 @@ details.block>summary{justify-content:flex-start;gap:10px}details.block>summary:
 .form-cach-hieu{margin:20px 0 0;padding:20px;border:1px solid var(--line);border-radius:4px;background:var(--panel)}.form-cach-hieu h4{margin:0 0 4px;font-size:18px}.moi-cach-hieu p{margin:0 0 12px}.moi-cach-hieu p:last-child{margin:0}
 @media(max-width:767px){.tang{margin:32px 0}.form-cach-hieu{padding:16px}}
 @media print{.ht-nut,.form-cach-hieu,.moi-cach-hieu .btn{display:none!important}.ht-phan[hidden]{display:block!important}}
+/* Tục ngữ: khối Nghĩa — Nghĩa bóng hiện to nhất (D-105); cờ "Có thể không phải dân gian" kèm "Vì sao?" */
+.nghia-tn>div{margin:0 0 18px}.nghia-tn>div:last-child{margin:0}.nghia-tn h3{margin:0 0 6px;color:var(--nhat);font-size:15px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}.nghia-tn .nghia-bong p{font-size:clamp(20px,2.4vw,24px);line-height:1.6;font-weight:500}
+.co-nghi{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}.co-nghi .flag{margin:0}.vi-sao{margin:0}.vi-sao>summary{min-height:44px;display:inline-flex;align-items:center}.vi-sao[open]{flex-basis:100%}
+/* Ca dao "Hình ảnh trong bài"; tấm Sửa phân loại trên trang đọc (D-105) */
+.hinh-anh{margin:0}.hinh-anh-muc{display:flex;flex-wrap:wrap;gap:2px 10px;padding:8px 0;border-bottom:1px solid var(--line)}.hinh-anh-muc:last-child{border-bottom:0}.hinh-anh dt{font-weight:600}.hinh-anh dd{margin:0}
+.tam-pl fieldset{margin:0 0 20px;padding:0;border:0}.tam-pl legend{margin:0 0 8px;font-weight:600}.chip-chon-ds{display:flex;flex-wrap:wrap;gap:8px;max-height:40vh;overflow:auto}.tam-pl-nut{margin:12px 0 0}

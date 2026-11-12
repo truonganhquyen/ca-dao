@@ -78,10 +78,20 @@ final class TrangTacPham {
 			'nghia_den'    => (string) ( $phan['nghia_den']['chu'] ?? '' ),
 			'nghia_bong'   => (string) ( $phan['nghia_bong']['chu'] ?? '' ),
 			'dung_khi'     => array_values( array_filter( array_map( 'trim', explode( "\n", (string) ( $phan['dung_khi']['chu'] ?? '' ) ) ) ) ),
+			// Hình ảnh trong bài: mỗi dòng "hình ảnh → điều được nói tới" (người viết); dòng không có mũi tên giữ nguyên
+			'hinh_anh'     => array_values(
+				array_map(
+					static fn( string $d ): array => array_map( 'trim', array_pad( (array) preg_split( '/\s*(?:→|->)\s*/u', $d, 2 ), 2, '' ) ),
+					array_filter( array_map( 'trim', explode( "\n", (string) ( $phan['hinh_anh']['chu'] ?? '' ) ) ) )
+				)
+			),
+			'hinh_anh_ai'  => ! empty( $phan['hinh_anh']['ai'] ),
 			'dap_an'       => (string) ( $phan['dap_an']['chu'] ?? '' ),
 			'goi_y'        => (string) ( $phan['goi_y']['chu'] ?? '' ),
 			'cau_hoi'      => (string) ( $phan['cau_hoi']['chu'] ?? '' ),
 			'co_nghi'      => (string) ( $phan['co_nghi']['ly_do'] ?? '' ),
+			// Nguồn người viết ghi cho cờ (mở ở "Vì sao?")
+			'co_nghi_nguon' => empty( $phan['co_nghi']['nguon'] ) ? null : self::nguon( (array) $phan['co_nghi']['nguon'], $ho_so ),
 			'chu_de'       => $bai['chu_de'] ?? array(),
 			'vung'         => $bai['vung'] ?? array(),
 			'tuyen_tap'    => $bai['tuyen_tap'] ?? array(),

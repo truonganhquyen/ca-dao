@@ -150,7 +150,7 @@ final class NguonCaiDat {
 	/** Khối "Bài chịu ảnh hưởng" của một hồ sơ nguồn, kèm lối mở danh sách Tác phẩm của nguồn tự động dùng hồ sơ này. */
 	private static function anh_huong_html( int $id ): string {
 		$a   = self::anh_huong( $id );
-		$ten = array( 'loi' => 'Lời', 'chu_thich' => 'Từ khó', 'di_ban' => 'Dị bản', 'co_nghi' => 'Cờ nghi', 'boi_canh' => 'Bối cảnh', 'y_nghia' => 'Ý nghĩa', 'nghia_den' => 'Nghĩa đen', 'nghia_bong' => 'Nghĩa bóng', 'dung_khi' => 'Dùng khi' );
+		$ten = array( 'loi' => 'Lời', 'chu_thich' => 'Từ khó', 'di_ban' => 'Dị bản', 'co_nghi' => 'Cờ nghi', 'boi_canh' => 'Bối cảnh', 'y_nghia' => 'Ý nghĩa', 'nghia_den' => 'Nghĩa đen', 'nghia_bong' => 'Nghĩa bóng', 'dung_khi' => 'Dùng khi', 'hinh_anh' => 'Hình ảnh trong bài' );
 		$chi = implode( ', ', array_map( static fn( string $k, int $so ): string => ( $ten[ $k ] ?? $k ) . ' ' . $so . ' bài', array_keys( $a['phan'] ), $a['phan'] ) );
 		$lien = array();
 		foreach ( NguonTuDong::tat_ca() as $nid => $n ) {

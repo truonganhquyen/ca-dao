@@ -322,7 +322,7 @@ try {
       const href = await bt.$eval('#wpbody-content a[href*="/cau-do/cau-do-mau/"]', e => e.href).catch(() => '');
       chac(href, 'danh sách Câu đố thiếu giải thích không có câu đố mẫu');
       await bt.goto(href, { waitUntil: 'load', timeout: 120_000 });
-      chac(await bt.$('button[data-tam="y_nghia"]') && await coChu(bt, 'Thêm ý nghĩa'), 'trang câu đố không cho người biên soạn thêm Ý nghĩa');
+      chac(await bt.$('button[data-tam="y_nghia"]') && await coChu(bt, 'Thêm giải thích đáp án'), 'trang câu đố không cho người biên soạn thêm Giải thích đáp án');
       await di(k, T.cauDo);
       chac(!(await k.$('button[data-tam="y_nghia"]')) && !(await coChu(k, 'Bài đang được bổ sung ý nghĩa')) && !(await coChu(k, 'Câu này chưa có lời giải nghĩa')), 'khách thấy điều khiển hoặc lời nhắc thiếu Ý nghĩa');
     });
@@ -633,6 +633,27 @@ try {
       chac(!(await k.$eval('.work-main', (e, c) => e.innerText.includes(c), chu)), 'cách hiểu lẫn vào khung lời và Ý nghĩa');
     });
 
+    await thu('Trang đọc (chế độ sửa): "Sửa phân loại" gắn một chủ đề có sẵn, quay lại trang đọc, người đọc thấy; gỡ lại như cũ', async () => {
+      const bai = '/ca-dao/cau-mau-thu-hai/';
+      const form = 'dialog#tam-phan-loai[open] form:has(input[name=tax][value=chu_de])';
+      await di(bt, bai);
+      await bam(bt, '[data-action=mo-tam][data-tam=phan-loai]');
+      const o = await bt.$eval(`${form} label.chip-chon:has(input:not(:checked))`, l => ({ id: l.getAttribute('for'), ten: l.innerText.replace(/\s*·\s*máy gợi ý\s*$/, '').trim() })).catch(() => null);
+      chac(o, 'tấm Sửa phân loại không có chủ đề nào để chọn');
+      await bam(bt, `#${o.id}`);
+      await bamDoiTrang(bt, `${form} button[type=submit]`);
+      chac(new URL(bt.url()).pathname === bai, `lưu xong không quay lại trang đọc (${bt.url()})`);
+      await di(k, bai);
+      chac(await coChu(k, 'Chủ đề: ' + o.ten), `người đọc chưa thấy chủ đề "${o.ten}"`);
+      await di(bt, bai);
+      await bam(bt, '[data-action=mo-tam][data-tam=phan-loai]');
+      await bam(bt, `#${o.id}`);
+      await bamDoiTrang(bt, `${form} button[type=submit]`);
+      await di(k, bai);
+      chac(!(await coChu(k, 'Chủ đề: ' + o.ten)), 'gỡ chủ đề trên trang đọc không được');
+      chac(await coChu(k, 'Ở quê bạn có câu này không? Góp'), 'bài chưa có nơi lưu truyền không mời người đọc góp');
+    });
+
     await thu('Biên tập: sửa lời rồi Hoàn tác', async () => {
       const bai = '/ca-dao/cau-mau-thu-hai/', them = 'Dòng thêm thử đầu cuối';
       await di(bt, bai);
@@ -820,6 +841,8 @@ try {
       await bamDoiTrang(bt, 'button[name=lam][value=ap_dung]');
       chac(await coChu(bt, 'Lô đã chạy xong.') && await coChu(bt, 'Thành công 1'), 'lô sửa từng hàng không thành công');
       await di(k, T.cauDo);
+      // Câu đố: giải nghĩa là "Giải thích đáp án", nằm trong khối "Hiện đáp án" — mở khối như người đọc rồi mới đọc
+      await k.$eval('details.answer', d => { d.open = true; }).catch(() => {});
       chac(await coChu(k, moi), 'người đọc không thấy Ý nghĩa vừa duyệt theo lô');
     });
 

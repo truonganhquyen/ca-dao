@@ -129,11 +129,11 @@ Bài chưa có Ý nghĩa: lời mời ấm thay câu cũ (vd. "Câu này chưa c
 Lời (lục bát thụt câu lục — D-092; từ có chú thích nền tô vàng; từ có chú thích là nút chạm, popover nghĩa + nguồn theo chính sách) → nhãn mức kiểm (mục 6.0) → **Ý nghĩa** (2–3 câu ngắn, nền lục nhạt; "Có hỗ trợ của AI, đã được người biên soạn duyệt" khi có dấu) → thanh hành động → **Từ khó** (chú thích dạng ô: từ – lời giải, liên kết mục từ) → ▸ Dị bản (đánh số, tô chữ khác; nơi, người kể khi có) → Bạn có biết? → phần cuối chung.
 **Nghiệm thu:** lời hiện đúng từng ký tự như phần `loi`; trích dẫn đúng; tắt JavaScript vẫn đọc lời, chú thích ở cuối khối.
 
-**Đợt 3 (D-105):** bài vốn có nhiều cách hiểu đã được biết đến thì ban biên tập viết thành "Cách hiểu 1 / Cách hiểu 2" trong khối Ý nghĩa; khối tuỳ chọn **"Hình ảnh trong bài"** (mỗi dòng: hình ảnh → điều được nói tới) cho bài có ẩn dụ, dùng cả cho đồng dao. Cách hiểu của bạn đọc ở tầng Hiểu thêm, tách rõ với Ý nghĩa.
+**Đợt 3 (D-105):** bài vốn có nhiều cách hiểu đã được biết đến thì ban biên tập viết thành "Cách hiểu 1 / Cách hiểu 2" trong khối Ý nghĩa; khối tuỳ chọn **"Hình ảnh trong bài"** (mỗi dòng: hình ảnh → điều được nói tới) cho bài có ẩn dụ, dùng cả cho đồng dao. Cách hiểu của bạn đọc ở tầng Hiểu thêm, tách rõ với Ý nghĩa. **Đã làm (plugin 1.0.51):** khối "Hình ảnh trong bài" (ca dao, đồng dao) — một ô chữ, mỗi dòng "hình ảnh → điều được nói tới", hiện ngay sau Ý nghĩa.
 
 ### 6.2. Tục ngữ – Thành ngữ (S05)
 
-**Đợt 3 (D-105) — chuẩn mới:** câu ngắn (tối đa 2 vế, khoảng 60 chữ cái) là tiêu đề chữ to, **từ khó được tô cả trong câu tiêu đề**; câu dài (từ 3 dòng hoặc hơn khoảng 60 chữ cái) hiện như ca dao (tên là dòng đầu, lời đủ trong khung lời). Khối **Nghĩa**: **Nghĩa đen** (theo chữ) · **Nghĩa bóng** (bài học, hiện to nhất) · **Dùng khi** (ví dụ đã biên tập) → **Câu gần nghĩa · trái nghĩa** (liên kết) → thanh hành động → phần cuối chung. Bài tục ngữ mới không có ô Ý nghĩa riêng; bài cũ đã có Ý nghĩa vẫn hiện như cũ. Danh sách, thẻ: 2 dòng đầu rồi "…".
+**Đợt 3 (D-105) — chuẩn mới:** câu ngắn (tối đa 2 vế, khoảng 60 chữ cái) là tiêu đề chữ to, **từ khó được tô cả trong câu tiêu đề**; câu dài (từ 3 dòng hoặc hơn khoảng 60 chữ cái) hiện như ca dao (tên là dòng đầu, lời đủ trong khung lời). Khối **Nghĩa**: **Nghĩa đen** (theo chữ) · **Nghĩa bóng** (bài học, hiện to nhất) · **Dùng khi** (ví dụ đã biên tập) → **Câu gần nghĩa · trái nghĩa** (liên kết) → thanh hành động → phần cuối chung. Bài tục ngữ mới không có ô Ý nghĩa riêng; bài cũ đã có Ý nghĩa vẫn hiện như cũ. Danh sách, thẻ: 2 dòng đầu rồi "…". **Đã làm (plugin 1.0.51):** câu dài nhận theo số dòng (≥ 3) hoặc số chữ cái (> 60); khối **Nghĩa** gom Nghĩa đen · Nghĩa bóng (chữ to nhất) · Dùng khi, thuộc tầng Đọc; ở chế độ sửa và trang Sửa tác phẩm, tục ngữ chưa có Ý nghĩa không còn ô "Thêm ý nghĩa" (bài cũ có Ý nghĩa vẫn hiện, vẫn sửa được). Câu gần nghĩa · trái nghĩa: chưa làm.
 
 ### 6.3. Vè và bài dài (S06)
 
@@ -147,7 +147,7 @@ Trẻ không cần đăng nhập, không thu dữ liệu; không tự phát âm 
 
 ### 6.5. Câu đố (S08)
 
-Câu hỏi (chữ lớn) → [Gợi ý] (`<details>`, khi có) → **[Hiện đáp án]** (`<details>`, hành động chính; tắt JavaScript vẫn mở được) → trong đó: đáp án, ảnh đáp án (Commons, ghi công, khi có), **Giải thích đáp án** (D-105: vì sao đáp án là như vậy — mỗi dòng tả gì, chơi chữ, từ cổ; chỗ lưu của Ý nghĩa, người viết; nằm trong khối ẩn để không lộ đáp án) → "Đố bạn bè ›" (vào Đố vui với chủ đề này) → câu đố cùng đáp án → phần cuối chung.
+Câu hỏi (chữ lớn) → [Gợi ý] (`<details>`, khi có) → **[Hiện đáp án]** (`<details>`, hành động chính; tắt JavaScript vẫn mở được) → trong đó: đáp án, ảnh đáp án (Commons, ghi công, khi có), **Giải thích đáp án** (D-105: vì sao đáp án là như vậy — mỗi dòng tả gì, chơi chữ, từ cổ; chỗ lưu của Ý nghĩa, người viết; nằm trong khối ẩn để không lộ đáp án) → "Đố bạn bè ›" (vào Đố vui với chủ đề này) → câu đố cùng đáp án → phần cuối chung. **Đã làm (plugin 1.0.51):** "Giải thích đáp án" nằm trong khối "Hiện đáp án" sau đáp án; tấm sửa, trang Sửa tác phẩm, "Lời này từ đâu?" gọi đúng tên.
 Đáp án nằm trong HTML (máy tìm kiếm vẫn đọc được), chỉ thu gọn khi hiển thị (D-087 (3), thay phần D-058).
 
 ### 6.6. Truyện (S09, đợt 5)

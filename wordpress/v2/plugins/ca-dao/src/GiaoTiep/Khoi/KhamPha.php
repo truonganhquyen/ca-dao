@@ -105,10 +105,10 @@ final class KhamPha {
 		}
 		return $dau . '<div class="grid">' . DanhSach::the( $c ) . '</div>'
 			. '<div class="actions"><a class="btn primary" href="' . esc_url( add_query_arg( 'lan', wp_rand( 1, 99999 ), Ve::url( 'ngau-nhien' ) ) ) . '">Câu khác ' . Ve::icon( 'arrow' ) . '</a>'
-			. '<a class="btn ghost" href="' . esc_url( $c['url'] ) . '">Xem đầy đủ</a></div><p class="small muted">Không chọn bài có cờ "Nghi không phải dân gian".</p>';
+			. '<a class="btn ghost" href="' . esc_url( $c['url'] ) . '">Xem đầy đủ</a></div><p class="small muted">Không chọn bài có cờ "Có thể không phải dân gian".</p>';
 	}
 
-	/** @return int[] ID các bài đã đăng có cờ "Nghi không phải dân gian" */
+	/** @return int[] ID các bài đã đăng có cờ "Có thể không phải dân gian" */
 	public static function bai_co_nghi(): array {
 		return array_map(
 			'intval',

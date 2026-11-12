@@ -88,7 +88,7 @@ final class DanhSach {
 		$dong = implode( '', array_map( static fn( string $d ): string => '<span class="dong">' . esc_html( $d ) . '</span>', $c['dong'] ) );
 		return '<article class="card g-' . esc_attr( $c['the_loai'] ?: 'ca-dao' ) . '">'
 			. ( $c['ten_the_loai'] ? '<span class="tag">' . esc_html( $c['ten_the_loai'] ) . '</span>' : '' )
-			. ( $c['co_nghi'] ? '<p class="flag">Nghi không phải dân gian</p>' : '' )
+			. ( $c['co_nghi'] ? '<p class="flag">Có thể không phải dân gian · <a href="' . esc_url( $c['url'] . '#vi-sao' ) . '">Vì sao?</a></p>' : '' )
 			. '<h3><a href="' . esc_url( $c['url'] ) . '">' . esc_html( $c['tieu_de'] ) . '</a></h3>'
 			. '<p class="serif dong-wrap">' . $dong . '</p>'
 			. ( '' === $c['y_nghia'] ? '' : '<p class="muted">' . esc_html( $c['y_nghia'] ) . '</p>' )
