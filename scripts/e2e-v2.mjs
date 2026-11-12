@@ -308,8 +308,8 @@ try {
       await den('/bien-tap/so-lieu/', 'phongdao-ban-lam-viec');
       await den('/wp-admin/edit.php?post_type=tac_pham', 'phongdao-tac-pham');
       await den('/wp-admin/post-new.php?post_type=tac_pham', 'phongdao-them');
-      // Menu WordPress không bị ẩn: mục "Tác phẩm" gốc vẫn còn trong menu trái
-      chac(await bt.$('#adminmenu a[href*="edit.php?post_type=tac_pham"]'), 'menu WordPress mất mục Tác phẩm gốc');
+      // Menu trái vẫn đủ: mục Tác phẩm của Phongdao, và menu gốc của WordPress (Bài viết, Trang, Bình luận) không bị ẩn
+      chac(await bt.$('#adminmenu a[href*="page=phongdao-tac-pham"]') && await bt.$('#adminmenu a[href="edit.php"]') && await bt.$('#adminmenu a[href="edit-comments.php"]'), 'menu trái thiếu mục Tác phẩm của Phongdao hoặc menu gốc WordPress bị ẩn');
       // Khách mở /bien-tap/ thì sang trang đăng nhập (wp-admin tự đòi đăng nhập), không thấy Hộp việc
       await di(k, '/bien-tap/');
       chac(/wp-login\.php/.test(k.url()) && !(await coChu(k, 'Hộp việc')), `khách mở /bien-tap/ không sang trang đăng nhập (${k.url()})`);
@@ -543,10 +543,10 @@ try {
       if (cu.length) chac(await coChu(k, cu[0]), `người đọc không thấy bản cũ "${cu[0]}"`);
     });
 
-    // Thẻ người đọc gửi có chữ `chu`, tìm bằng ô "Tìm thẻ" của Hộp việc; trả ID thẻ đầu tiên khớp
+    // Thẻ người đọc gửi có chữ `chu` (dòng danh sách Hộp việc in vài chữ đầu của nội dung gửi); trả ID các thẻ khớp
     const theGop = async (tab, chu, tt = 'cho') => {
-      await di(tab, `/wp-admin/admin.php?page=phongdao-hop-viec&loai=nguoi_doc&tt=${tt}&q=${encodeURIComponent(chu)}`);
-      return tab.$$eval('.phongdao-hv-ds .phongdao-hv-mo', as => as.map(a => new URL(a.href).searchParams.get('viec')));
+      await di(tab, `/wp-admin/admin.php?page=phongdao-hop-viec&loai=nguoi_doc&tt=${tt}`);
+      return tab.$$eval('.phongdao-hv-ds .phongdao-hv-mo', (as, c) => as.filter(a => a.textContent.includes(c)).map(a => new URL(a.href).searchParams.get('viec')), chu);
     };
     await thu('wp-admin Hộp việc: Để sau thẻ góp của người đọc rồi Hoàn tác trong 10 giây, sau đó xử lý thẻ', async () => {
       const [id] = await theGop(bt, 'Góp thử đầu-cuối');
