@@ -344,7 +344,7 @@ wp_set_current_user( 0 );
 $h_tn_ngan = $xem( $tn_ngan );
 $h_tn_dai  = $xem( $tn_dai );
 kt( 'tục ngữ ngắn: câu là tiêu đề, từ khó được tô ngay trong câu tiêu đề; có Nghĩa bóng thì không mời chia sẻ cách hiểu', str_contains( (string) strstr( (string) strstr( $h_tn_ngan, '<h1 class="read-title">' ), '</h1>', true ), '<a class="word" href="#chu-thich" aria-label="Xem chú thích từ kẻ trồng cây">kẻ trồng cây</a>' ) && ! str_contains( $h_tn_ngan, 'Câu này chưa có lời giải nghĩa' ) );
-kt( 'tục ngữ dài (từ 3 dòng): hiện như ca dao — tên là dòng đầu, cỡ tiêu đề thường; lời đủ trong khung lời, không phải kiểu câu là tiêu đề', str_contains( $h_tn_dai, '<h1 class="read-title">Dòng tục ngữ dài thứ nhất</h1>' ) && ! str_contains( $h_tn_dai, 'verse proverb' ) && 3 === substr_count( (string) strstr( (string) strstr( $h_tn_dai, 'class="work-main"' ), 'class="work-rest"', true ), '<span class="line">' ), substr( (string) strstr( $h_tn_dai, '<h1' ), 0, 300 ) );
+kt( 'tục ngữ dài (từ 3 dòng): hiện như ca dao — tên là dòng đầu, cỡ tiêu đề thường; lời đủ trong khung lời, không phải kiểu câu là tiêu đề', str_contains( $h_tn_dai, '<h1 class="read-title">Dòng tục ngữ dài thứ nhất</h1>' ) && ! str_contains( $tn_dai_chinh = (string) strstr( (string) strstr( $h_tn_dai, '<header class="work-head">' ), 'class="work-rest"', true ), 'verse proverb' ) && 3 === substr_count( $tn_dai_chinh, '<span class="line">' ), substr( (string) strstr( $h_tn_dai, '<h1' ), 0, 300 ) );
 wp_set_current_user( $ai_ql );
 $h_tn_sua = $xem( $tn_dai );
 $_GET     = array( 'id' => (string) $tn_dai );
