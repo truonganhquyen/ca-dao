@@ -74,6 +74,7 @@ const doi = async (tab, fn, arg, bao, ms = 15_000) => {
 };
 // Đưa phần tử ra giữa màn trước khi bấm: thanh nổi ở đáy màn (wp-admin) không che chỗ bấm
 const bam = async (tab, sel) => {
+	await tab.bringToFront(); // hai tab: thao tác ở tab đang hiện như người dùng thực
   const b = await tab.waitForSelector(sel, { visible: true, timeout: 15_000 }).catch(() => null);
   chac(b, `không thấy ${sel}`);
   await b.evaluate(e => e.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' }));
