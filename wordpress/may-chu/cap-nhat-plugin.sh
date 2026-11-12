@@ -7,7 +7,8 @@
 # trang chủ không trả 200 sau khi thay thì trả lại bản cũ. Theme ca-dao được bật MỘT lần (T-072); người quản trị
 # đổi sang theme khác sau đó thì giữ theo lựa chọn của họ.
 # Nguồn: commit có tệp wordpress/nguon-trien-khai ghi "v2" (từ ngày chuyển, docs/29 mục 5) thì lấy wordpress/v2/plugins|themes/ca-dao;
-# không có thì lấy wordpress/plugins|themes/ca-dao (MVP) — quay về một commit cũ bằng NHANH=<mã> vẫn đúng mã của commit đó.
+# không có thì lấy wordpress/plugins|themes/ca-dao (MVP) — chỉ còn ở các commit trước T-192; quay về một commit cũ bằng
+# NHANH=<mã> vẫn đúng mã của commit đó.
 set -euo pipefail
 
 NHANH=${NHANH:-main}

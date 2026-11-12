@@ -6,10 +6,6 @@
   "type": "module",
   "scripts": {
     "build": "node -e \"console.log('Worker chuyển hướng không cần build; site chạy trên WordPress.')\"",
-    "test:wordpress": "node scripts/test-wordpress.mjs",
-    "test:anh": "node scripts/test-anh-chia-se.mjs",
-    "quet:wordpress": "node scripts/quet-trang-wordpress.mjs",
-    "xem-truoc:wordpress": "node scripts/xem-truoc-wordpress.mjs",
     "test:v2": "node scripts/test-v2.mjs",
     "quet:v2": "node scripts/quet-v2.mjs",
     "e2e:v2": "node scripts/e2e-v2.mjs",
@@ -20,9 +16,7 @@
     "kiem-nhat-quan": "node scripts/kiem-nhat-quan.mjs",
     "kiem-tra": "npm run test:nhat-quan && npm run kiem-nhat-quan",
     "viec-tiep-theo": "node scripts/viec-tiep-theo.mjs",
-    "kiem-site-that": "node scripts/kiem-site-that.mjs",
-    "e2e": "playwright test -c tests/e2e/playwright.config.mjs --project=may-tinh --project=dien-thoai",
-    "e2e:quan-tri": "playwright test -c tests/e2e/playwright.config.mjs --project=quan-tri"
+    "kiem-site-that": "node scripts/kiem-site-that.mjs"
   },
   "engines": {
     "node": ">=22.12.0"

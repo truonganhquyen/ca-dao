@@ -5,7 +5,7 @@ on:
   pull_request:
     paths:
       - 'wordpress/v2/**'
-      - 'wordpress/plugins/ca-dao/**'
+      - 'tests/chuyen-doi-mvp/**'
       - 'wordpress/nguon-trien-khai'
       - 'wordpress/may-chu/**'
       - 'scripts/**'
@@ -20,7 +20,7 @@ on:
     branches: [main]
     paths:
       - 'wordpress/v2/**'
-      - 'wordpress/plugins/ca-dao/**'
+      - 'tests/chuyen-doi-mvp/**'
       - 'wordpress/nguon-trien-khai'
       - 'wordpress/may-chu/**'
       - 'scripts/**'

@@ -13,7 +13,7 @@
 | Mặt | Chốt |
 |---|---|
 | Nền tảng | WordPress làm khung; viết mới toàn bộ plugin, theme, trang quản trị, mô hình dữ liệu (D-083) |
-| Cách làm | Xây song song trong `wordpress/v2/`, **đã chuyển 04/11/2026** (`docs/luu-tru/29-chuyen-doi-v2.md`); mã MVP còn trong repo cho kiểm thử chuyển đổi, gỡ ở T-192 |
+| Cách làm | Xây song song trong `wordpress/v2/`, **đã chuyển 04/11/2026** (`docs/luu-tru/29-chuyen-doi-v2.md`); mã MVP đã gỡ ở T-192 (12/11/2026); plugin MVP chỉ còn làm dữ liệu cho kiểm thử chuyển đổi ở `tests/chuyen-doi-mvp/` |
 | Tài sản giữ | Thuật toán đã kiểm chứng được chuyển sang cấu trúc mới kèm kiểm thử (mục 12) |
 | Dữ liệu | Mỗi phần của bài lưu trong bài (post meta có schema), kèm người làm và nguồn; một bảng mới `wp_cadao_viec` cho việc chờ và nhật ký (D-084, D-094) |
 | Trang người đọc | Theme khối 1.0 + khối động `cadao/*` render trên máy chủ + JavaScript thuần nhỏ |
@@ -25,19 +25,20 @@
 
 ```text
 wordpress/
-├── plugins/ca-dao/        MVP — không còn chạy trên máy chủ; giữ cho kiểm thử chuyển đổi (gỡ ở T-192)
-├── themes/ca-dao/         MVP
 ├── v2/plugins/ca-dao/     V2 — máy chủ đang chạy (từ 04/11/2026)
 ├── v2/themes/ca-dao/      V2
 ├── v2/tests/              kiểm thử V2 (đơn vị PHP thuần + Playground)
 ├── v2/blueprint.json      Playground cho bản xem trước V2
 ├── may-chu/               kịch bản máy chủ (mục 15)
-└── tests/                 kiểm thử MVP (gỡ ở T-192)
+└── nguon-trien-khai        ghi "v2": máy chủ chép wordpress/v2/…
+
+tests/chuyen-doi-mvp/      plugin MVP cũ — chỉ là dữ liệu cho kiểm thử chuyển đổi (T-192), máy chủ không chép
+tests/e2e-v2/              công cụ khảo sát V2 cho người review
 
 design/v2/                 bộ thiết kế UX/UI bản cuối (D-092): mã nguồn bản mẫu, token, đặc tả, qa — không chạy trên site
 ```
 
-- Máy chủ (`cap-nhat-plugin.sh`) chép `wordpress/plugins/ca-dao` và `wordpress/themes/ca-dao` — trừ khi commit có tệp `wordpress/nguon-trien-khai` ghi `v2`, khi đó chép `wordpress/v2/plugins/ca-dao` và `wordpress/v2/themes/ca-dao`. Trước ngày chuyển gộp PR V2 vào `main` không đụng site thật.
+- Máy chủ (`cap-nhat-plugin.sh`) chép `wordpress/v2/plugins/ca-dao` và `wordpress/v2/themes/ca-dao` khi commit có tệp `wordpress/nguon-trien-khai` ghi `v2` (mọi commit từ ngày chuyển); commit cũ hơn (quay về bằng `NHANH=<mã>`) vẫn ra mã MVP của commit đó. Trước ngày chuyển gộp PR V2 vào `main` không đụng site thật.
 - **Lúc chuyển** (`docs/luu-tru/29-chuyen-doi-v2.md` mục 5 bước 2): PR chuyển đổi chỉ thêm tệp đánh dấu và đặt 1.0.0; mã MVP để nguyên (bộ kiểm thử chuyển đổi cần nó, quay về commit cũ vẫn ra MVP). **Khi dọn dữ liệu cũ** (`docs/luu-tru/29-chuyen-doi-v2.md` mục 6): chuyển `wordpress/v2/…` lên chỗ `wordpress/…`, bỏ tệp đánh dấu, xoá mã MVP (lịch sử Git vẫn giữ), đổi lệnh npm mặc định sang V2, chuyển `docs/20`, `docs/24` vào `docs/luu-tru/`. Mỗi lần thay mã, script làm mới quy tắc đường dẫn (`wp rewrite flush`) vì MVP và V2 lưu quy tắc khác nhau trong cơ sở dữ liệu.
 - Tên thư mục giữ `ca-dao` để kịch bản máy chủ không phải đổi (AGENTS.md, KHÔNG BAO GIỜ 15). Tên hiển thị của plugin: "Phongdao — Thư viện Văn học Dân gian Việt Nam"; theme: "Phongdao".
 - Phiên bản: plugin và theme V2 bắt đầu `0.1.0`, tăng ở mỗi PR (AGENTS.md); PR chuyển đổi đặt `1.0.0` và thêm `wordpress/nguon-trien-khai` (`v2`): máy chủ và `scripts/lib/phien-ban.mjs` (`kiem-site-that`) cùng đọc tệp này để biết lấy plugin, theme ở `wordpress/v2/`; trang V2 lộ số phiên bản qua `do-luong.js?ver=` và `giao-dien.css?ver=`.
@@ -264,7 +265,7 @@ Cron thật của máy chủ gọi WP-Cron mỗi 5 phút (như MVP); mỗi loạ
 
 ## 12. Từ mã MVP sang V2
 
-Đã chuyển xong 04/11/2026. Bảng chuyển từng tệp MVP sang lớp V2: `docs/luu-tru/26-muc-7-12-truoc-dot-3.md`. Mã MVP (`wordpress/plugins`, `wordpress/themes`, `wordpress/tests`) còn trong repo cho kiểm thử chuyển đổi; gỡ ở T-192.
+Đã chuyển xong 04/11/2026. Bảng chuyển từng tệp MVP sang lớp V2: `docs/luu-tru/26-muc-7-12-truoc-dot-3.md`. Mã MVP đã gỡ ở T-192 (12/11/2026): theme, kiểm thử, bản xem trước, quét và job CI `wordpress` của MVP, bộ khảo sát E2E Playwright của site MVP. Plugin MVP chuyển sang `tests/chuyen-doi-mvp/plugin-ca-dao/` — chỉ để kiểm thử chuyển đổi (`test:v2`) tạo dữ liệu MVP như ngày chuyển; không chạy trên máy chủ.
 
 ## 13. Kiểm thử, CI, lệnh
 
@@ -280,7 +281,7 @@ Cron thật của máy chủ gọi WP-Cron mỗi 5 phút (như MVP); mỗi loạ
 
 - Dữ liệu mẫu: chỉ chữ mẫu và các bài mẫu đã có trong kiểm thử MVP (D-050); không chép kho thô hay lời từ site thật vào repo (AGENTS.md, KHÔNG BAO GIỜ 14).
 - SQL chạy được trên SQLite (Playground) và MySQL; tránh cú pháp chỉ MySQL có.
-- CI: job `v2` (kiểm thử, quét, e2e) chạy khi chạm `wordpress/v2/`; job `wordpress` (MVP) còn chạy tới khi gỡ mã MVP (T-192). Không có bản dựng JavaScript để so.
+- CI: job `v2` (kiểm thử, quét, e2e) chạy khi chạm `wordpress/v2/`, `tests/chuyen-doi-mvp/`, kịch bản; job `kiem-tra` (bắt buộc) kiểm nhất quán; job `wordpress` của MVP đã gỡ (T-192). Không có bản dựng JavaScript để so.
 - `npm run kiem-site-that`: site thật có đúng phiên bản plugin, theme của `main` không (chỉ đọc).
 - AGENTS.md "LUÔN LUÔN": task V2 chạy `npm run kiem-tra`, `npm run test:v2`, `npm run quet:v2` trước khi kết thúc.
 

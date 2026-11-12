@@ -57,11 +57,11 @@ if (chinh < 24 || (chinh === 24 && phu < 18)) {
     if (r.status !== 0 || !kq.includes('KẾT QUẢ: ĐẠT')) hong = true;
   };
   chay('v2 · Playground', path.join(goc, 'tests', 'blueprint-kiem-thu.json'), path.join(goc, 'tests', '.ket-qua.txt'));
-  // Chuyển đổi (docs/luu-tru/29-chuyen-doi-v2.md): plugin MVP tạo dữ liệu mẫu, rồi V2 thay chỗ trên cùng cơ sở dữ liệu như ngày chuyển
+  // Chuyển đổi (docs/luu-tru/29-chuyen-doi-v2.md): plugin MVP (chỉ còn làm dữ liệu kiểm thử ở tests/chuyen-doi-mvp, T-192) tạo dữ liệu mẫu, rồi V2 thay chỗ trên cùng cơ sở dữ liệu như ngày chuyển
   const tepMvp = path.join(goc, 'tests', '.chuyen-doi-mvp.json');
   fs.rmSync(tepMvp, { force: true });
   chay('v2 · chuyển đổi', path.join(goc, 'tests', 'chuyen-doi', 'blueprint.json'), path.join(goc, 'tests', '.ket-qua-chuyen-doi.txt'),
-    ['--mount-dir', path.resolve('wordpress', 'plugins', 'ca-dao'), '/wordpress/wp-content/plugins/ca-dao-cu']);
+    ['--mount-dir', path.resolve('tests', 'chuyen-doi-mvp', 'plugin-ca-dao'), '/wordpress/wp-content/plugins/ca-dao-cu']);
   // Bước tạo dữ liệu bằng mã MVP hỏng thì bước kiểm không chạy: in lỗi bước đó ra
   const mvp = fs.existsSync(tepMvp) ? JSON.parse(fs.readFileSync(tepMvp, 'utf8')) : null;
   for (const l of mvp?.loi ?? []) console.log(`LỖI      [v2 · chuyển đổi · tạo dữ liệu MVP] ${l}`);
