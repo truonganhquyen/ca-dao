@@ -211,6 +211,8 @@ Mọi route biên tập: `permission_callback` kiểm quyền riêng + nonce RES
 
 ### 5.1. Quyền
 
+Ảnh minh hoạ (T-196): cùng `POST /tac-pham/{id}/phan/media`, form gửi `attachment_id` (0 = bỏ liên kết) và `phien_phan`. Tấm sửa chuyển thành danh sách `media.muc` hiện có, thay các mục `loai=anh` và giữ loại khác. Không đổi bảng/schema phần bài. Cần quyền tải tệp; khi lưu hoặc khôi phục kiểm attachment là ảnh raster còn đọc được tại site. Tải tệp và metadata dùng quyền/nonce của Thư viện WordPress; ghi công là attachment meta `_phongdao_anh_ghi_cong`, đọc được ghi công Commons cũ khi có. Alt/chú thích/ghi công dùng chung theo tệp, lịch sử phần bài chỉ khôi phục liên kết. `wp.media` chỉ nạp ở wp-admin; trang đọc nhận ảnh đáp ứng qua mapper/renderer, ảnh câu đố nằm trong đáp án.
+
 | Quyền | Cho phép | Gán sẵn |
 |---|---|---|
 | `cadao_soan` | thấy chế độ sửa và bốn trang biên tập; sửa các phần, lưu nháp, thêm bài, sửa tuyển tập, mục từ | Quản trị, Biên tập |
