@@ -58,6 +58,7 @@ final class DocBai {
 			}
 		}
 		$tp['dap_an_them'] = '' === $tp['dap_an'] ? '' : \Phongdao\GiaoTiep\Khoi\DiaDanh::html( \Phongdao\GiaoTiep\Khoi\DiaDanh::cua_dap_an( $tp['dap_an'] ) ?? array(), 'thumbnail' );
+		$tp['anh_minh_hoa_html'] = \Phongdao\GiaoTiep\Khoi\AnhMinhHoa::html( (int) $tp['anh_minh_hoa'] );
 		return array( 'cam_nghi' => self::cam_nghi( $bai->ID ), 'cach_hieu' => self::cam_nghi( $bai->ID, 'cach_hieu' ) ) + $tp;
 	}
 

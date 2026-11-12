@@ -1,0 +1,5 @@
+.phongdao-anh-minh-hoa{margin:1.5rem 0;max-width:740px}
+.phongdao-anh-minh-hoa img{display:block;max-width:100%;height:auto;border-radius:8px}
+.phongdao-anh-minh-hoa figcaption{margin-top:.5rem;font-size:.875rem;white-space:pre-line;overflow-wrap:anywhere}
+[data-anh-minh-hoa] .phongdao-anh-minh-hoa img{max-height:300px;width:auto}
+[data-anh-minh-hoa] button,[data-anh-minh-hoa] a{min-height:44px;display:inline-flex;align-items:center}

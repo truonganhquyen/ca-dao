@@ -28,6 +28,7 @@ final class TacPham {
 		// câu ngắn giữ kiểu "câu là tiêu đề" (D-105)
 		$cau_dai   = $tuc_ngu && ( count( $tp['loi'] ) >= 3 || mb_strlen( (string) preg_replace( '/[^\p{L}]/u', '', implode( '', $tp['loi'] ) ) ) > 60 );
 		$cau_ten   = $tuc_ngu && ! $cau_dai;
+		$anh = (string) ( $tp['anh_minh_hoa_html'] ?? '' );
 		$kieu      = $cau_dai ? '' : $tp['kieu'];
 		$nut       = static fn( string $tam, string $nhan ): string => $sua ? CheDoSua::nut( $tam, $nhan ) : '';
 		$goc       = static fn( string $nhan, string $phan ): string => $sua ? CheDoSua::goc( $nhan, $sua['phan'][ $phan ] ?? null, $sua ) : '';
@@ -50,7 +51,7 @@ final class TacPham {
 			$giai = empty( $tp['y_nghia']['chu'] ) ? '' : Ve::y_nghia( $tp['y_nghia']['chu'], ! empty( $tp['y_nghia']['ai'] ), 'Giải thích đáp án', $nut( 'y_nghia', 'Sửa' ) ) . $goc( 'Giải thích đáp án', 'y_nghia' );
 			$y    = ( $sua ? '<p class="row no-print">' . $nut( 'cau_hoi', 'Sửa câu hỏi' ) . $nut( 'goi_y', 'Sửa gợi ý' ) . $nut( 'dap_an', 'Sửa đáp án' ) . ( '' === $giai ? $nut( 'y_nghia', 'Thêm giải thích đáp án' ) : '' ) . '</p>' : '' )
 				. ( empty( $tp['goi_y'] ) ? '' : '<details class="disclosure"><summary>Gợi ý</summary><div class="detail-body"><p>' . esc_html( $tp['goi_y'] ) . '</p></div></details>' )
-				. ( empty( $tp['dap_an'] ) ? $giai : '<details class="answer"><summary>Hiện đáp án</summary><div class="detail-body"><h2>Đáp án</h2><p>' . esc_html( $tp['dap_an'] ) . '</p>' . ( $tp['dap_an_them'] ?? '' ) . $giai . '</div></details>' )
+				. ( empty( $tp['dap_an'] ) ? $giai : '<details class="answer"><summary>Hiện đáp án</summary><div class="detail-body"><h2>Đáp án</h2><p>' . esc_html( $tp['dap_an'] ) . '</p>' . ( $tp['dap_an_them'] ?? '' ) . $giai . $anh . '</div></details>' )
 				. ( $sua && '' === $giai ? '<p class="small muted" data-chi-sua>Chưa có giải thích đáp án' . ( $sua['nhap'] ? ' · có ' . count( $sua['nhap'] ) . ' nháp chờ duyệt trong Hộp việc' : '' ) . '.</p>' : '' );
 		}
 		$muc_kiem = $sua ? '<div class="level-sua">' . Ve::muc_kiem( $tp['doi_chieu'] ) . $nut( 'doi-chieu', 'Đối chiếu sách' ) . '</div>' : Ve::muc_kiem( $tp['doi_chieu'] );
@@ -84,6 +85,10 @@ final class TacPham {
 				$o .= '<div class="dung-khi"><h3>Dùng khi</h3>' . ( $tp['dung_khi'] ? '<ul class="uses">' . implode( '', array_map( static fn( string $x ): string => '<li>' . esc_html( $x ) . '</li>', $tp['dung_khi'] ) ) . '</ul>' : '<p class="small muted">Chưa có.</p>' ) . $nut( 'dung_khi', $tp['dung_khi'] ? 'Sửa "Dùng khi"' : 'Thêm "Dùng khi"' ) . '</div>';
 			}
 			$sau .= Ve::khoi( 'Nghĩa', '<div class="nghia-tn">' . $o . '</div>', 'tint-luc', 'nghia' );
+		}
+		$sau .= $cau_do ? '' : $anh;
+		if ( $sua ) {
+			$sau .= '<p class="no-print" data-chi-sua><a class="btn" href="' . esc_url( \Phongdao\GiaoTiep\QuanTri\SuaTacPham::url( (int) $sua['id'] ) . '&phan=media#phan-media' ) . '">Chọn hoặc sửa ảnh minh hoạ trong quản trị</a></p>';
 		}
 		// Ca dao, đồng dao: khối tuỳ chọn "Hình ảnh trong bài" (hình ảnh → điều được nói tới), ngay sau Ý nghĩa
 		$hinh = (array) ( $tp['hinh_anh'] ?? array() );

@@ -10,10 +10,11 @@ namespace Phongdao\MienDuLieu;
 final class SoSanh {
 
 	/** Trường kỹ thuật không đưa vào phần so (ai sửa, lúc nào đã có ở dòng lịch sử). */
-	private const BO_QUA = array( 'sua_boi', 'sua_luc', 'duyet_boi', 'duyet_luc', 'nguoi_lam', 'vi_tri', 'muc_tu_id', 'term_ids', 'nhan_vat', 'attachment_id' );
+	private const BO_QUA = array( 'sua_boi', 'sua_luc', 'duyet_boi', 'duyet_luc', 'nguoi_lam', 'vi_tri', 'muc_tu_id', 'term_ids', 'nhan_vat' );
 
 	/** Tên trường => nhãn tiếng Việt. */
 	private const NHAN = array(
+		'attachment_id'  => 'Tệp trong Thư viện (ID)',
 		'tu'             => 'Từ',
 		'loi_giai'       => 'Lời giải',
 		'noi'            => 'Nơi',

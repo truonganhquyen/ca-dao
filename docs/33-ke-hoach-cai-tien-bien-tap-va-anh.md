@@ -2,7 +2,7 @@
 
 **Ngày 12/11/2026 · bắt đầu tự động triển khai 13/11/2026 theo lệnh người sáng lập.**
 
-Tiến độ: giữ chữ (plugin 1.0.53) đã đạt 255 PHP + 523 WordPress + 55 chuyển đổi, quét 0 lỗi, E2E 47 bước/0 lỗi/0 bỏ qua. Chống ghi đè (plugin 1.0.54) đạt 255 PHP + 529 WordPress + 55 chuyển đổi, quét 0 lỗi, E2E 48 bước/0 lỗi/0 bỏ qua. Hai tiến trình PHP trên MySQL 8.4 local: một lưu, một bị từ chối do phiên cũ; chỉ một lần ghi lịch sử. Ảnh đang thực hiện; trạng thái trống và pilot chưa nghiệm thu. Không dùng kết quả phần mềm để đánh dấu nội dung thật đã được duyệt.
+Tiến độ: giữ chữ (plugin 1.0.53) đã đạt 255 PHP + 523 WordPress + 55 chuyển đổi, quét 0 lỗi, E2E 47 bước/0 lỗi/0 bỏ qua. Chống ghi đè (plugin 1.0.54) đạt 255 PHP + 529 WordPress + 55 chuyển đổi, quét 0 lỗi, E2E 48 bước/0 lỗi/0 bỏ qua. Hai tiến trình PHP trên MySQL 8.4 local: một lưu, một bị từ chối do phiên cũ; chỉ một lần ghi lịch sử. Ảnh minh hoạ (plugin 1.0.55) đạt 255 PHP + 541 WordPress + 55 chuyển đổi, quét 0 lỗi, E2E 49 bước/0 lỗi/0 bỏ qua; browser local bổ sung đã kiểm ghi công, chọn/tải/thay/bỏ/khôi phục, tệp hỏng/quá giới hạn và lỗi đọc attachment. Nhãn/trạng thái trống đang thực hiện; pilot nội dung thật chưa nghiệm thu. Không dùng kết quả phần mềm để đánh dấu nội dung thật đã được duyệt.
 
 Mục tiêu là làm việc biên soạn tin cậy hơn, thêm được ảnh minh hoạ vào tác phẩm và làm trang đọc gọn hơn. Giữ WordPress V2, ba dòng việc Bài mới · Hộp việc · Bổ sung và dịch vụ lưu dùng chung.
 

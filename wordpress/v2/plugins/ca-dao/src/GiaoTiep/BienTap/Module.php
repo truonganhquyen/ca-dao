@@ -18,6 +18,7 @@ defined( 'ABSPATH' ) || exit;
 final class Module implements \Phongdao\HaTang\Module {
 
 	public function dang_ky(): void {
+		AnhMinhHoa::dang_ky();
 		add_action( 'rest_api_init', array( self::class, 'route' ) );
 		add_action(
 			'send_headers',
@@ -128,6 +129,9 @@ final class Module implements \Phongdao\HaTang\Module {
 
 	/** Đọc form sau khi giữ khóa và so đúng bản đã mở. */
 	private static function doc_va_luu( int $id, string $phan, array $vao, ?array $cu ): array {
+		if ( 'media' === $phan && ! current_user_can( 'upload_files' ) ) {
+			return array( 'ok' => false, 'loi' => array( 'Tài khoản cần quyền tải tệp để lưu ảnh minh hoạ.' ), 'doi' => false, 'viec' => 0 );
+		}
 		$loi_form = TamSua::loi_form( $phan, $vao );
 		if ( $loi_form ) {
 			return array( 'ok' => false, 'loi' => $loi_form, 'doi' => false, 'viec' => 0 );

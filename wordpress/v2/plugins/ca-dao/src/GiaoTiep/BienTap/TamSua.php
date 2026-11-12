@@ -23,6 +23,7 @@ final class TamSua {
 		'nghia_bong'  => array( 'Sửa nghĩa bóng', 'chu_ai' ),
 		'dung_khi'    => array( 'Sửa "Dùng khi"', 'chu_ai' ),
 		'hinh_anh'    => array( 'Sửa "Hình ảnh trong bài"', 'chu_ai' ),
+		'media'       => array( 'Ảnh minh hoạ', 'media' ),
 		'goi_y'       => array( 'Sửa gợi ý', 'chu_ai' ),
 		'ban_co_biet' => array( 'Sửa "Bạn có biết"', 'chu_ai' ),
 		'cau_hoi'     => array( 'Sửa câu hỏi', 'chu' ),
@@ -72,6 +73,7 @@ final class TamSua {
 	public static function than( string $phan, ?array $cu, array $ctx ): string {
 		$kieu = self::TAM[ $phan ][1];
 		return match ( $kieu ) {
+			'media'     => AnhMinhHoa::form( $cu ),
 			'loi'       => self::form_loi( $cu, $ctx ),
 			'y_nghia'   => self::form_y_nghia( $cu, $ctx ),
 			'chu_ai'    => self::vung( "s-$phan", 'chu', array( 'dung_khi' => 'Mỗi dòng một ví dụ', 'hinh_anh' => 'Mỗi dòng một cặp: hình ảnh → điều được nói tới (vd. tấm lụa đào → thân phận người con gái)' )[ $phan ] ?? 'Nội dung', (string) ( $cu['chu'] ?? '' ) ) . self::hop( "s-$phan-ai", 'ai', 'Có hỗ trợ của AI', ! empty( $cu['ai'] ) ) . ( $ctx['duyet'] ? '' : '<p class="small muted">Phần có hỗ trợ AI cần người có quyền duyệt lưu.</p>' ),
@@ -198,6 +200,9 @@ final class TamSua {
 	/** Hàng trống có thể bỏ; hàng đã điền một phần phải được giữ và báo thiếu. */
 	public static function loi_form( string $phan, array $f ): array {
 		$loi = array();
+		if ( 'media' === $phan && ( ! isset( $f['attachment_id'] ) || false === filter_var( $f['attachment_id'], FILTER_VALIDATE_INT, array( 'options' => array( 'min_range' => 0 ) ) ) ) ) {
+			return array( 'Chưa nhận được ảnh đã chọn. Chọn ảnh trong Thư viện hoặc bấm Bỏ ảnh khỏi bài rồi lưu.' );
+		}
 		if ( 'chu_thich' !== $phan ) {
 			return $loi;
 		}
@@ -223,6 +228,13 @@ final class TamSua {
 		$kieu = self::TAM[ $phan ][1] ?? '';
 		$chu  = static fn( $v ): string => trim( str_replace( "\r", '', (string) $v ) );
 		switch ( $kieu ) {
+			case 'media':
+				$muc = array_values( array_filter( $cu['muc'] ?? array(), static fn( array $m ): bool => 'anh' !== ( $m['loai'] ?? '' ) ) );
+				$id = absint( $f['attachment_id'] ?? 0 );
+				if ( $id ) {
+					$muc[] = array( 'attachment_id' => $id, 'loai' => 'anh' );
+				}
+				return array( 'gia_tri' => $muc ?: null, 'nhap' => null );
 			case 'loi':
 				$dong = explode( "\n", $chu( $f['dong'] ?? '' ) );
 				$doi  = array_map( 'trim', $dong ) !== array_map( 'trim', $cu['dong'] ?? array() );

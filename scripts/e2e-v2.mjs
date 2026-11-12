@@ -1059,6 +1059,79 @@ try {
         chac(await bt.$eval('#phan-y_nghia textarea[name=chu]', o => o.value) === '[UX-TEST] Bản D sửa nhanh', 'không lưu đúng bản đã chọn sau đối chiếu');
       } finally { await bt2.close(); }
     });
+    await thu('ảnh minh hoạ: tải bằng Thư viện, xem trước, lưu, khách thấy, bỏ và khôi phục; câu đố giấu ảnh', async () => {
+      await di(bt, '/wp-admin/admin.php?page=phongdao-them');
+      await datO(bt, '#them-loi', '[UX-TEST] Dòng kiểm luồng tệp ảnh');
+      await datO(bt, '#them-ten', '[UX-TEST] Tác phẩm có ảnh');
+      await bamDoiTrang(bt, 'button[type=submit][name=dang][value="0"]');
+      const edit = new URL(bt.url());
+      await bam(bt, '[data-mo-phan=media]');
+      await bam(bt, '[data-anh-chon]');
+      await bam(bt, '#menu-item-upload');
+      const file = await bt.waitForSelector('.media-frame input[type=file]');
+      await file.uploadFile(path.resolve('wordpress/v2/plugins/ca-dao/du-lieu-mau/anh-ky-thuat.png'));
+      await doi(bt, () => !!document.querySelector('.media-frame .attachment.selected:not(.uploading) .thumbnail img'), null, 'tệp không tải xong trong Thư viện', 60000);
+      const alt = '.media-frame [data-setting=alt] textarea';
+      await datO(bt, alt, '[UX-TEST] Ảnh tải từ màn sửa');
+      await bt.$eval(alt, e => { e.dispatchEvent(new Event('change', { bubbles: true })); e.blur(); });
+      const credit = '.media-frame .compat-field-phongdao_ghi_cong textarea';
+      await datO(bt, credit, '[UX-TEST] Ghi công mẫu kỹ thuật https://example.org/credit');
+      const creditSaved = bt.waitForResponse(async r => r.url().includes('admin-ajax.php') && (r.request().postData() || '').includes('save-attachment-compat') && r.status() === 200);
+      await bt.$eval(credit, e => e.dispatchEvent(new Event('change', { bubbles: true })));
+      await creditSaved;
+      await bam(bt, '.media-button-select');
+      await doi(bt, () => Number(document.querySelector('#phan-media [name=attachment_id]').value) > 0 && !!document.querySelector('[data-anh-xem] img'), null, 'chọn ảnh chưa có bản xem trước');
+      const idAnh = await bt.$eval('#phan-media [name=attachment_id]', e => e.value);
+      chac(await coChu(bt, 'chưa gắn vào bài'), 'không phân biệt chọn ảnh với gắn ảnh');
+      await bamDoiTrang(bt, '#phan-media button[type=submit]');
+      chac(await bt.$eval('#phan-media [name=attachment_id]', e => e.value) === idAnh, 'lưu không giữ ảnh đã chọn');
+      const xem = await bt.$eval('.phongdao-sua-lien a:nth-child(2)', e => e.href);
+      await k.goto(xem, { waitUntil: 'load' });
+      chac(!(await k.$('.phongdao-anh-minh-hoa')), 'ảnh của bài nháp hiện cho khách');
+      await bamDoiTrang(bt, '.phongdao-sua-ben form:has(input[name=trang_thai][value=publish]) button[type=submit]');
+      const publicUrl = await bt.$eval('.phongdao-sua-lien a:nth-child(2)', e => e.href);
+      const fault = r => {
+        if (r.url().includes('admin-ajax.php') && (r.postData() || '').includes('action=get-attachment')) r.respond({ status: 403, contentType: 'application/json', body: '{"success":false}' });
+        else r.continue();
+      };
+      await bt.setRequestInterception(true); bt.on('request', fault);
+      try {
+        await bt.reload({ waitUntil: 'load' });
+        await doi(bt, () => document.querySelector('[data-anh-bao]').textContent.includes('Chọn lại ảnh'), null, 'lỗi đọc ảnh không có hướng xử lý');
+        chac(await bt.$eval('#phan-media [name=attachment_id]', e => e.value) === idAnh, 'lỗi đọc ảnh tự thay liên kết đang lưu');
+      } finally { await bt.setRequestInterception(false); bt.off('request', fault); }
+      await bt.reload({ waitUntil: 'load' });
+      await k.goto(publicUrl, { waitUntil: 'load' });
+      await k.waitForSelector('.phongdao-anh-minh-hoa img');
+      chac(await k.$eval('.phongdao-anh-minh-hoa img', i => i.naturalWidth > 0 && i.alt === '[UX-TEST] Ảnh tải từ màn sửa' && i.hasAttribute('width')), 'khách thiếu tệp/alt/kích thước ảnh');
+      chac(await k.$eval('.phongdao-anh-minh-hoa figcaption', c => c.textContent.includes('[UX-TEST] Ghi công mẫu kỹ thuật') && !!c.querySelector('a[href="https://example.org/credit"]')), 'ghi công đã điền không đến trang khách');
+      await bam(bt, '[data-anh-bo]');
+      await bamDoiTrang(bt, '#phan-media button[type=submit]');
+      await k.reload({ waitUntil: 'load' });
+      chac(!(await k.$('.phongdao-anh-minh-hoa')), 'bỏ ảnh mà khách vẫn thấy');
+      const restore = '.phongdao-sua-ben form:has(input[name=viec]) button[type=submit]';
+      await bamDoiTrang(bt, restore);
+      chac(await bt.$eval('#phan-media [name=attachment_id]', e => e.value) === idAnh, 'khôi phục lịch sử không lấy lại ảnh');
+      await k.reload({ waitUntil: 'load' });
+      chac(!!(await k.$('.phongdao-anh-minh-hoa img')), 'khách không thấy ảnh khôi phục');
+      await bam(bt, '[data-anh-chon]');
+      await bam(bt, '#menu-item-browse');
+      const other = `.media-frame li.attachment:not([data-id="${idAnh}"])`;
+      await bam(bt, other);
+      const replacement = await bt.$eval(other, e => e.dataset.id);
+      await bam(bt, '.media-button-select');
+      await bamDoiTrang(bt, '#phan-media button[type=submit]');
+      chac(await bt.$eval('#phan-media [name=attachment_id]', e => e.value) === replacement, 'chọn ảnh sẵn để thay nhưng không lưu đúng');
+      for (const js of [true, false]) {
+        await k.setJavaScriptEnabled(js);
+        await di(k, MAU.cauDo);
+        chac(await k.$eval('details.answer', d => !d.open && !!d.querySelector('.phongdao-anh-minh-hoa img')), 'ảnh câu đố lộ ra ngoài đáp án');
+        await bam(k, 'details.answer > summary');
+        chac(await k.$eval('details.answer .phongdao-anh-minh-hoa img', i => i.getBoundingClientRect().height > 0), 'mở đáp án không thấy ảnh');
+      }
+      await k.setJavaScriptEnabled(true);
+      await di(bt, edit.pathname + edit.search);
+    });
   }
 } catch (e) {
   loi.push(String(e.message ?? e).split('\n')[0]);
