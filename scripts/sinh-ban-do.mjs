@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Sinh bản đồ nhỏ Việt Nam (wordpress/plugins/ca-dao/assets/ban-do-vn.svg) cho chú thích địa danh (T-087): đường biên
+// Sinh bản đồ nhỏ Việt Nam (wordpress/v2/plugins/ca-dao/assets/ban-do-vn.svg) cho chú thích địa danh (T-087): đường biên
 // từ Natural Earth 1:50m (phạm vi công cộng), có quần đảo Hoàng Sa và Trường Sa. Phép chiếu đơn giản (kinh độ, vĩ độ
 // tuyến tính) trong khung KHUNG; JavaScript đặt chấm địa danh theo đúng khung này.
 // Dùng: node scripts/sinh-ban-do.mjs <ne_50m_admin_0_countries.geojson>
@@ -39,5 +39,5 @@ const cham = Object.entries(DAO).map(([ten, ds]) => {
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${R} ${C}" role="img" aria-label="Bản đồ Việt Nam">`
   + `<style>path{fill:#e8dfcc;stroke:#9e8f72;stroke-width:.8}circle{fill:#9e8f72}text{font:9px sans-serif;fill:#5f594f}</style>`
   + `<path d="${duong}"/>${cham}</svg>\n`;
-fs.writeFileSync('wordpress/plugins/ca-dao/assets/ban-do-vn.svg', svg);
+fs.writeFileSync('wordpress/v2/plugins/ca-dao/assets/ban-do-vn.svg', svg);
 console.log(`Bản đồ: ${svg.length} byte, khung ${JSON.stringify(KHUNG)}, viewBox ${R}×${C}`);

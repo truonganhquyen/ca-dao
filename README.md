@@ -21,7 +21,8 @@ wordpress/
   v2/themes/ca-dao/    theme khối V2: giao diện, mẫu trang
   v2/tests/            kiểm thử V2 (PHP thuần + WordPress Playground)
   may-chu/             kịch bản máy chủ (docs/26 mục 15)
-  plugins/, themes/, tests/   mã MVP cũ — giữ cho kiểm thử chuyển đổi, gỡ ở T-192
+tests/chuyen-doi-mvp/  plugin MVP cũ, chỉ còn làm dữ liệu cho kiểm thử chuyển đổi (mã MVP khác đã gỡ ở T-192)
+tests/e2e-v2/          công cụ khảo sát V2 cho người review
 design/v2/             bộ thiết kế UX/UI V2
 cloudflare/chuyen-huong.js   Worker chuyển hướng địa chỉ cũ sang phongdao.com (301)
 scripts/               công cụ kiểm thử, quét trợ năng, bản xem trước, backlog

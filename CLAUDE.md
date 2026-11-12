@@ -25,8 +25,8 @@ Khi được yêu cầu review branch/PR:
    - chú thích, lời giải chép từ nguồn chỉ từ nguồn bật "Chép chú thích" (D-055), dòng "Nguồn: …" dưới đó chỉ khi bật "Ghi nguồn cho chú thích" (mặc định tắt từ D-068) và trỏ đúng trang đã lấy; lời không bị gắn nguồn tự động (D-057); có tải ảnh hay chép phân loại của nguồn không; kho thô có lọt vào repo công khai không;
    - thay đổi plugin hoặc theme có tăng số phiên bản không (`CADAO_PHIEN_BAN`, dòng `Version:`);
    - PR có link bản xem trước không (người sáng lập duyệt bằng mắt, D-035);
-   - nếu PR chạm giao diện, `npm run quet:wordpress` có còn đạt không.
-6. Có thể chạy các lệnh kiểm tra cần thiết; ưu tiên `npm run kiem-tra`, `npm run test:wordpress`, `npm run quet:wordpress`.
+   - nếu PR chạm giao diện, `npm run quet:v2` có còn đạt không.
+6. Có thể chạy các lệnh kiểm tra cần thiết; ưu tiên `npm run kiem-tra`, `npm run test:v2`, `npm run quet:v2`, `npm run e2e:v2`.
 7. **Không sửa file mặc định.** Chỉ sửa khi người dùng yêu cầu rõ; khi đó làm như một implementer theo `AGENTS.md` (nhánh riêng, kiểm thử đạt, commit có dòng `AI-Agent:`).
 
 ## Phân loại phát hiện

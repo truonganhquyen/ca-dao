@@ -87,14 +87,14 @@ Ngoài các Human Gate này, agent phải tự quyết các chi tiết kỹ thu�
 
 ## LUÔN LUÔN
 
-- Chạy `npm run kiem-tra` và `npm run test:wordpress` trước khi kết thúc (task V2: `npm run kiem-tra`, `npm run test:v2`, `npm run quet:v2` — có từ T-141). Khi thêm kiểm thử mới, mở rộng chính lệnh này thay vì tạo đường kiểm tra rời rạc.
-- Mỗi lần đổi plugin hoặc theme (MVP hay V2): tăng số phiên bản (`CADAO_PHIEN_BAN` và dòng `Version:` của plugin; dòng `Version:` của theme). Máy chủ dùng số này để biết đã cập nhật.
+- Chạy `npm run kiem-tra`, `npm run test:v2`, `npm run quet:v2` và `npm run e2e:v2` trước khi kết thúc (mã MVP và các lệnh `test:wordpress`, `quet:wordpress` đã gỡ ở T-192). Khi thêm kiểm thử mới, mở rộng chính các lệnh này thay vì tạo đường kiểm tra rời rạc.
+- Mỗi lần đổi plugin hoặc theme (`wordpress/v2/`): tăng số phiên bản (`CADAO_PHIEN_BAN` và dòng `Version:` của plugin; dòng `Version:` của theme). Máy chủ dùng số này để biết đã cập nhật.
 - Lưu văn bản UTF-8, Unicode dựng sẵn (NFC), xuống dòng LF (`.gitattributes` giữ LF trên Windows).
 - Giữ JavaScript phía trình duyệt tối thiểu; trang đọc được khi tắt JavaScript. Tệp JavaScript của trang bài dưới ngân sách 21 KB.
-- Giữ trợ năng: bàn phím, focus rõ, nhãn không chỉ dựa vào màu, vùng chạm ≥ 44 px. `npm run quet:wordpress` (WCAG 2.2 AA) phải đạt.
+- Giữ trợ năng: bàn phím, focus rõ, nhãn không chỉ dựa vào màu, vùng chạm ≥ 44 px. `npm run quet:v2` (WCAG 2.2 AA) phải đạt.
 - Ghi nguồn gốc cho mọi lời lấy từ web: địa chỉ đúng trang, ngày truy cập, bản lưu trữ khi có (R22 trong docs/12).
 - Nhiều PR mở cùng lúc: xếp chồng nhánh (D-053); số D mới = lớn nhất trên `main` và mọi PR đang mở + 1.
-- Một nhánh/PR gom các task liên quan của cùng một đợt; agent tự gộp khi kiểm tra và CI đạt (D-066). Mô tả PR gồm: đã làm, **không** làm, câu hỏi còn lại, **link bản xem trước** (`npm run xem-truoc:wordpress`).
+- Một nhánh/PR gom các task liên quan của cùng một đợt; agent tự gộp khi kiểm tra và CI đạt (D-066). Mô tả PR gồm: đã làm, **không** làm, câu hỏi còn lại, **link bản xem trước** (`npm run xem-truoc:v2 -- <nhánh>`).
 - Commit có dòng `AI-Agent: <công cụ/mô hình>` ở cuối nội dung commit (D-032).
 
 ## Khi không chắc
@@ -108,13 +108,12 @@ Ngoài các Human Gate này, agent phải tự quyết các chi tiết kỹ thu�
 ```bash
 npm ci                          # cài công cụ (axe-core, puppeteer-core, @playwright/test) — Node ≥ 22.12
 npm run kiem-tra                # cổng nhanh: kiểm thử nhất quán backlog/trạng thái
-npm run test:wordpress          # kiểm thử plugin WordPress trong Playground (cần Node ≥ 24.18; CI chạy job riêng)
-npm run test:anh                # vẽ ảnh chia sẻ bằng PHP thật (GD + FreeType); không có PHP thì bỏ qua tại máy, CI luôn chạy
-npm run quet:wordpress          # quét trợ năng theme WordPress (WCAG 2.2 AA) và thử trên trình duyệt; -- --anh <thư-mục> để lưu ảnh
-npm run xem-truoc:wordpress     # in link bản xem trước WordPress cho nhánh đã đẩy — dán vào PR
+npm run test:v2                 # kiểm thử V2: PHP thuần + WordPress Playground + chuyển đổi (cần Node ≥ 24.18)
+npm run quet:v2                 # quét trợ năng V2 (WCAG 2.2 AA), ngân sách trang, màn wp-admin; -- --anh <thư-mục> để lưu ảnh
+npm run e2e:v2                  # kiểm thử đầu-cuối V2 trong Chrome (bản xem trước; SITE=<địa chỉ> chỉ đọc)
+npm run xem-truoc:v2 -- <nhánh> # in link bản xem trước V2 cho nhánh đã đẩy — dán vào PR
 npm run viec-tiep-theo          # đề xuất task kỹ thuật READY tiếp theo
 npm run kiem-site-that          # phongdao.com có đang chạy đúng phiên bản của main không (chỉ đọc; T-129)
-npm run e2e                     # khảo sát E2E site thật, không ghi (tests/e2e/README.md); e2e:quan-tri chỉ tạo bản ghi [E2E-TEST] rồi xóa
 ```
 
 ## Điều kiện hoàn tất task
@@ -122,7 +121,7 @@ npm run e2e                     # khảo sát E2E site thật, không ghi (tests
 Một task phần mềm chỉ được coi là sẵn sàng review khi:
 
 - mọi tiêu chí chấp nhận liên quan đã đạt;
-- `npm run kiem-tra`, `npm run test:wordpress` và `npm run quet:wordpress` đạt;
+- `npm run kiem-tra`, `npm run test:v2`, `npm run quet:v2` và `npm run e2e:v2` đạt;
 - agent đã xem lại `git diff`;
 - tài liệu, trạng thái và backlog phản ánh đúng thực tế;
 - PR nêu rõ đã làm, không làm, kết quả kiểm tra, link bản xem trước và Human Gate nếu có.
