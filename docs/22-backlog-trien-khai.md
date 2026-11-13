@@ -173,6 +173,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-198 | QA mẫu quan hệ/lối đọc trẻ, 10 bài thuộc 5 thể loại, một tuyển tập và thử tác vụ; người biên soạn quyết nội dung (`docs/33` mục 6, 8) | N+A | T-197 | — | IN_PROGRESS |
 | T-199 | Form Góp gọn theo loại, giữ chữ khi đổi loại/gửi lỗi, phản hồi rõ; kiểm đủ nhánh và luồng Hộp việc (`docs/35`) | A | T-197 | — | DONE |
 | T-200 | Tối ưu trang sửa đầy đủ: trạng thái/lưu, mục lục, danh sách dài, thể thơ người quyết và quản lý danh mục (`docs/36`) | A | T-199 | — | DONE |
+| T-201 | Editor đơn giản trong màn sửa hiện tại và quản trị sửa tên cuối URL tác phẩm, có lịch sử/kiểm phiên/chuyển hướng (`docs/37`, D-110) | A | T-200 | — | IN_PROGRESS |
 | **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
 | T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
 | T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | IN_PROGRESS |
@@ -939,6 +940,10 @@ Người sáng lập đồng ý triển khai ngày 13/11/2026 (D-108). Chi tiế
 ### Trang sửa đầy đủ và danh mục — T-200
 
 Người sáng lập yêu cầu triển khai toàn bộ đề xuất audit 13/11/2026, gồm sửa thể thơ và quản lý danh mục (D-109). Tiêu chí nghiệm thu ở `docs/36-toi-uu-trang-sua-va-danh-muc.md`: trạng thái chưa lưu, khôi phục trên điện thoại, mục lục, danh sách 36 mục gọn, thứ tự theo thể loại, lưu theo phần, ảnh rõ ba bước, thể thơ người quyết có lịch sử/kiểm phiên và lối thêm/quản lý danh mục. Kiểm phần mềm dùng dữ liệu kỹ thuật; xác minh production chỉ đọc. Không tự đổi phân loại, lời, nguồn hoặc đăng nội dung thật; pilot T-198 vẫn chờ người biên soạn.
+
+### Editor đơn giản và URL — T-201
+
+Phạm vi người sáng lập thu gọn trong D-110, tiêu chí ở `docs/37-editor-don-gian-va-url.md`. Giữ màn sửa hiện tại, thêm định dạng cho các vùng diễn giải và lời giải; lưu/khôi phục chữ và định dạng cùng phần, giữ nháp và kiểm phiên, không đưa HTML vào lời/dị bản. Quản trị chủ động sửa slug, xác nhận tác động, chặn tên trùng/tên cũ thuộc bài khác và bản mở cũ; giữ ID/trạng thái/nội dung, chuyển đường cũ tới bài công khai. Không triển khai nền nội dung, SEO plugin, loại bài hoặc quan hệ mới. Bốn cổng hiện có phải chạy đầy đủ, kiểm ghi dùng dữ liệu kỹ thuật trong WordPress mẫu; production chỉ đọc.
 
 ## 4. User story
 

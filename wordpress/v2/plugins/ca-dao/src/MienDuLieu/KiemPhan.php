@@ -142,6 +142,15 @@ final class KiemPhan {
 			$ra[ $k ] = $v;
 		}
 
+		if ( isset( $ra['dinh_dang'] ) ) {
+			$ra['dinh_dang'] = DinhDang::sach( $ra['dinh_dang'] );
+			$chu = $ra[ DinhDang::truong( $phan ) ?? '' ] ?? '';
+			if ( DinhDang::chu( $ra['dinh_dang'] ) !== DinhDang::chu( DinhDang::tu_chu( $chu ) ) ) {
+				$loi[] = "{$nhan}: định dạng không khớp chữ đang lưu.";
+			}
+			if ( '' === $ra['dinh_dang'] ) { unset( $ra['dinh_dang'] ); }
+		}
+
 		if ( $co_goc ) {
 			$nl = $m['nguoi_lam'] ?? null;
 			if ( ! is_string( $nl ) || ! in_array( $nl, $dn['nguoi_lam'], true ) ) {

@@ -96,6 +96,13 @@
   // Phần đối chiếu sách giữ nguyên hành vi đã chốt.
   const book=root.querySelector('#doi-chieu form');
   if(book){const update=()=>{const s=book.querySelector('#dc-sach'),newName=book.querySelector('#dc-ten')?.value.trim();const name=newName||(s&&s.value!=='0'?s.options[s.selectedIndex].text:'');const page=book.querySelector('#dc-trang')?.value.trim();const out=book.querySelector('[data-dc-xem]');if(out)out.textContent=name?`Người đọc sẽ thấy: Lời đã đối chiếu với «${name}»${page?`, tr. ${page}`:''}.`:'Người đọc sẽ thấy: Lời đã đối chiếu với «tên sách», tr. N.';};book.addEventListener('input',update);book.addEventListener('change',update);update();}
+  const urlForm=root.querySelector('#duong-dan form');
+  if(urlForm){
+    const input=urlForm.querySelector('[name=slug]'),out=urlForm.querySelector('[data-url-xem]'),stamp=urlForm.querySelector('[name=phien_duong_dan]');
+    const update=()=>{const u=new URL(urlForm.dataset.urlHienTai),slug=input.value.normalize('NFD').replace(/\p{M}/gu,'').replace(/[đĐ]/g,'d').toLowerCase().trim().replace(/[^a-z0-9-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');u.pathname=u.pathname.replace(/[^/]+\/?$/,slug+'/');out.textContent=slug?'Dự kiến: '+u.href+' (tên chính thức được kiểm khi lưu).':'Nhập tên cuối đường dẫn.';};
+    input.addEventListener('input',update);update();
+    if(stamp.value!==urlForm.dataset.phienUrl){const p=document.createElement('p');p.textContent='Đường dẫn đã thay đổi từ lúc nhập. Đối chiếu với URL đang lưu ở trên. ';const b=document.createElement('button');b.type='button';b.className='button';b.textContent='Đã đối chiếu, dùng mốc đang lưu';b.dataset.mocUrlMoi='1';b.addEventListener('click',()=>{stamp.value=urlForm.dataset.phienUrl;p.remove();urlForm.dispatchEvent(new Event('change',{bubbles:true}));});p.append(b);urlForm.prepend(p);foldParents(urlForm);}
+  }
   root.querySelectorAll('[data-them-danh-muc]').forEach(box=>{
     const input=box.querySelector('[data-ten-muc]'),button=box.querySelector('[data-tao-muc]'),message=box.querySelector('[data-tao-muc-bao]');
     input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();button.click();}});

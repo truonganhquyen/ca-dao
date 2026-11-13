@@ -13,7 +13,7 @@ final class NhapDo {
 
 	/** Chỉ giữ các trường của form phần; không mang nonce, action, thông tin đăng nhập hay lối chuyển trang. */
 	public static function loc( array $vao ): array {
-		$ra = array_intersect_key( $vao, array_flip( array( 'chu', 'dong', 'ai', 'duyet', 'ly_do', 'nguon', 'doi_chieu', 'muc', 'su_kien', 'nam', 'noi', 'phien_phan', 'attachment_id' ) ) );
+		$ra = array_intersect_key( $vao, array_flip( array( 'chu', 'dong', 'ai', 'duyet', 'ly_do', 'nguon', 'doi_chieu', 'muc', 'su_kien', 'nam', 'noi', 'phien_phan', 'attachment_id', 'dinh_dang', 'editor_truc_quan', 'slug', 'phien_duong_dan' ) ) );
 		return $ra;
 	}
 
@@ -51,7 +51,7 @@ final class NhapDo {
 				}
 				$goc = (string) ( $m['goc'] ?? '' );
 				$hang = '' === $goc ? array() : ( $cu['muc'][ (int) $goc ] ?? array() );
-				foreach ( array( 'tu', 'loi_giai', 'noi', 'nguoi_ke', 'nam', 'tieu_de', 'tu_dong', 'den_dong' ) as $ten ) {
+				foreach ( array( 'tu', 'loi_giai', 'noi', 'nguoi_ke', 'nam', 'tieu_de', 'tu_dong', 'den_dong', 'dinh_dang' ) as $ten ) {
 					if ( isset( $m[ $ten ] ) && is_scalar( $m[ $ten ] ) ) {
 						$hang[ $ten ] = (string) $m[ $ten ];
 					}
@@ -68,7 +68,7 @@ final class NhapDo {
 			}
 			return $ra;
 		}
-		foreach ( array( 'chu', 'ly_do', 'su_kien', 'nam', 'noi', 'attachment_id' ) as $ten ) {
+		foreach ( array( 'chu', 'ly_do', 'su_kien', 'nam', 'noi', 'attachment_id', 'dinh_dang' ) as $ten ) {
 			if ( isset( $vao[ $ten ] ) && is_scalar( $vao[ $ten ] ) ) {
 				$ra[ $ten ] = (string) $vao[ $ten ];
 			}

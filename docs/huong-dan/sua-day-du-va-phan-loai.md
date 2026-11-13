@@ -39,6 +39,12 @@ Giới hạn tệp thực của site hiện ngay trước nút chọn/tải. Ch�
 
 Alt, chú thích và ghi công trong Thư viện dùng chung cho mọi bài gắn tệp đó. Bỏ ảnh khỏi bài không xoá tệp. Với câu đố, ảnh hiện trong đáp án. Phần chữ **Hình ảnh trong bài** là hình ảnh văn học trong lời, khác tệp ảnh minh hoạ. Người biên soạn tự kiểm quyền dùng ảnh.
 
+## Editor đơn giản và URL
+
+Trong các ô Ý nghĩa/giải thích đáp án, Nghĩa đen/bóng, Đáp án, Gợi ý, lời giới thiệu Bối cảnh và Lời giải từ khó, dùng thanh công cụ để định dạng và chèn liên kết. Lời giải từng mục mở editor khi đặt con trỏ vào ô. Định dạng vẫn phải lưu bằng nút Lưu của phần đó. Lời và dị bản giữ cách nhập từng dòng; Dùng khi và Hình ảnh trong bài giữ cấu trúc hiện có.
+
+Quản trị mở **Đường dẫn** trong mục lục, sửa tên cuối URL, xem dự kiến, đánh dấu xác nhận rồi **Lưu đường dẫn**. Hệ thống giữ ID/nội dung/trạng thái bài, ghi lịch sử và giữ chuyển hướng đường cũ tới bài công khai; tên trùng hoặc bản mở cũ bị chặn. Nếu đã đối chiếu bản mới, nhận mốc đang lưu để gửi lại. Chi tiết và kết quả kiểm: [editor và URL](../37-editor-don-gian-va-url.md).
+
 ## Khi tắt JavaScript
 
 Các liên kết mục lục, khối gập và nút lưu gốc vẫn dùng được. Có thêm một hàng trống để thêm từ khó/dị bản rồi lưu. Quản lý danh mục mở tab mới; chọn/tải ảnh bằng Thư viện cần bật JavaScript. Bộ đệm chữ tạm và thanh lưu hỗ trợ cần JavaScript.

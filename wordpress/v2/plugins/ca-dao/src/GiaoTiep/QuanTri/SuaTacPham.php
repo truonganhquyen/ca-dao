@@ -26,6 +26,7 @@ final class SuaTacPham {
 	public const TRANG = 'phongdao-sua-tac-pham';
 
 	public static function dang_ky(): void {
+		SuaDuongDan::dang_ky();
 		add_action( 'admin_post_phongdao_sua_phan', array( self::class, 'luu' ) );
 		add_action( 'admin_post_phongdao_sua_the_tho', array( self::class, 'luu_the_tho' ) );
 		add_action( 'admin_post_phongdao_sua_phan_loai', array( self::class, 'luu_phan_loai' ) );
@@ -84,7 +85,7 @@ final class SuaTacPham {
 			$muc[ 'phan-' . $p ] = array( 'tuc-ngu' === $loai && 'y_nghia' === $p ? 'Ý nghĩa đã có từ trước' : TamSua::nhan( $p, $loai ), $tt );
 		}
 		if ( 'dong-dao' === $loai ) { $muc['phan-loai-tro_choi'] = array( 'Trò chơi', 'Chọn mục' ); }
-		$muc += array( 'phan-loai' => array( 'Phân loại', '' ), 'can-cu-noi-bo' => array( 'Căn cứ nội bộ', '' ), 'lich-su' => array( 'Lịch sử', '' ) );
+		$muc += array( 'duong-dan' => array( 'Đường dẫn', '' ), 'phan-loai' => array( 'Phân loại', '' ), 'can-cu-noi-bo' => array( 'Căn cứ nội bộ', '' ), 'lich-su' => array( 'Lịch sử', '' ) );
 		$link = ''; $chon = '<option value="">Chọn phần cần sửa…</option>';
 		foreach ( $muc as $id => [ $ten, $tt ] ) {
 			$link .= '<a href="#' . esc_attr( $id ) . '" data-toi-phan="' . esc_attr( $id ) . '">' . esc_html( $ten ) . '<span data-muc-trang-thai>' . esc_html( $tt ) . '</span></a>';
@@ -150,6 +151,7 @@ final class SuaTacPham {
 		}
 		$sau = self::bai_sau( $id );
 		$phan_loi = sanitize_key( (string) ( $_GET['phan'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc form đã được giữ theo phiên
+		if ( 'duong_dan' === $phan_loi && 'da_luu' === $ket_qua ) { $bao = 'Đã lưu đường dẫn tác phẩm. Đường cũ chuyển hướng tới bài khi bài công khai.'; }
 		if ( isset( TamSua::TAM[ $phan_loi ] ) && in_array( $ket_qua, array( 'da_luu', 'khong_doi', 'nhap' ), true ) ) {
 			$bao .= ' Phần: ' . TamSua::nhan( $phan_loi, $loai ) . '.';
 			if ( 'da_luu' === $ket_qua ) {
@@ -241,7 +243,7 @@ final class SuaTacPham {
 			}
 			$ben .= '</ul></section>';
 		}
-		$ben = self::phan_loai( $bai, $loai ) . '<section id="can-cu-noi-bo"><h2>Căn cứ nội bộ và việc cần xem</h2>' . $ben . self::cong_tac_co( $bai, $ctx ) . '</section>' . self::lich_su( $id );
+		$ben = SuaDuongDan::hien( $bai, self::$ve ) . self::phan_loai( $bai, $loai ) . '<section id="can-cu-noi-bo"><h2>Căn cứ nội bộ và việc cần xem</h2>' . $ben . self::cong_tac_co( $bai, $ctx ) . '</section>' . self::lich_su( $id );
 		return $ra . '<div class="phongdao-sua-bo"><div class="phongdao-sua-chinh">' . $chinh . '</div><aside class="phongdao-sua-ben" aria-label="Trạng thái, phân loại và lịch sử">' . $ben . '</aside></div><div class="phongdao-thanh-luu" data-thanh-luu hidden><p data-thanh-luu-ten></p><div data-thanh-luu-nut></div></div></div>';
 	}
 

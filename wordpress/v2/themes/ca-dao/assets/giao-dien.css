@@ -216,5 +216,6 @@ details.block>summary{justify-content:flex-start;gap:10px}details.block>summary:
  .gop-rut-gon:not(:has(input[name=loai]:checked)) .gop-than,.gop-rut-gon:has(input[name=loai]:checked) .gop-chua-chon{display:none}
  .gop-rut-gon:has(input[name=loai][value=phan_tich]:checked) textarea{min-height:320px}
 }
+.pd-chu-do{color:var(--loi)}.pd-chu-xanh{color:var(--luc)}.pd-chu-tim{color:var(--tim)}.pd-chu-nhe{color:var(--nhat);font-weight:400}
 /* Chế độ tối theo cài đặt máy khi người đọc chưa bấm chọn */
 @media (prefers-color-scheme:dark){:root:not([data-theme=light]){--giay:#17151B;--white:#1F1C24;--panel:#24212A;--muc:#EFEBE4;--nhat:#B4AEA6;--tim:#BCA8F4;--tim-dam:#D4C7F8;--tim-nhat:#2E2648;--tim-vien:#4A3D72;--tim-giay:#221E2E;--luc:#86CFA8;--luc-nhat:#1B3328;--luc-vien:#2F5E46;--to:#4A3F12;--to-vien:#8C7426;--loi:#F2958B;--green:#86CFA8;--blue:#8DB6E3;--ochre:#E0BE72;--line:#38343F;--control-line:#8E8799;--focus:#BCA8F4;--tren-tim:#17151B;--bong:0 1px 2px rgba(0,0,0,.3);color-scheme:dark;--nhan-d:#B8AB93;--nhan-co:#B0B0B0;--nen-vang:#2A2414;--nen-tim:#221E2E;--nen-luc:#18261F;--nen-xanh:#172231;--nen-dat:#24211C;--nen-hong:#2C1A24;--vang-dam:#E6B860;--hong:#F09ABF;--xanh:#8DB6E3}}

@@ -270,8 +270,8 @@ final class Ve {
 
 	/** Ý nghĩa (tên hiển thị của lớp hieu_nhanh — D-093). */
 	/** $nut: nút Sửa (HTML an toàn, chỉ ở chế độ sửa). */
-	public static function y_nghia( string $chu, bool $ai = false, string $tieu_de = 'Ý nghĩa', string $nut = '' ): string {
-		return '<div class="meaning"><div class="meaning-head"><h2>' . esc_html( $tieu_de ) . '</h2>' . $nut . '</div><p class="y-nghia-chu">' . esc_html( $chu ) . '</p>'
+	public static function y_nghia( string $chu, bool $ai = false, string $tieu_de = 'Ý nghĩa', string $nut = '', string $dinh_dang = '' ): string {
+		return '<div class="meaning"><div class="meaning-head"><h2>' . esc_html( $tieu_de ) . '</h2>' . $nut . '</div><p class="y-nghia-chu">' . \Phongdao\MienDuLieu\DinhDang::hien( $chu, $dinh_dang ) . '</p>'
 			. ( $ai ? '<p class="ai-note">Có hỗ trợ của AI, đã được người biên soạn duyệt.</p>' : '' ) . '</div>';
 	}
 

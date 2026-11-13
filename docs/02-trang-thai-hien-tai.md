@@ -33,6 +33,8 @@
 
 ## Đang làm: đợt 3 (`docs/32`)
 
+- **Editor đơn giản và sửa URL tác phẩm** (D-110): đang thực hiện theo [phạm vi thu gọn](37-editor-don-gian-va-url.md), giữ màn sửa hiện tại và lưu từng phần. Đề xuất mở rộng nền nội dung tạm hoãn; không triển khai SEO plugin, loại nội dung hoặc quan hệ mới trong đợt này. Chưa phát hành.
+
 - Người sáng lập đã chốt (11/11/2026):
   - ba dòng việc **Bài mới · Hộp việc · Bổ sung** (D-103);
   - khu quản trị (D-104);

@@ -73,7 +73,11 @@ final class Phan {
 
 	/** @return array{dang:string,the_loai:?array,nguoi_lam:?array,may:bool,truong:array<string,string>}|null */
 	public static function lay( string $loai_bai, string $phan ): ?array {
-		return self::DINH_NGHIA[ $loai_bai ][ $phan ] ?? null;
+		$dn = self::DINH_NGHIA[ $loai_bai ][ $phan ] ?? null;
+		if ( $dn && 'tac_pham' === $loai_bai && null !== DinhDang::truong( $phan ) ) {
+			$dn['truong']['dinh_dang'] = 'chu_dai';
+		}
+		return $dn;
 	}
 
 	public static function khoa( string $phan ): string {
