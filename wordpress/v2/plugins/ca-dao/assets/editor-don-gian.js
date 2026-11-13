@@ -4,6 +4,25 @@
   const root=document.querySelector('.phongdao-admin-sua');if(!root||!window.wp?.editor)return;
   document.body.classList.add('pd-editor-admin');
   let serial=0;
+  // TinyMCE 4 trong WordPress đặt role=button ở div ngoài một button trình bày.
+  // Dùng chính button thật làm điều khiển: chuyển tên/trạng thái/focus, giữ handler của widget.
+  const fixed=new WeakSet();
+  const fixButtons=()=>document.querySelectorAll('.pd-editor-admin .mce-btn').forEach(widget=>{
+    const button=widget.querySelector(':scope>button');if(!button||fixed.has(widget))return;fixed.add(widget);
+    const states=['aria-label','aria-pressed','aria-expanded','aria-haspopup','aria-controls','aria-owns'];
+    const sync=()=>{
+      const name=widget.getAttribute('aria-label')||button.getAttribute('aria-label')||widget.getAttribute('title')||button.textContent.trim();
+      if(name&&button.getAttribute('aria-label')!==name)button.setAttribute('aria-label',name);
+      for(const key of states){if(widget.hasAttribute(key)){const value=widget.getAttribute(key);if(button.getAttribute(key)!==value)button.setAttribute(key,value);widget.removeAttribute(key);}}
+      const disabled=widget.classList.contains('mce-disabled');if(button.disabled!==disabled)button.disabled=disabled;
+      if(button.getAttribute('aria-disabled')!==String(disabled))button.setAttribute('aria-disabled',String(disabled));
+      widget.removeAttribute('aria-disabled');widget.removeAttribute('role');widget.removeAttribute('tabindex');button.removeAttribute('role');button.tabIndex=0;
+    };
+    sync();widget.focus=options=>button.focus(options);
+    button.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter')e.stopPropagation();});
+    new MutationObserver(sync).observe(widget,{attributes:true,attributeFilter:[...states,'aria-disabled','role','tabindex','class']});
+  });
+  new MutationObserver(fixButtons).observe(document.body,{childList:true,subtree:true});
   const plain=html=>{
     const d=new DOMParser().parseFromString(html,'text/html').body;
     d.querySelectorAll('br').forEach(e=>e.replaceWith('\n'));
@@ -39,7 +58,7 @@
           if(source.value===text&&format.value===rich)return;
           source.value=text;format.value=rich;source.dispatchEvent(new Event('input',{bubbles:true}));
         };
-        editor.on('init',()=>{const focused=document.activeElement===source,label=box.querySelector('label');editor.setContent((format.value&&plain(format.value)===source.value.trim()?format.value:escape(source.value)).replace(/\n/g,'<br>'));source.hidden=true;enabled.value='1';editors.add(sync);editor.iframeElement?.setAttribute('title',label.textContent);label.addEventListener('click',e=>{e.preventDefault();editor.focus();});if(focused)editor.focus();});
+        editor.on('init',()=>{const focused=document.activeElement===source,label=box.querySelector('label');editor.setContent((format.value&&plain(format.value)===source.value.trim()?format.value:escape(source.value)).replace(/\n/g,'<br>'));source.hidden=true;enabled.value='1';editors.add(sync);editor.iframeElement?.setAttribute('title',label.textContent);label.addEventListener('click',e=>{e.preventDefault();editor.focus();});fixButtons();if(focused)editor.focus();});
         editor.on('input change Undo Redo blur',sync);
 				source.addEventListener('input',()=>{if(editor.initialized&&plain(editor.getContent())!==source.value){format.value='';editor.setContent(escape(source.value).replace(/\n/g,'<br>'));}});
         editor.on('focus',()=>source.dispatchEvent(new FocusEvent('focusin',{bubbles:true})));

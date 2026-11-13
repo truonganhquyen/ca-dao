@@ -13,6 +13,9 @@ export async function kiemEditorUrl({bt,G,di,bam,datO,bamDoiTrang,chac,thu,thuMu
       await bt.keyboard.down('Control');await bt.keyboard.press('A');await bt.keyboard.up('Control');await bt.keyboard.type('[EDITOR-TEST] formatted body');
       await bt.keyboard.down('Control');await bt.keyboard.press('A');await bt.keyboard.press('B');await bt.keyboard.up('Control');
       await bt.evaluate(()=>{const e=tinymce.get(document.querySelector('#phan-y_nghia iframe').id.replace(/_ifr$/,''));e.execCommand('mceInsertLink',false,{href:'/ca-dao/dong-mau-mot-cua-bai/'});e.fire('change');});
+      const bold=await bt.$('#phan-y_nghia button[aria-label^="Đậm"],#phan-y_nghia button[aria-label^="Bold"]');chac(bold,'thiếu nút đậm có tên');await bold.focus();await bt.keyboard.press('Space');
+      chac(await bt.$eval('#phan-y_nghia [data-editor-html]',e=>!e.value.includes('<strong>')),'Space không bỏ đậm đúng một lần');await bold.focus();await bt.keyboard.press('Space');
+      chac(await bold.evaluate(e=>e.getAttribute('aria-pressed')==='true'),'nút thật không cập nhật trạng thái đậm');
       // Chọn màu qua menu thật đã cấu hình, không tự đăng ký formatter trong phép kiểm.
       const chooseColor=async name=>{await bam(bt,'#phan-y_nghia .mce-menubtn button');const options=await bt.$$('.mce-menu-item');let color=null;for(const item of options)if((await item.evaluate(e=>e.textContent)).includes(name)){color=item;break;}chac(color,'thiếu lựa chọn '+name);await color.click();};
       await chooseColor('Màu tím');await chooseColor('Màu xanh');
