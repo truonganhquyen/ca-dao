@@ -64,7 +64,7 @@ final class QuyetViec {
 		}
 		if ( 'nhap_y_nghia' === $v['loai'] && 'duyet' === $quyet && ! LuuPhan::khoa_bai( (int) $v['doi_tuong_id'] ) ) {
 			$wpdb->query( 'ROLLBACK' );
-			return self::kq( false, 'Không khóa được bài để duyệt. Thử lại sau.' );
+			return self::kq( false, 'Không khoá được bài để duyệt. Thử lại sau.' );
 		}
 		if ( ! Viec::giu( $id, $v['phien'] ) ) {
 			$wpdb->query( 'ROLLBACK' );
@@ -113,7 +113,7 @@ final class QuyetViec {
 		}
 		if ( $khoa && 'nhap_y_nghia' === $khoa['loai'] && 'duyet' === $khoa['quyet'] && ! LuuPhan::khoa_bai( (int) $khoa['doi_tuong_id'] ) ) {
 			$wpdb->query( 'ROLLBACK' );
-			return self::kq( false, 'Không khóa được bài để hoàn tác. Thử lại sau.' );
+			return self::kq( false, 'Không khoá được bài để hoàn tác. Thử lại sau.' );
 		}
 		$v = Viec::lay( $id );
 		if ( ! self::co_the_hoan_tac( $v, $nguoi, $phien ) ) {

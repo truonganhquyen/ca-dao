@@ -9,10 +9,10 @@ Ngày 13/11/2026 · theo phạm vi người sáng lập chốt ở [kế hoạch
 | Phần | Hành vi sau sửa | Lợi ích thực tế cần dùng |
 |---|---|---|
 | Giữ chữ | Lỗi nhập dựng lại đúng dữ liệu; các phần chưa lưu giữ theo tab/phiên tối đa 30 phút, có cảnh báo rời bài | Lấy lại công đang viết sau lỗi hoặc sau khi lưu phần khác |
-| Bản mở cũ | Lưu phần bắt buộc gửi phiên, đọc/so/ghi trong khóa chung; xung đột giữ chữ và cho đối chiếu | Người biên soạn chủ động quyết bản sẽ dùng |
+| Bản mở cũ | Lưu phần bắt buộc gửi phiên, đọc/so/ghi trong khoá chung; xung đột giữ chữ và cho đối chiếu | Người biên soạn chủ động quyết bản sẽ dùng |
 | Ảnh minh hoạ | Một ảnh tuỳ chọn cho cả năm thể loại; chọn/tải, xem trước, lưu, khách thấy, thay/bỏ/khôi phục; ghi công theo attachment | Hoàn tất tác vụ tệp ảnh bị thiếu trước đây; phân biệt với ô chữ Hình ảnh trong bài |
 | Nhãn và Hiểu thêm | Giải thích đáp án đúng tên; báo phần đã lưu và trạng thái bài; form cách hiểu mở theo nhu cầu, giữ consent/duyệt/no-JS | Dễ biết kết quả thao tác, bớt cuộn qua form trống |
-| Khôi phục và duyệt nháp | Dùng cùng khóa bài trong giao dịch; lỗi ghi rollback; caller đang có giao dịch không mở COMMIT lồng | Giữ bản mới và bản chữ tổng hợp khi thao tác gần đồng thời |
+| Khôi phục và duyệt nháp | Dùng cùng khoá bài trong giao dịch; lỗi ghi rollback; caller đang có giao dịch không mở COMMIT lồng | Giữ bản mới và bản chữ tổng hợp khi thao tác gần đồng thời |
 
 Không đặt ảnh/nguồn/nghĩa thành điều kiện bắt buộc để đăng. Bốn hạng mục người sáng lập đã loại giữ nguyên: parser và nhãn Video; token nguồn; mở nguồn văn bản/nguồn cờ/xem trước sách; restore hoặc census DB/ảnh. Không đổi Google, quyền nguồn, dữ liệu văn hoá thật hoặc cấu hình máy chủ.
 
@@ -24,7 +24,7 @@ Không đặt ảnh/nguồn/nghĩa thành điều kiện bắt buộc để đă
 | Chặn tab cũ | 255 PHP + 529 WP + 55 chuyển đổi; quét 0 lỗi; E2E 48/0/0 | [Đã gộp #166](https://github.com/truonganhquyen/ca-dao/pull/166) |
 | Ảnh trọn luồng | 255 PHP + 541 WP + 55 chuyển đổi; quét 0 lỗi; E2E 49/0/0. CI cuối kiểm thêm lỗi đọc attachment | [Đã gộp #167](https://github.com/truonganhquyen/ca-dao/pull/167) |
 | Nhãn, form và phiếu pilot | Local 255 PHP + 545 WP + 55 chuyển đổi, quét 0 lỗi; CI E2E 50/0/0 | [Đã gộp #168](https://github.com/truonganhquyen/ca-dao/pull/168) |
-| Khóa khôi phục/duyệt | Local 255 PHP + 550 WP + 55 chuyển đổi; quét 0 lỗi; CI E2E 50/0/0. Hai ca hai tiến trình MySQL đạt sau sửa | [Bản chốt #169](https://github.com/truonganhquyen/ca-dao/pull/169) |
+| Khoá khôi phục/duyệt | Local 255 PHP + 550 WP + 55 chuyển đổi; quét 0 lỗi; CI E2E 50/0/0. Hai ca hai tiến trình MySQL đạt sau sửa | [Bản chốt #169](https://github.com/truonganhquyen/ca-dao/pull/169) |
 
 E2E ghi theo thứ tự đạt/lỗi/bỏ qua. Bộ chuyển đổi 55 ở bảng là kết quả local có log, không suy số riêng của nó từ nhãn xanh CI. Không hạ cổng hoặc bỏ các ca đang bắt buộc.
 

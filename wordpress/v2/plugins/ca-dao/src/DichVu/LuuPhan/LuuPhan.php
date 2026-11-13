@@ -26,7 +26,7 @@ final class LuuPhan {
 		return hash( 'sha256', wp_json_encode( array( $bai, $phan, $gia_tri, Viec::moi_nhat_sua( $bai, $phan ) ) ) );
 	}
 
-	/** Caller đã mở giao dịch: lấy cùng khóa trước mọi lần đọc nhất quán của phần/bản chữ. Không mở giao dịch lồng. */
+	/** Caller đã mở giao dịch: lấy cùng khoá trước mọi lần đọc nhất quán của phần/bản chữ. Không mở giao dịch lồng. */
 	public static function khoa_bai( int $bai ): bool {
 		global $wpdb;
 		$id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE ID = %d FOR UPDATE", $bai ) );
@@ -37,7 +37,7 @@ final class LuuPhan {
 		return true;
 	}
 
-	/** Entry point lưu trực tiếp: khóa bài, đọc mới, so phiên rồi mới đọc form/ghi; không mở giao dịch lồng. */
+	/** Entry point lưu trực tiếp: khoá bài, đọc mới, so phiên rồi mới đọc form/ghi; không mở giao dịch lồng. */
 	public static function trong_phien( int $bai, string $phan, string $phien, callable $ghi ): array {
 		global $wpdb;
 		if ( false === $wpdb->query( 'START TRANSACTION' ) ) {
