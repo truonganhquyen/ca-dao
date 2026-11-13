@@ -17,7 +17,7 @@
   "trang_thai_giai_doan": "DANG_THUC_HIEN",
   "moc_tiep_theo": "MOC_C",
   "cong_viec_hien_tai": "T-198",
-  "human_gate_dang_chan": [],
+  "human_gate_dang_chan": ["H2"],
   "quyet_dinh_dang_mo": [
     "Q-008"
   ],

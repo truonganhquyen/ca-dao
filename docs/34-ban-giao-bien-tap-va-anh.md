@@ -2,7 +2,7 @@
 
 Ngày 13/11/2026 · theo phạm vi người sáng lập chốt ở [kế hoạch](33-ke-hoach-cai-tien-bien-tap-va-anh.md).
 
-**Mã đích: plugin 1.0.57, theme 1.0.6. Đang chờ bốn cổng cuối của bản này; pilot nội dung thật còn chờ người quyết.** Đây là báo cáo phần mềm và QA mẫu; kết quả dùng thử người thật ghi vào phiếu riêng.
+**Phần mềm plugin 1.0.57/theme 1.0.6 đã qua bốn cổng; pilot nội dung thật còn chờ người quyết.** Đây là báo cáo phần mềm và QA mẫu; kết quả dùng thử người thật ghi vào phiếu riêng.
 
 ## 1. Thay đổi và lợi ích
 
@@ -18,15 +18,17 @@ Không đặt ảnh/nguồn/nghĩa thành điều kiện bắt buộc để đă
 
 ## 2. Bằng chứng phần mềm
 
-| Bản sửa | Kiểm local đã có | Trạng thái review |
+| Bản sửa | Bằng chứng kiểm thử | Trạng thái review |
 |---|---|---|
 | Giữ chữ | 255 PHP + 523 WP + 55 chuyển đổi; quét 0 lỗi; E2E 47/0/0 | [Đã gộp #165](https://github.com/truonganhquyen/ca-dao/pull/165) |
 | Chặn tab cũ | 255 PHP + 529 WP + 55 chuyển đổi; quét 0 lỗi; E2E 48/0/0 | [Đã gộp #166](https://github.com/truonganhquyen/ca-dao/pull/166) |
 | Ảnh trọn luồng | 255 PHP + 541 WP + 55 chuyển đổi; quét 0 lỗi; E2E 49/0/0. CI cuối kiểm thêm lỗi đọc attachment | [Đã gộp #167](https://github.com/truonganhquyen/ca-dao/pull/167) |
 | Nhãn, form và phiếu pilot | Local 255 PHP + 545 WP + 55 chuyển đổi, quét 0 lỗi; CI E2E 50/0/0 | [Đã gộp #168](https://github.com/truonganhquyen/ca-dao/pull/168) |
-| Khóa khôi phục/duyệt | Native WordPress 550; hai ca hai tiến trình MySQL đã đạt sau sửa; bốn cổng chính chưa chốt | Chờ chốt |
+| Khóa khôi phục/duyệt | Local 255 PHP + 550 WP + 55 chuyển đổi; quét 0 lỗi; CI E2E 50/0/0. Hai ca hai tiến trình MySQL đạt sau sửa | [Bản chốt #169](https://github.com/truonganhquyen/ca-dao/pull/169) |
 
 E2E ghi theo thứ tự đạt/lỗi/bỏ qua. Bộ chuyển đổi 55 ở bảng là kết quả local có log, không suy số riêng của nó từ nhãn xanh CI. Không hạ cổng hoặc bỏ các ca đang bắt buộc.
+
+Đã xem ảnh phần Hiểu thêm ở 390/1440 px, có/không JavaScript. Bản mẫu 390 px có JavaScript: khối cao 343 px khi gập form và 1.132 px khi mở; bàn phím mở được và còn đủ hai consent. Số đo/ảnh ở `T-198/reader-final-views.json` và các ảnh cùng tên; chưa phải số đo năng suất người biên soạn.
 
 Các ca ghi dùng dữ liệu [UX-TEST] tại WordPress 7.1.4/MySQL 8.4 local hoặc Playground. Hai tiến trình PHP với hai kết nối DB là bằng chứng thao tác ghi, bổ sung cho ca trình duyệt hai tab/tài khoản.
 
@@ -88,7 +90,7 @@ Mẫu này chủ yếu kiểm Đọc tiếp và một chủ đề; chưa thay ch
 
 [Phiếu pilot 10 bài, một tuyển tập và tác vụ 5–8 người](huong-dan/pilot-10-bai.md) đã chuẩn bị, gồm trường quyết định nội dung/quyền ảnh, cấu trúc tuyển tập hiện có và bảng ghi thời gian/nhập lại/lưu nhầm/quay màn. Các ô người thật chưa có dữ liệu. Một tuyển tập thực chưa được agent tạo hoặc đăng trên production.
 
-Người có quyền chốt mẫu, lời/nguồn/nghĩa/ngữ cảnh, ảnh thật và mạch tuyển tập rồi tự đăng khi muốn. Human Gate H2 của AGENTS.md áp dụng: “đăng bài thay người biên soạn” và xác nhận sự thật biên tập là việc của con người. Phần mềm hỗ trợ quyết định, không tự đánh dấu nội dung đã duyệt. Chưa có số đo để kết luận tăng năng suất CTV.
+Người có quyền chốt mẫu, lời/nguồn/nghĩa/ngữ cảnh, ảnh thật và mạch tuyển tập rồi tự đăng khi muốn. Human Gate H2 của [AGENTS.md](../AGENTS.md) áp dụng: “đăng bài thay người biên soạn” và xác nhận sự thật biên tập là việc của con người. Phần mềm hỗ trợ quyết định, không tự đánh dấu nội dung đã duyệt. Chưa có số đo để kết luận tăng năng suất CTV.
 
 ## 6. Dùng và kiểm phiên bản
 

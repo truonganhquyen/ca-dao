@@ -1,6 +1,6 @@
 # Giữ chữ, xử lý bản mới và thêm ảnh
 
-Áp dụng cho màn **Tác phẩm → Sửa** của V2, sau khi nhận bản sửa của `docs/33`. Thử ảnh bằng dữ liệu kỹ thuật trên bản xem trước trước khi chọn ảnh thật. Người biên soạn vẫn quyết nội dung và quyền sử dụng ảnh.
+Áp dụng từ plugin 1.0.57/theme 1.0.6 cho màn **Tác phẩm → Sửa** của V2. Thử ảnh bằng dữ liệu kỹ thuật trên bản xem trước trước khi chọn ảnh thật. Người biên soạn vẫn quyết nội dung và quyền sử dụng ảnh.
 
 ## Đang viết mà cần lưu phần khác
 
