@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Phiên bản | 3.1 · 13/11/2026 (bàn giao biên tập an toàn và ảnh; lịch sử đến 11/11/2026: `docs/luu-tru/02-trang-thai-den-11-11-2026.md`) |
+| Phiên bản | 3.2 · 13/11/2026 (form Góp gọn, bàn giao biên tập an toàn và ảnh; lịch sử đến 11/11/2026: `docs/luu-tru/02-trang-thai-den-11-11-2026.md`) |
 | Mục đích | Trang tổng quan ngắn cho người sáng lập và AI agent |
 | Nguồn máy đọc | `du-an/trang-thai.json` (`npm run kiem-nhat-quan` đối chiếu với `docs/01`, `docs/22`) |
 
@@ -12,6 +12,7 @@
 
 - **phongdao.com chạy V2** (Thư viện Văn học Dân gian Việt Nam) từ 04/11/2026: WordPress trên VPS, máy chủ tự cập nhật sau mỗi PR gộp vào `main` (`docs/26` mục 15). **Site còn chặn Google** (công tắc toàn site, Human Gate H5 — người sáng lập mở khi quyết).
 - **Trang người đọc** (`docs/27`): trang chủ, danh sách theo thể loại, chủ đề, vùng; trang bài cho năm thể loại (lời mỗi câu một dòng, nhãn mức kiểm, Ý nghĩa, từ khó chạm để xem, dị bản, "Lời này từ đâu?", trích dẫn, chia sẻ, ảnh để chia sẻ, trình chiếu, cỡ chữ, Đọc cùng bé); Tìm (gõ không dấu, gợi ý gõ sai); Từ điển, Bản đồ, Tuyển tập, Khám phá, Một câu ngẫu nhiên; Đã lưu; Góp (dị bản, chú thích, báo lỗi, số trang, cảm nghĩ, bài cảm nhận).
+- **Form Góp gọn theo loại** (D-108, plugin 1.0.58/theme 1.0.7): chỉ hiện ô phù hợp, thông tin phụ thu gọn; từ bài giữ loại/bài/đối tượng báo vi phạm; đổi loại không mất chữ. Gửi lỗi dựng lại đúng chữ trong phản hồi riêng tư, kể cả khi tắt JavaScript; gửi số trang không ép viết ghi chú. Consent, chống rác và hàng chờ duyệt giữ nguyên. [Chi tiết và kiểm thử](35-form-gop-gon-va-giu-chu.md).
 - **Khu biên tập trong wp-admin** (`docs/28` mục 4), sau đợt 1–2 (10–11/11/2026) và bước đầu đợt 3:
   - **Menu theo ba dòng việc:** Hôm nay · Bài mới · Hộp việc · Bổ sung · Tác phẩm · Nguồn & cài đặt.
   - **Hôm nay** (trước là Bàn làm việc): 3 việc gấp nhất, ba ô Bài mới · Hộp việc · Bổ sung có nút bắt đầu, Nên làm tuần này, số liệu tuần thu gọn (nhớ 1 giờ); đăng nhập vào thẳng đây. Trang chào mừng WordPress có khung "Phongdao hôm nay".

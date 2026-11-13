@@ -4,6 +4,8 @@ Ngày 13/11/2026 · theo phạm vi người sáng lập chốt ở [kế hoạch
 
 **Phần mềm plugin 1.0.57/theme 1.0.6 đã qua bốn cổng; pilot nội dung thật còn chờ người quyết.** Đây là báo cáo phần mềm và QA mẫu; kết quả dùng thử người thật ghi vào phiếu riêng.
 
+Bổ sung sau bàn giao: [form Góp gọn và giữ chữ khi gửi lỗi](35-form-gop-gon-va-giu-chu.md) (D-108). Các kết quả của đợt biên tập/ảnh bên dưới giữ nguyên theo phiên bản đã kiểm.
+
 ## 1. Thay đổi và lợi ích
 
 | Phần | Hành vi sau sửa | Lợi ích thực tế cần dùng |

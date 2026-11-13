@@ -24,6 +24,42 @@ final class NhanGui {
 
 	public const GUI_MOI_GIO = 5;
 
+	/** Chỉ sống trong yêu cầu POST bị lỗi; không ghi nháp người đọc vào cookie, URL hay cơ sở dữ liệu. */
+	private static ?array $loi_trang = null;
+
+	public static function loi_trang(): ?array {
+		return self::$loi_trang;
+	}
+
+	/** Trang Góp nhận POST tại chỗ: lỗi vẽ lại đúng chữ, kể cả khi tắt JavaScript. */
+	public static function nhan_trang(): void {
+		if ( 'POST' !== ( $_SERVER['REQUEST_METHOD'] ?? '' ) || 'gop' !== \Phongdao\GiaoTiep\TrangCoDinh\Module::dang_xem() ) {
+			return;
+		}
+		$vao = wp_unslash( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification -- kiểm ngay dưới
+		$p   = array_filter( $vao, 'is_scalar' );
+		if ( self::HANH_DONG !== ( $p['action'] ?? '' ) ) {
+			return;
+		}
+		nocache_headers();
+		header( 'Cache-Control: private, no-store, max-age=0' );
+		// Không bỏ qua ô bẫy/token bị gửi sai dạng mảng rồi vô tình coi chúng như ô trống.
+		$ma = count( $p ) !== count( $vao ) ? 'loi' : '';
+		if ( '' === $ma && ! wp_verify_nonce( (string) ( $p['_wpnonce'] ?? '' ), self::HANH_DONG ) ) {
+			$ma = 'cu';
+		}
+		$kq = '' === $ma ? self::luu( $p ) : array( 'ok' => false, 'ma' => $ma, 'bai' => 0 );
+		if ( $kq['ok'] ) {
+			$toi = $kq['bai'] ? add_query_arg( 'gop', 'da_gui', (string) get_permalink( $kq['bai'] ) ) . '#gop' : add_query_arg( 'gui', 'da_gui', home_url( '/gop/' ) );
+			wp_safe_redirect( $toi, 303 );
+			exit;
+		}
+		// Không giữ nonce / token chống rác; lần vẽ lại sinh nonce mới và yêu cầu kiểm chống rác lại.
+		$giu = array_flip( array( 'loai', 'bai', 'vi_pham', 'noi_dung', 'sach', 'trang', 'tieu_de', 'vai', 'noi_nghe', 'nguoi_ke', 'ten', 'tu_viet', 'dong_y' ) );
+		self::$loi_trang = array( 'ma' => $kq['ma'], 'p' => array_intersect_key( $p, $giu ) );
+		status_header( 422 );
+	}
+
 	/** @return array{site:string,bi_mat:string} */
 	public static function turnstile(): array {
 		return array(

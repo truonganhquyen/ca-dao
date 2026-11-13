@@ -53,6 +53,17 @@ let trinhDuyet;
 try {
   await san;
   trinhDuyet = await puppeteer.launch({ executablePath: chrome, headless: true, args: ['--no-sandbox', '--font-render-hinting=none'] });
+  // Các nhánh Góp có trường khác nhau; quét cả nhánh theo bài và báo vi phạm, không gửi form.
+  const mauGop = await trinhDuyet.newPage();
+  await mauGop.goto(G + '/ca-dao/dong-mau-mot-cua-bai/', { waitUntil: 'load', timeout: 120_000 });
+  const baiGop = await mauGop.$eval('#cach-hieu-form input[name=bai]', e => +e.value);
+  await mauGop.close();
+  for (const loai of ['di_ban', 'chu_thich', 'bao_loi', 'so_trang', 'cam_nghi', 'phan_tich', 'vi_pham']) {
+    const duong = `/gop/?loai=${loai}&bai=${baiGop}` + (loai === 'vi_pham' ? '&vi_pham=17' : '');
+    DS_TRANG.push(duong);
+    DS_TINH_320.add(duong);
+  }
+  DS_TINH_320.add('/gop/');
   for (const duong of DS_TRANG) {
     for (const c of (DS_TINH_320.has(duong) ? [...CHE_DO, ...CHE_DO_320] : CHE_DO)) {
       const tab = await trinhDuyet.newPage();
