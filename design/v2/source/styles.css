@@ -205,3 +205,14 @@ details.block>summary{justify-content:flex-start;gap:10px}details.block>summary:
 /* Ca dao "Hình ảnh trong bài"; tấm Sửa phân loại trên trang đọc (D-105) */
 .hinh-anh{margin:0}.hinh-anh-muc{display:flex;flex-wrap:wrap;gap:2px 10px;padding:8px 0;border-bottom:1px solid var(--line)}.hinh-anh-muc:last-child{border-bottom:0}.hinh-anh dt{font-weight:600}.hinh-anh dd{margin:0}
 .tam-pl fieldset{margin:0 0 20px;padding:0;border:0}.tam-pl legend{margin:0 0 8px;font-weight:600}.chip-chon-ds{display:flex;flex-wrap:wrap;gap:8px;max-height:40vh;overflow:auto}.tam-pl-nut{margin:12px 0 0}
+
+/* Trang Góp: chỉ hiện ô của loại đang chọn. Đổi loại giữ nguyên các giá trị; không cần JavaScript. */
+.gop-rut-gon{margin-top:20px}.gop-rut-gon input:not([type=radio]):not([type=checkbox]),.gop-rut-gon select,.gop-rut-gon textarea{width:100%;max-width:100%;box-sizing:border-box}.gop-rut-gon textarea{min-height:128px}
+.gop-chon-loai{padding:0 16px;border:1px solid var(--line);border-radius:var(--bo-nho);background:var(--panel)}.gop-chon-loai>summary,.gop-them>summary{min-height:44px;padding:10px 0;line-height:1.5;cursor:pointer}.gop-chon-loai fieldset{margin:8px 0 16px;padding:0;border:0}.gop-chon-loai legend{font-size:15px;font-weight:600}.gop-rut-gon .choice{display:flex;align-items:flex-start;gap:10px;min-height:44px;padding:10px 0;margin:0;box-sizing:border-box}.gop-rut-gon .choice input{flex:0 0 auto;margin-top:4px}
+.gop-than{padding-top:20px}.gop-than>fieldset{margin:0 0 20px}.gop-than>label{margin-top:12px}.gop-than .actions{margin:12px 0}.gop-them{margin:12px 0;border-top:1px solid var(--line)}.gop-them[open]{padding-bottom:12px}.gop-rut-gon span[data-gop-loai]{display:none}
+@supports selector(:has(*)){
+ .gop-rut-gon [data-gop-loai],.gop-rut-gon .gop-du-phong{display:none}
+ .gop-rut-gon:has(input[name=loai][value=di_ban]:checked) [data-gop-loai~=di_ban],.gop-rut-gon:has(input[name=loai][value=chu_thich]:checked) [data-gop-loai~=chu_thich],.gop-rut-gon:has(input[name=loai][value=bao_loi]:checked) [data-gop-loai~=bao_loi],.gop-rut-gon:has(input[name=loai][value=so_trang]:checked) [data-gop-loai~=so_trang],.gop-rut-gon:has(input[name=loai][value=cam_nghi]:checked) [data-gop-loai~=cam_nghi],.gop-rut-gon:has(input[name=loai][value=phan_tich]:checked) [data-gop-loai~=phan_tich],.gop-rut-gon:has(input[name=loai][value=vi_pham]:checked) [data-gop-loai~=vi_pham]{display:revert}
+ .gop-rut-gon:not(:has(input[name=loai]:checked)) .gop-than,.gop-rut-gon:has(input[name=loai]:checked) .gop-chua-chon{display:none}
+ .gop-rut-gon:has(input[name=loai][value=phan_tich]:checked) textarea{min-height:320px}
+}

@@ -18,6 +18,7 @@ final class Module implements \Phongdao\HaTang\Module {
 	public function dang_ky(): void {
 		add_action( 'admin_post_' . NhanGui::HANH_DONG, array( NhanGui::class, 'xu_ly' ) );
 		add_action( 'admin_post_nopriv_' . NhanGui::HANH_DONG, array( NhanGui::class, 'xu_ly' ) );
+		add_action( 'template_redirect', array( NhanGui::class, 'nhan_trang' ), 1 );
 		add_filter( 'comments_open', static fn( bool $mo, $id ): bool => KhaiBao::TAC_PHAM === get_post_type( (int) $id ) ? false : $mo, 10, 2 );
 		add_filter( 'pings_open', static fn( bool $mo, $id ): bool => KhaiBao::TAC_PHAM === get_post_type( (int) $id ) ? false : $mo, 10, 2 );
 		add_action(

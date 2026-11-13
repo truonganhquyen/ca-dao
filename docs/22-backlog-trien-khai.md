@@ -171,6 +171,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-196 | Ảnh minh hoạ tuỳ chọn: chọn/tải, gắn bài, xem trước, khách thấy, thay/bỏ/khôi phục; không mở nguồn văn bản (`docs/33` mục 4) | A | T-195 | — | DONE |
 | T-197 | Nhãn lưu/lỗi theo thể loại; Hiểu thêm trống gọn và tuyển tập chưa có nội dung trung thực (`docs/33` mục 5) | A | T-196 | — | DONE |
 | T-198 | QA mẫu quan hệ/lối đọc trẻ, 10 bài thuộc 5 thể loại, một tuyển tập và thử tác vụ; người biên soạn quyết nội dung (`docs/33` mục 6, 8) | N+A | T-197 | — | IN_PROGRESS |
+| T-199 | Form Góp gọn theo loại, giữ chữ khi đổi loại/gửi lỗi, phản hồi rõ; kiểm đủ nhánh và luồng Hộp việc (`docs/35`) | A | T-197 | — | DONE |
 | **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
 | T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
 | T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | IN_PROGRESS |
@@ -929,6 +930,10 @@ Người sáng lập yêu cầu tự động triển khai `docs/33` ngày 13/11/
 - **T-196:** ảnh tuỳ chọn chọn/tải/gắn/xem trước/lưu/hiện; thay/bỏ/khôi phục không xoá tệp; giữ media loại khác, quyền và ghi công ảnh; nháp, câu đố, guest và ngân sách được kiểm.
 - **T-197:** nhãn/ lỗi rõ theo thể loại; Hiểu thêm chưa có nội dung không trải sẵn form dài, góp vẫn có consent/duyệt; kiểm 390/1440, bàn phím và no-JS. Không thay các phần nguồn đã loại.
 - **T-198:** người biên soạn quyết 10 bài/5 thể loại và một tuyển tập thực; rà QA mẫu quan hệ/lối đọc trẻ, thử tác vụ tự nguyện. Agent chuẩn bị công cụ/biểu mẫu và báo kỹ thuật, không tự phán nội dung hoặc đăng bài thật.
+
+### Form Góp gọn — T-199
+
+Người sáng lập đồng ý triển khai ngày 13/11/2026 (D-108). Chi tiết và nghiệm thu ở `docs/35-form-gop-gon-va-giu-chu.md`: chỉ hiện trường phù hợp, giữ chữ cả khi tắt JavaScript, kế thừa liên kết loại/bài/đối tượng vi phạm; Cách hiểu ở trang bài giữ nguyên. Không đổi schema, giấy phép, quyền duyệt, chống rác hoặc năm sự kiện đo lường. Bốn ngoại lệ của `docs/33` giữ nguyên.
 
 ## 4. User story
 

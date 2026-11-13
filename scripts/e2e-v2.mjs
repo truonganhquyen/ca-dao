@@ -282,10 +282,108 @@ try {
     await doi(k, () => !document.querySelector('.fullscreen-mode'), null, 'Esc không thoát');
   });
 
+  if (!SITE) {
+    let baiGop = 0;
+    await thu('Góp: bảy loại hiện đúng ô, giữ chữ khi đổi loại, chọn loại bằng bàn phím', async () => {
+      await di(k, '/ca-dao/dong-mau-mot-cua-bai/');
+      baiGop = await k.$eval('#cach-hieu-form input[name=bai]', e => +e.value);
+      await di(k, `/gop/?loai=vi_pham&bai=${baiGop}&vi_pham=17`);
+      chac(await k.$eval('input[name=vi_pham]', e => e.value === '17'), 'mất đối tượng báo vi phạm');
+      await k.focus('.gop-chon-loai > summary');
+      await k.keyboard.press('Enter');
+      chac(await k.$eval('.gop-chon-loai', e => e.open), 'bàn phím không mở được bộ chọn');
+      const nhap = '[UX-TEST] Chữ đang nhập khi đổi loại.';
+      await datO(k, '#gop-noi-dung', nhap);
+      const thay = async s => k.$eval(s, e => !!e.getClientRects().length && getComputedStyle(e).visibility !== 'hidden');
+      for (const loai of ['di_ban', 'chu_thich', 'bao_loi', 'so_trang', 'cam_nghi', 'phan_tich', 'vi_pham']) {
+        await bam(k, `input[name=loai][value=${loai}]`);
+        chac(await thay('#gop-sach') === (loai === 'so_trang'), `${loai}: hiện sai ô sách`);
+        chac(await thay('#gop-tieu-de') === (loai === 'phan_tich'), `${loai}: hiện sai tiêu đề`);
+        chac(await thay('input[name=tu_viet]') === (loai === 'phan_tich'), `${loai}: hiện sai cam kết tự viết`);
+        chac(await k.$eval('#gop-noi-dung', (e, chu) => e.value === chu, nhap), `${loai}: mất chữ khi đổi loại`);
+      }
+      await bam(k, 'input[name=loai][value=bao_loi]');
+      await k.keyboard.press('ArrowDown');
+      chac(await k.$eval('input[name=loai]:checked', e => e.value === 'so_trang'), 'phím mũi tên không đổi loại');
+      await bam(k, 'input[name=loai][value=bao_loi]');
+      await bam(k, '.gop-chon-loai > summary');
+      for (const width of [390, 1440]) {
+        await k.setViewport({ width, height: 844, isMobile: width < 640, hasTouch: width < 640 });
+        chac(await k.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `Góp tràn ngang ở ${width}`);
+        if (thuMucAnh) await k.screenshot({ path: path.join(thuMucAnh, `gop-bao-loi-${width}.png`), fullPage: true });
+      }
+      await k.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
+    });
+    await thu('Góp không JavaScript: lỗi nonce giữ nguyên chữ, lựa chọn và bút danh, phản hồi không bị đệm', async () => {
+      await k.setJavaScriptEnabled(false);
+      try {
+        await di(k, `/gop/?loai=phan_tich&bai=${baiGop}`);
+        const chu = '[UX-TEST] </textarea><script>window.__gopXss=1</script>\nChữ cần giữ khi gửi lỗi.';
+        await datO(k, '#gop-tieu-de', 'Tiêu đề "mẫu"');
+        await datO(k, '#gop-noi-dung', chu);
+        await bam(k, '.gop-than > details:not([data-gop-loai]) > summary');
+        await datO(k, '#gop-ten', 'Bút danh mẫu');
+        await k.select('#gop-vai', 'giao_vien');
+        await bam(k, 'input[name=tu_viet]');
+        await bam(k, 'input[name=dong_y]');
+        await k.$eval('input[name=_wpnonce]', e => { e.value = 'phien-qua-han'; });
+        const phanHoi = k.waitForResponse(r => r.request().method() === 'POST' && new URL(r.url()).pathname === '/gop/');
+        await bamDoiTrang(k, '#gop-form [type=submit]');
+        const tl = await phanHoi;
+        chac(tl.status() === 422 && /no-store/.test(tl.headers()['cache-control'] || ''), 'lỗi không trả 422/no-store');
+        chac(await k.$eval('#gop-noi-dung', (e, c) => e.value === c, chu), 'lỗi làm mất hoặc sửa chữ đã nhập');
+        chac(await k.$eval('#gop-tieu-de', e => e.value === 'Tiêu đề "mẫu"'), 'mất tiêu đề');
+        chac(await k.$eval('#gop-ten', e => e.value === 'Bút danh mẫu') && await k.$eval('#gop-vai', e => e.value === 'giao_vien'), 'mất thông tin phụ');
+        chac(await k.$eval('input[name=tu_viet]', e => e.checked) && await k.$eval('input[name=dong_y]', e => e.checked), 'mất cam kết người gửi đã chọn');
+        chac(await k.$eval('input[name=bai]', (e, id) => +e.value === id, baiGop), 'mất bài khi gửi lỗi');
+        chac(await k.evaluate(() => ![...document.scripts].some(s => s.textContent.includes('window.__gopXss=1'))), 'chữ nhập trở thành thẻ script');
+        chac(await coChu(k, 'Phiên gửi đã hết hạn'), 'không thấy phản hồi cạnh form');
+        await bam(k, '.gop-chon-loai > summary');
+        await bam(k, 'input[name=loai][value=bao_loi]');
+        chac(await k.$eval('#gop-tieu-de', e => !e.getClientRects().length), 'tắt JavaScript vẫn hiện trường không liên quan');
+        chac(await k.$eval('#gop-noi-dung', (e, c) => e.value === c, chu), 'tắt JavaScript đổi loại làm mất chữ');
+        if (thuMucAnh) await k.screenshot({ path: path.join(thuMucAnh, 'gop-loi-no-js-390.png'), fullPage: true });
+      } finally { await k.setJavaScriptEnabled(true); }
+    });
+    await thu('Góp: báo vi phạm gửi lỗi vẫn giữ đúng bài và đối tượng được báo', async () => {
+      await di(k, `/gop/?loai=vi_pham&bai=${baiGop}&vi_pham=17`);
+      await datO(k, '#gop-noi-dung', '[UX-TEST] Vấn đề cần người biên soạn kiểm tra.');
+      await bam(k, 'input[name=dong_y]');
+      await k.$eval('input[name=_wpnonce]', e => { e.value = 'phien-qua-han'; });
+      await bamDoiTrang(k, '#gop-form [type=submit]');
+      chac(await k.$eval('input[name=vi_pham]', e => e.value === '17'), 'mất đối tượng sau lỗi');
+      chac(await k.$eval('input[name=bai]', (e, id) => +e.value === id, baiGop), 'mất bài sau lỗi');
+      chac(await k.$eval('input[name=loai]:checked', e => e.value === 'vi_pham'), 'đổi loại sau lỗi');
+      chac(await k.$eval('#gop-noi-dung', e => e.value === '[UX-TEST] Vấn đề cần người biên soạn kiểm tra.'), 'mất lý do sau lỗi');
+    });
+    await thu('Góp không JavaScript: gửi chỉ số trang được, không cần viết ghi chú', async () => {
+      await k.setJavaScriptEnabled(false);
+      try {
+        await di(k, `/gop/?loai=so_trang&bai=${baiGop}`);
+        await datO(k, '#gop-trang', '12');
+        await bam(k, 'input[name=dong_y]');
+        await bamDoiTrang(k, '#gop-form [type=submit]');
+        chac(await coChu(k, 'Cảm ơn bạn!'), 'gửi số trang không được');
+        chac(new URL(k.url()).pathname === '/ca-dao/dong-mau-mot-cua-bai/', 'không quay về bài đã góp');
+      } finally { await k.setJavaScriptEnabled(true); }
+    });
+  }
+
   if (SITE) boQua('Góp của người đọc', 'chế độ chỉ đọc không gửi form');
-  else await thu('Góp: gửi báo lỗi, hiện lời cảm ơn', async () => {
-    await di(k, '/gop/');
-    await bam(k, 'input[name=loai][value=bao_loi]');
+  else await thu('Góp: thiếu đồng ý bị chặn, giữ chữ, sửa rồi gửi được và hiện lời cảm ơn', async () => {
+    await di(k, '/gop/?loai=bao_loi');
+    await datO(k, '#gop-noi-dung', '[UX-TEST] Chưa đồng ý sử dụng nội dung.');
+    await bam(k, 'input[name=dong_y]');
+    await k.$eval('input[name=web]', e => { e.name = 'web[0]'; e.value = 'rac'; });
+    await bamDoiTrang(k, '#gop-form [type=submit]');
+    chac(await coChu(k, 'Chưa gửi được, xin thử lại.'), 'ô bẫy sai dạng mảng bị coi như trống');
+    await bam(k, 'input[name=dong_y]');
+    // Cố ý bỏ kiểm tra HTML để kiểm cổng ở máy chủ; không thay kiểm tra của sản phẩm.
+    await k.$eval('#gop-form', e => { e.noValidate = true; });
+    await bamDoiTrang(k, '#gop-form [type=submit]');
+    chac(await coChu(k, 'đánh dấu đồng ý'), 'máy chủ không chặn thiếu đồng ý');
+    chac(await k.$eval('#gop-noi-dung', e => e.value === '[UX-TEST] Chưa đồng ý sử dụng nội dung.'), 'lỗi thiếu đồng ý làm mất chữ');
+    chac(await k.$eval('input[name=dong_y]', e => !e.checked), 'tự đánh dấu đồng ý hộ người gửi');
     await datO(k, '#gop-noi-dung', 'Góp thử đầu-cuối: dòng hai đúng ra là chữ khác.');
     await bam(k, 'input[name=dong_y]');
     await bamDoiTrang(k, '#gop-form [type=submit]');
