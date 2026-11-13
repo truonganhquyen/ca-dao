@@ -81,7 +81,7 @@ $submenu = is_array( $submenu ) ? $submenu : array();
 ( new \Phongdao\GiaoTiep\QuanTri\Module() )->them_menu();
 $BLV = \Phongdao\GiaoTiep\QuanTri\BanLamViec::TRANG;
 kt( 'menu quản trị có mục Phongdao, bấm vào mở Hôm nay', in_array( $BLV, array_column( $menu, 2 ), true ) );
-kt( 'menu Phongdao theo ba dòng việc: Hôm nay · Bài mới · Hộp việc · Bổ sung · Tác phẩm · Nguồn & cài đặt (Quản trị); Sửa tác phẩm, Thao tác hàng loạt không nằm trên menu', array( $BLV, \Phongdao\GiaoTiep\QuanTri\DanhSachKho::TRANG, \Phongdao\GiaoTiep\QuanTri\DanhSachViec::TRANG, \Phongdao\GiaoTiep\QuanTri\BoSung::TRANG, \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::TRANG, 'phongdao' ) === array_column( $submenu[ $BLV ] ?? array(), 2 ) && array( 'Hôm nay', 'Bài mới' ) === array_slice( array_column( $submenu[ $BLV ] ?? array(), 0 ), 0, 2 ) && 'Bổ sung' === ( $submenu[ $BLV ][3][0] ?? '' ), array_column( $submenu[ $BLV ] ?? array(), 2 ) );
+kt( 'menu Phongdao theo ba dòng việc: Hôm nay · Bài mới · Hộp việc · Bổ sung · Tác phẩm · Danh mục · Nguồn & cài đặt (Quản trị); Sửa tác phẩm, Thao tác hàng loạt không nằm trên menu', array( $BLV, \Phongdao\GiaoTiep\QuanTri\DanhSachKho::TRANG, \Phongdao\GiaoTiep\QuanTri\DanhSachViec::TRANG, \Phongdao\GiaoTiep\QuanTri\BoSung::TRANG, \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::TRANG, \Phongdao\GiaoTiep\QuanTri\DanhMuc::TRANG, 'phongdao' ) === array_column( $submenu[ $BLV ] ?? array(), 2 ) && array( 'Hôm nay', 'Bài mới' ) === array_slice( array_column( $submenu[ $BLV ] ?? array(), 0 ), 0, 2 ) && 'Bổ sung' === ( $submenu[ $BLV ][3][0] ?? '' ), array_column( $submenu[ $BLV ] ?? array(), 2 ) );
 kt( 'Thao tác hàng loạt vẫn mở được bằng đường dẫn cũ (màn con)', false !== has_action( get_plugin_page_hookname( \Phongdao\GiaoTiep\QuanTri\TrangLo::TRANG, '' ) ) );
 kt( 'menu wp-admin có trang Tác phẩm, Hộp việc thật; Sửa tác phẩm vẫn mở được (màn con)', false !== has_action( get_plugin_page_hookname( \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::TRANG, $BLV ) ) && false !== has_action( get_plugin_page_hookname( \Phongdao\GiaoTiep\QuanTri\DanhSachViec::TRANG, $BLV ) ) && false !== has_action( get_plugin_page_hookname( \Phongdao\GiaoTiep\QuanTri\SuaTacPham::TRANG, '' ) ) );
 $muc_hv = array_values( array_filter( $submenu[ $BLV ] ?? array(), static fn( array $m ): bool => \Phongdao\GiaoTiep\QuanTri\DanhSachViec::TRANG === $m[2] ) )[0][0] ?? '';
@@ -336,7 +336,7 @@ $h_tk_sua = \Phongdao\GiaoTiep\QuanTri\SuaTacPham::hien();
 $_GET  = array();
 kt(
 	'từ không có trong lời: người biên soạn được nhắc "Không thấy từ … trong lời, kiểm lại chính tả" (trang đọc ở chế độ sửa, lời báo khi lưu, trang Sửa tác phẩm); vẫn lưu được',
-	str_contains( $h_tk_bt, 'Không thấy từ «chữ không có» trong lời, kiểm lại chính tả.' ) && $kq_tk['ok'] && str_contains( $kq_tk['thong_bao'], 'Không thấy từ «trèo cao» trong lời, kiểm lại chính tả.' ) && 2 === count( PhanBai::lay( $tk_bai, 'chu_thich' )['muc'] ?? array() ) && str_contains( $h_tk_sua, 'Không thấy từ «trèo cao» trong lời, kiểm lại chính tả.' ),
+	str_contains( $h_tk_bt, 'Không thấy từ «chữ không có» trong lời, kiểm lại chính tả.' ) && $kq_tk['ok'] && str_contains( $kq_tk['thong_bao'], 'Không thấy từ «trèo cao» trong lời, kiểm lại chính tả.' ) && 2 === count( PhanBai::lay( $tk_bai, 'chu_thich' )['muc'] ?? array() ) && str_contains( strip_tags( $h_tk_sua ), 'Không thấy từ «trèo cao» trong lời, kiểm lại chính tả.' ),
 	$kq_tk
 );
 // Tục ngữ: từ khó tô cả trong câu tiêu đề; câu dài hiện như ca dao; bài mới không có ô Ý nghĩa riêng
@@ -1034,7 +1034,7 @@ wp_set_current_user( 0 );
 wp_set_current_user( $ai_ql );
 $_GET = array( 'id' => (string) $tp1 );
 $admin_sua = \Phongdao\GiaoTiep\QuanTri\SuaTacPham::hien();
-$kiem_admin_sua = array( 'form' => str_contains( $admin_sua, 'name="action" value="phongdao_sua_phan"' ), 'loi' => str_contains( $admin_sua, 'id="phan-loi"' ), 'y_nghia' => str_contains( $admin_sua, 'id="phan-y_nghia"' ), 'goc' => str_contains( $admin_sua, 'class="goc-nguon no-print"' ) && str_contains( $admin_sua, 'Lời:' ), 'viec' => ( array() === Viec::mo( 'post', $tp1 ) ) !== str_contains( $admin_sua, 'Việc đang chờ' ), 'xem' => str_contains( $admin_sua, 'Xem trên trang đọc' ), 'co' => str_contains( $admin_sua, 'id="phan-co_nghi"' ) && str_contains( $admin_sua, 'Cờ "Có thể không phải dân gian"' ) );
+$kiem_admin_sua = array( 'form' => str_contains( $admin_sua, 'name="action" value="phongdao_sua_phan"' ), 'loi' => str_contains( $admin_sua, 'id="phan-loi"' ), 'y_nghia' => str_contains( $admin_sua, 'id="phan-y_nghia"' ), 'goc' => str_contains( $admin_sua, 'class="goc-nguon no-print"' ) && str_contains( $admin_sua, 'Lời:' ), 'viec' => ( array() === Viec::mo( 'post', $tp1 ) ) !== str_contains( $admin_sua, 'Việc đang chờ' ), 'xem' => str_contains( $admin_sua, 'Xem bản đã lưu trên trang đọc' ), 'co' => str_contains( $admin_sua, 'id="phan-co_nghi"' ) && str_contains( $admin_sua, 'Cờ "Có thể không phải dân gian"' ) );
 kt( 'wp-admin Sửa tác phẩm: form theo phần dùng trường cũ, có nguồn gốc, việc chờ (chỉ khi có), công tắc cờ ở cột bên và bản xem trước', ! in_array( false, $kiem_admin_sua, true ), $kiem_admin_sua );
 $loi_tp1  = (array) ( PhanBai::lay( $tp1, 'loi' )['dong'] ?? array() );
 $tt_tp1   = get_post_status( $tp1 );
@@ -1042,7 +1042,7 @@ $kiem_tt  = array(
 	'loi_hien'  => str_contains( $admin_sua, 'class="phongdao-loi-xem"' ) && ( ! $loi_tp1 || str_contains( $admin_sua, esc_html( (string) $loi_tp1[0] ) ) ),
 	'trang_thai' => str_contains( $admin_sua, 'class="phongdao-trang-thai"' ) && str_contains( $admin_sua, 'name="action" value="phongdao_doi_trang_thai"' ) && str_contains( $admin_sua, 'name="trang_thai_cu" value="' . $tt_tp1 . '"' ),
 	'nut'       => 'publish' === $tt_tp1 ? str_contains( $admin_sua, 'Ẩn khỏi người đọc' ) && ! str_contains( $admin_sua, '>Đăng</button>' ) : str_contains( $admin_sua, '>Đăng</button>' ),
-	'hai_nut'   => str_contains( $admin_sua, 'Lưu và hiện cho người đọc' ) && str_contains( $admin_sua, 'Lưu phần này' ),
+	'hai_nut'   => str_contains( $admin_sua, 'Lưu và hiện cho người đọc' ) && str_contains( $admin_sua, 'Lưu nháp vào Hộp việc' ),
 );
 kt( 'wp-admin Sửa tác phẩm: lời luôn hiện ở đầu, có nút đổi trạng thái theo trạng thái hiện tại (Đăng chỉ khi chưa đăng), Ý nghĩa có hai nút lưu', ! in_array( false, $kiem_tt, true ), $kiem_tt );
 // Đổi trạng thái qua nút trên trang sửa: cùng dịch vụ dải "Đang sửa" — ghi nhật ký, chặn khi bài đã đổi ở phiên khác
@@ -1135,7 +1135,7 @@ $kiem_pl  = array(
 kt( 'wp-admin Sửa tác phẩm: khối Phân loại chọn mục có sẵn, giữ tập đã thấy; thể loại không sửa trong khối phân loại (chỉ qua "Đổi thể loại" của người có quyền duyệt), mục từ chỉ xem; có Lịch sử', ! in_array( false, $kiem_pl, true ), $kiem_pl );
 $_GET     = array( 'id' => (string) $dd_pl );
 $admin_dd = \Phongdao\GiaoTiep\QuanTri\SuaTacPham::hien();
-kt( 'wp-admin Sửa tác phẩm: đồng dao có Trò chơi; thể thơ máy tính chỉ hiện để xem', str_contains( $admin_dd, 'id="phan-loai-tro_choi"' ) && str_contains( $admin_dd, 'Thể thơ máy tự tính từ lời' ) && ! str_contains( $admin_dd, 'name="chon[]" value="' . (int) $bon_chu->term_id . '"' ) );
+kt( 'wp-admin Sửa tác phẩm: đồng dao có Trò chơi; thể thơ chọn riêng, không lẫn vào checkbox hình thức bổ sung', str_contains( $admin_dd, 'id="phan-loai-tro_choi"' ) && str_contains( $admin_dd, 'name="action" value="phongdao_sua_the_tho"' ) && str_contains( $admin_dd, 'Máy nhận diện từ lời' ) && ! str_contains( $admin_dd, 'name="chon[]" value="' . (int) $bon_chu->term_id . '"' ) );
 kt( 'Lịch sử trên trang đọc (chế độ sửa): ghi mục thêm, gỡ của phân loại', str_contains( \Phongdao\GiaoTiep\BienTap\CheDoSua::lich_su( \Phongdao\GiaoTiep\BienTap\CheDoSua::ngu_canh( get_post( $tp1 ) ) ), 'Chủ đề: sửa' ) );
 $_GET = array( 'id' => (string) $tp1 );
 wp_set_current_user( $doc_gia );
@@ -1985,7 +1985,14 @@ $_GET = array();
 $_GET   = array( 'id' => (string) $tp1 );
 $h_hc   = $SUA::hien();
 $co_yn  = null !== PhanBai::lay( $tp1, 'y_nghia' );
-kt( 'Sửa tác phẩm hai cột: bên trái lời rồi các phần (phần đã có mở sẵn, "Sửa lời" gập vì lời đã hiện ở đầu); bên phải trạng thái, việc chờ, phân loại, lịch sử', str_contains( $h_hc, '<div class="phongdao-sua-bo"><div class="phongdao-sua-chinh"><section class="phongdao-loi-xem">' ) && strpos( $h_hc, '<aside class="phongdao-sua-ben"' ) < strrpos( $h_hc, 'class="phongdao-trang-thai"' ) && strpos( $h_hc, '<div class="phongdao-sua-dau-dt"><div class="phongdao-trang-thai">' ) < strpos( $h_hc, '<div class="phongdao-sua-bo">' ) && ( array() === Viec::mo( 'post', $tp1 ) ? ! str_contains( $h_hc, 'Việc đang chờ' ) : strpos( $h_hc, '<aside class="phongdao-sua-ben"' ) < strpos( $h_hc, 'Việc đang chờ' ) ) && strpos( $h_hc, '<aside class="phongdao-sua-ben"' ) < strpos( $h_hc, 'id="phan-loai"' ) && strpos( $h_hc, '<aside class="phongdao-sua-ben"' ) < strpos( $h_hc, 'id="lich-su"' ) && str_contains( $h_hc, '<details class="phongdao-sua-phan" id="phan-loi">' ) && ( ! $co_yn || str_contains( $h_hc, '<details class="phongdao-sua-phan" id="phan-y_nghia" open>' ) ) && ! str_contains( $h_hc, 'data-bai-sau' ), array( $co_yn ) );
+kt( 'Sửa tác phẩm: mục lục và quản lý bài ở đầu, hai cột giữ lời/biểu mẫu và phân loại/lịch sử, phần chưa chọn gập',
+  str_contains( $h_hc, '<div class="phongdao-sua-bo"><div class="phongdao-sua-chinh"><section class="phongdao-loi-xem" id="loi-doi-chieu">' )
+  && strpos( $h_hc, 'class="phongdao-quan-ly-bai"' ) < strpos( $h_hc, '<div class="phongdao-sua-bo">' )
+  && strpos( $h_hc, 'class="phongdao-muc-luc"' ) < strpos( $h_hc, '<div class="phongdao-sua-bo">' )
+  && ( array() === Viec::mo( 'post', $tp1 ) ? ! str_contains( $h_hc, 'Việc đang chờ' ) : strpos( $h_hc, '<aside class="phongdao-sua-ben"' ) < strpos( $h_hc, 'Việc đang chờ' ) )
+  && strpos( $h_hc, '<aside class="phongdao-sua-ben"' ) < strpos( $h_hc, 'id="phan-loai"' )
+  && strpos( $h_hc, '<aside class="phongdao-sua-ben"' ) < strpos( $h_hc, 'id="lich-su"' )
+  && ! preg_match( '/<details[^>]+id="phan-(loi|y_nghia)"[^>]* open/', $h_hc ) && ! str_contains( $h_hc, 'data-bai-sau' ), array( $co_yn ) );
 $ds_tat  = add_query_arg( array( 'page' => 'phongdao-tac-pham', 'tt' => 'tat_ca' ), admin_url( 'admin.php' ) );
 $ids_tat = \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::ids_loc( array( 'tt' => 'tat_ca' ), 1000 );
 $p_hc    = (int) ( $ids_tat[0] ?? 0 );
@@ -3214,6 +3221,8 @@ $card_publish_tx = Viec::tao( array( 'loai' => 'nhap_y_nghia', 'doi_tuong_loai' 
 $duyet_publish_tx = \Phongdao\DichVu\XepViec\QuyetViec::quyet( $card_publish_tx, 'duyet', $ai_ql, true, 0 );
 kt( 'duyệt phần của bài đã đăng báo đúng ảnh hưởng tới trang người đọc', $duyet_publish_tx['ok'] && str_contains( $duyet_publish_tx['thong_bao'], 'Người đọc thấy ý nghĩa trên trang bài' ) );
 wp_delete_post( $p_undo_tx, true );
+
+require '/repo/tests/kiem-trang-sua-day-du.php';
 
 $tong = $GLOBALS['v2_dat'] + $GLOBALS['v2_hong'];
 ra( "\nKẾT QUẢ: " . ( $GLOBALS['v2_hong'] ? "HỎNG {$GLOBALS['v2_hong']} / $tong" : "ĐẠT $tong" ) );

@@ -74,8 +74,10 @@ final class TamSua {
 	 */
 	public static function nut_luu( string $phan, array $ctx, string $lop_chinh, string $lop_phu, string $nhan = 'Lưu' ): string {
 		if ( 'y_nghia' === ( self::TAM[ $phan ][1] ?? '' ) ) {
+			$tt = $ctx['trang_thai'] ?? 'publish';
+			$hien = 'publish' === $tt ? 'Lưu và hiện cho người đọc' : ( 'draft' === $tt ? 'Lưu phần đã duyệt vào bài nháp' : 'Lưu phần đã duyệt vào bài' );
 			return ! empty( $ctx['duyet'] )
-				? '<button type="submit" name="duyet" value="" class="' . esc_attr( $lop_phu ) . '">Lưu nháp</button><button type="submit" name="duyet" value="1" class="' . esc_attr( $lop_chinh ) . '">Lưu và hiện cho người đọc</button>'
+				? '<button type="submit" name="duyet" value="" class="' . esc_attr( $lop_phu ) . '">Lưu nháp vào Hộp việc</button><button type="submit" name="duyet" value="1" class="' . esc_attr( $lop_chinh ) . '">' . esc_html( $hien ) . '</button>'
 				: '<button type="submit" class="' . esc_attr( $lop_chinh ) . '">Lưu nháp</button>';
 		}
 		return '<button type="submit" class="' . esc_attr( $lop_chinh ) . '">' . esc_html( $nhan ) . '</button>';
@@ -104,7 +106,7 @@ final class TamSua {
 		$dc   = $cu['doi_chieu'] ?? array();
 		$sach = array( 0 => '— Chưa đối chiếu —' ) + $ctx['sach'];
 		$tren = self::vung( 's-loi', 'dong', 'Lời · mỗi dòng một câu', implode( "\n", $cu['dong'] ?? array() ), 'dòng trống = ngắt khổ', 8 )
-			. ( $cu ? '<div class="notice">Lời đang đăng: sửa sẽ ghi lịch sử, phần lời thành "người viết". Không sửa theo trí nhớ; cần có nguồn.</div>' : '' )
+			. ( $cu ? '<div class="notice inline"><p>' . ( 'publish' === ( $ctx['trang_thai'] ?? '' ) ? 'Lời của bài đã đăng' : 'Lời đang lưu trong bài chưa công khai' ) . ': sửa sẽ ghi lịch sử, phần lời thành "người viết". Không sửa theo trí nhớ; cần có nguồn.</p></div>' : '' )
 			. ( empty( $ctx['phan']['doan'] ) ? '' : '<p class="small muted">Bài đã chia ' . count( $ctx['phan']['doan']['muc'] ?? array() ) . ' đoạn theo số dòng: thêm hay bớt dòng thì sửa lại ở "Sửa đoạn".</p>' );
 		// Trang Sửa tác phẩm có nút riêng "Đối chiếu sách" (D-104 ý 6): ô Sửa lời không còn phần đối chiếu (giữ nguyên khi lưu lời)
 		if ( ! empty( $ctx['an_doi_chieu'] ) ) {
@@ -153,8 +155,10 @@ final class TamSua {
 			$o .= self::muc( $phan, (string) $i, $m, $ctx );
 		}
 		$mau = self::muc( $phan, '__i__', array(), $ctx );
-		return '<ol class="ds-sua" data-ds>' . $o . '</ol><template data-mau>' . $mau . '</template>'
-			. '<button type="button" class="btn" data-action="them-muc">+ Thêm ' . ( 'di_ban' === $phan ? 'dị bản' : 'từ khó' ) . '</button>';
+		$them = '<button type="button" class="btn" data-action="them-muc">+ Thêm ' . ( 'di_ban' === $phan ? 'dị bản' : 'từ khó' ) . '</button>';
+		$loc = ! empty( $ctx['sua_day_du'] ) ? '<div class="phongdao-ds-cong-cu">' . $them . '<label data-chi-js hidden>Lọc mục trong phần này <input type="search" data-loc-hang autocomplete="off"></label><button type="button" class="button" data-mo-hang data-chi-js hidden>Mở tất cả</button><button type="button" class="button" data-gap-hang data-chi-js hidden>Gập tất cả</button></div>' : '';
+		$khong_js = ! empty( $ctx['sua_day_du'] ) ? '<noscript><p>Thêm một mục mới bên dưới rồi lưu; tải lại có thể thêm mục tiếp theo.</p><ol class="ds-sua">' . self::muc( $phan, (string) count( $cu['muc'] ?? array() ), array( '_goc_form' => '' ), $ctx ) . '</ol></noscript>' : '';
+		return $loc . '<ol class="ds-sua" data-ds>' . $o . '</ol><template data-mau>' . $mau . '</template>' . $khong_js . $them;
 	}
 
 	private static function muc( string $phan, string $i, array $m, array $ctx ): string {
@@ -167,10 +171,12 @@ final class TamSua {
 				. '<div class="field-grid">' . self::o( "$id-noi", $p . '[noi]', 'Nơi', (string) ( $m['noi'] ?? '' ), 'không bắt buộc' ) . self::o( "$id-ke", $p . '[nguoi_ke]', 'Người kể', (string) ( $m['nguoi_ke'] ?? '' ), 'cần đồng ý' ) . self::o( "$id-nam", $p . '[nam]', 'Năm', (string) ( $m['nam'] ?? '' ) ) . '</div>'
 			: '<div class="field-grid">' . self::o( "$id-tu", $p . '[tu]', 'Từ trong lời', (string) ( $m['tu'] ?? '' ), 'để trống = chú thích chung' ) . '</div>'
 				. self::vung( "$id-giai", $p . '[loi_giai]', 'Lời giải', (string) ( $m['loi_giai'] ?? '' ), '', 3 );
-		return '<li class="muc-sua"><input type="hidden" name="' . $p . '[goc]" value="' . esc_attr( $goc ) . '">'
+		$tom = 'di_ban' === $phan ? implode( ' ', $m['dong'] ?? array() ) : ( (string) ( $m['tu'] ?? '' ) ?: 'Chú thích chung' ) . ' · ' . (string) ( $m['loi_giai'] ?? '' );
+		$gon = ! empty( $ctx['sua_day_du'] );
+		return '<li class="muc-sua" id="hang-' . esc_attr( $id ) . '">' . ( $gon ? '<details class="phongdao-muc-gon"' . ( ! $m || ! empty( $ctx['form_loi'] ) ? ' open' : '' ) . '><summary><span data-tom-tat-muc>' . esc_html( $tom ? mb_strimwidth( $tom, 0, 120, '…' ) : 'Mục mới · nhập nội dung' ) . '</span></summary><div class="phongdao-muc-than">' : '' ) . '<input type="hidden" name="' . $p . '[goc]" value="' . esc_attr( $goc ) . '">'
 			. ( '' === $nguoi ? '' : '<p class="small muted">' . esc_html( 'Hiện: ' . $nguoi ) . '</p>' )
 			. $than . self::nguon( $id, $p . '[nguon]', $m['nguon'] ?? array(), $ctx )
-			. self::hop( "$id-xoa", $p . '[xoa]', 'Xoá mục này', ! empty( $m['xoa'] ) ) . '</li>';
+			. self::hop( "$id-xoa", $p . '[xoa]', 'Xoá mục này', ! empty( $m['xoa'] ) ) . ( $gon ? '</div></details>' : '' ) . '</li>';
 	}
 
 	/** Nguồn của một mục: hồ sơ nguồn, trang, đường dẫn — trống = chưa rõ (không điền sẵn gì). */

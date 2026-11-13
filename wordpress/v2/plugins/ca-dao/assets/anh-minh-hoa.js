@@ -7,6 +7,7 @@
     const status = box.querySelector('[data-anh-bao]');
     let frame;
     const show = a => {
+	  box.querySelector('[data-anh-bo]').disabled=!Number(input.value);
       preview.replaceChildren();
       if (a) {
         const figure = document.createElement('figure');
@@ -36,7 +37,7 @@
         frame.on('select', () => {
           const a = frame.state().get('selection').first().toJSON();
           input.value = a.id; show(a);
-          status.textContent = 'Đã chọn ảnh, chưa gắn vào bài. Bấm Lưu phần này để gắn.';
+          status.textContent = 'Đã chọn ảnh, chưa lưu vào bài. Kiểm mô tả, chú thích và ghi công; bấm Lưu ảnh minh hoạ để gắn.';
           input.dispatchEvent(new Event('change', { bubbles: true }));
         });
         frame.on('open', () => {
@@ -49,12 +50,13 @@
     });
     box.querySelector('[data-anh-bo]').addEventListener('click', () => {
       input.value = '0'; show(null);
-      status.textContent = 'Đã chọn bỏ liên kết. Bấm Lưu phần này để bỏ ảnh khỏi bài; tệp vẫn ở Thư viện.';
+      status.textContent = 'Đã chọn bỏ liên kết. Bấm Lưu ảnh minh hoạ để bỏ ảnh khỏi bài; tệp vẫn ở Thư viện.';
       input.dispatchEvent(new Event('change', { bubbles: true }));
     });
     // Bộ đệm có thể phục hồi ID sau tải lại; luôn dựng ảnh theo ID đó, không để ảnh xem trước cũ.
     const restore = () => {
       const id = Number(input.value);
+      box.querySelector('[data-anh-bo]').disabled=!id;
       if (!id) return show(null);
       if (window.wp?.media) wp.media.attachment(id).fetch().then(a => {
         if (Number(input.value) === id) show(a);

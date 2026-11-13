@@ -172,6 +172,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-197 | Nhãn lưu/lỗi theo thể loại; Hiểu thêm trống gọn và tuyển tập chưa có nội dung trung thực (`docs/33` mục 5) | A | T-196 | — | DONE |
 | T-198 | QA mẫu quan hệ/lối đọc trẻ, 10 bài thuộc 5 thể loại, một tuyển tập và thử tác vụ; người biên soạn quyết nội dung (`docs/33` mục 6, 8) | N+A | T-197 | — | IN_PROGRESS |
 | T-199 | Form Góp gọn theo loại, giữ chữ khi đổi loại/gửi lỗi, phản hồi rõ; kiểm đủ nhánh và luồng Hộp việc (`docs/35`) | A | T-197 | — | DONE |
+| T-200 | Tối ưu trang sửa đầy đủ: trạng thái/lưu, mục lục, danh sách dài, thể thơ người quyết và quản lý danh mục (`docs/36`) | A | T-199 | — | IN_PROGRESS |
 | **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
 | T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
 | T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | IN_PROGRESS |
@@ -934,6 +935,10 @@ Người sáng lập yêu cầu tự động triển khai `docs/33` ngày 13/11/
 ### Form Góp gọn — T-199
 
 Người sáng lập đồng ý triển khai ngày 13/11/2026 (D-108). Chi tiết và nghiệm thu ở `docs/35-form-gop-gon-va-giu-chu.md`: chỉ hiện trường phù hợp, giữ chữ cả khi tắt JavaScript, kế thừa liên kết loại/bài/đối tượng vi phạm; Cách hiểu ở trang bài giữ nguyên. Không đổi schema, giấy phép, quyền duyệt, chống rác hoặc năm sự kiện đo lường. Bốn ngoại lệ của `docs/33` giữ nguyên.
+
+### Trang sửa đầy đủ và danh mục — T-200
+
+Người sáng lập yêu cầu triển khai toàn bộ đề xuất audit 13/11/2026, gồm sửa thể thơ và quản lý danh mục (D-109). Tiêu chí nghiệm thu ở `docs/36-toi-uu-trang-sua-va-danh-muc.md`: trạng thái chưa lưu, khôi phục trên điện thoại, mục lục, danh sách 36 mục gọn, thứ tự theo thể loại, lưu theo phần, ảnh rõ ba bước, thể thơ người quyết có lịch sử/kiểm phiên và lối thêm/quản lý danh mục. Kiểm phần mềm dùng dữ liệu kỹ thuật; xác minh production chỉ đọc. Không tự đổi phân loại, lời, nguồn hoặc đăng nội dung thật; pilot T-198 vẫn chờ người biên soạn.
 
 ## 4. User story
 

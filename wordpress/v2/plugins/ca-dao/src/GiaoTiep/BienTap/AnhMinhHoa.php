@@ -52,8 +52,9 @@ final class AnhMinhHoa {
 		$edit = $id && current_user_can( 'edit_post', $id ) ? get_edit_post_link( $id ) : '';
 		return '<div data-anh-minh-hoa><input type="hidden" name="attachment_id" value="' . $id . '">'
 			. '<div data-anh-xem>' . ( $id ? \Phongdao\GiaoTiep\Khoi\AnhMinhHoa::html( $id ) : '<p>Chưa gắn ảnh.</p>' ) . '</div>'
-			. '<p><button type="button" class="button" data-anh-chon' . ( $quyen ? '' : ' disabled' ) . '>Chọn hoặc tải ảnh</button> <button type="button" class="button" data-anh-bo>Bỏ ảnh khỏi bài</button></p>'
-			. '<p data-anh-bao role="status">' . ( $quyen ? 'Tải vào Thư viện chưa gắn ảnh vào bài. Chọn xong, bấm Lưu phần này.' : 'Tài khoản cần quyền tải tệp để chọn hoặc thay ảnh.' ) . '</p>'
+			. '<p class="description">1. Chọn hoặc tải ảnh → 2. Kiểm mô tả và ghi công → 3. Lưu ảnh vào bài. Tệp tối đa: <strong>' . esc_html( size_format( wp_max_upload_size() ) ) . '</strong>.</p>'
+			. '<p><button type="button" class="button" data-anh-chon' . ( $quyen ? '' : ' disabled' ) . '>Chọn hoặc tải ảnh</button> <button type="button" class="button" data-anh-bo' . ( $id ? '' : ' disabled' ) . '>Bỏ ảnh khỏi bài</button></p>'
+			. '<p data-anh-bao role="status">' . ( $quyen ? 'Tải vào Thư viện chưa gắn ảnh vào bài. Chọn xong, bấm Lưu ảnh minh hoạ.' : 'Tài khoản cần quyền tải tệp để chọn hoặc thay ảnh.' ) . '</p>'
 			. '<p class="description">Một ảnh tuỳ chọn, khác phần chữ “Hình ảnh trong bài”. Alt, chú thích và ghi công sửa trong Thư viện, dùng chung cho mọi bài gắn tệp đó. Bỏ khỏi bài không xoá tệp. Với câu đố, ảnh chỉ hiện trong đáp án.</p>'
 			. '<p data-anh-sua>' . ( $edit ? '<a href="' . esc_url( $edit ) . '" target="_blank" rel="noopener">Sửa mô tả, chú thích và ghi công ảnh trong Thư viện</a>' : '' ) . '</p>'
 			. '<noscript><p>Để chọn hoặc tải ảnh bằng Thư viện, bật JavaScript ở màn quản trị. Bạn vẫn có thể bỏ ảnh bằng nút Bỏ ảnh khi bật lại JavaScript.</p></noscript></div>';

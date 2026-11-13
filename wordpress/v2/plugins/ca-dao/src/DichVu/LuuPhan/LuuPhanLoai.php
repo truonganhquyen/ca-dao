@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Người biên soạn sửa tay phân loại của một tác phẩm (docs/30 mục 2, 4; T-169) — đường ghi duy nhất cho thao tác này.
  * Chỉ chọn mục đã có trong bộ phân loại, không tạo mục mới (AGENTS.md "Không bao giờ" 6). Thể loại không sửa ở đây vì
- * đổi đường dẫn bài (H6); mục từ đi theo phần Từ khó; thể thơ do máy tính từ lời (GanHinhThuc) nên giữ nguyên.
+ * đổi đường dẫn bài (H6); mục từ đi theo phần Từ khó; thể thơ sửa riêng qua LuuTheTho (D-109).
  * Màn hình gửi kèm tập mục nó đã thấy: nếu bài vừa đổi ở nơi khác thì từ chối, không ghi đè. Nhật ký và phân loại ghi
  * trong một giao dịch; hỏng giữa chừng thì trả lại như cũ.
  *
@@ -28,7 +28,7 @@ final class LuuPhanLoai {
 		'tro_choi'  => array( 'dong-dao' ),
 	);
 
-	/** Mục do máy giữ, người không gắn hay gỡ tay: thể thơ tính từ lời. */
+	/** Thể thơ sửa qua LuuTheTho (D-109), không qua checkbox hình thức bổ sung. */
 	public static function may_giu( string $tax, \WP_Term $t ): bool {
 		return 'hinh_thuc' === $tax && isset( TheTho::DS[ $t->slug ] );
 	}
@@ -89,52 +89,61 @@ final class LuuPhanLoai {
 				return self::hong( "Mục #{$id} không có trong bộ {$ten}. Màn này chỉ chọn mục có sẵn, không tạo mục mới." );
 			}
 		}
-		$hien_tai = self::dang_gan( $bai->ID, $tax );
-		if ( null === $hien_tai ) {
-			return self::hong( 'Chưa đọc được phân loại của bài. Thử lại sau.' );
-		}
-		if ( self::ids( $da_thay ) !== $hien_tai ) {
-			return self::hong( "{$ten} của bài vừa được đổi ở nơi khác. Tải lại trang để xem bản mới rồi sửa tiếp." );
-		}
-		if ( $chon === $hien_tai ) {
-			return self::xong( false, 0 );
-		}
-		$giu = array();
-		foreach ( wp_get_object_terms( $bai->ID, $tax ) ?: array() as $t ) {
-			if ( $t instanceof \WP_Term && self::may_giu( $tax, $t ) ) {
-				$giu[] = (int) $t->term_id;
-			}
-		}
 		if ( false === $wpdb->query( 'START TRANSACTION' ) ) {
 			return self::hong( 'Chưa mở được lượt lưu. Thử lại sau.' );
 		}
-		$luc  = gmdate( 'Y-m-d H:i:s' );
-		$viec = Viec::tao(
-			array(
-				'loai'           => Viec::SUA,
-				'trang_thai'     => Viec::XONG,
-				'doi_tuong_loai' => 'post',
-				'doi_tuong_id'   => $bai->ID,
-				'phan'           => $tax,
-				'noi_dung'       => $tu_viec ? array( 'tu_viec' => $tu_viec ) : null,
-				'nguoi_tao'      => (string) $nguoi,
-				'tao_luc'        => $luc,
-				'quyet'          => $quyet,
-				'truoc'          => array( 'term_ids' => $hien_tai, 'ten' => self::ten( $hien_tai, $tax ) ),
-				'sau'            => array( 'term_ids' => $chon, 'ten' => self::ten( $chon, $tax ) ),
-				'nguoi_quyet'    => $nguoi,
-				'quyet_luc'      => $luc,
-			)
-		);
-		if ( ! $viec ) {
+		try {
+			// Cùng khoá với lưu lời và lựa chọn thể thơ: đọc mốc/nhãn giữ lại sau khi đã lấy khoá.
+			if ( ! LuuPhan::khoa_bai( $bai_id ) ) {
+				throw new \RuntimeException( 'Chưa khoá được bài để lưu phân loại. Thử lại sau.' );
+			}
+			$hien_tai = self::dang_gan( $bai->ID, $tax );
+			if ( null === $hien_tai ) {
+				throw new \RuntimeException( 'Chưa đọc được phân loại của bài. Thử lại sau.' );
+			}
+			if ( self::ids( $da_thay ) !== $hien_tai ) {
+				throw new \RuntimeException( "{$ten} của bài vừa được đổi ở nơi khác. Tải lại trang để xem bản mới rồi sửa tiếp." );
+			}
+			if ( $chon === $hien_tai ) {
+				$wpdb->query( 'ROLLBACK' );
+				return self::xong( false, 0 );
+			}
+			$giu = array();
+			foreach ( wp_get_object_terms( $bai->ID, $tax ) ?: array() as $t ) {
+				if ( $t instanceof \WP_Term && self::may_giu( $tax, $t ) ) {
+					$giu[] = (int) $t->term_id;
+				}
+			}
+			$luc  = gmdate( 'Y-m-d H:i:s' );
+			$viec = Viec::tao(
+				array(
+					'loai'           => Viec::SUA,
+					'trang_thai'     => Viec::XONG,
+					'doi_tuong_loai' => 'post',
+					'doi_tuong_id'   => $bai->ID,
+					'phan'           => $tax,
+					'noi_dung'       => $tu_viec ? array( 'tu_viec' => $tu_viec ) : null,
+					'nguoi_tao'      => (string) $nguoi,
+					'tao_luc'        => $luc,
+					'quyet'          => $quyet,
+					'truoc'          => array( 'term_ids' => $hien_tai, 'ten' => self::ten( $hien_tai, $tax ) ),
+					'sau'            => array( 'term_ids' => $chon, 'ten' => self::ten( $chon, $tax ) ),
+					'nguoi_quyet'    => $nguoi,
+					'quyet_luc'      => $luc,
+				)
+			);
+			if ( ! $viec ) {
+				throw new \RuntimeException( 'Không ghi được nhật ký nên chưa lưu. Thử lại sau.' );
+			}
+			$gan = wp_set_object_terms( $bai->ID, array_merge( $chon, $giu ), $tax, false );
+			if ( is_wp_error( $gan ) || self::dang_gan( $bai->ID, $tax ) !== $chon || false === $wpdb->query( 'COMMIT' ) ) {
+				throw new \RuntimeException( 'Chưa lưu được phân loại; mọi thay đổi đã được huỷ.' );
+			}
+		} catch ( \Throwable $e ) {
 			$wpdb->query( 'ROLLBACK' );
-			return self::hong( 'Không ghi được nhật ký nên chưa lưu. Thử lại sau.' );
-		}
-		$gan = wp_set_object_terms( $bai->ID, array_merge( $chon, $giu ), $tax, false );
-		if ( is_wp_error( $gan ) || self::dang_gan( $bai->ID, $tax ) !== $chon || false === $wpdb->query( 'COMMIT' ) ) {
-			$wpdb->query( 'ROLLBACK' );
+			clean_post_cache( $bai->ID );
 			clean_object_term_cache( $bai->ID, $bai->post_type );
-			return self::hong( 'Chưa lưu được phân loại; mọi thay đổi đã được huỷ.' );
+			return self::hong( $e instanceof \RuntimeException ? $e->getMessage() : 'Chưa lưu được phân loại; mọi thay đổi đã được huỷ.' );
 		}
 		/** Sau khi người sửa tay phân loại của bài. */
 		do_action( 'phongdao_da_luu_phan_loai', $bai->ID, $tax, $viec );

@@ -172,6 +172,7 @@ final class KhaiBao implements Module {
 			}
 		}
 
+		register_post_meta( self::TAC_PHAM, \Phongdao\DichVu\LuuPhan\LuuTheTho::META, array( 'type' => 'array', 'single' => true, 'show_in_rest' => false, 'auth_callback' => '__return_false', 'revisions_enabled' => false ) );
 		register_post_meta(
 			self::HO_SO_NGUON,
 			\Phongdao\KhoLuu\HoSo::META,

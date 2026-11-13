@@ -38,6 +38,10 @@
 		{
 			"step": "runPHP",
 			"code": "<?php require '/wordpress/wp-load.php'; update_option('permalink_structure', '/%postname%/'); foreach (get_posts(array('post_type' => array('post', 'page'), 'post_status' => 'any', 'numberposts' => -1)) as $p) { wp_delete_post($p->ID, true); } $mau = '<!-- wp:paragraph --><p>Dữ liệu thử: Dòng mẫu một của bài này. Dòng mẫu hai dài hơn chút cho vừa.</p><!-- /wp:paragraph -->'; wp_insert_post(array('post_type' => 'page', 'post_status' => 'publish', 'post_name' => 'trang-mau-v2', 'post_title' => 'Trang mẫu V2', 'post_content' => $mau)); wp_insert_post(array('post_type' => 'post', 'post_status' => 'publish', 'post_name' => 'bai-viet-mau-v2', 'post_title' => 'Bài viết mẫu V2', 'post_content' => $mau)); \\Phongdao\\DichVu\\DungTrang\\GieoMau::gieo_tra_cuu(1); \\Phongdao\\DichVu\\DungTrang\\GieoMau::gieo_kho(); flush_rewrite_rules(); ?>"
+		},
+		{
+			"step": "runPHP",
+			"code": "<?php\nrequire '/wordpress/wp-load.php';\n// Chỉ dữ liệu kỹ thuật trong bản xem trước, không chạy trên site thật.\n$id=wp_insert_post(array('post_type'=>'tac_pham','post_status'=>'publish','post_name'=>'ux-test-trang-sua-dai','post_title'=>'[UX-TEST] Trang sửa dài'));\nwp_set_object_terms($id,'ve','the_loai');\n$nc=array('nguoi'=>1,'goi'=>\\Phongdao\\MienDuLieu\\KiemPhan::GOI_NGUOI,'duyet'=>true);\n$lines=array();for($i=1;$i<=56;$i++)$lines[]='[UX-TEST] technical line '.$i;\n\\Phongdao\\DichVu\\LuuPhan\\LuuPhan::luu($id,'loi',array('dong'=>$lines,'nguoi_lam'=>\\Phongdao\\MienDuLieu\\NguoiLam::NGUOI_VIET),$nc);\n$rows=array();for($i=1;$i<=36;$i++)$rows[]=array('tu'=>'[UX-TEST] item '.$i,'loi_giai'=>'[UX-TEST] explanation '.$i,'nguoi_lam'=>\\Phongdao\\MienDuLieu\\NguoiLam::NGUOI_VIET);\n\\Phongdao\\DichVu\\LuuPhan\\LuuPhan::luu($id,'chu_thich',$rows,$nc);\n"
 		}
 	]
 }

@@ -88,6 +88,12 @@ Giữ thuật toán MVP (dấu vân tay cả lời, cặp âm tiết, bốn mứ
 
 > **Tên gọi (D-093):** phần `y_nghia` (trước gọi `hieu_nhanh`) hiển thị là **"Ý nghĩa"** ở mọi nơi; với câu đố hiển thị là **"Giải thích đáp án"** (D-105).
 
+### Trang sửa đầy đủ và danh mục (D-109)
+
+Trang sửa có mục lục toàn bài, trạng thái phần chưa lưu và thanh lưu riêng phần đang làm. Từ khó/dị bản hiện tóm tắt, mở từng mục; phần được khôi phục từ bộ đệm luôn mở, không bị gập lại trên điện thoại. Thứ tự phần theo thể loại; Ý nghĩa cũ của tục ngữ giữ nguyên và có nhãn riêng. Bản nháp/đã ẩn không dùng nhãn hứa nội dung đã công khai; còn phần khác chưa lưu thì lưu xong vẫn ở lại bài.
+
+Người có quyền duyệt chọn thể thơ theo bài, bỏ nhãn hoặc quay lại dùng nhận diện máy; sửa lời về sau không ghi đè lựa chọn người. Menu **Danh mục** sau Tác phẩm mở đúng các bộ Chủ đề/Vùng/Mô-típ/Hình thức/Trò chơi. Người có quyền quản lý bộ thêm mục cạnh bộ chọn mà không tải lại hay tự gắn vào bài. Giữ năm thể loại tác phẩm, lịch sử, quyền nội dung và chính sách nguồn. Chi tiết thao tác/kiểm thử ở [docs/36](36-toi-uu-trang-sua-va-danh-muc.md).
+
 ## 5. Vai, quyền, nhật ký
 
 | Vai | Quyền | Ghi chú |
