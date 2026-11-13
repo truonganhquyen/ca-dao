@@ -30,6 +30,9 @@ final class DuongDan {
 		if ( preg_match( '~[/\\\\?#]~', $ten ) || '' === ( $moi = sanitize_title( trim( $ten ) ) ) ) {
 			return $hong( 'Nhập tên cuối đường dẫn, ví dụ ten-tac-pham; không nhập địa chỉ đầy đủ.' );
 		}
+		if ( preg_match( '/%[0-7][a-f0-9]/i', $moi ) || ! mb_check_encoding( rawurldecode( $moi ), 'UTF-8' ) ) {
+			return $hong( 'Tên đường dẫn chứa ký tự mã hoá không dùng được. Dùng chữ, số và dấu gạch nối.' );
+		}
 		if ( false === $wpdb->query( 'START TRANSACTION' ) ) { return $hong( 'Chưa mở được lượt lưu đường dẫn.' ); }
 		try {
 			// Cùng một khoá cho mọi lần đổi URL: hai bài khác nhau không cùng nhận một tên mới.

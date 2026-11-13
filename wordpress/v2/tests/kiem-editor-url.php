@@ -41,7 +41,7 @@ $approved201 = \Phongdao\DichVu\XepViec\QuyetViec::quyet( $card201, 'duyet', $ai
 kt( 'editor: nháp qua Hộp việc được duyệt vẫn giữ định dạng', $approved201['ok'] && $form201['dinh_dang'] === PhanBai::lay( $p201, 'y_nghia' )['dinh_dang'] );
 $url201 = (string) get_permalink( $p201 ); $version201 = DuongDan::phien( $p201 );
 kt( 'URL: người không có quyền quản trị không đổi được', ! DuongDan::luu( $p201, 'ux-test-denied', $version201, $chi_soan )['ok'] );
-kt( 'URL: từ chối rỗng/URL đầy đủ/mốc thiếu', ! DuongDan::luu( $p201, '', $version201, $ai_ql )['ok'] && ! DuongDan::luu( $p201, 'https://example.org/a', $version201, $ai_ql )['ok'] && ! DuongDan::luu( $p201, 'ux-test-new', '', $ai_ql )['ok'] );
+kt( 'URL: từ chối rỗng/URL đầy đủ/mốc thiếu và ký tự đường dẫn mã hoá', ! DuongDan::luu( $p201, '', $version201, $ai_ql )['ok'] && ! DuongDan::luu( $p201, 'https://example.org/a', $version201, $ai_ql )['ok'] && ! DuongDan::luu( $p201, 'ux-test-new', '', $ai_ql )['ok'] && ! DuongDan::luu( $p201, '%2f', $version201, $ai_ql )['ok'] && ! DuongDan::luu( $p201, '%252f', $version201, $ai_ql )['ok'] && ! DuongDan::luu( $p201, '%ff', $version201, $ai_ql )['ok'] );
 $same201 = DuongDan::luu( $p201, 'ux-test-editor-url', $version201, $ai_ql );
 kt( 'URL: lưu tên cũ không ghi lịch sử giả', $same201['ok'] && ! $same201['doi'] );
 $saved201 = DuongDan::luu( $p201, 'ux-test-editor-url-new', $version201, $ai_ql );
