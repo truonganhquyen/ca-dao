@@ -3223,6 +3223,7 @@ kt( 'duyệt phần của bài đã đăng báo đúng ảnh hưởng tới tran
 wp_delete_post( $p_undo_tx, true );
 
 require '/repo/tests/kiem-trang-sua-day-du.php';
+require '/repo/tests/kiem-editor-url.php';
 
 $tong = $GLOBALS['v2_dat'] + $GLOBALS['v2_hong'];
 ra( "\nKẾT QUẢ: " . ( $GLOBALS['v2_hong'] ? "HỎNG {$GLOBALS['v2_hong']} / $tong" : "ĐẠT $tong" ) );

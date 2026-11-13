@@ -129,6 +129,7 @@ final class HopViec {
 				$mo      = (string) get_permalink( $bai );
 				$than    = Ve::loi( array_slice( PhanBai::lay( $bai->ID, 'loi' )['dong'] ?? array(), 0, 4 ), '', array(), array( 'nhom' => 'hv-' . $v['id'] ) )
 					. '<div class="nhap-ai"><span class="tag">' . ( empty( $v['noi_dung']['ai'] ) ? 'Nháp' : 'AI' ) . ( in_array( $v['trang_thai'], array( Viec::CHO, Viec::DE_SAU ), true ) ? ' · chưa duyệt' : '' ) . '</span>'
+					. ( empty( $v['noi_dung']['dinh_dang'] ) ? '' : '<div class="nhap-dinh-dang"><p>Xem định dạng và liên kết của bản nháp:</p><p>' . \Phongdao\MienDuLieu\DinhDang::hien( (string) ( $v['noi_dung']['chu'] ?? '' ), (string) $v['noi_dung']['dinh_dang'] ) . '</p><p class="small muted">Nếu sửa chữ ở ô dưới, định dạng cũ được bỏ khi duyệt.</p></div>' )
 					// Người có quyền duyệt sửa vài chữ ngay trên thẻ rồi bấm Duyệt (ô nằm trong form quyết, gửi kèm nút Duyệt)
 					. ( $co_form && current_user_can( 'cadao_duyet' ) && in_array( $v['trang_thai'], array( Viec::CHO, Viec::DE_SAU ), true )
 						? '<label class="screen-reader-text" for="nhap-sua-' . (int) $v['id'] . '">Nháp ý nghĩa (sửa được trước khi duyệt)</label><textarea class="nhap-chu nhap-sua" id="nhap-sua-' . (int) $v['id'] . '" name="chu" form="hv-form-' . (int) $v['id'] . '" rows="4">' . esc_textarea( (string) ( $v['noi_dung']['chu'] ?? '' ) ) . '</textarea><span class="small muted">Sửa vài chữ nếu cần rồi bấm Duyệt; bản đã sửa vào bài kèm Lịch sử.</span>'

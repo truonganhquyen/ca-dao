@@ -86,16 +86,17 @@ final class TamSua {
 	/** Cùng trường nhập của tấm sửa trang đọc và biểu mẫu wp-admin. */
 	public static function than( string $phan, ?array $cu, array $ctx ): string {
 		$kieu = self::TAM[ $phan ][1];
+		$rich = ! empty( $ctx['sua_day_du'] ) && null !== \Phongdao\MienDuLieu\DinhDang::truong( $phan ) ? ( $cu ?? array() ) : null;
 		return match ( $kieu ) {
 			'media'     => AnhMinhHoa::form( $cu ),
 			'loi'       => self::form_loi( $cu, $ctx ),
 			'y_nghia'   => self::form_y_nghia( $cu, $ctx ),
-			'chu_ai'    => self::vung( "s-$phan", 'chu', array( 'dung_khi' => 'Mỗi dòng một ví dụ', 'hinh_anh' => 'Mỗi dòng một cặp: hình ảnh → điều được nói tới (vd. tấm lụa đào → thân phận người con gái)' )[ $phan ] ?? 'Nội dung', (string) ( $cu['chu'] ?? '' ) ) . self::hop( "s-$phan-ai", 'ai', 'Có hỗ trợ của AI', ! empty( $cu['ai'] ) ) . ( $ctx['duyet'] ? '' : '<p class="small muted">Phần có hỗ trợ AI cần người có quyền duyệt lưu.</p>' ),
-			'chu'       => self::vung( "s-$phan", 'chu', 'Nội dung', (string) ( $cu['chu'] ?? '' ), '', 3 ),
+			'chu_ai'    => self::vung( "s-$phan", 'chu', array( 'dung_khi' => 'Mỗi dòng một ví dụ', 'hinh_anh' => 'Mỗi dòng một cặp: hình ảnh → điều được nói tới (vd. tấm lụa đào → thân phận người con gái)' )[ $phan ] ?? 'Nội dung', (string) ( $cu['chu'] ?? '' ), '', 5, $rich ) . self::hop( "s-$phan-ai", 'ai', 'Có hỗ trợ của AI', ! empty( $cu['ai'] ) ) . ( $ctx['duyet'] ? '' : '<p class="small muted">Phần có hỗ trợ AI cần người có quyền duyệt lưu.</p>' ),
+			'chu'       => self::vung( "s-$phan", 'chu', 'Nội dung', (string) ( $cu['chu'] ?? '' ), '', 3, $rich ),
 			'co_nghi'   => self::vung( "s-$phan", 'ly_do', 'Lý do (để trống = gỡ cờ)', (string) ( $cu['ly_do'] ?? '' ) ) . self::nguon( "s-$phan", 'nguon', $cu['nguon'] ?? array(), $ctx ),
 			'chu_thich' => self::form_ds( $phan, $cu, $ctx ),
 			'di_ban'    => self::form_ds( $phan, $cu, $ctx ),
-			'boi_canh'  => self::vung( 's-bc-chu', 'chu', 'Lời giới thiệu', (string) ( $cu['chu'] ?? '' ), 'hiện ngay trên lời', 3 )
+			'boi_canh'  => self::vung( 's-bc-chu', 'chu', 'Lời giới thiệu', (string) ( $cu['chu'] ?? '' ), 'hiện ngay trên lời', 3, $rich )
 				. '<div class="field-grid">' . self::o( 's-bc-su-kien', 'su_kien', 'Sự kiện', (string) ( $cu['su_kien'] ?? '' ), 'không bắt buộc' ) . self::o( 's-bc-nam', 'nam', 'Năm', (string) ( $cu['nam'] ?? '' ) ) . self::o( 's-bc-noi', 'noi', 'Nơi', (string) ( $cu['noi'] ?? '' ) ) . '</div>'
 				. self::nguon( 's-bc', 'nguon', $cu['nguon'] ?? array(), $ctx ) . '<p class="small muted">Để trống hết = gỡ bối cảnh.</p>',
 			'doan'      => self::form_doan( $cu, $ctx ),
@@ -122,7 +123,7 @@ final class TamSua {
 
 	private static function form_y_nghia( ?array $cu, array $ctx ): string {
 		$ten = 'cau-do' === ( $ctx['the_loai'] ?? '' ) ? 'Giải thích đáp án' : 'Ý nghĩa';
-		return self::vung( 's-y-nghia', 'chu', $ten . ' · 2–3 câu ngắn', (string) ( $cu['chu'] ?? '' ) )
+		return self::vung( 's-y-nghia', 'chu', $ten . ' · 2–3 câu ngắn', (string) ( $cu['chu'] ?? '' ), '', 5, ! empty( $ctx['sua_day_du'] ) ? ( $cu ?? array() ) : null )
 			. self::hop( 's-y-nghia-ai', 'ai', 'Có hỗ trợ của AI', ! empty( $cu['ai'] ) )
 			. ( $ctx['duyet']
 				? '<p class="small muted">"Lưu nháp": phần này vào Hộp việc, người đọc chưa thấy. "Lưu và hiện cho người đọc": cập nhật phần này; khách thấy khi bài đã đăng. Để trống rồi bấm "Lưu và hiện cho người đọc" = gỡ phần này.</p>'
@@ -170,7 +171,7 @@ final class TamSua {
 			? self::vung( "$id-dong", $p . '[dong]', 'Lời', implode( "\n", $m['dong'] ?? array() ), '', 4 )
 				. '<div class="field-grid">' . self::o( "$id-noi", $p . '[noi]', 'Nơi', (string) ( $m['noi'] ?? '' ), 'không bắt buộc' ) . self::o( "$id-ke", $p . '[nguoi_ke]', 'Người kể', (string) ( $m['nguoi_ke'] ?? '' ), 'cần đồng ý' ) . self::o( "$id-nam", $p . '[nam]', 'Năm', (string) ( $m['nam'] ?? '' ) ) . '</div>'
 			: '<div class="field-grid">' . self::o( "$id-tu", $p . '[tu]', 'Từ trong lời', (string) ( $m['tu'] ?? '' ), 'để trống = chú thích chung' ) . '</div>'
-				. self::vung( "$id-giai", $p . '[loi_giai]', 'Lời giải', (string) ( $m['loi_giai'] ?? '' ), '', 3 );
+				. ( ! empty( $ctx['sua_day_du'] ) ? \Phongdao\GiaoTiep\QuanTri\EditorDonGian::o( "$id-giai", $p . '[loi_giai]', 'Lời giải', $m, 'loi_giai', $p ) : self::vung( "$id-giai", $p . '[loi_giai]', 'Lời giải', (string) ( $m['loi_giai'] ?? '' ), '', 3 ) );
 		$tom = 'di_ban' === $phan ? implode( ' ', $m['dong'] ?? array() ) : ( (string) ( $m['tu'] ?? '' ) ?: 'Chú thích chung' ) . ' · ' . (string) ( $m['loi_giai'] ?? '' );
 		$gon = ! empty( $ctx['sua_day_du'] );
 		return '<li class="muc-sua" id="hang-' . esc_attr( $id ) . '">' . ( $gon ? '<details class="phongdao-muc-gon"' . ( ! $m || ! empty( $ctx['form_loi'] ) ? ' open' : '' ) . '><summary><span data-tom-tat-muc>' . esc_html( $tom ? mb_strimwidth( $tom, 0, 120, '…' ) : 'Mục mới · nhập nội dung' ) . '</span></summary><div class="phongdao-muc-than">' : '' ) . '<input type="hidden" name="' . $p . '[goc]" value="' . esc_attr( $goc ) . '">'
@@ -191,7 +192,10 @@ final class TamSua {
 		return '<div class="o-nhap"><label for="' . esc_attr( $id ) . '">' . esc_html( $nhan ) . ( '' === $goi_y ? '' : ' <span class="small muted">' . esc_html( $goi_y ) . '</span>' ) . '</label><input id="' . esc_attr( $id ) . '" name="' . esc_attr( $ten ) . '" type="' . esc_attr( $kieu ) . '" value="' . esc_attr( $gt ) . '"></div>';
 	}
 
-	private static function vung( string $id, string $ten, string $nhan, string $gt, string $goi_y = '', int $dong = 5 ): string {
+	private static function vung( string $id, string $ten, string $nhan, string $gt, string $goi_y = '', int $dong = 5, ?array $rich = null ): string {
+		if ( null !== $rich ) {
+			return \Phongdao\GiaoTiep\QuanTri\EditorDonGian::o( $id, $ten, $nhan . ( $goi_y ? ' · ' . $goi_y : '' ), $rich );
+		}
 		return '<div class="o-nhap"><label for="' . esc_attr( $id ) . '">' . esc_html( $nhan ) . ( '' === $goi_y ? '' : ' <span class="small muted">' . esc_html( $goi_y ) . '</span>' ) . '</label><textarea id="' . esc_attr( $id ) . '" name="' . esc_attr( $ten ) . '" rows="' . $dong . '">' . esc_textarea( $gt ) . '</textarea></div>';
 	}
 
@@ -244,6 +248,20 @@ final class TamSua {
 	 * @return array{gia_tri:?array,nhap:?array}
 	 */
 	public static function doc( string $phan, array $f, ?array $cu ): array {
+		$doc = self::doc_chu( $phan, $f, $cu );
+		if ( null !== \Phongdao\MienDuLieu\DinhDang::truong( $phan ) && 'chu_thich' !== $phan ) {
+			$rich = \Phongdao\GiaoTiep\QuanTri\EditorDonGian::doc( $f, $cu );
+			foreach ( array( 'gia_tri', 'nhap' ) as $k ) {
+				if ( is_array( $doc[ $k ] ) ) {
+					unset( $doc[ $k ]['dinh_dang'] );
+					if ( null !== $rich ) { $doc[ $k ]['dinh_dang'] = $rich; }
+				}
+			}
+		}
+		return $doc;
+	}
+
+	private static function doc_chu( string $phan, array $f, ?array $cu ): array {
 		$kieu = self::TAM[ $phan ][1] ?? '';
 		$chu  = static fn( $v ): string => trim( str_replace( "\r", '', (string) $v ) );
 		switch ( $kieu ) {
@@ -349,6 +367,12 @@ final class TamSua {
 			}
 			// Không đổi gì → giữ nguyên mục cũ (máy chép giữ người làm, nguồn); đổi → người viết
 			$ra[] = $goc && $moi == $so ? $goc : $moi + array( 'nguoi_lam' => NguoiLam::NGUOI_VIET );
+			if ( 'chu_thich' === $phan ) {
+				$last = array_key_last( $ra );
+				unset( $ra[ $last ]['dinh_dang'] );
+				$rich = \Phongdao\GiaoTiep\QuanTri\EditorDonGian::doc( $h, $goc, 'loi_giai' );
+				if ( null !== $rich ) { $ra[ $last ]['dinh_dang'] = $rich; }
+			}
 		}
 		return $ra ?: null;
 	}

@@ -177,6 +177,7 @@ try {
   if (tlAdmin.status() !== 200 || !(await bt.$('.phongdao-admin-sua form'))) loi.push(`${duongAdmin}: không mở được biểu mẫu admin`);
   else {
     await bt.evaluate(() => { document.querySelectorAll('.phongdao-admin-sua details').forEach(d => { d.open = true; }); });
+		await bt.waitForFunction(()=>{const box=document.querySelector('[data-editor]:not([data-editor-hang])');return !box||box.querySelector('[data-editor-chu]').hidden;},{timeout:30000});
     const tranAdmin = await doTran(bt);
     if (tranAdmin) loi.push(`${duongAdmin}: tràn ngang ${tranAdmin}`);
     // wp-admin không nạp CSS của theme: biểu tượng SVG dùng chung phải tự có cỡ (không phình thành hình to)

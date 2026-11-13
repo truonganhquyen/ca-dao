@@ -31,6 +31,8 @@ final class ChuyenHuong implements Module {
 	/** Đích mới của một đường dẫn MVP; null = không phải đường dẫn cũ đã biết. */
 	public static function dich( string $duong ): ?string {
 		$duong = '/' . trim( $duong, '/' ) . '/';
+		$da_doi = \Phongdao\DichVu\LuuPhan\DuongDan::chuyen_cu( $duong );
+		if ( null !== $da_doi ) { return $da_doi; }
 		// Tình huống → tuyển tập cùng tên đường dẫn
 		if ( preg_match( '~^/tinh-huong/([^/]+)/$~', $duong, $m ) ) {
 			$tt = get_page_by_path( sanitize_title( $m[1] ), OBJECT, KhaiBao::TUYEN_TAP );

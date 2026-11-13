@@ -123,6 +123,7 @@ final class Module implements \Phongdao\HaTang\Module {
 					wp_enqueue_script( 'phongdao-giu-nhap', plugins_url( 'assets/giu-nhap.js', $tep ), array(), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
 					wp_enqueue_style( 'phongdao-giu-nhap', plugins_url( 'assets/giu-nhap.css', $tep ), array(), CADAO_PHIEN_BAN );
 					wp_enqueue_script( 'phongdao-admin-sua', plugins_url( 'assets/admin-sua.js', $tep ), array(), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
+					EditorDonGian::nap();
 				}
 			} );
 		}

@@ -216,3 +216,4 @@ details.block>summary{justify-content:flex-start;gap:10px}details.block>summary:
  .gop-rut-gon:not(:has(input[name=loai]:checked)) .gop-than,.gop-rut-gon:has(input[name=loai]:checked) .gop-chua-chon{display:none}
  .gop-rut-gon:has(input[name=loai][value=phan_tich]:checked) textarea{min-height:320px}
 }
+.pd-chu-do{color:var(--loi)}.pd-chu-xanh{color:var(--luc)}.pd-chu-tim{color:var(--tim)}.pd-chu-nhe{color:var(--nhat);font-weight:400}

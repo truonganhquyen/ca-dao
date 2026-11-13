@@ -41,6 +41,7 @@ final class TrangTacPham {
 			$chu_thich[] = array(
 				'tu'    => (string) ( $c['tu'] ?? '' ),
 				'giai'  => (string) ( $c['loi_giai'] ?? '' ),
+				'dinh_dang' => (string) ( $c['dinh_dang'] ?? '' ),
 				'muc'   => (int) ( $c['muc_tu_id'] ?? 0 ),
 				'may'   => $may,
 				'nguon' => $may ? null : self::nguon( $c['nguon'] ?? null, $ho_so ),
@@ -73,6 +74,7 @@ final class TrangTacPham {
 			'boi_canh'     => self::boi_canh( $phan['boi_canh'] ?? null ),
 			'doi_chieu'    => $doi_chieu,
 			'y_nghia'      => empty( $phan['y_nghia']['chu'] ) ? array() : array( 'chu' => $phan['y_nghia']['chu'], 'ai' => ! empty( $phan['y_nghia']['ai'] ) ),
+			'dinh_dang'    => array_filter( array_map( static fn( string $p ): string => (string) ( $phan[ $p ]['dinh_dang'] ?? '' ), array_combine( \Phongdao\MienDuLieu\DinhDang::PHAN, \Phongdao\MienDuLieu\DinhDang::PHAN ) ) ),
 			'chu_thich'    => $chu_thich,
 			'di_ban'       => $di_ban,
 			'nghia_den'    => (string) ( $phan['nghia_den']['chu'] ?? '' ),

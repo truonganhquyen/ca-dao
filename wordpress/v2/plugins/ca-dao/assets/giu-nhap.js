@@ -8,7 +8,7 @@
   let leaving = false, storage = true;
   const key = f => prefix + scope + ':' + f.dataset.giuNhap;
   const allowed = e => e.name && !e.disabled && e.type !== 'password' && e.type !== 'file' && !['submit', 'button'].includes(e.type)
-    && (e.type !== 'hidden' || /^muc\[[^\]]+\]\[goc\]$/.test(e.name) || ['phien_phan', 'phien_the_tho', 'attachment_id', 'da_thay[]'].includes(e.name));
+    && (e.type !== 'hidden' || /^muc\[[^\]]+\]\[(?:goc|dinh_dang)\]$/.test(e.name) || ['phien_phan', 'phien_the_tho', 'attachment_id', 'da_thay[]', 'dinh_dang', 'phien_duong_dan'].includes(e.name));
   const fields = f => [...f.querySelectorAll('input, textarea, select')].filter(allowed);
   const sorted=entries=>entries.sort((a,b)=>(a[0]+'|'+a[2]).localeCompare(b[0]+'|'+b[2]));
   const values = f => {const seen=new Map();return sorted(fields(f).map(e=>{const n=seen.get(e.name)||0;seen.set(e.name,n+1);const choice=e.type==='checkbox'||e.type==='radio';return [e.name,choice?e.checked:e.value,choice?e.value:n];}));};

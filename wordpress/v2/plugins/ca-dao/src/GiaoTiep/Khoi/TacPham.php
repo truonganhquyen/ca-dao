@@ -44,20 +44,20 @@ final class TacPham {
 			// Tục ngữ: chuẩn là khối Nghĩa (đen, bóng, dùng khi) — bài mới không có ô Ý nghĩa riêng; bài cũ có Ý nghĩa vẫn hiện
 			? ( $sua && $tuc_ngu ? '' : ( $sua ? '<div class="meaning trong" data-chi-sua><div class="meaning-head"><h2>Ý nghĩa</h2>' . $nut( 'y_nghia', 'Thêm ý nghĩa' ) . '</div><p class="small muted">Chưa có ý nghĩa' . ( $sua['nhap'] ? ' · có ' . count( $sua['nhap'] ) . ' nháp chờ duyệt trong Hộp việc' : '' ) . '.</p></div>'
 				: ( $tuc_ngu && ! empty( $tp['nghia_bong'] ) ? '' : self::moi_cach_hieu( ctype_digit( (string) $tp['ma'] ) ) ) ) )
-			: Ve::y_nghia( $tp['y_nghia']['chu'], ! empty( $tp['y_nghia']['ai'] ), 'Ý nghĩa', $nut( 'y_nghia', 'Sửa' ) ) . $goc( 'Ý nghĩa', 'y_nghia' );
+			: Ve::y_nghia( $tp['y_nghia']['chu'], ! empty( $tp['y_nghia']['ai'] ), 'Ý nghĩa', $nut( 'y_nghia', 'Sửa' ), $tp['dinh_dang']['y_nghia'] ?? '' ) . $goc( 'Ý nghĩa', 'y_nghia' );
 		if ( $cau_do ) {
 			// Câu đố: đáp án thu gọn sau nút "Hiện đáp án", tắt JavaScript vẫn mở được (D-087). Giải nghĩa của câu đố là "Giải
 			// thích đáp án" (vì sao đáp án là như vậy), nằm trong khối ẩn sau đáp án — không lộ đáp án trước khi đoán (D-105)
-			$giai = empty( $tp['y_nghia']['chu'] ) ? '' : Ve::y_nghia( $tp['y_nghia']['chu'], ! empty( $tp['y_nghia']['ai'] ), 'Giải thích đáp án', $nut( 'y_nghia', 'Sửa' ) ) . $goc( 'Giải thích đáp án', 'y_nghia' );
+			$giai = empty( $tp['y_nghia']['chu'] ) ? '' : Ve::y_nghia( $tp['y_nghia']['chu'], ! empty( $tp['y_nghia']['ai'] ), 'Giải thích đáp án', $nut( 'y_nghia', 'Sửa' ), $tp['dinh_dang']['y_nghia'] ?? '' ) . $goc( 'Giải thích đáp án', 'y_nghia' );
 			$y    = ( $sua ? '<p class="row no-print">' . $nut( 'cau_hoi', 'Sửa câu hỏi' ) . $nut( 'goi_y', 'Sửa gợi ý' ) . $nut( 'dap_an', 'Sửa đáp án' ) . ( '' === $giai ? $nut( 'y_nghia', 'Thêm giải thích đáp án' ) : '' ) . '</p>' : '' )
-				. ( empty( $tp['goi_y'] ) ? '' : '<details class="disclosure"><summary>Gợi ý</summary><div class="detail-body"><p>' . esc_html( $tp['goi_y'] ) . '</p></div></details>' )
-				. ( empty( $tp['dap_an'] ) ? $giai : '<details class="answer"><summary>Hiện đáp án</summary><div class="detail-body"><h2>Đáp án</h2><p>' . esc_html( $tp['dap_an'] ) . '</p>' . ( $tp['dap_an_them'] ?? '' ) . $giai . $anh . '</div></details>' )
+				. ( empty( $tp['goi_y'] ) ? '' : '<details class="disclosure"><summary>Gợi ý</summary><div class="detail-body"><p>' . \Phongdao\MienDuLieu\DinhDang::hien( $tp['goi_y'], $tp['dinh_dang']['goi_y'] ?? '' ) . '</p></div></details>' )
+				. ( empty( $tp['dap_an'] ) ? $giai : '<details class="answer"><summary>Hiện đáp án</summary><div class="detail-body"><h2>Đáp án</h2><p>' . \Phongdao\MienDuLieu\DinhDang::hien( $tp['dap_an'], $tp['dinh_dang']['dap_an'] ?? '' ) . '</p>' . ( $tp['dap_an_them'] ?? '' ) . $giai . $anh . '</div></details>' )
 				. ( $sua && '' === $giai ? '<p class="small muted" data-chi-sua>Chưa có giải thích đáp án' . ( $sua['nhap'] ? ' · có ' . count( $sua['nhap'] ) . ' nháp chờ duyệt trong Hộp việc' : '' ) . '.</p>' : '' );
 		}
 		$muc_kiem = $sua ? '<div class="level-sua">' . Ve::muc_kiem( $tp['doi_chieu'] ) . $nut( 'doi-chieu', 'Đối chiếu sách' ) . '</div>' : Ve::muc_kiem( $tp['doi_chieu'] );
 		// Vè: bối cảnh trên lời; bài dài, bài nhiều phần chia đoạn (tiêu đề, mục lục, "Đọc toàn bài")
 		$bc       = $tp['boi_canh'] ?? null;
-		$boi_canh = empty( $bc ) ? '' : '<div class="boi-canh">' . ( '' === $bc['chu'] ? '' : '<p>' . nl2br( esc_html( $bc['chu'] ) ) . '</p>' ) . ( '' === $bc['them'] ? '' : '<p class="small muted">' . esc_html( $bc['them'] ) . '</p>' ) . '</div>';
+		$boi_canh = empty( $bc ) ? '' : '<div class="boi-canh">' . ( '' === $bc['chu'] ? '' : '<p>' . \Phongdao\MienDuLieu\DinhDang::hien( $bc['chu'], $tp['dinh_dang']['boi_canh'] ?? '' ) . '</p>' ) . ( '' === $bc['them'] ? '' : '<p class="small muted">' . esc_html( $bc['them'] ) . '</p>' ) . '</div>';
 		$sua_ve   = $sua && 've' === $tp['the_loai']
 			? '<p class="row no-print">' . $nut( 'boi_canh', empty( $sua['phan']['boi_canh'] ) ? 'Thêm bối cảnh' : 'Sửa bối cảnh' ) . $nut( 'doan', empty( $sua['phan']['doan'] ) ? 'Chia đoạn' : 'Sửa đoạn' ) . '</p>'
 			: '';
@@ -78,7 +78,7 @@ final class TacPham {
 			foreach ( array( 'nghia_den' => 'Nghĩa đen', 'nghia_bong' => 'Nghĩa bóng' ) as $ma => $ten ) {
 				$chu = (string) ( $tp[ $ma ] ?? '' );
 				if ( '' !== $chu || $sua ) {
-					$o .= '<div class="' . ( 'nghia_bong' === $ma ? 'nghia-bong' : 'nghia-den' ) . '"><h3>' . $ten . '</h3>' . ( '' === $chu ? '<p class="small muted">Chưa có.</p>' : '<p>' . esc_html( $chu ) . '</p>' ) . $nut( $ma, ( '' === $chu ? 'Thêm ' : 'Sửa ' ) . mb_strtolower( $ten ) ) . '</div>';
+					$o .= '<div class="' . ( 'nghia_bong' === $ma ? 'nghia-bong' : 'nghia-den' ) . '"><h3>' . $ten . '</h3>' . ( '' === $chu ? '<p class="small muted">Chưa có.</p>' : '<p>' . \Phongdao\MienDuLieu\DinhDang::hien( $chu, $tp['dinh_dang'][ $ma ] ?? '' ) . '</p>' ) . $nut( $ma, ( '' === $chu ? 'Thêm ' : 'Sửa ' ) . mb_strtolower( $ten ) ) . '</div>';
 				}
 			}
 			if ( $tp['dung_khi'] || $sua ) {
@@ -113,7 +113,7 @@ final class TacPham {
 				// Nguồn người biên soạn điền thì hiện (D-081); nguồn của chú thích máy chép ẩn theo chính sách (D-068)
 				$nguon = empty( $c['nguon'] ) ? '' : '<br><span class="small">Nguồn: ' . ( empty( $c['nguon']['url'] ) ? esc_html( $c['nguon']['chu'] ) : '<a href="' . esc_url( $c['nguon']['url'] ) . '" rel="nofollow">' . esc_html( $c['nguon']['chu'] ) . '</a>' ) . '</span>';
 				$muc   = is_array( $c['muc'] ?? null ) ? '<br><a class="small" href="' . esc_url( $c['muc']['url'] ) . '">Xem trong Từ điển · ' . (int) $c['muc']['so_bai'] . ' bài</a>' . $c['muc']['them'] : '';
-				$o    .= '<div class="term"><dt>' . esc_html( '' !== $c['tu'] ? $c['tu'] : 'Chú thích chung' ) . '</dt><dd>' . esc_html( $c['giai'] ) . $nguon . $muc . '</dd></div>';
+				$o    .= '<div class="term"><dt>' . esc_html( '' !== $c['tu'] ? $c['tu'] : 'Chú thích chung' ) . '</dt><dd>' . \Phongdao\MienDuLieu\DinhDang::hien( $c['giai'], $c['dinh_dang'] ?? '' ) . $nguon . $muc . '</dd></div>';
 			}
 			// Người biên soạn: từ không có trong lời thì nhắc kiểm chính tả (vẫn lưu được — chú thích chung)
 			$thieu_tu = $sua ? \Phongdao\MienDuLieu\TuKho::thieu( $tp['loi'], $tu ) : array();

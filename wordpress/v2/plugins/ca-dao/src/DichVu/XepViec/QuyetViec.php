@@ -221,7 +221,7 @@ final class QuyetViec {
 				$kq  = LuuPhan::luu(
 					(int) $v['doi_tuong_id'],
 					'y_nghia',
-					array( 'chu' => $chu, 'ai' => $ai, 'nguoi_lam' => $ai ? NguoiLam::AI_DA_DUYET : NguoiLam::NGUOI_VIET ),
+					array( 'chu' => $chu, 'ai' => $ai, 'nguoi_lam' => $ai ? NguoiLam::AI_DA_DUYET : NguoiLam::NGUOI_VIET ) + ( $chu === $goc && isset( $v['noi_dung']['dinh_dang'] ) ? array( 'dinh_dang' => $v['noi_dung']['dinh_dang'] ) : array() ),
 					array( 'nguoi' => $nguoi, 'goi' => KiemPhan::GOI_NGUOI, 'duyet' => true )
 				);
 				if ( ! $kq['ok'] ) {
