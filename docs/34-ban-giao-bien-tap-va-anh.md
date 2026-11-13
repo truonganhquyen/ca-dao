@@ -23,7 +23,7 @@ Không đặt ảnh/nguồn/nghĩa thành điều kiện bắt buộc để đă
 | Giữ chữ | 255 PHP + 523 WP + 55 chuyển đổi; quét 0 lỗi; E2E 47/0/0 | [Đã gộp #165](https://github.com/truonganhquyen/ca-dao/pull/165) |
 | Chặn tab cũ | 255 PHP + 529 WP + 55 chuyển đổi; quét 0 lỗi; E2E 48/0/0 | [Đã gộp #166](https://github.com/truonganhquyen/ca-dao/pull/166) |
 | Ảnh trọn luồng | 255 PHP + 541 WP + 55 chuyển đổi; quét 0 lỗi; E2E 49/0/0. CI cuối kiểm thêm lỗi đọc attachment | [Đã gộp #167](https://github.com/truonganhquyen/ca-dao/pull/167) |
-| Nhãn, form và phiếu pilot | Native WordPress 545; bốn cổng chính đang hoàn tất | Chờ chốt |
+| Nhãn, form và phiếu pilot | Local 255 PHP + 545 WP + 55 chuyển đổi, quét 0 lỗi; CI E2E 50/0/0 | [Đã gộp #168](https://github.com/truonganhquyen/ca-dao/pull/168) |
 | Khóa khôi phục/duyệt | Native WordPress 550; hai ca hai tiến trình MySQL đã đạt sau sửa; bốn cổng chính chưa chốt | Chờ chốt |
 
 E2E ghi theo thứ tự đạt/lỗi/bỏ qua. Bộ chuyển đổi 55 ở bảng là kết quả local có log, không suy số riêng của nó từ nhãn xanh CI. Không hạ cổng hoặc bỏ các ca đang bắt buộc.

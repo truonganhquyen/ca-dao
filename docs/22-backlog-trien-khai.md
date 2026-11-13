@@ -169,8 +169,8 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-194 | Giữ đầu vào lỗi, phần chưa lưu theo tab/phiên; báo hàng từ khó điền dở; không mở lại bốn mục đã loại (`docs/33` mục 1, 3.1) | A | T-189 | — | DONE |
 | T-195 | Chặn bản mở cũ ghi đè ở lưu phần chung; giữ chữ khi xung đột; kiểm hai tài khoản và thao tác ghi (`docs/33` mục 3.2) | A | T-194 | — | DONE |
 | T-196 | Ảnh minh hoạ tuỳ chọn: chọn/tải, gắn bài, xem trước, khách thấy, thay/bỏ/khôi phục; không mở nguồn văn bản (`docs/33` mục 4) | A | T-195 | — | DONE |
-| T-197 | Nhãn lưu/lỗi theo thể loại; Hiểu thêm trống gọn và tuyển tập chưa có nội dung trung thực (`docs/33` mục 5) | A | T-196 | — | IN_PROGRESS |
-| T-198 | QA mẫu quan hệ/lối đọc trẻ, 10 bài thuộc 5 thể loại, một tuyển tập và thử tác vụ; người biên soạn quyết nội dung (`docs/33` mục 6, 8) | N+A | T-197 | — | BLOCKED |
+| T-197 | Nhãn lưu/lỗi theo thể loại; Hiểu thêm trống gọn và tuyển tập chưa có nội dung trung thực (`docs/33` mục 5) | A | T-196 | — | DONE |
+| T-198 | QA mẫu quan hệ/lối đọc trẻ, 10 bài thuộc 5 thể loại, một tuyển tập và thử tác vụ; người biên soạn quyết nội dung (`docs/33` mục 6, 8) | N+A | T-197 | — | IN_PROGRESS |
 | **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
 | T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
 | T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | IN_PROGRESS |
