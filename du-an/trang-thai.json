@@ -30,6 +30,6 @@
   "kiem_tra_cuoi": {
     "trang_thai": "DAT",
     "thoi_diem": "2026-11-13",
-    "pham_vi": "T-200: trang sửa đầy đủ, lựa chọn thể thơ và quản lý danh mục; pilot T-198 vẫn chờ người biên soạn"
+    "pham_vi": "T-201: editor đơn giản và sửa URL, bốn cổng CI đạt, site đúng phiên bản và wp-admin chỉ đọc đạt; pilot T-198 vẫn chờ người biên soạn"
   }
 }

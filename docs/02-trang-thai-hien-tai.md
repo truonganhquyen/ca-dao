@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Phiên bản | 3.3 · 13/11/2026 (trang sửa đầy đủ, thể thơ theo người và danh mục; lịch sử đến 11/11/2026: `docs/luu-tru/02-trang-thai-den-11-11-2026.md`) |
+| Phiên bản | 3.4 · 13/11/2026 (editor đơn giản và sửa URL tác phẩm; lịch sử đến 11/11/2026: `docs/luu-tru/02-trang-thai-den-11-11-2026.md`) |
 | Mục đích | Trang tổng quan ngắn cho người sáng lập và AI agent |
 | Nguồn máy đọc | `du-an/trang-thai.json` (`npm run kiem-nhat-quan` đối chiếu với `docs/01`, `docs/22`) |
 
@@ -33,7 +33,7 @@
 
 ## Đang làm: đợt 3 (`docs/32`)
 
-- **Editor đơn giản và sửa URL tác phẩm** (D-110): đang thực hiện theo [phạm vi thu gọn](37-editor-don-gian-va-url.md), giữ màn sửa hiện tại và lưu từng phần. Đề xuất mở rộng nền nội dung tạm hoãn; không triển khai SEO plugin, loại nội dung hoặc quan hệ mới trong đợt này. Chưa phát hành.
+- **Editor đơn giản và sửa URL tác phẩm đã làm** (D-110, plugin 1.0.60/theme 1.0.8): thanh đậm/nghiêng/gạch chân, liên kết, màu và chữ nhẹ cho các ô diễn giải/lời giải ngay trong màn sửa hiện tại; chữ và định dạng cùng qua lưu, nháp, kiểm phiên và lịch sử. Quản trị sửa tên cuối URL từ mục lục Đường dẫn, có xác nhận, kiểm trùng/phiên và chuyển hướng cũ. Bốn cổng CI đạt, E2E 66/66; site đã đúng phiên bản, kiểm wp-admin thật chỉ đọc trên 3 tác phẩm × 390/1440 px đạt, quét 0 lỗi, không phát sinh phần chưa lưu hoặc đổi URL. [Phạm vi, hướng dẫn và bằng chứng](37-editor-don-gian-va-url.md). Đề xuất mở rộng nền nội dung tạm hoãn; SEO plugin, loại nội dung và quan hệ mới chưa triển khai. Pilot nội dung thật vẫn chờ người biên soạn.
 
 - Người sáng lập đã chốt (11/11/2026):
   - ba dòng việc **Bài mới · Hộp việc · Bổ sung** (D-103);
