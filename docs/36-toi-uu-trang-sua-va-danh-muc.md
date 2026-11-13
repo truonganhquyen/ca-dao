@@ -26,4 +26,24 @@ Mở rộng bốn cổng hiện có; kiểm thao tác ghi trên WordPress mẫu,
 
 ## Kết quả
 
-Đang triển khai. Chưa xác nhận hoàn tất hoặc phát hành.
+**Đã triển khai và xác minh trên phongdao.com ngày 13/11/2026:** plugin **1.0.59**, theme **1.0.7**. Mã sản phẩm qua [PR #171](https://github.com/truonganhquyen/ca-dao/pull/171), commit phát hành `5e7aace`. Tất cả hạng mục trong bảng nghiệm thu đã làm; không có hạng mục nào trong bốn ngoại lệ được mở lại.
+
+| Kiểm tra | Kết quả |
+|---|---|
+| `npm run kiem-tra` | Đạt; 162 task, một câu hỏi mở, 0 lỗi nhất quán |
+| `npm run test:v2` | Đạt; 255 kiểm tra PHP thuần + 574 WordPress + 55 chuyển đổi; cùng bộ WordPress còn đạt 574 trên MySQL local |
+| `npm run quet:v2` | Đạt, 0 lỗi được phát hiện; giữ quét/ngân sách cũ và thêm trang sửa 36 mục ở sáu cỡ gập/mở, Danh mục ở hai cỡ |
+| `npm run e2e:v2` | Đạt cả CI và lượt local cuối: 61 bước, 0 lỗi, 0 bỏ qua; gồm bảy nhóm hồi quy mới |
+| `npm run kiem-site-that` | Đúng plugin 1.0.59/theme 1.0.7 sau hệ thống tự cập nhật |
+| wp-admin thật, chỉ đọc | Sáu bài gồm năm thể loại và một bản nháp × 390/1440 px: mục lục tới đúng phần, thể thơ và lối thêm mục hiện đúng quyền, không tràn ngang, không tự phát sinh phần chưa lưu; focus ô chọn không bị che; quét axe 0 lỗi ở trạng thái kiểm cuối |
+| Danh mục thật, chỉ đọc | Mở đủ năm màn WordPress có form thêm và danh sách sửa; không tạo/sửa/gỡ mục thật |
+
+[CI V2 của PR đã đạt](https://github.com/truonganhquyen/ca-dao/actions/runs/43408900445); [CI trên main, lượt chạy lại cùng mã](https://github.com/truonganhquyen/ca-dao/actions/runs/43411025642/attempts/2) cũng đạt, E2E 61/61 và quét 0 lỗi. Các phép ghi, gồm tải/lưu ảnh, thể thơ, danh mục, nonce sai, xung đột hai tab, lỗi giữa giao dịch và lưu không JavaScript, chạy trên WordPress mẫu với dữ liệu kỹ thuật. Kiểm production chỉ xác nhận phiên bản và giao diện/quyền hiển thị, không thay cho thử ghi trên tác phẩm thật.
+
+**Các lượt không tính đạt:** Playground từng không khởi động vì ổ C thiếu chỗ; một lượt chạy đồng thời vượt ngân sách PHP và trượt cửa sổ Hoàn tác 10 giây. Đã chuyển thư mục tạm, giữ hồ sơ lỗi và chạy lại tuần tự; PHP còn 1,38 giây, E2E cuối đạt 61/61. Không nới ngưỡng hoặc bỏ kiểm thử. Một lượt quét live khi mở nhóm ngoài màn hình tại vị trí Lịch sử báo ô chọn bị thanh dính che; nhãn bấm thực cao 46 px. Kiểm focus bằng bàn phím xác nhận ô tự cuộn ra vùng không bị che; quét lại ở đầu trang sau khi mở nhóm đạt. Đây là điều chỉnh cách đặt phép quét, không phải sửa dữ liệu hoặc che lỗi bằng mã sản phẩm.
+
+Lượt CI tự chạy sau gộp ban đầu đạt 59 bước và trượt hai bước làm theo lô (hết thời gian chờ Áp dụng, chọn tất cả chưa đủ hai mục); không tính đạt. Đã giữ ảnh/log lỗi và chạy lại toàn bộ job trên đúng mã đó; lượt cuối đạt 61/61, không nới thời gian chờ, không bỏ kiểm thử hoặc sửa mã để qua cổng.
+
+Hồ sơ local ở `output/playwright/editor-implementation/` (không đưa vào repo công khai): log từng cổng, `native-result.log`, ảnh bài mẫu 36 mục, `site-version.log`, `live-result.json`, `release-evidence.json`, cùng các lượt lỗi và chẩn đoán vị trí cuộn. Không lưu tài khoản, cookie hay nội dung văn hoá thật vào hồ sơ kết quả.
+
+[Hướng dẫn trang sửa, thể thơ và danh mục](huong-dan/sua-day-du-va-phan-loai.md). Pilot nội dung thật vẫn chờ người biên soạn; chưa có số đo tác vụ người thật để kết luận mức tăng năng suất.

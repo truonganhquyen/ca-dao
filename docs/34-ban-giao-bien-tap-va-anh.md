@@ -97,3 +97,5 @@ Người có quyền chốt mẫu, lời/nguồn/nghĩa/ngữ cảnh, ảnh th�
 ## 6. Dùng và kiểm phiên bản
 
 Xem [hướng dẫn giữ chữ, bản mới và ảnh](huong-dan/bien-tap-an-toan-va-anh.md). Với site thật, chạy 'npm run kiem-site-that' trên main để đối chiếu phiên bản; phép kiểm đó chỉ đọc. Ghi kết quả cụ thể sau khi bản cuối đã được gộp và hệ thống cập nhật hiện có nhận mã. Không dùng kết quả Playground để xác nhận upload, dữ liệu hoặc nội dung production.
+
+**Bổ sung 13/11/2026:** trang sửa đầy đủ, lựa chọn thể thơ theo người và quản lý danh mục đã phát hành ở plugin 1.0.59/theme 1.0.7. Xem [nghiệm thu và xác minh site thật](36-toi-uu-trang-sua-va-danh-muc.md), [hướng dẫn thao tác mới](huong-dan/sua-day-du-va-phan-loai.md). Phần pilot người thật ở trên tiếp tục chờ người biên soạn, không được tính xong từ kết quả kỹ thuật.
