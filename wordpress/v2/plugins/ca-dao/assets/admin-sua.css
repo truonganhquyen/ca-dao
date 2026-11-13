@@ -92,3 +92,56 @@
 .phongdao-dc-hien { font-weight: 600; }
 .phongdao-doi-chieu fieldset label { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; }
 .phongdao-sach-moi summary { display: inline-flex; align-items: center; min-height: 44px; cursor: pointer; color: #135e96; font-weight: 600; }
+
+/* D-109: đi thẳng tới phần cần làm, form gọn và luôn thấy phạm vi lưu. */
+.phongdao-admin-sua { padding-bottom: 180px; }
+.phongdao-admin-sua button, .phongdao-admin-sua .button, .phongdao-admin-sua select { min-height: 44px; }
+.phongdao-sua-lien a { min-height: 44px; display: inline-flex; align-items: center; }
+.phongdao-quan-ly-bai { margin: 8px 0 14px; }
+.phongdao-quan-ly-bai > summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; color: #135e96; }
+.phongdao-tong-nhap { border-left: 4px solid #996800; padding: 10px 12px; background: #fff8e5; }
+.phongdao-muc-luc { position: static; top: 32px; z-index: 20; padding: 8px 0; background: #f0f0f1; border-block: 1px solid #c3c4c7; }
+.phongdao-co-js .phongdao-muc-luc { position: sticky; }
+.phongdao-muc-luc-link { display: flex; flex-wrap: wrap; gap: 6px; }
+.phongdao-muc-luc a { min-height: 44px; display: flex; flex-direction: column; justify-content: center; padding: 6px 10px; border: 1px solid #8c8f94; border-radius: 4px; text-decoration: none; background: white; }
+.phongdao-muc-luc a[aria-current] { border-color: #2271b1; background: #f0f6fc; box-shadow: inset 0 0 0 1px #2271b1; }
+.phongdao-muc-luc a span { font-size: 12px; color: #50575e; }
+.phongdao-muc-luc-chon { display: block; font-weight: 600; }
+.phongdao-muc-luc-chon select { display: block; width: 100%; max-width: none; font-weight: 400; }
+.phongdao-admin-sua [id] { scroll-margin-top: calc(var(--muc-luc-cao, 130px) + 54px); scroll-margin-bottom: 200px; }
+.phongdao-sua-ben { position: static; max-height: none; overflow: visible; padding-right: 0; }
+.phongdao-sua-ben .phongdao-chon-muc, .phongdao-chon-muc { max-height: none; overflow: visible; }
+.phongdao-sua-ben .phongdao-chon-muc .choice { min-height: 44px; }
+.phongdao-sua-them .button { min-height: 44px; padding-inline: 10px; }
+.phongdao-sua-phan > summary { gap: 8px; flex-wrap: wrap; }
+[data-phan-trang-thai], [data-nhap-trang-thai] { color: #613d00; font-size: 13px; font-weight: 400; }
+.phongdao-ds-cong-cu { display: flex; flex-wrap: wrap; align-items: end; gap: 8px; margin-bottom: 12px; }
+.phongdao-ds-cong-cu label { flex: 1 1 200px; max-width: 400px; }
+.phongdao-ds-cong-cu input { display: block; width: 100%; min-height: 44px; }
+.phongdao-admin-sua .muc-sua { padding: 0; }
+.phongdao-muc-gon > summary { padding: 10px 12px; display: flex; justify-content: space-between; font-size: 14px; font-weight: 400; overflow-wrap: anywhere; }
+.phongdao-muc-gon > summary::after { content: 'Mở'; color: #135e96; font-size: 12px; flex-shrink: 0; }
+.phongdao-muc-gon[open] > summary::after { content: 'Gập'; }
+.phongdao-muc-gon[open] > summary { border-bottom: 1px solid #dcdcde; background: #f6f7f7; }
+.phongdao-muc-than { padding: 12px; }
+.phongdao-admin-sua .muc-sua:target { outline: 3px solid #996800; outline-offset: 2px; }
+.phongdao-admin-sua .goc-nguon a, .phongdao-sua-viec a, .phongdao-them-muc a { min-height: 44px; display: inline-flex; align-items: center; }
+.phongdao-admin-sua h1 { font-size: 23px; line-height: 1.4; overflow-wrap: anywhere; }
+.phongdao-them-muc summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; color: #135e96; }
+.phongdao-them-muc input { display: block; width: 100%; min-height: 44px; margin: 8px 0; }
+.phongdao-thanh-luu { position: fixed; z-index: 90; bottom: 0; left: 160px; right: 0; padding: 10px 20px; background: #fff; border-top: 1px solid #8c8f94; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 -2px 8px #0000000d; }
+.phongdao-thanh-luu[hidden] { display: none; }
+.phongdao-thanh-luu p { margin: 0; font-weight: 600; }
+.phongdao-thanh-luu > div { display: flex; flex-wrap: wrap; gap: 8px; }
+body.folded .phongdao-thanh-luu { left: 36px; }
+@media (min-width: 1200px) { .phongdao-muc-luc-chon { display: none; } }
+@media (max-width: 1199px) { .phongdao-co-js .phongdao-muc-luc-link { display: none; } }
+@media (max-width: 960px) and (min-width: 783px) { .phongdao-thanh-luu { left: 36px; } }
+@media (max-width: 782px) {
+  .phongdao-muc-luc { top: 46px; }
+  .phongdao-admin-sua { padding-bottom: 240px; }
+  .phongdao-thanh-luu, body.folded .phongdao-thanh-luu { left: 0; bottom: calc(56px + env(safe-area-inset-bottom, 0px)); padding: 8px 12px; flex-direction: column; align-items: stretch; gap: 6px; }
+  .phongdao-thanh-luu p { font-size: 13px; }
+  .phongdao-thanh-luu button { font-size: 13px; white-space: normal; }
+  .phongdao-muc-gon > summary { min-height: 54px; }
+}

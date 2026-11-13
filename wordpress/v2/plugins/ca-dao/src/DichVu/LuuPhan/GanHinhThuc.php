@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Sau khi lưu lời của tác phẩm: máy gắn thể thơ (đếm âm tiết, MienDuLieu\TheTho) vào phân loại hinh_thuc để lọc
- * danh sách và trình bày (docs/26 mục 4.2). Chỉ thay mục thể thơ; lối hát người đã gán giữ nguyên.
+ * danh sách và trình bày (docs/26 mục 4.2). D-109: tôn trọng lựa chọn người theo bài; lối hát người đã gán giữ nguyên.
  */
 final class GanHinhThuc implements Module {
 
@@ -30,14 +30,21 @@ final class GanHinhThuc implements Module {
 			}
 		}
 		$dong = PhanBai::lay( $bai_id, 'loi' )['dong'] ?? array();
-		if ( $dong ) {
-			$the = TheTho::nhan( $dong );
+		$chon = LuuTheTho::lay( $bai_id );
+		$the = 'nguoi' === $chon['che_do'] ? $chon['ma'] : ( $dong ? TheTho::nhan( $dong ) : '' );
+		if ( '' !== $the && isset( TheTho::DS[ $the ] ) ) {
 			$co  = term_exists( $the, 'hinh_thuc' );
 			$co  = $co ? $co : wp_insert_term( TheTho::DS[ $the ], 'hinh_thuc', array( 'slug' => $the ) );
+			if ( is_wp_error( $co ) ) {
+				throw new \RuntimeException( 'Chưa đọc hoặc tạo được nhãn thể thơ.' );
+			}
 			if ( is_array( $co ) ) {
 				$giu[] = (int) $co['term_id'];
 			}
 		}
-		wp_set_object_terms( $bai_id, $giu, 'hinh_thuc' );
+		$kq = wp_set_object_terms( $bai_id, $giu, 'hinh_thuc' );
+		if ( is_wp_error( $kq ) ) {
+			throw new \RuntimeException( 'Chưa gắn được nhãn thể thơ.' );
+		}
 	}
 }

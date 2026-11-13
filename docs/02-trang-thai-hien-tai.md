@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Phiên bản | 3.2 · 13/11/2026 (form Góp gọn, bàn giao biên tập an toàn và ảnh; lịch sử đến 11/11/2026: `docs/luu-tru/02-trang-thai-den-11-11-2026.md`) |
+| Phiên bản | 3.3 · 13/11/2026 (trang sửa đầy đủ, thể thơ theo người và danh mục; lịch sử đến 11/11/2026: `docs/luu-tru/02-trang-thai-den-11-11-2026.md`) |
 | Mục đích | Trang tổng quan ngắn cho người sáng lập và AI agent |
 | Nguồn máy đọc | `du-an/trang-thai.json` (`npm run kiem-nhat-quan` đối chiếu với `docs/01`, `docs/22`) |
 
@@ -14,13 +14,13 @@
 - **Trang người đọc** (`docs/27`): trang chủ, danh sách theo thể loại, chủ đề, vùng; trang bài cho năm thể loại (lời mỗi câu một dòng, nhãn mức kiểm, Ý nghĩa, từ khó chạm để xem, dị bản, "Lời này từ đâu?", trích dẫn, chia sẻ, ảnh để chia sẻ, trình chiếu, cỡ chữ, Đọc cùng bé); Tìm (gõ không dấu, gợi ý gõ sai); Từ điển, Bản đồ, Tuyển tập, Khám phá, Một câu ngẫu nhiên; Đã lưu; Góp (dị bản, chú thích, báo lỗi, số trang, cảm nghĩ, bài cảm nhận).
 - **Form Góp gọn theo loại** (D-108, plugin 1.0.58/theme 1.0.7): chỉ hiện ô phù hợp, thông tin phụ thu gọn; từ bài giữ loại/bài/đối tượng báo vi phạm; đổi loại không mất chữ. Gửi lỗi dựng lại đúng chữ trong phản hồi riêng tư, kể cả khi tắt JavaScript; gửi số trang không ép viết ghi chú. Consent, chống rác và hàng chờ duyệt giữ nguyên. [Chi tiết và kiểm thử](35-form-gop-gon-va-giu-chu.md).
 - **Khu biên tập trong wp-admin** (`docs/28` mục 4), sau đợt 1–2 (10–11/11/2026) và bước đầu đợt 3:
-  - **Menu theo ba dòng việc:** Hôm nay · Bài mới · Hộp việc · Bổ sung · Tác phẩm · Nguồn & cài đặt.
+  - **Menu theo ba dòng việc:** Hôm nay · Bài mới · Hộp việc · Bổ sung · Tác phẩm · Danh mục · Nguồn & cài đặt.
   - **Hôm nay** (trước là Bàn làm việc): 3 việc gấp nhất, ba ô Bài mới · Hộp việc · Bổ sung có nút bắt đầu, Nên làm tuần này, số liệu tuần thu gọn (nhớ 1 giờ); đăng nhập vào thẳng đây. Trang chào mừng WordPress có khung "Phongdao hôm nay".
   - **Bổ sung:** bài đọc nhiều chưa có Ý nghĩa, danh sách ưu tiên có nút Bắt đầu; **gợi ý chủ đề, vùng của máy** duyệt theo nhóm (một chủ đề / vùng: bỏ dấu ngoại lệ, Đồng ý) hoặc theo bài — không còn là thẻ trong Hộp việc.
   - **Hộp việc** kiểu hộp thư, chỉ việc cần người quyết (có thể trùng, nháp chờ duyệt, người đọc gửi, cần xem): danh sách và thẻ cạnh nhau, **quyết không tải lại trang**, tự sang thẻ kế, Hoàn tác 10 giây, phím tắt (nút ghi số phím), **sửa vài chữ trong nháp rồi Duyệt ngay trên thẻ**; điện thoại: mở thẻ chỉ còn "← Danh sách · Thẻ N / M", nút quyết dính đáy màn.
   - **Thanh dưới trên điện thoại** ở mọi màn Phongdao: Hôm nay · Hộp việc · Bổ sung · Bài mới.
   - **Tác phẩm:** tab trạng thái kèm số, nút lọc nhanh (Thiếu ý nghĩa, Có cờ), "Thêm bộ lọc" (còn thiếu theo thể loại, xếp bài đọc nhiều trước), mỗi hàng Sửa · Xem · Ẩn; điện thoại dạng thẻ ba dòng; chọn hàng loạt, Làm theo lô. Đọc từ **bảng tóm tắt bài** (mỗi bài một dòng tính sẵn) nên mở nhanh cả khi kho lớn.
-  - **Sửa tác phẩm:** một màn hai cột, "Bài tiếp theo"; phần chưa có gom thành hàng "Thêm: …"; cờ "Có thể không phải dân gian" là công tắc ở cột bên (bật cần lý do và nguồn); **Đổi thể loại** (người có quyền duyệt; đường cũ tự chuyển 301, có Lịch sử); điện thoại: trạng thái và Đăng / Ẩn ngay dưới tên bài.
+  - **Sửa tác phẩm** (D-109, plugin 1.0.59): mục lục toàn bài, trạng thái từng phần chưa lưu và thanh lưu theo phần; phần khôi phục mở trên cả điện thoại. Từ khó/dị bản gọn theo mục, có lọc và Thêm ở đầu; thứ tự phần theo thể loại. Phân loại không cuộn lồng; người có quyền chọn/bỏ thể thơ hoặc quay lại máy, sửa lời vẫn giữ lựa chọn người; có lịch sử/kiểm phiên. Thêm mục cạnh bộ chọn không tự gắn vào bài; menu Danh mục mở năm bộ thuật ngữ hiện có. Quản lý trạng thái bài là nhóm riêng. Ảnh báo giới hạn tệp sớm và phân biệt chọn với lưu. "Bài tiếp theo" chỉ tự sang khi không còn phần khác chưa lưu. Cờ có công tắc, Đổi thể loại vẫn có Lịch sử và chuyển hướng cũ. [Phạm vi, kiểm thử](36-toi-uu-trang-sua-va-danh-muc.md), [hướng dẫn thao tác](huong-dan/sua-day-du-va-phan-loai.md).
   - **Bài mới (Kho):** lọc nhanh **Máy gợi ý hôm nay** (máy thôi tạo thẻ Câu mới hằng ngày), **Để dành**, **Đề nghị đăng** (thay "Đưa vào Hộp việc"); lọc theo mong có, có chú thích, không cờ, câu ngắn / dài; Xem trước và đăng một mạch, màn kết quả có "Xem bài · Ẩn nếu nhầm"; **nhập câu từ tệp** (vào Kho qua chống trùng, không đăng thẳng); **Thêm tác phẩm** ngay trong wp-admin; điện thoại dạng thẻ.
   - **Thao tác hàng loạt:** có xem trước, kết quả từng mục.
   - **Nguồn & cài đặt** (Quản trị): nguồn tự động, **thêm hồ sơ nguồn bằng tay**, **đề nghị nguồn tự động mới** (thành việc cho người làm kỹ thuật), máy đang làm, **Cài đặt chung** (chống rác, giờ máy chạy, trạng thái chặn Google chỉ đọc).

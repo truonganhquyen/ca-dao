@@ -9,6 +9,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import puppeteer from 'puppeteer-core';
 import { dangNhap, kiemNode, moPlayground, timChrome } from './lib/playground-v2.mjs';
+import { kiemTrangSua } from './lib/e2e-trang-sua.mjs';
 
 const TEN = 'e2e v2';
 const thamSo = ten => { const i = process.argv.indexOf(ten); return i > 0 ? process.argv[i + 1] : null; };
@@ -75,6 +76,8 @@ const doi = async (tab, fn, arg, bao, ms = 15_000) => {
 // Đưa phần tử ra giữa màn trước khi bấm: thanh nổi ở đáy màn (wp-admin) không che chỗ bấm
 const bam = async (tab, sel) => {
 	await tab.bringToFront(); // hai tab: thao tác ở tab đang hiện như người dùng thực
+  const node=await tab.$(sel);
+  if(node)await node.evaluate(e=>{const parents=[];for(let d=e.closest('details');d;d=d.parentElement?.closest('details'))if(!d.open&&e!==d.querySelector(':scope>summary'))parents.push(d);parents.reverse().forEach(d=>d.querySelector(':scope>summary')?.click());});
   const b = await tab.waitForSelector(sel, { visible: true, timeout: 15_000 }).catch(() => null);
   chac(b, `không thấy ${sel}`);
   await b.evaluate(e => e.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' }));
@@ -554,11 +557,13 @@ try {
       const id = await bt.$eval('.dai-bien-tap', e => e.dataset.bai);
       await di(bt, `/wp-admin/admin.php?page=phongdao-sua-tac-pham&id=${id}`);
       chac(await bt.$('.phongdao-loi-xem li'), 'trang sửa chưa hiện lời ở đầu');
-      await bamDoiTrang(bt, '.phongdao-sua-ben .phongdao-trang-thai form:has(input[name=trang_thai][value=private]) [type=submit]');
+      await bam(bt, '.phongdao-quan-ly-bai>summary');
+      await bamDoiTrang(bt, '.phongdao-quan-ly-bai .phongdao-trang-thai form:has(input[name=trang_thai][value=private]) [type=submit]');
       chac(await coChu(bt, 'Đã ẩn bài khỏi người đọc'), 'không báo đã ẩn bài');
       const an = await k.goto(G + caDao, { waitUntil: 'load', timeout: 120_000 });
       chac(an.status() === 404, `ẩn rồi khách vẫn mở được bài (HTTP ${an.status()})`);
-      await bamDoiTrang(bt, '.phongdao-sua-ben .phongdao-trang-thai form:has(input[name=trang_thai][value=publish]) [type=submit]');
+      await bam(bt, '.phongdao-quan-ly-bai>summary');
+      await bamDoiTrang(bt, '.phongdao-quan-ly-bai .phongdao-trang-thai form:has(input[name=trang_thai][value=publish]) [type=submit]');
       chac(await coChu(bt, 'Đã đăng: người đọc thấy bài'), 'không báo đã đăng lại');
       await di(k, caDao);
     });
@@ -1020,7 +1025,7 @@ try {
       await bt.setViewport({ width: 1280, height: 800 });
       await di(bt, '/wp-admin/admin.php?page=phongdao-ban-lam-viec');
       const muc = await bt.$$eval('#toplevel_page_phongdao-ban-lam-viec .wp-submenu a', as => as.map(a => a.textContent.replace(/\d+/g, '').trim()));
-      chac(JSON.stringify(muc) === JSON.stringify(['Hôm nay', 'Bài mới', 'Hộp việc', 'Bổ sung', 'Tác phẩm', 'Nguồn & cài đặt']), `menu Phongdao: ${muc.join(' · ')}`);
+      chac(JSON.stringify(muc) === JSON.stringify(['Hôm nay', 'Bài mới', 'Hộp việc', 'Bổ sung', 'Tác phẩm', 'Danh mục', 'Nguồn & cài đặt']), `menu Phongdao: ${muc.join(' · ')}`);
       chac(await bt.$eval('h1', h => h.textContent.trim()) === 'Hôm nay', 'màn đầu không mang tên "Hôm nay"');
       chac(await bt.$$eval('.phongdao-ban-so > .phongdao-ban-o', os => os.map(o => o.querySelector('h3').textContent).join()) === 'Bài mới,Hộp việc,Bổ sung', 'Hôm nay không có ba ô Bài mới · Hộp việc · Bổ sung');
       chac(await bt.$$eval('.phongdao-ban-so > .phongdao-ban-o a.button', as => as.length) === 3, 'mỗi ô của Hôm nay không có nút bắt đầu');
@@ -1182,13 +1187,13 @@ try {
       await bam(bt, '.media-button-select');
       await doi(bt, () => Number(document.querySelector('#phan-media [name=attachment_id]').value) > 0 && !!document.querySelector('[data-anh-xem] img'), null, 'chọn ảnh chưa có bản xem trước');
       const idAnh = await bt.$eval('#phan-media [name=attachment_id]', e => e.value);
-      chac(await coChu(bt, 'chưa gắn vào bài'), 'không phân biệt chọn ảnh với gắn ảnh');
+      chac(await coChu(bt, 'chưa lưu vào bài'), 'không phân biệt chọn ảnh với lưu ảnh vào bài');
       await bamDoiTrang(bt, '#phan-media button[type=submit]');
       chac(await bt.$eval('#phan-media [name=attachment_id]', e => e.value) === idAnh, 'lưu không giữ ảnh đã chọn');
       const xem = await bt.$eval('.phongdao-sua-lien a:nth-child(2)', e => e.href);
       await k.goto(xem, { waitUntil: 'load' });
       chac(!(await k.$('.phongdao-anh-minh-hoa')), 'ảnh của bài nháp hiện cho khách');
-      await bamDoiTrang(bt, '.phongdao-sua-ben form:has(input[name=trang_thai][value=publish]) button[type=submit]');
+      await bamDoiTrang(bt, '.phongdao-quan-ly-bai form:has(input[name=trang_thai][value=publish]) button[type=submit]');
       const publicUrl = await bt.$eval('.phongdao-sua-lien a:nth-child(2)', e => e.href);
       const fault = r => {
         if (r.url().includes('admin-ajax.php') && (r.postData() || '').includes('action=get-attachment')) r.respond({ status: 403, contentType: 'application/json', body: '{"success":false}' });
@@ -1249,6 +1254,7 @@ try {
       }
       await k.setJavaScriptEnabled(true);
     });
+		await kiemTrangSua({bt,G,di,bam,datO,bamDoiTrang,chac,thu,thuMucAnh});
   }
 } catch (e) {
   loi.push(String(e.message ?? e).split('\n')[0]);

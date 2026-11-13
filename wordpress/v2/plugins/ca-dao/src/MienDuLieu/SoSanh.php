@@ -64,6 +64,9 @@ final class SoSanh {
 	 * @return string[]
 	 */
 	public static function dong( mixed $gt ): array {
+		if ( is_array( $gt ) && array_keys( $gt ) === array( 'che_do', 'ma' ) && in_array( $gt['che_do'], array( 'may', 'nguoi' ), true ) ) {
+			return array( 'Cách chọn thể thơ: ' . ( 'nguoi' === $gt['che_do'] ? 'Người biên soạn chọn' : 'Nhận diện máy theo lời' ), 'Lựa chọn riêng: ' . ( '' === $gt['ma'] ? 'Không gắn nhãn riêng' : ( TheTho::DS[ $gt['ma'] ] ?? (string) $gt['ma'] ) ) );
+		}
 		if ( null === $gt || array() === $gt ) {
 			return array();
 		}

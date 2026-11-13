@@ -31,6 +31,7 @@ final class Module implements \Phongdao\HaTang\Module {
 		add_action( 'transition_comment_status', array( self::class, 'binh_luan_doi' ), 10, 3 );
 		NguonCaiDat::dang_ky();
 		SuaTacPham::dang_ky();
+		add_action( 'wp_ajax_phongdao_them_muc', array( DanhMuc::class, 'ajax' ) );
 		DanhSachKho::dang_ky();
 		DanhSachTacPham::dang_ky();
 		\Phongdao\DichVu\UngVien\NhapTep::dang_ky();
@@ -126,6 +127,7 @@ final class Module implements \Phongdao\HaTang\Module {
 			} );
 		}
 		// Nguồn & cài đặt giữ đường dẫn admin.php?page=phongdao (hồ sơ nguồn, máy đang làm… trỏ tới đây); chỉ Quản trị
+		add_submenu_page( $cha, 'Quản lý danh mục', 'Danh mục', 'manage_categories', DanhMuc::TRANG, static function (): void { echo DanhMuc::hien(); } ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- lớp hiển thị thoát giá trị
 		add_submenu_page( $cha, 'Nguồn & cài đặt', 'Nguồn &amp; cài đặt', NguonCaiDat::QUYEN, self::TRANG, array( $this, 'hien' ) );
 		// Màn con: Thêm tác phẩm (mở từ Bài mới, Tác phẩm, "Thêm mới → Tác phẩm")
 		$them = add_submenu_page( '', 'Thêm tác phẩm', 'Thêm tác phẩm', 'cadao_soan', ThemTacPham::TRANG, static function (): void {
@@ -194,6 +196,9 @@ final class Module implements \Phongdao\HaTang\Module {
 	public static function muc_cha(): string {
 		// phpcs:disable WordPress.Security.NonceVerification -- chỉ đọc để tô menu
 		$trang = sanitize_key( (string) ( $_GET['page'] ?? '' ) );
+		if ( \Phongdao\HaTang\KhaiBao::TAC_PHAM === ( $_GET['post_type'] ?? '' ) && DanhMuc::duoc( sanitize_key( (string) ( $_GET['taxonomy'] ?? '' ) ) ) ) {
+			return DanhMuc::TRANG;
+		}
 		if ( SuaTacPham::TRANG === $trang ) {
 			return DanhSachTacPham::TRANG;
 		}

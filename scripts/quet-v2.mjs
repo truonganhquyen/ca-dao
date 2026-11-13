@@ -11,6 +11,7 @@ import { createRequire } from 'node:module';
 import { gzipSync } from 'node:zlib';
 import puppeteer from 'puppeteer-core';
 import { dangNhap, kiemNode, moPlayground, timChrome } from './lib/playground-v2.mjs';
+import { quetTrangSua } from './lib/quet-trang-sua.mjs';
 
 kiemNode('quét v2');
 const chrome = timChrome('quét v2');
@@ -211,8 +212,9 @@ try {
     const kq = await bt.evaluate((vung, the) => window.axe.run(vung, { runOnly: { type: 'tag', values: the } }), vung, THE_WCAG);
     for (const v of kq.violations) for (const n of v.nodes.slice(0, 3)) loi.push(`${duong}: [${v.id}] ${v.help} — ${n.target.join(' ')}`);
   }
+  await quetTrangSua({bt,G,axeNguon,THE_WCAG,loi,thuMucAnh,doTran});
   await bt.close();
-  console.log(`Quét V2: ${DS_TRANG.length} trang × ${CHE_DO.length} chế độ + ${DS_TINH_320.size} trang tĩnh × 2 chế độ 320 px + ${DS_BIEN_TAP.length} trang biên tập + 9 trang admin (axe ${THE_WCAG.join(', ')}) — ${loi.length} lỗi.`);
+  console.log(`Quét V2: ${DS_TRANG.length} trang × ${CHE_DO.length} chế độ + ${DS_TINH_320.size} trang tĩnh × 2 chế độ 320 px + ${DS_BIEN_TAP.length} trang biên tập + 9 trang admin + trang sửa 36 mục × 6 cỡ (gập/mở) + Danh mục × 2 cỡ (axe ${THE_WCAG.join(', ')}) — ${loi.length} lỗi.`);
 } catch (e) {
   loi.push(String(e.message ?? e));
 } finally {

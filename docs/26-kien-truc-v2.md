@@ -109,11 +109,13 @@ Cảm nghĩ ngắn của người đọc: bình luận WordPress, luôn chờ du
 | `chu_de` | máy gợi ý, người duyệt | Bộ chủ đề của dự án (D-061 (B), T-091); bảng ánh xạ chủ đề nguồn → dự án giữ ở cài đặt |
 | `vung` | máy gợi ý, người duyệt | **Vùng lưu truyền** có căn cứ; không suy từ địa danh trong lời |
 | `mo_tip` | máy gợi ý nhóm, người đặt tên | Như T-092 |
-| `hinh_thuc` | thể thơ: máy nhận; lối hát (hát ru, hò, lý…): người gán | Gộp `the_tho` của MVP |
+| `hinh_thuc` | thể thơ: máy nhận hoặc người chọn theo bài (D-109); hình thức bổ sung: người gán | Gộp `the_tho` của MVP |
 | `muc_tu` | máy tạo từ chú thích, người sửa | Mục từ từ điển; term meta `loai` = `tu` / `dia_danh` / `nhan_vat`, Wikidata đã xác nhận, ảnh, nguồn lời giải. Địa danh trong lời = mục `chu_thich` → mục từ loại `dia_danh` ("được nhắc đến") |
 | `tro_choi` | người tạo | Term meta: số người, độ tuổi, nơi chơi, thời lượng, đồ dùng, các bước, nguồn, giấy phép |
 
 Bỏ phân loại `tinh_huong` (thành tuyển tập loại `tinh_huong`) và `the_tho` (thành `hinh_thuc`).
+
+**Lựa chọn thể thơ theo bài (D-109):** meta kỹ thuật `_phongdao_the_tho_nguoi` lưu `{che_do: may|nguoi, ma: <mã trong TheTho::DS hoặc rỗng>}`; thiếu meta mặc định dùng máy. `LuuTheTho` kiểm người có quyền duyệt/sửa bài, khoá cùng dòng bài với `LuuPhan`, so phiên gồm lựa chọn/quan hệ/lịch sử, ghi lựa chọn + nhãn + lịch sử trong giao dịch. `GanHinhThuc` tôn trọng lựa chọn người khi lưu lời, không thay hình thức bổ sung. Không thêm phần nội dung hoặc bảng; meta không mở REST mặc định. Lối ghi: `admin_post_phongdao_sua_the_tho`, nonce theo bài. Danh mục có menu riêng và AJAX đã đăng nhập `phongdao_them_muc` (nonce theo bộ + quyền `manage_terms`); chỉ thêm thuật ngữ, không gắn vào bài. Luồng chi tiết: `docs/36`.
 
 **Term meta (03/11/2026, đặt khi viết công cụ nhập — `docs/luu-tru/29-chuyen-doi-v2.md`):** mục từ: lời giải là mô tả của term; `_phongdao_loi_giai` `{nguoi_lam: may_chep | nguoi_viet, nguon?: {ho_so, url?}}`, `_phongdao_wikidata` (bản đã xác nhận, dạng MVP), `_phongdao_anh` `{rieng?: ID ảnh, ghi_cong?, an?}`, `_phongdao_khoa` (khoá từ + lời giải để nối chú thích). Trò chơi: `_phongdao_cach_choi` `{so_nguoi?, do_tuoi?, do_dung?, buoc: [], nguoi_lam, nguon?: {ho_so, url?, ghi_chu?}, giay_phep?, wiki?}`. Mô-típ: `_phongdao_mo_tip_dau` (dấu nhóm của máy; tên do người đặt là tên term). Bộ chủ đề, bảng ánh xạ chủ đề, mô-típ đã đặt / bỏ qua giữ ở các tuỳ chọn MVP cùng tên (`cadao_bo_chu_de`, `cadao_anh_xa_chu_de`, `cadao_mo_tip_bo`, `cadao_mo_tip_bo_qua`).
 
