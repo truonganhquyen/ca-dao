@@ -26,18 +26,27 @@ final class LuuPhan {
 		return hash( 'sha256', wp_json_encode( array( $bai, $phan, $gia_tri, Viec::moi_nhat_sua( $bai, $phan ) ) ) );
 	}
 
-	/** Entry point lưu trực tiếp: khóa bài, đọc mới, so phiên rồi mới đọc form/ghi; không mở giao dịch lồng. */
+	/** Caller đã mở giao dịch: lấy cùng khoá trước mọi lần đọc nhất quán của phần/bản chữ. Không mở giao dịch lồng. */
+	public static function khoa_bai( int $bai ): bool {
+		global $wpdb;
+		$id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE ID = %d FOR UPDATE", $bai ) );
+		if ( null === $id || (int) $id !== $bai ) {
+			return false;
+		}
+		clean_post_cache( $bai );
+		return true;
+	}
+
+	/** Entry point lưu trực tiếp: khoá bài, đọc mới, so phiên rồi mới đọc form/ghi; không mở giao dịch lồng. */
 	public static function trong_phien( int $bai, string $phan, string $phien, callable $ghi ): array {
 		global $wpdb;
 		if ( false === $wpdb->query( 'START TRANSACTION' ) ) {
 			return self::hong( 'Chưa mở được lượt lưu. Phần đang nhập chưa được ghi; thử lại sau.' );
 		}
 		try {
-			$id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE ID = %d FOR UPDATE", $bai ) );
-			if ( null === $id || (int) $id !== $bai ) {
+			if ( ! self::khoa_bai( $bai ) ) {
 				throw new \RuntimeException( 'khong_co_bai' );
 			}
-			clean_post_cache( $bai );
 			$cu = PhanBai::lay( $bai, $phan );
 			$moi = self::phien( $bai, $phan, $cu );
 			if ( ! hash_equals( $moi, $phien ) ) {
@@ -102,6 +111,22 @@ final class LuuPhan {
 	 * @return array{ok:bool,loi:string[],doi:bool,viec:int}
 	 */
 	public static function khoi_phuc( int $viec_id, array $nc ): array {
+		if ( ! empty( $nc['trong_giao_dich'] ) ) {
+			return self::khoi_phuc_da_khoa( $viec_id, $nc );
+		}
+		$v = Viec::lay( $viec_id );
+		if ( ! $v || Viec::SUA !== $v['loai'] || 'post' !== $v['doi_tuong_loai'] ) {
+			return self::hong( 'Không tìm thấy lần sửa này.' );
+		}
+		$bai = (int) $v['doi_tuong_id'];
+		$phan = (string) $v['phan'];
+		$phien = self::phien( $bai, $phan, PhanBai::lay( $bai, $phan ) );
+		$kq = self::trong_phien( $bai, $phan, $phien, static fn(): array => self::khoi_phuc_da_khoa( $viec_id, $nc ) );
+		// Lối hoàn tác chỉ cần báo mở lại lịch sử, không đưa snapshot nội bộ ra REST.
+		return ! empty( $kq['xung_dot'] ) ? self::hong( 'Phần này vừa đổi ở phiên khác. Mở lại Lịch sử để đối chiếu trước khi khôi phục.' ) : $kq;
+	}
+
+	private static function khoi_phuc_da_khoa( int $viec_id, array $nc ): array {
 		$nc   = self::nc( $nc );
 		$viec = Viec::lay( $viec_id );
 		if ( ! $viec || Viec::SUA !== $viec['loai'] || 'post' !== $viec['doi_tuong_loai'] ) {

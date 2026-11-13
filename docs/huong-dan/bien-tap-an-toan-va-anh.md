@@ -1,6 +1,6 @@
 # Giữ chữ, xử lý bản mới và thêm ảnh
 
-Áp dụng cho màn **Tác phẩm → Sửa** của V2, sau khi nhận bản sửa của `docs/33`. Thử ảnh bằng dữ liệu kỹ thuật trên bản xem trước trước khi chọn ảnh thật. Người biên soạn vẫn quyết nội dung và quyền sử dụng ảnh.
+Áp dụng từ plugin 1.0.57/theme 1.0.6 cho màn **Tác phẩm → Sửa** của V2. Thử ảnh bằng dữ liệu kỹ thuật trên bản xem trước trước khi chọn ảnh thật. Người biên soạn vẫn quyết nội dung và quyền sử dụng ảnh.
 
 ## Đang viết mà cần lưu phần khác
 
@@ -11,6 +11,8 @@ Lỗi dữ liệu không xoá đầu vào vừa gửi. Hàng Từ khó đã có 
 ## Có người hoặc tab khác vừa sửa
 
 Khi thấy **Phần này đã đổi**, mở **Đối chiếu bản đang lưu**. Chữ đang nhập vẫn còn. Đọc bản mới, tự sửa phần mình đang viết; chỉ đánh dấu đã đối chiếu khi đã quyết dùng phần đang nhập. Sau đó bấm đúng nút lưu. Hệ thống không tự ghép hai bản hoặc tự duyệt nội dung.
+
+Khôi phục từ Lịch sử cũng kiểm bản mới trong lượt ghi. Nếu có người vừa sửa, mở lại Lịch sử để đối chiếu; lần khôi phục cũ không được dùng để đè phần vừa lưu. Duyệt một phần trong Hộp việc vẫn giữ trạng thái nháp/ẩn của tác phẩm; chỉ bài đã đăng mới hiện thay đổi cho khách.
 
 ## Gắn một ảnh minh hoạ
 

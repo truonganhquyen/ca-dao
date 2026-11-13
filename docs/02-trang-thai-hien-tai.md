@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Phiên bản | 3.0 · 11/11/2026 (viết lại gọn sau D-107; trạng thái chi tiết đến 11/11/2026: `docs/luu-tru/02-trang-thai-den-11-11-2026.md`) |
+| Phiên bản | 3.1 · 13/11/2026 (bàn giao biên tập an toàn và ảnh; lịch sử đến 11/11/2026: `docs/luu-tru/02-trang-thai-den-11-11-2026.md`) |
 | Mục đích | Trang tổng quan ngắn cho người sáng lập và AI agent |
 | Nguồn máy đọc | `du-an/trang-thai.json` (`npm run kiem-nhat-quan` đối chiếu với `docs/01`, `docs/22`) |
 
@@ -10,7 +10,7 @@
 
 ## Đang chạy
 
-- **phongdao.com chạy V2** (Thư viện Văn học Dân gian Việt Nam; plugin 1.0.49, theme 1.0.3) từ 04/11/2026: WordPress trên VPS, máy chủ tự cập nhật sau mỗi PR gộp vào `main` (`docs/26` mục 15). **Site còn chặn Google** (công tắc toàn site, Human Gate H5 — người sáng lập mở khi quyết).
+- **phongdao.com chạy V2** (Thư viện Văn học Dân gian Việt Nam) từ 04/11/2026: WordPress trên VPS, máy chủ tự cập nhật sau mỗi PR gộp vào `main` (`docs/26` mục 15). **Site còn chặn Google** (công tắc toàn site, Human Gate H5 — người sáng lập mở khi quyết).
 - **Trang người đọc** (`docs/27`): trang chủ, danh sách theo thể loại, chủ đề, vùng; trang bài cho năm thể loại (lời mỗi câu một dòng, nhãn mức kiểm, Ý nghĩa, từ khó chạm để xem, dị bản, "Lời này từ đâu?", trích dẫn, chia sẻ, ảnh để chia sẻ, trình chiếu, cỡ chữ, Đọc cùng bé); Tìm (gõ không dấu, gợi ý gõ sai); Từ điển, Bản đồ, Tuyển tập, Khám phá, Một câu ngẫu nhiên; Đã lưu; Góp (dị bản, chú thích, báo lỗi, số trang, cảm nghĩ, bài cảm nhận).
 - **Khu biên tập trong wp-admin** (`docs/28` mục 4), sau đợt 1–2 (10–11/11/2026) và bước đầu đợt 3:
   - **Menu theo ba dòng việc:** Hôm nay · Bài mới · Hộp việc · Bổ sung · Tác phẩm · Nguồn & cài đặt.
@@ -62,7 +62,7 @@ Q-008 (tài trợ). Không câu nào chặn task kỹ thuật hiện tại.
 
 - Đang dùng: `docs/00` (nền), `01` (quyết định), `02` (tệp này), `03` (quy trình), `12` (nguồn), `22` (backlog), `26` (kỹ thuật V2), `27` (sản phẩm), `28` (luồng nội dung, biên tập), `31` (cải tiến sau review, phần còn mở), `32` (đợt 3), `docs/huong-dan/` (hướng dẫn người sáng lập).
 - Lưu trữ (không còn dùng hằng ngày, giữ nguyên văn): `docs/luu-tru/` — danh mục ở `docs/luu-tru/README.md`.
-- Kế hoạch bổ sung theo phạm vi người sáng lập chốt ngày 12/11: [giữ chữ, chống ghi đè, ảnh minh hoạ và thử nội dung](33-ke-hoach-cai-tien-bien-tap-va-anh.md); bắt đầu triển khai 13/11. **Giữ chữ đã làm (plugin 1.0.53):** lỗi nhập trả lại đúng hàng/nội dung, phần chưa lưu được giữ theo tab/phiên tối đa 30 phút; rời trang có cảnh báo. Chống ghi đè đã làm (plugin 1.0.54): lưu phần so phiên trong giao dịch có khóa, giữ chữ và cho đối chiếu khi có bản mới. Ảnh minh hoạ đã bổ sung (plugin 1.0.55): Thư viện → xem trước → lưu → khách xem; thay/bỏ/khôi phục, ghi công và ảnh câu đố trong đáp án. Xem [hướng dẫn](huong-dan/bien-tap-an-toan-va-anh.md). Nhãn/trạng thái trống và pilot tiếp tục. Bốn mục loại khỏi đợt giữ nguyên.
+- Kế hoạch bổ sung theo phạm vi người sáng lập chốt ngày 12/11: [giữ chữ, chống ghi đè, ảnh minh hoạ và thử nội dung](33-ke-hoach-cai-tien-bien-tap-va-anh.md); bắt đầu triển khai 13/11. **Giữ chữ đã làm (plugin 1.0.53):** lỗi nhập trả lại đúng hàng/nội dung, phần chưa lưu được giữ theo tab/phiên tối đa 30 phút; rời trang có cảnh báo. Chống ghi đè đã làm (plugin 1.0.54): lưu phần so phiên trong giao dịch có khoá, giữ chữ và cho đối chiếu khi có bản mới. Ảnh minh hoạ đã bổ sung (plugin 1.0.55): Thư viện → xem trước → lưu → khách xem; thay/bỏ/khôi phục, ghi công và ảnh câu đố trong đáp án. Xem [hướng dẫn](huong-dan/bien-tap-an-toan-va-anh.md). Nhãn/form đã làm (plugin 1.0.56/theme 1.0.6); bản chốt 1.0.57 khoá khôi phục/duyệt đã qua bốn cổng và kiểm hai tiến trình MySQL. [Bàn giao và QA mẫu](34-ban-giao-bien-tap-va-anh.md), [phiếu pilot](huong-dan/pilot-10-bai.md). Phiên bản site kiểm trực tiếp bằng npm run kiem-site-that; pilot nội dung thật còn chờ người quyết. Bốn mục loại khỏi đợt giữ nguyên.
 
 ## Lệnh điều hành
 

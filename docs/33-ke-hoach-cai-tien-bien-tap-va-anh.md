@@ -2,7 +2,7 @@
 
 **Ngày 12/11/2026 · bắt đầu tự động triển khai 13/11/2026 theo lệnh người sáng lập.**
 
-Tiến độ: giữ chữ (plugin 1.0.53) đã đạt 255 PHP + 523 WordPress + 55 chuyển đổi, quét 0 lỗi, E2E 47 bước/0 lỗi/0 bỏ qua. Chống ghi đè (plugin 1.0.54) đạt 255 PHP + 529 WordPress + 55 chuyển đổi, quét 0 lỗi, E2E 48 bước/0 lỗi/0 bỏ qua. Hai tiến trình PHP trên MySQL 8.4 local: một lưu, một bị từ chối do phiên cũ; chỉ một lần ghi lịch sử. Ảnh minh hoạ (plugin 1.0.55) đạt 255 PHP + 541 WordPress + 55 chuyển đổi, quét 0 lỗi, E2E 49 bước/0 lỗi/0 bỏ qua; browser local bổ sung đã kiểm ghi công, chọn/tải/thay/bỏ/khôi phục, tệp hỏng/quá giới hạn và lỗi đọc attachment. Nhãn/trạng thái trống đang thực hiện; pilot nội dung thật chưa nghiệm thu. Không dùng kết quả phần mềm để đánh dấu nội dung thật đã được duyệt.
+Tiến độ: giữ chữ (plugin 1.0.53) đã đạt 255 PHP + 523 WordPress + 55 chuyển đổi, quét 0 lỗi, E2E 47 bước/0 lỗi/0 bỏ qua. Chống ghi đè (plugin 1.0.54) đạt 255 PHP + 529 WordPress + 55 chuyển đổi, quét 0 lỗi, E2E 48 bước/0 lỗi/0 bỏ qua. Hai tiến trình PHP trên MySQL 8.4 local: một lưu, một bị từ chối do phiên cũ; chỉ một lần ghi lịch sử. Ảnh minh hoạ (plugin 1.0.55) đạt 255 PHP + 541 WordPress + 55 chuyển đổi, quét 0 lỗi, E2E 49 bước/0 lỗi/0 bỏ qua; browser local bổ sung đã kiểm ghi công, chọn/tải/thay/bỏ/khôi phục, tệp hỏng/quá giới hạn và lỗi đọc attachment. Nhãn/form đã gộp ở plugin 1.0.56/theme 1.0.6, CI E2E 50 bước/0 lỗi/0 bỏ qua; test local 255 PHP + 545 WordPress + 55 chuyển đổi và quét 0 lỗi. Bản chốt 1.0.57 đạt local 255 PHP + 550 WordPress + 55 chuyển đổi, quét 0 lỗi và CI E2E 50/0/0; khoá khôi phục/duyệt đã kiểm bằng hai tiến trình trên MySQL. Pilot nội dung thật chưa nghiệm thu. Không dùng kết quả phần mềm để đánh dấu nội dung thật đã được duyệt.
 
 Mục tiêu là làm việc biên soạn tin cậy hơn, thêm được ảnh minh hoạ vào tác phẩm và làm trang đọc gọn hơn. Giữ WordPress V2, ba dòng việc Bài mới · Hộp việc · Bổ sung và dịch vụ lưu dùng chung.
 
@@ -55,7 +55,7 @@ Làm trước trên Sửa tác phẩm trong wp-admin; sửa nhanh trên trang đ
 ### 3.2. Chặn bản mở cũ ghi đè
 
 - Khi mở phần, nhận diện phiên/nội dung đã nhìn thấy. Gửi dấu nhận diện đó cùng thao tác lưu trực tiếp ở wp-admin và sửa nhanh.
-- Dịch vụ lưu chung phải kiểm bản đã thấy với bản hiện tại trong cùng thao tác ghi có bảo vệ giao dịch/khóa thích hợp; kiểm ở JavaScript hoặc đọc trước rồi ghi ngoài khóa là chưa đủ.
+- Dịch vụ lưu chung phải kiểm bản đã thấy với bản hiện tại trong cùng thao tác ghi có bảo vệ giao dịch/khoá thích hợp; kiểm ở JavaScript hoặc đọc trước rồi ghi ngoài khoá là chưa đủ.
 - Nếu phần đã đổi: không ghi đè, báo rõ có bản mới, giữ chữ đang sửa và cho mở bản hiện tại để đối chiếu. Không tự hợp nhất lời/diễn giải của hai người.
 - Phân biệt cùng phần với khác phần: sửa Ý nghĩa không vô cớ làm bản mở Từ khó bị xung đột. Kiểm cả nội dung tổng hợp và nhật ký khi hai phần được ghi gần nhau.
 - Rà toàn bộ đường gọi trực tiếp và đường nội bộ có liên quan. Giữ các bảo vệ phiên của Hộp việc, đổi trạng thái và phân loại đã có; không thêm đường bỏ qua kiểm phiên cho client cũ.
@@ -171,9 +171,9 @@ Bàn giao gồm: bản xem trước, ảnh màn quan trọng, log bốn gate, c�
 
 ## 9. Trạng thái và ranh giới thực hiện
 
-- Đã mở T-194..T-198 theo từng đầu ra trong backlog. T-194 sẵn sàng review sau đủ cổng; các phần sau tiếp tục theo phụ thuộc, không coi việc cũ đã DONE là bằng chứng lỗi mới đã được sửa.
+- Giữ chữ, chống ghi đè, ảnh, nhãn/form đã triển khai qua T-194..T-197. Phần kỹ thuật chốt của T-198 bổ sung khoá khôi phục/duyệt và QA mẫu; pilot nội dung và người thử còn chờ H2, chưa ghi toàn T-198 DONE. Kết quả ở [bàn giao](34-ban-giao-bien-tap-va-anh.md).
 - Lệnh tự động triển khai không thay người biên soạn quyết nội dung hoặc tự mở Google. Kiểm ghi/chạy browser dùng dữ liệu kỹ thuật ở môi trường thử.
-- Nội dung, quyền ảnh, xoá/gộp/đổi đường dẫn bài đã đăng, schema lớn và UX lớn vẫn theo đúng Human Gate liên quan. Không yêu cầu chốt thêm để hoàn tất việc lập kế hoạch này.
+- Nội dung, quyền ảnh, xoá/gộp/đổi đường dẫn bài đã đăng, schema lớn và UX lớn vẫn theo đúng Human Gate liên quan. Phần mềm tự thực thi trong phạm vi đã chốt; người biên soạn chốt pilot nội dung theo H2.
 - Google/SEO đang dừng, audio, AI nội bộ, nâng cấp tìm kiếm/bản đồ và làm giàu đồng loạt không thuộc đợt này.
 - Các ghi nhận chưa xác minh về backup/DB vẫn là chưa xác minh; theo chỉ đạo mới, chúng không thành đầu việc hoặc cổng chặn của kế hoạch.
 
