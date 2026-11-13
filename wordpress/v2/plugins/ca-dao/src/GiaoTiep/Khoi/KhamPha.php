@@ -53,8 +53,8 @@ final class KhamPha {
 		}
 		$loi = '';
 		foreach ( array(
-			'tuyen-tap'  => array( 'Tuyển tập', 'layers', 'Đọc liền một chủ đề, trình chiếu cả bộ' ),
-			'theo-dip'   => array( 'Theo dịp', 'calendar', 'Tết, Vu Lan, 20/11…' ),
+			'tuyen-tap'  => array( 'Tuyển tập', 'layers', TuyenTap::cong_khai_ds() ? 'Đọc liền một chủ đề, trình chiếu cả bộ' : 'Chưa có tuyển tập công khai. Bạn có thể đọc từng bài trong kho' ),
+			'theo-dip'   => array( 'Theo dịp', 'calendar', TuyenTap::cong_khai_ds( 'dip' ) ? 'Tết, Vu Lan, 20/11…' : 'Các bộ theo dịp đang được chuẩn bị' ),
 			'chu-de'     => array( 'Chủ đề', 'tag', 'Mẹ, quê hương, lao động…' ),
 			'ban-do'     => array( 'Vùng & Bản đồ', 'map', 'Nơi lưu truyền, địa danh trong lời' ),
 			'mo-tip'     => array( 'Mô-típ', 'spark', '"Thân em như…", "Chiều chiều…"' ),

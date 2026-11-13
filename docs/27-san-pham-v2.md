@@ -124,6 +124,8 @@ Phần cuối chung (theo thứ tự, D-093): Chủ đề · Vùng · Thuộc tu
 
 Bài chưa có Ý nghĩa: lời mời ấm thay câu cũ (vd. "Câu này chưa có lời giải nghĩa. Bạn hiểu câu này thế nào? Viết vài dòng để người đọc sau hiểu rõ hơn.") và nút **Chia sẻ cách hiểu** mở form nhanh ngay trên trang (mục 8.1); máy không tự điền. Chưa có nơi lưu truyền: "Ở quê bạn có câu này không? Góp" thay "chưa ghi nhận" (D-105).
 
+**Cải tiến theo `docs/33` (plugin 1.0.56, theme 1.0.6):** form Cách hiểu nằm trong mục **Chia sẻ cách hiểu** thu gọn bằng HTML `details`; nội dung bạn đọc đã được hiện nằm trước mục mở form. Gửi lỗi/thành công tự mở để thấy phản hồi; liên kết thẳng tới form vẫn mở được, giữ bàn phím, consent, chống rác và duyệt. Ba thẻ Hiểu thêm không đổi. Lối vào Tuyển tập/Theo dịp trên Khám phá nói rõ đang chuẩn bị khi chưa có bộ công khai; danh mục giữ đường đọc từ kho. Không đổi việc hiện nguồn văn bản trong đợt này.
+
 ### 6.1. Ca dao (S04)
 
 Lời (lục bát thụt câu lục — D-092; từ có chú thích nền tô vàng; từ có chú thích là nút chạm, popover nghĩa + nguồn theo chính sách) → nhãn mức kiểm (mục 6.0) → **Ý nghĩa** (2–3 câu ngắn, nền lục nhạt; "Có hỗ trợ của AI, đã được người biên soạn duyệt" khi có dấu) → thanh hành động → **Từ khó** (chú thích dạng ô: từ – lời giải, liên kết mục từ) → ▸ Dị bản (đánh số, tô chữ khác; nơi, người kể khi có) → Bạn có biết? → phần cuối chung.

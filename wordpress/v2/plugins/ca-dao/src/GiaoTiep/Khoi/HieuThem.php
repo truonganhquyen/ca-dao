@@ -46,7 +46,7 @@ final class HieuThem {
 		if ( ! $ch ) {
 			$o .= '<p class="small">Chưa có cách hiểu nào được hiện.</p>';
 		}
-		$phan = array( 'cach_hieu' => $o . self::form( $bai_id, $bao ) );
+		$phan = array( 'cach_hieu' => $o . '<details class="disclosure" data-form-cach-hieu' . ( empty( $bao['gui'] ) ? '' : ' open' ) . '><summary>Chia sẻ cách hiểu</summary><div class="detail-body">' . self::form( $bai_id, $bao ) . '</div></details>' );
 
 		// Bài cảm nhận: tên, hai dòng đầu, người viết; bài dài đọc ở trang riêng
 		$o = '';

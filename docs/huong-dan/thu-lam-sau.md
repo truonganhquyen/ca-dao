@@ -1,5 +1,7 @@
 # Thử làm sâu 20–30 bài
 
+> Đợt hiện tại theo `docs/33` dùng [phiếu pilot 10 bài và một tuyển tập](pilot-10-bai.md). Tài liệu này giữ tham khảo về cách ghi công biên tập; không tăng lại quy mô đợt hiện tại lên 20–30 bài.
+
 Bạn chọn 20–30 bài và làm kỹ từng bài. Mục đích là biết một bài làm kỹ tốn bao lâu, chỗ nào vướng, và người đọc được gì thêm, trước khi quyết có làm như vậy cho nhiều bài hơn không. Không có chỉ tiêu điền kín cả kho.
 
 Máy không chọn bài và không viết nội dung thay bạn. Lời, ý nghĩa, từ khó, nguồn đều do bạn viết hoặc chọn.

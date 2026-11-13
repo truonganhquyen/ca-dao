@@ -633,6 +633,7 @@ try {
       const bai = '/ca-dao/cau-mau-thu-hai/', chu = 'Cách hiểu thử đầu-cuối: câu nói về lòng biết ơn.';
       await di(k, bai);
       chac(await coChu(k, 'Câu này chưa có lời giải nghĩa'), 'bài chưa có Ý nghĩa không mời chia sẻ cách hiểu');
+      chac(await k.$eval('[data-form-cach-hieu]', d => !d.open), 'form cách hiểu chưa thu gọn lúc đầu');
       chac(await k.$eval('[data-hieu-them] [role=tablist]', e => !e.hidden) && 3 === (await k.$$('[data-hieu-them] [role=tab]')).length, 'Hiểu thêm chưa thành ba thẻ khi có JavaScript');
       await bam(k, '#ht-nut-cam-nghi');
       chac(await k.$eval('#cach-hieu', e => e.hidden) && await k.$eval('#cam-nghi', e => !e.hidden && e.getAttribute('role') === 'tabpanel'), 'bấm thẻ Cảm nghĩ không đổi phần');
@@ -641,6 +642,7 @@ try {
       await k.keyboard.press('ArrowLeft');
       chac(await k.$eval('#ht-nut-cam-nghi', e => e === document.activeElement && e.getAttribute('aria-selected') === 'true'), 'phím mũi tên không đổi thẻ');
       await bam(k, 'a[data-mo-cach-hieu]');
+      chac(await k.$eval('[data-form-cach-hieu]', d => d.open), 'lời mời không mở form cách hiểu');
       chac(await k.$eval('#cach-hieu', e => !e.hidden), '"Chia sẻ cách hiểu" không mở phần Cách hiểu');
       await datO(k, '#cach-hieu-chu', chu);
       await datO(k, '#cach-hieu-ten', 'Bút danh thử');
@@ -1131,6 +1133,23 @@ try {
       }
       await k.setJavaScriptEnabled(true);
       await di(bt, edit.pathname + edit.search);
+    });
+    await thu('Hiểu thêm gọn: 390/1440 px, bàn phím và không JavaScript vẫn mở được form, đủ consent', async () => {
+      for (const width of [390, 1440]) for (const js of [true, false]) {
+        await k.setViewport({ width, height: 900 });
+        await k.setJavaScriptEnabled(js);
+        await di(k, MAU.cauDo);
+        chac(await k.$eval('[data-form-cach-hieu]', d => !d.open), 'form trải sẵn khi vừa mở bài');
+        const summary = await k.$('[data-form-cach-hieu] > summary');
+        await summary.focus(); await k.keyboard.press('Enter');
+        chac(await k.$eval('[data-form-cach-hieu]', d => d.open), 'bàn phím không mở được form');
+        chac(await k.$$eval('#cach-hieu-form input[type=checkbox][required]', os => os.length) === 2, 'mở gọn làm mất cam kết hoặc đồng ý giấy phép');
+        chac(await k.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `form tràn ngang ${width} px`);
+        await k.goto('about:blank'); // mở liên kết trực tiếp từ trang khác, có HTTP response để kiểm
+        await di(k, MAU.cauDo + '#cach-hieu-form');
+        chac(await k.$eval('[data-form-cach-hieu]', d => d.open) && await k.$eval('#cach-hieu-chu', e => e.getBoundingClientRect().height > 0), 'liên kết trực tiếp không mở form');
+      }
+      await k.setJavaScriptEnabled(true);
     });
   }
 } catch (e) {

@@ -40,6 +40,18 @@ final class TamSua {
 		return 'y_nghia' === $phan && 'cau-do' === $the_loai ? 'Sửa giải thích đáp án' : (string) ( self::TAM[ $phan ][0] ?? $phan );
 	}
 
+	public static function nhan( string $phan, string $the_loai = '' ): string {
+		$ten = self::ten( $phan, $the_loai );
+		$ten = str_starts_with( $ten, 'Sửa ' ) ? mb_substr( $ten, 4 ) : $ten;
+		return mb_strtoupper( mb_substr( $ten, 0, 1 ) ) . mb_substr( $ten, 1 );
+	}
+
+	/** Chỉ đổi nhãn của ô nội dung đang sửa, giữ nguyên quy tắc kiểm và các trường nguồn. */
+	public static function nhan_loi( string $phan, array $loi, string $the_loai ): array {
+		$ten = self::nhan( $phan, $the_loai );
+		return array_map( static fn( string $l ): string => strtr( $l, array( $phan . '.chu' => $ten, $phan . '.dong' => $ten ) ), $loi );
+	}
+
 	// ---------- Dựng form ----------
 
 	/**
@@ -107,11 +119,12 @@ final class TamSua {
 	}
 
 	private static function form_y_nghia( ?array $cu, array $ctx ): string {
-		return self::vung( 's-y-nghia', 'chu', 'Ý nghĩa · 2–3 câu ngắn', (string) ( $cu['chu'] ?? '' ) )
+		$ten = 'cau-do' === ( $ctx['the_loai'] ?? '' ) ? 'Giải thích đáp án' : 'Ý nghĩa';
+		return self::vung( 's-y-nghia', 'chu', $ten . ' · 2–3 câu ngắn', (string) ( $cu['chu'] ?? '' ) )
 			. self::hop( 's-y-nghia-ai', 'ai', 'Có hỗ trợ của AI', ! empty( $cu['ai'] ) )
 			. ( $ctx['duyet']
-				? '<p class="small muted">"Lưu nháp": ý nghĩa vào Hộp việc, người đọc chưa thấy. "Lưu và hiện cho người đọc": hiện ngay trên trang bài. Để trống rồi bấm "Lưu và hiện cho người đọc" = gỡ ý nghĩa.</p>'
-				: '<p class="small muted">Ý nghĩa lưu thành nháp trong Hộp việc; người có quyền duyệt xem rồi mới hiện cho người đọc.</p>' );
+				? '<p class="small muted">"Lưu nháp": phần này vào Hộp việc, người đọc chưa thấy. "Lưu và hiện cho người đọc": cập nhật phần này; khách thấy khi bài đã đăng. Để trống rồi bấm "Lưu và hiện cho người đọc" = gỡ phần này.</p>'
+				: '<p class="small muted">Phần này lưu thành nháp trong Hộp việc; người có quyền duyệt xem rồi mới hiện cho người đọc.</p>' );
 	}
 
 	/** Đoạn của bài vè dài: tiêu đề + từ dòng, đến dòng (đếm dòng có chữ). */

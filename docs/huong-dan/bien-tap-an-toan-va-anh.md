@@ -26,6 +26,8 @@ Alt, chú thích và ghi công là thuộc tính của tệp trong Thư viện, 
 
 ## Quyền và hỗ trợ
 
+Trong form câu đố, **Giải thích đáp án** dùng cùng hai nút lưu nháp/hiện như Ý nghĩa. Lời báo lưu ghi rõ phần vừa lưu và bài đã công khai hay chưa. Trên trang đọc, **Chia sẻ cách hiểu** mở form khi cần; gửi xong hoặc có lỗi thì form mở lại kèm phản hồi. Cách hiểu vừa gửi vẫn chờ người biên soạn duyệt.
+
 Màn sửa cần quyền soạn và quyền sửa tác phẩm. Chọn/lưu ảnh cần thêm quyền tải tệp của WordPress; sửa metadata cần quyền sửa attachment. Khi tài khoản chưa có quyền, nhờ người quản trị kiểm vai hiện tại. Không tự đổi vai tài khoản thật để thử.
 
 Trang khách vẫn đọc được khi tắt JavaScript. Trình chọn/tải Thư viện ở wp-admin cần JavaScript. Nếu lỗi tải, ghi loại tệp, dung lượng, giới hạn WordPress đang báo và nguyên văn thông báo; không gửi mật khẩu, cookie hoặc nonce vào báo lỗi.

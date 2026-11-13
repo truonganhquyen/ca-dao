@@ -295,6 +295,9 @@ $c_gia = array( 'id' => 1, 'ten' => 'Bạn đọc', 'chu' => 'Chữ', 'ngay' => 
 $ht_mo = $HT::hien( $mau_id['cau-mau-thu-hai'], array( 'cach_hieu' => array(), 'cam_nghi' => array( $c_gia, $c_gia ) ) );
 $ht_gui = $HT::hien( $mau_id['cau-mau-thu-hai'], array( 'cach_hieu' => array(), 'cam_nghi' => array( $c_gia, $c_gia ) ), array( 'gui' => 'da_gui' ) );
 $ht_loi = $HT::hien( $mau_id['cau-mau-thu-hai'], array(), array( 'gui' => 'loi', 'ma' => 'thieu_ch' ) );
+kt( 'Hiểu thêm không trải sẵn form; gửi thành công hoặc lỗi tự mở để thấy phản hồi, vẫn có đủ consent', str_contains( $ht_mo, 'data-form-cach-hieu>' ) && ! str_contains( $ht_mo, 'data-form-cach-hieu open' ) && str_contains( $ht_gui, 'data-form-cach-hieu open' ) && str_contains( $ht_loi, 'data-form-cach-hieu open' ) && str_contains( $ht_mo, 'name="tu_viet"' ) && str_contains( $ht_mo, 'name="dong_y"' ) );
+$ht_co = $HT::hien( $mau_id['cau-mau-thu-hai'], array( 'cach_hieu' => array( $c_gia ) ) );
+kt( 'cách hiểu đã được hiện nằm trước mục mở form, không bị gập trong form góp', strpos( $ht_co, 'class="card ht-muc"' ) < strpos( $ht_co, 'data-form-cach-hieu' ) && str_contains( $ht_co, '<p>Chữ</p>' ) );
 kt( 'Hiểu thêm: mở sẵn phần nhiều bài nhất (Cảm nghĩ), vừa gửi cách hiểu thì mở phần Cách hiểu kèm lời cảm ơn; gửi thiếu thì báo đúng lỗi cạnh form', str_contains( $ht_mo, 'data-mo="2"' ) && str_contains( $ht_mo, 'id="ht-nut-cam-nghi" aria-controls="cam-nghi" aria-selected="true"' ) && str_contains( $ht_gui, 'data-mo="0"' ) && str_contains( $ht_gui, 'Cách hiểu đã tới người biên soạn' ) && str_contains( $ht_loi, 'Xin viết cách hiểu của bạn' ), array( substr( $ht_mo, 0, 400 ) ) );
 update_option( 'cadao_turnstile_site', 'khoa-site-thu', false );
 $ht_ts = $HT::form( $mau_id['cau-mau-thu-hai'] );
@@ -3164,6 +3167,14 @@ kt( 'ảnh câu đố chỉ nằm trong details đáp án đang đóng, không l
 $tp_anh['dap_an'] = '';
 kt( 'câu đố chưa có đáp án không đưa ảnh ra ngoài', ! str_contains( TacPham::hien( $tp_anh ), 'phongdao-anh-minh-hoa' ) );
 wp_delete_post( $p_anh, true );
+
+$form_do_nhan = \Phongdao\GiaoTiep\BienTap\TamSua::than( 'y_nghia', null, array( 'the_loai' => 'cau-do', 'duyet' => true ) );
+kt( 'form câu đố ghi Giải thích đáp án; lỗi ô chữ dùng nhãn tiếng Việt, không đổi trường nguồn', str_contains( $form_do_nhan, 'Giải thích đáp án · 2–3 câu ngắn' ) && ! str_contains( $form_do_nhan, 'Ý nghĩa ·' ) && array( 'Giải thích đáp án: dài quá 4000 ký tự.', 'y_nghia.nguon: giữ nguyên' ) === \Phongdao\GiaoTiep\BienTap\TamSua::nhan_loi( 'y_nghia', array( 'y_nghia.chu: dài quá 4000 ký tự.', 'y_nghia.nguon: giữ nguyên' ), 'cau-do' ) );
+$tt_hien = \Phongdao\GiaoTiep\Khoi\TuyenTap::cong_khai_ds();
+foreach ( $tt_hien as $tt_mock ) { wp_update_post( array( 'ID' => $tt_mock->ID, 'post_status' => 'draft' ) ); }
+$kp_trong = \Phongdao\GiaoTiep\Khoi\KhamPha::hien( 'kham-pha' );
+kt( 'lối vào tuyển tập chưa có nội dung công khai nói đang chuẩn bị, không quảng bá trình chiếu sẵn', str_contains( $kp_trong, 'Chưa có tuyển tập công khai' ) && str_contains( $kp_trong, 'Các bộ theo dịp đang được chuẩn bị' ) && ! str_contains( $kp_trong, 'Đọc liền một chủ đề, trình chiếu cả bộ' ) );
+foreach ( $tt_hien as $tt_mock ) { wp_update_post( array( 'ID' => $tt_mock->ID, 'post_status' => 'publish' ) ); }
 
 $tong = $GLOBALS['v2_dat'] + $GLOBALS['v2_hong'];
 ra( "\nKẾT QUẢ: " . ( $GLOBALS['v2_hong'] ? "HỎNG {$GLOBALS['v2_hong']} / $tong" : "ĐẠT $tong" ) );
