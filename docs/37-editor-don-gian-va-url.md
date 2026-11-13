@@ -34,6 +34,20 @@ Không làm trong đợt này: chuyển màn biên soạn sang WordPress gốc, 
 
 ## Kiểm thử và kết quả
 
-Mở rộng chính `test:v2` (PHP thuần + WordPress), `quet:v2`, `e2e:v2`; chạy thêm `kiem-tra`. Ghi/lỗi/khôi phục và URL thật chỉ thử trong WordPress mẫu bằng chữ kỹ thuật. Phiên bản sản phẩm dự kiến: plugin 1.0.60, theme 1.0.8.
+**Đã phát hành và xác minh trên phongdao.com ngày 13/11/2026:** plugin **1.0.60**, theme **1.0.8**, qua [PR #173](https://github.com/truonganhquyen/ca-dao/pull/173), commit `1a27837`. Giữ nguyên phạm vi thu gọn; agent không sửa nội dung hoặc URL tác phẩm thật.
 
-Chưa có kết quả cuối; chưa phát hành và chưa thay đổi nội dung/URL tác phẩm thật trong lượt này.
+| Kiểm tra | Kết quả |
+|---|---|
+| `npm run kiem-tra` | Đạt, 163 task, 1 câu hỏi mở, 0 lỗi nhất quán |
+| `npm run test:v2` | Đạt trên CI bản chốt; PHP thuần 264. Lượt local ghi nhận thêm 588 kiểm tra WordPress và 55 chuyển đổi; không tính các lượt lỗi trước đó là đạt |
+| `npm run quet:v2` | CI đạt, 0 lỗi; 36 trang × 3 chế độ, 12 trang tĩnh × 2 chế độ 320 px, khu biên tập/quản trị và bài 36 mục × 6 cỡ; có kiểm editor/URL mở ở 390/1440 px |
+| `npm run e2e:v2` | CI đạt 66 bước, 0 lỗi, 0 bỏ qua; gồm gõ/đậm/link/đổi màu/lưu/khách xem, khôi phục bản nhập, lọc nội dung nhúng lạ, URL/nonce/phiên/301 và URL không JavaScript |
+| Kiểm riêng trên trình duyệt mẫu | Cả 5 luồng mới đạt; nút thật có nhãn/trạng thái và Space chỉ thực hiện một lần; không tự báo chưa lưu khi mở editor, bấm lưu không phát sinh hộp thoại rời trang |
+| `npm run kiem-site-that` | Đúng plugin 1.0.60/theme 1.0.8 sau hệ thống tự cập nhật |
+| wp-admin thật, chỉ đọc | Các bài #11272, #2949, #15486 × 390/1440 px: mở editor, nút có tên, không lồng điều khiển, ô URL/phiên/xác nhận đúng; 0 phần chưa lưu, không tràn ngang, quét 0 lỗi, giá trị URL không đổi |
+
+[CI của bản chốt đã đạt](https://github.com/truonganhquyen/ca-dao/actions/runs/43441110580). Cây `wordpress/v2` của commit gộp trùng bản đã kiểm (`cd905a2bb43fe38a4122bc2176a750860e601e54`). Các phép ghi và khôi phục chạy trên WordPress mẫu bằng chữ kỹ thuật; không thử ghi định dạng hoặc đổi URL của tác phẩm thật. Kiểm production chỉ cho phép POST đăng nhập, sau đó GET/HEAD; không lưu tài khoản/cookie hoặc nội dung văn hoá thật vào hồ sơ kết quả. Kết quả phần mềm không thay cho thử tác vụ/nội dung thật của người biên soạn.
+
+**Các lượt không tính đạt:** lượt đầu editor chạy trước khi WordPress nạp TinyMCE; lượt quét tiếp phát hiện 18 lỗi tên nút/lồng điều khiển của toolbar. Đã sửa thứ tự khởi tạo, dùng nút thật có tên/trạng thái/focus và kiểm lại bàn phím. Lượt E2E đầu sai cách mở phần chưa có nội dung và đọc nhầm thuộc tính `form.action` bị ô ẩn che; đã sửa kịch bản để đi qua mục lục và gửi đúng action, giữ nguyên các khẳng định quyền/nonce/phiên. Một lượt chẩn đoán no-JS dùng cách chờ không phù hợp không tính nghiệm thu; kiểm lại đủ 5 luồng mới đạt. Không bỏ kiểm thử, không nới ngưỡng và không tắt quy tắc trợ năng.
+
+Hồ sơ cục bộ ở `output/playwright/editor-url/`: log CI và các lượt lỗi, kết quả kiểm riêng, ảnh mẫu kỹ thuật và `live-result.json`. Chưa có số đo tác vụ người thật để kết luận mức tăng năng suất; pilot T-198 vẫn chờ người biên soạn. Việc mở Google và quyền/nội dung văn hoá tiếp tục do người sáng lập quyết.
