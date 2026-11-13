@@ -3,7 +3,7 @@ export async function kiemEditorUrl({bt,G,di,bam,datO,bamDoiTrang,chac,thu,thuMu
   const accept=d=>d.accept().catch(()=>{});bt.on('dialog',accept);
   const clear=()=>bt.evaluate(()=>document.querySelectorAll('form[data-giu-nhap]').forEach(f=>window.phongdaoNhapDo?.daLuu(f)));
   let url,id;
-  const open=part=>bam(bt,`#${part}>summary`);
+  const open=async part=>{if(await bt.evaluate(()=>innerWidth)<1200)await bt.select('[data-chon-phan]',part);else await bam(bt,`[data-toi-phan="${part}"]`);};
   const ready=async()=>{await bt.waitForFunction(()=>{const f=document.querySelector('#phan-y_nghia iframe');return f&&window.tinymce?.get(f.id.replace(/_ifr$/,''))?.initialized;},{timeout:30000});};
   try {
     await di(bt,'/ve/ux-test-trang-sua-dai/');id=await bt.$eval('.dai-bien-tap',e=>e.dataset.bai);url=`/wp-admin/admin.php?page=phongdao-sua-tac-pham&id=${id}`;
@@ -41,11 +41,11 @@ export async function kiemEditorUrl({bt,G,di,bam,datO,bamDoiTrang,chac,thu,thuMu
     });
     await thu('URL: xác nhận, đổi tên, đường cũ 301, giữ bài và chặn nonce/bản mở cũ',async()=>{
       await di(bt,url);await open('duong-dan');const old=await bt.$eval('#pd-url-slug',e=>e.value),stamp=await bt.$eval('#duong-dan [name=phien_duong_dan]',e=>e.value),slug=old+'-editor';
-      const bad=await bt.$eval('#duong-dan form',async f=>{const b=new FormData(f);b.set('_wpnonce','invalid');b.set('xac_nhan_url','1');return (await fetch(f.action,{method:'POST',body:b})).status;});chac(bad===403,'nonce sai vẫn đổi được URL');
+      const bad=await bt.$eval('#duong-dan form',async f=>{const b=new FormData(f);b.set('_wpnonce','invalid');b.set('xac_nhan_url','1');return (await fetch(f.getAttribute('action'),{method:'POST',body:b})).status;});chac(bad===403,'nonce sai vẫn đổi được URL');
       await datO(bt,'#pd-url-slug',slug);chac(await bt.$eval('[data-url-xem]',e=>e.textContent.includes('-editor/')),'không xem trước URL');await bam(bt,'#duong-dan [name=xac_nhan_url]');await bamDoiTrang(bt,'#duong-dan button[type=submit]');
       chac(await bt.$eval('#pd-url-slug',e=>e.value)===slug,'không lưu URL mới');chac(new URL(bt.url()).searchParams.get('id')===id,'đổi ID bài');
       const response=await fetch(G+'/ve/'+old+'/',{redirect:'manual'});chac(response.status===301&&new URL(response.headers.get('location'),G).pathname==='/ve/'+slug+'/','đường cũ không 301 đúng đích');
-      const stale=await bt.$eval('#duong-dan form',async(f,stamp)=>{const b=new FormData(f);b.set('phien_duong_dan',stamp);b.set('slug','ux-test-stale-url');b.set('xac_nhan_url','1');return (await (await fetch(f.action,{method:'POST',body:b})).text()).includes('Đường dẫn hoặc trạng thái bài đã đổi');},stamp);chac(stale,'bản mở cũ vẫn đổi được');
+      const stale=await bt.$eval('#duong-dan form',async(f,stamp)=>{const b=new FormData(f);b.set('phien_duong_dan',stamp);b.set('slug','ux-test-stale-url');b.set('xac_nhan_url','1');return (await (await fetch(f.getAttribute('action'),{method:'POST',body:b})).text()).includes('Đường dẫn hoặc trạng thái bài đã đổi');},stamp);chac(stale,'bản mở cũ vẫn đổi được');
       await di(bt,url);chac(await bt.$eval('#pd-url-slug',e=>e.value)===slug,'URL mới bị bản cũ ghi đè');await open('duong-dan');await datO(bt,'#pd-url-slug',old);await bam(bt,'#duong-dan [name=xac_nhan_url]');await bamDoiTrang(bt,'#duong-dan button[type=submit]');await clear();
     });
     await thu('URL không JavaScript: sửa, xác nhận, lưu và chuyển hướng được',async()=>{
