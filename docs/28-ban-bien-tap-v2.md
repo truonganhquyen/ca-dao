@@ -65,7 +65,7 @@ Giữ thuật toán MVP (dấu vân tay cả lời, cặp âm tiết, bốn mứ
 - trùng đúng một dị bản đã ghi → tự gắn làm dị bản;
 - mọi lần tự gắn xem được ở Nguồn & cài đặt → Kho → Đã gộp, bấm "Tách ra" được;
 - có thể trùng → thẻ "Có thể trùng": Cùng một bài · Gộp làm dị bản · Là bài khác · Để sau;
-- hai tác phẩm đã đăng trùng nhau → thẻ "Gộp tác phẩm": chọn tác phẩm giữ lại; tác phẩm kia thành dị bản, đường dẫn cũ 301, lượt đọc, cảm nghĩ, phân tích, tuyển tập dồn sang; tác phẩm kia vào thùng rác (khôi phục được);
+- hai tác phẩm đã đăng trùng nhau: luồng "Gộp tác phẩm" (chọn bài giữ, bài kia thành dị bản, chuyển đường dẫn và các tham chiếu) **chưa triển khai; hoãn ngoài phạm vi D-115**. Các nút Cùng một bài / Gộp làm dị bản hiện chỉ nhận câu kho chưa thành tác phẩm;
 - Thêm bài và tấm sửa Lời: dải "Có thể trùng với …" ngay dưới ô Lời, chỉ báo, không chặn.
 
 ### 3.5. Nháp của agent

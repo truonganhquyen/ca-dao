@@ -300,6 +300,7 @@ final class ChongTrung implements Module {
 		global $wpdb;
 		$t = self::bang( 'trung' );
 		$cu = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $t WHERE (a = %s AND b = %s) OR (a = %s AND b = %s)", $a, $b, $b, $a ) );
+		if ( $wpdb->last_error ) { return; }
 		if ( $cu ) {
 			// Chỉ tái phát hiện cặp hết hiệu lực kỹ thuật; giữ mọi quyết định nội dung của người.
 			if ( 'het_hieu_luc' !== $cu->trang_thai || 1 !== $wpdb->update( $t, array( 'trang_thai' => 'cho', 'muc' => $cap_do, 'giong' => $giong, 'ly_do' => $ly_do ), array( 'id' => $cu->id, 'trang_thai' => 'het_hieu_luc' ) ) ) { return; }
@@ -356,7 +357,9 @@ final class ChongTrung implements Module {
 		global $wpdb;
 		if ( 1 !== $wpdb->update( self::bang( 'trung' ), array( 'trang_thai' => $trang_thai ), array( 'id' => (int) $cap->id, 'trang_thai' => $cap->trang_thai ) ) ) { return false; }
 		[ $loai, $id ] = self::tach_muc( $cap->a );
-		foreach ( Viec::mo( $loai, $id, 'co_the_trung' ) as $v ) {
+		$mo = Viec::mo( $loai, $id, 'co_the_trung' );
+		if ( $wpdb->last_error ) { return false; }
+		foreach ( $mo as $v ) {
 			if ( ! self::cung_cap( $v, $cap ) ) { continue; }
 			if ( ! Viec::dong( (int) $v['id'], Viec::BO, 'het_hieu_luc', $nguoi, $v['trang_thai'], array( 'ly_do' => $ly_do ) ) ) { return false; }
 		}
@@ -387,6 +390,9 @@ final class ChongTrung implements Module {
 			if ( false === $wpdb->query( $wpdb->prepare( 'SELECT id FROM ' . Kho::bang() . ' WHERE id = %d FOR UPDATE', $kho_id ) ) ) { throw new \RuntimeException( 'Chưa khoá được câu kho.' ); }
 			$ds = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . self::bang( 'trung' ) . " WHERE a = %s AND trang_thai IN ('cho','de_sau') ORDER BY id FOR UPDATE", 'kho:' . $kho_id ) );
 			if ( $wpdb->last_error ) { throw new \RuntimeException( 'Chưa đọc được cặp chờ trùng.' ); }
+			if ( false === $wpdb->query( $wpdb->prepare( 'SELECT id FROM ' . Viec::bang() . " WHERE doi_tuong_loai = 'kho' AND doi_tuong_id = %d AND loai = 'co_the_trung' FOR UPDATE", $kho_id ) ) ) { throw new \RuntimeException( 'Chưa khoá được thẻ chờ trùng.' ); }
+			$cac_the = Viec::cua( 'kho', $kho_id, 'co_the_trung' );
+			if ( $wpdb->last_error ) { throw new \RuntimeException( 'Chưa đọc được lịch sử chờ trùng.' ); }
 			$m = Kho::lay( $kho_id ); $the = 0; $tt = Viec::CHO; $cap_mo = array();
 			foreach ( $ds ?: array() as $cap ) {
 				[ $loai_b, $id_b ] = self::tach_muc( $cap->b );
@@ -401,7 +407,7 @@ final class ChongTrung implements Module {
 					continue;
 				}
 				$co = null; $da_quyet = '';
-				foreach ( Viec::cua( 'kho', $kho_id, 'co_the_trung' ) as $v ) {
+				foreach ( $cac_the as $v ) {
 					if ( ! self::cung_cap( $v, $cap ) ) { continue; }
 					if ( in_array( $v['trang_thai'], array( Viec::CHO, Viec::DE_SAU ), true ) ) { $co = $v; }
 					elseif ( 'het_hieu_luc' !== $v['quyet'] ) { $da_quyet = array( 'khac' => 'khac', 'cung' => 'da_gop', 'di_ban' => 'da_gop' )[ $v['quyet'] ] ?? 'bo'; }
@@ -418,7 +424,9 @@ final class ChongTrung implements Module {
 				if ( ! $the ) { $the = (int) $co['id']; $tt = $co['trang_thai']; }
 				$cap_mo[] = $cap;
 			}
-			foreach ( Viec::mo( 'kho', $kho_id, 'co_the_trung' ) as $v ) {
+			$the_mo = Viec::mo( 'kho', $kho_id, 'co_the_trung' );
+			if ( $wpdb->last_error ) { throw new \RuntimeException( 'Chưa đọc được thẻ còn mở.' ); }
+			foreach ( $the_mo as $v ) {
 				$co_cap = false;
 				foreach ( $cap_mo as $cap ) { if ( self::cung_cap( $v, $cap ) ) { $co_cap = true; break; } }
 				if ( ! $co_cap && ! Viec::dong( $v['id'], Viec::BO, 'het_hieu_luc', $nguoi, $v['trang_thai'], array( 'ly_do' => 'Không còn cặp chờ tương ứng; chỉ đóng thẻ kỹ thuật còn sót.' ) ) ) {
