@@ -202,6 +202,12 @@ final class HopViec {
 			$ly_do = 'giống ' . (int) ( $n['giong'] ?? 0 ) . '%' . ( empty( $n['ly_do'] ) ? '' : ' · ' . $n['ly_do'] );
 			$mo    = $lub[3];
 			$g     = 'tim';
+			[ $loai_a, $id_a ] = ChongTrung::tach_muc( (string) $n['a'] );
+			if ( $co_form && 'kho' === $loai_a && $id_a && current_user_can( 'cadao_soan' ) && in_array( $v['trang_thai'], array( Viec::CHO, Viec::DE_SAU ), true ) ) {
+				$hd = \Phongdao\GiaoTiep\QuanTri\DanhSachKho::DOI_SOAT;
+				$than .= '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="' . $hd . '"><input type="hidden" name="id" value="' . $id_a . '">'
+					. wp_nonce_field( $hd . '_' . $id_a, '_wpnonce', false, false ) . '<p class="small muted">Không quyết được cặp này? <button type="submit" class="button">Kiểm tra chờ trùng</button></p></form>';
+			}
 		}
 		// Thẻ đã đóng: không còn ghi "chờ duyệt / người đọc chưa thấy" (nội dung đã được quyết)
 		if ( ! in_array( $v['trang_thai'], array( Viec::CHO, Viec::DE_SAU ), true ) && in_array( $v['loai'], array( 'nhap_y_nghia', 'nguoi_doc' ), true ) ) {

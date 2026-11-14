@@ -219,8 +219,24 @@ try {
     for (const v of kq.violations) for (const n of v.nodes.slice(0, 3)) loi.push(`${duong}: [${v.id}] ${v.help} — ${n.target.join(' ')}`);
   }
   await quetTrangSua({bt,G,axeNguon,THE_WCAG,loi,thuMucAnh,doTran});
+  // T-207: thùng rác và xem trước xoá; chỉ tạo lô mẫu, không bấm xoá.
+  await bt.goto(G+'/wp-admin/admin.php?page=phongdao-tac-pham&tt=trash&q=Trash%20207',{waitUntil:'load',timeout:120_000});
+  for (const man of ['thùng rác','xem trước xoá']) {
+    if (man==='xem trước xoá') {
+      await Promise.all([bt.waitForNavigation({waitUntil:'load',timeout:120_000}),bt.click('button[name=lam_mot][value^="xoa_vinh_vien:"]')]);
+    }
+    for (const width of [390,1440]) {
+      await bt.setViewport({width,height:900});
+      const vung=man==='thùng rác'?'.phongdao-admin-tp':'.phongdao-admin-lo';
+      const tran=await doTran(bt); if(tran) loi.push(`${man} ${width}: tràn ngang ${tran}`);
+      await bt.addScriptTag({content:axeNguon});
+      const kq=await bt.evaluate((vung,the)=>window.axe.run(vung,{runOnly:{type:'tag',values:the}}),vung,THE_WCAG);
+      for(const v of kq.violations) for(const n of v.nodes.slice(0,3)) loi.push(`${man} ${width}: [${v.id}] ${v.help} — ${n.target.join(' ')}`);
+      if(thuMucAnh) await bt.screenshot({path:path.join(thuMucAnh,`admin-${man==='thùng rác'?'rac':'xoa'}-${width}.png`),fullPage:true});
+    }
+  }
   await bt.close();
-  console.log(`Quét V2: ${DS_TRANG.length} trang × ${CHE_DO.length} chế độ + ${DS_TINH_320.size} trang tĩnh × 2 chế độ 320 px + ${DS_BIEN_TAP.length} trang biên tập + 10 trang admin + trang sửa 36 mục × 6 cỡ (gập/mở) + Danh mục × 2 cỡ (axe ${THE_WCAG.join(', ')}) — ${loi.length} lỗi.`);
+  console.log(`Quét V2: ${DS_TRANG.length} trang × ${CHE_DO.length} chế độ + ${DS_TINH_320.size} trang tĩnh × 2 chế độ 320 px + ${DS_BIEN_TAP.length} trang biên tập + 10 trang admin + trang sửa 36 mục × 6 cỡ (gập/mở) + Danh mục × 2 cỡ + Thùng rác/Xem trước xoá × 2 cỡ (axe ${THE_WCAG.join(', ')}) — ${loi.length} lỗi.`);
 } catch (e) {
   loi.push(String(e.message ?? e));
 } finally {

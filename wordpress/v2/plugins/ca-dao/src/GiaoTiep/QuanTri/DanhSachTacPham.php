@@ -20,6 +20,7 @@ defined( 'ABSPATH' ) || exit;
 final class DanhSachTacPham {
 
 	public const TRANG = 'phongdao-tac-pham';
+	public const FORM_LO = 'phongdao-tac-pham-lo';
 	public const TACH = 'phongdao_tach_duong_dan';
 	private const MOI_TRANG = 30;
 	private const TRANG_THAI = array(
@@ -252,6 +253,13 @@ final class DanhSachTacPham {
 		$ten  = '' !== trim( $bai->post_title ) ? $bai->post_title : '(Chưa đặt tên)';
 		$ten  = $sua ? '<a href="' . esc_url( SuaTacPham::url( $id, $ve_ds ) ) . '">' . esc_html( $ten ) . '</a>' : esc_html( $ten );
 		$hanh = array();
+		if ( current_user_can( 'cadao_duyet' ) && current_user_can( 'delete_post', $id ) ) {
+			$ma = 'trash' === $bai->post_status ? 'lay_ra' : 'thung_rac';
+			$hanh[] = '<button type="submit" form="' . self::FORM_LO . '" name="lam_mot" value="' . $ma . ':' . $id . '" class="button-link">' . ( 'lay_ra' === $ma ? 'Khôi phục' : 'Thùng rác' ) . '</button>';
+			if ( 'trash' === $bai->post_status && current_user_can( 'manage_options' ) ) {
+				$hanh[] = '<button type="submit" form="' . self::FORM_LO . '" name="lam_mot" value="xoa_vinh_vien:' . $id . '" class="button-link button-link-delete">Xoá vĩnh viễn</button>';
+			}
+		}
 		if ( $sua ) {
 			$hanh[] = '<a href="' . esc_url( SuaTacPham::url( $id, $ve_ds ) ) . '" aria-label="' . esc_attr( 'Sửa bài #' . $id ) . '">Sửa</a>';
 			$hanh[] = '<a href="' . esc_url( $xem ) . '" aria-label="' . esc_attr( 'Xem bài #' . $id ) . '">Xem</a>';
@@ -397,9 +405,19 @@ final class DanhSachTacPham {
 		return '<div class="wrap phongdao-admin-tp phongdao-ds-tp"><h1 class="wp-heading-inline">Tác phẩm</h1> <a class="page-title-action" href="' . esc_url( ThemTacPham::url() ) . '">Thêm tác phẩm</a><hr class="wp-header-end">'
 			. $bao . TrangLo::lay_bao() . self::bao_trung() . self::tab( $loc ) . self::form_loc( $loc )
 			. '<p class="phongdao-tp-tong" role="status"><strong>' . (int) $kq['tong'] . '</strong> tác phẩm khớp bộ lọc. Hiện ' . count( $bai ) . ' mục trên trang này.</p>'
-			. ( $lo ? '<form method="post" class="phongdao-lo-form" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">' . TrangLo::khoi_chon_bai( $loc, (int) $kq['tong'] ) : '' )
+			. ( $lo ? '<form id="' . self::FORM_LO . '" method="post" class="phongdao-lo-form" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">' . TrangLo::khoi_chon_bai( $loc, (int) $kq['tong'] ) : '' )
 			. ( $lo ? TrangLo::chon_het( (int) $kq['tong'], 'bài' ) : '' )
 			. '<table class="widefat striped phongdao-tp-bang"><thead><tr>' . ( $lo ? '<th scope="col">Chọn</th>' : '' ) . '<th scope="col">ID</th><th scope="col">Tác phẩm</th><th scope="col">Trạng thái</th><th scope="col">Thể loại</th><th scope="col">Còn thiếu</th><th scope="col">Nguồn</th><th scope="col">Việc</th><th scope="col">Sửa cuối</th></tr></thead><tbody>'
-			. ( $dong ?: '<tr><td colspan="9">Không có tác phẩm khớp. Thử đổi bộ lọc.</td></tr>' ) . '</tbody></table>' . ( $lo ? '</form>' : '' ) . self::form_an( $bai, $ve ) . $phan_trang . ( $lo ? TrangLo::thanh_noi( 'bài', TrangLo::nut_mo_lo() ) : '' ) . '</div>';
+			. ( $dong ?: '<tr><td colspan="9">Không có tác phẩm khớp. Thử đổi bộ lọc.</td></tr>' ) . '</tbody></table>' . ( $lo ? '</form>' : '' ) . self::form_an( $bai, $ve ) . $phan_trang . ( $lo ? TrangLo::thanh_noi( 'bài', TrangLo::nut_mo_lo() . self::nut_rac( $loc ) ) : '' ) . '</div>';
+	}
+
+	private static function nut_rac( array $loc ): string {
+		if ( ! current_user_can( 'cadao_duyet' ) ) { return ''; }
+		$rac = 'trash' === $loc['tt'];
+		$ds = $rac ? array( 'lay_ra' => 'Khôi phục' ) : array( 'thung_rac' => 'Đưa vào thùng rác' );
+		if ( $rac && current_user_can( 'manage_options' ) ) { $ds['xoa_vinh_vien'] = 'Xoá vĩnh viễn'; }
+		$o = '';
+		foreach ( $ds as $ma => $ten ) { $o .= '<button type="submit" form="' . self::FORM_LO . '" name="thao_tac_nhanh" value="' . $ma . '" class="button">' . $ten . '</button>'; }
+		return $o;
 	}
 }

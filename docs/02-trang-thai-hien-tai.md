@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Phiên bản | 3.7 · 14/11/2026 (trang thưa gọn, chuẩn bị Google — D-114; bộ lọc Tìm gọn — D-113; tìm đúng chữ và thứ tự danh sách — D-112; lịch sử đến 11/11/2026: `docs/luu-tru/02-trang-thai-den-11-11-2026.md`) |
+| Phiên bản | 3.8 · 14/11/2026 (thùng rác và gỡ kẹt chờ trùng — D-115; trang thưa gọn, chuẩn bị Google — D-114; bộ lọc Tìm gọn — D-113; tìm đúng chữ và thứ tự danh sách — D-112; lịch sử đến 11/11/2026: `docs/luu-tru/02-trang-thai-den-11-11-2026.md`) |
 | Mục đích | Trang tổng quan ngắn cho người sáng lập và AI agent |
 | Nguồn máy đọc | `du-an/trang-thai.json` (`npm run kiem-nhat-quan` đối chiếu với `docs/01`, `docs/22`) |
 
@@ -32,6 +32,8 @@
   - không thu dữ liệu cá nhân của người đọc.
 
 ## Đang làm: đợt 3 (`docs/32`)
+
+- **Thùng rác và gỡ kẹt chờ trùng đã làm** (D-115, plugin 1.0.66, PR #180): Tác phẩm có Thùng rác từng bài và ở thanh chọn nhiều bài; tab Thùng rác có Khôi phục và Xoá vĩnh viễn qua xem trước/xác nhận riêng (chỉ quản trị có quyền duyệt/xoá). Bài mới và thẻ Có thể trùng có Kiểm tra chờ trùng: nối đúng thẻ mất, mở đúng Để sau, gỡ cờ/thẻ kỹ thuật sót, giữ quyết định của người. Không chuyển tác phẩm thành dị bản, không xoá bài thật. Kiểm WordPress và quét trợ năng đạt; E2E tại máy 71/71 không bỏ qua. [Cách dùng, phạm vi và kiểm chứng](41-thung-rac-va-cho-trung.md). Phiên bản site kiểm riêng bằng `npm run kiem-site-that` sau khi gộp; pilot nội dung thật vẫn chờ người biên soạn.
 
 - **Trang thưa gọn và chuẩn bị Google đã làm** (D-114, plugin 1.0.64/theme 1.0.11), sau khi đối chiếu báo cáo đề xuất *Phong Dao V5* (không mở "V5": phần lớn đã có, chỗ thiếu là nội dung). Hiểu thêm chưa có bài nào của bạn đọc thành một dòng mời; "Bạn muốn góp gì?" thu gọn còn bốn lối góp tư liệu; "Ảnh để chia sẻ" thu gọn (mở từ hộp Chia sẻ); vè dài nhiều từ khó nhóm theo đoạn; lời mời gọi "bài" với bài dài; Bổ sung có danh sách "Ý nghĩa dài" (hơn 80 chữ). Google: mã đã áp đúng "mọi tác phẩm đã đăng được lập chỉ mục"; câu đố không lộ giải thích đáp án ở thẻ bài, mô tả trang, dữ liệu có cấu trúc. **Site vẫn chặn Google** tới khi người sáng lập bật. Tiếp theo: bảng dọn Chủ đề để người duyệt từng dòng.
 - **Dọn Chủ đề đã làm** (D-114, plugin 1.0.65): trang Chủ đề xếp theo nhóm của bộ chủ đề (Chủ đề chung · Kinh nghiệm · Lối hát · Loại câu đố · Mục khác). wp-admin → Phongdao → Danh mục → **Dọn chủ đề**: bảng mọi chủ đề, máy đề xuất giữ / gộp / bỏ kèm lý do; chỉ mục ngoài bộ chủ đề của dự án mới gộp hoặc bỏ được, qua Xem trước → Đồng ý; mỗi bài ghi Lịch sử, đường cũ chuyển hướng 301. Chưa mục nào bị đổi: người sáng lập duyệt.

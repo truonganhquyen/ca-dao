@@ -43,7 +43,7 @@ final class DauVetTrangThai implements Module {
 	/** Xoá vĩnh viễn: bài mất hẳn, dòng nhật ký giữ tên và trạng thái cuối. */
 	public static function xoa( int $id, ?\WP_Post $bai = null ): void {
 		$bai = $bai ?? get_post( $id );
-		if ( ! $bai || KhaiBao::TAC_PHAM !== $bai->post_type || self::dang_nhap() ) {
+		if ( self::$bo_qua || ! $bai || KhaiBao::TAC_PHAM !== $bai->post_type || self::dang_nhap() ) {
 			return;
 		}
 		self::ghi( (int) $bai->ID, 'xoa_vinh_vien', array( 'trang_thai' => $bai->post_status, 'ten' => $bai->post_title ), null );

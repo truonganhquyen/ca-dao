@@ -179,6 +179,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-206 | Bộ lọc Tìm gọn: hai select cùng hàng trên máy tính, thu gọn trên điện thoại, chung form GET, giữ trạng thái và lối ra khi 0 kết quả (D-113, docs/40; PR #177) | A | T-203 | — | DONE |
 | T-204 | Trang thưa gọn (D-114): Hiểu thêm trống một dòng; "Bạn muốn góp gì?" bốn lối, thu gọn; "Ảnh để chia sẻ" thu gọn; Từ khó bài chia đoạn nhóm theo đoạn; lời mời "câu"/"bài"; Bổ sung "Ý nghĩa dài" | A | T-202 | — | DONE |
 | T-205 | Dọn Chủ đề (D-114): máy lập bảng đề xuất từng mục (giữ / gộp / bỏ), người duyệt từng dòng, đường cũ chuyển hướng 301, có Lịch sử; trang Chủ đề xếp theo nhóm của bộ chủ đề | A | T-204 | — | DONE |
+| T-207 | Thùng rác: thao tác một/nhiều bài, Khôi phục, xoá vĩnh viễn có xem trước/xác nhận; đối soát chờ trùng mất thẻ hoặc cờ sót (D-115, docs/41, PR #180), không chuyển tác phẩm thành dị bản | A | T-205, T-206 | — | DONE |
 | **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
 | T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
 | T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | IN_PROGRESS |
@@ -963,6 +964,10 @@ Sau khi agent đối chiếu báo cáo đề xuất *Phong Dao V5* với hiện 
 ### Dọn chủ đề — T-205
 
 Người sáng lập chọn "máy lập bảng, tôi duyệt" (D-114). Khi làm, agent đối chiếu bộ chủ đề trong mã (`MienDuLieu\GoiY::CHU_DE`): "Hát ru", "Hò", "Lý", "Hát đối" thuộc nhóm **Lối hát**, các mục "Đố…" thuộc nhóm **Loại câu đố**, ba mục "Kinh nghiệm…" và "Đối nhân xử thế" thuộc nhóm **Kinh nghiệm (tục ngữ)** — đều là bộ chủ đề người sáng lập đã duyệt, máy gợi ý dựa vào đó. Trang Chủ đề chỉ đang trải phẳng mọi nhóm; trên site thật, mục nằm ngoài bộ là "Loại vè" và "Vè dân gian về động vật". **Chấp nhận:** trang `/chu-de/` xếp theo nhóm (Chủ đề chung · Kinh nghiệm (tục ngữ) · Lối hát · Loại câu đố · Mục khác cho mục ngoài bộ); màn **Danh mục → Dọn chủ đề** (wp-admin) liệt kê mọi chủ đề với nhóm, số bài đã đăng, đề xuất của máy kèm lý do (trong bộ: giữ; không còn bài: bỏ; gần trùng tên một chủ đề trong bộ: gộp vào mục đó; tên trùng thể loại: bỏ); chỉ mục **ngoài bộ** mới có lối Xem trước → Đồng ý; xem trước nêu số bài, đường cũ đi đâu, mục bị xoá; chỉ người có quyền duyệt và quản lý chủ đề làm được; mỗi bài đổi qua `LuuPhanLoai` (khoá bài, kiểm phiên, Lịch sử), bài nào chưa đổi được thì chưa xoá mục; xong thì xoá mục, chuyển hướng 301 đường cũ (gộp: về mục nhận; bỏ: về `/chu-de/`; đường cũ trỏ vào mục vừa xoá đổi theo), ghi một dòng nhật ký cho mục. **Không làm:** đổi bộ chủ đề của dự án (thêm, bớt, chuyển Hát ru sang Hình thức) — nếu người sáng lập muốn, đó là quyết định riêng; máy không tự gộp hay bỏ mục nào.
+
+### Thùng rác và chờ trùng — T-207
+
+Người sáng lập chốt phạm vi D-115. **Chấp nhận:** Tác phẩm có nút Thùng rác từng bài và trên thanh chọn nhiều bài; tab Thùng rác có Khôi phục và Xoá vĩnh viễn (quản trị có quyền duyệt/xoá), dùng xem trước lô và xác nhận riêng phía trình duyệt/máy chủ; xoá chỉ bài đang trong rác còn đúng phiên, không tự chạy tiếp; lỗi bắt buộc hoàn nguyên giao dịch; nhật ký, nguồn và ảnh giữ lại. Chờ trùng: nút POST có quyền/nonce, nối đúng thẻ mất, mở đúng trạng thái Để sau, gỡ cặp không còn đối tượng/câu đã dùng hoặc cờ chờ sót sau quyết định; bấm lại không tạo thẻ lặp, còn cặp hợp lệ vẫn chặn. **Không làm:** chuyển tác phẩm thành dị bản, tự kết luận/gộp nội dung, xoá bài thật. Chi tiết và kiểm chứng `docs/41`.
 
 ## 4. User story
 

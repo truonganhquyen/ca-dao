@@ -206,11 +206,12 @@ final class TrangLo {
 			self::bao( $bc['ok'], $bc['ok'] ? 'Đã đánh dấu mọi mục của lô, cả ở các trang khác. Chưa có gì thay đổi cho tới khi bấm nút chính.' : $bc['loi'] );
 		}
 		if ( in_array( $lam, array( 'ap_dung', 'tiep' ), true ) ) {
-			$kq = Lo::ap_dung( $lo, $nguoi, current_user_can( 'cadao_duyet' ) );
+			$kq = Lo::ap_dung( $lo, $nguoi, current_user_can( 'cadao_duyet' ), ! empty( $_POST['xac_nhan_xoa'] ) );
 			if ( ! $kq['ok'] ) {
 				self::bao( false, $kq['loi'] );
 			} elseif ( $kq['con'] > 0 ) {
-				$them = array( 'tu_chay' => empty( $_POST['tu_chay'] ) ? '' : '1' );
+				$hien_lo = Viec::lay( $lo );
+				$them = array( 'tu_chay' => 'xoa_vinh_vien' === ( $hien_lo['noi_dung']['thao_tac'] ?? '' ) || empty( $_POST['tu_chay'] ) ? '' : '1' );
 			} else {
 				self::bao( true, 'Lô đã chạy xong.' );
 				$them = array();
@@ -267,8 +268,9 @@ final class TrangLo {
 			. esc_html( implode( ' · ', array_map( static fn( string $ma ): string => Lo::KET_QUA[ $ma ] . ' ' . $dem[ $ma ], array_keys( Lo::KET_QUA ) ) ) ) . '.</p>';
 		if ( Viec::LO_DANG === $lo['trang_thai'] ) {
 			$tu = ! empty( $_GET['tu_chay'] ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ quyết có tự bấm Tiếp tục
-			$h .= '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"' . ( $tu ? ' data-tu-chay' : '' ) . '>' . self::an( (int) $lo['id'] ) . ( $tu ? '<input type="hidden" name="tu_chay" value="1">' : '' )
-				. '<p class="phongdao-lo-nut"><button type="submit" name="lam" value="tiep" class="button button-primary" data-tiep>Tiếp tục</button> <button type="submit" name="lam" value="huy" class="button">Dừng lô</button></p>'
+			$tu = $tu && 'xoa_vinh_vien' !== $nd['thao_tac'];
+			$h .= '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"' . ( $tu ? ' data-tu-chay' : '' ) . '>' . self::an( (int) $lo['id'] ) . ( 'xoa_vinh_vien' === $nd['thao_tac'] ? self::xac_nhan_xoa() : '' ) . ( $tu ? '<input type="hidden" name="tu_chay" value="1">' : '' )
+				. '<p class="phongdao-lo-nut"><button type="submit" name="lam" value="tiep" class="button button-primary" data-tiep>Tiếp tục</button> <button type="submit" name="lam" value="huy" class="button" formnovalidate>Dừng lô</button></p>'
 				. ( $tu ? '<p class="description" data-chi-js hidden>Đang tự chạy tiếp từng lượt ' . Lo::moi_luot( (string) $nd['thao_tac'] ) . ' mục. <a href="' . esc_url( self::url( (int) $lo['id'] ) ) . '">Dừng tự chạy</a></p>' : '' ) . '</form>';
 		}
 		return $h . self::buoc_tiep( $lo ) . self::ket_qua( $lo ) . '</div>';
@@ -534,6 +536,7 @@ final class TrangLo {
 		$nd    = $lo['noi_dung'];
 		$ts    = (array) ( $nd['tham_so'] ?? array() );
 		$pl    = Lo::la_phan_loai( (string) $nd['thao_tac'] );
+		$xoa = 'xoa_vinh_vien' === $nd['thao_tac'];
 		$muc   = (array) $nd['muc'];
 		$bo    = array_flip( array_map( 'intval', (array) $nd['bo'] ) );
 		$trang = max( 1, (int) ( $_GET['trang'] ?? 1 ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc
@@ -557,7 +560,8 @@ final class TrangLo {
 			} else {
 				$o = '<td data-nhan="Việc mở">' . (int) ( $viec[ $bid ] ?? 0 ) . '</td><td data-nhan="Trong tuyển tập">' . (int) ( $tt[ $bid ] ?? 0 ) . '</td>';
 			}
-			$trang_thai = $p ? ( $ten_tt[ $p->post_status ] ?? $p->post_status ) . ( ! $pl && $p->post_status !== $ban ? ' (đã đổi sau lúc xem trước)' : '' ) : 'Không còn bài này';
+			$doi_ban = $p && ! $pl && ( $xoa ? \Phongdao\DichVu\XoaTacPham\XoaTacPham::phien( $bid ) !== $ban : $p->post_status !== $ban );
+			$trang_thai = $p ? ( $ten_tt[ $p->post_status ] ?? $p->post_status ) . ( $doi_ban ? ' (đã đổi sau lúc xem trước)' : '' ) : 'Không còn bài này';
 			$dong .= '<tr><td data-nhan="Áp dụng"><input type="hidden" name="tren_trang[]" value="' . $bid . '"><input type="checkbox" name="giu[]" value="' . $bid . '" id="lo-giu-' . $bid . '"' . checked( ! isset( $bo[ $bid ] ), true, false ) . '><label for="lo-giu-' . $bid . '" class="screen-reader-text">Áp dụng cho bài #' . $bid . '</label></td>'
 				. '<td data-nhan="Tác phẩm">' . self::lien_bai( $bid, $p ) . '</td><td data-nhan="Trạng thái">' . esc_html( $trang_thai ) . '</td>' . $o . '</tr>';
 		}
@@ -565,19 +569,24 @@ final class TrangLo {
 		$dau = $pl ? '<th scope="col">Đang có (' . esc_html( \Phongdao\HaTang\KhaiBao::PHAN_LOAI[ $ts['tax'] ][1] ?? '' ) . ')</th>' : '<th scope="col">Việc mở</th><th scope="col">Trong tuyển tập</th>';
 		$ap  = count( $muc ) - count( $bo );
 		$giai = $pl ? 'Mỗi bài ghi một lần sửa phân loại vào Lịch sử (khôi phục được). Không tạo mục mới.' : ( 'thung_rac' === $nd['thao_tac'] ? 'Bài vào thùng rác thì người đọc không thấy; lấy ra được bằng lô "Lấy ra khỏi thùng rác". Không xoá vĩnh viễn.' : 'Mỗi lần đổi trạng thái có dấu vết trong Lịch sử của bài.' );
+		if ( $xoa ) { $giai = 'Xoá vĩnh viễn bài, các phần đã lưu và bình luận của bài. Không thể khôi phục bằng nút Khôi phục. Nhật ký, hồ sơ nguồn và tệp ảnh trong Thư viện được giữ; các chỗ đang nhắc đến bài cần đối soát. Mỗi lượt phải xác nhận, không tự chạy tiếp.'; }
 		return '<p class="description">Chưa có gì thay đổi. ' . esc_html( $giai ) . ' Bỏ dấu ở bài không muốn áp dụng; bài đổi sau lúc xem trước sẽ được bỏ qua và báo xung đột.</p>'
 			. '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">' . self::an( $id, $trang ) . $thanh
 			. '<table class="widefat striped"><thead><tr><th scope="col">Áp dụng</th><th scope="col">Tác phẩm</th><th scope="col">Trạng thái</th>' . $dau . '</tr></thead><tbody>' . $dong . '</tbody></table>'
-			. '<p class="phongdao-lo-nut"><button type="submit" name="lam" value="ap_dung" class="button button-primary" data-mau="Áp dụng cho %d mục" data-ngoai="' . $ngoai . '">Áp dụng cho ' . $ap . ' mục (tính cả bỏ chọn trên trang này)</button> <button type="submit" name="lam" value="luu_bo" class="button">Lưu bỏ chọn trên trang này</button> <button type="submit" name="lam" value="huy" class="button">Huỷ lô</button></p>'
-			. '<p><label><input type="checkbox" name="tu_chay" value="1" checked> Tự chạy tiếp đến hết (mỗi lượt ' . Lo::MOI_LUOT . ' mục; bỏ chọn thì bấm Tiếp tục từng lượt)</label></p></form>'
+			. ( $xoa ? self::xac_nhan_xoa() : '' ) . '<p class="phongdao-lo-nut"><button type="submit" name="lam" value="ap_dung" class="button button-primary" data-mau="' . ( $xoa ? 'Xoá vĩnh viễn %d mục' : 'Áp dụng cho %d mục' ) . '" data-ngoai="' . $ngoai . '">' . ( $xoa ? 'Xoá vĩnh viễn ' : 'Áp dụng cho ' ) . $ap . ' mục (tính cả bỏ chọn trên trang này)</button> <button type="submit" name="lam" value="luu_bo" class="button" formnovalidate>Lưu bỏ chọn trên trang này</button> <button type="submit" name="lam" value="huy" class="button" formnovalidate>Huỷ lô</button></p>'
+			. ( $xoa ? '' : '<p><label><input type="checkbox" name="tu_chay" value="1" checked> Tự chạy tiếp đến hết (mỗi lượt ' . Lo::MOI_LUOT . ' mục; bỏ chọn thì bấm Tiếp tục từng lượt)</label></p>' ) . '</form>'
 			. self::phan_trang( $id, $trang, $so );
+	}
+
+	private static function xac_nhan_xoa(): string {
+		return '<p><label><input type="checkbox" name="xac_nhan_xoa" value="1" required> Tôi hiểu các bài được chọn sẽ bị xoá vĩnh viễn và không thể lấy lại từ thùng rác.</label></p>';
 	}
 
 	/** Khối "Làm theo lô" trên danh sách Tác phẩm. */
 	public static function khoi_chon_bai( array $loc, int $tong ): string {
 		$tt = '';
 		foreach ( Lo::THAO_TAC as $ma => [ $ten, $dt, $quyen ] ) {
-			if ( 'post' === $dt && current_user_can( $quyen ) ) {
+			if ( 'post' === $dt && current_user_can( $quyen ) && ( 'xoa_vinh_vien' !== $ma || 'trash' === $loc['tt'] ) ) {
 				$tt .= '<option value="' . esc_attr( $ma ) . '">' . esc_html( $ten ) . '</option>';
 			}
 		}
@@ -608,7 +617,7 @@ final class TrangLo {
 			. '<label><input type="radio" name="pham_vi" value="chon" checked> Các bài đã chọn trên trang này</label>'
 			. '<label><input type="radio" name="pham_vi" value="loc"> Mọi bài khớp bộ lọc (' . (int) $tong . ' bài)</label></fieldset>'
 			. '<button type="submit" class="button">Xem trước</button>'
-			. '<p class="description">Bước xem trước chốt danh sách và cho bỏ chọn ngoại lệ; chưa có gì thay đổi cho tới khi bấm Áp dụng. Không có xoá vĩnh viễn.</p></fieldset></details>';
+			. '<p class="description">Bước xem trước chốt danh sách và cho bỏ chọn ngoại lệ; chưa có gì thay đổi cho tới khi bấm nút chính. Xoá vĩnh viễn chỉ dành cho quản trị, chỉ với bài trong thùng rác và có xác nhận riêng.</p></fieldset></details>';
 	}
 
 	/** Tạo lô từ danh sách Tác phẩm. */
@@ -624,6 +633,13 @@ final class TrangLo {
 		$pham_vi  = 'loc' === ( $_POST['pham_vi'] ?? '' ) ? 'loc' : 'chon';
 		$ids      = 'loc' === $pham_vi ? DanhSachTacPham::ids_loc( $loc, Lo::TOI_DA ) : array_map( 'absint', (array) wp_unslash( $_POST['ids'] ?? array() ) );
 		$thao_tac = sanitize_key( (string) ( $_POST['thao_tac'] ?? '' ) );
+		$nhanh = sanitize_key( (string) ( $_POST['thao_tac_nhanh'] ?? '' ) );
+		if ( in_array( $nhanh, array( 'thung_rac', 'lay_ra', 'xoa_vinh_vien' ), true ) ) { $thao_tac = $nhanh; $pham_vi = 'chon'; $ids = array_map( 'absint', (array) wp_unslash( $_POST['ids'] ?? array() ) ); }
+		if ( ! empty( $_POST['lam_mot'] ) && is_string( $_POST['lam_mot'] ) ) {
+			[ $mot_ma, $mot_id ] = array_pad( explode( ':', sanitize_text_field( wp_unslash( $_POST['lam_mot'] ) ), 2 ), 2, '' );
+			if ( ! in_array( $mot_ma, array( 'thung_rac', 'lay_ra', 'xoa_vinh_vien' ), true ) || ! ctype_digit( $mot_id ) ) { wp_die( 'Thao tác không hợp lệ.', '', array( 'response' => 400 ) ); }
+			$thao_tac = $mot_ma; $ids = array( (int) $mot_id ); $pham_vi = 'chon';
+		}
 		[ $tax, $term ] = array_pad( explode( ':', sanitize_text_field( wp_unslash( (string) ( $_POST['muc_pl'] ?? '' ) ) ), 2 ), 2, '' );
 		$kq = 'post' !== ( Lo::THAO_TAC[ $thao_tac ][1] ?? '' ) ? array( 'ok' => false, 'lo' => 0, 'loi' => 'Chọn một thao tác.' ) : Lo::tao( $thao_tac, $ids, $pham_vi, $loc, get_current_user_id(), array( 'tax' => sanitize_key( $tax ), 'term' => (int) $term, 'phan' => sanitize_key( (string) ( $_POST['phan_sua'] ?? '' ) ) ) );
 		if ( ! $kq['ok'] ) {

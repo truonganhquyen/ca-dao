@@ -185,6 +185,8 @@ Khi `post_content` không cập nhật được sau khi ghi phần bài, `LuuPha
 
 Một số phiên bản cơ sở dữ liệu duy nhất: tuỳ chọn `phongdao_csdl`; các bước nâng cấp đánh số trong `HaTang\CaiDat`, mỗi bước chạy lại được.
 
+**D-115 — xoá và đối soát chờ trùng:** `DichVu\XoaTacPham` chỉ xoá `tac_pham` trong rác, sau xác nhận riêng của lô, kiểm quyền quản trị/duyệt/xoá và dấu phiên bài + meta dưới khoá bài; nhật ký, xoá WordPress và hết hiệu lực cặp chờ cùng giao dịch. `ChongTrung::doi_soat_cho` chỉ gọi từ POST có nonce/quyền: khoá câu và cặp, nối đúng thẻ mở còn thiếu, hoặc gỡ cặp hết hiệu lực; quyết định nội dung đã có được giữ. Không gọi lại bộ tự gộp trong đối soát; không đổi schema. Giới hạn và kiểm chứng ở `docs/41`.
+
 **Hộp việc là một truy vấn** trên `wp_cadao_viec` (`trang_thai = cho`, xếp theo `uu_tien`). Máy thêm việc khi: chọn câu mới từ kho mỗi ngày, chống trùng thấy "có thể trùng", gợi ý chủ đề / vùng / mô-típ / Wikidata / đối chiếu sách, nạp nháp theo lô, câu được "mong có" mà kho có, người đọc gửi góp ý / dị bản / số trang / báo lỗi (bài `gop_y` giữ từ MVP, việc trỏ tới bài đó), cảm nghĩ, bài phân tích chờ duyệt, bước nhập dữ liệu cũ gặp bài "Cần xem".
 
 ### 4.5. Cấp chất lượng và thân bài

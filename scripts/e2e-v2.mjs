@@ -11,6 +11,7 @@ import puppeteer from 'puppeteer-core';
 import { dangNhap, kiemNode, moPlayground, timChrome } from './lib/playground-v2.mjs';
 import { kiemTrangSua } from './lib/e2e-trang-sua.mjs';
 import { kiemEditorUrl } from './lib/e2e-editor-url.mjs';
+import { kiemThungRac } from './lib/e2e-thung-rac.mjs';
 
 const TEN = 'e2e v2';
 const thamSo = ten => { const i = process.argv.indexOf(ten); return i > 0 ? process.argv[i + 1] : null; };
@@ -90,9 +91,14 @@ const bam = async (tab, sel) => {
 // Bấm rồi chờ trang mới (form gửi thẳng, tải lại sau khi lưu). Không dựa vào sự kiện chuyển trang của puppeteer: Chrome mới
 // có lúc thay khung trang khi gửi form rồi chuyển hướng, làm waitForNavigation treo 120 giây hoặc "frame detached" ngẫu
 // nhiên ở các bước lô (#141–#145). Đánh dấu trang cũ, bấm, rồi chờ tới khi trang hiện tại là trang mới đã tải xong.
-const bamDoiTrang = async (tab, sel) => {
+const bamDoiTrang = async (tab, sel, { banPhim = false } = {}) => {
   await tab.evaluate(() => { window.__trangCu = 1; });
-  await bam(tab, sel);
+  if (banPhim) {
+    await tab.bringToFront();
+    const nut = await tab.waitForSelector(sel, { visible: true, timeout: 15_000 });
+    await nut.focus();
+    await tab.keyboard.press('Enter');
+  } else await bam(tab, sel);
   const het = Date.now() + 120_000;
   for (;;) {
     try { if (await tab.evaluate(() => !window.__trangCu && document.readyState === 'complete')) return; } catch { /* đang chuyển trang */ }
@@ -125,6 +131,15 @@ let trinhDuyet;
 try {
   if (may) await may.san;
   trinhDuyet = await puppeteer.launch({ executablePath: chrome, headless: true, args: ['--no-sandbox', '--font-render-hinting=none'] });
+  // Kiểm chặng mới trước trong phiên riêng để phát hiện lỗi sớm và không nhận trạng thái/tab của chặng khác.
+  if (!SITE) {
+    const ctxRac = await trinhDuyet.createBrowserContext();
+    const rac = await moTab(ctxRac, 'người biên soạn · thùng rác');
+    try {
+      chac(await dangNhap(rac, G, TEN), 'không đăng nhập được để kiểm thùng rác');
+      await kiemThungRac({bt:rac,di,bam,datO,bamDoiTrang,chac,thu,thuMucAnh});
+    } finally { await ctxRac.close(); rac.dangCho.clear(); }
+  }
   const khach = await trinhDuyet.createBrowserContext();
   let chepDuoc = true;
   try { await khach.overridePermissions(G, ['clipboard-read', 'clipboard-write', 'clipboard-sanitized-write']); } catch { chepDuoc = false; }

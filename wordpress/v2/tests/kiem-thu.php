@@ -1542,7 +1542,7 @@ $_GET   = array( 'lo' => (string) $lo_kd['id'] );
 if ( $tao_tr ) {
 	Viec::xoa( $v_tr );
 }
-kt( 'thẻ Câu mới ghi "Cờ của nguồn: nghi là câu hiện đại" (không in mã máy); Kho: câu chờ quyết trùng có nút "Quyết trùng trước" mở đúng thẻ Có thể trùng', str_contains( $the_co, 'Cờ của nguồn: nghi là câu hiện đại' ) && ! str_contains( $the_co, 'hien_dai' ) && str_contains( $h_tr, esc_url( \Phongdao\GiaoTiep\QuanTri\DanhSachViec::url( array( 'loai' => 'co_the_trung' ), 1, $v_tr ) ) . '">Quyết trùng trước</a>' ), $the_co );
+kt( 'thẻ Câu mới ghi cờ bằng chữ; Kho có nút POST kiểm tra chờ trùng kể cả khi thẻ đã mất', str_contains( $the_co, 'Cờ của nguồn: nghi là câu hiện đại' ) && ! str_contains( $the_co, 'hien_dai' ) && str_contains( $h_tr, 'name="action" value="phongdao_kho_kiem_trung"' ) && str_contains( $h_tr, 'Kiểm tra chờ trùng' ), $the_co );
 // Sau khi Đăng một câu mới ở Hộp việc: "Đã đăng “Tên bài”." kèm Xem bài · Ẩn nếu nhầm; Ẩn một bấm, có Lịch sử, về lại Hộp việc
 $k_dg = $kt_ids[900];
 $wpdb->update( $bang_kho, array( 'loi' => "Kilo papa zulu oscar\nNovember yankee echo golf", 'tieu_de' => 'Kilo papa zulu oscar', 'du_lieu' => wp_json_encode( array() ) ), array( 'id' => $k_dg ) );
@@ -3426,6 +3426,7 @@ require '/repo/tests/kiem-editor-url.php';
 require '/repo/tests/kiem-tho-tuc.php';
 
 require '/repo/tests/kiem-tim-doc.php';
+require '/repo/tests/kiem-xoa-va-cho-trung.php';
 
 $tong = $GLOBALS['v2_dat'] + $GLOBALS['v2_hong'];
 ra( "\nKẾT QUẢ: " . ( $GLOBALS['v2_hong'] ? "HỎNG {$GLOBALS['v2_hong']} / $tong" : "ĐẠT $tong" ) );
