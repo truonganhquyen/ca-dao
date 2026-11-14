@@ -20,7 +20,9 @@
     if (window.PDfit) window.PDfit();
   };
   f.addEventListener('submit', dung);
-  document.addEventListener('change', e => { if (e.target.closest('[data-tim-loc]')) dung(); });
+  for (const ten of ['change', 'focusin']) {
+    document.addEventListener(ten, e => { if (e.target.closest('[data-tim-loc]')) dung(); });
+  }
   o.addEventListener('input', () => {
     dung();
     hen = setTimeout(async () => {
