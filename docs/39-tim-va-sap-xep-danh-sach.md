@@ -36,3 +36,5 @@ Phép đo `do:tim:v2` nay kiểm cả đường tìm người đọc mới trên
 Mỗi lượt Playground có thư mục tạm riêng qua `tamPlayground`. Cách dọn cũ liệt kê mọi thư mục vừa xuất hiện trong TEMP có thể đụng site của lượt khác chạy đồng thời; cách mới chỉ dọn đường dẫn do chính lượt đó tạo và kiểm nằm dưới thư mục tạm. Cổng `test:v2` kiểm việc dọn lượt A không làm mất fixture của lượt B. Không thay ngưỡng tốc độ hay hạ kiểm thử.
 
 Kết quả đo đường mới: **21/21 truy vấn đúng tổng, thứ tự trang đầu và trang cuối** ở cả MySQL 8.4.3 và Playground, trên ba cỡ kho. [Bảng MySQL](e2e-review/tim-va-danh-sach/do-tim-mysql.md), [bảng Playground](e2e-review/tim-va-danh-sach/do-tim-playground.md). Đây là kho tổng hợp, không chứng minh chất lượng xếp hạng nội dung thật; các quy tắc đúng từ/dấu, thẻ nổi bật, trích và lọc có kiểm hồi quy riêng.
+
+Bộ E2E dùng Locator để chờ nút ổn định rồi bấm chuột, thay cách lấy toạ độ ngay sau scroll. Lượt CI đầu có hai lần bấm nút Lô không sang trang (ảnh vẫn ở form trước gửi); giữ nguyên các kiểm kết quả, giới hạn chờ và toàn bộ bước, gồm thao tác hàng loạt.

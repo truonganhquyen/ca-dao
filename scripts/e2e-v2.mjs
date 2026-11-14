@@ -82,7 +82,8 @@ const bam = async (tab, sel) => {
   const b = await tab.waitForSelector(sel, { visible: true, timeout: 15_000 }).catch(() => null);
   chac(b, `không thấy ${sel}`);
   await b.evaluate(e => e.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' }));
-  await b.click();
+  // Chờ khung nút ổn định sau scroll rồi bấm bằng chuột thật; giữ nguyên kiểm kết quả phía sau.
+  await tab.locator(sel).setTimeout(15_000).click();
 };
 // Bấm rồi chờ trang mới (form gửi thẳng, tải lại sau khi lưu). Không dựa vào sự kiện chuyển trang của puppeteer: Chrome mới
 // có lúc thay khung trang khi gửi form rồi chuyển hướng, làm waitForNavigation treo 120 giây hoặc "frame detached" ngẫu
