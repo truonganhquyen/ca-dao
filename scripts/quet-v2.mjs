@@ -24,6 +24,8 @@ const DS_TINH_320 = new Set(['/ve-du-an/', '/phuong-phap/', '/nguon/', '/chinh-s
 // T-203: danh sách theo thứ tự mới và các trạng thái tìm có đánh dấu/lọc ở màn hẹp.
 DS_TRANG.push('/tim/?q=mau', '/tim/?q=mau&loai=ca-dao', '/tim/?q=mau&khop=go_do', '/kho/?sap=doc', '/the-loai/ca-dao/?sap=az');
 for (const p of ['/tim/?q=mau', '/tim/?q=mau&loai=ca-dao', '/the-loai/ca-dao/']) DS_TINH_320.add(p);
+DS_TRANG.push('/tim/?q=m&khop=dung&loai=ve');
+DS_TINH_320.add('/tim/?q=m&khop=dung&loai=ve');
 const NGAN_SACH = { trang: 200 * 1024, js: 21 * 1024 };
 const CHE_DO = [
   { ten: 'điện thoại · sáng', w: 360, h: 800, toi: false },

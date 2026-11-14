@@ -27,7 +27,14 @@ kt( 'trang tìm: một cụm có nhiều bài tương đương không có thẻ 
 $s203_html = \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 's203 mã 1' );
 kt( 'trang tìm: khớp duy nhất trọn tiêu đề thì nổi bật, không phải chỉ có một từ', str_contains( $s203_html, 'result-primary' ) && ! str_contains( \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 's203' ), 'result-primary' ) );
 $s203_html = \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 's203 mã', array( 'loai' => 'ca-dao', 'khop' => 'dung' ) );
-kt( 'tìm: bộ lọc nằm trên liên kết GET, không nhóm lại kết quả theo thể loại', str_contains( $s203_html, 'loai=ca-dao' ) && ! str_contains( $s203_html, '<h2>Ca dao <span' ) && str_contains( $s203_html, 'aria-current="true"' ) );
+kt( 'tìm: bộ lọc GET có nhãn, chọn đúng thể loại và không nhóm lại thứ tự kết quả', str_contains( $s203_html, 'form="tim-form" name="loai"' ) && (bool) preg_match( '/<option value="ca-dao"[^>]*selected/', $s203_html ) && ! str_contains( $s203_html, '<h2>Ca dao <span' ) && str_contains( $s203_html, '<label for="tim-khop">Cách khớp</label>' ) );
+$s206_html = \Phongdao\GiaoTiep\Khoi\Tim::trang( 's203 mã', array( 'khop' => 'khong_dau', 'loai' => 'ca-dao', 'trang' => 99 ) );
+kt( 'bộ lọc gọn: chỉ một form GET, mỗi tham số một ô, nút Tìm và Áp dụng cùng form, không mang trang cũ', 1 === substr_count( $s206_html, '<form ' ) && 1 === substr_count( $s206_html, 'name="khop"' ) && 1 === substr_count( $s206_html, 'name="loai"' ) && str_contains( $s206_html, '<form id="tim-form"' ) && str_contains( $s206_html, '<button type="submit" form="tim-form"' ) && ! str_contains( $s206_html, 'name="trang"' ) );
+kt( 'bộ lọc gọn: đếm hai lựa chọn khác mặc định, tóm tắt và Đặt lại giữ từ khoá', str_contains( $s206_html, '>Bộ lọc (2)</summary>' ) && str_contains( $s206_html, 'Khác dấu · Ca dao' ) && str_contains( $s206_html, '>Đặt lại</a>' ) && str_contains( $s206_html, 'khop=dung' ) && str_contains( $s206_html, 'trang=1' ) );
+$s206_html = \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 's203 mã', array( 'loai' => 've' ) );
+kt( 'bộ lọc gọn: 0 kết quả mở sẵn, gợi ý phạm vi còn bài và cho chọn hai chiều trong một lượt', str_contains( $s206_html, '<details class="tim-loc-mo" open>' ) && str_contains( $s206_html, 'Thử phạm vi còn bài:' ) && str_contains( $s206_html, 'Mọi thể loại (36)' ) && str_contains( $s206_html, '<option value="go_do"' ) && str_contains( $s206_html, 'value="ca-dao"' ) );
+$s206_html = \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 's203 mã' );
+kt( 'bộ lọc gọn: mặc định đóng trên điện thoại, không hiện Đặt lại, số đếm trọn tập trong ô chọn', str_contains( $s206_html, '<details class="tim-loc-mo">' ) && ! str_contains( $s206_html, '>Đặt lại</a>' ) && str_contains( $s206_html, 'Khác dấu (1)' ) && str_contains( $s206_html, 'Ca dao (18)' ) );
 kt( 'tìm: truy vấn có ngoặc kép chỉ giữ cụm liền và vẫn so trọn từ cuối', 1 === $s203_tim::tim( '"s203 mã 1"' )['tong'] && $s203_ids[0] === $s203_tim::tim( '"s203 mã 1"' )['ds'][0]['id'] );
 update_post_meta( $s203_ids[0], '_phongdao_tho_tuc', array( 'nguoi_lam' => 'nguoi_viet' ) );
 $s203_html = \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 's203 mã 1' );

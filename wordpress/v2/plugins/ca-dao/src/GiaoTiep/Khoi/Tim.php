@@ -25,47 +25,28 @@ final class Tim {
 	public const SO = 20;
 
 	public static function trang( string $q, array $vao = array() ): string {
-		$loc = TimDoc::loc( $vao );
-		$an = '<input type="hidden" name="khop" value="' . esc_attr( $loc['khop'] ) . '"><input type="hidden" name="loai" value="' . esc_attr( $loc['loai'] ) . '">';
 		return '<nav aria-label="Đường dẫn" class="breadcrumbs">' . Ve::lien_ket( 'trang-chu', 'Trang chủ' ) . '<span aria-hidden="true">/</span><span>Tìm</span></nav>'
 			. '<p class="eyebrow">Tra cứu</p><h1>Tìm câu bạn nhớ</h1>'
-			. '<form class="search-form" role="search" method="get" action="' . esc_url( Ve::url( 'tim' ) ) . '" data-tim><label class="sr-only" for="query">Câu hoặc từ cần tìm</label>'
+			. '<form id="tim-form" class="search-form" role="search" method="get" action="' . esc_url( Ve::url( 'tim' ) ) . '" data-tim><label class="sr-only" for="query">Câu hoặc từ cần tìm</label>'
 			. '<input id="query" name="q" type="search" autocomplete="off" value="' . esc_attr( $q ) . '" placeholder="Gõ vài chữ, có dấu hoặc không dấu" aria-describedby="search-help">'
-			. $an . '<button type="submit" class="btn primary">' . Ve::icon( 'search' ) . 'Tìm</button></form>'
+			. '<button type="submit" class="btn primary">' . Ve::icon( 'search' ) . 'Tìm</button></form>'
 			. '<p class="small muted" id="search-help" style="margin-top:12px">Gõ câu bạn nhớ, gõ không dấu cũng được</p>'
-			. self::ket_qua( $q, $vao );
+			. '<div class="tim-phan-ket-qua">' . self::ket_qua( $q, $vao ) . '</div>';
 	}
 
 	/** Tìm đã gửi: trọn chữ; REST đang gõ: tiền tố. Mỗi phạm vi, thể loại đều có phân trang riêng. */
 	public static function ket_qua( string $q, array $vao = array(), bool $dang_go = false ): string {
 		$q = trim( mb_substr( $q, 0, 120 ) );
-		if ( '' === ChiMuc::chu( $q ) ) {
-			return '<p id="search-status" class="small muted" aria-live="polite"></p><div id="search-results"><section class="section"><h2>Bạn có thể bắt đầu từ đây</h2>' . Ve::lien_ket( 'kho', 'Tất cả tác phẩm', 'btn' ) . '</section></div>';
-		}
 		$loc = TimDoc::loc( $vao );
+		if ( '' === ChiMuc::chu( $q ) ) {
+			return '<p id="search-status" class="small muted" aria-live="polite"></p><div id="search-results"><input type="hidden" form="tim-form" name="khop" value="' . esc_attr( $loc['khop'] ) . '"><input type="hidden" form="tim-form" name="loai" value="' . esc_attr( $loc['loai'] ) . '"><section class="section"><h2>Bạn có thể bắt đầu từ đây</h2>' . Ve::lien_ket( 'kho', 'Tất cả tác phẩm', 'btn' ) . '</section></div>';
+		}
 		if ( $dang_go ) { $loc['trang'] = 1; }
 		$kq = TimDoc::tim( $q, $loc, $dang_go, self::SO );
 		$loc['trang'] = $kq['trang'];
 		$muc = self::muc_tu( $q, $loc['khop'], $dang_go );
 		$tong = $kq['tong'];
-		$nhom = array( 'dung' => 'Khớp trọn chữ', 'khong_dau' => 'Mở rộng không dấu', 'go_do' => 'Gợi ý theo đầu chữ' );
-		$bo = $dang_go ? '<p class="notice">Gợi ý khi đang gõ. Bấm Tìm để tìm trọn chữ.</p>' : '<nav class="row" aria-label="Kiểu khớp">';
-		if ( ! $dang_go ) {
-			foreach ( $nhom as $k => $ten ) {
-				if ( ! $kq['nhom'][ $k ] && $k !== $loc['khop'] ) { continue; }
-				$bo .= '<a class="btn compact ' . ( $k === $loc['khop'] ? 'primary' : 'ghost' ) . '"' . ( $k === $loc['khop'] ? ' aria-current="true"' : '' ) . ' href="' . esc_url( self::url( $q, array_merge( $loc, array( 'khop' => $k, 'trang' => 1 ) ) ) ) . '">' . esc_html( $ten . ' (' . number_format_i18n( $kq['nhom'][ $k ] ) . ')' ) . '</a>';
-			}
-			$bo .= '</nav>';
-		}
-		if ( $kq['loai'] ) {
-			$bo .= '<nav class="row" aria-label="Lọc thể loại kết quả">';
-			foreach ( array( '' => 'Mọi thể loại' ) + TheLoai::DS as $k => $ten ) {
-				$n = '' === $k ? array_sum( $kq['loai'] ) : ( $kq['loai'][ $k ] ?? 0 );
-				if ( ! $n && $k !== $loc['loai'] ) { continue; }
-				$bo .= '<a class="btn compact ' . ( $k === $loc['loai'] ? 'primary' : 'ghost' ) . '"' . ( $k === $loc['loai'] ? ' aria-current="true"' : '' ) . ' href="' . esc_url( self::url( $q, array_merge( $loc, array( 'loai' => $k, 'trang' => 1 ) ) ) ) . '">' . esc_html( $ten . ' (' . number_format_i18n( $n ) . ')' ) . '</a>';
-			}
-			$bo .= '</nav>';
-		}
+		$bo = self::bo_loc( $q, $loc, $kq, $dang_go );
 		if ( ! $kq['ds'] && ! $muc && ! array_sum( $kq['nhom'] ) ) {
 			$sua = ChiMucTim::goi_y( $q );
 			$kho = ChongTrung::kho_co( $q );
@@ -123,6 +104,41 @@ final class Tim {
 
 	private static function url( string $q, array $loc ): string {
 		return add_query_arg( array_merge( array( 'q' => $q ), $loc ), Ve::url( 'tim' ) );
+	}
+
+	/** D-113: một form GET chung; disclosure điều khiển nhóm bên cạnh, dùng được không JavaScript. */
+	private static function bo_loc( string $q, array $loc, array $kq, bool $dang_go ): string {
+		$nhom = array( 'dung' => 'Khớp trọn chữ', 'khong_dau' => 'Khác dấu', 'go_do' => 'Khớp đầu chữ' );
+		$so_loc = (int) ( 'dung' !== $loc['khop'] ) + (int) ( '' !== $loc['loai'] );
+		$tom = $nhom[ $loc['khop'] ] . ' · ' . ( TheLoai::DS[ $loc['loai'] ] ?? 'Mọi thể loại' );
+		$o = '<div class="tim-loc" data-tim-loc><details class="tim-loc-mo"' . ( ! $kq['tong'] && ! $dang_go ? ' open' : '' ) . '><summary aria-controls="tim-loc-chon">Bộ lọc' . ( $so_loc ? ' (' . $so_loc . ')' : '' ) . '</summary></details>'
+			. '<p class="tim-loc-tom-tat small muted">' . esc_html( $tom ) . '</p><div id="tim-loc-chon" class="tim-loc-chon" role="group" aria-label="Bộ lọc kết quả">'
+			. '<div class="tim-loc-truong"><label for="tim-khop">Cách khớp</label><select id="tim-khop" form="tim-form" name="khop">';
+		foreach ( $nhom as $k => $ten ) {
+			$n = $kq['nhom'][ $k ];
+			$o .= '<option value="' . $k . '"' . selected( $loc['khop'], $k, false ) . '>' . esc_html( $ten . ' (' . number_format_i18n( $n ) . ')' ) . '</option>';
+		}
+		$o .= '</select></div><div class="tim-loc-truong"><label for="tim-loai">Thể loại</label><select id="tim-loai" form="tim-form" name="loai">';
+		foreach ( array( '' => 'Mọi thể loại' ) + TheLoai::DS as $k => $ten ) {
+			$n = $kq['loai'][ $k ] ?? 0;
+			$o .= '<option value="' . esc_attr( $k ) . '"' . selected( $loc['loai'], $k, false ) . '>' . esc_html( $ten . ( '' === $k ? '' : ' (' . number_format_i18n( $n ) . ')' ) ) . '</option>';
+		}
+		$o .= '</select></div><button type="submit" form="tim-form" class="btn primary">Áp dụng</button>'
+			. ( $so_loc ? '<a class="tim-loc-dat-lai" href="' . esc_url( self::url( $q, array( 'khop' => 'dung', 'loai' => '', 'trang' => 1 ) ) ) . '">Đặt lại</a>' : '' );
+		if ( ! $kq['tong'] && ! $dang_go ) {
+			$goi = '';
+			foreach ( $nhom as $k => $ten ) {
+				if ( $kq['nhom'][ $k ] ) {
+					$goi = '<a href="' . esc_url( self::url( $q, array_merge( $loc, array( 'khop' => $k, 'trang' => 1 ) ) ) ) . '">' . esc_html( $ten . ' (' . number_format_i18n( $kq['nhom'][ $k ] ) . ')' ) . '</a>';
+					break;
+				}
+			}
+			if ( ! $goi && array_sum( $kq['loai'] ) ) {
+				$goi = '<a href="' . esc_url( self::url( $q, array_merge( $loc, array( 'loai' => '', 'trang' => 1 ) ) ) ) . '">Mọi thể loại (' . number_format_i18n( array_sum( $kq['loai'] ) ) . ')</a>';
+			}
+			if ( $goi ) { $o .= '<p class="tim-loc-goi-y small">Thử phạm vi còn bài: ' . $goi . '.</p>'; }
+		}
+		return $o . '</div></div>' . ( $dang_go ? '<p class="notice">Gợi ý khi đang gõ. Bấm Tìm để tìm trọn chữ.</p>' : '' );
 	}
 
 	/** Mục từ có tên khớp truy vấn (đệm một giờ). @return string[] HTML từng mục */

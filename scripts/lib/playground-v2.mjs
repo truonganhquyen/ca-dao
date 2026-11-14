@@ -37,6 +37,11 @@ export const kiemNode = (ten) => {
  * /wp-login.php). Trả { G: địa chỉ gốc, san: Promise khi sẵn sàng, dong(): tắt máy chủ và dọn thư mục tạm }.
  */
 export const moPlayground = (cong, ten) => {
+  // Cho các worktree chạy kiểm độc lập mà không giành cổng 9432/9433 của nhau.
+  if (process.env.PHONGDAO_CONG_THU) {
+    cong = Number(process.env.PHONGDAO_CONG_THU);
+    if (!Number.isInteger(cong) || cong < 1024 || cong > 65535) throw new Error('PHONGDAO_CONG_THU cần là cổng 1024–65535');
+  }
   const tam = tamPlayground();
   const goc = path.resolve('wordpress', 'v2');
   // Bản sao blueprint không đăng nhập (thanh quản trị thêm JavaScript, làm sai ngân sách; khách thì không có)
