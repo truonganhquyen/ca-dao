@@ -10,6 +10,8 @@ Phạm vi người sáng lập chốt ngày 14/11/2026 (D-115): đưa bài vào 
 
 ## Phạm vi dữ liệu
 
+Ngay trên thẻ Có thể trùng trong **Hộp việc** cũng có **Kiểm tra chờ trùng**. Thẻ còn mở nhưng không còn cặp chờ tương ứng được đóng hết hiệu lực, giữ nguyên dấu vết; không dùng lối gộp để cố xử lý câu đã thành bài.
+
 Xoá vĩnh viễn không lấy lại được bằng Khôi phục: WordPress xoá bài, meta/phần bài, bình luận và quan hệ phân loại của bài. Hồ sơ nguồn, tệp ảnh trong Thư viện và nhật ký được giữ. Các chỗ nhắc đến bài (ví dụ tuyển tập, câu kho đã thành bài) giữ hồ sơ cũ để đối soát; chức năng này không tự dồn chúng sang một bài khác. Chỉ mục tìm, tóm tắt và vân tay đi qua hook xoá hiện có. Các cặp chờ trùng trỏ bài vừa xoá được đóng hết hiệu lực cùng giao dịch.
 
 Mọi thao tác ghi dùng POST, nonce và kiểm quyền. Màn xem trước chốt danh sách; xoá vĩnh viễn so dấu phiên của bài và meta dưới khoá bài, từ chối nếu bài đã thay đổi hoặc được khôi phục. Ghi nhật ký và xoá trong giao dịch DB, hoàn nguyên nếu bước bắt buộc thất bại. Không cam kết hoàn nguyên tác dụng bên ngoài DB của plugin khác.

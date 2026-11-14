@@ -387,7 +387,7 @@ final class ChongTrung implements Module {
 			if ( false === $wpdb->query( $wpdb->prepare( 'SELECT id FROM ' . Kho::bang() . ' WHERE id = %d FOR UPDATE', $kho_id ) ) ) { throw new \RuntimeException( 'Chưa khoá được câu kho.' ); }
 			$ds = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . self::bang( 'trung' ) . " WHERE a = %s AND trang_thai IN ('cho','de_sau') ORDER BY id FOR UPDATE", 'kho:' . $kho_id ) );
 			if ( $wpdb->last_error ) { throw new \RuntimeException( 'Chưa đọc được cặp chờ trùng.' ); }
-			$m = Kho::lay( $kho_id ); $the = 0; $tt = Viec::CHO;
+			$m = Kho::lay( $kho_id ); $the = 0; $tt = Viec::CHO; $cap_mo = array();
 			foreach ( $ds ?: array() as $cap ) {
 				[ $loai_b, $id_b ] = self::tach_muc( $cap->b );
 				$dich = 'bai' === $loai_b ? get_post( $id_b ) : ( 'kho' === $loai_b ? Kho::lay( $id_b ) : null );
@@ -416,6 +416,14 @@ final class ChongTrung implements Module {
 					$co = Viec::lay( $id );
 				}
 				if ( ! $the ) { $the = (int) $co['id']; $tt = $co['trang_thai']; }
+				$cap_mo[] = $cap;
+			}
+			foreach ( Viec::mo( 'kho', $kho_id, 'co_the_trung' ) as $v ) {
+				$co_cap = false;
+				foreach ( $cap_mo as $cap ) { if ( self::cung_cap( $v, $cap ) ) { $co_cap = true; break; } }
+				if ( ! $co_cap && ! Viec::dong( $v['id'], Viec::BO, 'het_hieu_luc', $nguoi, $v['trang_thai'], array( 'ly_do' => 'Không còn cặp chờ tương ứng; chỉ đóng thẻ kỹ thuật còn sót.' ) ) ) {
+					throw new \RuntimeException( 'Chưa đóng được thẻ chờ trùng còn sót.' );
+				}
 			}
 			if ( false === $wpdb->query( 'COMMIT' ) ) { throw new \RuntimeException( 'Chưa xác nhận được đối soát.' ); }
 			return array( 'ok' => true, 'thong_bao' => $the ? 'Đã mở đúng thẻ để quyết trùng.' : 'Đã kiểm tra; không còn cặp chờ hợp lệ chặn câu này.', 'viec' => $the, 'tt' => $tt );

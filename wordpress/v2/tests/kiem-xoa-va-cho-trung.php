@@ -98,6 +98,17 @@ $r207 = Trung207::doi_soat_cho( $k207[3], $ai_ql );
 kt( 'chờ trùng: tái phát hiện sau hết hiệu lực kỹ thuật mở thẻ mới, không mở lại quyết định bài khác', $r207['ok'] && $r207['viec'] && Trung207::dang_cho( $k207[3] ) && in_array( 'bai:' . $target207, Trung207::da_khac( 'kho:' . $k207[4] ), true ) );
 
 // Gọi đúng controller với redirect/wp_die bị chặn trong môi trường kiểm thử.
+$orphan207 = Viec207::tao( array( 'loai' => 'co_the_trung', 'doi_tuong_loai' => 'kho', 'doi_tuong_id' => $k207[4], 'noi_dung' => array( 'a' => 'kho:' . $k207[4], 'b' => 'bai:999999999', 'giong' => 80 ) ) );
+$html207 = \Phongdao\GiaoTiep\BienTap\HopViec::the( Viec207::lay( $orphan207 ) );
+$rOrphan207 = Trung207::doi_soat_cho( $k207[4], $ai_ql );
+kt( 'Hộp việc: có lối kiểm tra ngay trên thẻ; thẻ không còn cặp được đóng kỹ thuật, không tự gộp', str_contains( $html207, 'value="phongdao_kho_kiem_trung"' ) && $rOrphan207['ok'] && 'het_hieu_luc' === Viec207::lay( $orphan207 )['quyet'] && Viec207::BO === Viec207::lay( $orphan207 )['trang_thai'] && get_post( $target207 ) );
+foreach ( Viec207::mo( 'kho', $k207[0], 'co_the_trung' ) as $v207 ) { Viec207::xoa( $v207['id'] ); }
+$chan207 = static fn( $sql ) => preg_match( '/^INSERT\s+INTO\s+`?' . preg_quote( Viec207::bang(), '/' ) . '`?/i', $sql ) ? 'TEST207_REPAIR_FAIL' : $sql;
+add_filter( 'query', $chan207 );
+$rFail207 = Trung207::doi_soat_cho( $k207[0], $ai_ql );
+remove_filter( 'query', $chan207 );
+$rRetry207 = Trung207::doi_soat_cho( $k207[0], $ai_ql );
+kt( 'chờ trùng: ghi thẻ lỗi không xác nhận đối soát nửa chừng; thử lại tạo đúng một thẻ', ! $rFail207['ok'] && $rRetry207['ok'] && Trung207::dang_cho( $k207[0] ) && 1 === count( Viec207::mo( 'kho', $k207[0], 'co_the_trung' ) ) );
 add_filter( 'wp_die_handler', $chan_die_lo );
 add_filter( 'wp_redirect', $chan_di_lo );
 $gui207 = static function ( string $lop, string $ham, int $nguoi, array $than, string $nonce = '' ): string {
