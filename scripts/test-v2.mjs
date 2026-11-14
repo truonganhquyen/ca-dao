@@ -4,13 +4,24 @@
 //  2. Playground: plugin + theme V2 bật trong WordPress thật (wordpress/v2/tests/kiem-thu.php) — cần Node ≥ 24.18 và mạng.
 // Thiếu công cụ tại máy thì in NHẮC và bỏ qua phần đó; trên CI thì thiếu là lỗi.
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { tamPlayground } from './lib/tam-playground.mjs';
 
 const CI = Boolean(process.env.CI);
 const goc = path.resolve('wordpress', 'v2');
 let hong = false;
+
+// Hồi quy: dọn lượt A không được xoá dữ liệu tạm của lượt B đang chạy.
+const tamA = tamPlayground(), tamB = tamPlayground();
+const tepB = path.join(tamB.env.TEMP, 'fixture.txt');
+fs.writeFileSync(tepB, 'technical fixture');
+tamA.don();
+if (fs.readFileSync(tepB, 'utf8') !== 'technical fixture') {
+  throw new Error('Dọn Playground làm mất thư mục của lượt khác');
+}
+tamB.don();
+console.log('ĐẠT   thư mục tạm Playground tách riêng từng lượt kiểm');
 
 // ---------- 0. Giao diện theme khớp bộ thiết kế design/v2 ----------
 const dongBo = spawnSync(process.execPath, [path.resolve('scripts', 'dong-bo-giao-dien-v2.mjs'), '--kiem'], { encoding: 'utf8' });
@@ -39,9 +50,8 @@ if (chinh < 24 || (chinh === 24 && phu < 18)) {
   if (CI) hong = true;
 } else {
   // Playground để lại thư mục site tạm (~175 MB) khi bị tắt: dọn thư mục do chính lần chạy này tạo
-  const SITE_TAM = /^node-playground-cli-site-/;
   const chay = (nhan, blueprint, tepKq, gan = []) => {
-    const tamTruoc = new Set(fs.readdirSync(os.tmpdir()).filter(t => SITE_TAM.test(t)));
+    const tam = tamPlayground();
     fs.rmSync(tepKq, { force: true });
     const r = spawnSync('npx', [
       '-y', '@wp-playground/cli@3.1.57', 'run-blueprint', '--verbosity=quiet',
@@ -50,8 +60,8 @@ if (chinh < 24 || (chinh === 24 && phu < 18)) {
       '--mount-dir', path.join(goc, 'themes', 'ca-dao'), '/wordpress/wp-content/themes/ca-dao',
       '--mount-dir', goc, '/repo',
       ...gan,
-    ], { stdio: ['ignore', 'ignore', 'inherit'], shell: process.platform === 'win32', env: { ...process.env, MSYS_NO_PATHCONV: '1' } });
-    for (const t of fs.readdirSync(os.tmpdir())) if (SITE_TAM.test(t) && !tamTruoc.has(t)) fs.rmSync(path.join(os.tmpdir(), t), { recursive: true, force: true });
+    ], { stdio: ['ignore', 'ignore', 'inherit'], shell: process.platform === 'win32', env: { ...process.env, ...tam.env, MSYS_NO_PATHCONV: '1' } });
+    tam.don();
     const kq = fs.existsSync(tepKq) ? fs.readFileSync(tepKq, 'utf8') : '';
     process.stdout.write('\n' + (kq || `LỖI      [${nhan}] không chạy được kiểm thử (mã thoát ${r.status}).\n`));
     if (r.status !== 0 || !kq.includes('KẾT QUẢ: ĐẠT')) hong = true;

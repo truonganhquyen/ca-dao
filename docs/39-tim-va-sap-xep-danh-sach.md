@@ -28,3 +28,9 @@ Không thêm cookie, thu thập hay dịch vụ tìm bên ngoài; không sửa n
 - Danh sách: đủ bốn lựa chọn, mặc định đúng ba nhóm, ngày/ID ổn định, thứ tự lượt đọc 7 ngày, lọc/phân trang giữ lựa chọn; dùng được bằng bàn phím và tắt JavaScript.
 - Kiểm HTML trích/đánh dấu không đưa HTML nguồn vào trang, không làm lộ nội dung bị che D-111.
 - Bốn cổng bắt buộc và đo tìm trên kho tổng hợp; ghi rõ kết quả thực tế, tách khỏi xác nhận biên tập. Bộ truy vấn nội dung thật tiếp tục do người biên soạn đánh giá, không dùng AI tự chấm sự thật văn hoá.
+
+## Công cụ kiểm và phép đo
+
+Phép đo `do:tim:v2` nay kiểm cả đường tìm người đọc mới trên tác phẩm tổng hợp thật trong CSDL thử (đúng tổng, thứ tự 20 bài đầu và trang cuối ở 1.000/5.000/10.000 bài). Bản `tests/do-tim/mysql.php` dùng CSDL riêng để đo, tạo hai bảng tạm cho bài/tóm tắt rồi huỷ theo kết nối; không trỏ vào site thật.
+
+Mỗi lượt Playground có thư mục tạm riêng qua `tamPlayground`. Cách dọn cũ liệt kê mọi thư mục vừa xuất hiện trong TEMP có thể đụng site của lượt khác chạy đồng thời; cách mới chỉ dọn đường dẫn do chính lượt đó tạo và kiểm nằm dưới thư mục tạm. Cổng `test:v2` kiểm việc dọn lượt A không làm mất fixture của lượt B. Không thay ngưỡng tốc độ hay hạ kiểm thử.

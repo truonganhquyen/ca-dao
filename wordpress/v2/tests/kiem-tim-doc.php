@@ -55,8 +55,6 @@ kt( 'nâng cấp 13 lên 14 chạy lại được: tính ưu tiên, giữ nguyê
 // không dùng dòng chỉ mục mồ côi (đường người đọc mới bắt buộc đối chiếu trạng thái bài).
 $s203_base = 100 + (int) $wpdb->get_var( "SELECT MAX(ID) FROM {$wpdb->posts}" );
 foreach ( array_chunk( range( 1, 1001 ), 100 ) as $s203_lo ) {
-	$s203_gt = array();
-	foreach ( $s203_lo as $s203_i ) { $s203_gt[] = '(' . ( $s203_base + $s203_i ) . ')'; }
 	// Dùng bảng chỉ mục để lưu ID cho SELECT lô; chữ hoàn toàn là fixture kỹ thuật.
 	$wpdb->query( 'INSERT INTO ' . \Phongdao\DichVu\ChiMucTim\ChiMucTim::bang() . ' (post_id,chinh,chinh_kd,phu,phu_kd) VALUES ' . implode( ',', array_map( static fn( int $i ): string => $wpdb->prepare( '(%d,%s,%s,%s,%s)', $s203_base + $i, ' s203count ', ' s203count ', '  ', '  ' ), $s203_lo ) ) );
 }

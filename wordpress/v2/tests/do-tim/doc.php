@@ -1,7 +1,7 @@
 <?php
 
 /** Đo đường tìm người đọc T-203 trên WordPress riêng của do:tim:v2, không chạy trên site thật. */
-function do_tim_doc( array $co, callable $ra ): void {
+function do_tim_doc( array $co, callable $ra, string $moi_truong = 'SQLite/Playground' ): void {
 	global $wpdb;
 	$tim = \Phongdao\DichVu\ChiMucTim\ChiMucTim::class;
 	$doc = \Phongdao\DichVu\ChiMucTim\TimDoc::class;
@@ -11,7 +11,7 @@ function do_tim_doc( array $co, callable $ra ): void {
 	$base = 10000000 + (int) $wpdb->get_var( "SELECT MAX(ID) FROM {$wpdb->posts}" );
 	$da = 0;
 	$ok = true;
-	$ra( "\n## T-203 · Tìm đã gửi trên tác phẩm tổng hợp (SQLite/Playground)" );
+	$ra( "\n## T-203 · Tìm đã gửi trên tác phẩm tổng hợp ($moi_truong)" );
 	$ra( '| Cỡ kho | Truy vấn | Kết quả trọn chữ | Trang cuối | Trung vị ms | SQL | MB tăng | Đúng oracle |' );
 	$ra( '|---:|---|---:|---:|---:|---:|---:|---|' );
 	try {

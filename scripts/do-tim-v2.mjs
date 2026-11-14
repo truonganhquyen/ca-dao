@@ -7,6 +7,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { tamPlayground } from './lib/tam-playground.mjs';
 import { kiemNode } from './lib/playground-v2.mjs';
 
 kiemNode('v2 · đo tìm');
@@ -24,15 +25,13 @@ const bp = {
 const tepBp = path.join(os.tmpdir(), `phongdao-do-tim-${process.pid}.json`);
 fs.writeFileSync(tepBp, JSON.stringify(bp));
 fs.rmSync(tepKq, { force: true });
-// Playground để lại thư mục site tạm (~175 MB) khi bị tắt: dọn thư mục do chính lần chạy này tạo
-const SITE_TAM = /^node-playground-cli-site-/;
-const tamTruoc = new Set(fs.readdirSync(os.tmpdir()).filter(t => SITE_TAM.test(t)));
+const tam = tamPlayground();
 const r = spawnSync('npx', [
   '-y', '@wp-playground/cli@3.1.57', 'run-blueprint', '--verbosity=quiet', `--blueprint=${tepBp}`,
   '--mount-dir', path.join(goc, 'plugins', 'ca-dao'), '/wordpress/wp-content/plugins/ca-dao',
   '--mount-dir', goc, '/repo',
-], { stdio: ['ignore', 'ignore', 'inherit'], shell: process.platform === 'win32', env: { ...process.env, MSYS_NO_PATHCONV: '1' } });
-for (const t of fs.readdirSync(os.tmpdir())) if (SITE_TAM.test(t) && !tamTruoc.has(t)) fs.rmSync(path.join(os.tmpdir(), t), { recursive: true, force: true });
+], { stdio: ['ignore', 'ignore', 'inherit'], shell: process.platform === 'win32', env: { ...process.env, ...tam.env, MSYS_NO_PATHCONV: '1' } });
+tam.don();
 fs.rmSync(tepBp, { force: true });
 const kq = fs.existsSync(tepKq) ? fs.readFileSync(tepKq, 'utf8') : '';
 process.stdout.write(kq || `LỖI      [v2 · đo tìm] không chạy được (mã thoát ${r.status}).\n`);

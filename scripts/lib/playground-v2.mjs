@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
+import { tamPlayground } from './tam-playground.mjs';
 
 const CI = Boolean(process.env.CI);
 
@@ -36,10 +37,7 @@ export const kiemNode = (ten) => {
  * /wp-login.php). Trả { G: địa chỉ gốc, san: Promise khi sẵn sàng, dong(): tắt máy chủ và dọn thư mục tạm }.
  */
 export const moPlayground = (cong, ten) => {
-  // Playground để lại thư mục site tạm (~175 MB) khi bị tắt: dọn thư mục do chính lần chạy này tạo
-  const SITE_TAM = /^node-playground-cli-site-/;
-  const tamTruoc = new Set(fs.readdirSync(os.tmpdir()).filter(t => SITE_TAM.test(t)));
-  const donTam = () => { for (const t of fs.readdirSync(os.tmpdir())) if (SITE_TAM.test(t) && !tamTruoc.has(t)) fs.rmSync(path.join(os.tmpdir(), t), { recursive: true, force: true }); };
+  const tam = tamPlayground();
   const goc = path.resolve('wordpress', 'v2');
   // Bản sao blueprint không đăng nhập (thanh quản trị thêm JavaScript, làm sai ngân sách; khách thì không có)
   const bp = JSON.parse(fs.readFileSync(path.join(goc, 'blueprint.json'), 'utf8'));
@@ -56,7 +54,7 @@ export const moPlayground = (cong, ten) => {
     `--blueprint=${tepBp}`,
     '--mount-dir', path.join(goc, 'plugins', 'ca-dao'), '/wordpress/wp-content/plugins/ca-dao',
     '--mount-dir', path.join(goc, 'themes', 'ca-dao'), '/wordpress/wp-content/themes/ca-dao',
-  ], { shell: process.platform === 'win32', detached: process.platform !== 'win32', env: { ...process.env, MSYS_NO_PATHCONV: '1' } });
+  ], { shell: process.platform === 'win32', detached: process.platform !== 'win32', env: { ...process.env, ...tam.env, MSYS_NO_PATHCONV: '1' } });
   let nhatKy = '';
   const san = new Promise((ok, hong) => {
     const nghe = d => { nhatKy += d; if (/Ready!/.test(nhatKy)) ok(); };
@@ -70,7 +68,7 @@ export const moPlayground = (cong, ten) => {
   const dong = async () => {
     tat();
     await new Promise(ok => setTimeout(ok, 1000)); // chờ tiến trình nhả tệp
-    try { donTam(); } catch { /* tệp còn bị giữ: lần sau dọn */ }
+    try { tam.don(); } catch { /* tệp còn bị giữ: lần sau dọn */ }
     fs.rmSync(tepBp, { force: true });
   };
   return { G: `http://127.0.0.1:${cong}`, san, dong };
