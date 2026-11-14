@@ -11,6 +11,7 @@ use Phongdao\DichVu\DungTrang\DuLieuMau;
 use Phongdao\DichVu\DungTrang\DuLieuTrangChu;
 use Phongdao\DichVu\LuuPhan\LuuPhan;
 use Phongdao\GiaoTiep\Khoi\TacPham;
+use Phongdao\GiaoTiep\Khoi\TuyenTap;
 use Phongdao\HaTang\CaiDat;
 use Phongdao\HaTang\KhaiBao;
 use Phongdao\HaTang\KhoiDong;
@@ -81,7 +82,7 @@ $submenu = is_array( $submenu ) ? $submenu : array();
 ( new \Phongdao\GiaoTiep\QuanTri\Module() )->them_menu();
 $BLV = \Phongdao\GiaoTiep\QuanTri\BanLamViec::TRANG;
 kt( 'menu quản trị có mục Phongdao, bấm vào mở Hôm nay', in_array( $BLV, array_column( $menu, 2 ), true ) );
-kt( 'menu Phongdao theo ba dòng việc: Hôm nay · Bài mới · Hộp việc · Bổ sung · Tác phẩm · Danh mục · Nguồn & cài đặt (Quản trị); Sửa tác phẩm, Thao tác hàng loạt không nằm trên menu', array( $BLV, \Phongdao\GiaoTiep\QuanTri\DanhSachKho::TRANG, \Phongdao\GiaoTiep\QuanTri\DanhSachViec::TRANG, \Phongdao\GiaoTiep\QuanTri\BoSung::TRANG, \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::TRANG, \Phongdao\GiaoTiep\QuanTri\DanhMuc::TRANG, 'phongdao' ) === array_column( $submenu[ $BLV ] ?? array(), 2 ) && array( 'Hôm nay', 'Bài mới' ) === array_slice( array_column( $submenu[ $BLV ] ?? array(), 0 ), 0, 2 ) && 'Bổ sung' === ( $submenu[ $BLV ][3][0] ?? '' ), array_column( $submenu[ $BLV ] ?? array(), 2 ) );
+kt( 'menu Phongdao theo ba dòng việc: Hôm nay · Bài mới · Hộp việc · Bổ sung · Tác phẩm · Tuyển tập · Danh mục · Nguồn & cài đặt (Quản trị); Sửa tác phẩm, Thao tác hàng loạt không nằm trên menu', array( $BLV, \Phongdao\GiaoTiep\QuanTri\DanhSachKho::TRANG, \Phongdao\GiaoTiep\QuanTri\DanhSachViec::TRANG, \Phongdao\GiaoTiep\QuanTri\BoSung::TRANG, \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::TRANG, \Phongdao\GiaoTiep\QuanTri\SuaTuyenTap::TRANG, \Phongdao\GiaoTiep\QuanTri\DanhMuc::TRANG, 'phongdao' ) === array_column( $submenu[ $BLV ] ?? array(), 2 ) && array( 'Hôm nay', 'Bài mới' ) === array_slice( array_column( $submenu[ $BLV ] ?? array(), 0 ), 0, 2 ) && 'Bổ sung' === ( $submenu[ $BLV ][3][0] ?? '' ), array_column( $submenu[ $BLV ] ?? array(), 2 ) );
 kt( 'Thao tác hàng loạt vẫn mở được bằng đường dẫn cũ (màn con)', false !== has_action( get_plugin_page_hookname( \Phongdao\GiaoTiep\QuanTri\TrangLo::TRANG, '' ) ) );
 kt( 'menu wp-admin có trang Tác phẩm, Hộp việc thật; Sửa tác phẩm vẫn mở được (màn con)', false !== has_action( get_plugin_page_hookname( \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::TRANG, $BLV ) ) && false !== has_action( get_plugin_page_hookname( \Phongdao\GiaoTiep\QuanTri\DanhSachViec::TRANG, $BLV ) ) && false !== has_action( get_plugin_page_hookname( \Phongdao\GiaoTiep\QuanTri\SuaTacPham::TRANG, '' ) ) );
 $muc_hv = array_values( array_filter( $submenu[ $BLV ] ?? array(), static fn( array $m ): bool => \Phongdao\GiaoTiep\QuanTri\DanhSachViec::TRANG === $m[2] ) )[0][0] ?? '';
@@ -2778,6 +2779,92 @@ foreach ( $cd_bai as $x ) {
 	wp_delete_post( $x, true );
 }
 delete_option( \Phongdao\HaTang\ChuyenHuong::PHAN_LOAI );
+// ---------- Tuyển tập: màn soạn trong wp-admin (D-116, T-208) — người viết lời dẫn, người chọn câu, người duyệt bấm Đăng ----------
+$STT    = \Phongdao\GiaoTiep\QuanTri\SuaTuyenTap::class;
+$tt_bai = array();
+for ( $i = 0; $i < 9; $i++ ) {
+	$tt_bai[ $i ] = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 8 === $i ? 'draft' : 'publish', 'post_title' => 'Câu tuyển tập thử ' . $i, 'post_name' => 'cau-tuyen-tap-thu-' . $i ) );
+	wp_set_object_terms( $tt_bai[ $i ], 'ca-dao', KhaiBao::THE_LOAI );
+}
+$tt_url  = (string) get_permalink( $tt_bai[1] );
+$tt_mau  = get_page_by_path( 'gui-mot-loi-nhan-mau', OBJECT, KhaiBao::TUYEN_TAP );
+kt( 'Tuyển tập — tìm bài từ dòng dán: số ID, đường dẫn bài, tên đúng từng chữ; không chắc (không có, không phải tác phẩm) thì không đoán', $tt_bai[0] === $STT::tim_bai( (string) $tt_bai[0] ) && $tt_bai[1] === $STT::tim_bai( $tt_url ) && $tt_bai[2] === $STT::tim_bai( 'Câu tuyển tập thử 2' ) && null === $STT::tim_bai( 'không có bài này' ) && ( ! $tt_mau || null === $STT::tim_bai( (string) $tt_mau->ID ) ), array( $tt_url, $STT::tim_bai( $tt_url ) ) );
+$kq_tt0 = $STT::luu( 0, array( 'ten' => 'Không quyền', 'hanh' => 'luu' ), 0 );
+$kq_tt1 = $STT::luu( 0, array( 'ten' => 'Tuyển tập thử', 'loai' => 'chu_de', 'doi_tuong' => 'học sinh', 'loi_dan' => "Đoạn một.\n\nĐoạn hai.", 'them' => $tt_bai[0] . "\n" . $tt_url . "\nCâu tuyển tập thử 2\nkhông có bài này", 'hanh' => 'them' ), $cs_tl );
+$tt_id  = (int) $kq_tt1['id'];
+$tt_p   = get_post( $tt_id );
+kt(
+	'Tuyển tập — người soạn tạo bộ mới ở trạng thái nháp: tên, loại, người đọc dự định, lời dẫn (người viết) lưu đúng phần; dòng dán tìm được thêm theo thứ tự, dòng không tìm được báo lỗi và giữ lại để sửa; người không có quyền soạn bị từ chối',
+	! $kq_tt0['ok'] && ! $kq_tt0['id'] && $tt_id && 'draft' === $tt_p->post_status && 'Tuyển tập thử' === $tt_p->post_title && 'chu_de' === ( PhanBai::lay( $tt_id, 'thong_tin' )['loai'] ?? '' ) && 'học sinh' === ( PhanBai::lay( $tt_id, 'thong_tin' )['doi_tuong'] ?? '' )
+	&& "Đoạn một.\n\nĐoạn hai." === ( PhanBai::lay( $tt_id, 'loi_dan' )['chu'] ?? '' ) && NguoiLam::NGUOI_VIET === ( PhanBai::lay( $tt_id, 'loi_dan' )['nguoi_lam'] ?? '' )
+	&& array( $tt_bai[0], $tt_bai[1], $tt_bai[2] ) === array_column( $STT::muc( $tt_id ), 'tac_pham_id' ) && 'không có bài này' === $kq_tt1['con'] && ! $kq_tt1['ok'] && str_contains( implode( ' ', $kq_tt1['loi'] ), 'Không tìm thấy bài cho 1 dòng' ),
+	$kq_tt1
+);
+$vao_tt = static function ( int $id, array $them = array() ) use ( $STT ): array {
+	$tt_ti = (array) PhanBai::lay( $id, 'thong_tin' );
+	return $them + array(
+		'ten'       => get_post( $id )->post_title,
+		'loai'      => (string) ( $tt_ti['loai'] ?? 'chu_de' ),
+		'doi_tuong' => (string) ( $tt_ti['doi_tuong'] ?? '' ),
+		'loi_dan'   => (string) ( PhanBai::lay( $id, 'loi_dan' )['chu'] ?? '' ),
+		'phien'     => $STT::phien( $id ),
+		'muc'       => array_map( static fn( array $m ): array => array( 'id' => $m['tac_pham_id'], 'nhom' => $m['nhom'], 'ghi_chu' => $m['ghi_chu'] ), $STT::muc( $id ) ),
+	);
+};
+$v_tt = $vao_tt( $tt_id, array( 'hanh' => 'len:2' ) );
+$v_tt['muc'][0]['nhom']    = 'Nhóm A';
+$v_tt['muc'][1]['ghi_chu'] = 'Ghi chú thử';
+$kq_tt2 = $STT::luu( $tt_id, $v_tt, $cs_tl );
+$m_tt2  = $STT::muc( $tt_id );
+$v_tt   = $vao_tt( $tt_id, array( 'hanh' => 'them_nhanh:' . $tt_bai[3] ) );
+$v_tt['muc'][1]['bo'] = '1';
+$v_tt['muc'][]        = array( 'id' => $tt_bai[0] );
+$kq_tt3 = $STT::luu( $tt_id, $v_tt, $cs_tl );
+kt(
+	'Tuyển tập — mọi nút lưu chữ đang có rồi mới làm việc của nút: Lên đổi chỗ hai câu, nhóm và ghi chú đi theo câu; Bỏ khỏi bộ, bỏ câu trùng, nút Thêm ở kết quả tìm thêm câu vào cuối',
+	$kq_tt2['ok'] && array( $tt_bai[0], $tt_bai[2], $tt_bai[1] ) === array_column( $m_tt2, 'tac_pham_id' ) && 'Nhóm A' === $m_tt2[0]['nhom'] && 'Ghi chú thử' === $m_tt2[2]['ghi_chu']
+	&& $kq_tt3['ok'] && array( $tt_bai[0], $tt_bai[1], $tt_bai[3] ) === array_column( $STT::muc( $tt_id ), 'tac_pham_id' ),
+	array( $m_tt2, $STT::muc( $tt_id ) )
+);
+wp_set_current_user( $ai_ql );
+$_GET    = array( 'id' => $tt_id, 'q' => 'Câu tuyển tập thử' );
+$h_tt_f  = $STT::hien();
+$_GET    = array();
+$h_tt_ds = $STT::hien();
+kt(
+	'Tuyển tập — màn danh sách (tên, trạng thái, + Tuyển tập mới) và màn soạn: một form có nonce, ô có nhãn (tên, loại, người đọc, lời dẫn, nhóm, ghi chú), kết quả tìm có nút Thêm và "Đã có trong bộ", nút Lưu và đăng cho người duyệt',
+	str_contains( $h_tt_ds, '<h1>Tuyển tập</h1>' ) && str_contains( $h_tt_ds, 'Tuyển tập thử' ) && str_contains( $h_tt_ds, '+ Tuyển tập mới' ) && str_contains( $h_tt_ds, 'Nháp: ' )
+	&& 1 === substr_count( $h_tt_f, '<form method="post"' ) && str_contains( $h_tt_f, 'name="_wpnonce"' ) && str_contains( $h_tt_f, '<label for="tt-ten">' ) && str_contains( $h_tt_f, '<label for="tt-dan">' ) && str_contains( $h_tt_f, '<label for="tt-muc-0-nhom">' )
+	&& str_contains( $h_tt_f, 'value="them_nhanh:' . $tt_bai[4] . '"' ) && str_contains( $h_tt_f, 'Đã có trong bộ' ) && str_contains( $h_tt_f, 'value="dang"' ) && str_contains( $h_tt_f, 'value="len:1"' ) && ! str_contains( $h_tt_f, 'value="len:0"' ),
+	substr( $h_tt_f, 0, 600 )
+);
+$v_cu = $vao_tt( $tt_id );
+LuuPhan::luu( $tt_id, 'loi_dan', array( 'chu' => 'Sửa ở nơi khác.', 'nguoi_lam' => NguoiLam::NGUOI_VIET ), array( 'nguoi' => $ai_ql, 'goi' => KiemPhan::GOI_NGUOI ) );
+$v_cu['loi_dan'] = 'Chữ cũ ghi đè';
+$kq_tt4 = $STT::luu( $tt_id, $v_cu, $cs_tl );
+kt( 'Tuyển tập — không ghi đè khi bộ vừa được sửa ở nơi khác; chữ vừa gõ được giữ để đối chiếu', ! $kq_tt4['ok'] && 'Sửa ở nơi khác.' === ( PhanBai::lay( $tt_id, 'loi_dan' )['chu'] ?? '' ) && 'Chữ cũ ghi đè' === ( $kq_tt4['giu']['loi_dan'] ?? '' ), $kq_tt4 );
+$kq_tt5 = $STT::luu( $tt_id, $vao_tt( $tt_id, array( 'hanh' => 'dang' ) ), $cs_tl );
+$tt_st5 = get_post_status( $tt_id );
+$kq_tt6 = $STT::luu( $tt_id, $vao_tt( $tt_id, array( 'hanh' => 'dang' ) ), $ai_ql );
+$tt_ck6 = \Phongdao\GiaoTiep\Khoi\TuyenTap::cong_khai( get_post( $tt_id ) );
+$kq_tt7 = $STT::luu( $tt_id, $vao_tt( $tt_id, array( 'hanh' => 'them', 'them' => implode( "\n", array( $tt_bai[2], $tt_bai[4], $tt_bai[5], $tt_bai[6], $tt_bai[7], $tt_bai[8] ) ) ) ), $ai_ql );
+$tt_p7  = get_post( $tt_id );
+$tt_th7 = $STT::thieu( $tt_id );
+$_GET   = array( 'id' => $tt_id );
+$h_tt_7 = $STT::hien();
+$_GET   = array();
+$kq_tt8 = $STT::luu( $tt_id, $vao_tt( $tt_id, array( 'hanh' => 'go' ) ), $ai_ql );
+kt(
+	'Tuyển tập — người chỉ soạn không đăng được (giữ nháp); người duyệt bấm Lưu và đăng: chưa đủ 8 câu đã đăng thì báo người đọc chưa thấy và còn thiếu gì; đủ lời dẫn + 8 câu đã đăng thì công khai (câu chưa đăng có trong bộ nhưng không tính, ghi rõ trên màn soạn); Gỡ đăng về nháp',
+	'draft' === $tt_st5 && str_contains( implode( ' ', $kq_tt5['loi'] ), 'cần quyền duyệt' ) && ! $tt_ck6 && str_contains( implode( ' ', $kq_tt6['bao'] ), 'người đọc chưa thấy' ) && str_contains( implode( ' ', $kq_tt6['bao'] ), 'mới có 3 / 8 câu đã đăng' )
+	&& \Phongdao\GiaoTiep\Khoi\TuyenTap::cong_khai( $tt_p7 ) && 9 === count( $STT::muc( $tt_id ) ) && 8 === count( \Phongdao\GiaoTiep\Khoi\TuyenTap::muc( $tt_p7 ) ) && array() === $tt_th7 && str_contains( $h_tt_7, 'Chưa đăng — người đọc không thấy câu này' ) && str_contains( $h_tt_7, 'Người đọc đang thấy bộ này' )
+	&& 'draft' === get_post_status( $tt_id ) && ! \Phongdao\GiaoTiep\Khoi\TuyenTap::cong_khai( get_post( $tt_id ) ),
+	array( $kq_tt5, $kq_tt6, $kq_tt7, $kq_tt8 )
+);
+wp_delete_post( $tt_id, true );
+foreach ( $tt_bai as $x ) {
+	wp_delete_post( $x, true );
+}
 $h_nn = $KP::hien( 'ngau-nhien' );
 kt( 'Một câu ngẫu nhiên: một thẻ bài, "Câu khác", "Xem đầy đủ"', str_contains( $h_nn, 'class="card' ) && str_contains( $h_nn, 'Câu khác' ) && str_contains( $h_nn, 'Xem đầy đủ' ), substr( $h_nn, 0, 400 ) );
 kt( 'Hay bị nhầm dưới 5 câu: không công khai, menu không có liên kết', ! $KP::hay_bi_nham_cong_khai() && ! \Phongdao\GiaoTiep\Khoi\Ve::co( 'hay-bi-nham' ) && ! str_contains( \Phongdao\GiaoTiep\Khoi\KhungTrang::dau_trang(), '/hay-bi-nham/' ) );

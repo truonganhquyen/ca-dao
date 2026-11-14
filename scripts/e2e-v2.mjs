@@ -1111,7 +1111,7 @@ try {
       await bt.setViewport({ width: 1280, height: 800 });
       await di(bt, '/wp-admin/admin.php?page=phongdao-ban-lam-viec');
       const muc = await bt.$$eval('#toplevel_page_phongdao-ban-lam-viec .wp-submenu a', as => as.map(a => a.textContent.replace(/\d+/g, '').trim()));
-      chac(JSON.stringify(muc) === JSON.stringify(['Hôm nay', 'Bài mới', 'Hộp việc', 'Bổ sung', 'Tác phẩm', 'Danh mục', 'Nguồn & cài đặt']), `menu Phongdao: ${muc.join(' · ')}`);
+      chac(JSON.stringify(muc) === JSON.stringify(['Hôm nay', 'Bài mới', 'Hộp việc', 'Bổ sung', 'Tác phẩm', 'Tuyển tập', 'Danh mục', 'Nguồn & cài đặt']), `menu Phongdao: ${muc.join(' · ')}`);
       chac(await bt.$eval('h1', h => h.textContent.trim()) === 'Hôm nay', 'màn đầu không mang tên "Hôm nay"');
       chac(await bt.$$eval('.phongdao-ban-so > .phongdao-ban-o', os => os.map(o => o.querySelector('h3').textContent).join()) === 'Bài mới,Hộp việc,Bổ sung', 'Hôm nay không có ba ô Bài mới · Hộp việc · Bổ sung');
       chac(await bt.$$eval('.phongdao-ban-so > .phongdao-ban-o a.button', as => as.length) === 3, 'mỗi ô của Hôm nay không có nút bắt đầu');
@@ -1172,6 +1172,32 @@ try {
       await bamDoiTrang(bt, '.phongdao-bs-goi-y button[name=lam][value=dong_y]'); bam_++;
       chac(await coChu(bt, `Đã đồng ý ${so} gợi ý`), `không báo đã đồng ý ${so} gợi ý`);
       chac(bam_ <= 5, `duyệt một nhóm tốn ${bam_} bấm`);
+    });
+
+    await thu('wp-admin Tuyển tập (điện thoại): tạo bộ mới, tìm và thêm câu, lưu nháp, người duyệt đăng; khách đọc được; gỡ đăng về nháp', async () => {
+      await bt.setViewport({ width: 390, height: 844 });
+      const dan = 'Lời dẫn thử đầu-cuối: vài câu để đọc khi cần gửi một lời nhắn.';
+      await di(bt, '/wp-admin/admin.php?page=phongdao-tuyen-tap');
+      await bamDoiTrang(bt, 'a[href*="page=phongdao-tuyen-tap"][href*="moi=1"]');
+      await datO(bt, '#tt-ten', 'Tuyển tập thử đầu-cuối');
+      await bt.select('#tt-loai', 'tinh_huong');
+      await datO(bt, '#tt-dan', dan);
+      await bamDoiTrang(bt, 'button[name=hanh][value=luu]');
+      chac(await coChu(bt, 'Đã tạo tuyển tập ở trạng thái nháp'), 'không tạo được bộ nháp');
+      await datO(bt, '#tt-q', 'mẫu');
+      await bamDoiTrang(bt, 'button[name=hanh][value=tim]');
+      chac(await bt.$('button[name=hanh][value^="them_nhanh:"]'), 'tìm "mẫu" không có bài nào để thêm');
+      for (let i = 0; i < 2; i++) await bamDoiTrang(bt, 'button[name=hanh][value^="them_nhanh:"]');
+      chac(2 === (await bt.$$('.phongdao-tt-muc')).length && await bt.$eval('#tt-dan', o => o.value) === dan, 'thêm câu làm mất lời dẫn hoặc không đủ 2 câu');
+      chac(await bt.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'màn soạn tuyển tập tràn ngang 390 px');
+      await bamDoiTrang(bt, 'button[name=hanh][value=dang]');
+      chac(await coChu(bt, 'Đã đăng: người đọc thấy'), 'đăng xong không báo người đọc đã thấy (Tình huống cần 2 câu)');
+      const xem = await bt.$eval('.phongdao-tt-trang-thai a', a => a.href);
+      await di(k, new URL(xem).pathname);
+      chac(await coChu(k, dan) && 2 === (await k.$$('[data-collection] .collection-item')).length, 'khách không đọc được tuyển tập vừa đăng');
+      await bamDoiTrang(bt, 'button[name=hanh][value=go]');
+      chac(await coChu(bt, 'Đã gỡ đăng'), 'không gỡ đăng được');
+      await bt.setViewport({ width: 1280, height: 800 });
     });
 
     await thu('wp-admin Tác phẩm và Bài mới trên điện thoại: mỗi mục một thẻ ba dòng, bộ lọc gập, thấy mục ngay màn đầu', async () => {

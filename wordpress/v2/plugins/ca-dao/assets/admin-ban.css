@@ -53,3 +53,18 @@
 	.phongdao-dcd-nhan { display: inline; font-weight: 600; }
 	.phongdao-dcd-form select { width: 100%; }
 }
+/* Tuyển tập (D-116): form soạn một bộ, dễ dùng trên điện thoại */
+.phongdao-tt-form label { display: block; font-weight: 600; margin: 0 0 4px; }
+.phongdao-tt-form label.phongdao-tt-bo { display: inline-flex; align-items: center; gap: 6px; font-weight: 400; min-height: 44px; margin: 0; }
+.phongdao-tt-form input[type=text], .phongdao-tt-form input[type=search], .phongdao-tt-form select, .phongdao-tt-form textarea { width: 100%; max-width: 640px; min-height: 44px; box-sizing: border-box; }
+.phongdao-tt-form .description { display: block; margin-top: 4px; }
+.phongdao-tt-form .button, .phongdao-tt-nut { min-height: 44px; line-height: 42px; }
+.phongdao-tt-ds { margin: 0 0 16px; padding: 0; list-style: none; max-width: 760px; }
+.phongdao-tt-muc { margin: 0 0 12px; padding: 12px 16px; border: 1px solid #c3c4c7; border-radius: 6px; background: #fff; }
+.phongdao-tt-dau { font-weight: 600; }
+.phongdao-tt-so { display: inline-block; min-width: 2em; color: #50575e; }
+.phongdao-tt-hang { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.phongdao-tt-tim { max-width: 760px; }
+.phongdao-tt-tim li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 8px; }
+.phongdao-tt-nut-luu { display: flex; flex-wrap: wrap; gap: 8px; }
+.phongdao-tt-trang-thai { max-width: 760px; padding: 12px 16px; border-left: 4px solid #2271b1; background: #fff; }

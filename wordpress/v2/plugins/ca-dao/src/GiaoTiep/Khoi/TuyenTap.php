@@ -49,6 +49,11 @@ final class TuyenTap {
 		return $ra;
 	}
 
+	/** Số câu đã đăng tối thiểu để bộ hiện cho người đọc (Tình huống: 2, còn lại: 8). */
+	public static function nguong( string $loai ): int {
+		return self::NGUONG[ $loai ] ?? self::NGUONG_CHUNG;
+	}
+
 	public static function loai( \WP_Post $tt ): string {
 		$l = (string) ( PhanBai::lay( $tt->ID, 'thong_tin' )['loai'] ?? '' );
 		return isset( self::LOAI[ $l ] ) ? $l : 'chu_de';

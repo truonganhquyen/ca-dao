@@ -23,7 +23,7 @@ Không bắt mỗi bài đủ mọi ô. Nguồn đối chiếu giữ nội bộ 
 
 ## Một tuyển tập bằng module đang có
 
-Người biên soạn điền phiếu này rồi tạo bản nháp trong module Tuyển tập hiện có. Không thêm loại bài hoặc bảng dữ liệu. Agent chưa tạo bài trên production.
+Người biên soạn điền phiếu này rồi tạo bản nháp ở wp-admin → Phongdao → **Tuyển tập** (D-116; cách làm từng bước: [Làm một tuyển tập](lam-tuyen-tap.md)). Không thêm loại bài hoặc bảng dữ liệu. Agent chưa tạo bài trên production.
 
 | Trường hiện có | Giá trị người phụ trách điền |
 |---|---|
