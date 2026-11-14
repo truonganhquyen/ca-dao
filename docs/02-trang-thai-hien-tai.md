@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Phiên bản | 3.5 · 14/11/2026 (tìm đúng chữ và thứ tự danh sách; lịch sử đến 11/11/2026: `docs/luu-tru/02-trang-thai-den-11-11-2026.md`) |
+| Phiên bản | 3.6 · 14/11/2026 (bộ lọc Tìm gọn; lịch sử đến 11/11/2026: `docs/luu-tru/02-trang-thai-den-11-11-2026.md`) |
 | Mục đích | Trang tổng quan ngắn cho người sáng lập và AI agent |
 | Nguồn máy đọc | `du-an/trang-thai.json` (`npm run kiem-nhat-quan` đối chiếu với `docs/01`, `docs/22`) |
 
@@ -45,6 +45,8 @@
 - Báo cáo căn cứ: `docs/e2e-review/v2-quan-tri-2/BAO-CAO.md`.
 
 **Tìm đúng chữ và thứ tự danh sách đã làm** (D-112, plugin 1.0.62): tìm đã gửi so trọn chữ và đúng dấu, tách gợi ý gõ dở/khác dấu; giữ thứ tự liên quan, lọc thể loại và phân trang toàn tập; đánh dấu/trích đúng phần khớp. Một từ không có thẻ nổi bật. Kho và trang phân loại mặc định **Có giải nghĩa trước**, thêm Mới thêm / Đọc nhiều tuần này / A–Z. Bốn cổng đạt trên nhánh, E2E 67/67; chỉ gộp khi CI head cuối đạt, kiểm phiên bản site sau gộp. [Phạm vi và nghiệm thu](39-tim-va-sap-xep-danh-sach.md), [PR #176](https://github.com/truonganhquyen/ca-dao/pull/176). Pilot nội dung thật vẫn chờ người biên soạn.
+
+**Bộ lọc Tìm gọn đã làm** (D-113, plugin 1.0.63/theme 1.0.10): máy tính có hai ô Cách khớp/Thể loại và Áp dụng cùng hàng; điện thoại thu vào Bộ lọc, có tóm tắt và số lựa chọn khác mặc định. Đặt lại giữ từ khoá, về trang 1; 0 kết quả mở sẵn và chỉ phạm vi còn bài. Dùng một form GET, không đổi thuật toán. Bốn cổng đã đạt trên nhánh, E2E 68/68; chỉ gộp khi CI head cuối đạt, kiểm phiên bản site riêng sau gộp. [Nghiệm thu](40-bo-loc-tim-gon.md), [PR #177](https://github.com/truonganhquyen/ca-dao/pull/177).
 
 ## Đang chờ người sáng lập
 

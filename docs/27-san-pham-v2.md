@@ -227,6 +227,8 @@ Một tác phẩm L2 → nghĩa → [Câu khác] → "Xem đầy đủ ›". Kh�
 
 **D-112 (14/11/2026, thay quy tắc nhóm/thẻ mạnh ở trên):** bấm Tìm so trọn chữ; gợi ý đang gõ dùng đầu chữ và được báo rõ. Kết quả đúng dấu, mở rộng không dấu, khớp đầu chữ là các phạm vi riêng kèm số. Một từ không có thẻ nổi bật; chỉ trọn tên/dòng lời duy nhất mới có. Danh sách giữ thứ tự liên quan xuyên thể loại, có lọc và phân trang 20 bài bằng GET, đủ tới trang cuối; mỗi thẻ đánh dấu/trích đúng chỗ khớp và nêu phần khớp. Chữ và công tắc che của D-111 giữ nguyên. Chi tiết: [docs/39](39-tim-va-sap-xep-danh-sach.md).
 
+**D-113:** bộ lọc Tìm dùng hai ô chọn có nhãn Cách khớp và Thể loại, chung form GET với từ khoá và nút Áp dụng. Máy tính hiện cùng một hàng; điện thoại thu vào Bộ lọc có tóm tắt, huy hiệu đếm lựa chọn khác mặc định. Đặt lại giữ từ khoá, về trang 1; không có kết quả thì mở bộ lọc và chỉ lối sang phạm vi còn bài. Mục tiêu khối lọc mặc định ≤ 100 px tại 390 px, dùng được bằng bàn phím và không JavaScript. Chi tiết: [docs/40](40-bo-loc-tim-gon.md).
+
 ### 7.4. Từ điển và mục từ (S11)
 
 `/tu-dien/`: ô tìm → hàng chữ cái A–Z → lọc (từ cổ, Hán Việt, phương ngữ, địa danh, vùng). Mục từ: từ → lời giải → nguồn lời giải (theo chính sách) → ảnh Commons (ghi công; không ảnh thì không chừa chỗ) → bản đồ nhỏ (địa danh đã xác nhận, có Hoàng Sa, Trường Sa) → các bài có từ này (thẻ có nhãn) → từ cùng vùng.

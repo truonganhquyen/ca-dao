@@ -189,8 +189,9 @@ try {
         await di(k, '/tim/?q=mau');
         chac(!(await k.$('.result-primary')), 'một từ không được thành thẻ nổi bật');
         chac(await k.$('#search-results mark'), 'không đánh dấu chữ khớp');
-        const loc = await k.$eval('nav[aria-label="Lọc thể loại kết quả"] a[href*="loai=ca-dao"]', a => a.href);
-        await k.goto(loc, {waitUntil:'load'});
+        await bam(k, '.tim-loc-mo > summary');
+        await k.select('#tim-loai', 'ca-dao');
+        await bamDoiTrang(k, '#tim-loc-chon button[type=submit]');
         chac((await k.$$eval('#search-results article.card', as => as.every(a => a.classList.contains('g-ca-dao')))), 'lọc thể loại còn lẫn bài');
         for (const p of ['/kho/', '/the-loai/ca-dao/']) {
           await di(k, p);
@@ -202,6 +203,40 @@ try {
           }
         }
       } finally { await k.setJavaScriptEnabled(true); }
+    });
+
+    if (!SITE) await thu('Bộ lọc Tìm gọn: 320/390/1440 px, bàn phím, hai ô chung form và tắt JavaScript', async () => {
+      try {
+        for (const js of [true, false]) for (const width of [320,390,1440]) {
+          await k.setJavaScriptEnabled(js); await k.setViewport({width,height:900});
+          await di(k, '/tim/?q=mau');
+          chac(await k.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'bộ lọc tràn ngang');
+          if (width < 760) {
+            chac(await k.$eval('.tim-loc-mo',d=>!d.open), 'mặc định chưa thu gọn');
+            const h = await k.evaluate(()=>document.querySelector('.tim-loc').getBoundingClientRect().bottom-document.querySelector('#search-status').getBoundingClientRect().top);
+            chac(h<=100, `bộ lọc đóng cao ${h} px, cần <= 100 px`);
+            if (width===390) chac(await k.$eval('#search-results article.card',e=>e.getBoundingClientRect().top<844), 'thẻ đầu chưa nằm trong màn hình đầu 390×844');
+            const s=await k.$('.tim-loc-mo > summary'); await s.focus(); await k.keyboard.press('Enter');
+            chac(await k.$eval('.tim-loc-mo',d=>d.open), 'bàn phím không mở bộ lọc');
+          } else {
+            chac(await k.$eval('#tim-loc-chon',e=>e.getBoundingClientRect().height>0), 'máy tính chưa hiện sẵn bộ lọc');
+            chac(await k.$$eval('#tim-loc-chon select, #tim-loc-chon button',es=>new Set(es.map(e=>Math.round(e.getBoundingClientRect().bottom))).size===1), 'hai ô và nút không cùng hàng');
+          }
+          await k.select('#tim-khop','go_do'); await k.select('#tim-loai','ca-dao');
+          await datO(k,'#query','m');
+          await bamDoiTrang(k,'#tim-loc-chon button[type=submit]');
+          const u=new URL(k.url());
+          chac(u.searchParams.get('q')==='m' && u.searchParams.get('khop')==='go_do' && u.searchParams.get('loai')==='ca-dao' && !u.searchParams.has('trang'), 'Áp dụng mất từ khoá/lựa chọn hoặc giữ trang cũ');
+          const cards=await k.$$('#search-results article.card');
+          chac(cards.length>0 && await k.$$eval('#search-results article.card',as=>as.every(a=>a.classList.contains('g-ca-dao'))), 'hai lựa chọn chưa lọc đúng bài');
+          chac(await coChu(k,'Bộ lọc (2)') || width>=760, 'thiếu số bộ lọc đang chọn');
+          if (width<760 && !await k.$eval('.tim-loc-mo',d=>d.open)) await bam(k,'.tim-loc-mo > summary');
+          await bamDoiTrang(k,'.tim-loc-dat-lai');
+          const reset=new URL(k.url());
+          chac(reset.searchParams.get('q')==='m' && reset.searchParams.get('khop')==='dung' && reset.searchParams.get('trang')==='1' && !reset.searchParams.get('loai'), 'Đặt lại làm mất query hoặc không về mặc định');
+          chac(await k.$eval('.tim-loc-mo',d=>d.open) && await coChu(k,'Thử phạm vi còn bài:'), '0 kết quả chưa mở bộ lọc và chỉ đường tìm rộng hơn');
+        }
+      } finally {await k.setJavaScriptEnabled(true); await k.setViewport({width:390,height:900});}
     });
 
     await thu('Trang bài: Sao chép lời kèm đường dẫn', async () => {

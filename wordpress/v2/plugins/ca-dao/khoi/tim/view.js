@@ -6,30 +6,38 @@
   if (!f || !window.fetch || !f.dataset.api) return;
   const o = f.querySelector('[name=q]');
   let hen, dang;
+  const dung = () => { clearTimeout(hen); if (dang) dang.abort(); };
   const thay = html => {
+    const mo = document.querySelector('.tim-loc-mo')?.open;
     const t = document.createElement('div');
     t.innerHTML = html;
     for (const id of ['search-status', 'search-results']) {
       const cu = document.getElementById(id), moi = t.querySelector('#' + id);
       if (cu && moi) cu.innerHTML = moi.innerHTML;
     }
+    if (mo) { const d = document.querySelector('.tim-loc-mo'); if (d) d.open = true; }
     document.querySelectorAll('[data-action=mong-co-cau][hidden]').forEach(b => { b.hidden = false; });
     if (window.PDfit) window.PDfit();
   };
+  f.addEventListener('submit', dung);
+  for (const ten of ['change', 'focusin']) {
+    document.addEventListener(ten, e => { if (e.target.closest('[data-tim-loc]')) dung(); });
+  }
   o.addEventListener('input', () => {
-    clearTimeout(hen);
-    if (dang) dang.abort();
+    dung();
     hen = setTimeout(async () => {
       const q = o.value.trim();
       if (dang) dang.abort();
-      dang = new AbortController();
+      const yc = new AbortController();
+      dang = yc;
       try {
         const params = new URLSearchParams(new FormData(f));
         params.set('q', q);
         params.set('dang_go', '1');
-        const r = await fetch(f.dataset.api + (f.dataset.api.includes('?') ? '&' : '?') + params, { signal: dang.signal });
+        const r = await fetch(f.dataset.api + (f.dataset.api.includes('?') ? '&' : '?') + params, { signal: yc.signal });
         if (!r.ok) return;
-        thay((await r.json()).html);
+        const html = (await r.json()).html;
+        if (!yc.signal.aborted && dang === yc) thay(html);
         // Form GET xác nhận tìm trọn chữ; gợi ý gõ dở không thay đường dẫn đang chia sẻ.
       } catch (e) { /* mất mạng: giữ kết quả cũ, form vẫn gửi được */ }
     }, 300);

@@ -535,7 +535,7 @@ wp_set_current_user( 0 );
 $h = \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 'dong mau mot cua bai nay' );
 kt( 'trang Tìm: khớp cả câu thì thẻ lớn đầu trang, có Đọc bài', str_contains( $h, 'result-primary' ) && str_contains( $h, 'Khớp cả câu · Ca dao' ) && str_contains( $h, esc_url( (string) get_permalink( $mau_id['dong-mau-mot-cua-bai'] ) ) ) );
 $h = \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 'mau' );
-kt( 'trang Tìm: danh sách giữ thứ tự liên quan, có bộ lọc thể loại và số toàn tập', str_contains( $h, 'Lọc thể loại kết quả' ) && str_contains( $h, 'Các bài phù hợp' ) && (bool) preg_match( '/id="search-status"[^>]*>\d+ bài</', $h ), substr( $h, 0, 400 ) );
+kt( 'trang Tìm: danh sách giữ thứ tự liên quan, có bộ lọc thể loại và số toàn tập', str_contains( $h, '<label for="tim-loai">Thể loại</label>' ) && str_contains( $h, 'Các bài phù hợp' ) && (bool) preg_match( '/id="search-status"[^>]*>\d+ bài</', $h ), substr( $h, 0, 400 ) );
 $h = \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 'cau do mau dong haj' );
 kt( 'gõ sai một chữ cái: "Có phải bạn tìm …?" dẫn tới truy vấn đã sửa', str_contains( $h, 'Có phải bạn tìm' ) && str_contains( $h, 'q=cau%20do%20mau%20dong%20hai' ) && str_contains( $h, 'Chưa tìm thấy câu phù hợp' ), $h );
 kt( 'trang Tìm chưa gõ: lối bắt đầu; truy vấn lạ: báo rõ, có lối sang Tất cả, Góp', str_contains( \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( '' ), 'Bạn có thể bắt đầu từ đây' ) && str_contains( \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 'zzqxw' ), 'Góp câu đang tìm' ) );
