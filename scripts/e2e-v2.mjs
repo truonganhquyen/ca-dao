@@ -1328,7 +1328,12 @@ try {
     });
 		await kiemTrangSua({bt,G,di,bam,datO,bamDoiTrang,chac,thu,thuMucAnh});
 		await kiemEditorUrl({bt,G,di,bam,datO,bamDoiTrang,chac,thu,thuMucAnh});
-		await kiemThungRac({bt,di,bam,datO,bamDoiTrang,chac,thu,thuMucAnh});
+		// Đóng các tab của chặng trước: Chrome/Playground trên CI còn giữ các yêu cầu nền
+		// (media, wp-compression-test, users/me, ngẫu nhiên), chiếm kết nối khi gửi form không JS.
+		// Chặng thùng rác dùng tab mới trong cùng phiên đã đăng nhập; giữ nguyên mọi kiểm kết quả.
+		const rac = await moTab(trinhDuyet.defaultBrowserContext(), 'người biên soạn · thùng rác');
+		for (const t of cacTab) if (t !== rac && !t.isClosed()) { await t.close(); t.dangCho.clear(); }
+		await kiemThungRac({bt:rac,di,bam,datO,bamDoiTrang,chac,thu,thuMucAnh});
   }
 } catch (e) {
   loi.push(String(e.message ?? e).split('\n')[0]);
