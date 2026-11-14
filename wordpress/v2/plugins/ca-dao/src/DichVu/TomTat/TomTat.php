@@ -95,6 +95,7 @@ final class TomTat implements Module {
 		the_loai varchar(40) NOT NULL DEFAULT '',
 		trang_thai varchar(20) NOT NULL DEFAULT '',
 		cap tinyint(4) NOT NULL DEFAULT -1,
+		uu_tien_doc tinyint(3) unsigned NOT NULL DEFAULT 0,
 		thieu varchar(191) NOT NULL DEFAULT '',
 		co tinyint(1) NOT NULL DEFAULT 0,
 		nguon_may varchar(64) NOT NULL DEFAULT '',
@@ -152,6 +153,7 @@ final class TomTat implements Module {
 			'post_id'     => $id,
 			'the_loai'    => $loai,
 			'trang_thai'  => (string) $bai->post_status,
+			'uu_tien_doc' => \Phongdao\MienDuLieu\UuTienDoc::tinh( $phan, $loai ),
 			'cap'         => CapChatLuong::tinh( $phan, '' === $loai ? null : $loai ) ?? -1,
 			'thieu'       => $thieu ? ',' . implode( ',', $thieu ) . ',' : '',
 			'co'          => $co( 'co_nghi' ) ? 1 : 0,
@@ -193,7 +195,7 @@ final class TomTat implements Module {
 			self::xoa( $id );
 			return;
 		}
-		$wpdb->replace( self::bang(), $dong, array( '%d', '%s', '%s', '%d', '%s', '%d', '%s', '%d', '%d', '%s' ) );
+		$wpdb->replace( self::bang(), $dong, array( '%d', '%s', '%s', '%d', '%d', '%s', '%d', '%s', '%d', '%d', '%s' ) );
 	}
 
 	public static function xoa( int $id ): void {

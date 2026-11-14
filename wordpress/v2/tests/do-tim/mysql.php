@@ -21,6 +21,7 @@ require __DIR__ . '/../../plugins/ca-dao/src/tu-nap.php';
 /** $wpdb tối thiểu trên mysqli. */
 final class DoTimCsdl {
 	public string $prefix   = 'wp_';
+	public string $posts    = 'pd203_posts';
 	public int $num_queries = 0;
 	public function __construct( private mysqli $m ) {}
 	public function esc_like( string $s ): string {
@@ -77,5 +78,11 @@ $ok = do_tim_chay(
 	},
 	'MySQL/MariaDB ' . $phien_ban
 );
+// Hai bảng tạm chỉ dành cho đo đường tìm người đọc; không chạm bảng bài của WordPress.
+$cols = array( 'post_author', 'post_date', 'post_date_gmt', 'post_content', 'post_title', 'post_excerpt', 'post_status', 'comment_status', 'ping_status', 'post_password', 'post_name', 'to_ping', 'pinged', 'post_modified', 'post_modified_gmt', 'post_content_filtered', 'post_parent', 'guid', 'menu_order', 'post_type', 'post_mime_type', 'comment_count' );
+$m->query( 'CREATE TEMPORARY TABLE pd203_posts (ID bigint unsigned PRIMARY KEY,' . implode( ',', array_map( static fn( string $c ): string => "$c text NOT NULL", $cols ) ) . ')' );
+$m->query( str_replace( 'CREATE TABLE ', 'CREATE TEMPORARY TABLE ', \Phongdao\DichVu\TomTat\TomTat::sql_tao( 'wp_cadao_tom_tat', 'DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci' ) ) );
+require __DIR__ . '/doc.php';
+do_tim_doc( array_map( 'intval', explode( ',', $argv[6] ?? '1000,5000,10000' ) ), static function ( string $d ): void { echo $d, "\n"; }, 'MySQL/MariaDB ' . $phien_ban );
 $m->query( 'DROP TABLE wp_cadao_tim' );
 exit( $ok ? 0 : 1 );

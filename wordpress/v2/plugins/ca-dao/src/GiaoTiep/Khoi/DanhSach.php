@@ -56,6 +56,9 @@ final class DanhSach {
 				// Mục từ: ảnh Commons, bản đồ nhỏ, Wikipedia của địa danh đã xác nhận (như MVP)
 				. ( 'muc_tu' === $term->taxonomy ? self::nguon_loi_giai( $term ) . DiaDanh::html( DiaDanh::cua_muc_tu( (int) $term->term_id ) ?? array() ) . \Phongdao\GiaoTiep\BienTap\SuaMucTu::form( $term ) : '' );
 		}
+		if ( ! $tat_ca && ! in_array( $term->taxonomy, array( 'muc_tu', 'tro_choi' ), true ) ) {
+			$dau .= '<form class="filters" method="get" action="' . esc_url( (string) get_term_link( $term ) ) . '"><div class="field-grid">' . self::bo_sap( $q ) . '</div><div class="actions"><button type="submit" class="btn">Áp dụng</button></div></form>';
+		}
 		$dem = (int) $q->found_posts;
 		$giua = '<p class="small muted">' . number_format( $dem, 0, ',', '.' ) . ' tác phẩm' . ( $q->max_num_pages > 1 ? ' · 30 bài mỗi trang' : '' ) . '</p>';
 		if ( '' === $the ) {
@@ -86,9 +89,9 @@ final class DanhSach {
 	/** Thẻ bài (bộ thiết kế: card trong common.mjs). */
 	public static function the( array $c ): string {
 		$dong = implode( '', array_map( static fn( string $d ): string => '<span class="dong">' . esc_html( $d ) . '</span>', $c['dong'] ) );
-		$than = '<h3><a href="' . esc_url( $c['url'] ) . '">' . esc_html( $c['tieu_de'] ) . '</a></h3>'
-			. '<p class="serif dong-wrap">' . $dong . '</p>'
-			. ( '' === $c['y_nghia'] ? '' : '<p class="muted">' . esc_html( $c['y_nghia'] ) . '</p>' );
+		$than = '<h3><a href="' . esc_url( $c['url'] ) . '">' . ( $c['tim_ten_html'] ?? esc_html( $c['tieu_de'] ) ) . '</a></h3>'
+			. '<p class="serif dong-wrap">' . ( $c['tim_chu_html'] ?? $dong ) . '</p>'
+			. ( isset( $c['tim_chu_html'] ) || '' === $c['y_nghia'] ? '' : '<p class="muted">' . esc_html( $c['y_nghia'] ) . '</p>' );
 		// Có từ ngữ thô tục (D-111): tên, lời, ý nghĩa nằm trong khối đóng; nút Đọc không đọc to tên bài
 		$tho  = ! empty( $c['tho_tuc'] );
 		return '<article class="card g-' . esc_attr( $c['the_loai'] ?: 'ca-dao' ) . '">'
@@ -119,12 +122,22 @@ final class DanhSach {
 			}
 			$o .= '<div><label for="loc-' . esc_attr( $pl ) . '">' . esc_html( $nhan ) . '</label><select id="loc-' . esc_attr( $pl ) . '" name="' . esc_attr( $pl ) . '">' . $opt . '</select></div>';
 		}
-		$sap = 'moi' === $q->get( 'sap' ) ? 'moi' : 'az';
-		$o  .= '<div><label for="loc-sap">Sắp xếp</label><select id="loc-sap" name="sap"><option value="az"' . selected( $sap, 'az', false ) . '>A–Z</option><option value="moi"' . selected( $sap, 'moi', false ) . '>Mới thêm</option></select></div>';
+		$o .= self::bo_sap( $q );
 		$xoa = $dem ? '<a class="btn ghost" href="' . esc_url( (string) get_post_type_archive_link( KhaiBao::TAC_PHAM ) ) . '">Xoá lọc</a>' : '';
 		return '<details class="filters"' . ( $dem ? ' open' : '' ) . '><summary>Bộ lọc <span class="count">· ' . ( $dem ? $dem . ' đang chọn' : 'chưa chọn' ) . '</span></summary>'
 			. '<form method="get" action="' . esc_url( (string) get_post_type_archive_link( KhaiBao::TAC_PHAM ) ) . '"><div class="field-grid">' . $o . '</div>'
 			. '<div class="actions"><button type="submit" class="btn primary">Áp dụng</button>' . $xoa . '</div></form></details>';
+	}
+
+	private static function bo_sap( \WP_Query $q ): string {
+		$ds = array( 'hieu' => 'Có giải nghĩa trước', 'moi' => 'Mới thêm', 'doc' => 'Đọc nhiều tuần này', 'az' => 'A–Z' );
+		$chon = $q->get( 'sap' );
+		$sap = is_string( $chon ) && isset( $ds[ $chon ] ) ? $chon : 'hieu';
+		$o = '<div><label for="loc-sap">Sắp xếp</label><select id="loc-sap" name="sap">';
+		foreach ( $ds as $k => $ten ) {
+			$o .= '<option value="' . $k . '"' . selected( $sap, $k, false ) . '>' . esc_html( $ten ) . '</option>';
+		}
+		return $o . '</select></div>';
 	}
 
 	/** Phân trang: mọi trang khi ≤ 7 trang; nhiều hơn thì trang đầu, cuối và hai trang quanh trang đang xem. */

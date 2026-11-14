@@ -47,22 +47,44 @@ final class KhaiBao implements Module {
 			},
 			99
 		);
+		add_filter( 'posts_clauses', array( self::class, 'xep_danh_sach' ), 10, 2 );
 		add_filter( 'post_type_link', array( self::class, 'duong_dan' ), 10, 2 );
 		add_action( 'template_redirect', array( self::class, 've_duong_dan_chuan' ) );
 		add_action( 'pre_get_posts', array( self::class, 'truy_van_danh_sach' ) );
 		add_filter( 'query_vars', static fn( array $v ): array => array_merge( $v, array( 'sap' ) ) );
 	}
 
-	/** Trang Tất cả (/kho/) và trang phân loại: 30 bài mỗi trang, A–Z (?sap=moi: mới thêm trước). */
+	/** Kho và phân loại tác phẩm: 30 bài/trang, ưu tiên phần giúp hiểu; mục từ/trò chơi giữ A–Z. */
 	public static function truy_van_danh_sach( \WP_Query $q ): void {
 		if ( is_admin() || ! $q->is_main_query() || ! ( $q->is_post_type_archive( self::TAC_PHAM ) || $q->is_tax( array_keys( self::PHAN_LOAI ) ) ) ) {
 			return;
 		}
 		$q->set( 'post_type', self::TAC_PHAM );
 		$q->set( 'posts_per_page', 30 );
-		$moi = 'moi' === $q->get( 'sap' );
-		$q->set( 'orderby', $moi ? 'date' : 'title' );
-		$q->set( 'order', $moi ? 'DESC' : 'ASC' );
+		if ( $q->is_tax( array( 'muc_tu', 'tro_choi' ) ) && ! $q->get( 'sap' ) ) {
+			$q->set( 'sap', 'az' );
+		}
+		$q->set( 'orderby', 'date' );
+		$q->set( 'order', 'DESC' );
+		$q->set( 'phongdao_danh_sach', true );
+	}
+
+	/** Thứ tự của truy vấn danh sách công khai. */
+	public static function xep_danh_sach( array $sql, \WP_Query $q ): array {
+		if ( ! $q->get( 'phongdao_danh_sach' ) ) { return $sql; }
+		global $wpdb;
+		\Phongdao\DichVu\TomTat\TomTat::xong();
+		$sap = is_string( $q->get( 'sap' ) ) ? $q->get( 'sap' ) : '';
+		$cuoi = "{$wpdb->posts}.post_date DESC, {$wpdb->posts}.ID DESC";
+		if ( 'az' === $sap ) {
+			$sql['orderby'] = "{$wpdb->posts}.post_title ASC, {$wpdb->posts}.ID ASC";
+		} elseif ( 'moi' === $sap ) {
+			$sql['orderby'] = $cuoi;
+		} else {
+			$sql['join'] .= ' LEFT JOIN ' . \Phongdao\DichVu\TomTat\TomTat::bang() . " pd_sap ON pd_sap.post_id = {$wpdb->posts}.ID";
+			$sql['orderby'] = ( 'doc' === $sap ? 'COALESCE(pd_sap.doc_7, 0)' : 'COALESCE(pd_sap.uu_tien_doc, 0)' ) . ' DESC, ' . $cuoi;
+		}
+		return $sql;
 	}
 
 	public static function khai_bao(): void {

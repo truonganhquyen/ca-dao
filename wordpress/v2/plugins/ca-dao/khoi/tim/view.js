@@ -18,15 +18,19 @@
   };
   o.addEventListener('input', () => {
     clearTimeout(hen);
+    if (dang) dang.abort();
     hen = setTimeout(async () => {
       const q = o.value.trim();
       if (dang) dang.abort();
       dang = new AbortController();
       try {
-        const r = await fetch(f.dataset.api + (f.dataset.api.includes('?') ? '&' : '?') + 'q=' + encodeURIComponent(q), { signal: dang.signal });
+        const params = new URLSearchParams(new FormData(f));
+        params.set('q', q);
+        params.set('dang_go', '1');
+        const r = await fetch(f.dataset.api + (f.dataset.api.includes('?') ? '&' : '?') + params, { signal: dang.signal });
         if (!r.ok) return;
         thay((await r.json()).html);
-        history.replaceState(null, '', q ? '?q=' + encodeURIComponent(q) : location.pathname);
+        // Form GET xác nhận tìm trọn chữ; gợi ý gõ dở không thay đường dẫn đang chia sẻ.
       } catch (e) { /* mất mạng: giữ kết quả cũ, form vẫn gửi được */ }
     }, 300);
   });
