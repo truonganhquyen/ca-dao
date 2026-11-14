@@ -30,6 +30,6 @@
   "kiem_tra_cuoi": {
     "trang_thai": "DAT",
     "thoi_diem": "2026-11-14",
-    "pham_vi": "T-207: thùng rác và gỡ kẹt chờ trùng (D-115, PR #180), plugin 1.0.66; test:v2 đạt (quyền, xác nhận, xung đột, lỗi ghi/hoàn nguyên, thẻ mất/cờ sót); quét V2 0 lỗi, gồm Thùng rác/Xem trước xoá 390/1440 px; E2E tại máy 71/71, không bỏ qua; chưa xoá bài thật, chưa chuyển tác phẩm thành dị bản; site kiểm phiên bản riêng sau khi gộp; pilot T-198 vẫn chờ người biên soạn"
+    "pham_vi": "T-208: màn Tuyển tập trong wp-admin (D-116); test:v2 274 + 651 + 55 đạt, quét V2 0 lỗi (12 trang admin), E2E 69/69 tại máy; pilot T-198 vẫn chờ người biên soạn"
   }
 }

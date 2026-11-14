@@ -208,6 +208,7 @@ Tuyển tập khác ›
 ```
 
 - Công khai khi có lời dẫn và ≥ 8 câu đã đăng (agent có thể chỉnh ngưỡng, ghi trong PR).
+- **Soạn (D-116):** wp-admin → Phongdao → **Tuyển tập** — danh sách bộ kèm trạng thái, màn soạn tên, loại, người đọc dự định, lời dẫn (người viết), các câu (tìm / dán đường dẫn, ID, tên đúng; Lên, Xuống, nhóm, ghi chú, Bỏ); người soạn lưu nháp, người duyệt Lưu và đăng. Hướng dẫn: `docs/huong-dan/lam-tuyen-tap.md`.
 - `<title>` "…: N câu có giải nghĩa" chỉ khi mọi câu có Ý nghĩa.
 - "Sao chép cả bộ" chép mọi câu (đánh số, giữ thụt câu lục, mỗi câu kèm đường dẫn bài) và tên tuyển tập, để dán vào giáo án.
 - Trang `/tuyen-tap/`: nhóm theo loại; "Theo dịp" xếp dịp gần nhất lên đầu.

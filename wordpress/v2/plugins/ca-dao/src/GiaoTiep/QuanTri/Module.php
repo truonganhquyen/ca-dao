@@ -38,6 +38,7 @@ final class Module implements \Phongdao\HaTang\Module {
 		ThemTacPham::dang_ky();
 		BoSung::dang_ky();
 		TrangLo::dang_ky();
+		SuaTuyenTap::dang_ky();
 		DonChuDe::dang_ky();
 	}
 
@@ -104,6 +105,17 @@ final class Module implements \Phongdao\HaTang\Module {
 					wp_enqueue_style( 'phongdao-admin-tac-pham', plugins_url( 'assets/admin-tac-pham.css', $tep ), array(), CADAO_PHIEN_BAN );
 					wp_enqueue_style( 'phongdao-admin-chon', plugins_url( 'assets/admin-chon.css', $tep ), array(), CADAO_PHIEN_BAN );
 					wp_enqueue_script( 'phongdao-admin-chon', plugins_url( 'assets/admin-chon.js', $tep ), array(), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
+				}
+			} );
+		}
+		// Tuyển tập (D-116): danh sách và màn soạn một bộ
+		$tt = add_submenu_page( $cha, 'Tuyển tập', 'Tuyển tập', 'cadao_soan', SuaTuyenTap::TRANG, static function (): void {
+			echo SuaTuyenTap::hien(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- lớp hiển thị thoát giá trị động
+		} );
+		if ( $tt ) {
+			add_action( 'admin_enqueue_scripts', static function ( string $trang ) use ( $tt ): void {
+				if ( $trang === $tt ) {
+					wp_enqueue_style( 'phongdao-admin-ban', plugins_url( 'assets/admin-ban.css', dirname( __DIR__, 3 ) . '/ca-dao.php' ), array(), CADAO_PHIEN_BAN );
 				}
 			} );
 		}
