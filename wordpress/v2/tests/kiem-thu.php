@@ -2708,6 +2708,76 @@ kt( 'Khám phá, Chủ đề, Mô-típ, Một câu ngẫu nhiên, Hay bị nhầ
 $h_kp = $KP::hien( 'kham-pha' );
 kt( 'trang Khám phá: ô tìm gửi /tim/, lối đọc tới Chủ đề, Mô-típ, Một câu ngẫu nhiên', str_contains( $h_kp, 'Bạn muốn đọc gì?' ) && str_contains( $h_kp, 'action="' . esc_url( home_url( '/tim/' ) ) . '"' ) && str_contains( $h_kp, home_url( '/chu-de/' ) ) && str_contains( $h_kp, home_url( '/mo-tip/' ) ) && str_contains( $h_kp, home_url( '/ngau-nhien/' ) ), substr( $h_kp, 0, 600 ) );
 kt( 'trang Chủ đề liệt kê chủ đề có bài, kèm số bài', str_contains( $KP::hien( 'chu-de' ), 'Lao động' ) && str_contains( $KP::hien( 'chu-de' ), (string) get_term_link( 'lao-dong', 'chu_de' ) ) );
+// ---------- Dọn chủ đề (D-114, T-205): máy đề xuất, người duyệt từng dòng; gộp / bỏ qua đường lưu phân loại, chuyển hướng ----------
+$DCD    = \Phongdao\GiaoTiep\QuanTri\DonChuDe::class;
+$tao_cd = static function ( string $ten, string $slug ): int {
+	$co = term_exists( $slug, 'chu_de' );
+	$co = $co ? $co : wp_insert_term( $ten, 'chu_de', array( 'slug' => $slug ) );
+	return (int) ( is_array( $co ) ? $co['term_id'] : $co );
+};
+$cd_hr  = $tao_cd( 'Hát ru', 'hat-ru' );
+$cd_gd  = $tao_cd( 'Gia đình', 'gia-dinh' );
+$cd_ldx = $tao_cd( 'Lao động, sản xuất', 'lao-dong-san-xuat' );
+$cd_lv  = $tao_cd( 'Loại vè', 'loai-ve-thu' );
+$cd_tc  = $tao_cd( 'Tình cảm gia đình', 'tinh-cam-gia-dinh-thu' );
+$cd_a   = $tao_cd( 'Mục thử A', 'muc-thu-a' );
+$cd_b   = $tao_cd( 'Mục thử B', 'muc-thu-b' );
+$cd_bai = array();
+foreach ( array( 'publish', 'publish', 'draft' ) as $i => $tt_cd ) {
+	$cd_bai[ $i ] = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => $tt_cd, 'post_title' => 'Bài dọn chủ đề thử ' . $i ) );
+	wp_set_object_terms( $cd_bai[ $i ], 'ca-dao', KhaiBao::THE_LOAI );
+}
+wp_set_object_terms( $cd_bai[0], array( $cd_hr, $cd_lv, $cd_a ), 'chu_de' );
+wp_set_object_terms( $cd_bai[1], array( $cd_lv, $cd_tc ), 'chu_de' );
+wp_set_object_terms( $cd_bai[2], array( $cd_lv ), 'chu_de' );
+$cd_dong = static fn( int $id ): array => array_values( array_filter( $DCD::bang(), static fn( array $r ): bool => (int) $r['term']->term_id === $id ) )[0] ?? array();
+$cd_bang = $DCD::bang();
+kt(
+	'Dọn chủ đề — máy đề xuất: mục trong bộ (Hát ru, nhóm Lối hát) và mục cha mang tên nhóm giữ; "Loại vè" trùng thể loại → bỏ; "Tình cảm gia đình" gần trùng "Gia đình" → gộp; "Lao động" gần trùng "Lao động, sản xuất" → gộp; mục ngoài bộ lên đầu bảng',
+	'giu' === ( $cd_dong( $cd_hr )['de_xuat'] ?? '' ) && 'loi-hat' === ( $cd_dong( $cd_hr )['nhom'] ?? '' )
+	&& 'bo' === ( $cd_dong( $cd_lv )['de_xuat'] ?? '' ) && str_contains( (string) ( $cd_dong( $cd_lv )['ly_do'] ?? '' ), 'thể loại “Vè”' )
+	&& 'gop' === ( $cd_dong( $cd_tc )['de_xuat'] ?? '' ) && $cd_gd === ( $cd_dong( $cd_tc )['dich'] ?? 0 )
+	&& 'gop' === ( $cd_dong( (int) get_term_by( 'slug', 'lao-dong', 'chu_de' )->term_id )['de_xuat'] ?? '' ) && $cd_ldx === ( $cd_dong( (int) get_term_by( 'slug', 'lao-dong', 'chu_de' )->term_id )['dich'] ?? 0 )
+	&& array_key_exists( 'nhom', $cd_bang[0] ?? array() ) && null === $cd_bang[0]['nhom'] && 2 === ( $cd_dong( $cd_lv )['so'] ?? 0 )
+	&& ( ! term_exists( 'loi-hat', 'chu_de' ) || ( 'giu' === ( $cd_dong( (int) get_term_by( 'slug', 'loi-hat', 'chu_de' )->term_id )['de_xuat'] ?? '' ) && 'loi-hat' === ( $cd_dong( (int) get_term_by( 'slug', 'loi-hat', 'chu_de' )->term_id )['nhom'] ?? '' ) ) ),
+	array_map( static fn( array $r ): array => array( $r['term']->slug, $r['nhom'], $r['so'], $r['de_xuat'], $r['dich'] ), $cd_bang )
+);
+$h_kp_cd = $KP::hien( 'chu-de' );
+kt( 'trang Chủ đề xếp theo nhóm của bộ chủ đề: Chủ đề chung, Lối hát… rồi Mục khác (mục ngoài bộ); mỗi nhóm một tiêu đề', str_contains( $h_kp_cd, '<h2>Lối hát</h2>' ) && str_contains( $h_kp_cd, '<h2>Mục khác</h2>' ) && strpos( $h_kp_cd, '<h2>Lối hát</h2>' ) < strpos( $h_kp_cd, '<h2>Mục khác</h2>' ) && strpos( $h_kp_cd, 'Hát ru' ) < strpos( $h_kp_cd, '<h2>Mục khác</h2>' ) && strpos( $h_kp_cd, 'Loại vè' ) > strpos( $h_kp_cd, '<h2>Mục khác</h2>' ), substr( $h_kp_cd, 0, 800 ) );
+$cd_kq_soan = $DCD::lam( $cd_lv, 'bo', 0, $chi_soan );
+$cd_kq_bo_bo = $DCD::lam( $cd_hr, 'bo', 0, $ai_ql );
+kt( 'Dọn chủ đề — chỉ người có quyền duyệt gộp / bỏ; mục trong bộ chủ đề dự án không gộp / bỏ được ở đây', ! $cd_kq_soan['ok'] && ! $cd_kq_bo_bo['ok'] && str_contains( implode( ' ', $cd_kq_bo_bo['loi'] ), 'thuộc bộ chủ đề của dự án' ) && get_term( $cd_lv, 'chu_de' ) instanceof WP_Term && get_term( $cd_hr, 'chu_de' ) instanceof WP_Term );
+$cd_duong_lv = '/' . trim( (string) wp_parse_url( (string) get_term_link( $cd_lv, 'chu_de' ), PHP_URL_PATH ), '/' ) . '/';
+wp_set_current_user( $ai_ql );
+$_GET   = array( 'xem' => $cd_lv, 'hanh_dong' => 'bo' );
+$h_cd_x = $DCD::hien();
+$_GET   = array();
+$h_cd   = $DCD::hien();
+wp_set_current_user( $chi_soan );
+$h_cd_s = $DCD::hien();
+wp_set_current_user( $ai_ql );
+kt( 'Dọn chủ đề — màn bảng có lối Xem trước cho mục ngoài bộ; màn xem trước nêu số bài, đường cũ đi đâu, nút Đồng ý có nonce; người chỉ soạn thấy "Cần quyền duyệt", không có form', str_contains( $h_cd, '<h1>Dọn chủ đề</h1>' ) && str_contains( $h_cd, 'name="xem" value="' . $cd_lv . '"' ) && ! str_contains( $h_cd, 'name="xem" value="' . $cd_hr . '"' ) && str_contains( $h_cd_x, 'Xem trước: Bỏ chủ đề “Loại vè”' ) && str_contains( $h_cd_x, '3 tác phẩm đổi chủ đề' ) && str_contains( $h_cd_x, esc_html( $cd_duong_lv ) ) && str_contains( $h_cd_x, 'name="_wpnonce"' ) && str_contains( $h_cd_x, 'value="' . $DCD::HANH_DONG . '"' ) && str_contains( $h_cd_s, 'Cần quyền duyệt' ) && ! str_contains( $h_cd_s, 'name="xem"' ), substr( $h_cd_x, 0, 600 ) );
+$cd_kq_bo = $DCD::lam( $cd_lv, 'bo', 0, $ai_ql );
+$cd_ls    = array_values( array_filter( Viec::lich_su( 'post', $cd_bai[0], 20 ), static fn( array $v ): bool => 'chu_de' === $v['phan'] && 'bo_chu_de' === $v['quyet'] ) );
+kt(
+	'Dọn chủ đề — Bỏ: gỡ khỏi mọi bài (kể cả nháp) qua đường lưu phân loại, mỗi bài một dòng Lịch sử; chủ đề khác của bài giữ; mục bị xoá; đường cũ chuyển hướng về trang Chủ đề; nhật ký của mục',
+	$cd_kq_bo['ok'] && 3 === $cd_kq_bo['so'] && null === get_term( $cd_lv, 'chu_de' ) && array( $cd_a, $cd_hr ) === array_values( array_intersect( array( $cd_a, $cd_hr ), wp_get_object_terms( $cd_bai[0], 'chu_de', array( 'fields' => 'ids' ) ) ) )
+	&& 1 === count( $cd_ls ) && in_array( $cd_lv, (array) ( $cd_ls[0]['truoc']['term_ids'] ?? array() ), true ) && ! in_array( $cd_lv, (array) ( $cd_ls[0]['sau']['term_ids'] ?? array() ), true )
+	&& home_url( '/chu-de/' ) === \Phongdao\HaTang\ChuyenHuong::dich( $cd_duong_lv ) && 'bo_chu_de' === ( Viec::lich_su( 'term', $cd_lv, 5 )[0]['quyet'] ?? '' ),
+	array( $cd_kq_bo, $cd_ls, \Phongdao\HaTang\ChuyenHuong::dich( $cd_duong_lv ) )
+);
+$cd_duong_tc = '/' . trim( (string) wp_parse_url( (string) get_term_link( $cd_tc, 'chu_de' ), PHP_URL_PATH ), '/' ) . '/';
+$cd_kq_gop   = $DCD::lam( $cd_tc, 'gop', $cd_gd, $ai_ql );
+kt( 'Dọn chủ đề — Gộp: bài của mục được gắn mục nhận, mục cũ xoá, đường cũ chuyển hướng 301 về trang mục nhận', $cd_kq_gop['ok'] && 1 === $cd_kq_gop['so'] && null === get_term( $cd_tc, 'chu_de' ) && in_array( $cd_gd, wp_get_object_terms( $cd_bai[1], 'chu_de', array( 'fields' => 'ids' ) ), true ) && (string) get_term_link( $cd_gd, 'chu_de' ) === \Phongdao\HaTang\ChuyenHuong::dich( $cd_duong_tc ), $cd_kq_gop );
+// Gộp A vào B (B cũng ngoài bộ) rồi bỏ B: đường của A không thành chuyển hướng chết
+$cd_duong_a = '/' . trim( (string) wp_parse_url( (string) get_term_link( $cd_a, 'chu_de' ), PHP_URL_PATH ), '/' ) . '/';
+$cd_kq_ab   = $DCD::lam( $cd_a, 'gop', $cd_b, $ai_ql );
+$cd_kq_b    = $DCD::lam( $cd_b, 'bo', 0, $ai_ql );
+kt( 'Dọn chủ đề — gộp A vào B rồi bỏ B: đường cũ của A chuyển theo về trang Chủ đề (không chuyển hướng chết); mục đã gộp không làm lại được', $cd_kq_ab['ok'] && $cd_kq_b['ok'] && home_url( '/chu-de/' ) === \Phongdao\HaTang\ChuyenHuong::dich( $cd_duong_a ) && ! $DCD::lam( $cd_a, 'bo', 0, $ai_ql )['ok'] );
+foreach ( $cd_bai as $x ) {
+	wp_delete_post( $x, true );
+}
+delete_option( \Phongdao\HaTang\ChuyenHuong::PHAN_LOAI );
 $h_nn = $KP::hien( 'ngau-nhien' );
 kt( 'Một câu ngẫu nhiên: một thẻ bài, "Câu khác", "Xem đầy đủ"', str_contains( $h_nn, 'class="card' ) && str_contains( $h_nn, 'Câu khác' ) && str_contains( $h_nn, 'Xem đầy đủ' ), substr( $h_nn, 0, 400 ) );
 kt( 'Hay bị nhầm dưới 5 câu: không công khai, menu không có liên kết', ! $KP::hay_bi_nham_cong_khai() && ! \Phongdao\GiaoTiep\Khoi\Ve::co( 'hay-bi-nham' ) && ! str_contains( \Phongdao\GiaoTiep\Khoi\KhungTrang::dau_trang(), '/hay-bi-nham/' ) );

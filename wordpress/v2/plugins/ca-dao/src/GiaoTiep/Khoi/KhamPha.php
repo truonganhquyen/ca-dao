@@ -71,20 +71,34 @@ final class KhamPha {
 			. '<section class="section"><h2>Về thư viện</h2>' . self::hang( array( 've-du-an' => 'Về dự án', 'chinh-sach' => 'Chính sách thu thập dữ liệu', 'rieng-tu' => 'Quyền riêng tư', 'gop' => 'Góp tư liệu' ) ) . '</section>';
 	}
 
-	/** /chu-de/, /mo-tip/ (R04): các mục đã có bài, nhiều bài trước. */
+	/**
+	 * /chu-de/, /mo-tip/ (R04): các mục đã có bài, nhiều bài trước. Chủ đề xếp theo nhóm của bộ chủ đề dự án (D-114): Chủ đề
+	 * chung · Kinh nghiệm (tục ngữ) · Lối hát · Loại câu đố, mục ngoài bộ ở cuối — để lối hát, loại câu đố không lẫn với chủ đề.
+	 */
 	private static function phan_loai( string $tax, string $ten, string $mo_ta ): string {
-		$ds = get_terms( array( 'taxonomy' => $tax, 'hide_empty' => true, 'orderby' => 'count', 'order' => 'DESC' ) );
-		$o  = '';
+		$ds   = get_terms( array( 'taxonomy' => $tax, 'hide_empty' => true, 'orderby' => 'count', 'order' => 'DESC' ) );
+		$nhom = array();
 		foreach ( is_array( $ds ) ? $ds : array() as $t ) {
 			$url = get_term_link( $t );
 			if ( is_string( $url ) ) {
-				$o .= '<a class="tile" href="' . esc_url( $url ) . '"><strong>' . esc_html( $t->name ) . '</strong><span>' . number_format( (int) $t->count, 0, ',', '.' ) . ' bài</span></a>';
+				$n            = 'chu_de' === $tax ? \Phongdao\MienDuLieu\GoiY::nhom_cua( $t->slug ) : '';
+				$k            = null === $n ? '~' : $n;
+				$nhom[ $k ][] = '<a class="tile" href="' . esc_url( $url ) . '"><strong>' . esc_html( $t->name ) . '</strong><span>' . number_format( (int) $t->count, 0, ',', '.' ) . ' bài</span></a>';
 			}
 		}
-		return self::dau( $ten, 'Khám phá', $ten, $mo_ta )
-			. ( '' === $o
-				? '<div class="empty"><h2>Chưa có mục nào</h2><p>Người biên soạn đang xếp dần các bài.</p>' . Ve::lien_ket( 'kho', 'Xem tất cả tác phẩm', 'btn primary' ) . '</div>'
-				: '<section class="section"><h2 class="sr-only">Các mục</h2><div class="tiles">' . $o . '</div></section>' );
+		if ( ! $nhom ) {
+			return self::dau( $ten, 'Khám phá', $ten, $mo_ta ) . '<div class="empty"><h2>Chưa có mục nào</h2><p>Người biên soạn đang xếp dần các bài.</p>' . Ve::lien_ket( 'kho', 'Xem tất cả tác phẩm', 'btn primary' ) . '</div>';
+		}
+		if ( 'chu_de' !== $tax || 1 === count( $nhom ) && isset( $nhom[''] ) ) {
+			return self::dau( $ten, 'Khám phá', $ten, $mo_ta ) . '<section class="section"><h2 class="sr-only">Các mục</h2><div class="tiles">' . implode( '', array_merge( ...array_values( $nhom ) ) ) . '</div></section>';
+		}
+		$o = '';
+		foreach ( array_merge( array_map( 'strval', array_keys( \Phongdao\MienDuLieu\GoiY::CHU_DE ) ), array( '~' ) ) as $k ) {
+			if ( ! empty( $nhom[ $k ] ) ) {
+				$o .= '<section class="section"><h2>' . esc_html( '~' === $k ? 'Mục khác' : \Phongdao\MienDuLieu\GoiY::ten_nhom( $k ) ) . '</h2><div class="tiles">' . implode( '', $nhom[ $k ] ) . '</div></section>';
+			}
+		}
+		return self::dau( $ten, 'Khám phá', $ten, $mo_ta ) . $o;
 	}
 
 	/** /ngau-nhien/ (R20): một bài đã đăng, không có cờ nghi, không có từ ngữ thô tục (D-111); "Câu khác" là liên kết (chạy cả khi tắt JavaScript). */

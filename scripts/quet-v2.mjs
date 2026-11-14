@@ -209,7 +209,7 @@ try {
   // Hộp việc admin (có khối Làm theo lô khi còn thẻ Chờ), Thao tác hàng loạt (T-171), Máy đang làm (T-179), Hôm nay (T-180, T-189),
   // Bổ sung và khung "Phongdao hôm nay" ở trang chào mừng WordPress (T-189), danh sách Tác phẩm (T-187)
   // Hộp việc kiểu hộp thư (T-188) không còn bảng: kiểm khung danh sách + thẻ
-  for (const [duong, vung, can = 'table'] of [['/wp-admin/admin.php?page=phongdao-hop-viec', '.phongdao-admin-viec', '.phongdao-hv'], ['/wp-admin/admin.php?page=phongdao-lo', '.phongdao-admin-lo'], ['/wp-admin/admin.php?page=phongdao&the=may', '.phongdao-nguon'], ['/wp-admin/admin.php?page=phongdao-ban-lam-viec', '.phongdao-ban', '.phongdao-ban-so'], ['/wp-admin/admin.php?page=phongdao-bo-sung', '.phongdao-bo-sung'], ['/wp-admin/', '.phongdao-khung-wp', '.phongdao-ban-so'], ['/wp-admin/admin.php?page=phongdao-tac-pham', '.phongdao-admin-tp'], ['/wp-admin/admin.php?page=phongdao-them', '.phongdao-them', 'form[data-them-bai]']]) {
+  for (const [duong, vung, can = 'table'] of [['/wp-admin/admin.php?page=phongdao-hop-viec', '.phongdao-admin-viec', '.phongdao-hv'], ['/wp-admin/admin.php?page=phongdao-lo', '.phongdao-admin-lo'], ['/wp-admin/admin.php?page=phongdao&the=may', '.phongdao-nguon'], ['/wp-admin/admin.php?page=phongdao-ban-lam-viec', '.phongdao-ban', '.phongdao-ban-so'], ['/wp-admin/admin.php?page=phongdao-bo-sung', '.phongdao-bo-sung'], ['/wp-admin/admin.php?page=phongdao-don-chu-de', '.phongdao-don-chu-de'], ['/wp-admin/', '.phongdao-khung-wp', '.phongdao-ban-so'], ['/wp-admin/admin.php?page=phongdao-tac-pham', '.phongdao-admin-tp'], ['/wp-admin/admin.php?page=phongdao-them', '.phongdao-them', 'form[data-them-bai]']]) {
     const tl = await bt.goto(G + duong, { waitUntil: 'load', timeout: 120_000 });
     if (tl.status() !== 200 || !(await bt.$(`${vung} ${can}`))) { loi.push(`${duong}: không mở được`); continue; }
     const tran = await doTran(bt);
@@ -220,7 +220,7 @@ try {
   }
   await quetTrangSua({bt,G,axeNguon,THE_WCAG,loi,thuMucAnh,doTran});
   await bt.close();
-  console.log(`Quét V2: ${DS_TRANG.length} trang × ${CHE_DO.length} chế độ + ${DS_TINH_320.size} trang tĩnh × 2 chế độ 320 px + ${DS_BIEN_TAP.length} trang biên tập + 9 trang admin + trang sửa 36 mục × 6 cỡ (gập/mở) + Danh mục × 2 cỡ (axe ${THE_WCAG.join(', ')}) — ${loi.length} lỗi.`);
+  console.log(`Quét V2: ${DS_TRANG.length} trang × ${CHE_DO.length} chế độ + ${DS_TINH_320.size} trang tĩnh × 2 chế độ 320 px + ${DS_BIEN_TAP.length} trang biên tập + 10 trang admin + trang sửa 36 mục × 6 cỡ (gập/mở) + Danh mục × 2 cỡ (axe ${THE_WCAG.join(', ')}) — ${loi.length} lỗi.`);
 } catch (e) {
   loi.push(String(e.message ?? e));
 } finally {
