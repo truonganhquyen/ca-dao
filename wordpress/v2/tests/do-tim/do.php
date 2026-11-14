@@ -169,4 +169,7 @@ if ( defined( 'ABSPATH' ) && ! defined( 'DO_TIM_NGOAI' ) ) {
 		static fn( array $tv ) => update_option( ChiMucTim::TU_VUNG, $tv, false ),
 		'Playground (SQLite) · WordPress ' . get_bloginfo( 'version' )
 	);
+	require __DIR__ . '/doc.php';
+	do_tim_doc( $co, static fn( string $d ) => file_put_contents( $tep, $d . "\n", FILE_APPEND ) );
+
 }

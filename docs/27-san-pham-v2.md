@@ -100,7 +100,9 @@ Vai chỉ đổi **thứ tự** khối 4–8: Giáo viên → Bộ câu cho ti�
 
 ### 5.1. Tất cả (`/kho/`)
 
-Lời dẫn ngắn → chip lọc (thể loại, hình thức, chủ đề, vùng; mỗi chip có số; số 0 ẩn) → sắp xếp A–Z / Mới thêm → danh sách thẻ bài (tên, 2 dòng đầu, nhãn thể loại, nghĩa ngắn nếu có, 👁 khi ≥ 10 lượt) → phân trang 30 bài, số trang ≥ 44 px. Điện thoại: bộ lọc thu gọn, ghi rõ đang lọc gì. Trang đã lọc `noindex`.
+Lời dẫn ngắn → chip lọc (thể loại, hình thức, chủ đề, vùng; mỗi chip có số; số 0 ẩn) → sắp xếp **Có giải nghĩa trước** (mặc định) / Mới thêm / Đọc nhiều tuần này / A–Z (D-112) → danh sách thẻ bài (tên, 2 dòng đầu, nhãn thể loại, nghĩa ngắn nếu có, 👁 khi ≥ 10 lượt) → phân trang 30 bài, số trang ≥ 44 px. Điện thoại: bộ lọc thu gọn, ghi rõ đang lọc gì. Trang đã lọc `noindex`.
+
+**D-112 (14/11/2026):** Kho, thể loại, chủ đề, vùng, mô-típ, hình thức có cùng bộ chọn thứ tự. Mặc định phần giúp hiểu trước, rồi chú thích/đáp án, rồi các bài còn lại; trong nhóm, ngày đăng mới trước, cùng giờ ID giảm dần. Đây là độ đầy đủ phục vụ đọc, không xác nhận sự thật. Xem quy tắc theo thể loại và nghiệm thu ở [docs/39](39-tim-va-sap-xep-danh-sach.md). Từ điển giữ A–Z; tuyển tập giữ thứ tự người biên soạn.
 
 ### 5.2. Thể loại (`/the-loai/<thể loại>/`)
 
@@ -222,6 +224,8 @@ Một tác phẩm L2 → nghĩa → [Câu khác] → "Xem đầy đủ ›". Kh�
 - Gõ sai: "Có phải bạn tìm *…*?".
 - Không ra: gợi ý chủ đề gần, tuyển tập gần; nếu kho có câu này: "Câu này đang chờ biên soạn" (không hiện lời kho) + nút **[Mong có câu này]** (sự kiện `mong_co_cau`, D-088; bấm rồi thì nút thành "Đã ghi nhận, cảm ơn bạn").
 - **Nghiệm thu:** bộ truy vấn tiếng Việt có dấu / không dấu / sai một chữ (gồm L-09) cho kết quả đúng; không timeout trên dữ liệu hiện tại.
+
+**D-112 (14/11/2026, thay quy tắc nhóm/thẻ mạnh ở trên):** bấm Tìm so trọn chữ; gợi ý đang gõ dùng đầu chữ và được báo rõ. Kết quả đúng dấu, mở rộng không dấu, khớp đầu chữ là các phạm vi riêng kèm số. Một từ không có thẻ nổi bật; chỉ trọn tên/dòng lời duy nhất mới có. Danh sách giữ thứ tự liên quan xuyên thể loại, có lọc và phân trang 20 bài bằng GET, đủ tới trang cuối; mỗi thẻ đánh dấu/trích đúng chỗ khớp và nêu phần khớp. Chữ và công tắc che của D-111 giữ nguyên. Chi tiết: [docs/39](39-tim-va-sap-xep-danh-sach.md).
 
 ### 7.4. Từ điển và mục từ (S11)
 

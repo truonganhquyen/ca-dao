@@ -172,5 +172,6 @@ Người quyết định: người sáng lập, sau khi đọc bản đề xuấ
 
 ```markdown
 | D-0xx | <quyết định> | <lý do 1 câu> | <ai/nguồn> |
+| D-112 | **Tìm kiếm và danh sách trong một đợt (14/11/2026).** Duyệt năm cải tiến: tìm đã gửi ưu tiên đúng từ/đúng dấu, gõ dở riêng; chỉ nổi bật khi khớp rõ một tác phẩm; giữ thứ tự liên quan, lọc thể loại và phân trang toàn tập; tô sáng/trích đúng phần khớp, có lý do; đánh giá truy vấn thực và kiểm hiệu năng. Danh sách Kho/thể loại/chủ đề/vùng/mô-típ/hình thức mặc định **Có giải nghĩa trước**: phần giúp hiểu công khai, rồi chú thích/đáp án, rồi các bài còn lại; trong nhóm ngày đăng giảm dần, cùng giờ ID giảm dần. Bốn lựa chọn Có giải nghĩa trước / Mới thêm / Đọc nhiều tuần này / A–Z trên mọi danh sách tác phẩm. Tìm ưu tiên mức khớp, nội dung chỉ phân hạng tương đương; Từ điển giữ A–Z, tuyển tập giữ thứ tự người chọn. Không sửa lời, nội dung, quyền nguồn hay công tắc Google. | Người đọc cần tìm đúng chữ và đọc được các bài phù hợp ngoài trang đầu; thứ tự chữ cái không giúp chọn bài có phần giúp hiểu | Người sáng lập duyệt hai nhóm đề xuất và yêu cầu gom thực hiện trong cuộc trò chuyện, 14/11/2026 |
 ```
 Nếu quyết định đổi schema: cập nhật cùng lúc `10-dac-ta-du-lieu.md`, `scripts/kiem-tra-du-lieu.mjs`, `scripts/lib/suy-ra.mjs` (nếu chạm dữ liệu suy ra), `templates/`, và fixture trong `tests/fixtures/`.

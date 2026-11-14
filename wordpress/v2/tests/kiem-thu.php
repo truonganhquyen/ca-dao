@@ -528,14 +528,14 @@ $q_nhieu = $tv_tim['ds']['Một chữ cái (vừa gõ)'];
 $tong_nh = $TIM::tim( $q_nhieu )['tong'];
 $q_moi   = $tv_tim['ds']['Cả dòng của bài mới'];
 kt( 'tìm kho lớn: tổng và 20 kết quả đầu (đúng thứ tự) như xếp mọi dòng của bảng — SQL cờ chạy đúng trên CSDL', array() === $sai_tim, $sai_tim );
-kt( 'tìm kho lớn: hơn 500 ứng viên thì đếm đủ (không dừng ở 500), trang Tìm hiện tổng có dấu chấm hàng nghìn', $tong_nh > 500 && str_contains( \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( $q_nhieu ), '20 trên ' . number_format_i18n( $tong_nh ) . ' bài' ), $tong_nh );
+kt( 'tìm kho lớn: hơn 500 ứng viên thì đếm đủ (không dừng ở 500), số đếm chỉ mục khớp số ứng viên; trang Tìm kiểm trên fixture tác phẩm thật ở T-203', $tong_nh > 500 && $tong_nh === $TIM::dem( $q_nhieu ), $tong_nh );
 kt( 'tìm kho lớn: bài mới nhất (id lớn nhất) có cả dòng là kết quả đầu, khớp cả cụm', 900000 + $tv_tim['moi'] === ( $TIM::tim( $q_moi )['ds'][0]['id'] ?? 0 ) && $TIM::tim( $q_moi )['ds'][0]['lien'] );
 $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . $TIM::bang() . ' WHERE post_id > %d', 900000 ) );
 wp_set_current_user( 0 );
 $h = \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 'dong mau mot cua bai nay' );
 kt( 'trang Tìm: khớp cả câu thì thẻ lớn đầu trang, có Đọc bài', str_contains( $h, 'result-primary' ) && str_contains( $h, 'Khớp cả câu · Ca dao' ) && str_contains( $h, esc_url( (string) get_permalink( $mau_id['dong-mau-mot-cua-bai'] ) ) ) );
 $h = \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 'mau' );
-kt( 'trang Tìm: kết quả nhóm theo thể loại, có số bài', str_contains( $h, '<h2>Ca dao <span class="count">' ) && str_contains( $h, '<h2>Câu đố <span class="count">' ) && (bool) preg_match( '/id="search-status"[^>]*>\d+ bài</', $h ), substr( $h, 0, 400 ) );
+kt( 'trang Tìm: danh sách giữ thứ tự liên quan, có bộ lọc thể loại và số toàn tập', str_contains( $h, 'Lọc thể loại kết quả' ) && str_contains( $h, 'Các bài phù hợp' ) && (bool) preg_match( '/id="search-status"[^>]*>\d+ bài</', $h ), substr( $h, 0, 400 ) );
 $h = \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 'cau do mau dong haj' );
 kt( 'gõ sai một chữ cái: "Có phải bạn tìm …?" dẫn tới truy vấn đã sửa', str_contains( $h, 'Có phải bạn tìm' ) && str_contains( $h, 'q=cau%20do%20mau%20dong%20hai' ) && str_contains( $h, 'Chưa tìm thấy câu phù hợp' ), $h );
 kt( 'trang Tìm chưa gõ: lối bắt đầu; truy vấn lạ: báo rõ, có lối sang Tất cả, Góp', str_contains( \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( '' ), 'Bạn có thể bắt đầu từ đây' ) && str_contains( \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 'zzqxw' ), 'Góp câu đang tìm' ) );
@@ -3225,6 +3225,8 @@ wp_delete_post( $p_undo_tx, true );
 require '/repo/tests/kiem-trang-sua-day-du.php';
 require '/repo/tests/kiem-editor-url.php';
 require '/repo/tests/kiem-tho-tuc.php';
+
+require '/repo/tests/kiem-tim-doc.php';
 
 $tong = $GLOBALS['v2_dat'] + $GLOBALS['v2_hong'];
 ra( "\nKẾT QUẢ: " . ( $GLOBALS['v2_hong'] ? "HỎNG {$GLOBALS['v2_hong']} / $tong" : "ĐẠT $tong" ) );

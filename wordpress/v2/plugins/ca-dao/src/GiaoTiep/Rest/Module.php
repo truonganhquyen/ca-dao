@@ -45,7 +45,7 @@ final class Module implements \Phongdao\HaTang\Module {
 						'required' => true,
 					),
 				),
-				'callback'            => static fn( \WP_REST_Request $yc ): array => array( 'html' => \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( (string) $yc['q'] ) ),
+				'callback'            => static fn( \WP_REST_Request $yc ): array => array( 'html' => \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( (string) $yc['q'], \Phongdao\DichVu\ChiMucTim\TimDoc::loc( $yc->get_params() ), '1' === (string) $yc['dang_go'] ) ),
 			)
 		);
 	}

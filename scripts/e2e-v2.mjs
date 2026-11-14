@@ -180,6 +180,27 @@ try {
       chac(await k.$(`#search-results a[href$="${caDao}"]`), 'trang kết quả (máy chủ dựng) thiếu bài');
     });
 
+    if (!SITE) await thu('Tìm và danh sách: tắt JavaScript vẫn lọc và đổi đủ bốn thứ tự', async () => {
+      await k.setJavaScriptEnabled(false);
+      try {
+        await di(k, '/tim/?q=mau');
+        chac(!(await k.$('.result-primary')), 'một từ không được thành thẻ nổi bật');
+        chac(await k.$('#search-results mark'), 'không đánh dấu chữ khớp');
+        const loc = await k.$eval('nav[aria-label="Lọc thể loại kết quả"] a[href*="loai=ca-dao"]', a => a.href);
+        await k.goto(loc, {waitUntil:'load'});
+        chac((await k.$$eval('#search-results article.card', as => as.every(a => a.classList.contains('g-ca-dao')))), 'lọc thể loại còn lẫn bài');
+        for (const p of ['/kho/', '/the-loai/ca-dao/']) {
+          await di(k, p);
+          chac(await k.$eval('[name=sap]', e => e.value) === 'hieu', 'mặc định chưa là Có giải nghĩa trước');
+          for (const sap of ['az','moi','doc','hieu']) {
+            await k.select('[name=sap]', sap);
+            await Promise.all([k.waitForNavigation({waitUntil:'load'}), k.$eval('[name=sap]', e => e.closest('form').querySelector('button[type=submit]').click())]);
+            chac(await k.$eval('[name=sap]', e => e.value) === sap, 'mất thứ tự sau gửi form');
+          }
+        }
+      } finally { await k.setJavaScriptEnabled(true); }
+    });
+
     await thu('Trang bài: Sao chép lời kèm đường dẫn', async () => {
       await di(k, caDao);
       await k.bringToFront();

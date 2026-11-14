@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class CaiDat implements Module {
 
-	public const PHIEN_BAN_CSDL = 13;
+	public const PHIEN_BAN_CSDL = 14;
 
 	/** Tuỳ chọn lưu phiên bản lược đồ đã cài. */
 	public const TUY_CHON = 'phongdao_csdl';
@@ -83,7 +83,20 @@ final class CaiDat implements Module {
 		if ( $da_cai < 13 ) {
 			self::buoc_13();
 		}
+		if ( $da_cai < 14 && ! self::buoc_14() ) { return; }
 		update_option( self::TUY_CHON, self::PHIEN_BAN_CSDL, false );
+	}
+
+	/** Thêm số ưu tiên vào bảng tính sẵn, không sửa nội dung bài. */
+	private static function buoc_14(): bool {
+		global $wpdb;
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		$t = \Phongdao\DichVu\TomTat\TomTat::class;
+		dbDelta( $t::sql_tao( $t::bang(), $wpdb->get_charset_collate() ) );
+		if ( false === $wpdb->query( 'SELECT uu_tien_doc FROM ' . $t::bang() . ' LIMIT 0' ) ) { return false; }
+		$so = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s", KhaiBao::TAC_PHAM ) );
+		if ( $so <= 3000 ) { $t::dung_lai_ngay(); } else { $t::bat_dau_dung_lai(); }
+		return true;
 	}
 
 	/**

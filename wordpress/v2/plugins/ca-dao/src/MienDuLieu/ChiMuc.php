@@ -29,10 +29,10 @@ final class ChiMuc {
 	 *
 	 * @return string[]
 	 */
-	public static function mau( string $chu ): array {
+	public static function mau( string $chu, bool $tron = false ): array {
 		$tu   = explode( ' ', $chu );
 		$cuoi = array_pop( $tu );
-		return array_merge( array_map( static fn( string $t ): string => " $t ", $tu ), array( " $cuoi" ) );
+		return array_merge( array_map( static fn( string $t ): string => " $t ", $tu ), array( " $cuoi" . ( $tron ? ' ' : '' ) ) );
 	}
 
 	/**
@@ -40,7 +40,7 @@ final class ChiMuc {
 	 *
 	 * @param string[] $tu chữ tìm, chữ cuối có thể gõ dở
 	 */
-	public static function gan_nhau( string $chu, array $tu ): bool {
+	public static function gan_nhau( string $chu, array $tu, bool $tron = false ): bool {
 		$tu = array_values( array_filter( $tu, static fn( string $t ): bool => '' !== $t ) );
 		$n  = count( $tu );
 		if ( ! $n ) {
@@ -49,7 +49,7 @@ final class ChiMuc {
 		$thay = array();
 		foreach ( explode( ' ', trim( $chu ) ) as $i => $a ) {
 			foreach ( $tu as $j => $t ) {
-				if ( $j === $n - 1 ? str_starts_with( $a, $t ) : $a === $t ) {
+				if ( $j === $n - 1 && ! $tron ? str_starts_with( $a, $t ) : $a === $t ) {
 					$thay[ $j ] = $i;
 				}
 			}
@@ -83,24 +83,24 @@ final class ChiMuc {
 	 *
 	 * @return array<string,array{0:string,1:string[],2:bool}> rỗng khi truy vấn không có chữ
 	 */
-	public static function phep_so( string $q ): array {
+	public static function phep_so( string $q, bool $tron = false ): array {
 		$co_dau = self::chu( $q );
 		$kd     = self::khong_dau( $co_dau );
 		if ( '' === $kd ) {
 			return array();
 		}
-		$tu = self::mau( $kd );
+		$tu = self::mau( $kd, $tron );
 		$ra = array(
-			'lc'  => array( 'chinh_kd', array( " $kd" ), false ),
-			'lp'  => array( 'phu_kd', array( " $kd" ), false ),
+			'lc'  => array( 'chinh_kd', array( " $kd" . ( $tron ? ' ' : '' ) ), false ),
+			'lp'  => array( 'phu_kd', array( " $kd" . ( $tron ? ' ' : '' ) ), false ),
 			'hc'  => array( 'chinh_kd', $tu, false ),
 			'hp'  => array( 'phu_kd', $tu, false ),
-			'dau' => array( 'chinh_kd', array( " $kd" ), true ),
+			'dau' => array( 'chinh_kd', array( " $kd" . ( $tron ? ' ' : '' ) ), true ),
 		);
 		if ( $co_dau !== $kd ) { // gõ có dấu: khớp đúng dấu được ưu tiên
-			$ra['dc'] = array( 'chinh', array( " $co_dau" ), false );
-			$ra['dp'] = array( 'phu', array( " $co_dau" ), false );
-			$ra['hd'] = array( 'chinh', self::mau( $co_dau ), false );
+			$ra['dc'] = array( 'chinh', array( " $co_dau" . ( $tron ? ' ' : '' ) ), false );
+			$ra['dp'] = array( 'phu', array( " $co_dau" . ( $tron ? ' ' : '' ) ), false );
+			$ra['hd'] = array( 'chinh', self::mau( $co_dau, $tron ), false );
 		}
 		return $ra;
 	}
@@ -141,7 +141,7 @@ final class ChiMuc {
 		}
 		$d  += $co['dau'] ? 40 : 0;
 		$roi = $d <= 0; // có đủ chữ nhưng rời rạc
-		return array( ( $roi ? 10 : $d ) * 1000 - min( 999, intdiv( $dai, 50 ) ), $roi );
+		return array( ( $roi ? 10 : $d ) * ( isset( $co['uu_tien_doc'] ) ? 100000 : 1000 ) + (int) ( $co['uu_tien_doc'] ?? 0 ) * 1000 - min( 999, intdiv( $dai, 50 ) ), $roi );
 	}
 
 	/**
@@ -186,11 +186,12 @@ final class ChiMuc {
 	 * @param callable(int[]):array<int,array{chinh_kd:string,phu_kd:string}> $doc chữ của các bài theo id
 	 * @return array{ds:array<int,array{id:int,diem:int,roi:bool,lien:bool}>,tong:int,doc:int} doc = số bài đã đọc chữ
 	 */
-	public static function xep_co( array $hang, string $q, int $so, callable $doc, int $lo = 100 ): array {
-		$phep = self::phep_so( $q );
+	public static function xep_co( array $hang, string $q, int $so, callable $doc, int $lo = 100, bool $tron = false ): array {
+		$phep = self::phep_so( $q, $tron );
 		if ( ! $phep ) {
 			return array( 'ds' => array(), 'tong' => 0, 'doc' => 0 );
 		}
+		$tron_tieng = $tron;
 		$tron = array_map( 'trim', $phep['hc'][1] );
 		// Cận trên của mỗi bài (coi như các chữ gần nhau); cờ dùng thẳng giá trị 0/1 của CSDL ("0" là sai)
 		$tren = array();
@@ -204,15 +205,19 @@ final class ChiMuc {
 		arsort( $tren ); // ổn định: bằng điểm thì id nhỏ trước, như xep()
 		$dinh = array(); // $so bài tốt nhất đã biết đúng điểm, tốt trước
 		$them = static function ( int $id, int $d, bool $roi, bool $lien ) use ( &$dinh, $so ): void {
-			$dinh[] = array( 'id' => $id, 'diem' => $d, 'roi' => $roi, 'lien' => $lien );
-			usort( $dinh, static fn( array $a, array $b ): int => $b['diem'] <=> $a['diem'] ?: $a['id'] <=> $b['id'] );
-			if ( count( $dinh ) > $so ) {
-				array_pop( $dinh );
+			$moi = array( 'id' => $id, 'diem' => $d, 'roi' => $roi, 'lien' => $lien );
+			$a = 0; $b = count( $dinh );
+			while ( $a < $b ) {
+				$m = intdiv( $a + $b, 2 );
+				if ( $dinh[ $m ]['diem'] > $d || ( $dinh[ $m ]['diem'] === $d && $dinh[ $m ]['id'] < $id ) ) { $a = $m + 1; } else { $b = $m; }
 			}
+			if ( $a >= $so ) { return; }
+			array_splice( $dinh, $a, 0, array( $moi ) );
+			if ( count( $dinh ) > $so ) { array_pop( $dinh ); }
 		};
 		$cho  = array();
 		$da   = 0;
-		$giai = static function () use ( &$cho, &$da, $doc, $tron, $theo, $them ): void {
+		$giai = static function () use ( &$cho, &$da, $doc, $tron, $theo, $them, $tron_tieng ): void {
 			if ( ! $cho ) {
 				return;
 			}
@@ -221,7 +226,7 @@ final class ChiMuc {
 			foreach ( $cho as $id ) {
 				$c                 = $chu[ $id ] ?? array( 'chinh_kd' => '', 'phu_kd' => '' );
 				[ $can_c, $can_p ] = self::can_gan( $theo[ $id ] );
-				[ $d, $roi ]       = self::diem( $theo[ $id ], $can_c && self::gan_nhau( $c['chinh_kd'], $tron ), $can_p && self::gan_nhau( $c['phu_kd'], $tron ), (int) $theo[ $id ]['dai'] );
+				[ $d, $roi ]       = self::diem( $theo[ $id ], $can_c && self::gan_nhau( $c['chinh_kd'], $tron, $tron_tieng ), $can_p && self::gan_nhau( $c['phu_kd'], $tron, $tron_tieng ), (int) $theo[ $id ]['dai'] );
 				$them( $id, $d, $roi, (bool) $theo[ $id ]['lc'] );
 			}
 			$cho = array();
