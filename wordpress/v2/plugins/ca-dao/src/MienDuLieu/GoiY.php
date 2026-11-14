@@ -122,6 +122,25 @@ final class GoiY {
 		return $lon >= 107.8 && $lat >= 10.5 ? 'nam-trung-bo' : 'nam-bo';
 	}
 
+	/** Nhóm của một chủ đề trong bộ dự án: '' (chủ đề chung), mã nhóm ('loi-hat'…), null = ngoài bộ (D-114). */
+	public static function nhom_cua( string $slug ): ?string {
+		// Mục cha mang tên nhóm (CaiDat bước 9 tạo "Lối hát", "Loại câu đố", "Kinh nghiệm (tục ngữ)" làm cha của nhóm)
+		if ( '' !== $slug && isset( self::CHU_DE[ $slug ] ) ) {
+			return $slug;
+		}
+		foreach ( self::CHU_DE as $nhom => $ds ) {
+			if ( isset( $ds[ $slug ] ) ) {
+				return (string) $nhom;
+			}
+		}
+		return null;
+	}
+
+	/** Tên nhóm để hiện: "Chủ đề chung", "Lối hát"…; null = "Ngoài bộ chủ đề". */
+	public static function ten_nhom( ?string $nhom ): string {
+		return null === $nhom ? 'Ngoài bộ chủ đề' : ( '' === $nhom ? 'Chủ đề chung' : (string) ( self::NHOM_CHU_DE[ $nhom ] ?? $nhom ) );
+	}
+
 	/** Tên hiển thị của một chủ đề ("Lối hát → Hò"). */
 	public static function ten_chu_de( string $ma ): string {
 		foreach ( self::CHU_DE as $nhom => $ds ) {

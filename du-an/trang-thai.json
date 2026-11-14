@@ -30,6 +30,6 @@
   "kiem_tra_cuoi": {
     "trang_thai": "DAT",
     "thoi_diem": "2026-11-14",
-    "pham_vi": "T-191, T-204: chuẩn bị Google, trang thưa gọn (D-114); test:v2 273 + 634 + 55 đạt, quét V2 0 lỗi, E2E 67/67 tại máy trên main có T-203; đưa lên main có T-206 rồi chạy lại trên CI; pilot T-198 vẫn chờ người biên soạn"
+    "pham_vi": "T-205: dọn Chủ đề (D-114); test:v2 274 + 645 + 55 đạt, quét V2 0 lỗi (10 trang admin), E2E 68/68 tại máy; T-191, T-204 đã lên site (plugin 1.0.64/theme 1.0.11, PR #178); pilot T-198 vẫn chờ người biên soạn"
   }
 }

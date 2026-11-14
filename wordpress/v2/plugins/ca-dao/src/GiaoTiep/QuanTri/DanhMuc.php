@@ -28,7 +28,8 @@ final class DanhMuc {
 				$ra .= '<li><a class="button" style="min-height:44px;line-height:42px;margin:4px" href="' . esc_url( self::url( $tax ) ) . '">' . esc_html( KhaiBao::PHAN_LOAI[ $tax ][1] ) . '</a></li>';
 			}
 		}
-		return $ra . '</ul><p>Thể loại tác phẩm giữ năm nhóm hiện có. Các mục đang dùng cần được người phụ trách cân nhắc trước khi đổi tên, đường dẫn hoặc xoá. Thể thơ riêng của bài được sửa tại trang Sửa tác phẩm.</p></div>';
+		$don = current_user_can( 'manage_categories' ) ? '<h2>Dọn chủ đề</h2><p>Bảng mọi chủ đề: máy đề xuất giữ, gộp hay bỏ từng mục (chỉ mục ngoài bộ chủ đề của dự án), bạn duyệt từng dòng; đường cũ tự chuyển hướng.</p><p><a class="button" style="min-height:44px;line-height:42px" href="' . esc_url( DonChuDe::url() ) . '">Mở bảng Dọn chủ đề</a></p>' : '';
+		return $ra . '</ul>' . $don . '<p>Thể loại tác phẩm giữ năm nhóm hiện có. Các mục đang dùng cần được người phụ trách cân nhắc trước khi đổi tên, đường dẫn hoặc xoá. Thể thơ riêng của bài được sửa tại trang Sửa tác phẩm.</p></div>';
 	}
 
 	/** Không gắn vào bài, không đổi phần văn bản hoặc quyền nội dung. */

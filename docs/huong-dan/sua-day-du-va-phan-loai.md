@@ -45,6 +45,15 @@ Trong các ô Ý nghĩa/giải thích đáp án, Nghĩa đen/bóng, Đáp án, G
 
 Quản trị mở **Đường dẫn** trong mục lục, sửa tên cuối URL, xem dự kiến, đánh dấu xác nhận rồi **Lưu đường dẫn**. Hệ thống giữ ID/nội dung/trạng thái bài, ghi lịch sử và giữ chuyển hướng đường cũ tới bài công khai; tên trùng hoặc bản mở cũ bị chặn. Nếu đã đối chiếu bản mới, nhận mốc đang lưu để gửi lại. Chi tiết và kết quả kiểm: [editor và URL](../37-editor-don-gian-va-url.md).
 
+## Dọn chủ đề
+
+Phongdao → **Danh mục** → **Mở bảng Dọn chủ đề**. Bảng liệt kê mọi chủ đề: nhóm (Chủ đề chung, Kinh nghiệm, Lối hát, Loại câu đố, hoặc *Ngoài bộ chủ đề*), số bài đã đăng, và đề xuất của máy kèm lý do. Mục trong bộ chủ đề của dự án luôn giữ. Với mục ngoài bộ:
+
+1. Chọn **Gộp vào chủ đề khác** (chọn mục nhận) hoặc **Bỏ mục này**, bấm **Xem trước**.
+2. Màn xem trước ghi số bài bị đổi, đường cũ sẽ chuyển về đâu, danh sách bài. Bấm **Đồng ý** để làm, hoặc **Quay lại**.
+
+Mỗi bài ghi một dòng Lịch sử; đường cũ của mục tự chuyển hướng. Mục đã bỏ không khôi phục được từ Lịch sử của bài — nếu bấm nhầm, tạo lại mục ở Danh mục rồi gắn lại vào bài. Máy không tự gộp hay bỏ mục nào.
+
 ## Khi tắt JavaScript
 
 Các liên kết mục lục, khối gập và nút lưu gốc vẫn dùng được. Có thêm một hàng trống để thêm từ khó/dị bản rồi lưu. Quản lý danh mục mở tab mới; chọn/tải ảnh bằng Thư viện cần bật JavaScript. Bộ đệm chữ tạm và thanh lưu hỗ trợ cần JavaScript.

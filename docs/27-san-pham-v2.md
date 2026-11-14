@@ -110,7 +110,7 @@ Giới thiệu do người sáng lập viết (cách đọc thể loại) → b�
 
 ### 5.3. Chủ đề, vùng, mô-típ, hình thức
 
-Dạng "đọc liền": mô tả do người viết (nếu có) → danh sách thẻ có lời + nghĩa ngắn + chú thích địa danh (vùng) → tuyển tập liên quan. Lập chỉ mục khi có từ 3 tác phẩm đã đăng (D-106). Vùng nói rõ "nơi lưu truyền"; bản đồ dẫn sang "được nhắc đến".
+Trang `/chu-de/` (D-114): xếp theo nhóm của bộ chủ đề — Chủ đề chung · Kinh nghiệm (tục ngữ) · Lối hát · Loại câu đố — mục ngoài bộ ở nhóm "Mục khác" cuối trang. Trang một chủ đề: dạng "đọc liền": mô tả do người viết (nếu có) → danh sách thẻ có lời + nghĩa ngắn + chú thích địa danh (vùng) → tuyển tập liên quan. Lập chỉ mục khi có từ 3 tác phẩm đã đăng (D-106). Vùng nói rõ "nơi lưu truyền"; bản đồ dẫn sang "được nhắc đến".
 
 ## 6. Trang tác phẩm theo thể loại (S04–S09)
 

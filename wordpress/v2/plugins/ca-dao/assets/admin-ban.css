@@ -40,3 +40,16 @@
 .phongdao-ban-gon > :not(summary) { margin-left: 16px; margin-right: 16px; }
 .phongdao-ban-gon > .widefat { width: calc(100% - 32px); }
 .phongdao-ban-gon .section { margin: 0; }
+/* Dọn chủ đề (D-114): ô chọn không tràn; màn hẹp thì mỗi dòng của bảng thành một thẻ, có nhãn ô */
+.phongdao-dcd-form { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.phongdao-dcd-form select { max-width: 100%; min-height: 44px; }
+.phongdao-dcd-form .button, .phongdao-dcd-nut .button { min-height: 44px; line-height: 42px; }
+.phongdao-dcd-nhan { display: none; }
+@media (max-width: 782px) {
+	table.phongdao-dcd, table.phongdao-dcd tbody, table.phongdao-dcd tr, table.phongdao-dcd th, table.phongdao-dcd td { display: block; width: auto; box-sizing: border-box; }
+	table.phongdao-dcd thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+	table.phongdao-dcd tr { padding: 8px 0; border-bottom: 1px solid #dcdcde; }
+	table.phongdao-dcd th, table.phongdao-dcd td { padding: 4px 12px; }
+	.phongdao-dcd-nhan { display: inline; font-weight: 600; }
+	.phongdao-dcd-form select { width: 100%; }
+}

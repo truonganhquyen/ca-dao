@@ -38,6 +38,7 @@ final class Module implements \Phongdao\HaTang\Module {
 		ThemTacPham::dang_ky();
 		BoSung::dang_ky();
 		TrangLo::dang_ky();
+		DonChuDe::dang_ky();
 	}
 
 	public function them_menu(): void {
@@ -128,7 +129,22 @@ final class Module implements \Phongdao\HaTang\Module {
 			} );
 		}
 		// Nguồn & cài đặt giữ đường dẫn admin.php?page=phongdao (hồ sơ nguồn, máy đang làm… trỏ tới đây); chỉ Quản trị
-		add_submenu_page( $cha, 'Quản lý danh mục', 'Danh mục', 'manage_categories', DanhMuc::TRANG, static function (): void { echo DanhMuc::hien(); } ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- lớp hiển thị thoát giá trị
+		add_submenu_page( $cha, 'Quản lý danh mục', 'Danh mục', 'manage_categories', DanhMuc::TRANG, static function (): void { echo DanhMuc::hien(); } );
+		// Dọn chủ đề (D-114): màn con của Danh mục, ẩn khỏi menu
+		$dcd = add_submenu_page( '', 'Dọn chủ đề', 'Dọn chủ đề', 'manage_categories', DonChuDe::TRANG, static function (): void {
+			echo DonChuDe::hien(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- lớp hiển thị thoát giá trị động
+		} );
+		if ( $dcd ) {
+			add_action( 'load-' . $dcd, static function (): void {
+				global $title;
+				$title = 'Dọn chủ đề'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- màn ẩn khỏi menu không có tiêu đề cho thẻ <title>
+			} );
+			add_action( 'admin_enqueue_scripts', static function ( string $trang ) use ( $dcd ): void {
+				if ( $trang === $dcd ) {
+					wp_enqueue_style( 'phongdao-admin-ban', plugins_url( 'assets/admin-ban.css', dirname( __DIR__, 3 ) . '/ca-dao.php' ), array(), CADAO_PHIEN_BAN );
+				}
+			} );
+		} // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- lớp hiển thị thoát giá trị
 		add_submenu_page( $cha, 'Nguồn & cài đặt', 'Nguồn &amp; cài đặt', NguonCaiDat::QUYEN, self::TRANG, array( $this, 'hien' ) );
 		// Màn con: Thêm tác phẩm (mở từ Bài mới, Tác phẩm, "Thêm mới → Tác phẩm")
 		$them = add_submenu_page( '', 'Thêm tác phẩm', 'Thêm tác phẩm', 'cadao_soan', ThemTacPham::TRANG, static function (): void {
@@ -205,6 +221,9 @@ final class Module implements \Phongdao\HaTang\Module {
 		}
 		if ( ThemTacPham::TRANG === $trang ) {
 			return DanhSachKho::TRANG;
+		}
+		if ( DonChuDe::TRANG === $trang ) {
+			return DanhMuc::TRANG;
 		}
 		if ( TrangLo::TRANG !== $trang ) {
 			return '';
