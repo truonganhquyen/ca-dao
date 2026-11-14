@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Phongdao — Thư viện Văn học Dân gian Việt Nam
  * Description:       Bản V2 xây mới (D-083, D-094): mỗi phần của bài lưu trong bài, trang đọc theo thể loại, sửa ngay trên trang đọc + Hộp việc. Mã ở wordpress/v2/; máy chủ lấy từ đây kể từ ngày chuyển (docs/29).
- * Version:           1.0.66
+ * Version:           1.0.67
  * Requires at least: 6.8
  * Requires PHP:      8.3
  * Author:            Dự án Thư viện Văn học Dân gian Việt Nam
@@ -17,7 +17,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /** Tăng ở mỗi PR chạm plugin V2 (AGENTS.md); PR chuyển đổi đặt 1.0.0 (docs/26 mục 2). */
-const CADAO_PHIEN_BAN = '1.0.66';
+const CADAO_PHIEN_BAN = '1.0.67';
 
 require_once __DIR__ . '/src/tu-nap.php';
 

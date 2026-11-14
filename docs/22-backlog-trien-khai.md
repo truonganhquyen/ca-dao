@@ -180,6 +180,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-204 | Trang thưa gọn (D-114): Hiểu thêm trống một dòng; "Bạn muốn góp gì?" bốn lối, thu gọn; "Ảnh để chia sẻ" thu gọn; Từ khó bài chia đoạn nhóm theo đoạn; lời mời "câu"/"bài"; Bổ sung "Ý nghĩa dài" | A | T-202 | — | DONE |
 | T-205 | Dọn Chủ đề (D-114): máy lập bảng đề xuất từng mục (giữ / gộp / bỏ), người duyệt từng dòng, đường cũ chuyển hướng 301, có Lịch sử; trang Chủ đề xếp theo nhóm của bộ chủ đề | A | T-204 | — | DONE |
 | T-207 | Thùng rác: thao tác một/nhiều bài, Khôi phục, xoá vĩnh viễn có xem trước/xác nhận; đối soát chờ trùng mất thẻ hoặc cờ sót (D-115, docs/41, PR #180), không chuyển tác phẩm thành dị bản | A | T-205, T-206 | — | DONE |
+| T-208 | Màn Tuyển tập trong wp-admin (D-116): danh sách bộ kèm trạng thái; soạn tên, loại, người đọc, lời dẫn người viết, thêm câu bằng tìm / đường dẫn / ID / tên đúng, Lên, Xuống, nhóm, ghi chú, Bỏ; lưu nháp, người duyệt đăng / gỡ đăng (`docs/huong-dan/lam-tuyen-tap.md`) | A | T-205 | — | DONE |
 | **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
 | T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
 | T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | IN_PROGRESS |
@@ -968,6 +969,10 @@ Người sáng lập chọn "máy lập bảng, tôi duyệt" (D-114). Khi làm,
 ### Thùng rác và chờ trùng — T-207
 
 Người sáng lập chốt phạm vi D-115. **Chấp nhận:** Tác phẩm có nút Thùng rác từng bài và trên thanh chọn nhiều bài; tab Thùng rác có Khôi phục và Xoá vĩnh viễn (quản trị có quyền duyệt/xoá), dùng xem trước lô và xác nhận riêng phía trình duyệt/máy chủ; xoá chỉ bài đang trong rác còn đúng phiên, không tự chạy tiếp; lỗi bắt buộc hoàn nguyên giao dịch; nhật ký, nguồn và ảnh giữ lại. Chờ trùng: nút POST có quyền/nonce, nối đúng thẻ mất, mở đúng trạng thái Để sau, gỡ cặp không còn đối tượng/câu đã dùng hoặc cờ chờ sót sau quyết định; bấm lại không tạo thẻ lặp, còn cặp hợp lệ vẫn chặn. **Không làm:** chuyển tác phẩm thành dị bản, tự kết luận/gộp nội dung, xoá bài thật. Chi tiết và kiểm chứng `docs/41`.
+
+### Màn Tuyển tập — T-208
+
+Người sáng lập muốn tự làm tuyển tập đầu tiên; màn nhập chưa có nên chọn làm màn **Phongdao → Tuyển tập** (D-116). **Chấp nhận:** danh sách mọi bộ (tên, loại, số câu đã đăng / tổng, trạng thái "Người đọc đang thấy" hoặc điều còn thiếu), nút + Tuyển tập mới; màn soạn một form có nonce và nhãn cho mọi ô: tên (bắt buộc), loại, người đọc dự định, lời dẫn (`nguoi_lam = nguoi_viet`), danh sách câu (Lên/Xuống, nhóm, ghi chú — "Hợp khi…" với Tình huống —, Bỏ khỏi bộ; ghi rõ câu chưa đăng, chưa có Ý nghĩa, có cờ, thô tục), tìm bài đã đăng có nút Thêm và "Đã có trong bộ", ô dán đường dẫn / số ID / tên đúng (dòng không tìm được giữ lại, không đoán); mọi nút lưu trước rồi làm việc của nút; trùng thì bỏ; tối đa 60 câu; bản mở cũ không ghi đè (giữ chữ vừa gõ); người chỉ soạn lưu nháp, người có quyền duyệt Lưu và đăng / Gỡ đăng; sau khi đăng báo người đọc đã thấy hay còn thiếu gì. Lưu qua `LuuPhan` (Lịch sử), không thêm bảng hay loại bài; màn danh sách và màn mới có trong quét trợ năng; E2E tạo bộ trên điện thoại, tìm và thêm hai câu, đăng, khách đọc được, gỡ đăng. **Không làm:** máy viết lời dẫn, tự chọn câu, tự đăng; đổi điều kiện người đọc thấy bộ.
 
 ## 4. User story
 
