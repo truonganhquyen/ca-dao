@@ -139,6 +139,7 @@
 .phongdao-admin-tp .phongdao-tp-dong2, .phongdao-admin-tp .phongdao-tp-dong3 { display: none; }
 .phongdao-admin-tp .phongdao-tp-hanh { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-top: 2px; }
 .phongdao-admin-tp .phongdao-tp-hanh .button-link { min-height: 44px; display: inline-flex; align-items: center; color: #2271b1; text-decoration: underline; }
+.phongdao-admin-tp .phongdao-tp-hanh .button-link-delete { color: #a00; }
 @media (max-width: 782px) {
 	.phongdao-admin-tp .phongdao-tp-bang td.phongdao-tp-an-dt { display: none; }
 	.phongdao-admin-tp .phongdao-tp-bang tr { display: grid; grid-template-columns: 40px 1fr; align-items: start; margin: 8px 0; padding: 4px 0; }

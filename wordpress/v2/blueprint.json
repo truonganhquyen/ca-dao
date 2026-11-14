@@ -42,6 +42,10 @@
 		{
 			"step": "runPHP",
 			"code": "<?php\nrequire '/wordpress/wp-load.php';\n// Chỉ dữ liệu kỹ thuật trong bản xem trước, không chạy trên site thật.\n$id=wp_insert_post(array('post_type'=>'tac_pham','post_status'=>'publish','post_name'=>'ux-test-trang-sua-dai','post_title'=>'[UX-TEST] Trang sửa dài'));\nwp_set_object_terms($id,'ve','the_loai');\n$nc=array('nguoi'=>1,'goi'=>\\Phongdao\\MienDuLieu\\KiemPhan::GOI_NGUOI,'duyet'=>true);\n$lines=array();for($i=1;$i<=56;$i++)$lines[]='[UX-TEST] technical line '.$i;\n\\Phongdao\\DichVu\\LuuPhan\\LuuPhan::luu($id,'loi',array('dong'=>$lines,'nguoi_lam'=>\\Phongdao\\MienDuLieu\\NguoiLam::NGUOI_VIET),$nc);\n$rows=array();for($i=1;$i<=36;$i++)$rows[]=array('tu'=>'[UX-TEST] item '.$i,'loi_giai'=>'[UX-TEST] explanation '.$i,'nguoi_lam'=>\\Phongdao\\MienDuLieu\\NguoiLam::NGUOI_VIET);\n\\Phongdao\\DichVu\\LuuPhan\\LuuPhan::luu($id,'chu_thich',$rows,$nc);\n"
+		},
+		{
+			"step": "runPHP",
+			"code": "<?php\nrequire '/wordpress/wp-load.php';\n// Chỉ fixture kỹ thuật bản xem trước, không chạy trên site thật.\nglobal $wpdb;\n$p=wp_insert_post(array('post_type'=>'tac_pham','post_status'=>'trash','post_title'=>'[UX-TEST] Trash 207'));\n$wpdb->insert(\\Phongdao\\KhoLuu\\Kho::bang(),array('nguon_id'=>'test207','ma_goc'=>'missing-card','tieu_de'=>'[UX-TEST] Missing duplicate card 207','loi'=>'[UX-TEST] technical pending pair 207','du_lieu'=>'{}','ngay_lay'=>gmdate('Y-m-d H:i:s'),'trang_thai'=>'moi'));\n$k=(int)$wpdb->insert_id;\n$target=get_page_by_path('ux-test-trang-sua-dai',OBJECT,'tac_pham');\n\\Phongdao\\DichVu\\ChongTrung\\ChongTrung::ghi_cho('kho:'.$k,'bai:'.$target->ID,'gan_giong',80,'[UX-TEST] missing card');\nforeach(\\Phongdao\\KhoLuu\\Viec::mo('kho',$k,'co_the_trung') as $v) \\Phongdao\\KhoLuu\\Viec::xoa($v['id']);\n"
 		}
 	]
 }

@@ -11,6 +11,7 @@ import puppeteer from 'puppeteer-core';
 import { dangNhap, kiemNode, moPlayground, timChrome } from './lib/playground-v2.mjs';
 import { kiemTrangSua } from './lib/e2e-trang-sua.mjs';
 import { kiemEditorUrl } from './lib/e2e-editor-url.mjs';
+import { kiemThungRac } from './lib/e2e-thung-rac.mjs';
 
 const TEN = 'e2e v2';
 const thamSo = ten => { const i = process.argv.indexOf(ten); return i > 0 ? process.argv[i + 1] : null; };
@@ -1327,6 +1328,7 @@ try {
     });
 		await kiemTrangSua({bt,G,di,bam,datO,bamDoiTrang,chac,thu,thuMucAnh});
 		await kiemEditorUrl({bt,G,di,bam,datO,bamDoiTrang,chac,thu,thuMucAnh});
+		await kiemThungRac({bt,di,bam,datO,bamDoiTrang,chac,thu,thuMucAnh});
   }
 } catch (e) {
   loi.push(String(e.message ?? e).split('\n')[0]);

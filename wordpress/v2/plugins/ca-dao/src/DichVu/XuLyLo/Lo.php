@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
  * - Một lô là một dòng `wp_cadao_viec` loại "lo" (trạng thái riêng, không vào Hộp việc): mã, người, phạm vi/bộ lọc, tập
  *   mục, thời điểm, kết quả.
  *
- * Máy không tự quyết nội dung: lô chỉ chạy khi người có quyền bấm; không xoá vĩnh viễn. Đăng theo lô (D-099) chỉ có cho
+ * Máy không tự quyết nội dung: lô chỉ chạy khi người có quyền bấm; xoá vĩnh viễn cần xác nhận riêng (D-115). Đăng theo lô (D-099) chỉ có cho
  * thẻ Câu mới, cần quyền duyệt, và mỗi câu qua đúng đường của nút Đăng đơn; câu có cờ của nguồn để sẵn bỏ chọn, câu đang
  * chờ quyết trùng thì bỏ qua. "Đăng từ Kho" (D-101) đi một mạch từ câu kho: mỗi câu tạo (hoặc dùng) thẻ Câu mới như nút
  * "Đưa vào Hộp việc" rồi quyết Đăng trên thẻ đó, cùng các quy tắc trên.
@@ -57,6 +57,7 @@ final class Lo {
 		'bai_an'       => array( 'Ẩn bài', 'post', 'cadao_soan', 'private' ),
 		'thung_rac'    => array( 'Đưa vào thùng rác', 'post', 'cadao_duyet', 'trash' ),
 		'lay_ra'       => array( 'Lấy ra khỏi thùng rác', 'post', 'cadao_duyet', 'untrash' ),
+		'xoa_vinh_vien' => array( 'Xoá vĩnh viễn', 'post', 'manage_options', 'delete' ),
 		'sua_phan'     => array( 'Sửa một phần theo từng hàng', 'post', 'cadao_soan', 'sua_phan' ),
 	);
 
@@ -333,8 +334,8 @@ final class Lo {
 		}
 		$muc = array();
 		foreach ( $ids as $i ) {
-			if ( isset( $co[ $i ] ) ) {
-				$ban = isset( $ts['phan'] ) ? (string) wp_json_encode( PhanBai::lay( $i, $ts['phan'] ) ) : ( isset( $ts['tax'] ) ? (string) wp_json_encode( LuuPhanLoai::dang_gan( $i, $ts['tax'] ) ) : $co[ $i ] );
+			if ( isset( $co[ $i ] ) && ( 'xoa_vinh_vien' !== $thao_tac || 'trash' === $co[ $i ] ) ) {
+				$ban = 'xoa_vinh_vien' === $thao_tac ? \Phongdao\DichVu\XoaTacPham\XoaTacPham::phien( $i ) : ( isset( $ts['phan'] ) ? (string) wp_json_encode( PhanBai::lay( $i, $ts['phan'] ) ) : ( isset( $ts['tax'] ) ? (string) wp_json_encode( LuuPhanLoai::dang_gan( $i, $ts['tax'] ) ) : $co[ $i ] ) );
 				$muc[] = array( $i, $ban );
 			}
 		}
@@ -439,6 +440,9 @@ final class Lo {
 			return array( 'loi', 'Không có quyền sửa bài này.' );
 		}
 		$viec = self::THAO_TAC[ $thao_tac ][3];
+		if ( 'delete' === $viec ) {
+			return \Phongdao\DichVu\XoaTacPham\XoaTacPham::xoa( $id, $ban, $nguoi );
+		}
 		if ( 'sua_phan' === $viec ) {
 			return 'trash' === $bai->post_status ? array( 'bo_qua', 'Bài đang ở thùng rác.' ) : self::mot_sua_phan( $id, $ban, $ts, (string) ( $ts['gia_tri'][ (string) $id ] ?? '' ) );
 		}
@@ -565,12 +569,15 @@ final class Lo {
 	 *
 	 * @return array{ok:bool,loi:string,con:int,dem:array<string,int>}
 	 */
-	public static function ap_dung( int $lo_id, int $nguoi, bool $duyet ): array {
+	public static function ap_dung( int $lo_id, int $nguoi, bool $duyet, bool $xac_nhan_xoa = false ): array {
 		[ $lo, $ly_do ] = self::lay_cua( $lo_id, $nguoi, array( Viec::LO_XEM, Viec::LO_DANG ) );
 		if ( ! $lo ) {
 			return array( 'ok' => false, 'loi' => $ly_do, 'con' => 0, 'dem' => array() );
 		}
 		$thao_tac = (string) $lo['noi_dung']['thao_tac'];
+		if ( 'xoa_vinh_vien' === $thao_tac && ! $xac_nhan_xoa ) {
+			return array( 'ok' => false, 'loi' => 'Cần xác nhận xoá vĩnh viễn tại màn xem trước.', 'con' => 0, 'dem' => array() );
+		}
 		if ( ! isset( self::THAO_TAC[ $thao_tac ] ) || ! user_can( $nguoi, self::THAO_TAC[ $thao_tac ][2] ) ) {
 			return array( 'ok' => false, 'loi' => 'Bạn không có quyền chạy lô này.', 'con' => 0, 'dem' => array() );
 		}

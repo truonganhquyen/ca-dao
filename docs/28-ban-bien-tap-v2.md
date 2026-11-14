@@ -1,5 +1,7 @@
 # 28 · Luồng nội dung và biên tập V2
 
+**Bổ sung D-115 (14/11/2026, `docs/41`):** Tác phẩm có Thùng rác từng bài / thanh chọn nhiều bài; tab Thùng rác có Khôi phục và Xoá vĩnh viễn qua xem trước và xác nhận riêng. Câu chờ trùng có nút Kiểm tra chờ trùng để nối lại thẻ mất hoặc gỡ cờ chờ không còn hiệu lực, không tự quyết nội dung. Chưa làm chuyển tác phẩm thành dị bản.
+
 | | |
 |---|---|
 | Phiên bản | 1.3 · 11/11/2026 (ba dòng việc D-103; đợt 3 D-104, D-105 — `docs/32`) · 1.2 · 05/11/2026 (hướng quản trị admin chính: D-096; dữ liệu và lằn ranh giữ D-094) |

@@ -27,6 +27,7 @@ final class DanhSachKho {
 	public const HANH_DONG = 'phongdao_kho_dua_vao';
 	/** admin-post đánh / bỏ dấu Để dành, Đề nghị đăng (một câu, hay các câu đã chọn qua form lô). */
 	public const DANH_DAU = 'phongdao_kho_danh_dau';
+	public const DOI_SOAT = 'phongdao_kho_kiem_trung';
 	/** Bộ lọc dấu. */
 	private const DANH = array(
 		''        => 'Có dấu hay không',
@@ -69,6 +70,7 @@ final class DanhSachKho {
 	public static function dang_ky(): void {
 		add_action( 'admin_post_' . self::HANH_DONG, array( self::class, 'dua_vao' ) );
 		add_action( 'admin_post_' . self::DANH_DAU, array( self::class, 'danh_dau' ) );
+		add_action( 'admin_post_' . self::DOI_SOAT, array( self::class, 'kiem_trung' ) );
 	}
 
 	/**
@@ -213,12 +215,6 @@ final class DanhSachKho {
 		foreach ( $wpdb->get_col( $wpdb->prepare( 'SELECT a FROM ' . ChongTrung::bang( 'trung' ) . " WHERE trang_thai IN ('cho','de_sau') AND a IN (" . implode( ',', array_fill( 0, count( $khoa ), '%s' ) ) . ')', $khoa ) ) ?: array() as $a ) { // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$trung[ (int) substr( (string) $a, 4 ) ] = 0;
 		}
-		if ( $trung ) {
-			$co_trung = array_keys( $trung );
-			foreach ( $wpdb->get_results( $wpdb->prepare( 'SELECT doi_tuong_id, MIN(id) AS dau FROM ' . Viec::bang() . " WHERE doi_tuong_loai = 'kho' AND loai = 'co_the_trung' AND trang_thai IN ('cho','de_sau') AND doi_tuong_id IN (" . implode( ',', array_fill( 0, count( $co_trung ), '%d' ) ) . ') GROUP BY doi_tuong_id', $co_trung ) ) ?: array() as $h ) { // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				$trung[ (int) $h->doi_tuong_id ] = (int) $h->dau;
-			}
-		}
 		$bai = array_filter( array_map( static fn( object $m ): int => (int) $m->post_id, $ds ) );
 		if ( $bai ) {
 			_prime_post_caches( $bai, false, false );
@@ -292,7 +288,6 @@ final class DanhSachKho {
 			$tt[] = '<strong>' . esc_html( DanhDau::LOAI[ $dau_cau['loai'] ] ?? '' ) . '</strong>' . ( $ai ? ' <span class="description">(' . esc_html( $ai->display_name ) . ')</span>' : '' );
 		}
 		$trung    = array_key_exists( $id, $tt_trang['trung'] );
-		$the_trung = (int) ( $tt_trang['trung'][ $id ] ?? 0 );
 		if ( $trung ) {
 			$tt[] = 'Đang chờ quyết trùng';
 		}
@@ -310,10 +305,11 @@ final class DanhSachKho {
 				. wp_nonce_field( self::DANH_DAU . '_' . $id, '_wpnonce', false, false )
 				. $dang . '<button type="submit" class="button button-small" aria-label="' . esc_attr( $nhan . ': câu #' . $id ) . '">' . esc_html( $nhan ) . '</button></form>';
 		} else {
-			// "Quyết trùng trước" mở thẳng thẻ "Có thể trùng" của câu này (báo cáo trinh sát lần 2, mục 1.5)
-			$lam = $trung && ! $the && $the_trung
-				? '<a class="button button-small" href="' . esc_url( DanhSachViec::url( array( 'loai' => 'co_the_trung' ), 1, $the_trung ) ) . '">Quyết trùng trước</a>'
-				: '<span class="description">' . esc_html( $the ? 'Đã có trong Hộp việc' : ( $trung ? 'Quyết trùng trước' : $ly_do ) ) . '</span>';
+			$lam = '<span class="description">' . esc_html( $the ? 'Đã có trong Hộp việc' : ( $trung ? 'Quyết trùng trước' : $ly_do ) ) . '</span>';
+			if ( $trung ) {
+				$lam .= '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="' . self::DOI_SOAT . '"><input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="quay_lai" value="' . esc_attr( $quay_lai ) . '">'
+					. wp_nonce_field( self::DOI_SOAT . '_' . $id, '_wpnonce', false, false ) . '<button type="submit" class="button button-small">Kiểm tra chờ trùng</button></form>';
+			}
 		}
 		// Điện thoại (thẻ ba dòng): câu; thể loại · nguồn; trạng thái và nút — các cột ID, Thể loại, Nguồn ẩn
 		$dong2 = '<span class="phongdao-tp-dong2">' . esc_html( self::ten_loai( (string) $m->loai ) . ' · ' . $ten_nguon ) . '</span>';
@@ -488,6 +484,21 @@ final class DanhSachKho {
 			$quay_lai = self::url( self::loc( $vao ) );
 		}
 		wp_safe_redirect( str_starts_with( $quay_lai, admin_url( 'admin.php?page=' . self::TRANG ) ) ? $quay_lai : self::url() );
+		exit;
+	}
+
+	/** Đối soát chỉ khi người bấm POST, mở cả thẻ đang để sau bằng đúng bộ lọc. */
+	public static function kiem_trung(): void {
+		$id = absint( $_POST['id'] ?? 0 );
+		if ( ! current_user_can( 'cadao_soan' ) || ! $id ) {
+			wp_die( 'Bạn không có quyền kiểm tra câu kho.', '', array( 'response' => 403 ) );
+		}
+		check_admin_referer( self::DOI_SOAT . '_' . $id );
+		$kq = ChongTrung::doi_soat_cho( $id, get_current_user_id() );
+		set_transient( 'phongdao_kho_bao_' . get_current_user_id(), array( 'ok' => $kq['ok'], 'chu' => $kq['thong_bao'], 'viec' => 0 ), MINUTE_IN_SECONDS );
+		$quay = esc_url_raw( wp_unslash( (string) ( $_POST['quay_lai'] ?? '' ) ) );
+		$quay = str_starts_with( $quay, admin_url( 'admin.php?page=' . self::TRANG ) ) ? $quay : self::url();
+		wp_safe_redirect( $kq['ok'] && $kq['viec'] ? DanhSachViec::url( array( 'loai' => 'co_the_trung', 'tt' => $kq['tt'] ), 1, $kq['viec'] ) : $quay );
 		exit;
 	}
 

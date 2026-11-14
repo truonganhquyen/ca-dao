@@ -299,10 +299,11 @@ final class ChongTrung implements Module {
 	public static function ghi_cho( string $a, string $b, string $cap_do, int $giong, string $ly_do ): void {
 		global $wpdb;
 		$t = self::bang( 'trung' );
-		if ( $wpdb->get_var( $wpdb->prepare( "SELECT id FROM $t WHERE (a = %s AND b = %s) OR (a = %s AND b = %s)", $a, $b, $b, $a ) ) ) {
-			return;
-		}
-		$wpdb->query( $wpdb->prepare( "INSERT IGNORE INTO $t (a, b, muc, giong, ly_do, trang_thai, ngay) VALUES (%s, %s, %s, %d, %s, 'cho', %s)", $a, $b, $cap_do, $giong, $ly_do, current_time( 'mysql' ) ) );
+		$cu = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $t WHERE (a = %s AND b = %s) OR (a = %s AND b = %s)", $a, $b, $b, $a ) );
+		if ( $cu ) {
+			// Chỉ tái phát hiện cặp hết hiệu lực kỹ thuật; giữ mọi quyết định nội dung của người.
+			if ( 'het_hieu_luc' !== $cu->trang_thai || 1 !== $wpdb->update( $t, array( 'trang_thai' => 'cho', 'muc' => $cap_do, 'giong' => $giong, 'ly_do' => $ly_do ), array( 'id' => $cu->id, 'trang_thai' => 'het_hieu_luc' ) ) ) { return; }
+		} elseif ( 1 !== $wpdb->query( $wpdb->prepare( "INSERT IGNORE INTO $t (a, b, muc, giong, ly_do, trang_thai, ngay) VALUES (%s, %s, %s, %d, %s, 'cho', %s)", $a, $b, $cap_do, $giong, $ly_do, current_time( 'mysql' ) ) ) ) { return; }
 		[ $loai_a, $id_a ] = self::tach_muc( $a );
 		Viec::tao(
 			array(
@@ -350,6 +351,76 @@ final class ChongTrung implements Module {
 	}
 
 	// ---------- Khi lấy từ nguồn ----------
+	/** Đóng cặp không còn đối tượng để xử lý; không kết luận "là bài khác" và không gộp nội dung. Trong giao dịch của lớp gọi. */
+	private static function dong_cap( object $cap, int $nguoi, string $ly_do, string $trang_thai = 'het_hieu_luc' ): bool {
+		global $wpdb;
+		if ( 1 !== $wpdb->update( self::bang( 'trung' ), array( 'trang_thai' => $trang_thai ), array( 'id' => (int) $cap->id, 'trang_thai' => $cap->trang_thai ) ) ) { return false; }
+		[ $loai, $id ] = self::tach_muc( $cap->a );
+		foreach ( Viec::mo( $loai, $id, 'co_the_trung' ) as $v ) {
+			if ( ! self::cung_cap( $v, $cap ) ) { continue; }
+			if ( ! Viec::dong( (int) $v['id'], Viec::BO, 'het_hieu_luc', $nguoi, $v['trang_thai'], array( 'ly_do' => $ly_do ) ) ) { return false; }
+		}
+		return (bool) Viec::tao( array( 'loai' => Viec::SUA, 'trang_thai' => Viec::XONG, 'doi_tuong_loai' => $loai, 'doi_tuong_id' => $id, 'phan' => 'cho_trung', 'quyet' => 'doi_soat', 'nguoi_tao' => (string) $nguoi, 'nguoi_quyet' => $nguoi, 'quyet_luc' => gmdate( 'Y-m-d H:i:s' ), 'truoc' => array( 'cap' => (int) $cap->id, 'a' => $cap->a, 'b' => $cap->b, 'trang_thai' => $cap->trang_thai ), 'sau' => array( 'trang_thai' => $trang_thai, 'ly_do' => $ly_do ) ) );
+	}
+
+	private static function cung_cap( array $v, object $cap ): bool {
+		$a = $v['noi_dung']['a'] ?? ''; $b = $v['noi_dung']['b'] ?? '';
+		return ( $a === $cap->a && $b === $cap->b ) || ( $a === $cap->b && $b === $cap->a );
+	}
+
+	/** Dùng sau xoá vĩnh viễn, trong cùng giao dịch xoá. */
+	public static function dong_cap_het_hieu_luc( string $muc, int $nguoi, string $ly_do ): bool {
+		global $wpdb;
+		$ds = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . self::bang( 'trung' ) . " WHERE (a = %s OR b = %s) AND trang_thai IN ('cho','de_sau') FOR UPDATE", $muc, $muc ) );
+		if ( $wpdb->last_error ) { return false; }
+		foreach ( $ds ?: array() as $cap ) { if ( ! self::dong_cap( $cap, $nguoi, $ly_do ) ) { return false; } }
+		return true;
+	}
+
+	/** Người bấm kiểm tra: nối lại đúng thẻ bị mất, hoặc gỡ chặn do đối tượng không còn. Không thay quyết định nội dung. */
+	public static function doi_soat_cho( int $kho_id, int $nguoi ): array {
+		global $wpdb;
+		$sai = static fn( string $chu ): array => array( 'ok' => false, 'thong_bao' => $chu, 'viec' => 0, 'tt' => Viec::CHO );
+		if ( ! user_can( $nguoi, 'cadao_soan' ) ) { return $sai( 'Không có quyền kiểm tra câu kho.' ); }
+		if ( false === $wpdb->query( 'START TRANSACTION' ) ) { return $sai( 'Chưa mở được giao dịch đối soát.' ); }
+		try {
+			if ( false === $wpdb->query( $wpdb->prepare( 'SELECT id FROM ' . Kho::bang() . ' WHERE id = %d FOR UPDATE', $kho_id ) ) ) { throw new \RuntimeException( 'Chưa khoá được câu kho.' ); }
+			$ds = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . self::bang( 'trung' ) . " WHERE a = %s AND trang_thai IN ('cho','de_sau') ORDER BY id FOR UPDATE", 'kho:' . $kho_id ) );
+			if ( $wpdb->last_error ) { throw new \RuntimeException( 'Chưa đọc được cặp chờ trùng.' ); }
+			$m = Kho::lay( $kho_id ); $the = 0; $tt = Viec::CHO;
+			foreach ( $ds ?: array() as $cap ) {
+				[ $loai_b, $id_b ] = self::tach_muc( $cap->b );
+				$dich = 'bai' === $loai_b ? get_post( $id_b ) : ( 'kho' === $loai_b ? Kho::lay( $id_b ) : null );
+				if ( $dich && 'kho' === $loai_b && ( $dich->post_id || 'moi' !== $dich->trang_thai ) ) {
+					$bai_dich = $dich->post_id ? get_post( (int) $dich->post_id ) : null;
+					if ( ! $bai_dich || KhaiBao::TAC_PHAM !== $bai_dich->post_type || 'trash' === $bai_dich->post_status ) { $dich = null; }
+				}
+				$loi = ! $m || $m->post_id || 'moi' !== $m->trang_thai ? 'Câu nguồn không còn ở trạng thái Chưa dùng.' : ( ! $dich || ( 'bai' === $loai_b && ( KhaiBao::TAC_PHAM !== $dich->post_type || 'trash' === $dich->post_status ) ) ? 'Đối tượng so trùng không còn hoặc đang ở thùng rác.' : '' );
+				if ( $loi ) {
+					if ( ! self::dong_cap( $cap, $nguoi, $loi ) ) { throw new \RuntimeException( 'Chưa đóng được cặp hết hiệu lực.' ); }
+					continue;
+				}
+				$co = null; $da_quyet = '';
+				foreach ( Viec::cua( 'kho', $kho_id, 'co_the_trung' ) as $v ) {
+					if ( ! self::cung_cap( $v, $cap ) ) { continue; }
+					if ( in_array( $v['trang_thai'], array( Viec::CHO, Viec::DE_SAU ), true ) ) { $co = $v; }
+					elseif ( 'het_hieu_luc' !== $v['quyet'] ) { $da_quyet = array( 'khac' => 'khac', 'cung' => 'da_gop', 'di_ban' => 'da_gop' )[ $v['quyet'] ] ?? 'bo'; }
+				}
+				if ( $da_quyet ) {
+					if ( ! self::dong_cap( $cap, $nguoi, 'Cặp đã có thẻ được xử lý; giữ nguyên quyết định cũ, gỡ cờ chờ sót.', $da_quyet ) ) { throw new \RuntimeException( 'Chưa đối soát được thẻ đã xử lý.' ); }
+					continue;
+				}
+				if ( ! $co ) {
+					$id = Viec::tao( array( 'loai' => 'co_the_trung', 'trang_thai' => $cap->trang_thai, 'doi_tuong_loai' => 'kho', 'doi_tuong_id' => $kho_id, 'noi_dung' => array( 'a' => $cap->a, 'b' => $cap->b, 'muc' => $cap->muc, 'giong' => (int) $cap->giong, 'ly_do' => $cap->ly_do ), 'nguoi_tao' => (string) $nguoi, 'uu_tien' => 30 ) );
+					if ( ! $id ) { throw new \RuntimeException( 'Chưa nối lại được thẻ chờ trùng.' ); }
+					$co = Viec::lay( $id );
+				}
+				if ( ! $the ) { $the = (int) $co['id']; $tt = $co['trang_thai']; }
+			}
+			if ( false === $wpdb->query( 'COMMIT' ) ) { throw new \RuntimeException( 'Chưa xác nhận được đối soát.' ); }
+			return array( 'ok' => true, 'thong_bao' => $the ? 'Đã mở đúng thẻ để quyết trùng.' : 'Đã kiểm tra; không còn cặp chờ hợp lệ chặn câu này.', 'viec' => $the, 'tt' => $tt );
+		} catch ( \Throwable $e ) { $wpdb->query( 'ROLLBACK' ); return $sai( $e->getMessage() ); }
+	}
 
 	/**
 	 * So một câu "mới" trong kho với tác phẩm đã có và các câu khác trong kho.
