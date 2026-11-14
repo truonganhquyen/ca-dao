@@ -69,7 +69,7 @@ final class TrangChu {
 		return '<section class="today-card" aria-labelledby="today-h"><div class="today-top"><h2 class="eyebrow" id="today-h">Câu hôm nay</h2><span class="small">' . esc_html( $nhan ) . '</span>' . Ve::nut_chep( $tp['url'], $tp['ten_the_loai'] ) . '</div>'
 			. Ve::loi( $tp['loi'], $tp['kieu'], array(), array( 'max' => '26', 'nhom' => 'hom-nay' ) )
 			. Ve::muc_kiem( $tp['doi_chieu'], false, $tp['url'] . '#tu-lieu' )
-			. ( empty( $tp['y_nghia']['chu'] ) ? '' : Ve::y_nghia( $tp['y_nghia']['chu'], ! empty( $tp['y_nghia']['ai'] ) ) )
+			. ( empty( $tp['y_nghia']['chu'] ) || 'cau-do' === $tp['the_loai'] ? '' : Ve::y_nghia( $tp['y_nghia']['chu'], ! empty( $tp['y_nghia']['ai'] ) ) )
 			. '<div class="actions"><a class="btn primary" href="' . esc_url( $tp['url'] ) . '">Đọc bài ' . Ve::icon( 'arrow' ) . '</a><button type="button" class="btn" data-action="save"' . $du . ' aria-pressed="false">' . Ve::icon( 'save' ) . '<span class="nhan">Lưu</span></button></div></section>';
 	}
 

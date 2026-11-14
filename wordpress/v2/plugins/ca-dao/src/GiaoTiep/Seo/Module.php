@@ -16,15 +16,17 @@ defined( 'ABSPATH' ) || exit;
 /**
  * SEO (docs/26 mục 10, docs/27 mục 10; chuyển từ MVP seo.php). Không đổi blog_public: mở cho Google là việc của người
  * sáng lập (H5); khi còn chặn, WordPress tự noindex mọi trang và tắt sơ đồ trang.
- * Lập chỉ mục: tác phẩm L2+, tuyển tập đã công khai, trang thể loại, trang chủ đề / vùng / mô-típ / hình thức có ≥ 3
- * tác phẩm L2, mục từ có lời giải do dự án viết; bài cảm nhận không làm tác phẩm được lập chỉ mục (D-084). Còn lại noindex.
+ * Lập chỉ mục (D-106): mọi tác phẩm đã đăng — không giấu theo độ đầy đủ; cấp L0–L3 chỉ dùng nội bộ (xếp việc, bài nổi
+ * bật, Câu hôm nay) và để đặt tiêu đề "— nghĩa và cách dùng" khi bài có Ý nghĩa. Tuyển tập đã công khai, trang thể loại,
+ * trang chủ đề / vùng / mô-típ / hình thức có ≥ 3 tác phẩm đã đăng, mục từ có lời giải do dự án viết (D-068). Bài nháp,
+ * ẩn, trang lọc, trang tìm: noindex. Công tắc chặn Google toàn site (`blog_public`, H5) không đổi ở đây.
  */
 final class Module implements \Phongdao\HaTang\Module {
 
-	/** Phân loại cần đủ tác phẩm L2 mới lập chỉ mục. */
-	public const PHAN_LOAI_L2 = array( 'chu_de', 'vung', 'mo_tip', 'hinh_thuc' );
+	/** Phân loại cần đủ tác phẩm đã đăng mới lập chỉ mục. */
+	public const PHAN_LOAI_DEM = array( 'chu_de', 'vung', 'mo_tip', 'hinh_thuc' );
 
-	public const IT_NHAT_L2 = 3;
+	public const IT_NHAT = 3;
 
 	public function dang_ky(): void {
 		remove_action( 'wp_head', 'wp_generator' ); // không lộ phiên bản WordPress
@@ -34,22 +36,34 @@ final class Module implements \Phongdao\HaTang\Module {
 		add_filter( 'wp_sitemaps_add_provider', static fn( $nha, $ten ) => 'users' === $ten ? false : $nha, 10, 2 );
 		add_filter( 'wp_sitemaps_post_types', static fn( array $ds ): array => array_intersect_key( $ds, array_flip( array( KhaiBao::TAC_PHAM, KhaiBao::TUYEN_TAP, KhaiBao::PHAN_TICH, 'page' ) ) ) );
 		add_filter( 'wp_sitemaps_posts_query_args', array( self::class, 'so_do_bai' ), 10, 2 );
-		add_filter( 'wp_sitemaps_taxonomies', static fn( array $ds ): array => array_intersect_key( $ds, array_flip( array_merge( array( KhaiBao::THE_LOAI, 'muc_tu', 'tro_choi' ), self::PHAN_LOAI_L2 ) ) ) );
+		add_filter( 'wp_sitemaps_taxonomies', static fn( array $ds ): array => array_intersect_key( $ds, array_flip( array_merge( array( KhaiBao::THE_LOAI, 'muc_tu', 'tro_choi' ), self::PHAN_LOAI_DEM ) ) ) );
 		add_filter( 'wp_sitemaps_taxonomies_query_args', array( self::class, 'so_do_phan_loai' ), 10, 2 );
 	}
 
 	// ---------- Quy tắc ----------
 
+	/** Bài có Ý nghĩa (tục ngữ: nghĩa bóng) — cấp L2+: dùng cho tiêu đề "— nghĩa và cách dùng", không quyết lập chỉ mục. */
 	public static function l2( int $id ): bool {
 		$p = get_post( $id );
 		return $p && KhaiBao::TAC_PHAM === $p->post_type && ( CapChatLuong::tinh( PhanBai::tat_ca( $id, KhaiBao::TAC_PHAM ), DocBai::the_loai( $p ) ) ?? 0 ) >= 2;
 	}
 
-	/** ID tác phẩm đang đăng đủ L2 (có ý nghĩa, hoặc nghĩa đen + nghĩa bóng). @return int[] */
-	public static function ds_l2(): array {
+	/** Tác phẩm được lập chỉ mục: đã đăng (D-106). */
+	public static function lap_bai( int $id ): bool {
+		$p = get_post( $id );
+		return $p && KhaiBao::TAC_PHAM === $p->post_type && 'publish' === $p->post_status && '' === (string) $p->post_password;
+	}
+
+	/** Số tác phẩm đã đăng gắn một phân loại (một truy vấn, không tính nháp, ẩn, thùng rác). */
+	public static function dem_dang( \WP_Term $t ): int {
 		global $wpdb;
-		$ids = $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT p.ID FROM {$wpdb->posts} p JOIN {$wpdb->postmeta} m ON m.post_id = p.ID WHERE p.post_type = %s AND p.post_status = 'publish' AND m.meta_key IN ('_phongdao_y_nghia', '_phongdao_nghia_bong')", KhaiBao::TAC_PHAM ) );
-		return array_values( array_filter( array_map( 'intval', $ids ), array( self::class, 'l2' ) ) );
+		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->term_relationships} r JOIN {$wpdb->posts} p ON p.ID = r.object_id WHERE r.term_taxonomy_id = %d AND p.post_type = %s AND p.post_status = 'publish'", $t->term_taxonomy_id, KhaiBao::TAC_PHAM ) );
+	}
+
+	/** Tác phẩm thuộc thể loại câu đố (đáp án, giải thích đáp án không ra mô tả, dữ liệu có cấu trúc — D-114). */
+	public static function cau_do( int $id ): bool {
+		$p = get_post( $id );
+		return $p && 'cau-do' === DocBai::the_loai( $p );
 	}
 
 	/** Phân loại có đáng lập chỉ mục không. */
@@ -62,9 +76,8 @@ final class Module implements \Phongdao\HaTang\Module {
 			$lg = get_term_meta( $t->term_id, '_phongdao_loi_giai', true );
 			return $t->count > 0 && is_array( $lg ) && NguoiLam::NGUOI_VIET === ( $lg['nguoi_lam'] ?? '' );
 		}
-		if ( in_array( $t->taxonomy, self::PHAN_LOAI_L2, true ) ) {
-			$ids = get_objects_in_term( $t->term_id, $t->taxonomy );
-			return count( array_intersect( array_map( 'intval', is_array( $ids ) ? $ids : array() ), self::ds_l2() ) ) >= self::IT_NHAT_L2;
+		if ( in_array( $t->taxonomy, self::PHAN_LOAI_DEM, true ) ) {
+			return self::dem_dang( $t ) >= self::IT_NHAT;
 		}
 		return false;
 	}
@@ -77,7 +90,7 @@ final class Module implements \Phongdao\HaTang\Module {
 	public static function robots( array $r ): array {
 		$ko = false;
 		if ( is_singular( KhaiBao::TAC_PHAM ) ) {
-			$ko = ! self::l2( get_queried_object_id() );
+			$ko = ! self::lap_bai( get_queried_object_id() );
 		} elseif ( is_tax() ) {
 			$t  = get_queried_object();
 			$ko = ! ( $t instanceof \WP_Term && self::term_lap( $t ) ) || self::dang_loc();
@@ -86,13 +99,17 @@ final class Module implements \Phongdao\HaTang\Module {
 		}
 		if ( $ko ) {
 			$r['noindex'] = true;
-			$r['follow']  = true;
+			// Còn chặn Google toàn site (H5) thì WordPress đã đặt nofollow: không thêm follow mâu thuẫn ("nofollow, follow")
+			if ( empty( $r['nofollow'] ) ) {
+				$r['follow'] = true;
+			}
 		}
 		return $r;
 	}
 
 	public static function tieu_de( array $phan ): array {
-		if ( is_singular( KhaiBao::TAC_PHAM ) && self::l2( get_queried_object_id() ) ) {
+		// Câu đố có "Giải thích đáp án" không phải "nghĩa và cách dùng": giữ tên bài (không hứa điều trang không có)
+		if ( is_singular( KhaiBao::TAC_PHAM ) && self::l2( get_queried_object_id() ) && ! self::cau_do( get_queried_object_id() ) ) {
 			$phan['title'] = get_the_title( get_queried_object_id() ) . ' — nghĩa và cách dùng';
 		} elseif ( is_singular( KhaiBao::TUYEN_TAP ) ) {
 			$tt  = get_queried_object();
@@ -130,7 +147,8 @@ final class Module implements \Phongdao\HaTang\Module {
 			$tl = DocBai::the_loai( $p );
 			return ( $tl ? TheLoai::DS[ $tl ] : 'Bài' ) . ' có từ ngữ thô tục được truyền miệng trong đời sống. Mở trang để xem lời.';
 		}
-		$y =(string) ( PhanBai::lay( $id, 'y_nghia' )['chu'] ?? PhanBai::lay( $id, 'nghia_bong' )['chu'] ?? '' );
+		// Câu đố: phần y_nghia là "Giải thích đáp án" — mô tả hiện ở Google, khung xem trước Zalo/Facebook nên lấy từ lời (D-114)
+		$y = self::cau_do( $id ) ? '' : (string) ( PhanBai::lay( $id, 'y_nghia' )['chu'] ?? PhanBai::lay( $id, 'nghia_bong' )['chu'] ?? '' );
 		if ( '' !== $y ) {
 			return self::cat( $y );
 		}
@@ -173,7 +191,7 @@ final class Module implements \Phongdao\HaTang\Module {
 			'inLanguage' => 'vi',
 			'genre'      => $tl ? TheLoai::DS[ $tl ] : null,
 			'text'       => implode( "\n", $loi['dong'] ?? array() ),
-			'abstract'   => (string) ( PhanBai::lay( $id, 'y_nghia' )['chu'] ?? '' ) ?: null,
+			'abstract'   => 'cau-do' === $tl ? null : ( (string) ( PhanBai::lay( $id, 'y_nghia' )['chu'] ?? '' ) ?: null ),
 			'publisher'  => array( '@type' => 'Organization', 'name' => 'Thư viện Văn học Dân gian Việt Nam', 'url' => home_url( '/' ) ),
 		);
 		$hs = (int) ( $loi['doi_chieu']['ho_so'] ?? 0 );
@@ -269,7 +287,9 @@ final class Module implements \Phongdao\HaTang\Module {
 
 	public static function so_do_bai( array $args, string $loai ): array {
 		if ( KhaiBao::TAC_PHAM === $loai ) {
-			$args['post__in'] = self::ds_l2() ?: array( 0 );
+			// Mọi tác phẩm đã đăng (D-106): WordPress chỉ lấy bài đã đăng; bỏ bài có mật khẩu như trang bài
+			$args['post_status']  = 'publish';
+			$args['has_password'] = false;
 		} elseif ( KhaiBao::TUYEN_TAP === $loai ) {
 			$args['post__in'] = array_map( static fn( \WP_Post $t ) => $t->ID, TuyenTap::cong_khai_ds() ) ?: array( 0 );
 		} elseif ( 'page' === $loai ) {

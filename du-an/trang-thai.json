@@ -30,6 +30,6 @@
   "kiem_tra_cuoi": {
     "trang_thai": "DAT",
     "thoi_diem": "2026-11-14",
-    "pham_vi": "T-206: bộ lọc Tìm gọn; test:v2 273 + 628 + 55 đạt, quét V2 0 lỗi, E2E 68/68 trên CI; PR #177 chỉ gộp khi CI head cuối đạt; pilot T-198 vẫn chờ người biên soạn"
+    "pham_vi": "T-191, T-204: chuẩn bị Google, trang thưa gọn (D-114); test:v2 273 + 634 + 55 đạt, quét V2 0 lỗi, E2E 67/67 tại máy trên main có T-203; đưa lên main có T-206 rồi chạy lại trên CI; pilot T-198 vẫn chờ người biên soạn"
   }
 }

@@ -50,7 +50,7 @@ final class TacPham {
 		$y = empty( $tp['y_nghia']['chu'] )
 			// Tục ngữ: chuẩn là khối Nghĩa (đen, bóng, dùng khi) — bài mới không có ô Ý nghĩa riêng; bài cũ có Ý nghĩa vẫn hiện
 			? ( $sua && $tuc_ngu ? '' : ( $sua ? '<div class="meaning trong" data-chi-sua><div class="meaning-head"><h2>Ý nghĩa</h2>' . $nut( 'y_nghia', 'Thêm ý nghĩa' ) . '</div><p class="small muted">Chưa có ý nghĩa' . ( $sua['nhap'] ? ' · có ' . count( $sua['nhap'] ) . ' nháp chờ duyệt trong Hộp việc' : '' ) . '.</p></div>'
-				: ( $tuc_ngu && ! empty( $tp['nghia_bong'] ) ? '' : self::moi_cach_hieu( ctype_digit( (string) $tp['ma'] ) ) ) ) )
+				: ( $tuc_ngu && ! empty( $tp['nghia_bong'] ) ? '' : self::moi_cach_hieu( ctype_digit( (string) $tp['ma'] ), HieuThem::danh( $tp ) ) ) ) )
 			: Ve::y_nghia( $tp['y_nghia']['chu'], ! empty( $tp['y_nghia']['ai'] ), 'Ý nghĩa', $nut( 'y_nghia', 'Sửa' ), $tp['dinh_dang']['y_nghia'] ?? '' ) . $goc( 'Ý nghĩa', 'y_nghia' );
 		if ( $cau_do ) {
 			// Câu đố: đáp án thu gọn sau nút "Hiện đáp án", tắt JavaScript vẫn mở được (D-087). Giải nghĩa của câu đố là "Giải
@@ -58,7 +58,7 @@ final class TacPham {
 			$giai = empty( $tp['y_nghia']['chu'] ) ? '' : Ve::y_nghia( $tp['y_nghia']['chu'], ! empty( $tp['y_nghia']['ai'] ), 'Giải thích đáp án', $nut( 'y_nghia', 'Sửa' ), $tp['dinh_dang']['y_nghia'] ?? '' ) . $goc( 'Giải thích đáp án', 'y_nghia' );
 			$y    = ( $sua ? '<p class="row no-print">' . $nut( 'cau_hoi', 'Sửa câu hỏi' ) . $nut( 'goi_y', 'Sửa gợi ý' ) . $nut( 'dap_an', 'Sửa đáp án' ) . ( '' === $giai ? $nut( 'y_nghia', 'Thêm giải thích đáp án' ) : '' ) . '</p>' : '' )
 				. ( empty( $tp['goi_y'] ) ? '' : '<details class="disclosure"><summary>Gợi ý</summary><div class="detail-body"><p>' . \Phongdao\MienDuLieu\DinhDang::hien( $tp['goi_y'], $tp['dinh_dang']['goi_y'] ?? '' ) . '</p></div></details>' )
-				. ( empty( $tp['dap_an'] ) ? $giai : '<details class="answer"><summary>Hiện đáp án</summary><div class="detail-body"><h2>Đáp án</h2><p>' . \Phongdao\MienDuLieu\DinhDang::hien( $tp['dap_an'], $tp['dinh_dang']['dap_an'] ?? '' ) . '</p>' . ( $tp['dap_an_them'] ?? '' ) . $giai . $anh . '</div></details>' )
+				. ( empty( $tp['dap_an'] ) ? $giai : '<details class="answer"><summary>Hiện đáp án</summary><div class="detail-body" data-nosnippet><h2>Đáp án</h2><p>' . \Phongdao\MienDuLieu\DinhDang::hien( $tp['dap_an'], $tp['dinh_dang']['dap_an'] ?? '' ) . '</p>' . ( $tp['dap_an_them'] ?? '' ) . $giai . $anh . '</div></details>' )
 				. ( $sua && '' === $giai ? '<p class="small muted" data-chi-sua>Chưa có giải thích đáp án' . ( $sua['nhap'] ? ' · có ' . count( $sua['nhap'] ) . ' nháp chờ duyệt trong Hộp việc' : '' ) . '.</p>' : '' );
 		}
 		$muc_kiem = $sua ? '<div class="level-sua">' . Ve::muc_kiem( $tp['doi_chieu'] ) . $nut( 'doi-chieu', 'Đối chiếu sách' ) . '</div>' : Ve::muc_kiem( $tp['doi_chieu'] );
@@ -115,17 +115,19 @@ final class TacPham {
 			}
 		}
 		if ( $tp['chu_thich'] ) {
-			$o = '';
+			$muc_tk = array();
 			foreach ( $tp['chu_thich'] as $c ) {
 				// Nguồn người biên soạn điền thì hiện (D-081); nguồn của chú thích máy chép ẩn theo chính sách (D-068)
-				$nguon = empty( $c['nguon'] ) ? '' : '<br><span class="small">Nguồn: ' . ( empty( $c['nguon']['url'] ) ? esc_html( $c['nguon']['chu'] ) : '<a href="' . esc_url( $c['nguon']['url'] ) . '" rel="nofollow">' . esc_html( $c['nguon']['chu'] ) . '</a>' ) . '</span>';
-				$muc   = is_array( $c['muc'] ?? null ) ? '<br><a class="small" href="' . esc_url( $c['muc']['url'] ) . '">Xem trong Từ điển · ' . (int) $c['muc']['so_bai'] . ' bài</a>' . $c['muc']['them'] : '';
-				$o    .= '<div class="term"><dt>' . esc_html( '' !== $c['tu'] ? $c['tu'] : 'Chú thích chung' ) . '</dt><dd>' . \Phongdao\MienDuLieu\DinhDang::hien( $c['giai'], $c['dinh_dang'] ?? '' ) . $nguon . $muc . '</dd></div>';
+				$nguon    = empty( $c['nguon'] ) ? '' : '<br><span class="small">Nguồn: ' . ( empty( $c['nguon']['url'] ) ? esc_html( $c['nguon']['chu'] ) : '<a href="' . esc_url( $c['nguon']['url'] ) . '" rel="nofollow">' . esc_html( $c['nguon']['chu'] ) . '</a>' ) . '</span>';
+				$muc      = is_array( $c['muc'] ?? null ) ? '<br><a class="small" href="' . esc_url( $c['muc']['url'] ) . '">Xem trong Từ điển · ' . (int) $c['muc']['so_bai'] . ' bài</a>' . $c['muc']['them'] : '';
+				$muc_tk[] = '<div class="term"><dt>' . esc_html( '' !== $c['tu'] ? $c['tu'] : 'Chú thích chung' ) . '</dt><dd>' . \Phongdao\MienDuLieu\DinhDang::hien( $c['giai'], $c['dinh_dang'] ?? '' ) . $nguon . $muc . '</dd></div>';
 			}
 			// Người biên soạn: từ không có trong lời thì nhắc kiểm chính tả (vẫn lưu được — chú thích chung)
 			$thieu_tu = $sua ? \Phongdao\MienDuLieu\TuKho::thieu( $tp['loi'], $tu ) : array();
 			$nhac_tu  = $thieu_tu ? '<p class="notice no-print" data-chi-sua role="note">' . esc_html( 'Không thấy từ ' . implode( ', ', array_map( static fn( string $t ): string => '«' . $t . '»', $thieu_tu ) ) . ' trong lời, kiểm lại chính tả.' ) . '</p>' : '';
-			$sau .= Ve::khoi( 'Từ khó', $nhac_tu . '<dl class="terms">' . $o . '</dl>' . $goc( 'Từ khó', 'chu_thich' ), 'tint-vang', 'chu-thich', $nut( 'chu_thich', 'Sửa' ) );
+			// Bài chia đoạn nhiều từ khó: nhóm theo đoạn, thu gọn (D-114); người biên soạn đang sửa vẫn thấy danh sách liền
+			$nhom_tk  = $sua ? '' : self::tu_kho_theo_doan( $tp, $muc_tk );
+			$sau     .= Ve::khoi( 'Từ khó', $nhac_tu . ( '' !== $nhom_tk ? $nhom_tk : '<dl class="terms">' . implode( '', $muc_tk ) . '</dl>' ) . $goc( 'Từ khó', 'chu_thich' ), 'tint-vang', 'chu-thich', $nut( 'chu_thich', 'Sửa' ) );
 		}
 		if ( $sua && ! $tp['di_ban'] ) {
 			$sau .= '<section class="block tint-tim" id="di-ban" data-chi-sua><div class="block-dau"><h2>Dị bản</h2>' . $nut( 'di_ban', 'Thêm' ) . '</div><p class="small muted">Chưa có dị bản.</p></section>';
@@ -187,10 +189,57 @@ final class TacPham {
 			. ( $sua ? CheDoSua::tam( $sua, (string) $tp['the_loai'] ) . ( ( $bai_sua = get_post( (int) $sua['id'] ) ) ? CheDoSua::tam_phan_loai( $bai_sua, (string) $tp['the_loai'] ) : '' ) . CheDoSua::tam_doi_chieu( $sua ) : '' );
 	}
 
-	/** Bài chưa có Ý nghĩa: mời bạn đọc chia sẻ cách hiểu (form nhanh ở tầng Hiểu thêm; D-105). */
-	private static function moi_cach_hieu( bool $co_form ): string {
-		return '<div class="notice moi-cach-hieu"><p>Câu này chưa có lời giải nghĩa. Bạn hiểu câu này thế nào? Viết vài dòng để người đọc sau hiểu rõ hơn.</p>'
+	/** Bài chưa có Ý nghĩa: mời bạn đọc chia sẻ cách hiểu (form nhanh ở tầng Hiểu thêm; D-105). Bài dài gọi là "bài" (D-114). */
+	private static function moi_cach_hieu( bool $co_form, string $danh = 'câu' ): string {
+		return '<div class="notice moi-cach-hieu"><p>' . esc_html( ucfirst( $danh ) . ' này chưa có lời giải nghĩa. Bạn hiểu ' . $danh . ' này thế nào? Viết vài dòng để người đọc sau hiểu rõ hơn.' ) . '</p>'
 			. ( $co_form ? '<p><a class="btn" href="#cach-hieu-form" data-mo-cach-hieu>' . Ve::icon( 'pen' ) . 'Chia sẻ cách hiểu</a></p>' : '' ) . '</div>';
+	}
+
+	/** Từ khó từ số này trở lên ở bài chia đoạn thì nhóm theo đoạn (D-114). */
+	public const TU_KHO_NHOM = 8;
+
+	/**
+	 * Từ khó của bài chia đoạn (vè dài, bài nhiều phần) nhóm theo đoạn có lần xuất hiện đầu của từ, mỗi nhóm một khối thu
+	 * gọn "Đoạn N · dòng a–b · k từ" — đọc tới đoạn nào mở nhóm đó, không phải lướt cả danh sách dài trước khi đọc tiếp. Từ
+	 * không thấy trong lời (chú thích chung) xếp nhóm cuối. Trả '' khi không cần nhóm (bài không chia đoạn, ít từ, chỉ một
+	 * nhóm). Chữ của chú thích không đổi; ô chú thích chạm từ (doc.js) vẫn tìm thấy mục trong nhóm đóng.
+	 *
+	 * @param array<string,mixed> $tp     dữ liệu trang tác phẩm (loi, doan, chu_thich)
+	 * @param list<string>        $muc_tk HTML từng mục, cùng thứ tự với $tp['chu_thich']
+	 */
+	public static function tu_kho_theo_doan( array $tp, array $muc_tk ): string {
+		$doan = (array) ( $tp['doan']['doan'] ?? array() );
+		if ( count( $doan ) < 2 || count( $muc_tk ) < self::TU_KHO_NHOM ) {
+			return '';
+		}
+		$nhom = array();
+		foreach ( $tp['chu_thich'] as $i => $c ) {
+			$tu   = trim( (string) ( $c['tu'] ?? '' ) );
+			$dong = '' === $tu ? null : array_key_first( \Phongdao\MienDuLieu\TuKho::tim( $tp['loi'], array( $tu ) ) );
+			$k    = count( $doan ); // nhóm cuối: không thấy trong lời
+			if ( null !== $dong ) {
+				foreach ( $doan as $j => $d ) {
+					if ( $dong + 1 >= (int) $d['tu'] && $dong + 1 <= (int) $d['den'] ) {
+						$k = $j;
+						break;
+					}
+				}
+			}
+			$nhom[ $k ][] = $muc_tk[ $i ] ?? '';
+		}
+		if ( count( $nhom ) < 2 ) {
+			return '';
+		}
+		ksort( $nhom );
+		$o = '';
+		foreach ( $nhom as $k => $ds ) {
+			$d   = $doan[ $k ] ?? null;
+			$ten = null === $d
+				? 'Chú thích chung'
+				: ( '' !== trim( (string) $d['tieu_de'] ) ? (string) $d['tieu_de'] : 'Đoạn ' . (int) $d['so'] ) . ' · dòng ' . (int) $d['tu'] . '–' . (int) $d['den'];
+			$o  .= '<details class="disclosure tk-doan"><summary>' . esc_html( $ten . ' · ' . count( $ds ) . ' từ' ) . '</summary><dl class="terms">' . implode( '', $ds ) . '</dl></details>';
+		}
+		return '<p class="small muted">' . esc_html( count( $muc_tk ) . ' từ khó, xếp theo đoạn có từ đó. Mở một đoạn để xem.' ) . '</p>' . $o;
 	}
 
 	/** Nhãn dẫn tới trang phân loại: $muc là tên (dữ liệu mẫu) hoặc [tên, đường dẫn]. */

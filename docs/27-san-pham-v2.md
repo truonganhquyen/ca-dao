@@ -110,7 +110,7 @@ Giới thiệu do người sáng lập viết (cách đọc thể loại) → b�
 
 ### 5.3. Chủ đề, vùng, mô-típ, hình thức
 
-Dạng "đọc liền": mô tả do người viết (nếu có) → danh sách thẻ có lời + nghĩa ngắn + chú thích địa danh (vùng) → tuyển tập liên quan. Lập chỉ mục khi ≥ 3 tác phẩm L2. Vùng nói rõ "nơi lưu truyền"; bản đồ dẫn sang "được nhắc đến".
+Dạng "đọc liền": mô tả do người viết (nếu có) → danh sách thẻ có lời + nghĩa ngắn + chú thích địa danh (vùng) → tuyển tập liên quan. Lập chỉ mục khi có từ 3 tác phẩm đã đăng (D-106). Vùng nói rõ "nơi lưu truyền"; bản đồ dẫn sang "được nhắc đến".
 
 ## 6. Trang tác phẩm theo thể loại (S04–S09)
 
@@ -125,6 +125,8 @@ Phần cuối chung (theo thứ tự, D-093): Chủ đề · Vùng · Thuộc tu
 **Đợt 3 (D-105, `docs/32` mục 4.1):** trang bài sắp lại ba tầng — **Đọc** (lời → Ý nghĩa của ban biên tập hoặc khối nghĩa theo thể loại → Từ khó → Dị bản) · **Hiểu thêm** (một khối có thẻ kèm số: Cách hiểu của bạn đọc · Bài cảm nhận · Cảm nghĩ; mỗi thẻ có nút viết) · **Đọc thêm** (cùng chủ đề, mô-típ, tuyển tập, "Lời này từ đâu?", ảnh để chia sẻ). **Đã làm (plugin 1.0.50, theme 1.0.4):** tầng Đọc là khung lời + Ý nghĩa (tục ngữ: Giải nghĩa chi tiết, Dùng khi) + Từ khó + Dị bản; tầng **Hiểu thêm** (tiêu đề nhỏ "Hiểu thêm") có ba phần kèm số — tắt JavaScript thì ba phần nằm liền nhau, mỗi phần một tiêu đề; bật JavaScript thành ba thẻ (phím mũi tên, Home, End), mở sẵn phần nhiều bài nhất, liên kết tới một phần thì mở phần đó; Bài cảm nhận hiện tên, hai dòng đầu, người viết (bài dài vẫn ở trang riêng); mỗi phần có nút viết ("Viết cảm nhận", "Viết cảm nghĩ" mở trang Góp; Cách hiểu có form ngay tại chỗ); tầng **Đọc thêm** gom nhãn phân loại, tuyển tập, Đọc tiếp, "Lời này từ đâu?", ảnh để chia sẻ; cuối trang còn "Bạn muốn góp gì?".
 
 Bài chưa có Ý nghĩa: lời mời ấm thay câu cũ (vd. "Câu này chưa có lời giải nghĩa. Bạn hiểu câu này thế nào? Viết vài dòng để người đọc sau hiểu rõ hơn.") và nút **Chia sẻ cách hiểu** mở form nhanh ngay trên trang (mục 8.1); máy không tự điền. Chưa có nơi lưu truyền: "Ở quê bạn có câu này không? Góp" thay "chưa ghi nhận" (D-105).
+
+**Trang thưa gọn (D-114, plugin 1.0.64, theme 1.0.11):** Hiểu thêm chưa có cách hiểu, bài cảm nhận hay cảm nghĩ nào thì thành **một dòng** "Chưa có cách hiểu, bài cảm nhận hay cảm nghĩ nào của bạn đọc về câu (bài) này." + mục **Chia sẻ cách hiểu** thu gọn + nút Viết cảm nhận · Viết cảm nghĩ (không ba thẻ "0"); có ít nhất một bài thì ba thẻ như cũ. **Bạn muốn góp gì?** là khối thu gọn cuối bài, **bốn lối góp tư liệu**: Ở quê nói khác · Góp ý chú thích · Báo lỗi · Gửi số trang (Cảm nghĩ, Viết cảm nhận ở Hiểu thêm, không lặp); vừa gửi hoặc theo liên kết `#gop` thì mở sẵn. **Ảnh để chia sẻ** thu gọn; "Tạo ảnh để chia sẻ" trong hộp Chia sẻ mở khối. Bài chia đoạn có từ 8 từ khó: **Từ khó nhóm theo đoạn** có lần đầu của từ ("Đoạn N · dòng a–b · k từ", thu gọn; từ không thấy trong lời ở "Chú thích chung"); chạm từ trong lời vẫn mở ô chú thích. Lời mời dưới lời gọi "bài" với vè và bài hơn 4 dòng ("Bài này chưa có lời giải nghĩa…"). Mọi khối thu gọn mở được khi tắt JavaScript.
 
 **Cải tiến theo `docs/33` (plugin 1.0.56, theme 1.0.6):** form Cách hiểu nằm trong mục **Chia sẻ cách hiểu** thu gọn bằng HTML `details`; nội dung bạn đọc đã được hiện nằm trước mục mở form. Gửi lỗi/thành công tự mở để thấy phản hồi; liên kết thẳng tới form vẫn mở được, giữ bàn phím, consent, chống rác và duyệt. Ba thẻ Hiểu thêm không đổi. Lối vào Tuyển tập/Theo dịp trên Khám phá nói rõ đang chuẩn bị khi chưa có bộ công khai; danh mục giữ đường đọc từ kho. Không đổi việc hiện nguồn văn bản trong đợt này.
 
@@ -152,7 +154,7 @@ Trẻ không cần đăng nhập, không thu dữ liệu; không tự phát âm 
 ### 6.5. Câu đố (S08)
 
 Câu hỏi (chữ lớn) → [Gợi ý] (`<details>`, khi có) → **[Hiện đáp án]** (`<details>`, hành động chính; tắt JavaScript vẫn mở được) → trong đó: đáp án, ảnh đáp án (Commons, ghi công, khi có), **Giải thích đáp án** (D-105: vì sao đáp án là như vậy — mỗi dòng tả gì, chơi chữ, từ cổ; chỗ lưu của Ý nghĩa, người viết; nằm trong khối ẩn để không lộ đáp án) → "Đố bạn bè ›" (vào Đố vui với chủ đề này) → câu đố cùng đáp án → phần cuối chung. **Đã làm (plugin 1.0.51):** "Giải thích đáp án" nằm trong khối "Hiện đáp án" sau đáp án; tấm sửa, trang Sửa tác phẩm, "Lời này từ đâu?" gọi đúng tên.
-Đáp án nằm trong HTML (máy tìm kiếm vẫn đọc được), chỉ thu gọn khi hiển thị (D-087 (3), thay phần D-058).
+Đáp án nằm trong HTML (máy tìm kiếm vẫn đọc được), chỉ thu gọn khi hiển thị (D-087 (3), thay phần D-058). **D-114:** khối "Hiện đáp án" mang `data-nosnippet` (Google không trích vào đoạn mô tả); "Giải thích đáp án" không ra thẻ bài, Tìm, Câu hôm nay, mục tuyển tập, mô tả trang, dữ liệu có cấu trúc; tiêu đề câu đố không thêm "— nghĩa và cách dùng".
 
 ### 6.6. Truyện (S09, đợt 5)
 
@@ -266,7 +268,7 @@ Chọn lớp và bộ sách (nhớ trên máy) → bài học có bộ câu → 
 
 ### 8.1. Bạn muốn góp gì? (S17)
 
-Một khối cuối bài, chọn loại: Ở quê nói khác (dị bản) · Góp ý chú thích · Báo lỗi · Gửi số trang (tên sách, trang) · Cảm nghĩ ngắn · Viết cảm nhận (bài phân tích). Ô: nội dung → xuất xứ (nơi, người kể — không bắt buộc) → cam kết tự viết, đồng ý CC BY 4.0 → gửi. Không bắt tên thật, email, số điện thoại; ô bẫy + giới hạn mỗi giờ + Turnstile khi có khoá; báo lỗi vẫn giữ chữ đã gõ. Mọi thứ vào hàng chờ, không công bố tự động. Ghi âm không mở ở V2 (cần hồ sơ đồng ý, lằn ranh 3).
+Một khối cuối bài, chọn loại: Ở quê nói khác (dị bản) · Góp ý chú thích · Báo lỗi · Gửi số trang (tên sách, trang) · Cảm nghĩ ngắn · Viết cảm nhận (bài phân tích). **D-114:** khối cuối trang bài thu gọn, chỉ bốn lối góp tư liệu; Cảm nghĩ và Viết cảm nhận mở từ tầng Hiểu thêm; trang `/gop/` giữ đủ loại. Ô: nội dung → xuất xứ (nơi, người kể — không bắt buộc) → cam kết tự viết, đồng ý CC BY 4.0 → gửi. Không bắt tên thật, email, số điện thoại; ô bẫy + giới hạn mỗi giờ + Turnstile khi có khoá; báo lỗi vẫn giữ chữ đã gõ. Mọi thứ vào hàng chờ, không công bố tự động. Ghi âm không mở ở V2 (cần hồ sơ đồng ý, lằn ranh 3).
 
 **D-108 — form Góp gọn:** liên kết từ bài chọn sẵn loại và giữ bài; bộ chọn thu gọn, mở được bằng bàn phím. `/gop/` trực tiếp mở bộ chọn, không chọn hộ. Chỉ hiện nhóm đúng loại: sách/trang ở Gửi số trang; tiêu đề và cam kết tự viết ở Bài cảm nhận; nơi nghe/người kể thu gọn ở dị bản; bút danh và vai tuỳ chọn thu gọn. Một ô nội dung dùng nhãn/hướng dẫn/nút gửi theo loại. Consent vẫn hiện rõ, mặc định chưa chọn; phần xử lý nội dung chi tiết thu gọn. CSS thực hiện đổi nhóm, không cần JavaScript. POST gửi tại `/gop/`; lỗi vẽ lại các ô đã nhập bằng HTML escape, HTTP 422 và `private, no-store`, không ghi nháp lỗi vào URL/cookie/DB; gửi thành công chuyển hướng 303 theo luồng cũ. Chi tiết và kiểm thử: [docs/35](35-form-gop-gon-va-giu-chu.md). Không đổi form Cách hiểu trên trang bài.
 
@@ -335,7 +337,7 @@ Không quảng cáo, không khối liên kết, không đo bên thứ ba, không
 ## 10. SEO và chia sẻ
 
 - Lập chỉ mục (D-106, khi đã mở công tắc chặn Google toàn site — H5): **mọi tác phẩm đã đăng**, không xét độ đầy đủ; tuyển tập đã công khai; trang thể loại; trang chủ đề / vùng / mô-típ có từ 3 tác phẩm đã đăng; mục từ có lời giải dự án viết hoặc nguồn mở. Trang lọc, tìm, bài nháp / ẩn: `noindex`.
-- `<title>` và mô tả: tác phẩm có Ý nghĩa (tục ngữ: nghĩa bóng) "<tên> — nghĩa và cách dùng", mô tả từ Ý nghĩa; chưa có: tên + thể loại, mô tả từ lời — không hứa điều trang không có.
+- `<title>` và mô tả: tác phẩm có Ý nghĩa (tục ngữ: nghĩa bóng) "<tên> — nghĩa và cách dùng", mô tả từ Ý nghĩa; chưa có: tên + thể loại, mô tả từ lời — không hứa điều trang không có. Câu đố: tên giữ nguyên, mô tả luôn từ lời (không lộ đáp án — D-114).
 - Ảnh chia sẻ 1200×630 mỗi tác phẩm (thể loại, 4 dòng đầu, nhãn mức kiểm, phongdao.com), nền đầu tiên của thể loại; ảnh chung cho trang khác.
 
 ### 10.1. Ảnh để chia sẻ (D-093)

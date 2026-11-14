@@ -267,10 +267,16 @@ try {
       await doi(k, () => !document.querySelector('dialog[open]') && document.activeElement?.dataset.action === 'cite', null, 'Esc không đóng hộp hoặc mất tiêu điểm');
     });
 
-    await thu('Chia sẻ: hộp có liên kết đúng bài', async () => {
+    await thu('Chia sẻ: hộp có liên kết đúng bài; "Tạo ảnh để chia sẻ" mở khối ảnh đang thu gọn', async () => {
       await bam(k, '[data-action=share]');
       chac((await k.$eval('dialog[open] textarea', o => o.value)) === G + caDao, 'liên kết trong hộp chia sẻ không đúng bài');
-      await k.keyboard.press('Escape');
+      // Khối Ảnh để chia sẻ thu gọn sẵn (D-114); bấm trong hộp Chia sẻ thì đóng hộp, mở khối
+      if (await k.$('dialog[open] [data-tao-anh]')) {
+        chac(await k.$eval('#anh-chia-se', d => d.tagName === 'DETAILS' && !d.open), 'khối Ảnh để chia sẻ chưa thu gọn sẵn');
+        await bam(k, 'dialog[open] [data-tao-anh]');
+        await doi(k, () => !document.querySelector('dialog[open]') && document.getElementById('anh-chia-se').open, null, '"Tạo ảnh để chia sẻ" không mở khối ảnh');
+        await k.$eval('#anh-chia-se', d => { d.open = false; });
+      } else await k.keyboard.press('Escape');
     });
 
     await thu('Cỡ chữ Rất lớn và sáng/tối: tải lại vẫn giữ', async () => {
@@ -306,6 +312,8 @@ try {
       chac(await t.$$eval('[data-chi-js], [data-action=mong-co-cau]', bs => bs.every(b => b.hidden)), 'nút chỉ chạy bằng JavaScript vẫn hiện');
       // Hiểu thêm: tắt JavaScript thì ba phần nằm liền nhau, mỗi phần một tiêu đề, không phần nào bị giấu
       if (await t.$('[data-hieu-them]')) chac(3 === await t.$$eval('[data-hieu-them] .ht-phan', ps => ps.filter(p => !p.hidden && p.offsetParent).length) && await coChu(t, 'Cách hiểu của bạn đọc'), 'tắt JavaScript: tầng Hiểu thêm không hiện đủ ba phần');
+      // Hiểu thêm trống (D-114): một dòng mời, form Chia sẻ cách hiểu mở được bằng phần tử details khi tắt JavaScript
+      else chac(await t.$('#hieu-them.ht-gon [data-form-cach-hieu] > summary') && await coChu(t, 'Chưa có cách hiểu, bài cảm nhận hay cảm nghĩ'), 'tắt JavaScript: Hiểu thêm trống không có dòng mời và form gọn');
       await ctx.close();
       tabDangChay = k;
     });
@@ -792,18 +800,13 @@ try {
       }
     });
 
-    await thu('Cách hiểu của bạn đọc: ba thẻ Hiểu thêm; khách gửi bằng form nhanh trên bài chưa có Ý nghĩa, chưa hiện ngay; người biên soạn bấm Hiện ở Hộp việc; khách thấy ở phần Cách hiểu', async () => {
+    await thu('Cách hiểu của bạn đọc: Hiểu thêm trống là một dòng gọn; khách gửi bằng form nhanh trên bài chưa có Ý nghĩa, chưa hiện ngay; người biên soạn bấm Hiện ở Hộp việc; khách thấy ở phần Cách hiểu, Hiểu thêm thành ba thẻ', async () => {
       const bai = '/ca-dao/cau-mau-thu-hai/', chu = 'Cách hiểu thử đầu-cuối: câu nói về lòng biết ơn.';
       await di(k, bai);
       chac(await coChu(k, 'Câu này chưa có lời giải nghĩa'), 'bài chưa có Ý nghĩa không mời chia sẻ cách hiểu');
       chac(await k.$eval('[data-form-cach-hieu]', d => !d.open), 'form cách hiểu chưa thu gọn lúc đầu');
-      chac(await k.$eval('[data-hieu-them] [role=tablist]', e => !e.hidden) && 3 === (await k.$$('[data-hieu-them] [role=tab]')).length, 'Hiểu thêm chưa thành ba thẻ khi có JavaScript');
-      await bam(k, '#ht-nut-cam-nghi');
-      chac(await k.$eval('#cach-hieu', e => e.hidden) && await k.$eval('#cam-nghi', e => !e.hidden && e.getAttribute('role') === 'tabpanel'), 'bấm thẻ Cảm nghĩ không đổi phần');
-      await k.keyboard.press('Home');
-      chac(await k.$eval('#ht-nut-cach-hieu', e => e === document.activeElement && e.getAttribute('aria-selected') === 'true'), 'phím Home không về thẻ đầu');
-      await k.keyboard.press('ArrowLeft');
-      chac(await k.$eval('#ht-nut-cam-nghi', e => e === document.activeElement && e.getAttribute('aria-selected') === 'true'), 'phím mũi tên không đổi thẻ');
+      // Chưa có bài nào của bạn đọc (D-114): một dòng mời, không ba thẻ số 0
+      if (!(await k.$('[data-hieu-them]'))) chac(await k.$('#hieu-them.ht-gon') && !(await k.$('#hieu-them [role=tab]')) && await coChu(k, 'Chưa có cách hiểu, bài cảm nhận hay cảm nghĩ'), 'Hiểu thêm trống chưa thu thành một dòng');
       await bam(k, 'a[data-mo-cach-hieu]');
       chac(await k.$eval('[data-form-cach-hieu]', d => d.open), 'lời mời không mở form cách hiểu');
       chac(await k.$eval('#cach-hieu', e => !e.hidden), '"Chia sẻ cách hiểu" không mở phần Cách hiểu');
@@ -825,6 +828,14 @@ try {
       await bamDoiTrang(bt, `.phongdao-hv-phai article#viec-${id} button[name=quyet][value=duyet]`);
       chac(await coChu(bt, 'bản người đọc gửi giữ trong nhật ký'), 'hiện xong không báo đã lưu chữ, tên đã sửa');
       await di(k, bai);
+      // Đã có một cách hiểu: Hiểu thêm thành ba thẻ (phím mũi tên, Home)
+      chac(await k.$eval('[data-hieu-them] [role=tablist]', e => !e.hidden) && 3 === (await k.$$('[data-hieu-them] [role=tab]')).length, 'Hiểu thêm chưa thành ba thẻ khi đã có cách hiểu');
+      await bam(k, '#ht-nut-cam-nghi');
+      chac(await k.$eval('#cach-hieu', e => e.hidden) && await k.$eval('#cam-nghi', e => !e.hidden && e.getAttribute('role') === 'tabpanel'), 'bấm thẻ Cảm nghĩ không đổi phần');
+      await k.keyboard.press('Home');
+      chac(await k.$eval('#ht-nut-cach-hieu', e => e === document.activeElement && e.getAttribute('aria-selected') === 'true'), 'phím Home không về thẻ đầu');
+      await k.keyboard.press('ArrowLeft');
+      chac(await k.$eval('#ht-nut-cam-nghi', e => e === document.activeElement && e.getAttribute('aria-selected') === 'true'), 'phím mũi tên không đổi thẻ');
       await bam(k, '#ht-nut-cach-hieu');
       chac(await k.$eval('#cach-hieu', (e, c) => !e.hidden && e.innerText.includes(c) && e.innerText.includes('Bút danh đã sửa') && !e.innerText.includes('Bút danh thử'), daSua), 'khách chưa thấy bản cách hiểu đã sửa (chữ, tên hiển thị) ở phần Cách hiểu');
       chac(!(await k.$eval('.work-main', (e, c) => e.innerText.includes(c), daSua)), 'cách hiểu lẫn vào khung lời và Ý nghĩa');

@@ -13,14 +13,15 @@ defined( 'ABSPATH' ) || exit;
  */
 final class GopTuLieu {
 
-	/** Sáu lối góp cuối trang bài: loại => [chữ, biểu tượng]. */
+	/**
+	 * Bốn lối góp tư liệu cuối trang bài: loại => [chữ, biểu tượng]. Cảm nghĩ, bài cảm nhận, cách hiểu có nút riêng ở tầng
+	 * Hiểu thêm nên không lặp ở đây (D-114).
+	 */
 	private const LOI = array(
 		'di_ban'    => array( 'Ở quê nói khác', 'map' ),
 		'chu_thich' => array( 'Góp ý chú thích', 'edit' ),
 		'bao_loi'   => array( 'Báo lỗi', 'info' ),
 		'so_trang'  => array( 'Gửi số trang', 'book' ),
-		'cam_nghi'  => array( 'Cảm nghĩ', 'heart' ),
-		'phan_tich' => array( 'Viết cảm nhận', 'pen' ),
 	);
 
 	/** Loại => [nhãn ô chữ, hướng dẫn, nút gửi]. Không thêm trường hoặc đổi nghiệp vụ nhận/duyệt. */
@@ -116,16 +117,19 @@ final class GopTuLieu {
 		return $h;
 	}
 
-	/** Cuối trang bài: các lối góp (cảm nghĩ, bài cảm nhận, cách hiểu đã duyệt nằm ở tầng Hiểu thêm — HieuThem). */
+	/**
+	 * Cuối trang bài: các lối góp tư liệu, thu gọn mặc định (D-114) — vừa gửi xong hoặc theo liên kết #gop thì mở sẵn. Cảm
+	 * nghĩ, bài cảm nhận, cách hiểu đã duyệt nằm ở tầng Hiểu thêm (HieuThem).
+	 */
 	public static function cuoi_bai( int $bai_id, bool $da_gui ): string {
 		$goc = Ve::url( 'gop' );
-		$h   = '<section class="section" id="gop" aria-labelledby="gop-tieu-de"><h2 id="gop-tieu-de">Bạn muốn góp gì?</h2>'
+		$h   = '<details class="block tint-xanh gop-cuoi" id="gop"' . ( $da_gui ? ' open' : '' ) . '><summary id="gop-tieu-de">' . Ve::icon( 'pen' ) . 'Bạn muốn góp gì?</summary><div class="detail-body">'
 			. ( $da_gui ? '<div class="notice success" role="status"><strong>Cảm ơn bạn!</strong> Nội dung đã tới người biên soạn; chỉ hiện sau khi được duyệt.</div>' : '' )
-			. '<p class="small muted">Một chi tiết nhỏ cũng giúp trang đọc đầy đủ hơn. Không cần đăng nhập.</p><div class="gop-grid">';
+			. '<p class="small muted">Dị bản ở quê bạn, chú thích, lỗi, số trang trong sách — một chi tiết nhỏ cũng giúp trang đọc đầy đủ hơn. Không cần đăng nhập.</p><div class="gop-grid bon">';
 		foreach ( self::LOI as $loai => [ $chu, $icon ] ) {
 			$h .= '<a class="gop-nut" href="' . esc_url( add_query_arg( array( 'loai' => $loai, 'bai' => $bai_id ), $goc ) . '#gop-form' ) . '">' . Ve::icon( $icon ) . '<span>' . esc_html( $chu ) . '</span></a>';
 		}
-		$h .= '</div></section>';
+		$h .= '</div></div></details>';
 		return $h;
 	}
 }
