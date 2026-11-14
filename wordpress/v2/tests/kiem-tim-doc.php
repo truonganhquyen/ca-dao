@@ -13,6 +13,7 @@ foreach ( range( 1, 38 ) as $s203_n ) {
 update_post_meta( $s203_ids[35], '_phongdao_y_nghia', array( 'chu' => 'Technical fixture explanation', 'nguoi_lam' => 'nguoi_viet' ) );
 \Phongdao\DichVu\TomTat\TomTat::xong();
 $s203_tim = \Phongdao\DichVu\ChiMucTim\TimDoc::class;
+kt( 'tìm mục từ: có dấu phân biệt đúng dấu và phạm vi mở rộng, không trộn vào kết quả chính', str_contains( \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 'chút' ), '<strong>chút</strong>' ) && ! str_contains( \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 'chụt' ), '<strong>chút</strong>' ) && str_contains( \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 'chụt', array( 'khop' => 'khong_dau' ) ), '<strong>chút</strong>' ) );
 $s203_a = $s203_tim::tim( 's203 mã' );
 $s203_b = $s203_tim::tim( 's203 mã', array( 'trang' => 2 ) );
 kt( 'tìm đã gửi: 36 bài đúng dấu, một bài khác dấu, một bài chỉ khớp đầu chữ tách riêng', 36 === $s203_a['tong'] && array( 'dung' => 36, 'khong_dau' => 1, 'go_do' => 1 ) === $s203_a['nhom'], $s203_a['nhom'] );

@@ -46,7 +46,7 @@ final class Tim {
 		if ( $dang_go ) { $loc['trang'] = 1; }
 		$kq = TimDoc::tim( $q, $loc, $dang_go, self::SO );
 		$loc['trang'] = $kq['trang'];
-		$muc = self::muc_tu( $q );
+		$muc = self::muc_tu( $q, $loc['khop'], $dang_go );
 		$tong = $kq['tong'];
 		$nhom = array( 'dung' => 'Khớp trọn chữ', 'khong_dau' => 'Mở rộng không dấu', 'go_do' => 'Gợi ý theo đầu chữ' );
 		$bo = $dang_go ? '<p class="notice">Gợi ý khi đang gõ. Bấm Tìm để tìm trọn chữ.</p>' : '<nav class="row" aria-label="Kiểu khớp">';
@@ -125,7 +125,8 @@ final class Tim {
 	}
 
 	/** Mục từ có tên khớp truy vấn (đệm một giờ). @return string[] HTML từng mục */
-	private static function muc_tu( string $q ): array {
+	private static function muc_tu( string $q, string $khop = 'dung', bool $dang_go = false ): array {
+		$chu = ChiMuc::chu( $q );
 		$kd = ChiMuc::khong_dau( ChiMuc::chu( $q ) );
 		if ( mb_strlen( $kd ) < 2 ) {
 			return array();
@@ -143,6 +144,8 @@ final class Tim {
 		foreach ( array_slice( $ten[ $kd ] ?? array(), 0, 5 ) as $id ) {
 			$t = get_term( $id, 'muc_tu' );
 			if ( $t instanceof \WP_Term ) {
+				$khac_dau = $chu !== $kd && ChiMuc::chu( $t->name ) !== $chu;
+				if ( ! $dang_go && ( 'go_do' === $khop || ( 'khong_dau' === $khop ) !== $khac_dau ) ) { continue; }
 				$giai = wp_trim_words( wp_strip_all_tags( $t->description ), 20 );
 				$ra[] = '<li><a href="' . esc_url( (string) get_term_link( $t ) ) . '"><strong>' . esc_html( $t->name ) . '</strong></a>' . ( '' === $giai ? '' : ' — ' . esc_html( $giai ) ) . ' <span class="small muted">(' . (int) $t->count . ' bài)</span></li>';
 			}
