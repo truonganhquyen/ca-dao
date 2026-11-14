@@ -1,6 +1,6 @@
 # Bộ lọc Tìm gọn — D-113
 
-Người sáng lập duyệt 14/11/2026: máy tính hiện hai ô chọn **Cách khớp · Thể loại** và nút **Áp dụng** trên một hàng, nền nhẹ; điện thoại mặc định thu vào **Bộ lọc**, luôn có dòng tóm tắt lựa chọn. Số bài ở trong lựa chọn; **Đặt lại** chỉ hiện khi khác mặc định, giữ từ khoá và về trang 1. Không kết quả thì mở sẵn bộ lọc và chỉ lối sang phạm vi còn bài. Giữ vùng chạm 44 px, bàn phím và hoạt động khi tắt JavaScript.
+Người sáng lập duyệt 14/11/2026: máy tính hiện hai ô chọn **Cách khớp · Thể loại** và nút **Áp dụng** trên một hàng, nền nhẹ; điện thoại mặc định thu vào **Bộ lọc**, luôn có dòng tóm tắt lựa chọn. Số bài ở trong lựa chọn; **Đặt lại** chỉ hiện khi khác mặc định, giữ từ khoá và về trang 1. Không kết quả thì mở sẵn bộ lọc và chỉ lối sang phạm vi còn bài. Giữ vùng chạm 44 px, bàn phím và hoạt động khi tắt JavaScript. Plugin 1.0.63/theme 1.0.10, [PR #177](https://github.com/truonganhquyen/ca-dao/pull/177).
 
 Trước sửa, đo trên site thật ở 390 px: hai hàng liên kết lọc cao 336 px, thẻ đầu bắt đầu tại y=818 px. Mục tiêu mặc định sau sửa: phần số bài và bộ lọc thu gọn không quá 100 px trên màn 390 px, thẻ đầu nằm trong màn hình đầu.
 
@@ -21,3 +21,15 @@ Trước sửa, đo trên site thật ở 390 px: hai hàng liên kết lọc ca
 - Bật/tắt JavaScript: chọn đồng thời cách khớp và thể loại, sửa từ khoá rồi Áp dụng gửi đúng cả ba giá trị; không mang trang cũ. Tìm và Enter dùng cùng lựa chọn.
 - Sau phân trang, các select giữ lựa chọn; Đặt lại giữ `q`, xoá hai lựa chọn, về trang 1. Trường hợp 0 kết quả tự mở và có liên kết sang phạm vi còn bài.
 - Hồi quy trong `test:v2`, `quet:v2`, `e2e:v2` hiện có; đủ bốn cổng trước gộp. Kết quả thực tế cập nhật khi chạy xong; chưa coi mã trên nhánh là phiên bản site.
+
+## Kết quả nghiệm thu 14/11/2026
+
+- `kiem-tra`: 166 task, 1 câu hỏi mở, 0 lỗi.
+- `test:v2`: 273 ca PHP thuần, 628 ca WordPress Playground, 55 ca chuyển đổi đạt trên CI. PHP thuần 2,6 giây trên CI, dưới ngưỡng 5 giây.
+- `quet:v2`: 43 trang × 3 chế độ, 16 trang × 2 chế độ 320 px, các màn biên tập/admin/trang sửa; 0 lỗi. Trang bài dùng 9,6 KB JavaScript, trang Tìm 10,6 KB, dưới 21 KB.
+- `e2e:v2`: 68/68 bước, 0 lỗi, 0 bỏ qua trong [lượt CI đầy đủ](https://github.com/truonganhquyen/ca-dao/actions/runs/43593950385). Gồm chọn hai ô rồi Áp dụng/Đặt lại và bàn phím ở 320/390/1440 px, bật/tắt JavaScript. Lượt CI trước có hai lỗi chờ chuyển trang ở thao tác Lô wp-admin, không tính là đạt; giữ nguyên kiểm thao tác hàng loạt.
+- Xem trực tiếp bản thử 390 px: phần số bài và bộ lọc thu gọn cao 70,5 px; thẻ đầu bắt đầu ở y=516 px, nằm trong màn 844 px. Đây là dữ liệu mẫu, chưa phải phép đo trên site thật với truy vấn gốc. Máy tính 1440 px: hai select và Áp dụng cùng hàng, Đặt lại chỉ hiện khi có lựa chọn khác mặc định.
+- Kiểm trực tiếp luồng GET khi bật/tắt JavaScript: thay từ khoá và chọn đồng thời hai ô gửi đúng cả ba giá trị; Đặt lại giữ từ khoá, về trang 1 và tự mở khi 0 kết quả. Gõ gợi ý rồi Enter giữ thể loại và trạng thái đang mở.
+- Lượt tại Windows đầu có ca PHP đúng nhưng quá ngưỡng thời gian; một lượt khác thiếu bộ nhớ khi chạy nhiều Playground. Bộ quét bị ảnh hưởng đã dừng, không tính là đạt; không hạ ngưỡng hay bỏ bước. Kết quả bốn cổng trên CI độc lập là căn cứ gộp.
+
+CI của head cuối phải đạt trước khi gộp. Kiểm phiên bản và UI site thật chỉ đọc sau gộp ghi trong PR; chưa dùng kiểm bản thử để khẳng định site đã cập nhật. Pilot T-198/H2 vẫn chờ người biên soạn.
