@@ -11,7 +11,11 @@ final class UuTienDoc {
 		if ( 'cau-do' === $loai ) {
 			return $chu( 'dap_an' ) ? ( $giai ? 2 : 1 ) : 0;
 		}
-		if ( $giai || $chu( 'nghia_den' ) || $chu( 'nghia_bong' ) || $chu( 'hinh_anh' ) || $chu( 'boi_canh' ) ) {
+		$boi_canh = array_filter(
+			array_intersect_key( (array) ( $phan['boi_canh'] ?? array() ), array_flip( array( 'chu', 'su_kien', 'nam', 'noi' ) ) ),
+			static fn( $s ): bool => is_scalar( $s ) && '' !== trim( (string) $s )
+		);
+		if ( $giai || $chu( 'nghia_den' ) || $chu( 'nghia_bong' ) || $chu( 'hinh_anh' ) || $boi_canh ) {
 			return 2;
 		}
 		foreach ( $phan['chu_thich']['muc'] ?? array() as $m ) {
