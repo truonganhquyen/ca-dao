@@ -179,7 +179,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-206 | Bộ lọc Tìm gọn: hai select cùng hàng trên máy tính, thu gọn trên điện thoại, chung form GET, giữ trạng thái và lối ra khi 0 kết quả (D-113, docs/40; PR #177) | A | T-203 | — | DONE |
 | T-204 | Trang thưa gọn (D-114): Hiểu thêm trống một dòng; "Bạn muốn góp gì?" bốn lối, thu gọn; "Ảnh để chia sẻ" thu gọn; Từ khó bài chia đoạn nhóm theo đoạn; lời mời "câu"/"bài"; Bổ sung "Ý nghĩa dài" | A | T-202 | — | DONE |
 | T-205 | Dọn Chủ đề (D-114): máy lập bảng đề xuất từng mục (giữ / gộp / bỏ), người duyệt từng dòng, đường cũ chuyển hướng 301, có Lịch sử; trang Chủ đề xếp theo nhóm của bộ chủ đề | A | T-204 | — | DONE |
-| T-207 | Thùng rác: thao tác một/nhiều bài, Khôi phục, xoá vĩnh viễn có xem trước/xác nhận; đối soát chờ trùng mất thẻ hoặc cờ sót (D-115, docs/41), không chuyển tác phẩm thành dị bản | A | T-205, T-206 | — | IN_PROGRESS |
+| T-207 | Thùng rác: thao tác một/nhiều bài, Khôi phục, xoá vĩnh viễn có xem trước/xác nhận; đối soát chờ trùng mất thẻ hoặc cờ sót (D-115, docs/41, PR #180), không chuyển tác phẩm thành dị bản | A | T-205, T-206 | — | DONE |
 | **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
 | T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
 | T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | IN_PROGRESS |
