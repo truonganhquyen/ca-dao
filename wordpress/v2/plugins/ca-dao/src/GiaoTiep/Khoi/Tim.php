@@ -97,6 +97,7 @@ final class Tim {
 			$the['ly_do'] = $x['roi'] ? $trich['nhan'] . ' · Các chữ không liền nhau' : $trich['nhan'];
 			$html = DanhSach::the( $the );
 			if ( $noi === $bai->ID ) {
+				$html = str_replace( array( '<h3>', '</h3>' ), array( '<h2>', '</h2>' ), $html );
 				$dau = '<section class="section result-primary"><p class="eyebrow">Khớp cả câu · ' . esc_html( $the['ten_the_loai'] ) . '</p>' . $html . '<a class="btn primary" href="' . esc_url( $the['url'] ) . '">Đọc bài</a></section>';
 			} else { $dong .= $html; }
 		}
