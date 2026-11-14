@@ -170,6 +170,16 @@ Cách chơi Wikipedia — <bài> · CC BY-SA 4.0
 
 Tên khối: **"Lời này từ đâu?"** (D-093), nền giấy đất nhạt, thu gọn mặc định; liên kết "Lời này từ đâu?" trong ⓘ mở khối. Liên kết nguồn đã ẩn không có trong HTML gửi người đọc; người biên soạn đăng nhập thấy thêm "Chỉ người biên soạn thấy dòng này · Nguồn đã ẩn: …". Ghi công giấy phép mở vẫn ngay tại chỗ (dưới ảnh, dưới đoạn chép).
 
+### 6.8. Bài có từ ngữ thô tục (D-111)
+
+Người biên soạn bật công tắc "Có từ ngữ thô tục" ở trang Sửa tác phẩm; máy không bật. Bài đang bật:
+
+- **Trang bài:** tiêu đề "<Thể loại> có từ ngữ thô tục", đường dẫn vị trí "Bài có từ ngữ thô tục"; lời, công cụ đọc và các tầng sau nằm trong một khối đóng sẵn: lời báo **"Bài có từ ngữ thô tục - cân nhắc khi xem."** + nút **"Hiển thị lời"** (mở rồi thành "Ẩn lời"). Phần tử details: tắt JavaScript vẫn mở được, bàn phím và trình đọc màn hình đọc lời báo trước; chữ thật không bị làm mờ mà không hiện đến khi mở. Người biên soạn ở chế độ sửa thấy khối mở sẵn, tên thật.
+- **Thẻ bài** (danh sách, Từ điển, Tìm), **kết quả khớp cả câu**, **mục tuyển tập:** tên, lời, ý nghĩa trong cùng kiểu khối đóng; nút Đọc không đọc to tên bài.
+- **Không vào** Vừa bổ sung, Câu hôm nay, Một câu ngẫu nhiên, Đọc tiếp; không có nút Đọc cùng bé.
+- **Chia sẻ link:** ảnh xem trước là ảnh chung của thư viện, mô tả trung tính. Tên trên tab trình duyệt và dữ liệu có cấu trúc giữ nguyên.
+- Lời không bao giờ bị sửa, che chữ hay thay chữ.
+
 ## 7. Khám phá và tra cứu
 
 ### 7.1. Tuyển tập (S12)

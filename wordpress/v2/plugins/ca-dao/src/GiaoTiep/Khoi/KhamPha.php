@@ -87,7 +87,7 @@ final class KhamPha {
 				: '<section class="section"><h2 class="sr-only">Các mục</h2><div class="tiles">' . $o . '</div></section>' );
 	}
 
-	/** /ngau-nhien/ (R20): một bài đã đăng, không có cờ nghi; "Câu khác" là liên kết (chạy cả khi tắt JavaScript). */
+	/** /ngau-nhien/ (R20): một bài đã đăng, không có cờ nghi, không có từ ngữ thô tục (D-111); "Câu khác" là liên kết (chạy cả khi tắt JavaScript). */
 	private static function ngau_nhien(): string {
 		$ds  = get_posts(
 			array(
@@ -95,7 +95,12 @@ final class KhamPha {
 				'post_status' => 'publish',
 				'numberposts' => 1,
 				'orderby'     => 'rand',
-				'meta_query'  => array( array( 'key' => '_phongdao_co_nghi', 'compare' => 'NOT EXISTS' ) ), // phpcs:ignore WordPress.DB.SlowDBQuery -- một bài, ít bài có cờ
+				// phpcs:ignore WordPress.DB.SlowDBQuery -- một bài, ít bài có cờ hoặc bị che
+				'meta_query'  => array(
+					'relation' => 'AND',
+					array( 'key' => '_phongdao_co_nghi', 'compare' => 'NOT EXISTS' ),
+					array( 'key' => '_phongdao_tho_tuc', 'compare' => 'NOT EXISTS' ),
+				),
 			)
 		);
 		$c   = $ds ? DocBai::the( $ds[0] ) : null;

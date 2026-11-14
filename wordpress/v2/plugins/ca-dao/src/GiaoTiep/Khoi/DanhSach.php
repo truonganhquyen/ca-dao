@@ -86,13 +86,16 @@ final class DanhSach {
 	/** Thẻ bài (bộ thiết kế: card trong common.mjs). */
 	public static function the( array $c ): string {
 		$dong = implode( '', array_map( static fn( string $d ): string => '<span class="dong">' . esc_html( $d ) . '</span>', $c['dong'] ) );
+		$than = '<h3><a href="' . esc_url( $c['url'] ) . '">' . esc_html( $c['tieu_de'] ) . '</a></h3>'
+			. '<p class="serif dong-wrap">' . $dong . '</p>'
+			. ( '' === $c['y_nghia'] ? '' : '<p class="muted">' . esc_html( $c['y_nghia'] ) . '</p>' );
+		// Có từ ngữ thô tục (D-111): tên, lời, ý nghĩa nằm trong khối đóng; nút Đọc không đọc to tên bài
+		$tho  = ! empty( $c['tho_tuc'] );
 		return '<article class="card g-' . esc_attr( $c['the_loai'] ?: 'ca-dao' ) . '">'
 			. ( $c['ten_the_loai'] ? '<span class="tag">' . esc_html( $c['ten_the_loai'] ) . '</span>' : '' )
 			. ( $c['co_nghi'] ? '<p class="flag">Có thể không phải dân gian · <a href="' . esc_url( $c['url'] . '#vi-sao' ) . '">Vì sao?</a></p>' : '' )
-			. '<h3><a href="' . esc_url( $c['url'] ) . '">' . esc_html( $c['tieu_de'] ) . '</a></h3>'
-			. '<p class="serif dong-wrap">' . $dong . '</p>'
-			. ( '' === $c['y_nghia'] ? '' : '<p class="muted">' . esc_html( $c['y_nghia'] ) . '</p>' )
-			. '<div class="row between"><span class="small muted">' . esc_html( (string) ( $c['ly_do'] ?? '' ) ) . '</span><a class="btn compact ghost" href="' . esc_url( $c['url'] ) . '" aria-label="' . esc_attr( 'Đọc: ' . $c['tieu_de'] ) . '">Đọc ' . Ve::icon( 'arrow' ) . '</a></div></article>';
+			. ( $tho ? Ve::che_tho_tuc( $than ) : $than )
+			. '<div class="row between"><span class="small muted">' . esc_html( (string) ( $c['ly_do'] ?? '' ) ) . '</span><a class="btn compact ghost" href="' . esc_url( $c['url'] ) . '" aria-label="' . esc_attr( $tho ? 'Đọc bài có từ ngữ thô tục' : 'Đọc: ' . $c['tieu_de'] ) . '">Đọc ' . Ve::icon( 'arrow' ) . '</a></div></article>';
 	}
 
 	private static function duong_dan( string $ten ): string {

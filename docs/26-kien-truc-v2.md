@@ -148,6 +148,7 @@ Mỗi phần (hoặc mỗi mục trong phần dạng danh sách) mang:
 | `media` | danh sách `{attachment_id, loai: anh / giong_may / giong_nguoi}` | mọi | `nguoi_viet` |
 | `ban_co_biet` | `{chu, ai}` | mọi | `nguoi_viet`, `ai_da_duyet` (máy ghép từ chú thích) |
 | `co_nghi` | `{ly_do}` | mọi | `nguoi_viet` (máy chỉ gợi ý) |
+| `tho_tuc` | `{}` — có phần là bật (D-111): trang đọc, thẻ bài che lời sau lời báo "Hiển thị lời"; bài không vào trang chủ, Câu hôm nay, Một câu ngẫu nhiên, Đọc tiếp; ảnh và mô tả khi chia sẻ link không in lời | mọi | `nguoi_viet` (máy không bật) |
 | `sgk` | danh sách `{bo_sach, lop, bai, trang?}` | mọi | `nguoi_viet` (chỉ khi đã thấy sách) |
 | `nguon_may` | `{nguon_id, url_goc, ma_goc, ngay_lay}` — **nội bộ**, không bao giờ có trong HTML gửi người đọc | mọi | máy ghi khi người bấm Đăng từ thẻ "Câu mới" |
 

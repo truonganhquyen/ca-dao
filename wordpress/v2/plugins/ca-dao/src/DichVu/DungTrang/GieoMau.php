@@ -71,11 +71,20 @@ final class GieoMau {
 				'dap_an' => array( 'chu' => 'Đáp án mẫu', 'nguoi_lam' => NguoiLam::NGUOI_VIET ),
 			),
 		),
+		// Bài mẫu đã bật "Có từ ngữ thô tục" (D-111) để thử khối che trên bản xem trước; chữ kỹ thuật, không có từ thô tục thật
+		'cau-mau-co-tu-can-che' => array(
+			'the_loai' => 'ca-dao',
+			'tieu_de'  => 'Câu mẫu có từ cần che',
+			'phan'     => array(
+				'loi'     => array( 'dong' => array( 'Câu mẫu có từ cần che dòng một', 'Dòng hai của câu mẫu được che lại' ), 'nguoi_lam' => NguoiLam::NGUOI_VIET ),
+				'tho_tuc' => array( 'nguoi_lam' => NguoiLam::NGUOI_VIET ),
+			),
+		),
 	);
 
 	/**
 	 * Mục từ và tuyển tập mẫu (trang Từ điển, Tuyển tập) — gọi sau gieo(). Tuyển tập mẫu loại Tình huống (ngưỡng công
-	 * khai 2 câu, bộ mẫu chỉ có 6 tác phẩm). @return array{muc_tu:int,tuyen_tap:int}
+	 * khai 2 câu, bộ mẫu chỉ có 7 tác phẩm). @return array{muc_tu:int,tuyen_tap:int}
 	 */
 	public static function gieo_tra_cuu( int $nguoi ): array {
 		$bai = self::gieo( $nguoi );

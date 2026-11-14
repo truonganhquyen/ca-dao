@@ -61,9 +61,12 @@ final class Tim {
 				continue;
 			}
 			if ( 0 === $i && $x['lien'] && ( $tp = DocBai::tac_pham( $bai ) ) ) {
-				$dau = '<section class="section result-primary"><p class="eyebrow">Khớp cả câu · ' . esc_html( $tp['ten_the_loai'] ) . '</p><h2><a href="' . esc_url( $tp['url'] ) . '">' . esc_html( $tp['tieu_de'] ) . '</a></h2>'
+				$than_dau = '<h2><a href="' . esc_url( $tp['url'] ) . '">' . esc_html( $tp['tieu_de'] ) . '</a></h2>'
 					. Ve::loi( array_slice( $tp['loi'], 0, 4 ), $tp['kieu'], array(), array( 'nhom' => 'tim-dau' ) )
-					. ( empty( $tp['y_nghia']['chu'] ) ? '' : '<p>' . esc_html( $tp['y_nghia']['chu'] ) . '</p>' )
+					. ( empty( $tp['y_nghia']['chu'] ) ? '' : '<p>' . esc_html( $tp['y_nghia']['chu'] ) . '</p>' );
+				// Có từ ngữ thô tục (D-111): tên, lời, ý nghĩa nằm trong khối đóng
+				$dau = '<section class="section result-primary"><p class="eyebrow">Khớp cả câu · ' . esc_html( $tp['ten_the_loai'] ) . '</p>'
+					. ( empty( $tp['tho_tuc'] ) ? $than_dau : Ve::che_tho_tuc( $than_dau ) )
 					. '<a class="btn primary" href="' . esc_url( $tp['url'] ) . '">Đọc bài ' . Ve::icon( 'arrow' ) . '</a></section>';
 				continue;
 			}

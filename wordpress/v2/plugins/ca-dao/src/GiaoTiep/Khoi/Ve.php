@@ -347,4 +347,19 @@ final class Ve {
 	public static function khoi_gon( string $tieu_de, string $than, string $id, string $mau ): string {
 		return '<details class="block tint-' . esc_attr( $mau ) . '" id="' . esc_attr( $id ) . '"><summary>' . $tieu_de . '</summary><div class="detail-body">' . $than . '</div></details>';
 	}
+
+	/** Lời báo của bài có từ ngữ thô tục (D-111), đúng chữ người sáng lập chốt. */
+	public const BAO_THO_TUC = 'Bài có từ ngữ thô tục - cân nhắc khi xem.';
+
+	/**
+	 * Che phần có lời của bài có từ ngữ thô tục (D-111): khối đóng sẵn, bấm "Hiển thị lời" mới mở. Dùng phần tử details của
+	 * trình duyệt nên tắt JavaScript vẫn mở được, bàn phím và trình đọc màn hình dùng được; nội dung có trong HTML nhưng không
+	 * hiện, không được đọc to đến khi mở (không làm mờ chữ thật). Lời không bị sửa. $mo: mở sẵn (người biên soạn ở chế độ sửa).
+	 */
+	public static function che_tho_tuc( string $than, bool $mo = false, string $lop = '' ): string {
+		return '<details class="tho-tuc' . ( '' === $lop ? '' : ' ' . esc_attr( $lop ) ) . '"' . ( $mo ? ' open' : '' ) . '><summary>'
+			. '<span class="tho-tuc-bao">' . esc_html( self::BAO_THO_TUC ) . '</span>'
+			. '<span class="btn compact tho-tuc-nut"><span class="tho-tuc-hien">Hiển thị lời</span><span class="tho-tuc-an">Ẩn lời</span></span>'
+			. '</summary><div class="tho-tuc-than">' . $than . '</div></details>';
+	}
 }

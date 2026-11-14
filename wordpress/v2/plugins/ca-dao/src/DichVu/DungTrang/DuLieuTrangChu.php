@@ -23,7 +23,7 @@ final class DuLieuTrangChu implements Module {
 		add_action(
 			'phongdao_da_luu_phan',
 			static function ( int $bai, string $phan ): void {
-				if ( 'loi' === $phan ) {
+				if ( 'loi' === $phan || 'tho_tuc' === $phan ) {
 					delete_transient( self::DEM );
 				}
 			},
@@ -42,7 +42,7 @@ final class DuLieuTrangChu implements Module {
 		);
 	}
 
-	/** Dữ liệu trang tác phẩm của Câu hôm nay, hoặc null khi chưa có bài nào hợp. */
+	/** Dữ liệu trang tác phẩm của Câu hôm nay, hoặc null khi chưa có bài nào hợp. Không chọn bài có từ ngữ thô tục (D-111). */
 	public static function cau_hom_nay(): ?array {
 		$ds = get_transient( self::DEM );
 		if ( ! is_array( $ds ) ) {
@@ -50,7 +50,7 @@ final class DuLieuTrangChu implements Module {
 			$ids = get_posts( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'numberposts' => -1, 'fields' => 'ids', 'orderby' => 'ID', 'order' => 'ASC' ) );
 			update_meta_cache( 'post', $ids );
 			foreach ( $ids as $id ) {
-				if ( CauHomNay::hop_le( PhanBai::lay( (int) $id, 'loi' )['dong'] ?? array() ) ) {
+				if ( null === PhanBai::lay( (int) $id, 'tho_tuc' ) && CauHomNay::hop_le( PhanBai::lay( (int) $id, 'loi' )['dong'] ?? array() ) ) {
 					$ds[] = (int) $id;
 				}
 			}
@@ -58,7 +58,7 @@ final class DuLieuTrangChu implements Module {
 		}
 		$id  = CauHomNay::chon( $ds, wp_date( 'Y-m-d' ) );
 		$bai = $id ? get_post( $id ) : null;
-		return $bai && 'publish' === $bai->post_status ? DocBai::tac_pham( $bai ) : null;
+		return $bai && 'publish' === $bai->post_status && null === PhanBai::lay( $bai->ID, 'tho_tuc' ) ? DocBai::tac_pham( $bai ) : null;
 	}
 
 	/** @return array<string,int> mã thể loại => số bài đã đăng (thể loại 0 bài không có mặt) */
@@ -73,12 +73,12 @@ final class DuLieuTrangChu implements Module {
 		return $ra;
 	}
 
-	/** Thẻ các bài mới đăng gần nhất. */
+	/** Thẻ các bài mới đăng gần nhất (bỏ bài có từ ngữ thô tục, D-111). */
 	public static function vua_bo_sung( int $so = 2 ): array {
 		$ra = array();
 		foreach ( get_posts( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'numberposts' => $so * 2, 'orderby' => 'date', 'order' => 'DESC' ) ) as $bai ) {
 			$the = DocBai::the( $bai );
-			if ( $the && count( $ra ) < $so ) {
+			if ( $the && empty( $the['tho_tuc'] ) && count( $ra ) < $so ) {
 				$ra[] = $the;
 			}
 		}

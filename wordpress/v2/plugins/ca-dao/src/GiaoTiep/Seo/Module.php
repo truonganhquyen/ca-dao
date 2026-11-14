@@ -117,13 +117,20 @@ final class Module implements \Phongdao\HaTang\Module {
 		return rtrim( false !== $c && $c > $toi_da / 2 ? mb_substr( $s, 0, $c ) : $s, " ,;:.-—" ) . '…';
 	}
 
-	/** Mô tả tác phẩm: từ ý nghĩa; chưa có thì hai dòng đầu + thể loại (không hứa điều trang không có). */
+	/**
+	 * Mô tả tác phẩm: từ ý nghĩa; chưa có thì hai dòng đầu + thể loại (không hứa điều trang không có). Bài có từ ngữ thô tục
+	 * (D-111): mô tả trung tính, không trích lời hay ý nghĩa (mô tả này hiện trong ô xem trước khi chia sẻ link).
+	 */
 	public static function mo_ta_tac_pham( int $id ): string {
 		$p = get_post( $id );
 		if ( ! $p ) {
 			return '';
 		}
-		$y = (string) ( PhanBai::lay( $id, 'y_nghia' )['chu'] ?? PhanBai::lay( $id, 'nghia_bong' )['chu'] ?? '' );
+		if ( null !== PhanBai::lay( $id, 'tho_tuc' ) ) {
+			$tl = DocBai::the_loai( $p );
+			return ( $tl ? TheLoai::DS[ $tl ] : 'Bài' ) . ' có từ ngữ thô tục được truyền miệng trong đời sống. Mở trang để xem lời.';
+		}
+		$y =(string) ( PhanBai::lay( $id, 'y_nghia' )['chu'] ?? PhanBai::lay( $id, 'nghia_bong' )['chu'] ?? '' );
 		if ( '' !== $y ) {
 			return self::cat( $y );
 		}
@@ -237,7 +244,7 @@ final class Module implements \Phongdao\HaTang\Module {
 				array( 'property', 'og:image', $anh['url'] ),
 				array( 'property', 'og:image:width', (string) $anh['rong'] ),
 				array( 'property', 'og:image:height', (string) $anh['cao'] ),
-				array( 'property', 'og:image:alt', $bai instanceof \WP_Post ? 'Lời “' . $bai->post_title . '” — ' . get_bloginfo( 'name' ) : get_bloginfo( 'name' ) ),
+				array( 'property', 'og:image:alt', $bai instanceof \WP_Post && null === PhanBai::lay( $bai->ID, 'tho_tuc' ) ? 'Lời “' . $bai->post_title . '” — ' . get_bloginfo( 'name' ) : get_bloginfo( 'name' ) ),
 				array( 'name', 'twitter:card', 'summary_large_image' )
 			);
 		}

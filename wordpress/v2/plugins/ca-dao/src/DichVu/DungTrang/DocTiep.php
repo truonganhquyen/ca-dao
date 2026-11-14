@@ -3,13 +3,14 @@
 namespace Phongdao\DichVu\DungTrang;
 
 use Phongdao\HaTang\KhaiBao;
+use Phongdao\MienDuLieu\Phan;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
  * "Đọc tiếp" cuối trang bài (docs/27 mục 6; chuyển từ MVP doc-tiep.php): 3–5 bài đã đăng cùng mô-típ, cùng chủ đề,
  * cùng nhắc một mục từ, cùng vùng — mỗi bài kèm lý do; thiếu thì thêm bài cùng thể loại đăng gần đó. Chỉ dùng phân
- * loại có sẵn, không gợi ý theo nghĩa.
+ * loại có sẵn, không gợi ý theo nghĩa. Bỏ bài có từ ngữ thô tục (D-111).
  */
 final class DocTiep {
 
@@ -40,6 +41,8 @@ final class DocTiep {
 			$cua_bai[ $tax ] = taxonomy_exists( $tax ) ? wp_list_pluck( $cua( $bai->ID, $tax ), 'term_id' ) : array();
 		}
 		$chung = array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'no_found_rows' => true, 'ignore_sticky_posts' => true );
+		// Bỏ bài có từ ngữ thô tục (D-111) bằng PHP trên tập ứng viên nhỏ, không thêm điều kiện meta vào truy vấn
+		$bi_che = static fn( int $id ): bool => metadata_exists( 'post', $id, Phan::khoa( 'tho_tuc' ) );
 		$diem  = array();
 		$ly_do = array();
 		$ra    = array();
@@ -56,6 +59,9 @@ final class DocTiep {
 				'vung'   => static fn( $t ) => 'Cùng vùng ' . $t->name,
 			);
 			foreach ( $ung_vien as $p ) {
+				if ( $bi_che( $p->ID ) ) {
+					continue;
+				}
 				$d = 0;
 				foreach ( $cua_bai as $tax => $ids ) {
 					if ( ! $ids ) {
@@ -75,7 +81,7 @@ final class DocTiep {
 			uksort( $diem, static fn( $a, $b ) => array( $diem[ $b ], $moi_hon[ $a ] ) <=> array( $diem[ $a ], $moi_hon[ $b ] ) );
 			foreach ( array_slice( array_keys( $diem ), 0, self::TOI_DA ) as $id ) {
 				$the = DocBai::the( get_post( $id ) );
-				if ( $the ) {
+				if ( $the && empty( $the['tho_tuc'] ) ) { // không gợi ý bài có từ ngữ thô tục (D-111)
 					$ra[] = $the + array( 'ly_do' => $ly_do[ $id ] );
 				}
 			}
@@ -94,17 +100,21 @@ final class DocTiep {
 						KhaiBao::TAC_PHAM,
 						(int) $tl[0],
 						$bai->ID,
-						$thieu - count( $gan )
+						$thieu - count( $gan ) + 5 // dư vài bài để bù bài bị che
 					)
 				);
-				$gan = array_merge( $gan, array_map( 'intval', $ids ) );
+				foreach ( array_map( 'intval', $ids ) as $x ) {
+					if ( count( $gan ) < $thieu && ! $bi_che( $x ) ) {
+						$gan[] = $x;
+					}
+				}
 				if ( count( $gan ) >= $thieu ) {
 					break;
 				}
 			}
 			foreach ( $gan as $id ) {
 				$the = DocBai::the( get_post( $id ) );
-				if ( $the ) {
+				if ( $the && empty( $the['tho_tuc'] ) ) { // không gợi ý bài có từ ngữ thô tục (D-111)
 					$ra[] = $the + array( 'ly_do' => 'Cùng thể loại ' . mb_strtolower( $the['ten_the_loai'] ) );
 				}
 			}

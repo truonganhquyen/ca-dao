@@ -24,9 +24,13 @@ final class TacPham {
 		$tu        = array_values( array_filter( array_column( $tp['chu_thich'], 'tu' ) ) );
 		$tuc_ngu   = 'proverb' === $tp['kieu'];
 		$cau_do    = 'cau-do' === $tp['the_loai'];
+		// Có từ ngữ thô tục (D-111): lời, công cụ và các tầng sau nằm trong khối đóng "Hiển thị lời"; tên trên trang trung tính.
+		// Người biên soạn ở chế độ sửa thấy đủ (khối mở sẵn, tên thật).
+		$tho       = ! empty( $tp['tho_tuc'] );
+		$che       = $tho && ! $sua;
 		// Tục ngữ dài (từ 3 dòng, hoặc hơn khoảng 60 chữ cái): hiện như ca dao — tên là dòng đầu, lời đủ trong khung lời;
-		// câu ngắn giữ kiểu "câu là tiêu đề" (D-105)
-		$cau_dai   = $tuc_ngu && ( count( $tp['loi'] ) >= 3 || mb_strlen( (string) preg_replace( '/[^\p{L}]/u', '', implode( '', $tp['loi'] ) ) ) > 60 );
+		// câu ngắn giữ kiểu "câu là tiêu đề" (D-105). Bài thô tục luôn hiện lời trong khung để che được.
+		$cau_dai   = $tuc_ngu && ( $tho || count( $tp['loi'] ) >= 3 || mb_strlen( (string) preg_replace( '/[^\p{L}]/u', '', implode( '', $tp['loi'] ) ) ) > 60 );
 		$cau_ten   = $tuc_ngu && ! $cau_dai;
 		$anh = (string) ( $tp['anh_minh_hoa_html'] ?? '' );
 		$kieu      = $cau_dai ? '' : $tp['kieu'];
@@ -40,6 +44,9 @@ final class TacPham {
 		$tieu_de = $cau_ten
 			? str_replace( array( '<div', '</div>' ), array( '<span', '</span>' ), Ve::loi( $tp['loi'], 'proverb', $tu, array( 'max' => '48' ) ) )
 			: esc_html( $cau_dai ? (string) ( $tp['loi'][0] ?? $tp['tieu_de'] ) : $tp['tieu_de'] );
+		if ( $che ) {
+			$tieu_de = esc_html( ( $tp['ten_the_loai'] ?: 'Bài' ) . ' có từ ngữ thô tục' );
+		}
 		$y = empty( $tp['y_nghia']['chu'] )
 			// Tục ngữ: chuẩn là khối Nghĩa (đen, bóng, dùng khi) — bài mới không có ô Ý nghĩa riêng; bài cũ có Ý nghĩa vẫn hiện
 			? ( $sua && $tuc_ngu ? '' : ( $sua ? '<div class="meaning trong" data-chi-sua><div class="meaning-head"><h2>Ý nghĩa</h2>' . $nut( 'y_nghia', 'Thêm ý nghĩa' ) . '</div><p class="small muted">Chưa có ý nghĩa' . ( $sua['nhap'] ? ' · có ' . count( $sua['nhap'] ) . ' nháp chờ duyệt trong Hộp việc' : '' ) . '.</p></div>'
@@ -61,7 +68,7 @@ final class TacPham {
 		$sua_ve   = $sua && 've' === $tp['the_loai']
 			? '<p class="row no-print">' . $nut( 'boi_canh', empty( $sua['phan']['boi_canh'] ) ? 'Thêm bối cảnh' : 'Sửa bối cảnh' ) . $nut( 'doan', empty( $sua['phan']['doan'] ) ? 'Chia đoạn' : 'Sửa đoạn' ) . '</p>'
 			: '';
-		$be       = 'dong-dao' === $tp['the_loai'] ? '<p class="row no-print"><button type="button" class="btn" data-action="kids" data-chi-js hidden>' . Ve::icon( 'kids' ) . 'Đọc cùng bé</button></p>' : '';
+		$be       = 'dong-dao' === $tp['the_loai'] && ! $tho ? '<p class="row no-print"><button type="button" class="btn" data-action="kids" data-chi-js hidden>' . Ve::icon( 'kids' ) . 'Đọc cùng bé</button></p>' : '';
 		$than_loi = $cau_ten
 			? $goc( 'Lời', 'loi' ) . $muc_kiem . $y
 			: $sua_ve . $boi_canh . $be
@@ -167,15 +174,16 @@ final class TacPham {
 			. self::tu_lieu( $tp ) . AnhChiaSe::hien( $tp ) . '</section>'
 			. ( $bai_that ? GopTuLieu::cuoi_bai( (int) $tp['ma'], 'da_gui' === $gui && ! $gui_ch ) : '' )
 			. ( $sua ? CheDoSua::lich_su( $sua ) : '' );
+		$bo_cuc = '<div class="work-layout"><div class="work-main">' . Ve::the_loi( $than_loi, $tp['url'], $cau_ten ? 'Ý nghĩa' : 'Lời', 'Lời và ý nghĩa', $nut( 'loi', 'Sửa lời' ) ) . '</div>' . Ve::cong_cu( $tp ) . '<div class="work-rest">' . $sau . '</div></div>';
 
 		return ( $sua ? CheDoSua::dai( $sua ) : '' )
-			. '<nav aria-label="Đường dẫn" class="breadcrumbs">' . Ve::lien_ket( 'trang-chu', 'Trang chủ' ) . '<span aria-hidden="true">/</span>' . Ve::lien_ket( $tp['the_loai'], esc_html( $tp['ten_the_loai'] ) ) . '<span aria-hidden="true">/</span><span>' . esc_html( $tp['tieu_de'] ) . '</span></nav>'
+			. '<nav aria-label="Đường dẫn" class="breadcrumbs">' . Ve::lien_ket( 'trang-chu', 'Trang chủ' ) . '<span aria-hidden="true">/</span>' . Ve::lien_ket( $tp['the_loai'], esc_html( $tp['ten_the_loai'] ) ) . '<span aria-hidden="true">/</span><span>' . esc_html( $che ? 'Bài có từ ngữ thô tục' : $tp['tieu_de'] ) . '</span></nav>'
 			. '<header class="work-head">' . Ve::nhan_dau( $nhan ) . '<h1 class="read-title">' . $tieu_de . '</h1>'
 			// Cờ (D-105): "Có thể không phải dân gian", kèm "Vì sao?" mở lý do và nguồn người viết đã ghi
 			. ( empty( $tp['co_nghi'] ) ? '' : '<div class="co-nghi"><p class="flag">Có thể không phải dân gian</p><details class="disclosure vi-sao" id="vi-sao"><summary>Vì sao?</summary><div class="detail-body"><p>' . esc_html( $tp['co_nghi'] ) . '</p>'
 				. ( empty( $tp['co_nghi_nguon'] ) ? '' : '<p class="small">Nguồn: ' . ( empty( $tp['co_nghi_nguon']['url'] ) ? esc_html( $tp['co_nghi_nguon']['chu'] ) : '<a href="' . esc_url( $tp['co_nghi_nguon']['url'] ) . '" rel="nofollow">' . esc_html( $tp['co_nghi_nguon']['chu'] ) . '</a>' ) . '</p>' ) . '</div></details></div>' )
 			. '<p class="read-sub">' . Ve::so_lieu( $tp['so_lieu'] ) . '</p></header>'
-			. '<div class="work-layout"><div class="work-main">' . Ve::the_loi( $than_loi, $tp['url'], $cau_ten ? 'Ý nghĩa' : 'Lời', 'Lời và ý nghĩa', $nut( 'loi', 'Sửa lời' ) ) . '</div>' . Ve::cong_cu( $tp ) . '<div class="work-rest">' . $sau . '</div></div>'
+			. ( $tho ? Ve::che_tho_tuc( $bo_cuc, ! $che, 'tho-tuc-bai' ) : $bo_cuc )
 			. ( $sua ? CheDoSua::tam( $sua, (string) $tp['the_loai'] ) . ( ( $bai_sua = get_post( (int) $sua['id'] ) ) ? CheDoSua::tam_phan_loai( $bai_sua, (string) $tp['the_loai'] ) : '' ) . CheDoSua::tam_doi_chieu( $sua ) : '' );
 	}
 

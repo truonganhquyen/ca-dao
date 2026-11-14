@@ -174,6 +174,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-199 | Form Góp gọn theo loại, giữ chữ khi đổi loại/gửi lỗi, phản hồi rõ; kiểm đủ nhánh và luồng Hộp việc (`docs/35`) | A | T-197 | — | DONE |
 | T-200 | Tối ưu trang sửa đầy đủ: trạng thái/lưu, mục lục, danh sách dài, thể thơ người quyết và quản lý danh mục (`docs/36`) | A | T-199 | — | DONE |
 | T-201 | Editor đơn giản trong màn sửa hiện tại và quản trị sửa tên cuối URL tác phẩm, có lịch sử/kiểm phiên/chuyển hướng (`docs/37`, D-110) | A | T-200 | — | DONE |
+| T-202 | Công tắc "Có từ ngữ thô tục" mỗi bài: che lời sau lời báo "Hiển thị lời" ở trang đọc, thẻ, Tìm, tuyển tập; bỏ khỏi trang chủ, ngẫu nhiên, Đọc tiếp; chia sẻ link không in lời (D-111) | A | T-201 | — | DONE |
 | **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
 | T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
 | T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | IN_PROGRESS |
@@ -946,6 +947,10 @@ Người sáng lập yêu cầu triển khai toàn bộ đề xuất audit 13/11
 Phạm vi người sáng lập thu gọn trong D-110, tiêu chí ở `docs/37-editor-don-gian-va-url.md`. Giữ màn sửa hiện tại, thêm định dạng cho các vùng diễn giải và lời giải; lưu/khôi phục chữ và định dạng cùng phần, giữ nháp và kiểm phiên, không đưa HTML vào lời/dị bản. Quản trị chủ động sửa slug, xác nhận tác động, chặn tên trùng/tên cũ thuộc bài khác và bản mở cũ; giữ ID/trạng thái/nội dung, chuyển đường cũ tới bài công khai. Không triển khai nền nội dung, SEO plugin, loại bài hoặc quan hệ mới. Bốn cổng hiện có phải chạy đầy đủ, kiểm ghi dùng dữ liệu kỹ thuật trong WordPress mẫu; production chỉ đọc.
 
 Đã làm qua PR #173 (`1a27837`, plugin 1.0.60/theme 1.0.8): bốn cổng CI đạt, quét 0 lỗi, E2E 66/66 không bỏ qua. Ngày 13/11/2026 xác minh site đúng phiên bản và kiểm wp-admin chỉ đọc trên 3 tác phẩm × 390/1440 px: editor/URL đúng cấu trúc, tên/trạng thái nút rõ, quét 0 lỗi, không tràn hoặc tự phát sinh chữ chưa lưu; URL không đổi. Ghi định dạng/URL, lỗi, nonce, xung đột, khôi phục và no-JS thử trên WordPress mẫu. Xem `docs/37`; pilot T-198 tiếp tục chờ người biên soạn.
+
+### Từ ngữ thô tục — T-202
+
+Người sáng lập chốt ngày 14/11/2026 (D-111) bản đơn giản nhất: một công tắc mỗi bài, người bật tay, câu chữ "Bài có từ ngữ thô tục - cân nhắc khi xem." và nút "Hiển thị lời". Hành vi ở `docs/27` mục 6.8, phần `tho_tuc` ở `docs/26` mục 4.3. **Chấp nhận:** công tắc ở cột bên Sửa tác phẩm, lưu qua đường lưu một phần (kiểm phiên, Lịch sử; máy không bật được; bấm lại không ghi lịch sử giả); trang đọc, thẻ bài, Tìm, tuyển tập che tên và lời trong khối details đóng sẵn, tắt JavaScript vẫn mở; người biên soạn ở chế độ sửa thấy khối mở; bài không vào Vừa bổ sung, Câu hôm nay, Một câu ngẫu nhiên, Đọc tiếp; ảnh og và mô tả trung tính; bài không bật hiện như cũ. Hồi quy ở `wordpress/v2/tests/kiem-tho-tuc.php`. **Không làm:** danh sách từ, máy dò, ghi nhớ lựa chọn của người đọc, lời báo riêng cho câu đố tục giảng thanh, đổi tên trên tab trình duyệt. Không tự bật công tắc cho bài thật.
 
 ## 4. User story
 

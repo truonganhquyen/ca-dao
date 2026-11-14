@@ -40,6 +40,9 @@ final class Module implements \Phongdao\HaTang\Module {
 		if ( ! $tp ) {
 			return null;
 		}
+		if ( ! empty( $tp['tho_tuc'] ) ) {
+			return self::og_chung(); // có từ ngữ thô tục (D-111): ảnh xem trước khi chia sẻ link không in lời
+		}
 		$nd  = VeAnh::noi_dung( $tp );
 		$nen = VeAnh::nen_cua( (string) $tp['the_loai'] )[0];
 		return self::luu( (string) $bai->ID, $nd, $nen );

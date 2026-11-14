@@ -33,6 +33,7 @@
 
 ## Đang làm: đợt 3 (`docs/32`)
 
+- **Công tắc "Có từ ngữ thô tục" đã làm** (D-111, plugin 1.0.61/theme 1.0.9): người biên soạn bật tay ở cột bên trang Sửa tác phẩm (có kiểm phiên, Lịch sử). Bài đang bật: trang đọc, thẻ bài, kết quả Tìm, tuyển tập che tên và lời sau lời báo "Bài có từ ngữ thô tục - cân nhắc khi xem." với nút "Hiển thị lời" (tắt JavaScript vẫn mở được); không vào trang chủ, Câu hôm nay, Một câu ngẫu nhiên, Đọc tiếp; ảnh và mô tả khi chia sẻ link không in lời. Lời không bị sửa. Chưa có bài nào được bật: người biên soạn tự chọn bài.
 - **Editor đơn giản và sửa URL tác phẩm đã làm** (D-110, plugin 1.0.60/theme 1.0.8): thanh đậm/nghiêng/gạch chân, liên kết, màu và chữ nhẹ cho các ô diễn giải/lời giải ngay trong màn sửa hiện tại; chữ và định dạng cùng qua lưu, nháp, kiểm phiên và lịch sử. Quản trị sửa tên cuối URL từ mục lục Đường dẫn, có xác nhận, kiểm trùng/phiên và chuyển hướng cũ. Bốn cổng CI đạt, E2E 66/66; site đã đúng phiên bản, kiểm wp-admin thật chỉ đọc trên 3 tác phẩm × 390/1440 px đạt, quét 0 lỗi, không phát sinh phần chưa lưu hoặc đổi URL. [Phạm vi, hướng dẫn và bằng chứng](37-editor-don-gian-va-url.md). Đề xuất mở rộng nền nội dung tạm hoãn; SEO plugin, loại nội dung và quan hệ mới chưa triển khai. Pilot nội dung thật vẫn chờ người biên soạn.
 
 - Người sáng lập đã chốt (11/11/2026):
