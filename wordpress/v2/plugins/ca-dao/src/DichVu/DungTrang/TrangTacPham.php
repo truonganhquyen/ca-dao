@@ -116,7 +116,8 @@ final class TrangTacPham {
 			return null;
 		}
 		$the_loai = TheLoai::co( $bai['the_loai'] ?? null ) ? (string) $bai['the_loai'] : '';
-		$y        = (string) ( $phan['y_nghia']['chu'] ?? '' );
+		// Câu đố: phần này là "Giải thích đáp án" — không đưa ra thẻ bài để không lộ đáp án (D-114)
+		$y        = 'cau-do' === $the_loai ? '' : (string) ( $phan['y_nghia']['chu'] ?? '' );
 		return array(
 			'id'           => (int) $bai['id'],
 			'tieu_de'      => (string) $bai['tieu_de'],

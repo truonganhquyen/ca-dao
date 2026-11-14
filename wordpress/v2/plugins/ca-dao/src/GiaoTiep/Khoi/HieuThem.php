@@ -10,7 +10,8 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Tầng "Hiểu thêm" của trang bài (D-105, docs/32 mục 4.1, 4.8): một khối ba phần — Cách hiểu của bạn đọc · Bài cảm
  * nhận · Cảm nghĩ — mỗi phần có số và nút viết của loại đó. Tắt JavaScript: ba phần nằm liền nhau, mỗi phần một tiêu
- * đề; bật JavaScript (doc.js) thành ba thẻ, mở sẵn phần có nhiều bài nhất.
+ * đề; bật JavaScript (doc.js) thành ba thẻ, mở sẵn phần có nhiều bài nhất. Chưa có bài nào của bạn đọc (D-114): một
+ * dòng mời gọn (form thu gọn + nút viết) thay ba thẻ "0".
  *
  * Cách hiểu của bạn đọc: form nhanh ngay trên trang (một ô chữ, bút danh tuỳ chọn, cam kết tự viết, đồng ý CC BY 4.0,
  * chống rác như trang Góp); vào Hộp việc, chỉ hiện sau khi người có quyền bấm Hiện; ghi bút danh và ngày, tách rõ với
@@ -30,23 +31,36 @@ final class HieuThem {
 	 */
 	public static function hien( int $bai_id, array $tp, array $bao = array() ): string {
 		$goc  = Ve::url( 'gop' );
-		$viet = static fn( string $loai, string $chu, string $icon ): string => '<p class="ht-viet"><a class="btn" href="' . esc_url( add_query_arg( array( 'loai' => $loai, 'bai' => $bai_id ), $goc ) . '#gop-form' ) . '">' . Ve::icon( $icon ) . esc_html( $chu ) . '</a></p>';
+		$nut  = static fn( string $loai, string $chu, string $icon ): string => '<a class="btn" href="' . esc_url( add_query_arg( array( 'loai' => $loai, 'bai' => $bai_id ), $goc ) . '#gop-form' ) . '">' . Ve::icon( $icon ) . esc_html( $chu ) . '</a>';
+		$viet = static fn( string $loai, string $chu, string $icon ): string => '<p class="ht-viet">' . $nut( $loai, $chu, $icon ) . '</p>';
 		$vi   = static fn( int $id ): string => '<a href="' . esc_url( add_query_arg( array( 'loai' => 'vi_pham', 'bai' => $bai_id, 'vi_pham' => $id ), $goc ) . '#gop-form' ) . '">Báo vi phạm</a>';
 
-		$ch = (array) ( $tp['cach_hieu'] ?? array() );
-		$pt = PhanTich::cua_bai( $bai_id );
-		$cn = (array) ( $tp['cam_nghi'] ?? array() );
-		$so = array( 'cach_hieu' => count( $ch ), 'cam_nhan' => count( $pt ), 'cam_nghi' => count( $cn ) );
+		$ch   = (array) ( $tp['cach_hieu'] ?? array() );
+		$pt   = PhanTich::cua_bai( $bai_id );
+		$cn   = (array) ( $tp['cam_nghi'] ?? array() );
+		$so   = array( 'cach_hieu' => count( $ch ), 'cam_nhan' => count( $pt ), 'cam_nghi' => count( $cn ) );
+		$danh = self::danh( $tp );
+		$ghi  = '<p class="small muted">Bạn đọc viết theo cách mình hiểu — không phải giải nghĩa của ban biên tập.</p>';
+		$form = '<details class="disclosure" data-form-cach-hieu' . ( empty( $bao['gui'] ) ? '' : ' open' ) . '><summary>Chia sẻ cách hiểu</summary><div class="detail-body">' . self::form( $bai_id, $bao, $danh ) . '</div></details>';
+
+		// Cả ba phần đều trống (D-114): một dòng mời gọn thay ba thẻ "0"; giữ id cũ (#cach-hieu, #cach-hieu-form, #cam-nhan,
+		// #cam-nghi) để lời mời dưới lời, đường dẫn sau khi gửi và liên kết cũ vẫn tới đúng chỗ
+		if ( ! array_sum( $so ) ) {
+			return '<section class="tang ht-gon" id="hieu-them" aria-labelledby="hieu-them-tieu-de"><h2 class="tang-dau" id="hieu-them-tieu-de">Hiểu thêm</h2>'
+				. '<p class="small">Chưa có cách hiểu, bài cảm nhận hay cảm nghĩ nào của bạn đọc về ' . esc_html( $danh ) . ' này.</p>'
+				. '<div id="cach-hieu">' . str_replace( '<div class="detail-body">', '<div class="detail-body">' . $ghi, $form ) . '</div>'
+				. '<p class="ht-viet hai"><span id="cam-nhan">' . $nut( 'phan_tich', 'Viết cảm nhận', 'pen' ) . '</span> <span id="cam-nghi">' . $nut( 'cam_nghi', 'Viết cảm nghĩ', 'heart' ) . '</span></p></section>';
+		}
 
 		// Cách hiểu của bạn đọc
-		$o = '<p class="small muted">Bạn đọc viết theo cách mình hiểu — không phải giải nghĩa của ban biên tập.</p>';
+		$o = $ghi;
 		foreach ( $ch as $c ) {
 			$o .= '<article class="card ht-muc"><p>' . nl2br( esc_html( $c['chu'] ) ) . '</p><p class="small muted">' . esc_html( $c['ten'] . ' · ' . $c['ngay'] ) . ' · ' . $vi( (int) $c['id'] ) . '</p></article>';
 		}
 		if ( ! $ch ) {
 			$o .= '<p class="small">Chưa có cách hiểu nào được hiện.</p>';
 		}
-		$phan = array( 'cach_hieu' => $o . '<details class="disclosure" data-form-cach-hieu' . ( empty( $bao['gui'] ) ? '' : ' open' ) . '><summary>Chia sẻ cách hiểu</summary><div class="detail-body">' . self::form( $bai_id, $bao ) . '</div></details>' );
+		$phan = array( 'cach_hieu' => $o . $form );
 
 		// Bài cảm nhận: tên, hai dòng đầu, người viết; bài dài đọc ở trang riêng
 		$o = '';
@@ -83,8 +97,17 @@ final class HieuThem {
 			. '<div class="ht-nut" role="tablist" aria-label="Hiểu thêm" data-chi-js hidden>' . $nut . '</div>' . $than . '</section>';
 	}
 
+	/**
+	 * Gọi bài là "câu" hay "bài" trong lời mời (D-114): vè và bài nhiều hơn 4 dòng là "bài"; câu ngắn, khổ ca dao là "câu".
+	 *
+	 * @param array<string,mixed> $tp dữ liệu trang tác phẩm (the_loai, loi)
+	 */
+	public static function danh( array $tp ): string {
+		return 've' === ( $tp['the_loai'] ?? '' ) || count( (array) ( $tp['loi'] ?? array() ) ) > 4 ? 'bài' : 'câu';
+	}
+
 	/** Form nhanh "Chia sẻ cách hiểu": gửi admin-post như trang Góp (nonce, ô bẫy, Turnstile khi có khoá, 5 lần mỗi giờ). */
-	public static function form( int $bai_id, array $bao = array() ): string {
+	public static function form( int $bai_id, array $bao = array(), string $danh = 'câu' ): string {
 		$gui = (string) ( $bao['gui'] ?? '' );
 		$h   = '';
 		if ( 'da_gui' === $gui ) {
@@ -97,7 +120,7 @@ final class HieuThem {
 			. '<h4 id="cach-hieu-form-tieu-de">Chia sẻ cách hiểu của bạn</h4>'
 			. '<input type="hidden" name="action" value="' . NhanGui::HANH_DONG . '">' . wp_nonce_field( NhanGui::HANH_DONG, '_wpnonce', true, false )
 			. '<input type="hidden" name="loai" value="cach_hieu"><input type="hidden" name="bai" value="' . $bai_id . '">'
-			. '<label for="cach-hieu-chu">Bạn hiểu câu này thế nào?</label><textarea id="cach-hieu-chu" name="noi_dung" rows="4" maxlength="' . GopNguoiDoc::DAI_CACH_HIEU . '" required></textarea>'
+			. '<label for="cach-hieu-chu">Bạn hiểu ' . esc_html( $danh ) . ' này thế nào?</label><textarea id="cach-hieu-chu" name="noi_dung" rows="4" maxlength="' . GopNguoiDoc::DAI_CACH_HIEU . '" required></textarea>'
 			. '<p class="small muted">Vài dòng theo cách bạn hiểu, tối đa ' . number_format( GopNguoiDoc::DAI_CACH_HIEU, 0, ',', '.' ) . ' ký tự. Không đưa thông tin cá nhân.</p>'
 			. '<label for="cach-hieu-ten">Bút danh (không bắt buộc)</label><input id="cach-hieu-ten" name="ten" maxlength="80" autocomplete="off">'
 			. '<label class="choice"><input type="checkbox" name="tu_viet" value="1" required> Tôi tự viết những dòng này <span aria-hidden="true">*</span></label>'

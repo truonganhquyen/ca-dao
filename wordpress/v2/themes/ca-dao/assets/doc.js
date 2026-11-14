@@ -180,7 +180,7 @@
       d.addEventListener('click', async ev => {
         if (ev.target.closest('[data-chep]')) { chep(b.dataset.url, 'Đã sao chép liên kết.'); su('chia_se', { bai: b.dataset.id, kieu: 'sao_chep_lien_ket' }); }
         if (ev.target.closest('[data-ung-dung]')) { try { await navigator.share({ title: b.dataset.tieuDe, url: b.dataset.url }); su('chia_se', { bai: b.dataset.id, kieu: 'web_share' }); } catch (err) { if (err.name !== 'AbortError') bao('Máy này chưa cho chia sẻ qua ứng dụng. Hãy sao chép liên kết.'); } }
-        if (ev.target.closest('[data-tao-anh]')) { ev.preventDefault(); d.close(); setTimeout(() => { $('input', anh)?.focus({ preventScroll: true }); anh.scrollIntoView({ block: 'start' }); }, 30); }
+        if (ev.target.closest('[data-tao-anh]')) { ev.preventDefault(); d.close(); anh.open = true; setTimeout(() => { $('input', anh)?.focus({ preventScroll: true }); anh.scrollIntoView({ block: 'start' }); }, 30); }
       });
     }
     else if (viec === 'aa') {

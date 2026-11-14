@@ -280,11 +280,17 @@ kt(
 	$ch_form
 );
 $vi_tri = static fn( string $kim ): int => (int) strpos( $h, $kim );
+// Hiểu thêm: bài có ít nhất một cách hiểu / bài cảm nhận / cảm nghĩ đã hiện thì ba phần, không có thì một dòng gọn (D-114)
+$tp_ht     = (array) \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_post( $mau_id['cau-mau-thu-hai'] ) );
+$so_ht_bai = count( (array) ( $tp_ht['cach_hieu'] ?? array() ) ) + count( (array) ( $tp_ht['cam_nghi'] ?? array() ) ) + count( \Phongdao\GiaoTiep\Khoi\PhanTich::cua_bai( $mau_id['cau-mau-thu-hai'] ) );
 kt(
 	'trang bài ba tầng: Đọc (lời, Ý nghĩa, Từ khó, Dị bản) → Hiểu thêm (Cách hiểu của bạn đọc · Bài cảm nhận · Cảm nghĩ, mỗi phần có số và nút viết) → Đọc thêm (phân loại, Đọc tiếp, Lời này từ đâu?, ảnh chia sẻ) → Bạn muốn góp gì?',
 	$vi_tri( 'class="work-main"' ) < $vi_tri( 'id="hieu-them"' ) && $vi_tri( 'id="hieu-them"' ) < $vi_tri( 'id="doc-them"' ) && $vi_tri( 'id="doc-them"' ) < $vi_tri( 'class="work-tags"' ) && $vi_tri( 'class="work-tags"' ) < $vi_tri( 'id="tu-lieu"' ) && $vi_tri( 'id="tu-lieu"' ) < $vi_tri( 'id="gop"' )
-	&& 3 === substr_count( $h, 'class="ht-phan"' ) && str_contains( $h, '<h3 class="ht-ten">Cách hiểu của bạn đọc <span class="ht-so">0</span></h3>' ) && str_contains( $h, '<h3 class="ht-ten">Bài cảm nhận <span class="ht-so">' ) && str_contains( $h, '<h3 class="ht-ten">Cảm nghĩ <span class="ht-so">' )
-	&& str_contains( $h, 'role="tablist" aria-label="Hiểu thêm" data-chi-js hidden' ) && str_contains( $h, 'loai=phan_tich&#038;bai=' . $mau_id['cau-mau-thu-hai'] ) && str_contains( $h, 'loai=cam_nghi&#038;bai=' . $mau_id['cau-mau-thu-hai'] ) && str_contains( $h, 'Viết cảm nhận' ) && str_contains( $h, 'Viết cảm nghĩ' )
+	&& ( $so_ht_bai
+		? 3 === substr_count( $h, 'class="ht-phan"' ) && str_contains( $h, '<h3 class="ht-ten">Cách hiểu của bạn đọc <span class="ht-so">0</span></h3>' ) && str_contains( $h, '<h3 class="ht-ten">Bài cảm nhận <span class="ht-so">' ) && str_contains( $h, '<h3 class="ht-ten">Cảm nghĩ <span class="ht-so">' ) && str_contains( $h, 'role="tablist" aria-label="Hiểu thêm" data-chi-js hidden' )
+		: str_contains( $h, '<section class="tang ht-gon" id="hieu-them"' ) && ! str_contains( $h, 'class="ht-phan"' ) && ! str_contains( $h, 'role="tablist"' ) )
+	&& str_contains( $h, 'loai=phan_tich&#038;bai=' . $mau_id['cau-mau-thu-hai'] ) && str_contains( $h, 'loai=cam_nghi&#038;bai=' . $mau_id['cau-mau-thu-hai'] ) && str_contains( $h, 'Viết cảm nhận' ) && str_contains( $h, 'Viết cảm nghĩ' ),
+	array( $so_ht_bai, substr( (string) strstr( $h, 'id="hieu-them"' ), 0, 500 ) )
 );
 $h_doc = $xem( $mau_id['dong-mau-mot-cua-bai'] );
 kt( 'tầng Đọc: Từ khó, Dị bản ngay sau lời, trước Hiểu thêm', (int) strpos( $h_doc, 'id="chu-thich"' ) < (int) strpos( $h_doc, 'id="di-ban"' ) && (int) strpos( $h_doc, 'id="di-ban"' ) < (int) strpos( $h_doc, 'id="hieu-them"' ) && (int) strpos( $h_doc, 'class="work-main"' ) < (int) strpos( $h_doc, 'id="chu-thich"' ) );
@@ -299,6 +305,23 @@ kt( 'Hiểu thêm không trải sẵn form; gửi thành công hoặc lỗi tự
 $ht_co = $HT::hien( $mau_id['cau-mau-thu-hai'], array( 'cach_hieu' => array( $c_gia ) ) );
 kt( 'cách hiểu đã được hiện nằm trước mục mở form, không bị gập trong form góp', strpos( $ht_co, 'class="card ht-muc"' ) < strpos( $ht_co, 'data-form-cach-hieu' ) && str_contains( $ht_co, '<p>Chữ</p>' ) );
 kt( 'Hiểu thêm: mở sẵn phần nhiều bài nhất (Cảm nghĩ), vừa gửi cách hiểu thì mở phần Cách hiểu kèm lời cảm ơn; gửi thiếu thì báo đúng lỗi cạnh form', str_contains( $ht_mo, 'data-mo="2"' ) && str_contains( $ht_mo, 'id="ht-nut-cam-nghi" aria-controls="cam-nghi" aria-selected="true"' ) && str_contains( $ht_gui, 'data-mo="0"' ) && str_contains( $ht_gui, 'Cách hiểu đã tới người biên soạn' ) && str_contains( $ht_loi, 'Xin viết cách hiểu của bạn' ), array( substr( $ht_mo, 0, 400 ) ) );
+// Hiểu thêm trống (D-114): một dòng mời thay ba thẻ "0"; giữ id để lời mời dưới lời, đường dẫn sau khi gửi và liên kết cũ tới đúng chỗ
+$bai_ht_trong = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'post_title' => 'Bài Hiểu thêm trống thử' ) );
+$ht_trong     = $HT::hien( $bai_ht_trong, array( 'the_loai' => 've', 'loi' => array( 'a', 'b' ) ) );
+$ht_trong_gui = $HT::hien( $bai_ht_trong, array(), array( 'gui' => 'da_gui' ) );
+kt(
+	'Hiểu thêm trống: một dòng "Chưa có cách hiểu, bài cảm nhận hay cảm nghĩ…", không ba thẻ số 0; form Chia sẻ cách hiểu thu gọn (vẫn đủ consent), nút Viết cảm nhận / Viết cảm nghĩ; id #cach-hieu, #cach-hieu-form, #cam-nhan, #cam-nghi còn nguyên; vừa gửi thì mở form kèm lời cảm ơn',
+	str_contains( $ht_trong, '<section class="tang ht-gon" id="hieu-them"' ) && str_contains( $ht_trong, 'Chưa có cách hiểu, bài cảm nhận hay cảm nghĩ nào của bạn đọc về bài này.' )
+	&& ! str_contains( $ht_trong, 'class="ht-phan"' ) && ! str_contains( $ht_trong, 'role="tablist"' ) && ! str_contains( $ht_trong, 'ht-so' ) && ! str_contains( $ht_trong, 'data-hieu-them' )
+	&& str_contains( $ht_trong, 'id="cach-hieu"' ) && str_contains( $ht_trong, 'id="cach-hieu-form"' ) && str_contains( $ht_trong, 'id="cam-nhan"' ) && str_contains( $ht_trong, 'id="cam-nghi"' )
+	&& str_contains( $ht_trong, 'data-form-cach-hieu>' ) && str_contains( $ht_trong, 'name="tu_viet" value="1" required' ) && str_contains( $ht_trong, 'name="dong_y" value="1" required' ) && str_contains( $ht_trong, 'Bạn hiểu bài này thế nào?' )
+	&& str_contains( $ht_trong, 'loai=phan_tich&#038;bai=' . $bai_ht_trong ) && str_contains( $ht_trong, 'loai=cam_nghi&#038;bai=' . $bai_ht_trong ) && str_contains( $ht_trong, 'không phải giải nghĩa của ban biên tập' )
+	&& str_contains( $ht_trong_gui, 'data-form-cach-hieu open' ) && str_contains( $ht_trong_gui, 'Cách hiểu đã tới người biên soạn' ),
+	substr( $ht_trong, 0, 600 )
+);
+kt( 'Hiểu thêm có ít nhất một bài của bạn đọc thì vẫn ba phần kèm số (không thu gọn)', 3 === substr_count( $ht_co, 'class="ht-phan"' ) && str_contains( $ht_co, 'data-hieu-them' ) && ! str_contains( $ht_co, 'ht-gon' ) && 3 === substr_count( $ht_mo, 'class="ht-phan"' ) );
+kt( 'lời mời gọi "câu" với câu ngắn, khổ ca dao; "bài" với vè và bài hơn 4 dòng', 'câu' === $HT::danh( array( 'the_loai' => 'ca-dao', 'loi' => array( 'a', 'b', 'c', 'd' ) ) ) && 'bài' === $HT::danh( array( 'the_loai' => 'ca-dao', 'loi' => array( 'a', 'b', 'c', 'd', 'e' ) ) ) && 'bài' === $HT::danh( array( 'the_loai' => 've', 'loi' => array( 'a' ) ) ) && 'câu' === $HT::danh( array() ) );
+wp_delete_post( $bai_ht_trong, true );
 update_option( 'cadao_turnstile_site', 'khoa-site-thu', false );
 $ht_ts = $HT::form( $mau_id['cau-mau-thu-hai'] );
 delete_option( 'cadao_turnstile_site' );
@@ -815,6 +838,28 @@ kt( 'lỗi ghi nhật ký trạng thái: huỷ thay đổi bài, thử lại đ�
 $rest( "/tac-pham/$tp1/trang-thai", array( 'trang_thai' => 'publish', 'trang_thai_cu' => 'private' ) );
 
 // Vè dài: đoạn có tiêu đề, bối cảnh, mục lục, "Đọc toàn bài"; tấm Chia đoạn / Bối cảnh chỉ ở bài vè
+// Từ khó bài chia đoạn (D-114): nhóm theo đoạn có lần đầu của từ, thu gọn; ít từ hoặc bài không chia đoạn thì danh sách liền
+$dong_tk = array();
+for ( $i = 1; $i <= 48; $i++ ) {
+	$dong_tk[] = 'Dong so ' . $i;
+}
+foreach ( array( 1 => 'tre', 2 => 'nua', 3 => 'lua', 4 => 'mia', 45 => 'cau', 46 => 'trau', 47 => 'rom', 48 => 'ngo' ) as $dg => $t ) {
+	$dong_tk[ $dg - 1 ] .= ' ' . $t;
+}
+$tp_tk  = array( 'loi' => $dong_tk, 'doan' => \Phongdao\MienDuLieu\ChiaDoan::chia( $dong_tk ), 'chu_thich' => array_map( static fn( string $t ): array => array( 'tu' => $t ), array( 'tre', 'nua', 'lua', 'mia', 'cau', 'trau', 'rom', 'ngo', 'khong co' ) ) );
+$muc_tk = array_map( static fn( array $c ): string => '<div class="term"><dt>' . $c['tu'] . '</dt></div>', $tp_tk['chu_thich'] );
+$nh_tk  = TacPham::tu_kho_theo_doan( $tp_tk, $muc_tk );
+$d_dau  = $tp_tk['doan']['doan'][0] ?? array( 'den' => 0 );
+$d_cuoi = end( $tp_tk['doan']['doan'] ) ?: array( 'so' => 0, 'tu' => 0, 'den' => 0 );
+kt(
+	'bài chia đoạn nhiều từ khó: nhóm theo đoạn có lần đầu của từ (khối thu gọn "Đoạn N · dòng a–b · k từ"), đoạn không có từ thì không hiện, từ không thấy trong lời ở nhóm "Chú thích chung"; dưới 8 từ hoặc bài không chia đoạn thì giữ danh sách liền',
+	3 === substr_count( $nh_tk, '<details class="disclosure tk-doan">' ) && str_contains( $nh_tk, '<summary>Đoạn 1 · dòng 1–' . $d_dau['den'] . ' · 4 từ</summary>' ) && str_contains( $nh_tk, '<summary>Đoạn ' . $d_cuoi['so'] . ' · dòng ' . $d_cuoi['tu'] . '–' . $d_cuoi['den'] . ' · 4 từ</summary>' )
+	&& str_contains( $nh_tk, '<summary>Chú thích chung · 1 từ</summary>' ) && 9 === substr_count( $nh_tk, '<div class="term">' ) && strpos( $nh_tk, '<dt>tre</dt>' ) < strpos( $nh_tk, '<dt>cau</dt>' ) && strpos( $nh_tk, '<dt>cau</dt>' ) < strpos( $nh_tk, '<dt>khong co</dt>' )
+	&& '' === TacPham::tu_kho_theo_doan( $tp_tk, array_slice( $muc_tk, 0, 7 ) ) && '' === TacPham::tu_kho_theo_doan( array( 'doan' => null ) + $tp_tk, $muc_tk ),
+	$nh_tk
+);
+$h_ve_moi = TacPham::hien( (array) \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_post( $mau_id['ve-mau'] ) ) );
+kt( 'vè chưa có Ý nghĩa: lời mời gọi là "bài" ("Bài này chưa có lời giải nghĩa. Bạn hiểu bài này thế nào?")', str_contains( $h_ve_moi, 'Bài này chưa có lời giải nghĩa. Bạn hiểu bài này thế nào?' ) && ! str_contains( $h_ve_moi, 'Câu này chưa có lời giải nghĩa' ) );
 $ve = $mau_id['ve-mau'];
 wp_set_current_user( 0 );
 $h_ve = $xem( $ve );
@@ -2463,7 +2508,15 @@ $h_vi_pham = \Phongdao\GiaoTiep\Khoi\GopTuLieu::hien( 'vi_pham', $bai_g, '', '',
 kt( 'Báo vi phạm giữ đúng bài và đối tượng được báo; lời mẫu không bị mất khi dựng form', str_contains( $h_vi_pham, 'name="vi_pham" value="' . $g2['id'] . '"' ) && str_contains( $h_vi_pham, 'value="vi_pham" required checked' ) && str_contains( $h_vi_pham, 'Cảm nghĩ / bài cảm nhận số ' . $g2['id'] . ' vi phạm vì:' ) );
 kt( 'trang Góp không gắn bài: không có Cảm nghĩ; lời báo lỗi tra theo mã (mã lạ → lời chung)', ! str_contains( \Phongdao\GiaoTiep\Khoi\GopTuLieu::hien( '', 0, '', '', 0 ), 'value="cam_nghi"' ) && str_contains( \Phongdao\GiaoTiep\Khoi\GopTuLieu::hien( '', 0, 'loi', '<b>tu-che</b>', 0 ), 'Chưa gửi được, xin thử lại.' ) );
 $h = TacPham::hien( (array) \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_post( $bai_g ) ) );
-kt( 'trang bài: khối "Bạn muốn góp gì?" có 6 lối góp; cảm nghĩ chưa duyệt không hiện', 6 === substr_count( $h, 'class="gop-nut"' ) && ! str_contains( $h, 'Cảm nghĩ mẫu của bạn đọc.' ) );
+$gop_cuoi = (string) strstr( (string) strstr( $h, '<details class="block tint-xanh gop-cuoi" id="gop"' ), '</details>', true );
+kt(
+	'trang bài: khối "Bạn muốn góp gì?" thu gọn sẵn, bốn lối góp tư liệu (dị bản, chú thích, báo lỗi, số trang) — cảm nghĩ, bài cảm nhận chỉ ở Hiểu thêm, không lặp (D-114); vừa gửi thì mở sẵn kèm lời cảm ơn; cảm nghĩ chưa duyệt không hiện',
+	'' !== $gop_cuoi && 4 === substr_count( $gop_cuoi, 'class="gop-nut"' ) && ! str_contains( $gop_cuoi, 'loai=cam_nghi' ) && ! str_contains( $gop_cuoi, 'loai=phan_tich' ) && str_contains( $gop_cuoi, 'loai=di_ban' ) && str_contains( $gop_cuoi, 'loai=so_trang' )
+	&& str_contains( $h, 'loai=cam_nghi&#038;bai=' . $bai_g ) && str_contains( $h, 'loai=phan_tich&#038;bai=' . $bai_g )
+	&& str_contains( \Phongdao\GiaoTiep\Khoi\GopTuLieu::cuoi_bai( $bai_g, true ), 'id="gop" open>' ) && str_contains( \Phongdao\GiaoTiep\Khoi\GopTuLieu::cuoi_bai( $bai_g, true ), 'Nội dung đã tới người biên soạn' )
+	&& ! str_contains( $h, 'Cảm nghĩ mẫu của bạn đọc.' ),
+	substr( $gop_cuoi, 0, 400 )
+);
 wp_set_current_user( $ai_ql );
 $v_bl = Viec::mo( 'comment', $g2['id'], 'nguoi_doc' )[0] ?? array();
 $hv   = \Phongdao\GiaoTiep\BienTap\HopViec::the( $v_bl );
@@ -2774,13 +2827,40 @@ $xem  = static function ( array $q ): void { // giả lập trang đang xem
 	$GLOBALS['wp_query']     = new WP_Query( $q );
 	$GLOBALS['wp_the_query'] = $GLOBALS['wp_query'];
 };
-kt( 'tác phẩm có Ý nghĩa là L2 (lập chỉ mục); chưa có ý nghĩa thì không', $SEO::l2( $l2 ) && ! $SEO::l2( $mau_id['ve-mau'] ) && in_array( $l2, $SEO::ds_l2(), true ) && ! in_array( $mau_id['ve-mau'], $SEO::ds_l2(), true ) );
+$g_nhap = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'draft', 'post_title' => 'Nháp Google thử' ) );
+$g_an   = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'private', 'post_title' => 'Ẩn Google thử' ) );
+$g_mk   = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'post_title' => 'Mật khẩu Google thử', 'post_password' => 'x' ) );
+kt( 'mọi tác phẩm đã đăng được lập chỉ mục, kể cả bài chưa có Ý nghĩa (D-106); nháp, ẩn, có mật khẩu thì không; L2 (có Ý nghĩa) chỉ còn dùng cho tiêu đề', $SEO::l2( $l2 ) && ! $SEO::l2( $mau_id['ve-mau'] ) && $SEO::lap_bai( $l2 ) && $SEO::lap_bai( $mau_id['ve-mau'] ) && ! $SEO::lap_bai( $g_nhap ) && ! $SEO::lap_bai( $g_an ) && ! $SEO::lap_bai( $g_mk ) );
 $xem( array( 'p' => $mau_id['ve-mau'], 'post_type' => KhaiBao::TAC_PHAM ) );
 $r_ko = $SEO::robots( array() );
+$td_ko = $SEO::tieu_de( array( 'title' => 'x' ) );
 $xem( array( 'p' => $l2, 'post_type' => KhaiBao::TAC_PHAM ) );
 $r_co = $SEO::robots( array() );
 $td   = $SEO::tieu_de( array( 'title' => 'x' ) );
-kt( 'tác phẩm chưa L2 → noindex, follow; L2 → lập chỉ mục, tiêu đề "— nghĩa và cách dùng"', ! empty( $r_ko['noindex'] ) && empty( $r_co['noindex'] ) && str_ends_with( $td['title'], '— nghĩa và cách dùng' ), array( $r_ko, $r_co, $td ) );
+kt( 'tác phẩm đã đăng chưa có Ý nghĩa → lập chỉ mục, tiêu đề giữ nguyên; có Ý nghĩa → lập chỉ mục, tiêu đề "— nghĩa và cách dùng"', empty( $r_ko['noindex'] ) && 'x' === $td_ko['title'] && empty( $r_co['noindex'] ) && str_ends_with( $td['title'], '— nghĩa và cách dùng' ), array( $r_ko, $r_co, $td, $td_ko ) );
+// Câu đố (D-114): "Giải thích đáp án" (phần y_nghia) không ra thẻ bài, mô tả trang, dữ liệu có cấu trúc, tiêu đề; đáp án có data-nosnippet
+$k_yn   = \Phongdao\MienDuLieu\Phan::khoa( 'y_nghia' );
+$yn_do  = get_post_meta( $mau_id['cau-do-mau'], $k_yn, true );
+update_post_meta( $mau_id['cau-do-mau'], $k_yn, array( 'chu' => 'Giải thích lộ đáp án thử.', 'nguoi_lam' => NguoiLam::NGUOI_VIET ) );
+$the_do = \Phongdao\DichVu\DungTrang\DocBai::the( get_post( $mau_id['cau-do-mau'] ) );
+$h_do   = TacPham::hien( (array) \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_post( $mau_id['cau-do-mau'] ) ) );
+$dap_do = (string) strstr( (string) strstr( $h_do, '<details class="answer">' ), '</details>', true );
+$xem( array( 'p' => $mau_id['cau-do-mau'], 'post_type' => KhaiBao::TAC_PHAM ) );
+$td_do  = $SEO::tieu_de( array( 'title' => 'x' ) );
+$the_ca = \Phongdao\DichVu\DungTrang\TrangTacPham::the( array( 'loi' => array( 'dong' => array( 'a', 'b' ) ), 'y_nghia' => array( 'chu' => 'Nghĩa ca dao thử.' ) ), array( 'id' => 1, 'tieu_de' => 'x', 'url' => 'u', 'the_loai' => 'ca-dao' ) );
+kt(
+	'câu đố có giải thích đáp án: thẻ bài (danh sách, Đọc tiếp, Tìm, ngẫu nhiên) không in giải thích; mô tả trang, dữ liệu có cấu trúc không lấy giải thích; tiêu đề không thêm "— nghĩa và cách dùng"; giải thích chỉ nằm trong khối "Hiện đáp án" có data-nosnippet; thẻ ca dao vẫn có ý nghĩa',
+	is_array( $the_do ) && '' === $the_do['y_nghia'] && ! str_contains( $SEO::mo_ta_tac_pham( $mau_id['cau-do-mau'] ), 'Giải thích lộ đáp án' ) && ! isset( $SEO::json_tac_pham( $mau_id['cau-do-mau'] )['abstract'] )
+	&& 'x' === $td_do['title'] && $SEO::l2( $mau_id['cau-do-mau'] ) && str_contains( $dap_do, '<div class="detail-body" data-nosnippet>' ) && str_contains( $dap_do, 'Giải thích lộ đáp án thử.' ) && 1 === substr_count( $h_do, 'Giải thích lộ đáp án thử.' )
+	&& 'Nghĩa ca dao thử.' === ( $the_ca['y_nghia'] ?? '' ),
+	array( $the_do, $td_do, $SEO::mo_ta_tac_pham( $mau_id['cau-do-mau'] ) )
+);
+if ( is_array( $yn_do ) && $yn_do ) {
+	update_post_meta( $mau_id['cau-do-mau'], $k_yn, $yn_do );
+} else {
+	delete_post_meta( $mau_id['cau-do-mau'], $k_yn );
+}
+$xem( array( 'p' => $l2, 'post_type' => KhaiBao::TAC_PHAM ) ); // trả lại trang đang xem cho kiểm thử đầu trang bên dưới
 ob_start();
 $SEO::dau_trang();
 $dau = (string) ob_get_clean();
@@ -2801,15 +2881,39 @@ kt(
 wp_delete_post( $nhap_anh, true );
 $acs = \Phongdao\GiaoTiep\Khoi\TacPham::hien( (array) \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_post( $l2 ) ) );
 kt( 'khối Ảnh để chia sẻ: máy vẽ được → form GET tới máy chủ (chạy cả khi tắt JavaScript); không → nút nhắc', $ve_d ? str_contains( $acs, '<form class="acs-chon" method="get"' ) && str_contains( $acs, 'name="phongdao_anh" value="' . $l2 . '"' ) : str_contains( $acs, 'data-action="download-card"' ) && ! str_contains( $acs, 'name="phongdao_anh"' ) );
+kt( 'khối Ảnh để chia sẻ thu gọn sẵn (D-114): bấm tên khối mới mở, tắt JavaScript vẫn mở được; chỉ một khối mỗi trang', str_contains( $acs, '<details class="block acs" id="anh-chia-se"><summary' ) && ! preg_match( '/id="anh-chia-se"[^>]*open/', $acs ) && 1 === substr_count( $acs, 'id="anh-chia-se"' ) && str_contains( $acs, 'Ảnh để chia sẻ</summary>' ) );
 kt( 'mô tả bài chưa có ý nghĩa: hai dòng đầu + thể loại, không hứa điều trang không có', str_ends_with( $SEO::mo_ta_tac_pham( $mau_id['ve-mau'] ), '— Vè.' ) && mb_strlen( $SEO::cat( str_repeat( 'chữ ', 80 ) ) ) <= 160 );
 $t_chut = get_term_by( 'slug', 'chut', 'muc_tu' );
 $tl_ca  = get_term_by( 'slug', 'ca-dao', KhaiBao::THE_LOAI );
 $t_ld   = get_term_by( 'name', 'Lao động', 'chu_de' );
 $truoc  = $SEO::term_lap( $t_chut );
 update_term_meta( $t_chut->term_id, '_phongdao_loi_giai', array( 'nguoi_lam' => 'nguoi_viet' ) );
-kt( 'phân loại: thể loại có bài → lập chỉ mục; mục từ chỉ khi lời giải do dự án viết; chủ đề cần ≥ 3 tác phẩm L2', $SEO::term_lap( $tl_ca ) && ! $truoc && $SEO::term_lap( get_term( $t_chut->term_id ) ) && ! $SEO::term_lap( $t_ld ) );
+kt( 'phân loại: thể loại có bài → lập chỉ mục; mục từ chỉ khi lời giải do dự án viết', $SEO::term_lap( $tl_ca ) && ! $truoc && $SEO::term_lap( get_term( $t_chut->term_id ) ) );
+// Chủ đề: cần ≥ 3 tác phẩm đã đăng (nháp, ẩn không tính; không còn đếm riêng bài có Ý nghĩa)
+$g_cd   = wp_insert_term( 'Chủ đề Google thử', 'chu_de' );
+$g_cd   = get_term( (int) $g_cd['term_id'], 'chu_de' );
+$g_bai  = array();
+for ( $i = 0; $i < 3; $i++ ) {
+	$g_bai[] = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'post_title' => 'Bài Google thử ' . $i ) );
+}
+foreach ( array( $g_bai[0], $g_bai[1], $g_nhap, $g_an ) as $x ) {
+	wp_set_object_terms( $x, array( $g_cd->term_id ), 'chu_de' );
+}
+$g_hai = $SEO::term_lap( get_term( $g_cd->term_id, 'chu_de' ) );
+$xem( array( 'chu_de' => $g_cd->slug ) );
+$r_mo   = $SEO::robots( array() );
+$r_chan = $SEO::robots( array( 'noindex' => true, 'nofollow' => true ) );
+kt( 'trang phân loại chưa lập chỉ mục: noindex, follow khi site mở; khi còn chặn Google (WordPress đặt nofollow) không thêm follow mâu thuẫn', is_tax( 'chu_de' ) && ! empty( $r_mo['noindex'] ) && ! empty( $r_mo['follow'] ) && ! empty( $r_chan['nofollow'] ) && empty( $r_chan['follow'] ), array( $r_mo, $r_chan ) );
+wp_set_object_terms( $g_bai[2], array( $g_cd->term_id ), 'chu_de' );
+$g_ba  = $SEO::term_lap( get_term( $g_cd->term_id, 'chu_de' ) );
+$g_sdp = $SEO::so_do_phan_loai( array(), 'chu_de' )['include'];
+kt( 'chủ đề có 2 tác phẩm đã đăng (cộng nháp, ẩn) → không lập chỉ mục; đủ 3 tác phẩm đã đăng, chưa cần Ý nghĩa → lập chỉ mục và vào sơ đồ trang', ! $g_hai && $g_ba && 3 === $SEO::dem_dang( get_term( $g_cd->term_id, 'chu_de' ) ) && in_array( $g_cd->term_id, $g_sdp, true ), array( $g_hai, $g_ba, $SEO::dem_dang( get_term( $g_cd->term_id, 'chu_de' ) ) ) );
 $sd = $SEO::so_do_bai( array(), KhaiBao::TAC_PHAM );
-kt( 'sơ đồ trang: tác phẩm chỉ gồm bài L2; mục từ chỉ gồm mục lập chỉ mục được', $sd['post__in'] === $SEO::ds_l2() && in_array( $t_chut->term_id, $SEO::so_do_phan_loai( array(), 'muc_tu' )['include'], true ) );
+kt( 'sơ đồ trang: mọi tác phẩm đã đăng (không giới hạn bài có Ý nghĩa, bỏ bài có mật khẩu); mục từ chỉ gồm mục lập chỉ mục được', ! isset( $sd['post__in'] ) && 'publish' === ( $sd['post_status'] ?? '' ) && false === ( $sd['has_password'] ?? null ) && in_array( $t_chut->term_id, $SEO::so_do_phan_loai( array(), 'muc_tu' )['include'], true ), $sd );
+foreach ( array_merge( $g_bai, array( $g_nhap, $g_an, $g_mk ) ) as $x ) {
+	wp_delete_post( $x, true );
+}
+wp_delete_term( $g_cd->term_id, 'chu_de' );
 $xem( array( 'post_type' => KhaiBao::TAC_PHAM ) );
 
 // ---------- Bàn làm việc (T-180) ----------
@@ -2866,6 +2970,31 @@ wp_set_current_user( 0 );
 $h_kwp0 = $BLV::khung_wp();
 wp_set_current_user( $ai_ql );
 kt( 'trang chào mừng WordPress: khung "Phongdao hôm nay" có ba ô và nút bắt đầu, lối sang Hôm nay; khách không thấy; móc gắn ở /wp-admin/', str_contains( $h_kwp, 'Phongdao hôm nay' ) && 3 === substr_count( $h_kwp, 'class="phongdao-ban-o"' ) && str_contains( $h_kwp, 'Mở màn Hôm nay đầy đủ' ) && '' === $h_kwp0 && false !== has_action( 'load-index.php', array( \Phongdao\GiaoTiep\QuanTri\Module::class, 'trang_chao' ) ) );
+// Bổ sung: Ý nghĩa dài hơn 80 chữ (D-114) — máy chỉ đếm, không sửa; câu đố (giải thích đáp án) không xét
+$yd_dai = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'post_title' => 'Ý nghĩa dài thử' ) );
+$yd_do  = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'post_title' => 'Giải thích câu đố dài thử' ) );
+$yd_nap = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'draft', 'post_title' => 'Ý nghĩa dài nháp thử' ) );
+$yd_vua = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'post_title' => 'Ý nghĩa vừa thử' ) );
+wp_set_object_terms( $yd_dai, 'ca-dao', KhaiBao::THE_LOAI );
+wp_set_object_terms( $yd_do, 'cau-do', KhaiBao::THE_LOAI );
+wp_set_object_terms( $yd_vua, 'ca-dao', KhaiBao::THE_LOAI );
+foreach ( array( $yd_dai => 90, $yd_do => 120, $yd_nap => 100, $yd_vua => 80 ) as $id_yd => $so_yd ) {
+	update_post_meta( $id_yd, Phan::khoa( 'y_nghia' ), array( 'chu' => trim( str_repeat( 'chữ ', $so_yd ) ), 'nguoi_lam' => NguoiLam::NGUOI_VIET ) );
+}
+$ds_yd = \Phongdao\GiaoTiep\QuanTri\BoSung::y_nghia_dai();
+wp_set_current_user( $chi_soan );
+$h_yd = \Phongdao\GiaoTiep\QuanTri\BoSung::hien();
+wp_set_current_user( $ai_ql );
+kt(
+	'Bổ sung "Ý nghĩa dài, nên rút còn 2–3 câu": bài đã đăng hơn 80 chữ có tên, số chữ, lối mở phần Ý nghĩa ở trang sửa kèm lối về; đúng 80 chữ, bài nháp, câu đố không vào; có dòng trong danh sách ưu tiên; máy không sửa chữ',
+	90 === ( $ds_yd[ $yd_dai ] ?? 0 ) && ! isset( $ds_yd[ $yd_do ] ) && ! isset( $ds_yd[ $yd_nap ] ) && ! isset( $ds_yd[ $yd_vua ] ) && 80 === \Phongdao\GiaoTiep\QuanTri\BoSung::so_chu( '<b>' . trim( str_repeat( 'chữ ', 80 ) ) . '</b>' )
+	&& str_contains( $h_yd, 'id="y-nghia-dai"' ) && str_contains( $h_yd, 'Ý nghĩa dài thử' ) && str_contains( $h_yd, '90 chữ' ) && str_contains( $h_yd, esc_url( \Phongdao\GiaoTiep\QuanTri\BoSung::url_sua_y_nghia( $yd_dai ) ) ) && str_contains( \Phongdao\GiaoTiep\QuanTri\BoSung::url_sua_y_nghia( $yd_dai ), 'phan=y_nghia' )
+	&& str_contains( $h_yd, 'Ý nghĩa dài, nên rút gọn (hơn 80 chữ)' ) && ! str_contains( $h_yd, 'Giải thích câu đố dài thử' ) && trim( str_repeat( 'chữ ', 90 ) ) === ( PhanBai::lay( $yd_dai, 'y_nghia' )['chu'] ?? '' ),
+	$ds_yd
+);
+foreach ( array( $yd_dai, $yd_do, $yd_nap, $yd_vua ) as $id_yd ) {
+	wp_delete_post( $id_yd, true );
+}
 // Bổ sung: danh sách ưu tiên, nút Bắt đầu mở bài đầu ở trang sửa kèm lối về đúng danh sách (để sang bài kế)
 wp_set_current_user( $chi_soan );
 $h_bs  = \Phongdao\GiaoTiep\QuanTri\BoSung::hien();

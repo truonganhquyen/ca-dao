@@ -169,6 +169,7 @@ Mỗi tác phẩm một dòng tính sẵn: thể loại, trạng thái, cấp ch
 - Trang chủ đề, vùng, mô-típ được lập chỉ mục khi có từ 3 tác phẩm đã đăng (không còn đếm riêng bài L2).
 - Giữ: `<title>` "… — nghĩa và cách dùng" chỉ khi bài có Ý nghĩa (tục ngữ: nghĩa bóng); trang lọc, trang tìm không lập chỉ mục; mục từ có lời giải chép từ nguồn không lập chỉ mục (D-068); bài nháp, ẩn không lập chỉ mục.
 - **Công tắc chặn Google toàn site** (`blog_public`, Human Gate H5) không đổi: khi người sáng lập mở, mọi tác phẩm đã đăng lên Google.
+- **Đã làm 14/11/2026 (D-114, plugin 1.0.64):** phần mã của mục này; thêm: câu đố không lộ giải thích đáp án ở thẻ bài, mô tả, dữ liệu có cấu trúc, khối đáp án `data-nosnippet`; bỏ cặp "nofollow, follow". Mở công khai (T-053) chỉ sau bước này.
 
 ## 6. Dữ liệu thay đổi
 

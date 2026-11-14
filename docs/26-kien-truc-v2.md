@@ -269,6 +269,7 @@ Cron thật của máy chủ gọi WP-Cron mỗi 5 phút (như MVP); mỗi loạ
 - `<title>`: tác phẩm có Ý nghĩa (tục ngữ: nghĩa bóng) "… — nghĩa và cách dùng"; chưa có: tên + thể loại. Tuyển tập "…: N câu có giải nghĩa" khi mọi câu có ý nghĩa. Mô tả lấy từ ý nghĩa khi có, không thì từ lời.
 - JSON-LD: `WebSite` + `SearchAction`, `Organization` (tên mới), `CreativeWork` cho tác phẩm (`isBasedOn` chỉ khi đã đối chiếu), `DefinedTerm` cho mục từ, `CollectionPage` cho tuyển tập / phân loại, `BreadcrumbList`.
 - Sitemap chỉ gồm trang được lập chỉ mục; canonical về phongdao.com.
+- **Đã làm (T-191, plugin 1.0.64):** `Seo\Module::lap_bai()` (đã đăng, không mật khẩu) thay L2 khi quyết `noindex`; `dem_dang()` đếm tác phẩm đã đăng của một phân loại (≥ 3); sơ đồ trang tác phẩm lấy mọi bài đã đăng. Trang chưa lập chỉ mục thêm `follow` chỉ khi WordPress chưa đặt `nofollow` (site còn chặn thì không). Câu đố (`cau_do()`): mô tả từ lời, không `abstract`, tiêu đề không thêm "— nghĩa và cách dùng"; `TrangTacPham::the()` để trống ý nghĩa của thẻ câu đố; khối đáp án `data-nosnippet` (D-114).
 - Ảnh chia sẻ 1200×630 vẽ bằng GD trên máy chủ (chuyển từ `anh-chia-se.php` cùng phông tự lưu): thể loại, 4 dòng đầu, dòng mức kiểm, tên miền; sinh lại khi lời đổi.
 
 ## 11. An toàn, quyền riêng tư, đo lường

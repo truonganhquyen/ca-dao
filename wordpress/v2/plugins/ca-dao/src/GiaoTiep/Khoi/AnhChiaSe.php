@@ -93,7 +93,8 @@ final class AnhChiaSe {
 		foreach ( $nen as $i => $n ) {
 			$chon_nen .= '<label class="nen-chon"><input type="radio" name="nen-' . $ma . '" value="' . $n . '"' . ( 0 === $i ? ' checked' : '' ) . '><span class="mau nen-' . $n . '" aria-hidden="true"></span><span>' . self::TEN_NEN[ $n ] . '</span></label>';
 		}
-		return '<section class="block acs" id="anh-chia-se" aria-labelledby="acs-' . $ma . '"><h2 id="acs-' . $ma . '">Ảnh để chia sẻ</h2>'
+		// Thu gọn mặc định (D-114): bấm tên khối hoặc "Tạo ảnh để chia sẻ" trong hộp Chia sẻ mới mở; tắt JavaScript vẫn mở được
+		return '<details class="block acs" id="anh-chia-se"><summary id="acs-' . $ma . '">' . Ve::icon( 'download' ) . 'Ảnh để chia sẻ</summary><div class="detail-body">'
 			. '<p class="small muted">Chọn khổ và nền rồi tải ảnh để đăng Facebook, Zalo. Ảnh luôn kèm tên thư viện và đường dẫn bài' . ( $cau_do ? '; không lộ đáp án' : '' ) . '.</p>'
 			. '<div class="acs-khung"><figure class="anh-chia-se" data-nen="' . $nen[0] . '" data-fit-h aria-label="Xem trước ảnh chia sẻ">' . $hinh . ( $cau_do ? '<span class="dau-hoi" aria-hidden="true">?</span>' : '' )
 			. '<div class="acs-trong"><span class="acs-the-loai">' . esc_html( $tp['ten_the_loai'] . ( empty( $tp['co_nghi'] ) ? '' : ' · Có thể không phải dân gian' ) ) . '</span>'
@@ -102,6 +103,6 @@ final class AnhChiaSe {
 			. '<div class="acs-chan"><span class="logo" aria-hidden="true">P</span><span>Thư viện Văn học Dân gian Việt Nam<small>' . esc_html( wp_parse_url( home_url(), PHP_URL_HOST ) . '/' . $k . '/…' ) . '</small></span></div></div></figure>'
 			. ( $tai ? '<form class="acs-chon" method="get" action="' . esc_url( home_url( '/' ) ) . '"><input type="hidden" name="' . Anh::THAM_SO . '" value="' . $ma . '">' : '<div class="acs-chon">' ) . '<fieldset><legend>Khổ ảnh</legend><div class="seg">' . $kho . '</div></fieldset><fieldset><legend>Nền</legend><div class="nen-o">' . $chon_nen . '</div></fieldset>'
 			. ( '' !== $y ? '<label class="choice"><input type="checkbox" name="yn-' . $ma . '" value="1">Kèm ý nghĩa</label>' : '' )
-			. '<div class="actions">' . ( $tai ? '<button type="submit" class="btn primary">' : '<button type="button" class="btn primary" data-action="download-card">' ) . Ve::icon( 'download' ) . 'Tải ảnh</button><button type="button" class="btn" data-action="copy-link" data-url="' . esc_url( $tp['url'] ) . '">' . Ve::icon( 'link' ) . 'Sao chép liên kết</button></div>' . ( $tai ? '</form>' : '</div>' ) . '</div></section>';
+			. '<div class="actions">' . ( $tai ? '<button type="submit" class="btn primary">' : '<button type="button" class="btn primary" data-action="download-card">' ) . Ve::icon( 'download' ) . 'Tải ảnh</button><button type="button" class="btn" data-action="copy-link" data-url="' . esc_url( $tp['url'] ) . '">' . Ve::icon( 'link' ) . 'Sao chép liên kết</button></div>' . ( $tai ? '</form>' : '</div>' ) . '</div></div></details>';
 	}
 }

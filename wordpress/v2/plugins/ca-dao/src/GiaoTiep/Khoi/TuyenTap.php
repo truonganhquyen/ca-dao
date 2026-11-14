@@ -115,9 +115,10 @@ final class TuyenTap {
 		$ghi = '' === $m['ghi_chu'] ? '' : '<p class="small"><strong>' . ( 'tinh_huong' === $loai ? 'Hợp khi:' : 'Ghi chú:' ) . '</strong> ' . esc_html( $m['ghi_chu'] ) . '</p>';
 		$than = Ve::loi( $tp['loi'], $tp['kieu'], array(), array( 'nhom' => 'tuyen-tap' ) )
 			. $ghi
-			. ( empty( $tp['y_nghia']['chu'] )
+			// Câu đố: "Giải thích đáp án" lộ đáp án, không in ở mục tuyển tập (D-114)
+			. ( 'cau-do' === $tp['the_loai'] ? '' : ( empty( $tp['y_nghia']['chu'] )
 				? '<p class="small muted">Bài đang được bổ sung ý nghĩa.</p>'
-				: '<p><strong>Ý nghĩa:</strong> ' . esc_html( $tp['y_nghia']['chu'] ) . '</p>' . ( empty( $tp['y_nghia']['ai'] ) ? '' : '<p class="ai-note">Có hỗ trợ của AI, đã được người biên soạn duyệt.</p>' ) );
+				: '<p><strong>Ý nghĩa:</strong> ' . esc_html( $tp['y_nghia']['chu'] ) . '</p>' . ( empty( $tp['y_nghia']['ai'] ) ? '' : '<p class="ai-note">Có hỗ trợ của AI, đã được người biên soạn duyệt.</p>' ) ) );
 		return '<article class="collection-item g-' . esc_attr( $g ) . '" id="cau-' . $n . '"><span class="num">' . $so . '</span><div class="ci-than">'
 			. '<div class="the-dau"><span class="tag"><span class="ci-so">' . $so . ' · </span>' . esc_html( $tp['ten_the_loai'] ?: 'Tác phẩm' ) . '</span>' . Ve::nut_chep( $tp['url'], $tp['the_loai'] ) . '</div>'
 			. ( '' === $tp['co_nghi'] ? '' : '<p class="flag">Có thể không phải dân gian</p>' )

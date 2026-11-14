@@ -61,6 +61,53 @@ final class BoSung {
 		return $ra;
 	}
 
+	/** Ý nghĩa dài hơn số chữ (tiếng) này thì xếp vào danh sách "nên rút gọn" (D-114; docs/27: Ý nghĩa 2–3 câu ngắn). */
+	public const Y_NGHIA_DAI = 80;
+
+	/** Số chữ (tiếng) của một đoạn: đếm theo khoảng trắng sau khi bỏ thẻ định dạng. */
+	public static function so_chu( string $chu ): int {
+		return count( preg_split( '/\s+/u', trim( wp_strip_all_tags( $chu ) ), -1, PREG_SPLIT_NO_EMPTY ) ?: array() );
+	}
+
+	/**
+	 * Bài đã đăng có Ý nghĩa dài hơn Y_NGHIA_DAI chữ, dài nhất trước (D-114). Câu đố không xét: phần đó là "Giải thích đáp
+	 * án", được phép dài hơn. Một truy vấn (lọc thô theo độ dài giá trị đã lưu) rồi đếm chữ bằng PHP; máy chỉ đếm, không sửa.
+	 *
+	 * @return array<int,int> ID bài => số chữ
+	 */
+	public static function y_nghia_dai(): array {
+		global $wpdb;
+		$hang = $wpdb->get_results( $wpdb->prepare( "SELECT m.post_id, m.meta_value FROM {$wpdb->postmeta} m JOIN {$wpdb->posts} p ON p.ID = m.post_id WHERE m.meta_key = %s AND p.post_type = %s AND p.post_status = 'publish' AND LENGTH(m.meta_value) > %d", \Phongdao\MienDuLieu\Phan::khoa( 'y_nghia' ), \Phongdao\HaTang\KhaiBao::TAC_PHAM, 2 * self::Y_NGHIA_DAI ) ) ?: array();
+		$cd   = get_term_by( 'slug', 'cau-do', \Phongdao\HaTang\KhaiBao::THE_LOAI );
+		$bo   = $cd ? array_flip( array_map( 'intval', (array) get_objects_in_term( $cd->term_id, \Phongdao\HaTang\KhaiBao::THE_LOAI ) ) ) : array();
+		$ra   = array();
+		foreach ( $hang as $h ) {
+			$v  = maybe_unserialize( $h->meta_value );
+			$so = is_array( $v ) ? self::so_chu( (string) ( $v['chu'] ?? '' ) ) : 0;
+			if ( $so > self::Y_NGHIA_DAI && ! isset( $bo[ (int) $h->post_id ] ) ) {
+				$ra[ (int) $h->post_id ] = $so;
+			}
+		}
+		arsort( $ra );
+		return $ra;
+	}
+
+	/** Mở phần Ý nghĩa của bài ở trang Sửa tác phẩm, lối về là danh sách "Ý nghĩa dài" của Bổ sung. */
+	public static function url_sua_y_nghia( int $id ): string {
+		return add_query_arg( 'phan', 'y_nghia', SuaTacPham::url( $id, self::url() . '#y-nghia-dai' ) ) . '#phan-y_nghia';
+	}
+
+	/** Khối "Ý nghĩa dài" của màn Bổ sung: tối đa 50 bài, dài nhất trước. */
+	private static function khoi_y_nghia_dai( array $dai ): string {
+		$o = '';
+		foreach ( array_slice( $dai, 0, 50, true ) as $id => $so ) {
+			$o .= '<li><a href="' . esc_url( self::url_sua_y_nghia( $id ) ) . '">' . esc_html( get_the_title( $id ) ?: 'Bài #' . $id ) . '</a> · ' . esc_html( number_format_i18n( $so ) ) . ' chữ</li>';
+		}
+		return '<h2 id="y-nghia-dai">Ý nghĩa dài, nên rút còn 2–3 câu</h2>'
+			. '<p class="description">Ý nghĩa trên trang đọc nên ngắn (2–3 câu) để người đọc hiểu ngay. Phần kể chuyện, giải thích dài có thể chuyển sang Từ khó hoặc Bối cảnh. Máy chỉ đếm chữ (hơn ' . self::Y_NGHIA_DAI . ' chữ), không sửa nội dung. Câu đố không xét.</p>'
+			. ( $o ? '<ol class="phongdao-nen-lam">' . $o . '</ol>' . ( count( $dai ) > 50 ? '<p class="description">Còn ' . esc_html( number_format_i18n( count( $dai ) - 50 ) ) . ' bài nữa; rút gọn các bài trên rồi danh sách tự cập nhật.</p>' : '' ) : '<p>Không có Ý nghĩa nào dài hơn ' . self::Y_NGHIA_DAI . ' chữ.</p>' );
+	}
+
 	public const HANH_DONG = 'phongdao_bo_sung_goi_y';
 
 	public static function dang_ky(): void {
@@ -232,7 +279,10 @@ final class BoSung {
 			$o .= '<li><a href="' . esc_url( SuaTacPham::url( $id ) ) . '">' . esc_html( get_the_title( $id ) ?: 'Bài #' . $id ) . '</a></li>';
 		}
 		$hang = '';
-		foreach ( self::uu_tien() as [ $ten, $so, $ds, $dau ] ) {
+		$dai  = self::y_nghia_dai();
+		$ut   = self::uu_tien();
+		array_splice( $ut, 1, 0, array( array( 'Ý nghĩa dài, nên rút gọn (hơn ' . self::Y_NGHIA_DAI . ' chữ)', count( $dai ), self::url() . '#y-nghia-dai', $dai ? self::url_sua_y_nghia( (int) array_key_first( $dai ) ) : self::url() . '#y-nghia-dai' ) ) );
+		foreach ( $ut as [ $ten, $so, $ds, $dau ] ) {
 			$hang .= '<tr><th scope="row">' . esc_html( $ten ) . '</th><td>' . ( $so ? '<a href="' . esc_url( $ds ) . '">' . esc_html( number_format_i18n( $so ) ) . '</a>' : '0' ) . '</td>'
 				. '<td>' . ( $so ? '<a class="button" href="' . esc_url( $dau ) . '" aria-label="' . esc_attr( 'Bắt đầu: ' . $ten ) . '">Bắt đầu</a>' : '—' ) . '</td></tr>';
 		}
@@ -241,7 +291,7 @@ final class BoSung {
 			. '<h2>Bài đọc nhiều tuần này chưa có Ý nghĩa</h2>'
 			. ( $o ? '<ol class="phongdao-nen-lam">' . $o . '</ol>' : '<p>Tuần này chưa có bài đọc nhiều nào thiếu Ý nghĩa.</p>' )
 			. '<h2>Danh sách ưu tiên</h2><table class="widefat striped phongdao-ban-so-lieu"><caption class="screen-reader-text">Việc bổ sung theo loại</caption><thead><tr><th scope="col">Việc</th><th scope="col">Số bài</th><th scope="col">Làm</th></tr></thead><tbody>' . $hang . '</tbody></table>'
-			. TrangLo::lay_bao() . self::khoi_goi_y()
+			. self::khoi_y_nghia_dai( $dai ) . TrangLo::lay_bao() . self::khoi_goi_y()
 			. '<p class="description">Máy chỉ đếm và xếp thứ tự; không viết nội dung, không tự gắn chủ đề hay vùng.</p></div>';
 	}
 }

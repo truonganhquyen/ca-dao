@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Phiên bản | 3.6 · 14/11/2026 (bộ lọc Tìm gọn; lịch sử đến 11/11/2026: `docs/luu-tru/02-trang-thai-den-11-11-2026.md`) |
+| Phiên bản | 3.7 · 14/11/2026 (trang thưa gọn, chuẩn bị Google — D-114; bộ lọc Tìm gọn — D-113; tìm đúng chữ và thứ tự danh sách — D-112; lịch sử đến 11/11/2026: `docs/luu-tru/02-trang-thai-den-11-11-2026.md`) |
 | Mục đích | Trang tổng quan ngắn cho người sáng lập và AI agent |
 | Nguồn máy đọc | `du-an/trang-thai.json` (`npm run kiem-nhat-quan` đối chiếu với `docs/01`, `docs/22`) |
 
@@ -33,6 +33,7 @@
 
 ## Đang làm: đợt 3 (`docs/32`)
 
+- **Trang thưa gọn và chuẩn bị Google đã làm** (D-114, plugin 1.0.64/theme 1.0.11), sau khi đối chiếu báo cáo đề xuất *Phong Dao V5* (không mở "V5": phần lớn đã có, chỗ thiếu là nội dung). Hiểu thêm chưa có bài nào của bạn đọc thành một dòng mời; "Bạn muốn góp gì?" thu gọn còn bốn lối góp tư liệu; "Ảnh để chia sẻ" thu gọn (mở từ hộp Chia sẻ); vè dài nhiều từ khó nhóm theo đoạn; lời mời gọi "bài" với bài dài; Bổ sung có danh sách "Ý nghĩa dài" (hơn 80 chữ). Google: mã đã áp đúng "mọi tác phẩm đã đăng được lập chỉ mục"; câu đố không lộ giải thích đáp án ở thẻ bài, mô tả trang, dữ liệu có cấu trúc. **Site vẫn chặn Google** tới khi người sáng lập bật. Tiếp theo: bảng dọn Chủ đề để người duyệt từng dòng.
 - **Công tắc "Có từ ngữ thô tục" đã làm** (D-111, plugin 1.0.61/theme 1.0.9): người biên soạn bật tay ở cột bên trang Sửa tác phẩm (có kiểm phiên, Lịch sử). Bài đang bật: trang đọc, thẻ bài, kết quả Tìm, tuyển tập che tên và lời sau lời báo "Bài có từ ngữ thô tục - cân nhắc khi xem." với nút "Hiển thị lời" (tắt JavaScript vẫn mở được); không vào trang chủ, Câu hôm nay, Một câu ngẫu nhiên, Đọc tiếp; ảnh và mô tả khi chia sẻ link không in lời. Lời không bị sửa. Chưa có bài nào được bật: người biên soạn tự chọn bài.
 - **Editor đơn giản và sửa URL tác phẩm đã làm** (D-110, plugin 1.0.60/theme 1.0.8): thanh đậm/nghiêng/gạch chân, liên kết, màu và chữ nhẹ cho các ô diễn giải/lời giải ngay trong màn sửa hiện tại; chữ và định dạng cùng qua lưu, nháp, kiểm phiên và lịch sử. Quản trị sửa tên cuối URL từ mục lục Đường dẫn, có xác nhận, kiểm trùng/phiên và chuyển hướng cũ. Bốn cổng CI đạt, E2E 66/66; site đã đúng phiên bản, kiểm wp-admin thật chỉ đọc trên 3 tác phẩm × 390/1440 px đạt, quét 0 lỗi, không phát sinh phần chưa lưu hoặc đổi URL. [Phạm vi, hướng dẫn và bằng chứng](37-editor-don-gian-va-url.md). Đề xuất mở rộng nền nội dung tạm hoãn; SEO plugin, loại nội dung và quan hệ mới chưa triển khai. Pilot nội dung thật vẫn chờ người biên soạn.
 
@@ -41,7 +42,7 @@
   - khu quản trị (D-104);
   - trang đọc và nội dung (D-105);
   - mọi tác phẩm đã đăng được lập chỉ mục khi site mở cho Google (D-106).
-- Task: T-189 (khu quản trị), T-190 (trang đọc), T-191 (Google), T-192 (gỡ mã cũ). Thứ tự làm: `docs/32` mục 8. Bước 1 (sửa nhanh, menu mới, Hôm nay — T-189.1) bước 2 (bảng tóm tắt bài, Tác phẩm gọn, bản điện thoại — T-189.2) bước 3 (Bài mới — T-189.3; Bổ sung duyệt gợi ý, Hộp việc chỉ việc cần quyết — T-189.4) bước 4 (Hộp việc không tải lại trang, điện thoại, trang sửa gọn, cờ công tắc, đổi thể loại — T-189.5) bước 5 (Nguồn & cài đặt, Đối chiếu sách — T-189.6) và bước 6 (gộp `/bien-tap/` về wp-admin — T-189.7) đã làm. Bước Google (T-191) **tạm dừng theo người sáng lập (12/11/2026)**; làm trước trang bài ba tầng và "Cách hiểu của bạn đọc" (T-190). Trang bài ba tầng (Đọc · Hiểu thêm · Đọc thêm) và Cách hiểu của bạn đọc (form nhanh trên trang, duyệt ở Hộp việc, hiện ở Hiểu thêm) đã làm — T-190.1, plugin 1.0.50, theme 1.0.4. Tục ngữ (khối Nghĩa, câu dài hiện như ca dao, từ khó trong câu tiêu đề), câu đố "Giải thích đáp án" trong "Hiện đáp án", cờ "Có thể không phải dân gian" kèm "Vì sao?", từ khó so khớp không phân biệt hoa thường / kiểu bỏ dấu, lần đầu trong bài, nhắc khi không thấy trong lời; ca dao "Hình ảnh trong bài"; Sửa phân loại, Đổi thể loại, Đối chiếu sách ngay trên trang đọc (chế độ sửa); lời mời "Ở quê bạn có câu này không? Góp" — T-190.2, plugin 1.0.52, theme 1.0.5. Phần trang đọc của đợt 3 đã xong. Gỡ mã bản cũ (T-192): theme, kiểm thử, kịch bản, job CI của MVP và bộ khảo sát Playwright đã gỡ; plugin MVP chỉ còn ở `tests/chuyen-doi-mvp/` cho kiểm thử chuyển đổi.
+- Task: T-189 (khu quản trị), T-190 (trang đọc), T-191 (Google), T-192 (gỡ mã cũ). Thứ tự làm: `docs/32` mục 8. Bước 1 (sửa nhanh, menu mới, Hôm nay — T-189.1) bước 2 (bảng tóm tắt bài, Tác phẩm gọn, bản điện thoại — T-189.2) bước 3 (Bài mới — T-189.3; Bổ sung duyệt gợi ý, Hộp việc chỉ việc cần quyết — T-189.4) bước 4 (Hộp việc không tải lại trang, điện thoại, trang sửa gọn, cờ công tắc, đổi thể loại — T-189.5) bước 5 (Nguồn & cài đặt, Đối chiếu sách — T-189.6) và bước 6 (gộp `/bien-tap/` về wp-admin — T-189.7) đã làm. Bước Google (T-191) tạm dừng 12/11/2026, **phần chuẩn bị đã làm 14/11/2026 (D-114)** — công tắc chặn Google vẫn do người sáng lập bật; làm trước trang bài ba tầng và "Cách hiểu của bạn đọc" (T-190). Trang bài ba tầng (Đọc · Hiểu thêm · Đọc thêm) và Cách hiểu của bạn đọc (form nhanh trên trang, duyệt ở Hộp việc, hiện ở Hiểu thêm) đã làm — T-190.1, plugin 1.0.50, theme 1.0.4. Tục ngữ (khối Nghĩa, câu dài hiện như ca dao, từ khó trong câu tiêu đề), câu đố "Giải thích đáp án" trong "Hiện đáp án", cờ "Có thể không phải dân gian" kèm "Vì sao?", từ khó so khớp không phân biệt hoa thường / kiểu bỏ dấu, lần đầu trong bài, nhắc khi không thấy trong lời; ca dao "Hình ảnh trong bài"; Sửa phân loại, Đổi thể loại, Đối chiếu sách ngay trên trang đọc (chế độ sửa); lời mời "Ở quê bạn có câu này không? Góp" — T-190.2, plugin 1.0.52, theme 1.0.5. Phần trang đọc của đợt 3 đã xong. Gỡ mã bản cũ (T-192): theme, kiểm thử, kịch bản, job CI của MVP và bộ khảo sát Playwright đã gỡ; plugin MVP chỉ còn ở `tests/chuyen-doi-mvp/` cho kiểm thử chuyển đổi.
 - Báo cáo căn cứ: `docs/e2e-review/v2-quan-tri-2/BAO-CAO.md`.
 
 **Tìm đúng chữ và thứ tự danh sách đã làm** (D-112, plugin 1.0.62): tìm đã gửi so trọn chữ và đúng dấu, tách gợi ý gõ dở/khác dấu; giữ thứ tự liên quan, lọc thể loại và phân trang toàn tập; đánh dấu/trích đúng phần khớp. Một từ không có thẻ nổi bật. Kho và trang phân loại mặc định **Có giải nghĩa trước**, thêm Mới thêm / Đọc nhiều tuần này / A–Z. Bốn cổng đạt trên nhánh, E2E 67/67; chỉ gộp khi CI head cuối đạt, kiểm phiên bản site sau gộp. [Phạm vi và nghiệm thu](39-tim-va-sap-xep-danh-sach.md), [PR #176](https://github.com/truonganhquyen/ca-dao/pull/176). Pilot nội dung thật vẫn chờ người biên soạn.
@@ -51,7 +52,10 @@
 ## Đang chờ người sáng lập
 
 - **Thử từng phần đợt 3** qua link bản xem trước trong mỗi PR (bấm thử trên điện thoại và máy tính).
-- **Mở cho Google** (H5): khi bạn quyết. Sau D-106, mọi bài đã đăng lên Google, không chờ đủ Ý nghĩa.
+- **Mở cho Google** (H5): khi bạn quyết. Sau D-106, mọi bài đã đăng lên Google, không chờ đủ Ý nghĩa Phần mã đã sẵn sàng (D-114).
+- **Bật công tắc "Có từ ngữ thô tục"** cho bài cần báo trước (nên bắt đầu từ Câu đố): máy không tự dò.
+- **Rút gọn Ý nghĩa dài** (Bổ sung → "Ý nghĩa dài"): còn 2–3 câu; phần kể chuyện chuyển sang Từ khó hoặc Bối cảnh.
+- **Tuyển tập đầu tiên** (lời dẫn 2–4 câu, ít nhất 8 câu đã đăng): `docs/huong-dan/pilot-10-bai.md`.
 - **Gửi thư cho Ca dao Mẹ** (`docs/12` mục 7): nên gửi trước khi mở cho Google.
 - **Trang Quyền riêng tư:** nội dung do người sáng lập viết (`docs/27` mục 8.3). Liên kết ở chân trang tự ẩn tới khi trang được đăng.
 - **Hai cặp tác phẩm chung một đường dẫn** (#1764, #1769): chọn bài giữ đường dẫn. Trang Tác phẩm có nút "Cho bài này đường dẫn riêng".
