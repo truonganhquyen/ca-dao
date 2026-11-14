@@ -3,6 +3,7 @@
 namespace Phongdao\DichVu\DungTrang;
 
 use Phongdao\HaTang\KhaiBao;
+use Phongdao\MienDuLieu\Phan;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -40,6 +41,8 @@ final class DocTiep {
 			$cua_bai[ $tax ] = taxonomy_exists( $tax ) ? wp_list_pluck( $cua( $bai->ID, $tax ), 'term_id' ) : array();
 		}
 		$chung = array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'no_found_rows' => true, 'ignore_sticky_posts' => true );
+		// Bỏ bài có từ ngữ thô tục (D-111) bằng PHP trên tập ứng viên nhỏ, không thêm điều kiện meta vào truy vấn
+		$bi_che = static fn( int $id ): bool => metadata_exists( 'post', $id, Phan::khoa( 'tho_tuc' ) );
 		$diem  = array();
 		$ly_do = array();
 		$ra    = array();
@@ -48,7 +51,7 @@ final class DocTiep {
 			$hoi[] = array( 'taxonomy' => $tax, 'field' => 'term_id', 'terms' => $ids );
 		}
 		if ( count( $hoi ) > 1 ) {
-			$ung_vien = get_posts( $chung + array( 'post__not_in' => array( $bai->ID ), 'tax_query' => $hoi, 'meta_query' => array( array( 'key' => '_phongdao_tho_tuc', 'compare' => 'NOT EXISTS' ) ), 'numberposts' => 80, 'orderby' => 'ID', 'order' => 'DESC' ) ); // phpcs:ignore WordPress.DB.SlowDBQuery -- tối đa 80 bài
+			$ung_vien = get_posts( $chung + array( 'post__not_in' => array( $bai->ID ), 'tax_query' => $hoi, 'numberposts' => 80, 'orderby' => 'ID', 'order' => 'DESC' ) ); // phpcs:ignore WordPress.DB.SlowDBQuery -- tối đa 80 bài
 			$ten      = array(
 				'mo_tip' => static fn( $t ) => 'Cùng mô-típ ' . $t->name,
 				'chu_de' => static fn( $t ) => 'Cùng chủ đề ' . $t->name,
@@ -56,6 +59,9 @@ final class DocTiep {
 				'vung'   => static fn( $t ) => 'Cùng vùng ' . $t->name,
 			);
 			foreach ( $ung_vien as $p ) {
+				if ( $bi_che( $p->ID ) ) {
+					continue;
+				}
 				$d = 0;
 				foreach ( $cua_bai as $tax => $ids ) {
 					if ( ! $ids ) {
@@ -90,14 +96,18 @@ final class DocTiep {
 			foreach ( array( array( '<', 'DESC' ), array( '>', 'ASC' ) ) as [ $huong, $thu_tu ] ) {
 				$ids = $wpdb->get_col(
 					$wpdb->prepare(
-						"SELECT p.ID FROM {$wpdb->posts} p JOIN {$wpdb->term_relationships} r ON r.object_id = p.ID JOIN {$wpdb->term_taxonomy} t ON t.term_taxonomy_id = r.term_taxonomy_id WHERE p.post_type = %s AND p.post_status = 'publish' AND t.term_id = %d AND p.ID $huong %d AND p.ID NOT IN (" . implode( ',', array_map( 'intval', $bo ) ) . ") AND NOT EXISTS (SELECT 1 FROM {$wpdb->postmeta} m WHERE m.post_id = p.ID AND m.meta_key = '_phongdao_tho_tuc') ORDER BY p.ID $thu_tu LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL -- $huong, $thu_tu là hằng; danh sách bỏ là số nguyên
+						"SELECT p.ID FROM {$wpdb->posts} p JOIN {$wpdb->term_relationships} r ON r.object_id = p.ID JOIN {$wpdb->term_taxonomy} t ON t.term_taxonomy_id = r.term_taxonomy_id WHERE p.post_type = %s AND p.post_status = 'publish' AND t.term_id = %d AND p.ID $huong %d AND p.ID NOT IN (" . implode( ',', array_map( 'intval', $bo ) ) . ") ORDER BY p.ID $thu_tu LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL -- $huong, $thu_tu là hằng; danh sách bỏ là số nguyên
 						KhaiBao::TAC_PHAM,
 						(int) $tl[0],
 						$bai->ID,
-						$thieu - count( $gan )
+						$thieu - count( $gan ) + 5 // dư vài bài để bù bài bị che
 					)
 				);
-				$gan = array_merge( $gan, array_map( 'intval', $ids ) );
+				foreach ( array_map( 'intval', $ids ) as $x ) {
+					if ( count( $gan ) < $thieu && ! $bi_che( $x ) ) {
+						$gan[] = $x;
+					}
+				}
 				if ( count( $gan ) >= $thieu ) {
 					break;
 				}
