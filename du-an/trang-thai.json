@@ -1,6 +1,6 @@
 {
   "phien_ban": 2,
-  "cap_nhat": "2026-11-13",
+  "cap_nhat": "2026-11-14",
   "huong": "v2 — Trung thực hơn hoàn hảo (D-039); đại tu V2 — Thư viện Văn học Dân gian Việt Nam (D-082)",
   "thu_tu_giai_doan": [
     "CHUAN_BI",
@@ -29,7 +29,7 @@
   },
   "kiem_tra_cuoi": {
     "trang_thai": "DAT",
-    "thoi_diem": "2026-11-13",
-    "pham_vi": "T-201: editor đơn giản và sửa URL, bốn cổng CI đạt, site đúng phiên bản và wp-admin chỉ đọc đạt; pilot T-198 vẫn chờ người biên soạn"
+    "thoi_diem": "2026-11-14",
+    "pham_vi": "T-202: công tắc Có từ ngữ thô tục; test:v2 264 + 606 + 55 đạt, quét V2 0 lỗi, E2E 66/66 tại máy; pilot T-198 vẫn chờ người biên soạn"
   }
 }

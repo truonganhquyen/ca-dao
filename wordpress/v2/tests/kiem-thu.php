@@ -237,7 +237,7 @@ kt( 'chân trang + thanh dưới điện thoại 4 mục', str_contains( $chan, 
 
 // ---------- Trang đọc từ dữ liệu thật (các phần đã lưu) ----------
 $mau_id = \Phongdao\DichVu\DungTrang\GieoMau::gieo( $ai_ql );
-kt( 'tạo 6 tác phẩm mẫu tổng hợp qua đường lưu có kiểm lằn ranh', 6 === count( array_filter( $mau_id ) ), $mau_id );
+kt( 'tạo 7 tác phẩm mẫu tổng hợp qua đường lưu có kiểm lằn ranh (một bài đã bật "Có từ ngữ thô tục")', 7 === count( array_filter( $mau_id ) ) && null !== PhanBai::lay( (int) $mau_id['cau-mau-co-tu-can-che'], 'tho_tuc' ), $mau_id );
 kt( 'máy gắn thể thơ khi lưu lời: lục bát, câu bốn chữ', has_term( 'luc-bat', 'hinh_thuc', $mau_id['dong-mau-mot-cua-bai'] ) && has_term( 'bon-chu', 'hinh_thuc', $mau_id['dong-dao-mau'] ) );
 LuuPhan::luu( $mau_id['dong-mau-mot-cua-bai'], 'nguon_may', array( 'nguon_id' => 'nguon-mau', 'url_goc' => 'https://nguon-an.example/bai-goc' ), array( 'nguoi' => 0, 'goi' => KiemPhan::GOI_MAY ) );
 /** Vẽ khối như khi khách mở trang của một bài (truy vấn chính = bài đó). */
@@ -3224,6 +3224,7 @@ wp_delete_post( $p_undo_tx, true );
 
 require '/repo/tests/kiem-trang-sua-day-du.php';
 require '/repo/tests/kiem-editor-url.php';
+require '/repo/tests/kiem-tho-tuc.php';
 
 $tong = $GLOBALS['v2_dat'] + $GLOBALS['v2_hong'];
 ra( "\nKẾT QUẢ: " . ( $GLOBALS['v2_hong'] ? "HỎNG {$GLOBALS['v2_hong']} / $tong" : "ĐẠT $tong" ) );

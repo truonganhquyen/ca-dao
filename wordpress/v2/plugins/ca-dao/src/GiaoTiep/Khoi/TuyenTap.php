@@ -113,16 +113,18 @@ final class TuyenTap {
 		$so  = sprintf( '%02d', $n );
 		$g   = $tp['the_loai'] ?: 'ca-dao';
 		$ghi = '' === $m['ghi_chu'] ? '' : '<p class="small"><strong>' . ( 'tinh_huong' === $loai ? 'Hợp khi:' : 'Ghi chú:' ) . '</strong> ' . esc_html( $m['ghi_chu'] ) . '</p>';
-		return '<article class="collection-item g-' . esc_attr( $g ) . '" id="cau-' . $n . '"><span class="num">' . $so . '</span><div class="ci-than">'
-			. '<div class="the-dau"><span class="tag"><span class="ci-so">' . $so . ' · </span>' . esc_html( $tp['ten_the_loai'] ?: 'Tác phẩm' ) . '</span>' . Ve::nut_chep( $tp['url'], $tp['the_loai'] ) . '</div>'
-			. ( '' === $tp['co_nghi'] ? '' : '<p class="flag">Có thể không phải dân gian</p>' )
-			. Ve::loi( $tp['loi'], $tp['kieu'], array(), array( 'nhom' => 'tuyen-tap' ) )
+		$than = Ve::loi( $tp['loi'], $tp['kieu'], array(), array( 'nhom' => 'tuyen-tap' ) )
 			. $ghi
 			. ( empty( $tp['y_nghia']['chu'] )
 				? '<p class="small muted">Bài đang được bổ sung ý nghĩa.</p>'
-				: '<p><strong>Ý nghĩa:</strong> ' . esc_html( $tp['y_nghia']['chu'] ) . '</p>' . ( empty( $tp['y_nghia']['ai'] ) ? '' : '<p class="ai-note">Có hỗ trợ của AI, đã được người biên soạn duyệt.</p>' ) )
+				: '<p><strong>Ý nghĩa:</strong> ' . esc_html( $tp['y_nghia']['chu'] ) . '</p>' . ( empty( $tp['y_nghia']['ai'] ) ? '' : '<p class="ai-note">Có hỗ trợ của AI, đã được người biên soạn duyệt.</p>' ) );
+		return '<article class="collection-item g-' . esc_attr( $g ) . '" id="cau-' . $n . '"><span class="num">' . $so . '</span><div class="ci-than">'
+			. '<div class="the-dau"><span class="tag"><span class="ci-so">' . $so . ' · </span>' . esc_html( $tp['ten_the_loai'] ?: 'Tác phẩm' ) . '</span>' . Ve::nut_chep( $tp['url'], $tp['the_loai'] ) . '</div>'
+			. ( '' === $tp['co_nghi'] ? '' : '<p class="flag">Có thể không phải dân gian</p>' )
+			// Có từ ngữ thô tục (D-111): lời, ghi chú, ý nghĩa nằm trong khối đóng
+			. ( empty( $tp['tho_tuc'] ) ? $than : Ve::che_tho_tuc( $than ) )
 			. Ve::muc_kiem( $tp['doi_chieu'], true, $tp['url'] . '#tu-lieu' )
-			. '<div class="actions"><a class="btn compact ghost" href="' . esc_url( $tp['url'] ) . '" aria-label="' . esc_attr( 'Xem bài: ' . $tp['tieu_de'] ) . '">Xem bài ' . Ve::icon( 'arrow' ) . '</a></div>'
+			. '<div class="actions"><a class="btn compact ghost" href="' . esc_url( $tp['url'] ) . '" aria-label="' . esc_attr( empty( $tp['tho_tuc'] ) ? 'Xem bài: ' . $tp['tieu_de'] : 'Xem bài có từ ngữ thô tục' ) . '">Xem bài ' . Ve::icon( 'arrow' ) . '</a></div>'
 			. '</div></article>';
 	}
 

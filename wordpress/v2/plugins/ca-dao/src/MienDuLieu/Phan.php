@@ -43,6 +43,8 @@ final class Phan {
 			'media'       => array( 'dang' => self::DS, 'the_loai' => null, 'nguoi_lam' => null, 'may' => false, 'truong' => array( 'attachment_id' => 'id!', 'loai' => 'chon:anh|giong_may|giong_nguoi!' ) ),
 			'ban_co_biet' => array( 'dang' => self::MOT, 'the_loai' => null, 'nguoi_lam' => self::NGHIA, 'may' => false, 'truong' => array( 'chu' => 'chu!', 'ai' => 'bool' ) ),
 			'co_nghi'     => array( 'dang' => self::MOT, 'the_loai' => null, 'nguoi_lam' => self::NGUOI, 'may' => false, 'truong' => array( 'ly_do' => 'chu!' ) ),
+			// Công tắc "Có từ ngữ thô tục" (D-111): có phần = trang đọc che lời sau lời báo; người bật tay, máy không bao giờ bật
+			'tho_tuc'     => array( 'dang' => self::MOT, 'the_loai' => null, 'nguoi_lam' => self::NGUOI, 'may' => false, 'truong' => array() ),
 			'sgk'         => array( 'dang' => self::DS, 'the_loai' => null, 'nguoi_lam' => self::NGUOI, 'may' => false, 'truong' => array( 'bo_sach' => 'chu_ngan!', 'lop' => 'so!', 'bai' => 'chu_ngan!', 'trang' => 'chu_ngan' ) ),
 			// Nội bộ: trang đã lấy bài; không bao giờ có trong HTML gửi người đọc (D-081)
 			'nguon_may'   => array( 'dang' => self::MOT, 'the_loai' => null, 'nguoi_lam' => null, 'may' => true, 'truong' => array( 'nguon_id' => 'chu_ngan!', 'url_goc' => 'url', 'ma_goc' => 'chu_ngan', 'ngay_lay' => 'ngay' ) ),

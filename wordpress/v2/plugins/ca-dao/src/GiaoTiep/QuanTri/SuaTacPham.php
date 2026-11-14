@@ -79,7 +79,7 @@ final class SuaTacPham {
 	private static function muc_luc( array $ds, array $ctx, string $loai ): string {
 		$muc = array( 'loi-doi-chieu' => array( 'Lời đối chiếu', '' ) );
 		foreach ( $ds as $p ) {
-			if ( 'co_nghi' === $p ) { continue; }
+			if ( 'co_nghi' === $p || 'tho_tuc' === $p ) { continue; }
 			$cu = $ctx['phan'][ $p ] ?? null;
 			$tt = null === $cu ? 'Chưa có' : ( isset( $cu['muc'] ) ? count( $cu['muc'] ) . ' mục' : 'Đã có' );
 			$muc[ 'phan-' . $p ] = array( 'tuc-ngu' === $loai && 'y_nghia' === $p ? 'Ý nghĩa đã có từ trước' : TamSua::nhan( $p, $loai ), $tt );
@@ -176,14 +176,14 @@ final class SuaTacPham {
 		// Tục ngữ: chuẩn là Nghĩa đen · Nghĩa bóng · Dùng khi; bài mới không có ô Ý nghĩa riêng, bài cũ đã có Ý nghĩa vẫn sửa được (D-105)
 		$ds_phan = array_values( array_filter( self::phan_theo_loai( $loai ), static fn( string $p ): bool => ! ( 'y_nghia' === $p && 'tuc-ngu' === $loai && null === ( $ctx['phan']['y_nghia'] ?? null ) ) ) );
 		foreach ( $ds_phan as $phan ) {
-			if ( 'co_nghi' !== $phan && null === ( $ctx['phan'][ $phan ] ?? null ) && $phan !== ( $_GET['phan'] ?? '' ) ) { // phpcs:ignore WordPress.Security.NonceVerification -- chỉ mở lại phần vừa lưu
+			if ( 'co_nghi' !== $phan && 'tho_tuc' !== $phan && null === ( $ctx['phan'][ $phan ] ?? null ) && $phan !== ( $_GET['phan'] ?? '' ) ) { // phpcs:ignore WordPress.Security.NonceVerification -- chỉ mở lại phần vừa lưu
 				$ten_t  = TamSua::ten( $phan, (string) $loai );
 				$them[] = '<a class="button button-small" href="#phan-' . esc_attr( $phan ) . '" data-mo-phan="' . esc_attr( $phan ) . '">' . esc_html( str_starts_with( $ten_t, 'Sửa ' ) ? mb_substr( $ten_t, 4 ) : $ten_t ) . '</a>';
 			}
 		}
 		$chinh .= $them ? '<p class="phongdao-sua-them"><strong>Thêm:</strong> ' . implode( ' ', $them ) . '</p>' : '';
 		foreach ( $ds_phan as $phan ) {
-			if ( 'co_nghi' === $phan ) {
+			if ( 'co_nghi' === $phan || 'tho_tuc' === $phan ) {
 				continue;
 			}
 			$ten = TamSua::ten( $phan, (string) $loai );
@@ -243,7 +243,7 @@ final class SuaTacPham {
 			}
 			$ben .= '</ul></section>';
 		}
-		$ben = SuaDuongDan::hien( $bai, self::$ve ) . self::phan_loai( $bai, $loai ) . '<section id="can-cu-noi-bo"><h2>Căn cứ nội bộ và việc cần xem</h2>' . $ben . self::cong_tac_co( $bai, $ctx ) . '</section>' . self::lich_su( $id );
+		$ben = SuaDuongDan::hien( $bai, self::$ve ) . self::phan_loai( $bai, $loai ) . '<section id="can-cu-noi-bo"><h2>Căn cứ nội bộ và việc cần xem</h2>' . $ben . self::cong_tac_co( $bai, $ctx ) . self::cong_tac_tho_tuc( $bai, $ctx ) . '</section>' . self::lich_su( $id );
 		return $ra . '<div class="phongdao-sua-bo"><div class="phongdao-sua-chinh">' . $chinh . '</div><aside class="phongdao-sua-ben" aria-label="Trạng thái, phân loại và lịch sử">' . $ben . '</aside></div><div class="phongdao-thanh-luu" data-thanh-luu hidden><p data-thanh-luu-ten></p><div data-thanh-luu-nut></div></div></div>';
 	}
 
@@ -376,6 +376,26 @@ final class SuaTacPham {
 		return '<section class="phongdao-sua-co" id="phan-co_nghi"><h2>Cờ "Có thể không phải dân gian"</h2>'
 			. '<p class="phongdao-sua-co-tt" role="status">' . ( $cu ? '<strong>Đang bật.</strong> ' . esc_html( (string) ( $cu['ly_do'] ?? '' ) ) : 'Đang tắt.' ) . '</p>'
 			. $tat . '<details' . ( 'co_nghi' === ( $_GET['phan'] ?? '' ) ? ' open' : '' ) . '><summary>' . ( $cu ? 'Sửa lý do, nguồn' : 'Bật cờ' ) . '</summary><p class="description">Bật khi có căn cứ câu này có thể không phải văn học dân gian. Cần lý do và nguồn (sách, trang, đường dẫn) — người đọc thấy "Vì sao?".</p>' . $sua . '</details></section>'; // phpcs:ignore WordPress.Security.NonceVerification -- chỉ mở lại khối vừa lưu
+	}
+
+	/**
+	 * Công tắc "Có từ ngữ thô tục" ở cột bên (D-111): bật thì trang đọc che lời, dị bản, từ khó sau lời báo, người đọc bấm
+	 * "Hiển thị lời" mới thấy; lời không bị sửa. Lưu qua đúng đường lưu một phần (phần `tho_tuc`, có kiểm phiên và Lịch sử).
+	 * Người bật tay; máy không bao giờ tự bật.
+	 */
+	private static function cong_tac_tho_tuc( \WP_Post $bai, array $ctx ): string {
+		$id    = (int) $bai->ID;
+		$cu    = $ctx['phan']['tho_tuc'] ?? null;
+		$phien = \Phongdao\DichVu\LuuPhan\LuuPhan::phien( $id, 'tho_tuc', $cu );
+		$form  = '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="phongdao_sua_phan">' . self::an_ve()
+			. '<input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="phan" value="tho_tuc"><input type="hidden" name="phien_phan" value="' . esc_attr( $phien ) . '">'
+			. wp_nonce_field( 'phongdao_sua_phan_' . $id . '_tho_tuc', '_wpnonce', true, false )
+			. ( $cu ? '' : '<input type="hidden" name="bat" value="1">' )
+			. '<button type="submit" class="button">' . ( $cu ? 'Tắt' : 'Bật' ) . '</button></form>';
+		return '<section class="phongdao-sua-co" id="phan-tho_tuc"><h2>Từ ngữ thô tục</h2>'
+			. '<p class="phongdao-sua-co-tt" role="status">' . ( $cu ? '<strong>Đang bật.</strong> Trang đọc che lời; người đọc bấm "Hiển thị lời" mới thấy.' : 'Đang tắt.' ) . '</p>'
+			. '<p class="description">Bật khi lời, dị bản hoặc từ khó của bài có từ ngữ thô tục. Lời không bị sửa, chỉ được che lại kèm lời báo. Bài đang bật không hiện ở trang chủ, Câu hôm nay, Một câu ngẫu nhiên và Đọc tiếp.</p>'
+			. $form . '</section>';
 	}
 
 	/**

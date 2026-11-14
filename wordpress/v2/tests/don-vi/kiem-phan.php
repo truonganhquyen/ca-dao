@@ -46,7 +46,7 @@ foreach ( Phan::loai_bai() as $loai_bai ) {
 	}
 }
 kt( 'danh mục phần: dạng, người làm, thể loại, kiểu trường hợp lệ; ô AI khớp người làm', array() === $sai, $sai );
-kt( 'tác phẩm có đủ phần ở docs/26 mục 4.3', array( 'loi', 'di_ban', 'y_nghia', 'nghia_den', 'nghia_bong', 'dung_khi', 'hinh_anh', 'gan_nghia', 'giai_sach', 'chu_thich', 'cau_hoi', 'dap_an', 'goi_y', 'doan', 'boi_canh', 'media', 'ban_co_biet', 'co_nghi', 'sgk', 'nguon_may' ) === Phan::ds( 'tac_pham' ) );
+kt( 'tác phẩm có đủ phần ở docs/26 mục 4.3', array( 'loi', 'di_ban', 'y_nghia', 'nghia_den', 'nghia_bong', 'dung_khi', 'hinh_anh', 'gan_nghia', 'giai_sach', 'chu_thich', 'cau_hoi', 'dap_an', 'goi_y', 'doan', 'boi_canh', 'media', 'ban_co_biet', 'co_nghi', 'tho_tuc', 'sgk', 'nguon_may' ) === Phan::ds( 'tac_pham' ) );
 kt( 'khoá meta có tiền tố _phongdao_ (ẩn khỏi Trường tuỳ chỉnh)', '_phongdao_loi' === Phan::khoa( 'loi' ) );
 $ai_trong_loi = array_filter( Phan::KHONG_AI, static fn( $p ) => array_filter( Phan::lay( 'tac_pham', $p )['nguoi_lam'], array( NguoiLam::class, 'la_ai' ) ) );
 kt( 'lằn ranh 1: lời, dị bản không có người làm AI trong danh mục', array() === $ai_trong_loi );

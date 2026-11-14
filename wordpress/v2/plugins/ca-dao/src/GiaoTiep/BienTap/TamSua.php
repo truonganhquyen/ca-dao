@@ -29,6 +29,7 @@ final class TamSua {
 		'cau_hoi'     => array( 'Sửa câu hỏi', 'chu' ),
 		'dap_an'      => array( 'Sửa đáp án', 'chu' ),
 		'co_nghi'     => array( 'Cờ "Có thể không phải dân gian"', 'co_nghi' ),
+		'tho_tuc'     => array( 'Từ ngữ thô tục', 'tho_tuc' ),
 		'chu_thich'   => array( 'Sửa từ khó', 'chu_thich' ),
 		'di_ban'      => array( 'Sửa dị bản', 'di_ban' ),
 		'boi_canh'    => array( 'Bối cảnh của bài vè', 'boi_canh' ),
@@ -94,6 +95,7 @@ final class TamSua {
 			'chu_ai'    => self::vung( "s-$phan", 'chu', array( 'dung_khi' => 'Mỗi dòng một ví dụ', 'hinh_anh' => 'Mỗi dòng một cặp: hình ảnh → điều được nói tới (vd. tấm lụa đào → thân phận người con gái)' )[ $phan ] ?? 'Nội dung', (string) ( $cu['chu'] ?? '' ), '', 5, $rich ) . self::hop( "s-$phan-ai", 'ai', 'Có hỗ trợ của AI', ! empty( $cu['ai'] ) ) . ( $ctx['duyet'] ? '' : '<p class="small muted">Phần có hỗ trợ AI cần người có quyền duyệt lưu.</p>' ),
 			'chu'       => self::vung( "s-$phan", 'chu', 'Nội dung', (string) ( $cu['chu'] ?? '' ), '', 3, $rich ),
 			'co_nghi'   => self::vung( "s-$phan", 'ly_do', 'Lý do (để trống = gỡ cờ)', (string) ( $cu['ly_do'] ?? '' ) ) . self::nguon( "s-$phan", 'nguon', $cu['nguon'] ?? array(), $ctx ),
+			'tho_tuc'   => self::hop( "s-$phan", 'bat', 'Bài có từ ngữ thô tục', null !== $cu ),
 			'chu_thich' => self::form_ds( $phan, $cu, $ctx ),
 			'di_ban'    => self::form_ds( $phan, $cu, $ctx ),
 			'boi_canh'  => self::vung( 's-bc-chu', 'chu', 'Lời giới thiệu', (string) ( $cu['chu'] ?? '' ), 'hiện ngay trên lời', 3, $rich )
@@ -306,6 +308,9 @@ final class TamSua {
 			case 'co_nghi':
 				$v = $chu( $f['ly_do'] ?? '' );
 				return array( 'gia_tri' => '' === $v ? null : array_filter( array( 'ly_do' => $v, 'nguoi_lam' => NguoiLam::NGUOI_VIET, 'nguon' => self::doc_nguon( $f['nguon'] ?? array() ) ) ), 'nhap' => null );
+			case 'tho_tuc':
+				// Không có ô "bat" = tắt (gỡ phần); bật giữ nguyên bản cũ để lần bấm lại không ghi lịch sử giả
+				return array( 'gia_tri' => empty( $f['bat'] ) ? null : ( $cu ?? array( 'nguoi_lam' => NguoiLam::NGUOI_VIET ) ), 'nhap' => null );
 			case 'chu_thich':
 			case 'di_ban':
 				return array( 'gia_tri' => self::doc_ds( $phan, (array) ( $f['muc'] ?? array() ), $cu ), 'nhap' => null );

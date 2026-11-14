@@ -9,7 +9,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * "Đọc tiếp" cuối trang bài (docs/27 mục 6; chuyển từ MVP doc-tiep.php): 3–5 bài đã đăng cùng mô-típ, cùng chủ đề,
  * cùng nhắc một mục từ, cùng vùng — mỗi bài kèm lý do; thiếu thì thêm bài cùng thể loại đăng gần đó. Chỉ dùng phân
- * loại có sẵn, không gợi ý theo nghĩa.
+ * loại có sẵn, không gợi ý theo nghĩa. Bỏ bài có từ ngữ thô tục (D-111).
  */
 final class DocTiep {
 
@@ -48,7 +48,7 @@ final class DocTiep {
 			$hoi[] = array( 'taxonomy' => $tax, 'field' => 'term_id', 'terms' => $ids );
 		}
 		if ( count( $hoi ) > 1 ) {
-			$ung_vien = get_posts( $chung + array( 'post__not_in' => array( $bai->ID ), 'tax_query' => $hoi, 'numberposts' => 80, 'orderby' => 'ID', 'order' => 'DESC' ) ); // phpcs:ignore WordPress.DB.SlowDBQuery -- tối đa 80 bài
+			$ung_vien = get_posts( $chung + array( 'post__not_in' => array( $bai->ID ), 'tax_query' => $hoi, 'meta_query' => array( array( 'key' => '_phongdao_tho_tuc', 'compare' => 'NOT EXISTS' ) ), 'numberposts' => 80, 'orderby' => 'ID', 'order' => 'DESC' ) ); // phpcs:ignore WordPress.DB.SlowDBQuery -- tối đa 80 bài
 			$ten      = array(
 				'mo_tip' => static fn( $t ) => 'Cùng mô-típ ' . $t->name,
 				'chu_de' => static fn( $t ) => 'Cùng chủ đề ' . $t->name,
@@ -75,7 +75,7 @@ final class DocTiep {
 			uksort( $diem, static fn( $a, $b ) => array( $diem[ $b ], $moi_hon[ $a ] ) <=> array( $diem[ $a ], $moi_hon[ $b ] ) );
 			foreach ( array_slice( array_keys( $diem ), 0, self::TOI_DA ) as $id ) {
 				$the = DocBai::the( get_post( $id ) );
-				if ( $the ) {
+				if ( $the && empty( $the['tho_tuc'] ) ) { // không gợi ý bài có từ ngữ thô tục (D-111)
 					$ra[] = $the + array( 'ly_do' => $ly_do[ $id ] );
 				}
 			}
@@ -90,7 +90,7 @@ final class DocTiep {
 			foreach ( array( array( '<', 'DESC' ), array( '>', 'ASC' ) ) as [ $huong, $thu_tu ] ) {
 				$ids = $wpdb->get_col(
 					$wpdb->prepare(
-						"SELECT p.ID FROM {$wpdb->posts} p JOIN {$wpdb->term_relationships} r ON r.object_id = p.ID JOIN {$wpdb->term_taxonomy} t ON t.term_taxonomy_id = r.term_taxonomy_id WHERE p.post_type = %s AND p.post_status = 'publish' AND t.term_id = %d AND p.ID $huong %d AND p.ID NOT IN (" . implode( ',', array_map( 'intval', $bo ) ) . ") ORDER BY p.ID $thu_tu LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL -- $huong, $thu_tu là hằng; danh sách bỏ là số nguyên
+						"SELECT p.ID FROM {$wpdb->posts} p JOIN {$wpdb->term_relationships} r ON r.object_id = p.ID JOIN {$wpdb->term_taxonomy} t ON t.term_taxonomy_id = r.term_taxonomy_id WHERE p.post_type = %s AND p.post_status = 'publish' AND t.term_id = %d AND p.ID $huong %d AND p.ID NOT IN (" . implode( ',', array_map( 'intval', $bo ) ) . ") AND NOT EXISTS (SELECT 1 FROM {$wpdb->postmeta} m WHERE m.post_id = p.ID AND m.meta_key = '_phongdao_tho_tuc') ORDER BY p.ID $thu_tu LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL -- $huong, $thu_tu là hằng; danh sách bỏ là số nguyên
 						KhaiBao::TAC_PHAM,
 						(int) $tl[0],
 						$bai->ID,
@@ -104,7 +104,7 @@ final class DocTiep {
 			}
 			foreach ( $gan as $id ) {
 				$the = DocBai::the( get_post( $id ) );
-				if ( $the ) {
+				if ( $the && empty( $the['tho_tuc'] ) ) { // không gợi ý bài có từ ngữ thô tục (D-111)
 					$ra[] = $the + array( 'ly_do' => 'Cùng thể loại ' . mb_strtolower( $the['ten_the_loai'] ) );
 				}
 			}

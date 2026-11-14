@@ -95,6 +95,8 @@ final class TrangTacPham {
 			'co_nghi'      => (string) ( $phan['co_nghi']['ly_do'] ?? '' ),
 			// Nguồn người viết ghi cho cờ (mở ở "Vì sao?")
 			'co_nghi_nguon' => empty( $phan['co_nghi']['nguon'] ) ? null : self::nguon( (array) $phan['co_nghi']['nguon'], $ho_so ),
+			// Có từ ngữ thô tục (D-111): trang đọc che lời sau lời báo
+			'tho_tuc'      => ! empty( $phan['tho_tuc'] ),
 			'chu_de'       => $bai['chu_de'] ?? array(),
 			'vung'         => $bai['vung'] ?? array(),
 			'tuyen_tap'    => $bai['tuyen_tap'] ?? array(),
@@ -106,7 +108,7 @@ final class TrangTacPham {
 	/**
 	 * Dữ liệu thẻ bài trong danh sách: hai dòng đầu, ý nghĩa (nếu có).
 	 *
-	 * @return array{id:int,tieu_de:string,url:string,the_loai:string,ten_the_loai:string,dong:string[],y_nghia:string,co_nghi:bool}|null
+	 * @return array{id:int,tieu_de:string,url:string,the_loai:string,ten_the_loai:string,dong:string[],y_nghia:string,co_nghi:bool,tho_tuc:bool}|null
 	 */
 	public static function the( array $phan, array $bai ): ?array {
 		$dong = array_values( array_filter( $phan['loi']['dong'] ?? array(), static fn( $d ): bool => '' !== $d ) );
@@ -124,6 +126,7 @@ final class TrangTacPham {
 			'dong'         => array_slice( $dong, 0, 2 ),
 			'y_nghia'      => mb_strlen( $y ) > 160 ? rtrim( mb_substr( $y, 0, 159 ) ) . '…' : $y,
 			'co_nghi'      => ! empty( $phan['co_nghi'] ),
+			'tho_tuc'      => ! empty( $phan['tho_tuc'] ),
 		);
 	}
 

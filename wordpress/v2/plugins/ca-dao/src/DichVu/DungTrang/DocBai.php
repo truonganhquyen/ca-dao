@@ -75,6 +75,7 @@ final class DocBai {
 				'loi'     => PhanBai::lay( $bai->ID, 'loi' ),
 				'y_nghia' => PhanBai::lay( $bai->ID, 'y_nghia' ),
 				'co_nghi' => PhanBai::lay( $bai->ID, 'co_nghi' ),
+				'tho_tuc' => PhanBai::lay( $bai->ID, 'tho_tuc' ),
 			),
 			array(
 				'id'       => $bai->ID,
