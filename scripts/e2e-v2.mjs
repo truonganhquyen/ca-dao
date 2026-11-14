@@ -131,6 +131,15 @@ let trinhDuyet;
 try {
   if (may) await may.san;
   trinhDuyet = await puppeteer.launch({ executablePath: chrome, headless: true, args: ['--no-sandbox', '--font-render-hinting=none'] });
+  // Kiểm chặng mới trước trong phiên riêng để phát hiện lỗi sớm và không nhận trạng thái/tab của chặng khác.
+  if (!SITE) {
+    const ctxRac = await trinhDuyet.createBrowserContext();
+    const rac = await moTab(ctxRac, 'người biên soạn · thùng rác');
+    try {
+      chac(await dangNhap(rac, G, TEN), 'không đăng nhập được để kiểm thùng rác');
+      await kiemThungRac({bt:rac,di,bam,datO,bamDoiTrang,chac,thu,thuMucAnh});
+    } finally { await ctxRac.close(); rac.dangCho.clear(); }
+  }
   const khach = await trinhDuyet.createBrowserContext();
   let chepDuoc = true;
   try { await khach.overridePermissions(G, ['clipboard-read', 'clipboard-write', 'clipboard-sanitized-write']); } catch { chepDuoc = false; }
@@ -1333,12 +1342,6 @@ try {
     });
 		await kiemTrangSua({bt,G,di,bam,datO,bamDoiTrang,chac,thu,thuMucAnh});
 		await kiemEditorUrl({bt,G,di,bam,datO,bamDoiTrang,chac,thu,thuMucAnh});
-		// Đóng các tab của chặng trước: Chrome/Playground trên CI còn giữ các yêu cầu nền
-		// (media, wp-compression-test, users/me, ngẫu nhiên), chiếm kết nối khi gửi form không JS.
-		// Chặng thùng rác dùng tab mới trong cùng phiên đã đăng nhập; giữ nguyên mọi kiểm kết quả.
-		const rac = await moTab(trinhDuyet.defaultBrowserContext(), 'người biên soạn · thùng rác');
-		for (const t of cacTab) if (t !== rac && !t.isClosed()) { await t.close(); t.dangCho.clear(); }
-		await kiemThungRac({bt:rac,di,bam,datO,bamDoiTrang,chac,thu,thuMucAnh});
   }
 } catch (e) {
   loi.push(String(e.message ?? e).split('\n')[0]);
