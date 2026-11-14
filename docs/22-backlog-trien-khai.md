@@ -175,7 +175,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-200 | Tối ưu trang sửa đầy đủ: trạng thái/lưu, mục lục, danh sách dài, thể thơ người quyết và quản lý danh mục (`docs/36`) | A | T-199 | — | DONE |
 | T-201 | Editor đơn giản trong màn sửa hiện tại và quản trị sửa tên cuối URL tác phẩm, có lịch sử/kiểm phiên/chuyển hướng (`docs/37`, D-110) | A | T-200 | — | DONE |
 | T-202 | Công tắc "Có từ ngữ thô tục" mỗi bài: che lời sau lời báo "Hiển thị lời" ở trang đọc, thẻ, Tìm, tuyển tập; bỏ khỏi trang chủ, ngẫu nhiên, Đọc tiếp; chia sẻ link không in lời (D-111) | A | T-201 | — | DONE |
-| T-203 | Tìm trọn chữ, tách gợi ý gõ dở, phân trang/lọc/giải trình kết quả; danh sách mặc định Có giải nghĩa trước và bốn thứ tự (D-112, docs/39) | A | T-202 | — | IN_PROGRESS |
+| T-203 | Tìm trọn chữ, tách gợi ý gõ dở, phân trang/lọc/giải trình kết quả; danh sách mặc định Có giải nghĩa trước và bốn thứ tự (D-112, docs/39; PR #176) | A | T-202 | — | DONE |
 | **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
 | T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
 | T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | IN_PROGRESS |

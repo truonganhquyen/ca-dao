@@ -30,6 +30,6 @@
   "kiem_tra_cuoi": {
     "trang_thai": "DAT",
     "thoi_diem": "2026-11-14",
-    "pham_vi": "T-202: công tắc Có từ ngữ thô tục; test:v2 264 + 606 + 55 đạt, quét V2 0 lỗi, E2E 66/66 tại máy; pilot T-198 vẫn chờ người biên soạn"
+    "pham_vi": "T-203: tìm trọn chữ và thứ tự danh sách; test:v2 273 + 624 + 55 đạt, quét V2 0 lỗi, E2E 67/67 trên CI; PR #176 chỉ gộp khi CI head cuối đạt; pilot T-198 vẫn chờ người biên soạn"
   }
 }

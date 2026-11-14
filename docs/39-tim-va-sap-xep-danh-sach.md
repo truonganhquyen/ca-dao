@@ -1,6 +1,6 @@
 # Tìm đúng chữ và sắp xếp danh sách — D-112
 
-Người sáng lập duyệt ngày 14/11/2026; gom trong một đợt T-203. Đang triển khai trên nhánh riêng.
+Người sáng lập duyệt ngày 14/11/2026; gom trong một đợt T-203, plugin 1.0.62. Mã và nghiệm thu ở [PR #176](https://github.com/truonganhquyen/ca-dao/pull/176); chỉ gộp khi CI của head cuối đạt.
 
 ## Hành vi đã chốt
 
@@ -38,3 +38,14 @@ Mỗi lượt Playground có thư mục tạm riêng qua `tamPlayground`. Cách 
 Kết quả đo đường mới: **21/21 truy vấn đúng tổng, thứ tự trang đầu và trang cuối** ở cả MySQL 8.4.3 và Playground, trên ba cỡ kho. [Bảng MySQL](e2e-review/tim-va-danh-sach/do-tim-mysql.md), [bảng Playground](e2e-review/tim-va-danh-sach/do-tim-playground.md). Đây là kho tổng hợp, không chứng minh chất lượng xếp hạng nội dung thật; các quy tắc đúng từ/dấu, thẻ nổi bật, trích và lọc có kiểm hồi quy riêng.
 
 Bộ E2E dùng Locator để chờ nút ổn định rồi bấm chuột, thay cách lấy toạ độ ngay sau scroll. Lượt CI đầu có hai lần bấm nút Lô không sang trang (ảnh vẫn ở form trước gửi); giữ nguyên các kiểm kết quả, giới hạn chờ và toàn bộ bước, gồm thao tác hàng loạt.
+
+## Kết quả nghiệm thu 14/11/2026
+
+- `kiem-tra`: 165 task, 1 câu hỏi mở, 0 lỗi.
+- `test:v2`: 273 ca PHP thuần; 624 ca WordPress Playground và 55 ca chuyển đổi đạt. Tại máy dùng Node 24.18/PHP 8.4.12; không bỏ qua phần cần công cụ.
+- `quet:v2`: 0 lỗi; 42 trang × 3 chế độ, 15 trang × 2 chế độ 320 px, các màn biên tập/admin và trang sửa 36 mục. JavaScript trang bài 9,6 KB, trang Tìm 10,5 KB, dưới 21 KB.
+- `e2e:v2`: 67/67 bước, 0 lỗi, 0 bỏ qua trong [lượt CI đầy đủ](https://github.com/truonganhquyen/ca-dao/actions/runs/43577768693). Các lượt lỗi/hủy trước đó không tính là đạt. CI của head cuối tiếp tục là điều kiện gộp PR.
+- Xem trực tiếp bản thử: tìm một từ không nổi bật; cụm trọn tiêu đề duy nhất có thẻ nổi bật; chữ khớp giữ nguyên và có đánh dấu; bộ chọn thứ tự ở trang thể loại đúng mặc định. Kiểm màn 320/390 px và máy tính, không tràn ngang.
+- Dữ liệu tổng hợp kiểm đúng hành vi kỹ thuật; chưa thay thế đánh giá truy vấn nội dung thật của người biên soạn. Chưa coi các kết quả này là xác nhận phiên bản đang chạy trên site trước khi gộp.
+
+Pilot nội dung thật vẫn ở T-198/H2; đợt này không xác nhận hay công khai thêm nội dung.
