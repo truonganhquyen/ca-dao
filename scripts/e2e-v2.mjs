@@ -91,9 +91,14 @@ const bam = async (tab, sel) => {
 // Bấm rồi chờ trang mới (form gửi thẳng, tải lại sau khi lưu). Không dựa vào sự kiện chuyển trang của puppeteer: Chrome mới
 // có lúc thay khung trang khi gửi form rồi chuyển hướng, làm waitForNavigation treo 120 giây hoặc "frame detached" ngẫu
 // nhiên ở các bước lô (#141–#145). Đánh dấu trang cũ, bấm, rồi chờ tới khi trang hiện tại là trang mới đã tải xong.
-const bamDoiTrang = async (tab, sel) => {
+const bamDoiTrang = async (tab, sel, { banPhim = false } = {}) => {
   await tab.evaluate(() => { window.__trangCu = 1; });
-  await bam(tab, sel);
+  if (banPhim) {
+    await tab.bringToFront();
+    const nut = await tab.waitForSelector(sel, { visible: true, timeout: 15_000 });
+    await nut.focus();
+    await tab.keyboard.press('Enter');
+  } else await bam(tab, sel);
   const het = Date.now() + 120_000;
   for (;;) {
     try { if (await tab.evaluate(() => !window.__trangCu && document.readyState === 'complete')) return; } catch { /* đang chuyển trang */ }

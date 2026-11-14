@@ -1,6 +1,9 @@
 // Chỉ gọi trong Playground sau đăng nhập; không chạy với --site.
-export async function kiemThungRac({bt,di,bam,datO,bamDoiTrang,chac,thu,thuMucAnh}) {
-  await thu('chờ trùng: POST nối thẻ mất, mở đúng thẻ Để sau, dùng được khi tắt JavaScript', async () => {
+export async function kiemThungRac({bt,di,bam,datO,bamDoiTrang: chuyenTrang,chac,thu,thuMucAnh}) {
+  // Enter gửi form native; không phụ thuộc chuột trong chế độ mô phỏng cảm ứng của Chrome Linux.
+  const bamDoiTrang = (tab,sel) => chuyenTrang(tab,sel,{banPhim:!tab.isJavaScriptEnabled()});
+  const thuKhongJs = (ten,fn) => thu(ten,async()=>{try{await fn();}finally{await bt.setJavaScriptEnabled(true);}});
+  await thuKhongJs('chờ trùng: bàn phím không JavaScript nối thẻ mất và mở đúng thẻ Để sau', async () => {
     await bt.setJavaScriptEnabled(false);
     const kho='/wp-admin/admin.php?page=phongdao-kho&nguon=test207';
     await di(bt,kho);
@@ -15,7 +18,7 @@ export async function kiemThungRac({bt,di,bam,datO,bamDoiTrang,chac,thu,thuMucAn
   });
   const ids=[];
   const ds=tt=>'/wp-admin/admin.php?page=phongdao-tac-pham&tt='+tt+'&q='+encodeURIComponent('E2E Delete 207');
-  await thu('thùng rác: nút từng bài mở xem trước, Khôi phục về nháp; không cần JavaScript', async () => {
+  await thuKhongJs('thùng rác: nút từng bài mở xem trước, Khôi phục về nháp; bàn phím không JavaScript', async () => {
     for(let i=1;i<=2;i++) {
       await di(bt,'/wp-admin/admin.php?page=phongdao-them');
       await datO(bt,'#them-loi','[UX-TEST] technical delete fixture '+i);
