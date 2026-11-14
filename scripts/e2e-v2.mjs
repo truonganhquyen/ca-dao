@@ -215,6 +215,7 @@ try {
             chac(await k.$eval('.tim-loc-mo',d=>!d.open), 'mặc định chưa thu gọn');
             const h = await k.evaluate(()=>document.querySelector('.tim-loc').getBoundingClientRect().bottom-document.querySelector('#search-status').getBoundingClientRect().top);
             chac(h<=100, `bộ lọc đóng cao ${h} px, cần <= 100 px`);
+            if (width===390) chac(await k.$eval('#search-results article.card',e=>e.getBoundingClientRect().top<844), 'thẻ đầu chưa nằm trong màn hình đầu 390×844');
             const s=await k.$('.tim-loc-mo > summary'); await s.focus(); await k.keyboard.press('Enter');
             chac(await k.$eval('.tim-loc-mo',d=>d.open), 'bàn phím không mở bộ lọc');
           } else {
