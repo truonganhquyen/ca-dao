@@ -165,7 +165,7 @@ Mỗi tác phẩm một dòng tính sẵn: thể loại, trạng thái, cấp ch
 
 ## 5. Google (D-106, T-191)
 
-- **Mọi tác phẩm đã đăng được lập chỉ mục**, không còn giấu theo độ đầy đủ (thiếu ý nghĩa, thiếu đáp án…). Cấp chất lượng L0–L3 vẫn dùng nội bộ để xếp việc, chọn bài nổi bật, Câu hôm nay.
+- ~~**Mọi tác phẩm đã đăng được lập chỉ mục**~~ — **thay bởi D-117 (15/11/2026):** chỉ tác phẩm đã đăng có phần riêng (Ý nghĩa, nghĩa tục ngữ, chú thích người viết, dị bản người viết / bạn đọc góp, đối chiếu sách…); bài chỉ có lời vẫn đọc được. Cấp chất lượng L0–L3 vẫn dùng nội bộ để xếp việc, chọn bài nổi bật, Câu hôm nay.
 - Trang chủ đề, vùng, mô-típ được lập chỉ mục khi có từ 3 tác phẩm đã đăng (không còn đếm riêng bài L2).
 - Giữ: `<title>` "… — nghĩa và cách dùng" chỉ khi bài có Ý nghĩa (tục ngữ: nghĩa bóng); trang lọc, trang tìm không lập chỉ mục; mục từ có lời giải chép từ nguồn không lập chỉ mục (D-068); bài nháp, ẩn không lập chỉ mục.
 - **Công tắc chặn Google toàn site** (`blog_public`, Human Gate H5) không đổi: khi người sáng lập mở, mọi tác phẩm đã đăng lên Google.

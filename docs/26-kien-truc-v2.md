@@ -267,7 +267,7 @@ Cron thật của máy chủ gọi WP-Cron mỗi 5 phút (như MVP); mỗi loạ
 ## 10. SEO, ảnh chia sẻ
 
 - `noindex` mọi trang khi `blog_public` tắt (công tắc chặn Google toàn site, Human Gate H5 — người sáng lập mở).
-- Khi đã mở (D-106): **mọi tác phẩm đã đăng được lập chỉ mục**, không xét độ đầy đủ; tuyển tập đã công khai; trang thể loại; trang chủ đề / vùng / mô-típ có từ 3 tác phẩm đã đăng; mục từ có lời giải do dự án viết hoặc nguồn mở (lời giải chép từ nguồn: không, D-068). Trang lọc, trang tìm, bài nháp / ẩn: `noindex`. Cấp L0–L3 chỉ dùng nội bộ (xếp việc, bài nổi bật, Câu hôm nay).
+- Khi đã mở (D-117 thay D-106): **tác phẩm đã đăng có phần riêng** (`MienDuLieu\PhanRieng`) được lập chỉ mục — bài chỉ có lời / phần máy chép thì `noindex`; danh sách tính sẵn ở `Seo\Module::ds_lap()` (bộ đệm làm mới khi phần bài, meta `_phongdao_…` hay trạng thái bài đổi), sơ đồ trang và đếm trang phân loại (≥ 3) dùng danh sách này; tuyển tập đã công khai; trang thể loại; trang chủ đề / vùng / mô-típ có từ 3 tác phẩm đã đăng; mục từ có lời giải do dự án viết hoặc nguồn mở (lời giải chép từ nguồn: không, D-068). Trang lọc, trang tìm, bài nháp / ẩn: `noindex`. Cấp L0–L3 chỉ dùng nội bộ (xếp việc, bài nổi bật, Câu hôm nay).
 - `<title>`: tác phẩm có Ý nghĩa (tục ngữ: nghĩa bóng) "… — nghĩa và cách dùng"; chưa có: tên + thể loại. Tuyển tập "…: N câu có giải nghĩa" khi mọi câu có ý nghĩa. Mô tả lấy từ ý nghĩa khi có, không thì từ lời.
 - JSON-LD: `WebSite` + `SearchAction`, `Organization` (tên mới), `CreativeWork` cho tác phẩm (`isBasedOn` chỉ khi đã đối chiếu), `DefinedTerm` cho mục từ, `CollectionPage` cho tuyển tập / phân loại, `BreadcrumbList`.
 - Sitemap chỉ gồm trang được lập chỉ mục; canonical về phongdao.com.
