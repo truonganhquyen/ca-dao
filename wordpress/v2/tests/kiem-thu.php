@@ -3183,6 +3183,70 @@ kt(
 foreach ( array( $yd_dai, $yd_do, $yd_nap, $yd_vua ) as $id_yd ) {
 	wp_delete_post( $id_yd, true );
 }
+// Bổ sung: nháp Ý nghĩa theo lô (D-117, T-210) — tải lô, nạp tệp nháp, xem trước, thẻ chờ duyệt trong Hộp việc; máy không ghi vào bài
+$NN   = \Phongdao\GiaoTiep\QuanTri\NapNhap::class;
+$nn_t = static function ( string $ten, string $tl, string $tt = 'publish', array $phan = array() ): int {
+	$id = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => $tt, 'post_title' => $ten ) );
+	wp_set_object_terms( $id, $tl, KhaiBao::THE_LOAI );
+	foreach ( array( 'loi' => array( 'dong' => array( $ten . ' dòng một', $ten . ' dòng hai' ), 'nguoi_lam' => NguoiLam::MAY_CHEP ) ) + $phan as $ma => $gt ) {
+		update_post_meta( $id, Phan::khoa( $ma ), $gt );
+	}
+	return $id;
+};
+$nn_a  = $nn_t( 'Nháp lô thử A', 'ca-dao', 'publish', array( 'chu_thich' => array( 'muc' => array( array( 'tu' => 'dòng', 'loi_giai' => 'Một dòng chữ.', 'nguoi_lam' => NguoiLam::MAY_CHEP ) ) ) ) );
+$nn_y  = $nn_t( 'Nháp lô thử có ý nghĩa', 'ca-dao', 'publish', array( 'y_nghia' => array( 'chu' => 'Đã có.', 'nguoi_lam' => NguoiLam::NGUOI_VIET ) ) );
+$nn_tn = $nn_t( 'Nháp lô thử tục ngữ', 'tuc-ngu' );
+$nn_d  = $nn_t( 'Nháp lô thử nháp', 'ca-dao', 'draft' );
+$nn_ch = $NN::chon( 5 );
+$nn_ok = array() !== $nn_ch && count( $nn_ch ) <= 5;
+foreach ( $nn_ch as $x ) {
+	$nn_ok = $nn_ok && 'publish' === get_post_status( $x ) && in_array( (string) \Phongdao\DichVu\DungTrang\DocBai::the_loai( get_post( $x ) ), $NN::THE_LOAI, true ) && null === PhanBai::lay( $x, 'y_nghia' ) && ! Viec::mo( 'post', $x, 'nhap_y_nghia' );
+}
+$nn_dg = $NN::dong( $nn_a );
+kt( 'Nháp theo lô — chọn lô: chỉ bài đã đăng thuộc ca dao / đồng dao / vè, chưa có Ý nghĩa, chưa có nháp chờ; dòng tệp lô có id, tên, thể loại, đường dẫn, lời, từ khó, cột y_nghia trống', $nn_ok && ! in_array( $nn_y, $nn_ch, true ) && ! in_array( $nn_tn, $nn_ch, true ) && ! in_array( $nn_d, $nn_ch, true ) && array( (string) $nn_a, 'Nháp lô thử A', 'ca-dao', (string) get_permalink( $nn_a ), 'Nháp lô thử A dòng một / Nháp lô thử A dòng hai', 'dòng: Một dòng chữ.', '' ) === $nn_dg, array( $nn_ch, $nn_dg ) );
+$nn_chu = 'Lời người con gái hẹn ước, mong được chung đôi; câu thử để kiểm việc nạp nháp.';
+$nn_csv = "\xEF\xBB\xBFid,ten,y_nghia\n{$nn_a},A,\"{$nn_chu}\"\n{$nn_y},Y,\"{$nn_chu}\"\n{$nn_tn},TN,\"{$nn_chu}\"\n{$nn_d},D,\"{$nn_chu}\"\n999999,Không có,\"{$nn_chu}\"\n{$nn_a},A lần hai,\"{$nn_chu}\"\n" . ( $nn_a + 0 ) . ",A trống,\n";
+$nn_doc = $NN::doc( $nn_csv );
+$nn_ly  = array_column( $nn_doc['dong'], 'ly_do' );
+$nn_sai = $NN::doc( "ma,noi_dung\n1,x\n" );
+kt(
+	'Nháp theo lô — đọc tệp: dòng hợp lệ sẽ tạo thẻ; bỏ qua (kèm lý do) bài đã có Ý nghĩa, tục ngữ, bài chưa đăng, không tìm thấy, trùng dòng, nháp trống; tệp thiếu cột id / y_nghia báo lỗi',
+	'' === $nn_doc['loi'] && 7 === count( $nn_doc['dong'] ) && true === $nn_doc['dong'][0]['tao'] && $nn_chu === $nn_doc['dong'][0]['chu']
+	&& 'bài đã có Ý nghĩa' === $nn_ly[1] && str_starts_with( $nn_ly[2], 'thể loại này không dùng ô Ý nghĩa' ) && 'bài chưa đăng' === $nn_ly[3] && 'không tìm thấy tác phẩm' === $nn_ly[4] && 'trùng dòng trên' === $nn_ly[5] && 'nháp trống' === $nn_ly[6]
+	&& '' !== $nn_sai['loi'] && array() === $nn_sai['dong'],
+	$nn_doc
+);
+$nn_con  = $NN::con_cho();
+$nn_tao  = $NN::tao_the( $nn_doc['dong'], $ai_ql );
+$nn_v    = Viec::mo( 'post', $nn_a, 'nhap_y_nghia' );
+$nn_tao2 = $NN::tao_the( $nn_doc['dong'], $ai_ql );
+kt(
+	'Nháp theo lô — tạo thẻ: mỗi dòng hợp lệ một thẻ "Nháp ý nghĩa" chờ trong Hộp việc (máy tạo, có hỗ trợ AI, ghi lô); bài chưa có Ý nghĩa (máy không ghi vào bài); bấm lại không tạo trùng; số còn nạp được giảm',
+	1 === $nn_tao['tao'] && 1 === count( $nn_v ) && Viec::CHO === $nn_v[0]['trang_thai'] && 'may' === $nn_v[0]['nguoi_tao'] && true === ( $nn_v[0]['noi_dung']['ai'] ?? null ) && $nn_chu === ( $nn_v[0]['noi_dung']['chu'] ?? '' ) && '' !== ( $nn_v[0]['noi_dung']['lo'] ?? '' )
+	&& null === PhanBai::lay( $nn_a, 'y_nghia' ) && 0 === $nn_tao2['tao'] && $nn_con - 1 === $NN::con_cho(),
+	array( $nn_tao, $nn_v, $nn_tao2 )
+);
+wp_set_current_user( $ai_ql );
+$nn_ma = 'thunaplo';
+set_transient( 'phongdao_nap_' . $ai_ql . '_' . $nn_ma, $NN::doc( "id,y_nghia\n{$nn_d},\"{$nn_chu}\"\n" ), 300 );
+$h_nn_x = $NN::xem_truoc( $nn_ma );
+$h_nn_k = $NN::khoi();
+wp_set_current_user( $chi_soan );
+$h_nn_s = $NN::khoi();
+wp_set_current_user( $ai_ql );
+kt(
+	'Nháp theo lô — màn: khối ở Bổ sung có Tải lô (người soạn) và Nạp tệp (người duyệt), số nháp đang chờ / còn nạp được; xem trước ghi việc từng dòng, chỉ có nút Tạo khi có dòng hợp lệ',
+	str_contains( $h_nn_k, 'id="nhap-theo-lo"' ) && str_contains( $h_nn_k, 'value="' . $NN::TAI . '"' ) && str_contains( $h_nn_k, 'value="' . $NN::NAP . '"' ) && str_contains( $h_nn_k, 'enctype="multipart/form-data"' ) && str_contains( $h_nn_k, 'nạp thêm được' )
+	&& str_contains( $h_nn_s, 'value="' . $NN::TAI . '"' ) && ! str_contains( $h_nn_s, 'value="' . $NN::NAP . '"' )
+	&& str_contains( $h_nn_x, 'Bỏ qua: bài chưa đăng' ) && ! str_contains( $h_nn_x, 'value="' . $NN::TAO . '"' ) && str_contains( $NN::xem_truoc( 'het-han' ), 'đã hết hạn' ),
+	substr( $h_nn_x, 0, 600 )
+);
+foreach ( $nn_v as $x ) {
+	Viec::xoa( (int) $x['id'] );
+}
+foreach ( array( $nn_a, $nn_y, $nn_tn, $nn_d ) as $x ) {
+	wp_delete_post( $x, true );
+}
 // Bổ sung: danh sách ưu tiên, nút Bắt đầu mở bài đầu ở trang sửa kèm lối về đúng danh sách (để sang bài kế)
 wp_set_current_user( $chi_soan );
 $h_bs  = \Phongdao\GiaoTiep\QuanTri\BoSung::hien();
@@ -3327,7 +3391,7 @@ foreach ( $tt_b as $id_tt ) {
 	wp_delete_post( $id_tt, true );
 }
 kt( 'bảng tóm tắt: xoá hẳn bài thì xoá dòng', null === $TT::lay( $tt_b['ca-dao'] ) );
-kt( 'màn Bổ sung: danh sách ưu tiên có số đúng bộ lọc Tác phẩm; "Bắt đầu" mở bài đầu ở trang sửa kèm lối về danh sách đã lọc; không có form; khách không xem được', str_contains( $h_bs, '<h1>Bổ sung</h1>' ) && str_contains( $h_bs, 'Danh sách ưu tiên' ) && \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::dem_loc( $thieu_bs ) === $uu_bs[0][1] && ( ! $dau_bs || $uu_bs[0][3] === \Phongdao\GiaoTiep\QuanTri\SuaTacPham::url( (int) $dau_bs, \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::url_loc( $thieu_bs ) ) ) && ! str_contains( $h_bs, '<form' ) && str_contains( $h_bs0, 'không có quyền' ), $uu_bs );
+kt( 'màn Bổ sung: danh sách ưu tiên có số đúng bộ lọc Tác phẩm; "Bắt đầu" mở bài đầu ở trang sửa kèm lối về danh sách đã lọc; người chỉ soạn chỉ có form Tải lô (không có form nạp nháp); khách không xem được', str_contains( $h_bs, '<h1>Bổ sung</h1>' ) && str_contains( $h_bs, 'Danh sách ưu tiên' ) && \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::dem_loc( $thieu_bs ) === $uu_bs[0][1] && ( ! $dau_bs || $uu_bs[0][3] === \Phongdao\GiaoTiep\QuanTri\SuaTacPham::url( (int) $dau_bs, \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::url_loc( $thieu_bs ) ) ) && 1 === substr_count( $h_bs, '<form' ) && str_contains( $h_bs, 'value="' . \Phongdao\GiaoTiep\QuanTri\NapNhap::TAI . '"' ) && ! str_contains( $h_bs, 'value="' . \Phongdao\GiaoTiep\QuanTri\NapNhap::NAP . '"' ) && str_contains( $h_bs0, 'không có quyền' ), $uu_bs );
 foreach ( $the_blv as $id_blv ) {
 	Viec::xoa( (int) $id_blv );
 }

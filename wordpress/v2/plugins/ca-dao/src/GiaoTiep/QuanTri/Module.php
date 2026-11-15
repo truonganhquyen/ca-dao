@@ -39,6 +39,7 @@ final class Module implements \Phongdao\HaTang\Module {
 		BoSung::dang_ky();
 		TrangLo::dang_ky();
 		SuaTuyenTap::dang_ky();
+		NapNhap::dang_ky();
 		DonChuDe::dang_ky();
 	}
 
