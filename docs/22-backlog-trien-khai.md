@@ -182,7 +182,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-207 | Thùng rác: thao tác một/nhiều bài, Khôi phục, xoá vĩnh viễn có xem trước/xác nhận; đối soát chờ trùng mất thẻ hoặc cờ sót (D-115, docs/41, PR #180), không chuyển tác phẩm thành dị bản | A | T-205, T-206 | — | DONE |
 | T-208 | Màn Tuyển tập trong wp-admin (D-116): danh sách bộ kèm trạng thái; soạn tên, loại, người đọc, lời dẫn người viết, thêm câu bằng tìm / đường dẫn / ID / tên đúng, Lên, Xuống, nhóm, ghi chú, Bỏ; lưu nháp, người duyệt đăng / gỡ đăng (`docs/huong-dan/lam-tuyen-tap.md`) | A | T-205 | — | DONE |
 | T-209 | Chỉ lập chỉ mục tác phẩm có phần riêng (D-117): `PhanRieng`, `noindex` bài chỉ có lời / phần máy chép, trang phân loại từ 3 bài có phần riêng, sơ đồ trang, số bài sẽ lên Google ở Bổ sung | A | T-191 | — | DONE |
-| T-210 | Nháp Ý nghĩa theo lô nhỏ (D-117): Bổ sung tải lô bài đọc nhiều chưa có Ý nghĩa để soạn nháp, nạp tệp nháp thành thẻ chờ duyệt trong Hộp việc (xem trước, bỏ bài đã có Ý nghĩa / nháp đang chờ, giới hạn lô) | A | T-209 | — | READY |
+| T-210 | Nháp Ý nghĩa theo lô nhỏ (D-117): Bổ sung tải lô bài đọc nhiều chưa có Ý nghĩa để soạn nháp, nạp tệp nháp thành thẻ chờ duyệt trong Hộp việc (xem trước, bỏ bài đã có Ý nghĩa / nháp đang chờ, giới hạn lô) | A | T-209 | — | DONE |
 | **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
 | T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
 | T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | IN_PROGRESS |
@@ -979,6 +979,10 @@ Người sáng lập muốn tự làm tuyển tập đầu tiên; màn nhập ch
 ### Chỉ lập chỉ mục bài có phần riêng — T-209
 
 Kho 16.285 bài, dưới 1% có Ý nghĩa; người sáng lập chọn chỉ đưa lên Google bài có phần riêng (D-117). **Chấp nhận:** `MienDuLieu\PhanRieng` (PHP thuần) nhận phần riêng và bỏ lời, đáp án, câu hỏi, mọi phần máy chép (chú thích, dị bản, nghĩa Wiktionary, giọng máy); tác phẩm đã đăng không mật khẩu có phần riêng thì lập chỉ mục, còn lại `noindex` (khi site còn chặn không thêm `follow` mâu thuẫn); `Seo\Module::ds_lap()` tính sẵn danh sách (một truy vấn lọc thô rồi kiểm từng bài), làm mới khi một phần bài được lưu, meta `_phongdao_…` bị ghi thẳng, bài đổi trạng thái hoặc bị xoá; trang chủ đề / vùng / mô-típ / hình thức cần từ 3 bài trong danh sách; sơ đồ trang chỉ gồm danh sách đó; Bổ sung ghi "Khi mở Google: N / M bài". **Không làm:** bật Google; đổi tiêu đề, mô tả, quy tắc câu đố; đổi trang Nguồn / Chính sách (người sáng lập giữ như hiện nay).
+
+### Nháp Ý nghĩa theo lô — T-210
+
+Người sáng lập chọn dùng nháp AI theo lô nhỏ (D-117). **Chấp nhận:** màn Bổ sung có khối "Nháp Ý nghĩa theo lô": **Tải lô** (người soạn; CSV UTF-8 có BOM: id, tên, thể loại, đường dẫn, lời, từ khó, cột `y_nghia` trống; bài đã đăng ca dao / đồng dao / vè, chưa có Ý nghĩa, chưa có nháp chờ, không cờ nghi, không thô tục, đọc nhiều 7 ngày trước; ≤ 50) và **Nạp tệp** (người duyệt; ≤ 1 MB, cần cột `id` và `y_nghia`): màn xem trước ghi từng dòng tạo thẻ hay bỏ qua kèm lý do (không tìm thấy, chưa đăng, thể loại không dùng ô Ý nghĩa, đã có Ý nghĩa, đã có nháp chờ, trùng dòng, nháp trống / quá ngắn / quá dài, đủ hạn mức); bấm Tạo thì xét lại từng dòng rồi tạo thẻ `nhap_y_nghia` (máy tạo, `ai: true`, ghi lô) — Duyệt / Bỏ ở Hộp việc như mọi nháp; tối đa 50 nháp chờ cùng lúc. Máy không ghi vào bài, không tự đăng, không đặt dấu duyệt. Hướng dẫn và quy tắc soạn nháp: `docs/huong-dan/nhap-y-nghia-theo-lo.md`. **Không làm:** gọi dịch vụ AI từ máy chủ; nháp cho tục ngữ (nghĩa đen / bóng) và câu đố (giải thích đáp án).
 
 ## 4. User story
 

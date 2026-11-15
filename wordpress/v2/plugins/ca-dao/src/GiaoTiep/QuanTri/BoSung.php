@@ -273,6 +273,11 @@ final class BoSung {
 		if ( '' !== $nhom || $bai ) {
 			return self::hien_duyet( preg_match( '/^(chu_de|vung):[a-z0-9_-]+$/', $nhom ) ? $nhom : '', $bai );
 		}
+		// Xem trước một tệp nháp Ý nghĩa vừa nạp (D-117)
+		$nap = sanitize_key( wp_unslash( (string) ( $_GET['nap'] ?? '' ) ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc mã phiên xem trước của chính người dùng
+		if ( '' !== $nap ) {
+			return NapNhap::xem_truoc( $nap );
+		}
 		$doc = self::doc_nhieu_thieu();
 		$o   = '';
 		foreach ( $doc as $id ) {
@@ -293,7 +298,7 @@ final class BoSung {
 			. '<h2>Bài đọc nhiều tuần này chưa có Ý nghĩa</h2>'
 			. ( $o ? '<ol class="phongdao-nen-lam">' . $o . '</ol>' : '<p>Tuần này chưa có bài đọc nhiều nào thiếu Ý nghĩa.</p>' )
 			. '<h2>Danh sách ưu tiên</h2><table class="widefat striped phongdao-ban-so-lieu"><caption class="screen-reader-text">Việc bổ sung theo loại</caption><thead><tr><th scope="col">Việc</th><th scope="col">Số bài</th><th scope="col">Làm</th></tr></thead><tbody>' . $hang . '</tbody></table>'
-			. self::khoi_y_nghia_dai( $dai ) . TrangLo::lay_bao() . self::khoi_goi_y()
+			. self::khoi_y_nghia_dai( $dai ) . NapNhap::khoi() . TrangLo::lay_bao() . self::khoi_goi_y()
 			. '<p class="description">Máy chỉ đếm và xếp thứ tự; không viết nội dung, không tự gắn chủ đề hay vùng.</p></div>';
 	}
 }
