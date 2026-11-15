@@ -2987,14 +2987,42 @@ $xem  = static function ( array $q ): void { // giả lập trang đang xem
 $g_nhap = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'draft', 'post_title' => 'Nháp Google thử' ) );
 $g_an   = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'private', 'post_title' => 'Ẩn Google thử' ) );
 $g_mk   = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'post_title' => 'Mật khẩu Google thử', 'post_password' => 'x' ) );
-kt( 'mọi tác phẩm đã đăng được lập chỉ mục, kể cả bài chưa có Ý nghĩa (D-106); nháp, ẩn, có mật khẩu thì không; L2 (có Ý nghĩa) chỉ còn dùng cho tiêu đề', $SEO::l2( $l2 ) && ! $SEO::l2( $mau_id['ve-mau'] ) && $SEO::lap_bai( $l2 ) && $SEO::lap_bai( $mau_id['ve-mau'] ) && ! $SEO::lap_bai( $g_nhap ) && ! $SEO::lap_bai( $g_an ) && ! $SEO::lap_bai( $g_mk ) );
-$xem( array( 'p' => $mau_id['ve-mau'], 'post_type' => KhaiBao::TAC_PHAM ) );
+// D-117: chỉ tác phẩm đã đăng có phần riêng được lập chỉ mục; bài chỉ có lời / phần máy chép thì không
+$g_tao = static function ( string $ten, array $phan ): int {
+	$id = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'post_title' => $ten ) );
+	wp_set_object_terms( $id, 'ca-dao', KhaiBao::THE_LOAI );
+	foreach ( $phan + array( 'loi' => array( 'dong' => array( $ten . ' dòng một', $ten . ' dòng hai' ), 'nguoi_lam' => NguoiLam::MAY_CHEP ) ) as $ma => $gt ) {
+		update_post_meta( $id, Phan::khoa( $ma ), $gt );
+	}
+	return $id;
+};
+$g_loi = $g_tao( 'Chỉ lời Google thử', array() );
+$g_ctm = $g_tao( 'Chú thích chép Google thử', array( 'chu_thich' => array( 'muc' => array( array( 'tu' => 'dòng', 'loi_giai' => 'Giải chép.', 'nguoi_lam' => NguoiLam::MAY_CHEP ) ) ) ) );
+$g_ctn = $g_tao( 'Chú thích người viết Google thử', array( 'chu_thich' => array( 'muc' => array( array( 'tu' => 'dòng', 'loi_giai' => 'Tự viết.', 'nguoi_lam' => NguoiLam::NGUOI_VIET ) ) ) ) );
+$g_dbd = $g_tao( 'Dị bản bạn đọc Google thử', array( 'di_ban' => array( 'muc' => array( array( 'dong' => array( 'Ở quê tôi' ), 'nguoi_lam' => NguoiLam::DOC_GIA_GOP ) ) ) ) );
+$g_dbm = $g_tao( 'Dị bản chép Google thử', array( 'di_ban' => array( 'muc' => array( array( 'dong' => array( 'Dị bản chép' ), 'nguoi_lam' => NguoiLam::MAY_CHEP ) ) ) ) );
+$g_dc  = $g_tao( 'Đối chiếu Google thử', array( 'loi' => array( 'dong' => array( 'Đối chiếu dòng một' ), 'nguoi_lam' => NguoiLam::NGUOI_VIET, 'doi_chieu' => array( 'ho_so' => 1, 'trang' => '3' ) ) ) );
+$g_ds  = $SEO::ds_lap();
+kt(
+	'lập chỉ mục chỉ tác phẩm đã đăng có phần riêng (D-117): Ý nghĩa, chú thích người viết, dị bản bạn đọc góp, đối chiếu sách → có; chỉ lời, chú thích chép, dị bản chép, nháp, ẩn, có mật khẩu → không; danh sách tính sẵn khớp từng bài; L2 chỉ còn dùng cho tiêu đề',
+	$SEO::l2( $l2 ) && $SEO::lap_bai( $l2 ) && $SEO::lap_bai( $g_ctn ) && $SEO::lap_bai( $g_dbd ) && $SEO::lap_bai( $g_dc )
+	&& ! $SEO::lap_bai( $g_loi ) && ! $SEO::lap_bai( $g_ctm ) && ! $SEO::lap_bai( $g_dbm ) && ! $SEO::lap_bai( $g_nhap ) && ! $SEO::lap_bai( $g_an ) && ! $SEO::lap_bai( $g_mk )
+	&& in_array( $l2, $g_ds, true ) && in_array( $g_ctn, $g_ds, true ) && in_array( $g_dbd, $g_ds, true ) && in_array( $g_dc, $g_ds, true ) && ! array_intersect( array( $g_loi, $g_ctm, $g_dbm, $g_nhap, $g_an, $g_mk ), $g_ds ),
+	array( $g_ds, $g_loi, $g_ctm, $g_ctn, $g_dbd, $g_dbm, $g_dc )
+);
+LuuPhan::luu( $g_loi, 'y_nghia', array( 'chu' => 'Ý nghĩa vừa thêm.', 'nguoi_lam' => NguoiLam::NGUOI_VIET ), array( 'nguoi' => $ai_ql, 'goi' => KiemPhan::GOI_NGUOI, 'duyet' => true ) );
+$g_ds2 = $SEO::ds_lap();
+wp_update_post( array( 'ID' => $g_ctn, 'post_status' => 'draft' ) );
+$g_ds3 = $SEO::ds_lap();
+kt( 'thêm phần riêng cho bài chỉ có lời → bài vào danh sách lập chỉ mục ngay; bài về nháp → ra khỏi danh sách (bộ đệm tự làm mới)', in_array( $g_loi, $g_ds2, true ) && ! in_array( $g_ctn, $g_ds3, true ), array( $g_ds2, $g_ds3 ) );
+LuuPhan::luu( $g_loi, 'y_nghia', null, array( 'nguoi' => $ai_ql, 'goi' => KiemPhan::GOI_NGUOI, 'duyet' => true ) );
+$xem( array( 'p' => $g_loi, 'post_type' => KhaiBao::TAC_PHAM ) );
 $r_ko = $SEO::robots( array() );
 $td_ko = $SEO::tieu_de( array( 'title' => 'x' ) );
 $xem( array( 'p' => $l2, 'post_type' => KhaiBao::TAC_PHAM ) );
 $r_co = $SEO::robots( array() );
 $td   = $SEO::tieu_de( array( 'title' => 'x' ) );
-kt( 'tác phẩm đã đăng chưa có Ý nghĩa → lập chỉ mục, tiêu đề giữ nguyên; có Ý nghĩa → lập chỉ mục, tiêu đề "— nghĩa và cách dùng"', empty( $r_ko['noindex'] ) && 'x' === $td_ko['title'] && empty( $r_co['noindex'] ) && str_ends_with( $td['title'], '— nghĩa và cách dùng' ), array( $r_ko, $r_co, $td, $td_ko ) );
+kt( 'tác phẩm chỉ có lời → noindex (vẫn đọc được), tiêu đề giữ nguyên; có Ý nghĩa → lập chỉ mục, tiêu đề "— nghĩa và cách dùng"', ! empty( $r_ko['noindex'] ) && 'x' === $td_ko['title'] && empty( $r_co['noindex'] ) && str_ends_with( $td['title'], '— nghĩa và cách dùng' ), array( $r_ko, $r_co, $td, $td_ko ) );
 // Câu đố (D-114): "Giải thích đáp án" (phần y_nghia) không ra thẻ bài, mô tả trang, dữ liệu có cấu trúc, tiêu đề; đáp án có data-nosnippet
 $k_yn   = \Phongdao\MienDuLieu\Phan::khoa( 'y_nghia' );
 $yn_do  = get_post_meta( $mau_id['cau-do-mau'], $k_yn, true );
@@ -3046,14 +3074,17 @@ $t_ld   = get_term_by( 'name', 'Lao động', 'chu_de' );
 $truoc  = $SEO::term_lap( $t_chut );
 update_term_meta( $t_chut->term_id, '_phongdao_loi_giai', array( 'nguoi_lam' => 'nguoi_viet' ) );
 kt( 'phân loại: thể loại có bài → lập chỉ mục; mục từ chỉ khi lời giải do dự án viết', $SEO::term_lap( $tl_ca ) && ! $truoc && $SEO::term_lap( get_term( $t_chut->term_id ) ) );
-// Chủ đề: cần ≥ 3 tác phẩm đã đăng (nháp, ẩn không tính; không còn đếm riêng bài có Ý nghĩa)
+// Chủ đề: cần ≥ 3 tác phẩm được lập chỉ mục (đã đăng, có phần riêng — D-117; nháp, ẩn, bài chỉ có lời không tính)
 $g_cd   = wp_insert_term( 'Chủ đề Google thử', 'chu_de' );
 $g_cd   = get_term( (int) $g_cd['term_id'], 'chu_de' );
 $g_bai  = array();
 for ( $i = 0; $i < 3; $i++ ) {
 	$g_bai[] = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'post_title' => 'Bài Google thử ' . $i ) );
 }
-foreach ( array( $g_bai[0], $g_bai[1], $g_nhap, $g_an ) as $x ) {
+foreach ( $g_bai as $x ) {
+	update_post_meta( $x, Phan::khoa( 'y_nghia' ), array( 'chu' => 'Ý nghĩa thử chủ đề.', 'nguoi_lam' => NguoiLam::NGUOI_VIET ) );
+}
+foreach ( array( $g_bai[0], $g_bai[1], $g_nhap, $g_an, $g_ctm ) as $x ) {
 	wp_set_object_terms( $x, array( $g_cd->term_id ), 'chu_de' );
 }
 $g_hai = $SEO::term_lap( get_term( $g_cd->term_id, 'chu_de' ) );
@@ -3064,10 +3095,10 @@ kt( 'trang phân loại chưa lập chỉ mục: noindex, follow khi site mở; 
 wp_set_object_terms( $g_bai[2], array( $g_cd->term_id ), 'chu_de' );
 $g_ba  = $SEO::term_lap( get_term( $g_cd->term_id, 'chu_de' ) );
 $g_sdp = $SEO::so_do_phan_loai( array(), 'chu_de' )['include'];
-kt( 'chủ đề có 2 tác phẩm đã đăng (cộng nháp, ẩn) → không lập chỉ mục; đủ 3 tác phẩm đã đăng, chưa cần Ý nghĩa → lập chỉ mục và vào sơ đồ trang', ! $g_hai && $g_ba && 3 === $SEO::dem_dang( get_term( $g_cd->term_id, 'chu_de' ) ) && in_array( $g_cd->term_id, $g_sdp, true ), array( $g_hai, $g_ba, $SEO::dem_dang( get_term( $g_cd->term_id, 'chu_de' ) ) ) );
+kt( 'chủ đề có 2 tác phẩm có phần riêng (cộng nháp, ẩn, một bài chỉ có chú thích chép) → không lập chỉ mục; đủ 3 → lập chỉ mục và vào sơ đồ trang', ! $g_hai && $g_ba && 3 === $SEO::dem_lap( get_term( $g_cd->term_id, 'chu_de' ) ) && 4 === $SEO::dem_dang( get_term( $g_cd->term_id, 'chu_de' ) ) && in_array( $g_cd->term_id, $g_sdp, true ), array( $g_hai, $g_ba, $SEO::dem_lap( get_term( $g_cd->term_id, 'chu_de' ) ) ) );
 $sd = $SEO::so_do_bai( array(), KhaiBao::TAC_PHAM );
-kt( 'sơ đồ trang: mọi tác phẩm đã đăng (không giới hạn bài có Ý nghĩa, bỏ bài có mật khẩu); mục từ chỉ gồm mục lập chỉ mục được', ! isset( $sd['post__in'] ) && 'publish' === ( $sd['post_status'] ?? '' ) && false === ( $sd['has_password'] ?? null ) && in_array( $t_chut->term_id, $SEO::so_do_phan_loai( array(), 'muc_tu' )['include'], true ), $sd );
-foreach ( array_merge( $g_bai, array( $g_nhap, $g_an, $g_mk ) ) as $x ) {
+kt( 'sơ đồ trang: chỉ tác phẩm được lập chỉ mục (đã đăng, có phần riêng, không mật khẩu); mục từ chỉ gồm mục lập chỉ mục được', $SEO::ds_lap() === $sd['post__in'] && ! in_array( $g_ctm, $sd['post__in'], true ) && in_array( $g_bai[0], $sd['post__in'], true ) && 'publish' === ( $sd['post_status'] ?? '' ) && false === ( $sd['has_password'] ?? null ) && in_array( $t_chut->term_id, $SEO::so_do_phan_loai( array(), 'muc_tu' )['include'], true ), $sd );
+foreach ( array_merge( $g_bai, array( $g_nhap, $g_an, $g_mk, $g_loi, $g_ctm, $g_ctn, $g_dbd, $g_dbm, $g_dc ) ) as $x ) {
 	wp_delete_post( $x, true );
 }
 wp_delete_term( $g_cd->term_id, 'chu_de' );

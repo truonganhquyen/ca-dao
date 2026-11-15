@@ -337,7 +337,7 @@ Không quảng cáo, không khối liên kết, không đo bên thứ ba, không
 
 ## 10. SEO và chia sẻ
 
-- Lập chỉ mục (D-106, khi đã mở công tắc chặn Google toàn site — H5): **mọi tác phẩm đã đăng**, không xét độ đầy đủ; tuyển tập đã công khai; trang thể loại; trang chủ đề / vùng / mô-típ có từ 3 tác phẩm đã đăng; mục từ có lời giải dự án viết hoặc nguồn mở. Trang lọc, tìm, bài nháp / ẩn: `noindex`.
+- Lập chỉ mục (D-117 thay D-106, khi đã mở công tắc chặn Google toàn site — H5): **tác phẩm đã đăng có phần riêng** (Ý nghĩa, nghĩa tục ngữ, chú thích người viết, dị bản người viết / bạn đọc góp, đối chiếu sách… — lời và phần máy chép từ nguồn không tính); bài chỉ có lời vẫn đọc được, `noindex`, tự vào khi được bổ sung; trang chủ đề / vùng / mô-típ có từ 3 bài như vậy; tuyển tập đã công khai; trang thể loại; trang chủ đề / vùng / mô-típ có từ 3 tác phẩm đã đăng; mục từ có lời giải dự án viết hoặc nguồn mở. Trang lọc, tìm, bài nháp / ẩn: `noindex`.
 - `<title>` và mô tả: tác phẩm có Ý nghĩa (tục ngữ: nghĩa bóng) "<tên> — nghĩa và cách dùng", mô tả từ Ý nghĩa; chưa có: tên + thể loại, mô tả từ lời — không hứa điều trang không có. Câu đố: tên giữ nguyên, mô tả luôn từ lời (không lộ đáp án — D-114).
 - Ảnh chia sẻ 1200×630 mỗi tác phẩm (thể loại, 4 dòng đầu, nhãn mức kiểm, phongdao.com), nền đầu tiên của thể loại; ảnh chung cho trang khác.
 

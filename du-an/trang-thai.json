@@ -30,6 +30,6 @@
   "kiem_tra_cuoi": {
     "trang_thai": "DAT",
     "thoi_diem": "2026-11-14",
-    "pham_vi": "T-208: màn Tuyển tập trong wp-admin (D-116); test:v2 274 + 651 + 55 đạt, quét V2 0 lỗi (12 trang admin), E2E 69/69 tại máy; pilot T-198 vẫn chờ người biên soạn"
+    "pham_vi": "T-209: chỉ lập chỉ mục bài có phần riêng (D-117); test:v2 277 + 675 + 55 đạt, quét V2 0 lỗi, E2E 72/72 tại máy; pilot T-198 vẫn chờ người biên soạn"
   }
 }

@@ -288,6 +288,8 @@ final class BoSung {
 		}
 		return '<div class="wrap phongdao-ban phongdao-bo-sung"><h1>Bổ sung</h1>'
 			. '<p class="description">Làm bài đã đăng đầy đủ hơn: Ý nghĩa, từ khó, dị bản, đối chiếu sách. Bài đọc nhiều lên đầu. Không có chỉ tiêu phải điền kín cả kho; viết xong một bài, lưu và sang bài kế.</p>'
+			// D-117: chỉ bài có phần riêng lên Google khi mở
+			. '<p class="phongdao-bs-google"><strong>Khi mở Google:</strong> ' . esc_html( number_format_i18n( count( \Phongdao\GiaoTiep\Seo\Module::ds_lap() ) ) ) . ' / ' . esc_html( number_format_i18n( (int) wp_count_posts( \Phongdao\HaTang\KhaiBao::TAC_PHAM )->publish ) ) . ' bài đã đăng sẽ được lập chỉ mục — bài có phần thư viện tự làm thêm (Ý nghĩa, nghĩa tục ngữ, chú thích người viết, dị bản, đối chiếu sách…). Bài chỉ có lời vẫn đọc được; bổ sung xong thì tự vào danh sách.</p>'
 			. '<h2>Bài đọc nhiều tuần này chưa có Ý nghĩa</h2>'
 			. ( $o ? '<ol class="phongdao-nen-lam">' . $o . '</ol>' : '<p>Tuần này chưa có bài đọc nhiều nào thiếu Ý nghĩa.</p>' )
 			. '<h2>Danh sách ưu tiên</h2><table class="widefat striped phongdao-ban-so-lieu"><caption class="screen-reader-text">Việc bổ sung theo loại</caption><thead><tr><th scope="col">Việc</th><th scope="col">Số bài</th><th scope="col">Làm</th></tr></thead><tbody>' . $hang . '</tbody></table>'

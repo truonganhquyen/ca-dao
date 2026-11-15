@@ -9,6 +9,8 @@ use Phongdao\HaTang\KhaiBao;
 use Phongdao\KhoLuu\PhanBai;
 use Phongdao\MienDuLieu\CapChatLuong;
 use Phongdao\MienDuLieu\NguoiLam;
+use Phongdao\MienDuLieu\Phan;
+use Phongdao\MienDuLieu\PhanRieng;
 use Phongdao\MienDuLieu\TheLoai;
 
 defined( 'ABSPATH' ) || exit;
@@ -16,10 +18,12 @@ defined( 'ABSPATH' ) || exit;
 /**
  * SEO (docs/26 mục 10, docs/27 mục 10; chuyển từ MVP seo.php). Không đổi blog_public: mở cho Google là việc của người
  * sáng lập (H5); khi còn chặn, WordPress tự noindex mọi trang và tắt sơ đồ trang.
- * Lập chỉ mục (D-106): mọi tác phẩm đã đăng — không giấu theo độ đầy đủ; cấp L0–L3 chỉ dùng nội bộ (xếp việc, bài nổi
- * bật, Câu hôm nay) và để đặt tiêu đề "— nghĩa và cách dùng" khi bài có Ý nghĩa. Tuyển tập đã công khai, trang thể loại,
- * trang chủ đề / vùng / mô-típ / hình thức có ≥ 3 tác phẩm đã đăng, mục từ có lời giải do dự án viết (D-068). Bài nháp,
- * ẩn, trang lọc, trang tìm: noindex. Công tắc chặn Google toàn site (`blog_public`, H5) không đổi ở đây.
+ * Lập chỉ mục (D-117, thay "mọi tác phẩm đã đăng" của D-106): tác phẩm đã đăng **có phần riêng** (MienDuLieu\PhanRieng —
+ * Ý nghĩa, nghĩa tục ngữ, chú thích người viết, dị bản người viết/bạn đọc góp, đối chiếu sách…; lời và phần máy chép từ nguồn
+ * không tính), để thư viện không thành bản sao hàng loạt của nguồn; bài khác vẫn đọc được, tự vào khi được bổ sung. Tuyển
+ * tập đã công khai, trang thể loại, trang chủ đề / vùng / mô-típ / hình thức có ≥ 3 tác phẩm như vậy, mục từ có lời giải do
+ * dự án viết (D-068). Bài nháp, ẩn, trang lọc, trang tìm: noindex. Công tắc chặn Google toàn site (`blog_public`, H5) không
+ * đổi ở đây.
  */
 final class Module implements \Phongdao\HaTang\Module {
 
@@ -31,6 +35,22 @@ final class Module implements \Phongdao\HaTang\Module {
 	public function dang_ky(): void {
 		remove_action( 'wp_head', 'wp_generator' ); // không lộ phiên bản WordPress
 		add_filter( 'wp_robots', array( self::class, 'robots' ) );
+		// Danh sách bài được lập chỉ mục tính sẵn: làm mới khi một phần bài được lưu hoặc bài đổi trạng thái
+		add_action( 'phongdao_da_luu_phan', array( self::class, 'xoa_ds_lap' ) );
+		add_action( 'transition_post_status', static function ( $moi, $cu, $bai ): void {
+			if ( $moi !== $cu && $bai instanceof \WP_Post && KhaiBao::TAC_PHAM === $bai->post_type ) {
+				self::xoa_ds_lap();
+			}
+		}, 10, 3 );
+		add_action( 'deleted_post', array( self::class, 'xoa_ds_lap' ) );
+		// Ghi thẳng meta phần bài (công cụ nhập, lô) cũng làm mới
+		foreach ( array( 'added_post_meta', 'updated_post_meta', 'deleted_post_meta' ) as $moc ) {
+			add_action( $moc, static function ( $_id, $_bai, $khoa ): void {
+				if ( is_string( $khoa ) && str_starts_with( $khoa, '_phongdao_' ) ) {
+					self::xoa_ds_lap();
+				}
+			}, 10, 3 );
+		}
 		add_filter( 'document_title_parts', array( self::class, 'tieu_de' ) );
 		add_action( 'wp_head', array( self::class, 'dau_trang' ), 3 );
 		add_filter( 'wp_sitemaps_add_provider', static fn( $nha, $ten ) => 'users' === $ten ? false : $nha, 10, 2 );
@@ -48,10 +68,53 @@ final class Module implements \Phongdao\HaTang\Module {
 		return $p && KhaiBao::TAC_PHAM === $p->post_type && ( CapChatLuong::tinh( PhanBai::tat_ca( $id, KhaiBao::TAC_PHAM ), DocBai::the_loai( $p ) ) ?? 0 ) >= 2;
 	}
 
-	/** Tác phẩm được lập chỉ mục: đã đăng (D-106). */
+	/** Tác phẩm được lập chỉ mục (D-117): đã đăng, không mật khẩu, có phần riêng. */
 	public static function lap_bai( int $id ): bool {
 		$p = get_post( $id );
-		return $p && KhaiBao::TAC_PHAM === $p->post_type && 'publish' === $p->post_status && '' === (string) $p->post_password;
+		return $p && KhaiBao::TAC_PHAM === $p->post_type && 'publish' === $p->post_status && '' === (string) $p->post_password
+			&& PhanRieng::co( PhanBai::tat_ca( $id, KhaiBao::TAC_PHAM ) );
+	}
+
+	public const DS_LAP = 'phongdao_ds_lap';
+
+	public static function xoa_ds_lap(): void {
+		delete_transient( self::DS_LAP );
+	}
+
+	/**
+	 * ID mọi tác phẩm được lập chỉ mục (D-117), tính sẵn (một truy vấn lọc thô theo phần có thể là phần riêng, rồi kiểm từng
+	 * bài bằng PhanRieng). Dùng cho sơ đồ trang và đếm trang phân loại; làm mới khi phần bài / trạng thái đổi.
+	 *
+	 * @return int[]
+	 */
+	public static function ds_lap(): array {
+		$c = get_transient( self::DS_LAP );
+		if ( is_array( $c ) ) {
+			return $c;
+		}
+		global $wpdb;
+		$khoa = array_map( array( Phan::class, 'khoa' ), array_merge( PhanRieng::MOT, array( 'media', 'sgk' ) ) );
+		$in   = implode( ',', array_fill( 0, count( $khoa ), '%s' ) );
+		$ids  = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT DISTINCT m.post_id FROM {$wpdb->postmeta} m JOIN {$wpdb->posts} p ON p.ID = m.post_id WHERE p.post_type = %s AND p.post_status = 'publish' AND p.post_password = '' AND ( m.meta_key IN ($in) OR ( m.meta_key = %s AND m.meta_value LIKE %s ) OR ( m.meta_key = %s AND ( m.meta_value LIKE %s OR m.meta_value LIKE %s ) ) OR ( m.meta_key = %s AND m.meta_value LIKE %s ) )", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $in chỉ là dãy %s
+				array_merge( array( KhaiBao::TAC_PHAM ), $khoa, array( Phan::khoa( 'chu_thich' ), '%' . $wpdb->esc_like( NguoiLam::NGUOI_VIET ) . '%', Phan::khoa( 'di_ban' ), '%' . $wpdb->esc_like( NguoiLam::NGUOI_VIET ) . '%', '%' . $wpdb->esc_like( NguoiLam::DOC_GIA_GOP ) . '%', Phan::khoa( 'loi' ), '%' . $wpdb->esc_like( 'doi_chieu' ) . '%' ) )
+			)
+		) ?: array();
+		$ra = array_values( array_filter( array_map( 'intval', $ids ), static fn( int $id ): bool => PhanRieng::co( PhanBai::tat_ca( $id, KhaiBao::TAC_PHAM ) ) ) );
+		sort( $ra );
+		set_transient( self::DS_LAP, $ra, DAY_IN_SECONDS );
+		return $ra;
+	}
+
+	/** Số tác phẩm được lập chỉ mục (có phần riêng) gắn một phân loại. */
+	public static function dem_lap( \WP_Term $t ): int {
+		global $wpdb;
+		$ids = self::ds_lap();
+		if ( ! $ids ) {
+			return 0;
+		}
+		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(DISTINCT object_id) FROM {$wpdb->term_relationships} WHERE term_taxonomy_id = %d AND object_id IN (" . implode( ',', array_map( 'intval', $ids ) ) . ')', $t->term_taxonomy_id ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- danh sách số nguyên
 	}
 
 	/** Số tác phẩm đã đăng gắn một phân loại (một truy vấn, không tính nháp, ẩn, thùng rác). */
@@ -77,7 +140,7 @@ final class Module implements \Phongdao\HaTang\Module {
 			return $t->count > 0 && is_array( $lg ) && NguoiLam::NGUOI_VIET === ( $lg['nguoi_lam'] ?? '' );
 		}
 		if ( in_array( $t->taxonomy, self::PHAN_LOAI_DEM, true ) ) {
-			return self::dem_dang( $t ) >= self::IT_NHAT;
+			return self::dem_lap( $t ) >= self::IT_NHAT;
 		}
 		return false;
 	}
@@ -287,7 +350,8 @@ final class Module implements \Phongdao\HaTang\Module {
 
 	public static function so_do_bai( array $args, string $loai ): array {
 		if ( KhaiBao::TAC_PHAM === $loai ) {
-			// Mọi tác phẩm đã đăng (D-106): WordPress chỉ lấy bài đã đăng; bỏ bài có mật khẩu như trang bài
+			// Tác phẩm được lập chỉ mục (D-117): đã đăng, có phần riêng
+			$args['post__in']     = self::ds_lap() ?: array( 0 );
 			$args['post_status']  = 'publish';
 			$args['has_password'] = false;
 		} elseif ( KhaiBao::TUYEN_TAP === $loai ) {
