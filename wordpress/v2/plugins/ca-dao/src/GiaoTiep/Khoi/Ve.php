@@ -126,12 +126,52 @@ final class Ve {
 		foreach ( array_values( $dong ) as $i => $d ) {
 			$dai = max( $dai, mb_strlen( $d ) + ( 'lucbat' === $kieu && 0 === $i % 2 ? 3 : 0 ) );
 		}
-		$html = self::khung_loi( $kieu, $dai, $tuy );
-		$tim  = \Phongdao\MienDuLieu\TuKho::tim( array_values( $dong ), $tu );
+		self::$so_ct = (array) ( $tuy['so_ct'] ?? array() );
+		$html        = self::khung_loi( $kieu, $dai, $tuy );
+		$tim         = \Phongdao\MienDuLieu\TuKho::tim( array_values( $dong ), $tu );
 		foreach ( array_values( $dong ) as $i => $d ) {
 			$html .= self::dong( $d, $kieu, $tim[ $i ] ?? array(), empty( $tuy['so_dong'] ) ? 0 : $i + 1 );
 		}
+		self::$so_ct = array();
 		return $html . '</div></div>';
+	}
+
+	/**
+	 * Số chú thích của trang đang dựng (D-119): khoá cụm từ (khoa_cum) => số. Có số thì từ trong lời dẫn tới mục #ct-N và
+	 * mang số nhỏ bên cạnh; không có thì giữ liên kết tới khung chú thích như cũ.
+	 *
+	 * @var array<string,int>
+	 */
+	private static array $so_ct = array();
+
+	/** Khoá so khớp của một cụm (các tiếng chuẩn hoá theo TuKho, cách nhau một dấu cách): "Hồ Tây" và "hồ tây" cùng khoá. */
+	public static function khoa_cum( string $s ): string {
+		return implode( ' ', array_column( \Phongdao\MienDuLieu\TuKho::tieng( $s ), 2 ) );
+	}
+
+	/**
+	 * Đánh số chú thích theo lần xuất hiện đầu của từ trong lời (D-119, chú thích kiểu sách). Cùng cách tìm với lúc tô từ,
+	 * nên số trên lời và số trong danh sách luôn khớp.
+	 *
+	 * @param string[] $dong các dòng đúng như sẽ hiện
+	 * @param string[] $tu   từ có chú thích
+	 * @return array<string,int> khoá cụm => số (từ 1)
+	 */
+	public static function danh_so_chu_thich( array $dong, array $tu ): array {
+		$dong = array_values( $dong );
+		$tim  = \Phongdao\MienDuLieu\TuKho::tim( $dong, $tu );
+		ksort( $tim );
+		$so = array();
+		foreach ( $tim as $i => $ds ) {
+			usort( $ds, static fn( array $a, array $b ): int => $a[0] <=> $b[0] );
+			foreach ( $ds as [ $a, $b ] ) {
+				$k = self::khoa_cum( mb_substr( (string) $dong[ $i ], $a, $b - $a ) );
+				if ( '' !== $k && ! isset( $so[ $k ] ) ) {
+					$so[ $k ] = count( $so ) + 1;
+				}
+			}
+		}
+		return $so;
 	}
 
 	/**
@@ -163,9 +203,11 @@ final class Ve {
 				}
 			}
 		}
-		$tim = \Phongdao\MienDuLieu\TuKho::tim( $moi_dong, $tu );
-		$than = '';
-		$muc  = '';
+		$tim         = \Phongdao\MienDuLieu\TuKho::tim( $moi_dong, $tu );
+		self::$so_ct = (array) ( $tuy['so_ct'] ?? array() );
+		$sau_doan    = (array) ( $tuy['sau_doan'] ?? array() );
+		$than        = '';
+		$muc         = '';
 		foreach ( $cd['doan'] as $d ) {
 			$id = 'cadao-doan-' . (int) $d['so'];
 			$o  = '' === $d['tieu_de'] ? '' : '<h2 class="doan-ten">' . esc_html( $d['tieu_de'] ) . '</h2>';
@@ -177,10 +219,13 @@ final class Ve {
 				}
 				$o .= '</div>';
 			}
+			// Chú thích của đoạn ngay sau đoạn (D-119), HTML an toàn do TacPham dựng
+			$o    .= (string) ( $sau_doan[ (int) $d['so'] ] ?? '' );
 			$than .= '<div class="doan" id="' . $id . '" data-so-doan="' . (int) $d['so'] . '"' . ( $d['sau'] ? ' data-sau' : '' ) . '>' . $o . '</div>';
 			$muc  .= '<li><a href="#' . $id . '">' . esc_html( '' === $d['tieu_de'] ? 'Đoạn ' . (int) $d['so'] : $d['tieu_de'] ) . '</a> <span class="small muted">· dòng ' . (int) $d['tu'] . '–' . (int) $d['den'] . '</span></li>';
 		}
-		$loi = self::khung_loi( $kieu, $dai, $tuy, 'loi-doan' ) . $than . '</div></div>';
+		$loi         = self::khung_loi( $kieu, $dai, $tuy, 'loi-doan' ) . $than . '</div></div>';
+		self::$so_ct = array();
 		if ( ! $cd['dai'] ) {
 			return $loi;
 		}
@@ -240,9 +285,12 @@ final class Ve {
 			if ( $a < $vt || $b > $n || $a >= $b ) {
 				continue;
 			}
-			$w  = esc_html( mb_substr( $s, $a, $b - $a ) );
-			$o .= esc_html( mb_substr( $s, $vt, $a - $vt ) ) . '<a class="word" href="#chu-thich" aria-label="Xem chú thích từ ' . $w . '">' . $w . '</a>';
-			$vt = $b;
+			$goc = mb_substr( $s, $a, $b - $a );
+			$w   = esc_html( $goc );
+			$n   = self::$so_ct[ self::khoa_cum( $goc ) ] ?? 0;
+			$o  .= esc_html( mb_substr( $s, $vt, $a - $vt ) ) . '<a class="word" href="#' . ( $n ? 'ct-' . $n : 'chu-thich' ) . '" aria-label="Xem chú thích từ ' . $w . '">' . $w . '</a>'
+				. ( $n ? '<sup class="so-ct" aria-hidden="true">' . $n . '</sup>' : '' );
+			$vt  = $b;
 		}
 		return $o . esc_html( mb_substr( $s, $vt ) );
 	}
@@ -298,14 +346,16 @@ final class Ve {
 	 *
 	 * @param array{ma:string,tieu_de:string,ten_the_loai:string,url:string} $tp
 	 */
-	public static function cong_cu( array $tp ): string {
+	public static function cong_cu( array $tp, bool $chep = false ): string {
 		$du = ' data-id="' . esc_attr( $tp['ma'] ) . '" data-tieu-de="' . esc_attr( $tp['tieu_de'] ) . '" data-the-loai="' . esc_attr( $tp['ten_the_loai'] ) . '" data-url="' . esc_url( $tp['url'] ) . '"';
 		$co = '';
 		foreach ( array( '22' => 'Vừa', '28' => 'Lớn', '34' => 'Rất lớn' ) as $n => $t ) {
 			$co .= '<button type="button" data-action="size" data-size="' . $n . '" aria-pressed="' . ( '22' === (string) $n ? 'true' : 'false' ) . '">' . $t . '</button>';
 		}
-		return '<aside class="work-rail no-print" aria-label="Công cụ đọc"><div class="rail-card">'
+		return '<aside class="work-rail no-print" aria-label="Công cụ đọc"><div class="rail-card' . ( $chep ? ' co-chep' : '' ) . '">'
 			. self::nut( 'cite', 'quote', 'Trích dẫn', 'primary', $du )
+			// Trang bài gọn (D-119): Sao chép lời nằm chung thanh công cụ, không còn nút riêng trong khung lời
+			. ( $chep ? self::nut( 'copy-loi', 'copy', 'Sao chép', '', ' data-url="' . esc_url( $tp['url'] ) . '" aria-label="Sao chép lời kèm đường dẫn bài"' ) : '' )
 			. self::nut( 'save', 'save', 'Lưu', '', $du . ' aria-pressed="false"' )
 			. self::nut( 'share', 'share', 'Chia sẻ', '', $du )
 			. self::nut( 'present', 'present', 'Trình chiếu', 'chi-rong', $du )

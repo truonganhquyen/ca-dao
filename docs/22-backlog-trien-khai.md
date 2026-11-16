@@ -184,6 +184,11 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-209 | Chỉ lập chỉ mục tác phẩm có phần riêng (D-117): `PhanRieng`, `noindex` bài chỉ có lời / phần máy chép, trang phân loại từ 3 bài có phần riêng, sơ đồ trang, số bài sẽ lên Google ở Bổ sung | A | T-191 | — | DONE |
 | T-210 | Nháp Ý nghĩa theo lô nhỏ (D-117): Bổ sung tải lô bài đọc nhiều chưa có Ý nghĩa để soạn nháp, nạp tệp nháp thành thẻ chờ duyệt trong Hộp việc (xem trước, bỏ bài đã có Ý nghĩa / nháp đang chờ, giới hạn lô) | A | T-209 | — | DONE |
 | T-211 | Ý nghĩa chung cho tục ngữ–thành ngữ, bỏ nhãn trống, chữ Nghĩa bóng bình thường (D-118) | A | T-190 | — | DONE |
+| T-212 | Trang tác phẩm gọn — khung lời mới cho người đọc (D-119, `docs/41`): nhãn thể loại và viền màu trong khung, bài ngắn lấy lời làm tiêu đề, chú thích kiểu sách ngay dưới lời (theo đoạn ở bài chia đoạn), một dòng nguồn, Sao chép vào thanh công cụ, hiểu bài ngay sau khung lời, tục ngữ hai vế một dòng, một dòng thay hộp mời góp | A | T-211 | — | IN_PROGRESS |
+| T-213 | Trang tác phẩm gọn — một lời mời góp và hàng mở (D-119): Hiểu thêm chỉ khi có bài, câu đố bỏ Hiểu thêm, góp cuối trang theo thể loại, bỏ viên vùng trống, Dị bản / Hình ảnh / Ảnh để chia sẻ thành hàng mở, Cách chơi đồng dao, Bối cảnh vè | A | T-212 | — | READY |
+| T-214 | Trang tác phẩm gọn — Đọc tiếp gọn và lối vào (D-119): tối đa 3 dòng không lấp, cùng tuyển tập / dị bản / mô-típ trước, Đố tiếp, thẻ danh sách không lặp, nhãn mô-típ, lối vào trang chủ khớp nội dung thật | A | T-213 | — | READY |
+| T-215 | Chuyện quanh bài và Câu gần nghĩa (D-119): phần `chuyen_quanh`, chuyển mục chú thích sang, nhập và hiện Câu gần nghĩa · trái nghĩa; chế độ sửa trên trang đọc và bài thô tục theo bố cục mới | A | T-214 | — | READY |
+| T-216 | Quản trị gọn (D-119): tục ngữ nhập Ý nghĩa + Nghĩa đen, Sửa tác phẩm gọn, Đăng nhanh ở Bài mới, nhắc lỗi trình bày khi lưu, Bổ sung → Cần sửa | A | T-215 | — | READY |
 | **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
 | T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
 | T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | IN_PROGRESS |
@@ -990,6 +995,15 @@ Người sáng lập chọn dùng nháp AI theo lô nhỏ (D-117). **Chấp nh�
 **Đã gộp 16/11/2026:** [PR #184](https://github.com/truonganhquyen/ca-dao/pull/184), plugin 1.0.70/theme 1.0.12. Bốn cổng đạt trên [CI head cuối](https://github.com/truonganhquyen/ca-dao/actions/runs/43824755062): kiểm nhất quán, test:v2, quét 0 lỗi, E2E 74/74 (0 lỗi, 0 bỏ qua). Lượt E2E cuối trên Windows treo ở thao tác phân loại và bị dừng; kiểm riêng không khởi động trong 5 phút, không tính đạt. Bằng chứng E2E hoàn chỉnh là CI. Giữ các kiểm nội dung/quyền/nonce/xác nhận; gửi form lô bằng Enter native và đo bố cục sau hai khung hình như cổng quét. Không sửa nội dung bài thật; phiên bản site kiểm riêng bằng `npm run kiem-site-that`.
 
 Người sáng lập duyệt D-118 ngày 16/11/2026. **Chấp nhận:** mọi bài tục ngữ–thành ngữ có ô Ý nghĩa ở wp-admin và nút thêm/sửa trên trang đọc; trong màn sửa phần này đứng trước Nghĩa đen / Nghĩa bóng / Dùng khi. Các phần chi tiết tuỳ chọn, giữ riêng và không tự chuyển nội dung. Bài chưa có Ý nghĩa không mang nhãn Ý nghĩa trống khi khách xem. Lưu nháp chưa hiện; người có quyền bấm lưu đã duyệt mới đưa vào bài, dùng đường lưu/kiểm phiên/lịch sử hiện có, chạy cả khi tắt JavaScript. Chữ Nghĩa bóng cùng cỡ, độ đậm, giãn dòng với Nghĩa đen trên 390/1440 px. **Không làm:** soạn/sửa nội dung thật; mở rộng bộ nạp nháp theo lô T-210; đổi schema hoặc công tắc Google.
+
+
+### Trang tác phẩm gọn — T-212..T-216
+
+Người sáng lập duyệt bản xem trước lần 2 ngày 16/11/2026 (D-119); kế hoạch, điều chốt và thứ tự ở `docs/41`. Lằn ranh: máy không viết, không sửa lời hay nguồn, không tự đăng, không tự chuyển chữ giữa các phần.
+
+**T-212 — chấp nhận:** trang bài của người đọc (không ở chế độ sửa, không phải bài có từ ngữ thô tục) có khung lời chứa nhãn thể loại (thể thơ chỉ Lục bát, Song thất lục bát) và viền màu thể loại; tục ngữ câu ngắn, ca dao và câu đố từ 4 dòng trở xuống có đúng một `h1` là lời, bài dài có `h1` là tên rồi tới lời; số dòng chỉ từ 8 dòng. Chú thích nằm trong khung lời ngay dưới lời, đánh số theo lần xuất hiện đầu của từ trong lời (số nhỏ cạnh từ, từ dẫn tới mục `#ct-N`), mục không thấy trong lời xếp cuối không số; quá bốn mục thì phần sau trong "Xem thêm N chú thích"; bài chia đoạn có từ 8 chú thích thì chú thích nằm sau từng đoạn, thu gọn; chú thích không gắn từ hiện thành hàng "Chuyện quanh bài", mục trùng cả câu tục ngữ hiện thành hàng "Nguồn gốc" và câu không bị tô. Tắt JavaScript hiện đủ chữ; có JavaScript thì mục dài gọn hai dòng kèm nút "thêm" và Ý nghĩa quá 8 dòng gọn kèm "Đọc hết"; chạm từ vẫn mở định nghĩa đủ. Một dòng nguồn ở chân khung lời (mốc `#tu-lieu` giữ cho liên kết cũ) thay nhãn mức kiểm, ⓘ và khối "Lời này từ đâu?". Sao chép nằm trong thanh công cụ sau Trích dẫn. Ý nghĩa (tục ngữ: khối Nghĩa gồm Nghĩa đen, Ý nghĩa, Nghĩa bóng và Dùng khi khi có) đứng ngay sau khung lời, trước thanh công cụ; vè: Bối cảnh và Ý nghĩa trước lời. Tục ngữ câu ngắn hai dòng hiện một dòng (chỉ cách hiện). Bài chưa có nghĩa: một dòng "Chưa có giải nghĩa · Góp cách hiểu" tới form cách hiểu. Chế độ sửa và bài thô tục giữ bố cục cũ. **Không làm:** đổi Hiểu thêm, Đọc tiếp, góp cuối bài (T-213, T-214); phần dữ liệu mới (T-215).
+
+**T-213..T-216:** chấp nhận theo `docs/41` mục 2 (6–9) và mục 4; ghi chi tiết khi bắt đầu từng việc.
 
 ## 4. User story
 

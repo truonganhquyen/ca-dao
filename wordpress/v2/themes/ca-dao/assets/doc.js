@@ -1,12 +1,12 @@
-// Tương tác của trang người đọc V2 (docs/27 mục 6, D-093). Không cookie, không gửi gì ra ngoài; lưu trên máy bằng localStorage.
-// Trang vẫn đọc được khi tắt JavaScript: lời, ý nghĩa, chú thích, dị bản là HTML; khối thu gọn dùng <details>.
+// Tương tác trang người đọc V2 (docs/27 mục 6). Không cookie, không gửi gì ra ngoài; lưu bằng localStorage.
+// Tắt JavaScript vẫn đọc được: nội dung là HTML, khối thu gọn dùng <details>.
 (() => {
   'use strict';
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const doc = k => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } };
   const ghi = (k, v) => { try { localStorage.setItem(k, typeof v === 'string' ? v : JSON.stringify(v)); return true; } catch { return false; } };
-  // Sự kiện đo lường: chỉ phát trong trang; mã đo lường của plugin (nếu có, chỉ cho khách) nhận và gửi
+  // Sự kiện đo lường: phát trong trang; mã đo lường của plugin nhận và gửi
   const su = (loai, du) => document.dispatchEvent(new CustomEvent('phongdao:su-kien', { detail: { loai, ...du } }));
   const fit = () => window.PDfit && window.PDfit();
 
@@ -32,7 +32,7 @@
   };
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 
-  // Lời của bài: các câu (bỏ số dòng), câu lục thụt vào bằng khoảng trắng không ngắt; bài chia đoạn: các khổ cách một dòng trống
+  // Lời: bỏ số dòng, câu lục thụt bằng khoảng trắng không ngắt, khổ cách một dòng trống
   const loiBai = (khung = document) => {
     const v = $('.verse-card .verse, .today-card .verse', khung) || $('.read-title .verse');
     if (!v) return [];
@@ -59,7 +59,7 @@
     fit();
   };
   const daChon = doc('phongdao-co-chu'); if ([22, 28, 34].includes(daChon)) coChu(daChon);
-  // Đã lưu: trên máy người đọc, cùng khoá và dạng {id, ten, url, loai, dong} với MVP — bài lưu trước khi chuyển vẫn còn
+  // Đã lưu: trên máy người đọc, cùng khoá và dạng với MVP
   const daLuu = () => { const d = doc('cadao-da-luu'); return Array.isArray(d) ? d : []; };
   const coLuu = id => daLuu().some(x => x && String(x.id) === id);
   $$('[data-action=save]').forEach(b => { if (coLuu(b.dataset.id)) { b.setAttribute('aria-pressed', 'true'); $('.nhan', b).textContent = 'Đã lưu'; } });
@@ -73,7 +73,7 @@
   };
   const thanhVai = $('.role-bar'); if (thanhVai) { thanhVai.hidden = false; vai((doc('phongdao-vai') || {}).vai); }
 
-  // Nghe (D-095, như MVP): giọng tiếng Việt có sẵn trên máy người đọc; không có thì nút không hiện; không tự phát
+  // Nghe (D-095): giọng tiếng Việt có sẵn trên máy; không có thì ẩn nút; không tự phát
   const nutNghe = $('[data-action=nghe]');
   let giong = null;
   if (nutNghe && window.speechSynthesis && window.SpeechSynthesisUtterance) {
@@ -101,7 +101,7 @@
     t.onerror = () => bao('Chưa mở được, xin thử lại.'); document.head.append(t);
   };
 
-  // Bài dài (như MVP): đoạn sau dòng 30 thu gọn sau "Đọc toàn bài"; nhớ đoạn đang đọc trên máy, cùng khoá với MVP
+  // Bài dài: đoạn sau dòng 30 thu sau "Đọc toàn bài"; nhớ đoạn đang đọc
   const dai = $('.bai-dai');
   const moDai = () => {
     if (!dai || !dai.classList.contains('thu-gon')) return;
@@ -139,9 +139,9 @@
     const w = e.target.closest('a.word');
     if (w) {
       su('chu_giai_mo', { muc: w.textContent });
-      // Ô chú thích ngay chỗ đọc (như MVP): nội dung lấy từ khối Từ khó; tắt JavaScript thì liên kết nhảy xuống khối đó
+      // Ô chú thích ngay chỗ đọc; tắt JavaScript thì nhảy tới mục chú thích
       const tu = w.textContent.trim().toLowerCase(), m = $$('#chu-thich .term').find(t => ($('dt', t) || {}).textContent.trim().toLowerCase() === tu);
-      if (m && window.HTMLDialogElement) { e.preventDefault(); const d = hop(esc(w.textContent.trim()), `<div class="small">${$('dd', m).innerHTML}</div>`); d.classList.add('word-dialog'); return; }
+      if (m && window.HTMLDialogElement) { e.preventDefault(); const d = hop(esc(w.textContent.trim()), `<div class="small">${$('dd', m).innerHTML.replace(/<button.*?\/button>/, '')}</div>`); d.classList.add('word-dialog'); return; }
     }
     const a = e.target.closest('a[href^="#"]');
     if (a && a.getAttribute('href').length > 1 && mo(a.getAttribute('href').slice(1))) { e.preventDefault(); const v = a.closest('details.vi-sao'); if (v) v.open = false; return; }
@@ -202,7 +202,7 @@
     const n = $('input[name^="nen-"]:checked', k); if (n) $('.anh-chia-se', k).dataset.nen = n.value;
     requestAnimationFrame(fit);
   });
-  // Hiểu thêm (D-105): ba phần thành ba thẻ, mở sẵn phần nhiều bài nhất; liên kết tới một phần thì mở phần đó
+  // Hiểu thêm (D-105): ba thẻ, mở sẵn phần nhiều bài nhất hoặc phần được dẫn tới
   const ht = $('[data-hieu-them]');
   if (ht) {
     const nut = $$('[role=tab]', ht), pan = $$('.ht-phan', ht);
@@ -220,4 +220,11 @@
     });
     document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"]'); const h = a?.getAttribute('href').slice(1); const i = a ? theo(h) : -1; if (i >= 0) { mo(i); moForm(h); } });
   }
+  // D-119: chú thích, Ý nghĩa dài thu gọn khi có JavaScript
+  const gon = () => {
+    $$('.ct-ds .term:not(.mo)').forEach(t => { t.classList.add('gon'); t.scrollHeight - t.clientHeight < 3 ? t.classList.remove('gon') : $('.ct-them', t) || $('dd', t).insertAdjacentHTML('beforeend', '<button class="ct-them" type="button" aria-expanded="false">thêm</button>'); });
+    $$('.hieu-gon .y-nghia-chu:not(.gon,.mo)').forEach(p => p.scrollHeight > 8.5 * parseFloat(getComputedStyle(p).lineHeight) && (p.classList.add('gon'), p.insertAdjacentHTML('afterend', '<button class="ct-them y-het" type="button" aria-expanded="false">Đọc hết</button>')));
+  };
+  document.addEventListener('click', e => { const b = e.target.closest('.ct-them'); if (!b) return; const t = b.closest('.term') || b.previousElementSibling, m = t.classList.toggle('mo'); t.classList.toggle('gon', !m); b.textContent = m ? 'thu gọn' : b.matches('.y-het') ? 'Đọc hết' : 'thêm'; b.setAttribute('aria-expanded', m); });
+  if ($('.ct-ds,.hieu-gon')) { gon(); addEventListener('resize', gon); document.addEventListener('toggle', gon, true); }
 })();

@@ -257,7 +257,7 @@ try {
     await thu('Trang bài: Sao chép lời kèm đường dẫn', async () => {
       await di(k, caDao);
       await k.bringToFront();
-      await bam(k, '.verse-card [data-action=copy-loi]');
+      await bam(k, '.work-rail [data-action=copy-loi]'); // trang bài gọn (D-119): Sao chép ở thanh công cụ
       if (!chepDuoc) { await baoCo(k, 'sao chép'); return; }
       await baoCo(k, 'Đã sao chép lời');
       const chu = await k.evaluate(() => navigator.clipboard.readText());
@@ -818,7 +818,7 @@ try {
     await thu('Cách hiểu của bạn đọc: Hiểu thêm trống là một dòng gọn; khách gửi bằng form nhanh trên bài chưa có Ý nghĩa, chưa hiện ngay; người biên soạn bấm Hiện ở Hộp việc; khách thấy ở phần Cách hiểu, Hiểu thêm thành ba thẻ', async () => {
       const bai = '/ca-dao/cau-mau-thu-hai/', chu = 'Cách hiểu thử đầu-cuối: câu nói về lòng biết ơn.';
       await di(k, bai);
-      chac(await coChu(k, 'Câu này chưa có lời giải nghĩa'), 'bài chưa có Ý nghĩa không mời chia sẻ cách hiểu');
+      chac(await coChu(k, 'Chưa có giải nghĩa'), 'bài chưa có Ý nghĩa không có dòng mời góp cách hiểu');
       chac(await k.$eval('[data-form-cach-hieu]', d => !d.open), 'form cách hiểu chưa thu gọn lúc đầu');
       // Chưa có bài nào của bạn đọc (D-114): một dòng mời, không ba thẻ số 0
       if (!(await k.$('[data-hieu-them]'))) chac(await k.$('#hieu-them.ht-gon') && !(await k.$('#hieu-them [role=tab]')) && await coChu(k, 'Chưa có cách hiểu, bài cảm nhận hay cảm nghĩ'), 'Hiểu thêm trống chưa thu thành một dòng');
