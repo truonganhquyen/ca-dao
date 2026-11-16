@@ -918,6 +918,7 @@ try {
         await di(k, baiMoi);
         chac(!await k.$('.the-dau .eyebrow') && !await k.$('.meaning'), 'bài trống vẫn mang nhãn Ý nghĩa');
         await di(p, url);
+        await bam(p, '[data-mo-phan="y_nghia"]');
         await bam(p, '#phan-y_nghia>summary');
         await p.type('#phan-y_nghia textarea[name=chu]', chu);
         await bamDoiTrang(p, '#phan-y_nghia button[name=duyet][value=""]', { banPhim: true });
@@ -925,6 +926,7 @@ try {
         await di(k, baiMoi);
         chac(!await coChu(k, chu), 'nháp chưa duyệt đã xuất hiện cho khách');
         await di(p, url);
+        await bam(p, '[data-mo-phan="y_nghia"]');
         await bam(p, '#phan-y_nghia>summary');
         await p.type('#phan-y_nghia textarea[name=chu]', chu);
         await bamDoiTrang(p, '#phan-y_nghia button[name=duyet][value="1"]', { banPhim: true });
