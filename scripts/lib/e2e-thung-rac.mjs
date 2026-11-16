@@ -1,7 +1,7 @@
 // Chỉ gọi trong Playground sau đăng nhập; không chạy với --site.
 export async function kiemThungRac({bt,di,bam,datO,bamDoiTrang: chuyenTrang,chac,thu,thuMucAnh}) {
-  // Enter gửi form native; không phụ thuộc chuột trong chế độ mô phỏng cảm ứng của Chrome Linux.
-  const bamDoiTrang = (tab,sel) => chuyenTrang(tab,sel,{banPhim:!tab.isJavaScriptEnabled()});
+  // Enter gửi form native (kể cả nút Áp dụng lô); giữ JavaScript và mọi kiểm kết quả.
+  const bamDoiTrang = (tab,sel) => chuyenTrang(tab,sel,{banPhim:!tab.isJavaScriptEnabled() || sel === 'button[name=lam][value=ap_dung]'});
   const thuKhongJs = (ten,fn) => thu(ten,async()=>{try{await fn();}finally{await bt.setJavaScriptEnabled(true);}});
   await thuKhongJs('chờ trùng: bàn phím không JavaScript nối thẻ mất và mở đúng thẻ Để sau', async () => {
     await bt.setJavaScriptEnabled(false);

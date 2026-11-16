@@ -10,6 +10,8 @@
 
 ## Đang chạy
 
+- **Ý nghĩa tục ngữ–thành ngữ (D-118, plugin 1.0.70/theme 1.0.12):** mọi bài có ô Ý nghĩa chung ở màn sửa và lối thêm/sửa trên trang đọc; Nghĩa đen / Nghĩa bóng / Dùng khi tuỳ chọn. Bài chưa có Ý nghĩa không mang nhãn trống cho khách; nội dung Nghĩa bóng dùng cỡ chữ/độ đậm/giãn dòng bình thường. Dùng cùng đường nháp/duyệt/kiểm phiên/lịch sử, không chuyển hoặc viết lại nội dung. [Hướng dẫn nhập](huong-dan/sua-day-du-va-phan-loai.md).
+
 - **phongdao.com chạy V2** (Thư viện Văn học Dân gian Việt Nam) từ 04/11/2026: WordPress trên VPS, máy chủ tự cập nhật sau mỗi PR gộp vào `main` (`docs/26` mục 15). **Site còn chặn Google** (công tắc toàn site, Human Gate H5 — người sáng lập mở khi quyết).
 - **Trang người đọc** (`docs/27`): trang chủ, danh sách theo thể loại, chủ đề, vùng; trang bài cho năm thể loại (lời mỗi câu một dòng, nhãn mức kiểm, Ý nghĩa, từ khó chạm để xem, dị bản, "Lời này từ đâu?", trích dẫn, chia sẻ, ảnh để chia sẻ, trình chiếu, cỡ chữ, Đọc cùng bé); Tìm (gõ không dấu, gợi ý gõ sai); Từ điển, Bản đồ, Tuyển tập, Khám phá, Một câu ngẫu nhiên; Đã lưu; Góp (dị bản, chú thích, báo lỗi, số trang, cảm nghĩ, bài cảm nhận).
 - **Form Góp gọn theo loại** (D-108, plugin 1.0.58/theme 1.0.7): chỉ hiện ô phù hợp, thông tin phụ thu gọn; từ bài giữ loại/bài/đối tượng báo vi phạm; đổi loại không mất chữ. Gửi lỗi dựng lại đúng chữ trong phản hồi riêng tư, kể cả khi tắt JavaScript; gửi số trang không ép viết ghi chú. Consent, chống rác và hàng chờ duyệt giữ nguyên. [Chi tiết và kiểm thử](35-form-gop-gon-va-giu-chu.md).
