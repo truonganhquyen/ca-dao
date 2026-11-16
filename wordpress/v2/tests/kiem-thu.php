@@ -3226,7 +3226,7 @@ $nn_sai = $NN::doc( "ma,noi_dung\n1,x\n" );
 kt(
 	'Nháp theo lô — đọc tệp: dòng hợp lệ sẽ tạo thẻ; bỏ qua (kèm lý do) bài đã có Ý nghĩa, tục ngữ, bài chưa đăng, không tìm thấy, trùng dòng, nháp trống; tệp thiếu cột id / y_nghia báo lỗi',
 	'' === $nn_doc['loi'] && 7 === count( $nn_doc['dong'] ) && true === $nn_doc['dong'][0]['tao'] && $nn_chu === $nn_doc['dong'][0]['chu']
-	&& 'bài đã có Ý nghĩa' === $nn_ly[1] && str_starts_with( $nn_ly[2], 'thể loại này không dùng ô Ý nghĩa' ) && 'bài chưa đăng' === $nn_ly[3] && 'không tìm thấy tác phẩm' === $nn_ly[4] && 'trùng dòng trên' === $nn_ly[5] && 'nháp trống' === $nn_ly[6]
+	&& 'bài đã có Ý nghĩa' === $nn_ly[1] && 'thể loại này chưa được hỗ trợ trong lô nháp Ý nghĩa; hãy nhập từng bài ở màn Sửa tác phẩm' === $nn_ly[2] && 'bài chưa đăng' === $nn_ly[3] && 'không tìm thấy tác phẩm' === $nn_ly[4] && 'trùng dòng trên' === $nn_ly[5] && 'nháp trống' === $nn_ly[6]
 	&& '' !== $nn_sai['loi'] && array() === $nn_sai['dong'],
 	$nn_doc
 );
