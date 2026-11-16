@@ -906,6 +906,53 @@ try {
       chac(await coChu(k, loiMoi), 'người đọc không thấy bài vừa đăng');
     });
 
+    if (baiMoi) await thu('Tục ngữ: nhập Ý nghĩa khi tắt JavaScript, nháp chưa hiện, người duyệt lưu thì khách thấy', async () => {
+      const p = await bt.browserContext().newPage();
+      const chu = '[UX-TEST] general meaning entered by editor 211';
+      try {
+        await p.setJavaScriptEnabled(false);
+        await p.setViewport({ width: 390, height: 900 });
+        await di(bt, baiMoi);
+        const id = await bt.$eval('.dai-bien-tap', e => e.dataset.bai);
+        const url = `/wp-admin/admin.php?page=phongdao-sua-tac-pham&id=${id}`;
+        await di(k, baiMoi);
+        chac(!await k.$('.the-dau .eyebrow') && !await k.$('.meaning'), 'bài trống vẫn mang nhãn Ý nghĩa');
+        await di(p, url);
+        await bam(p, '#phan-y_nghia>summary');
+        await p.type('#phan-y_nghia textarea[name=chu]', chu);
+        await bamDoiTrang(p, '#phan-y_nghia button[name=duyet][value=""]', { banPhim: true });
+        chac(await coChu(p, 'Hộp việc'), 'lưu nháp không có thông báo');
+        await di(k, baiMoi);
+        chac(!await coChu(k, chu), 'nháp chưa duyệt đã xuất hiện cho khách');
+        await di(p, url);
+        await bam(p, '#phan-y_nghia>summary');
+        await p.type('#phan-y_nghia textarea[name=chu]', chu);
+        await bamDoiTrang(p, '#phan-y_nghia button[name=duyet][value="1"]', { banPhim: true });
+        chac(await p.$eval('#phan-y_nghia textarea[name=chu]', e => e.value) === chu, 'không lưu được Ý nghĩa chung');
+        await di(k, baiMoi);
+        chac(await k.$eval('.meaning .y-nghia-chu', e => e.textContent) === chu, 'khách không thấy Ý nghĩa đã lưu');
+        chac(!await k.$('#nghia'), 'bắt buộc hoặc tự sinh các phần nghĩa chi tiết');
+      } finally { await p.close(); }
+    });
+
+    await thu('Tục ngữ: Nghĩa bóng có cỡ chữ/độ đậm bằng Nghĩa đen trên điện thoại và máy tính', async () => {
+      for (const width of [390, 1440]) {
+        await k.setViewport({ width, height: 900 });
+        await di(k, '/tuc-ngu/tuc-ngu-mau-ngan/');
+        const styles = await k.evaluate(() => {
+          const read = sel => { const c = getComputedStyle(document.querySelector(sel)); return [c.fontSize, c.fontWeight, c.lineHeight]; };
+          return { den: read('.nghia-den p'), bong: read('.nghia-bong p'), overflow: document.documentElement.scrollWidth > innerWidth };
+        });
+        chac(JSON.stringify(styles.den) === JSON.stringify(styles.bong), `${width}: Nghĩa bóng còn khác chữ thường (${JSON.stringify(styles)})`);
+        chac(!styles.overflow, `${width}: tràn ngang`);
+        if (thuMucAnh) {
+          await k.$eval('#nghia', e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+          await k.screenshot({ path: path.join(thuMucAnh, `nghia-tuc-ngu-${width}.png`) });
+        }
+      }
+      await k.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
+    });
+
     if (baiMoi) await thu('Ẩn bài: người đọc không còn thấy', async () => {
       await di(bt, baiMoi);
       await bamDoiTrang(bt, '[data-action=trang-thai][data-trang-thai=private]');

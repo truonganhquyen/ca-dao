@@ -269,7 +269,7 @@ $h_sua_cau_do = $xem( $mau_id['cau-do-mau'] );
 kt( 'câu đố từ danh sách "Câu đố thiếu giải thích đáp án" (wp-admin Tác phẩm) mở được nút Thêm giải thích đáp án khi người biên soạn sửa', str_contains( $ds_thieu_cau_do, esc_html( get_the_title( $mau_id['cau-do-mau'] ) ) ) && str_contains( $h_sua_cau_do, 'data-tam="y_nghia"' ) && str_contains( $h_sua_cau_do, 'Thêm giải thích đáp án' ) );
 wp_set_current_user( 0 );
 $h = $xem( $mau_id['tuc-ngu-mau-ngan'] );
-kt( 'tục ngữ thật: câu là tiêu đề, khối Nghĩa có Nghĩa bóng (hiện to nhất), Dùng khi 2 ví dụ', str_contains( $h, '<h1 class="read-title"><span class="verse-box"><span class="verse proverb"' ) && str_contains( $h, 'id="nghia"><h2>Nghĩa</h2>' ) && str_contains( $h, '<div class="nghia-bong"><h3>Nghĩa bóng</h3>' ) && 2 === substr_count( (string) strstr( (string) strstr( $h, '<ul class="uses">' ), '</ul>', true ), '<li>' ) );
+kt( 'tục ngữ thật: câu là tiêu đề, khối Nghĩa có Nghĩa bóng, Dùng khi 2 ví dụ', str_contains( $h, '<h1 class="read-title"><span class="verse-box"><span class="verse proverb"' ) && str_contains( $h, 'id="nghia"><h2>Nghĩa</h2>' ) && str_contains( $h, '<div class="nghia-bong"><h3>Nghĩa bóng</h3>' ) && 2 === substr_count( (string) strstr( (string) strstr( $h, '<ul class="uses">' ), '</ul>', true ), '<li>' ) );
 $h = $xem( $mau_id['cau-mau-thu-hai'] );
 $ch_form = (string) strstr( (string) strstr( $h, '<form id="cach-hieu-form"' ), '</form>', true );
 kt( 'bài chưa có ý nghĩa: mời "Bạn hiểu câu này thế nào?" kèm nút "Chia sẻ cách hiểu" tới form nhanh ở tầng Hiểu thêm; không tự điền', str_contains( $h, 'Câu này chưa có lời giải nghĩa. Bạn hiểu câu này thế nào? Viết vài dòng để người đọc sau hiểu rõ hơn.' ) && str_contains( $h, 'href="#cach-hieu-form"' ) && str_contains( $h, 'Chia sẻ cách hiểu' ) && '' !== $ch_form && ! str_contains( $h, 'Bài đang được bổ sung ý nghĩa' ) && ! str_contains( $h, 'class="meaning"' ) );
@@ -363,7 +363,7 @@ kt(
 	str_contains( $h_tk_bt, 'Không thấy từ «chữ không có» trong lời, kiểm lại chính tả.' ) && $kq_tk['ok'] && str_contains( $kq_tk['thong_bao'], 'Không thấy từ «trèo cao» trong lời, kiểm lại chính tả.' ) && 2 === count( PhanBai::lay( $tk_bai, 'chu_thich' )['muc'] ?? array() ) && str_contains( strip_tags( $h_tk_sua ), 'Không thấy từ «trèo cao» trong lời, kiểm lại chính tả.' ),
 	$kq_tk
 );
-// Tục ngữ: từ khó tô cả trong câu tiêu đề; câu dài hiện như ca dao; bài mới không có ô Ý nghĩa riêng
+// Tục ngữ: từ khó tô trong câu tiêu đề; câu dài hiện như ca dao; Ý nghĩa chung và nghĩa chi tiết tuỳ chọn (D-118).
 $tn_ngan = $bai_tl( 'Tục ngữ ngắn từ khó thử', 'tuc-ngu', array( 'Ăn quả nhớ kẻ trồng cây thử' ) );
 LuuPhan::luu( $tn_ngan, 'chu_thich', array( array( 'tu' => 'kẻ trồng cây', 'loi_giai' => 'Người làm ra.', 'nguoi_lam' => NguoiLam::NGUOI_VIET ) ), $nc_tl );
 LuuPhan::luu( $tn_ngan, 'nghia_bong', array( 'chu' => 'Nghĩa bóng thử: nhớ ơn người làm ra.', 'nguoi_lam' => NguoiLam::NGUOI_VIET ), $nc_tl );
@@ -378,7 +378,21 @@ $h_tn_sua = $xem( $tn_dai );
 $_GET     = array( 'id' => (string) $tn_dai );
 $h_tn_adm = \Phongdao\GiaoTiep\QuanTri\SuaTacPham::hien();
 $_GET     = array();
-kt( 'tục ngữ mới ở chế độ sửa: không có ô Ý nghĩa riêng (chỉ Nghĩa đen, Nghĩa bóng, Dùng khi) — trang đọc và trang Sửa tác phẩm', ! str_contains( $h_tn_sua, 'Thêm ý nghĩa' ) && str_contains( $h_tn_sua, 'Thêm nghĩa bóng' ) && str_contains( $h_tn_sua, 'Thêm &quot;Dùng khi&quot;' ) && ! str_contains( $h_tn_adm, 'id="phan-y_nghia"' ) && str_contains( $h_tn_adm, 'id="phan-nghia_bong"' ) );
+kt( 'tục ngữ chưa có Ý nghĩa: thêm được trên trang đọc và wp-admin, trước các phần chi tiết tuỳ chọn', str_contains( $h_tn_sua, 'Thêm ý nghĩa' ) && str_contains( $h_tn_sua, 'Thêm nghĩa bóng' ) && str_contains( $h_tn_sua, 'Thêm &quot;Dùng khi&quot;' ) && str_contains( $h_tn_adm, 'id="phan-y_nghia"' ) && strpos( $h_tn_adm, 'id="phan-y_nghia"' ) < strpos( $h_tn_adm, 'id="phan-nghia_bong"' ) && ! str_contains( $h_tn_adm, 'Ý nghĩa đã có từ trước' ) );
+kt( 'tục ngữ chưa có Ý nghĩa: khách không thấy nhãn Ý nghĩa trống, dù đã có Nghĩa bóng', ! str_contains( $h_tn_ngan, '<span class="eyebrow">Ý nghĩa</span>' ) && ! str_contains( $h_tn_ngan, '<h2>Ý nghĩa</h2>' ) );
+$tn_trong = $bai_tl( '[UX-TEST] empty meaning', 'tuc-ngu', array( '[UX-TEST] line 211' ) );
+wp_set_current_user( 0 );
+$h_tn_trong = $xem( $tn_trong );
+kt( 'tục ngữ trống cả nghĩa chung và chi tiết: không dựng nhãn Ý nghĩa hay khối Nghĩa rỗng', ! str_contains( $h_tn_trong, '<span class="eyebrow">Ý nghĩa</span>' ) && ! str_contains( $h_tn_trong, '<h2>Ý nghĩa</h2>' ) && ! str_contains( $h_tn_trong, 'id="nghia"' ) );
+wp_set_current_user( $ai_ql );
+$luu_tn = LuuPhan::luu( $tn_trong, 'y_nghia', array( 'chu' => '[UX-TEST] general meaning 211', 'nguoi_lam' => NguoiLam::NGUOI_VIET ), $nc_tl );
+$_GET = array( 'id' => $tn_trong );
+$h_tn_co_adm = \Phongdao\GiaoTiep\QuanTri\SuaTacPham::hien();
+$_GET = array();
+wp_set_current_user( 0 );
+$h_tn_co = $xem( $tn_trong );
+kt( 'tục ngữ chỉ cần Ý nghĩa chung: lưu/hiện/sửa được, không tự tạo phần chi tiết hay đổi dữ liệu cũ', $luu_tn['ok'] && str_contains( $h_tn_co, '<h2>Ý nghĩa</h2>' ) && str_contains( $h_tn_co, '[UX-TEST] general meaning 211' ) && ! str_contains( $h_tn_co, 'id="nghia"' ) && str_contains( $h_tn_co_adm, 'Sửa ý nghĩa' ) && ! str_contains( $h_tn_co_adm, 'Sửa ý nghĩa đã có từ trước' ) && null === PhanBai::lay( $tn_trong, 'nghia_bong' ) && 'Nghĩa bóng thử: nhớ ơn người làm ra.' === PhanBai::lay( $tn_ngan, 'nghia_bong' )['chu'] );
+wp_set_current_user( $ai_ql );
 // Câu đố: "Giải thích đáp án" nằm trong khối ẩn "Hiện đáp án", sau đáp án
 $cd_bai = $bai_tl( 'Câu đố giải thích thử', 'cau-do', array( 'Mình tròn thân trắng thử', 'Đố là cái gì thử' ) );
 LuuPhan::luu( $cd_bai, 'dap_an', array( 'chu' => 'Đáp án thử', 'nguoi_lam' => NguoiLam::NGUOI_VIET ), $nc_tl );
@@ -455,7 +469,7 @@ if ( $v_gy_tl ) {
 	Viec::xoa( $v_gy_tl );
 }
 kt( 'người đọc: bài chưa có nơi lưu truyền thì mời "Ở quê bạn có câu này không? Góp" (form Ở quê nói khác của bài), không ghi "chưa ghi nhận"', str_contains( $ha_khach, 'Ở quê bạn có câu này không? Góp</a>' ) && str_contains( $ha_khach, 'loai=di_ban&#038;bai=' . $ha_bai ) && ! str_contains( $ha_khach, 'chưa ghi nhận' ) );
-foreach ( array( $tk_bai, $tn_ngan, $tn_dai, $cd_bai, $ha_bai ) as $x ) {
+foreach ( array( $tk_bai, $tn_ngan, $tn_dai, $tn_trong, $cd_bai, $ha_bai ) as $x ) {
 	wp_delete_post( $x, true );
 }
 // Thẻ máy tự tạo cho các bài thử (gợi ý, có thể trùng): dọn để số đếm của Hộp việc ở phần sau không lệch
