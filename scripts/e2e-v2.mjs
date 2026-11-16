@@ -941,7 +941,9 @@ try {
       for (const width of [390, 1440]) {
         await k.setViewport({ width, height: 900 });
         await di(k, '/tuc-ngu/tuc-ngu-mau-ngan/');
-        const styles = await k.evaluate(() => {
+        const styles = await k.evaluate(async () => {
+          // Như quet:v2: chờ fit.js co chữ sau fonts.ready/resize, trước khi đo bố cục đã vẽ.
+          await new Promise(ok => requestAnimationFrame(() => requestAnimationFrame(ok)));
           const read = sel => { const c = getComputedStyle(document.querySelector(sel)); return [c.fontSize, c.fontWeight, c.lineHeight]; };
           return { den: read('.nghia-den p'), bong: read('.nghia-bong p'), overflow: document.documentElement.scrollWidth > innerWidth };
         });
