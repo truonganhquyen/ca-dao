@@ -12,8 +12,8 @@ defined( 'ABSPATH' ) || exit;
 /**
  * **Nháp Ý nghĩa theo lô** ở màn Bổ sung (D-117, T-210). Hai bước, đều do người bấm:
  *
- * 1. **Tải lô**: tệp CSV gồm bài đã đăng chưa có Ý nghĩa, chưa có nháp chờ (ca dao, đồng dao, vè — tục ngữ dùng Nghĩa đen /
- *    Nghĩa bóng, câu đố dùng Giải thích đáp án nên không vào lô), bài đọc nhiều trước; có cột `y_nghia` để trống cho người
+ * 1. **Tải lô**: tệp CSV gồm bài đã đăng chưa có Ý nghĩa, chưa có nháp chờ (hiện hỗ trợ ca dao, đồng dao, vè),
+ *    bài đọc nhiều trước; có cột `y_nghia` để trống cho người
  *    hoặc AI soạn nháp ngoài site.
  * 2. **Nạp tệp nháp**: đọc cột `id` + `y_nghia`, màn xem trước ghi từng dòng sẽ tạo hay bỏ qua (lý do), bấm Tạo thì mỗi dòng
  *    hợp lệ thành một thẻ "Nháp ý nghĩa" trong Hộp việc (`nhap_y_nghia`, đánh dấu có hỗ trợ AI). Người sửa / Duyệt / Bỏ từng
@@ -148,7 +148,7 @@ final class NapNhap {
 			} elseif ( 'publish' !== $p->post_status ) {
 				$ly = 'bài chưa đăng';
 			} elseif ( ! in_array( (string) \Phongdao\DichVu\DungTrang\DocBai::the_loai( $p ), self::THE_LOAI, true ) ) {
-				$ly = 'thể loại này không dùng ô Ý nghĩa (tục ngữ: nghĩa đen / bóng; câu đố: giải thích đáp án)';
+				$ly = 'thể loại này chưa được hỗ trợ trong lô nháp Ý nghĩa; hãy nhập từng bài ở màn Sửa tác phẩm';
 			} elseif ( null !== PhanBai::lay( $id, 'y_nghia' ) ) {
 				$ly = 'bài đã có Ý nghĩa';
 			} elseif ( Viec::mo( 'post', $id, 'nhap_y_nghia' ) ) {

@@ -183,6 +183,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-208 | Màn Tuyển tập trong wp-admin (D-116): danh sách bộ kèm trạng thái; soạn tên, loại, người đọc, lời dẫn người viết, thêm câu bằng tìm / đường dẫn / ID / tên đúng, Lên, Xuống, nhóm, ghi chú, Bỏ; lưu nháp, người duyệt đăng / gỡ đăng (`docs/huong-dan/lam-tuyen-tap.md`) | A | T-205 | — | DONE |
 | T-209 | Chỉ lập chỉ mục tác phẩm có phần riêng (D-117): `PhanRieng`, `noindex` bài chỉ có lời / phần máy chép, trang phân loại từ 3 bài có phần riêng, sơ đồ trang, số bài sẽ lên Google ở Bổ sung | A | T-191 | — | DONE |
 | T-210 | Nháp Ý nghĩa theo lô nhỏ (D-117): Bổ sung tải lô bài đọc nhiều chưa có Ý nghĩa để soạn nháp, nạp tệp nháp thành thẻ chờ duyệt trong Hộp việc (xem trước, bỏ bài đã có Ý nghĩa / nháp đang chờ, giới hạn lô) | A | T-209 | — | DONE |
+| T-211 | Ý nghĩa chung cho tục ngữ–thành ngữ, bỏ nhãn trống, chữ Nghĩa bóng bình thường (D-118) | A | T-190 | — | IN_PROGRESS |
 | **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
 | T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
 | T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | IN_PROGRESS |
@@ -983,6 +984,10 @@ Kho 16.285 bài, dưới 1% có Ý nghĩa; người sáng lập chọn chỉ đ�
 ### Nháp Ý nghĩa theo lô — T-210
 
 Người sáng lập chọn dùng nháp AI theo lô nhỏ (D-117). **Chấp nhận:** màn Bổ sung có khối "Nháp Ý nghĩa theo lô": **Tải lô** (người soạn; CSV UTF-8 có BOM: id, tên, thể loại, đường dẫn, lời, từ khó, cột `y_nghia` trống; bài đã đăng ca dao / đồng dao / vè, chưa có Ý nghĩa, chưa có nháp chờ, không cờ nghi, không thô tục, đọc nhiều 7 ngày trước; ≤ 50) và **Nạp tệp** (người duyệt; ≤ 1 MB, cần cột `id` và `y_nghia`): màn xem trước ghi từng dòng tạo thẻ hay bỏ qua kèm lý do (không tìm thấy, chưa đăng, thể loại không dùng ô Ý nghĩa, đã có Ý nghĩa, đã có nháp chờ, trùng dòng, nháp trống / quá ngắn / quá dài, đủ hạn mức); bấm Tạo thì xét lại từng dòng rồi tạo thẻ `nhap_y_nghia` (máy tạo, `ai: true`, ghi lô) — Duyệt / Bỏ ở Hộp việc như mọi nháp; tối đa 50 nháp chờ cùng lúc. Máy không ghi vào bài, không tự đăng, không đặt dấu duyệt. Hướng dẫn và quy tắc soạn nháp: `docs/huong-dan/nhap-y-nghia-theo-lo.md`. **Không làm:** gọi dịch vụ AI từ máy chủ; nháp cho tục ngữ (nghĩa đen / bóng) và câu đố (giải thích đáp án).
+
+### Ý nghĩa tục ngữ–thành ngữ — T-211
+
+Người sáng lập duyệt D-118 ngày 16/11/2026. **Chấp nhận:** mọi bài tục ngữ–thành ngữ có ô Ý nghĩa ở wp-admin và nút thêm/sửa trên trang đọc; trong màn sửa phần này đứng trước Nghĩa đen / Nghĩa bóng / Dùng khi. Các phần chi tiết tuỳ chọn, giữ riêng và không tự chuyển nội dung. Bài chưa có Ý nghĩa không mang nhãn Ý nghĩa trống khi khách xem. Lưu nháp chưa hiện; người có quyền bấm lưu đã duyệt mới đưa vào bài, dùng đường lưu/kiểm phiên/lịch sử hiện có, chạy cả khi tắt JavaScript. Chữ Nghĩa bóng cùng cỡ, độ đậm, giãn dòng với Nghĩa đen trên 390/1440 px. **Không làm:** soạn/sửa nội dung thật; mở rộng bộ nạp nháp theo lô T-210; đổi schema hoặc công tắc Google.
 
 ## 4. User story
 

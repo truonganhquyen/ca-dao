@@ -281,7 +281,7 @@ final class Ve {
 	}
 
 	public static function the_loi( string $than, string $url, string $nhan = 'Lời', string $aria = 'Lời và ý nghĩa', string $nut = '' ): string {
-		return '<section class="verse-card' . ( '' === $nut ? '' : ' dang-sua' ) . '" aria-label="' . esc_attr( $aria ) . '"><div class="the-dau"><span class="eyebrow">' . esc_html( $nhan ) . '</span><span class="row">' . $nut . self::nut_nghe() . self::nut_chep( $url ) . '</span></div>' . $than . '</section>';
+		return '<section class="verse-card' . ( '' === $nut ? '' : ' dang-sua' ) . '" aria-label="' . esc_attr( $aria ) . '"><div class="the-dau">' . ( '' === $nhan ? '' : '<span class="eyebrow">' . esc_html( $nhan ) . '</span>' ) . '<span class="row">' . $nut . self::nut_nghe() . self::nut_chep( $url ) . '</span></div>' . $than . '</section>';
 	}
 
 	/** Nút Nghe giọng máy (D-095): doc.js chỉ cho hiện khi máy người đọc có giọng tiếng Việt; không tự phát. */

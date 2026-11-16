@@ -117,7 +117,7 @@ Mỗi tác phẩm một dòng tính sẵn: thể loại, trạng thái, cấp ch
 
 ### 4.2. Tục ngữ – thành ngữ
 
-- Chuẩn là khối **Nghĩa**: **Nghĩa đen** (theo chữ) · **Nghĩa bóng** (bài học, hiện to nhất) · **Dùng khi** (tình huống ví dụ). Bài tục ngữ **mới** không có ô "Ý nghĩa" riêng; bài cũ đã có Ý nghĩa vẫn hiện như cũ, không mất dữ liệu.
+- **D-118 (16/11/2026):** mọi bài có ô **Ý nghĩa** chung; **Nghĩa đen** (theo chữ) · **Nghĩa bóng** (bài học) · **Dùng khi** (tình huống ví dụ) là các phần chi tiết tuỳ chọn. Mỗi phần chỉ hiện khi có nội dung; chữ Nghĩa bóng bình thường như Nghĩa đen. Khung câu ngắn không mang nhãn Ý nghĩa khi phần này trống. Dữ liệu cũ giữ nguyên, không tự tách/gộp hay chuyển nội dung.
 - **Câu dài** (từ 3 dòng, hoặc dài hơn khoảng 60 chữ cái): hiện như ca dao — tên là dòng đầu (cỡ tiêu đề thường), lời đủ trong khung lời. Câu ngắn giữ kiểu "câu là tiêu đề". Danh sách, thẻ: 2 dòng đầu rồi "…".
 - **Từ khó được tô cả trong câu tiêu đề** (kiểu "câu là tiêu đề").
 
@@ -181,7 +181,7 @@ Mỗi tác phẩm một dòng tính sẵn: thể loại, trạng thái, cấp ch
 | Phần mới "Hình ảnh trong bài" (ca dao, đồng dao) | Danh sách [hình ảnh, điều được nói tới], người làm như Ý nghĩa |
 | Loại góp "Cách hiểu" của người đọc | Như cảm nghĩ: chờ duyệt, bút danh tuỳ chọn |
 | Câu đố: "Giải thích đáp án" | Dùng chỗ lưu của Ý nghĩa, chỉ đổi tên và vị trí hiển thị |
-| Tục ngữ mới không có ô Ý nghĩa riêng | Bài cũ giữ nguyên dữ liệu |
+| Ý nghĩa chung cho mọi bài tục ngữ (D-118) | Dùng phần `y_nghia` hiện có; nghĩa chi tiết tuỳ chọn, dữ liệu cũ giữ nguyên |
 | Đổi thể loại | Ghi bảng chuyển hướng 301 từ đường cũ |
 | Hồ sơ nguồn thêm bằng tay; nhập câu từ tệp | Không đổi bảng; hồ sơ là loại bài sẵn có |
 

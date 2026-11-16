@@ -40,4 +40,4 @@ Mỗi lúc có tối đa **50 nháp chờ**. Duyệt hoặc bỏ bớt thì mớ
 
 - Tệp tải về chứa lời và chú thích lấy từ nguồn. Giữ trên máy bạn; **không đưa vào kho mã công khai**.
 - Nạp nháp cần quyền duyệt. Người chỉ soạn tải được lô nhưng không nạp được.
-- Tục ngữ dùng Nghĩa đen / Nghĩa bóng, câu đố dùng Giải thích đáp án, nên hai thể loại này chưa có trong lô.
+- Lô hiện hỗ trợ Ca dao / Đồng dao / Vè. Tục ngữ–thành ngữ đã có ô Ý nghĩa chung (D-118), câu đố có Giải thích đáp án: nhập từng bài ở màn **Sửa tác phẩm**; hai thể loại này chưa có trong lô.

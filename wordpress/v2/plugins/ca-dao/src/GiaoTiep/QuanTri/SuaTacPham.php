@@ -68,7 +68,7 @@ final class SuaTacPham {
 		}
 		$thu_tu = array(
 			'ca-dao' => array( 'loi', 'y_nghia', 'chu_thich', 'di_ban', 'hinh_anh' ),
-			'tuc-ngu' => array( 'loi', 'nghia_den', 'nghia_bong', 'dung_khi', 'chu_thich', 'y_nghia', 'di_ban' ),
+			'tuc-ngu' => array( 'loi', 'y_nghia', 'nghia_den', 'nghia_bong', 'dung_khi', 'chu_thich', 'di_ban' ),
 			'dong-dao' => array( 'loi', 'y_nghia', 'chu_thich', 'hinh_anh', 'di_ban' ),
 			've' => array( 'loi', 'boi_canh', 'doan', 'y_nghia', 'chu_thich', 'di_ban' ),
 			'cau-do' => array( 'loi', 'cau_hoi', 'dap_an', 'goi_y', 'y_nghia', 'chu_thich', 'di_ban' ),
@@ -82,7 +82,7 @@ final class SuaTacPham {
 			if ( 'co_nghi' === $p || 'tho_tuc' === $p ) { continue; }
 			$cu = $ctx['phan'][ $p ] ?? null;
 			$tt = null === $cu ? 'Chưa có' : ( isset( $cu['muc'] ) ? count( $cu['muc'] ) . ' mục' : 'Đã có' );
-			$muc[ 'phan-' . $p ] = array( 'tuc-ngu' === $loai && 'y_nghia' === $p ? 'Ý nghĩa đã có từ trước' : TamSua::nhan( $p, $loai ), $tt );
+			$muc[ 'phan-' . $p ] = array( TamSua::nhan( $p, $loai ), $tt );
 		}
 		if ( 'dong-dao' === $loai ) { $muc['phan-loai-tro_choi'] = array( 'Trò chơi', 'Chọn mục' ); }
 		$muc += array( 'duong-dan' => array( 'Đường dẫn', '' ), 'phan-loai' => array( 'Phân loại', '' ), 'can-cu-noi-bo' => array( 'Căn cứ nội bộ', '' ), 'lich-su' => array( 'Lịch sử', '' ) );
@@ -173,8 +173,8 @@ final class SuaTacPham {
 		// Phần chưa có gom thành một hàng "Thêm: …"; bấm mới mở ô (báo cáo trinh sát lần 2, mục 3.3). Cờ "Có thể không phải
 		// dân gian" là công tắc ở cột bên, không nằm trong danh sách phần (D-104, D-105).
 		$them = array();
-		// Tục ngữ: chuẩn là Nghĩa đen · Nghĩa bóng · Dùng khi; bài mới không có ô Ý nghĩa riêng, bài cũ đã có Ý nghĩa vẫn sửa được (D-105)
-		$ds_phan = array_values( array_filter( self::phan_theo_loai( $loai ), static fn( string $p ): bool => ! ( 'y_nghia' === $p && 'tuc-ngu' === $loai && null === ( $ctx['phan']['y_nghia'] ?? null ) ) ) );
+		// Ý nghĩa dùng cho mọi thể loại; Nghĩa đen · Nghĩa bóng · Dùng khi của tục ngữ là các phần tuỳ chọn (D-118).
+		$ds_phan = self::phan_theo_loai( $loai );
 		foreach ( $ds_phan as $phan ) {
 			if ( 'co_nghi' !== $phan && 'tho_tuc' !== $phan && null === ( $ctx['phan'][ $phan ] ?? null ) && $phan !== ( $_GET['phan'] ?? '' ) ) { // phpcs:ignore WordPress.Security.NonceVerification -- chỉ mở lại phần vừa lưu
 				$ten_t  = TamSua::ten( $phan, (string) $loai );
@@ -187,9 +187,6 @@ final class SuaTacPham {
 				continue;
 			}
 			$ten = TamSua::ten( $phan, (string) $loai );
-			if ( 'tuc-ngu' === $loai && 'y_nghia' === $phan ) {
-				$ten = 'Sửa ý nghĩa đã có từ trước';
-			}
 			$cu = $ctx['phan'][ $phan ] ?? null;
 			$mo_phan = $phan === ( $_GET['phan'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ mở lại phần vừa lưu
 			$ten_goc = str_starts_with( $ten, 'Sửa ' ) ? mb_substr( $ten, 4 ) : $ten;

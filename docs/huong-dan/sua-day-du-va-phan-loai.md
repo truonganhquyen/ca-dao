@@ -11,6 +11,8 @@
 - Nếu bật tự sang bài nhưng còn phần khác chưa lưu, lưu xong vẫn ở lại để bạn xử lý tiếp.
 - **Xem bản đã lưu trên trang đọc** xem dữ liệu đã gửi, không xem chữ chưa lưu trong form.
 
+Với **Tục ngữ – Thành ngữ**, vào **Thêm: ý nghĩa** hoặc chọn **Ý nghĩa** trong mục lục để nhập giải nghĩa chung. Bấm **Lưu nháp vào Hộp việc** nếu còn cần xem lại, hoặc **Lưu và hiện cho người đọc** khi bạn đã duyệt. Nghĩa đen / Nghĩa bóng / Dùng khi là các phần tuỳ chọn, không bắt buộc tách một lời giải thành đủ ba phần. Nội dung từng phần đã có vẫn giữ riêng và sửa tại phần đó.
+
 ## Từ khó và dị bản
 
 Danh sách hiện tóm tắt. Mở mục cần sửa; có lọc, Mở tất cả/Gập tất cả và nút Thêm ở đầu. Gập hoặc lọc không xoá giá trị, nguồn hay chữ đang nhập. Chọn từ trong cảnh báo để nhảy tới mục cần xem; cảnh báo chỉ nhắc kiểm, không tự sửa nội dung.
