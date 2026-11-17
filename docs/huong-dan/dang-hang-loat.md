@@ -56,6 +56,6 @@ Khi đăng, lời ghi là chữ người gõ, nguồn là đúng cuốn sách b�
 ## Sau khi đăng
 
 - Bài mới hiện trên trang đọc và ở Phongdao → **Tác phẩm**.
-- **Google:** hiện site còn chặn Google. Khi bạn mở, mọi bài đã đăng đều lên Google, kể cả bài chưa có Ý nghĩa.
+- **Google:** site đã mở cho Google (17/11/2026). Bài đã đăng có phần riêng (Ý nghĩa, nghĩa tục ngữ, chú thích người viết…) lên Google; bài chỉ có lời vẫn đọc được trên site, bổ sung xong thì tự lên.
 - **Đăng nhầm:** ở Phongdao → Tác phẩm, đánh dấu bài → **Làm theo lô** → **Ẩn bài** hoặc **Đưa vào thùng rác**. Cả hai lấy lại được.
 - **Dừng giữa chừng** (mất mạng, lỡ đóng trang): mở Phongdao → **Hôm nay** → **Lịch sử thao tác hàng loạt**, chọn lô đó, bấm **Tiếp tục**. Câu đã đăng không bị đăng lại.
