@@ -54,12 +54,16 @@ final class KhamPha {
 		$loi = '';
 		foreach ( array(
 			'tuyen-tap'  => array( 'Tuyển tập', 'layers', TuyenTap::cong_khai_ds() ? 'Đọc liền một chủ đề, trình chiếu cả bộ' : 'Chưa có tuyển tập công khai. Bạn có thể đọc từng bài trong kho' ),
-			'theo-dip'   => array( 'Theo dịp', 'calendar', TuyenTap::cong_khai_ds( 'dip' ) ? 'Tết, Vu Lan, 20/11…' : 'Các bộ theo dịp đang được chuẩn bị' ),
+			'theo-dip'   => array( 'Theo dịp', 'calendar', 'Tết, Vu Lan, 20/11…' ),
 			'chu-de'     => array( 'Chủ đề', 'tag', 'Mẹ, quê hương, lao động…' ),
 			'ban-do'     => array( 'Vùng & Bản đồ', 'map', 'Nơi lưu truyền, địa danh trong lời' ),
 			'mo-tip'     => array( 'Mô-típ', 'spark', '"Thân em như…", "Chiều chiều…"' ),
 			'ngau-nhien' => array( 'Một câu ngẫu nhiên', 'compass', 'Mở một trang bất chợt' ),
 		) as $ma => [ $ten, $hinh, $mo_ta ] ) {
+			// Lối "Theo dịp" chỉ khi đã có tuyển tập theo dịp (D-119: lối vào không hứa điều chưa có)
+			if ( 'theo-dip' === $ma && ! TuyenTap::cong_khai_ds( 'dip' ) ) {
+				continue;
+			}
 			$loi .= Ve::lien_ket( $ma, '<span class="entry-icon">' . Ve::icon( $hinh ) . '</span><h3>' . esc_html( $ten ) . '</h3><p>' . esc_html( $mo_ta ) . '</p>', 'card start-card g-dip' );
 		}
 		return self::dau( 'Khám phá', 'Khám phá', 'Bạn muốn đọc gì?' )

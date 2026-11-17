@@ -51,7 +51,7 @@ final class KhaiBao implements Module {
 		add_filter( 'post_type_link', array( self::class, 'duong_dan' ), 10, 2 );
 		add_action( 'template_redirect', array( self::class, 've_duong_dan_chuan' ) );
 		add_action( 'pre_get_posts', array( self::class, 'truy_van_danh_sach' ) );
-		add_filter( 'query_vars', static fn( array $v ): array => array_merge( $v, array( 'sap' ) ) );
+		add_filter( 'query_vars', static fn( array $v ): array => array_merge( $v, array( 'sap', 'co' ) ) );
 	}
 
 	/** Kho và phân loại tác phẩm: 30 bài/trang, ưu tiên phần giúp hiểu; mục từ/trò chơi giữ A–Z. */
@@ -75,16 +75,28 @@ final class KhaiBao implements Module {
 		global $wpdb;
 		\Phongdao\DichVu\TomTat\TomTat::xong();
 		$sap = is_string( $q->get( 'sap' ) ) ? $q->get( 'sap' ) : '';
+		// "Chỉ bài đã có giải nghĩa" (D-119, ?co=nghia): mức ưu tiên đọc 2 = có Ý nghĩa, nghĩa đen/bóng, hình ảnh hoặc bối cảnh
+		$co   = self::chi_co_nghia( $q );
 		$cuoi = "{$wpdb->posts}.post_date DESC, {$wpdb->posts}.ID DESC";
+		if ( $co || ! in_array( $sap, array( 'az', 'moi' ), true ) ) {
+			$sql['join'] .= ' LEFT JOIN ' . \Phongdao\DichVu\TomTat\TomTat::bang() . " pd_sap ON pd_sap.post_id = {$wpdb->posts}.ID";
+		}
+		if ( $co ) {
+			$sql['where'] .= ' AND COALESCE(pd_sap.uu_tien_doc, 0) >= 2';
+		}
 		if ( 'az' === $sap ) {
 			$sql['orderby'] = "{$wpdb->posts}.post_title ASC, {$wpdb->posts}.ID ASC";
 		} elseif ( 'moi' === $sap ) {
 			$sql['orderby'] = $cuoi;
 		} else {
-			$sql['join'] .= ' LEFT JOIN ' . \Phongdao\DichVu\TomTat\TomTat::bang() . " pd_sap ON pd_sap.post_id = {$wpdb->posts}.ID";
 			$sql['orderby'] = ( 'doc' === $sap ? 'COALESCE(pd_sap.doc_7, 0)' : 'COALESCE(pd_sap.uu_tien_doc, 0)' ) . ' DESC, ' . $cuoi;
 		}
 		return $sql;
+	}
+
+	/** Danh sách đang lọc "chỉ bài đã có giải nghĩa" (tham số co=nghia). */
+	public static function chi_co_nghia( \WP_Query $q ): bool {
+		return 'nghia' === $q->get( 'co' );
 	}
 
 	public static function khai_bao(): void {

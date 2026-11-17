@@ -15,16 +15,26 @@ defined( 'ABSPATH' ) || exit;
  */
 final class TrangChu {
 
+	/**
+	 * Lối tìm dưới ô tìm (D-119: lối vào khớp nội dung thật): bỏ thẻ "Tìm khi nhớ vài chữ" trùng ô tìm ngay trên nó; "Tìm
+	 * theo vùng" chỉ khi đủ bài có nơi lưu truyền (NGUONG_VUNG).
+	 */
 	private const LOI_TIM = array(
-		array( 'tim', 'type', 'Tìm khi nhớ vài chữ', 'Gõ không dấu, gõ rời rạc cũng ra' ),
 		array( 'ban-do', 'map', 'Tìm theo vùng', 'Nơi lưu truyền, địa danh trong lời' ),
 		array( 'chu-de', 'tag', 'Tìm theo chủ đề', 'Mẹ, quê hương, lao động…' ),
 	);
 
+	/** Số bài có nơi lưu truyền tối thiểu để mời "Tìm theo vùng" (bản đồ ít bài thì lối vào hứa quá điều có). */
+	public const NGUONG_VUNG = 100;
+
+	/**
+	 * Bắt đầu từ đâu? — mỗi thẻ chỉ hứa điều đã có (D-119): "Hiểu nghĩa tục ngữ" dẫn tới các câu đã có nghĩa và ghi số câu
+	 * (chưa có câu nào thì ẩn); "Đọc theo dịp" chỉ khi đã có tuyển tập theo dịp.
+	 */
 	private const BAT_DAU = array(
-		array( 'tuc-ngu', 'book', 'Hiểu nghĩa tục ngữ', 'Nghĩa ngắn trong 10 giây, có nghĩa đen, nghĩa bóng.', 'tuc-ngu' ),
+		array( 'tuc-ngu', 'book', 'Hiểu nghĩa tục ngữ', '%s câu đã có nghĩa ngắn, dễ hiểu.', 'tuc-ngu' ),
 		array( 'theo-dip', 'calendar', 'Đọc theo dịp', 'Tết, Vu Lan, 20/11… dịp gần nhất xếp đầu.', 'ca-dao' ),
-		array( 'dong-dao', 'kids', 'Cùng bé chơi', 'Đồng dao kèm trò chơi, lọc theo tuổi và số bé.', 'dong-dao' ),
+		array( 'dong-dao', 'kids', 'Cùng bé chơi', 'Đồng dao đọc cùng bé, kèm cách chơi khi có.', 'dong-dao' ),
 	);
 
 	public const HINH_THE_LOAI = array(
@@ -48,6 +58,9 @@ final class TrangChu {
 		}
 		$loi = '';
 		foreach ( self::LOI_TIM as [ $ma, $hinh, $ten, $mo_ta ] ) {
+			if ( 'ban-do' === $ma && DuLieuTrangChu::so_bai_co_vung() < self::NGUONG_VUNG ) {
+				continue;
+			}
 			$loi .= Ve::lien_ket( $ma, '<span class="entry-icon">' . Ve::icon( $hinh ) . '</span><span><strong>' . esc_html( $ten ) . '</strong><span class="small">' . esc_html( $mo_ta ) . '</span></span>' . Ve::icon( 'arrow' ), 'entry-card' );
 		}
 		// "Bạn là" chỉ đổi thứ tự khối, cần JavaScript: ẩn sẵn, doc.js hiện ra (tắt JavaScript không có nút chết)
@@ -64,10 +77,12 @@ final class TrangChu {
 		if ( ! $tp ) {
 			return '';
 		}
-		$nhan = trim( $tp['ten_the_loai'] . ( $tp['hinh_thuc'] ? ' · ' . $tp['hinh_thuc'] : '' ) );
+		// Nhãn và cách hiện như trang bài gọn (D-119): thể thơ chỉ Lục bát, Song thất lục bát; tục ngữ câu ngắn hai vế một dòng
+		$nhan = $tp['ten_the_loai'] . ( in_array( (string) $tp['hinh_thuc'], array( 'Lục bát', 'Song thất lục bát' ), true ) ? ' · ' . $tp['hinh_thuc'] : '' );
+		$loi  = 'proverb' === $tp['kieu'] && mb_strlen( (string) preg_replace( '/[^\p{L}]/u', '', implode( '', $tp['loi'] ) ) ) <= 60 ? TacPham::mot_dong( $tp['loi'] ) : $tp['loi'];
 		$du   = ' data-id="' . esc_attr( $tp['ma'] ) . '" data-tieu-de="' . esc_attr( $tp['tieu_de'] ) . '" data-the-loai="' . esc_attr( $tp['ten_the_loai'] ) . '" data-url="' . esc_url( $tp['url'] ) . '"';
 		return '<section class="today-card" aria-labelledby="today-h"><div class="today-top"><h2 class="eyebrow" id="today-h">Câu hôm nay</h2><span class="small">' . esc_html( $nhan ) . '</span>' . Ve::nut_chep( $tp['url'], $tp['ten_the_loai'] ) . '</div>'
-			. Ve::loi( $tp['loi'], $tp['kieu'], array(), array( 'max' => '26', 'nhom' => 'hom-nay' ) )
+			. Ve::loi( $loi, $tp['kieu'], array(), array( 'max' => '26', 'nhom' => 'hom-nay' ) )
 			. Ve::muc_kiem( $tp['doi_chieu'], false, $tp['url'] . '#tu-lieu' )
 			. ( empty( $tp['y_nghia']['chu'] ) || 'cau-do' === $tp['the_loai'] ? '' : Ve::y_nghia( $tp['y_nghia']['chu'], ! empty( $tp['y_nghia']['ai'] ) ) )
 			. '<div class="actions"><a class="btn primary" href="' . esc_url( $tp['url'] ) . '">Đọc bài ' . Ve::icon( 'arrow' ) . '</a><button type="button" class="btn" data-action="save"' . $du . ' aria-pressed="false">' . Ve::icon( 'save' ) . '<span class="nhan">Lưu</span></button></div></section>';
@@ -75,12 +90,24 @@ final class TrangChu {
 
 	/** Khối 4: Bắt đầu từ đâu? + Đọc theo dịp (khi có tuyển tập loại dịp). */
 	private static function bat_dau(): string {
-		$the = '';
+		$dip_ds = DuLieuTrangChu::tuyen_tap( 'dip', 6 );
+		$the    = '';
 		foreach ( self::BAT_DAU as [ $ma, $hinh, $ten, $mo_ta, $mau ] ) {
-			$the .= Ve::lien_ket( $ma, '<span class="entry-icon">' . Ve::icon( $hinh ) . '</span><h3>' . esc_html( $ten ) . '</h3><p>' . esc_html( $mo_ta ) . '</p><span class="more">Mở ' . Ve::icon( 'arrow' ) . '</span>', 'card start-card g-' . $mau );
+			$url = Ve::url( $ma );
+			if ( 'tuc-ngu' === $ma ) {
+				$n = DuLieuTrangChu::so_co_nghia( 'tuc-ngu' );
+				if ( ! $n ) {
+					continue;
+				}
+				$mo_ta = sprintf( $mo_ta, number_format( $n, 0, ',', '.' ) );
+				$url   = add_query_arg( 'co', 'nghia', $url );
+			} elseif ( 'theo-dip' === $ma && ! $dip_ds ) {
+				continue;
+			}
+			$the .= '<a href="' . esc_url( $url ) . '" class="card start-card g-' . esc_attr( $mau ) . '"><span class="entry-icon">' . Ve::icon( $hinh ) . '</span><h3>' . esc_html( $ten ) . '</h3><p>' . esc_html( $mo_ta ) . '</p><span class="more">Mở ' . Ve::icon( 'arrow' ) . '</span></a>';
 		}
 		$dip = '';
-		foreach ( DuLieuTrangChu::tuyen_tap( 'dip', 6 ) as $t ) {
+		foreach ( $dip_ds as $t ) {
 			$dip .= '<a class="tile g-dip" href="' . esc_url( $t['url'] ) . '"><span class="entry-icon">' . Ve::icon( 'calendar' ) . '</span><strong>' . esc_html( $t['ten'] ) . '</strong><span>' . (int) $t['so'] . ' câu</span></a>';
 		}
 		return '<div data-home-block="4"><section class="section"><h2>Bắt đầu từ đâu?</h2><div class="start-grid">' . $the . '</div></section>'

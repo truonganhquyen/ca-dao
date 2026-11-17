@@ -61,6 +61,8 @@ final class DocBai {
 		$tp['anh_minh_hoa_html'] = \Phongdao\GiaoTiep\Khoi\AnhMinhHoa::html( (int) $tp['anh_minh_hoa'] );
 		// Đồng dao: trò chơi gắn với bài và cách chơi người biên soạn đã lưu ở trò chơi (D-119, khối Cách chơi)
 		$tp['tro_choi'] = 'dong-dao' === $tp['the_loai'] ? self::tro_choi( $bai ) : array();
+		// Mô-típ của bài (D-119): nhãn ở trang bài, chỉ mô-típ có từ hai bài (trang mô-típ một bài không dẫn đi đâu)
+		$tp['mo_tip'] = array_values( array_filter( self::term( $bai, 'mo_tip' ), static fn( array $t ): bool => $t['so'] >= 2 ) );
 		return array( 'cam_nghi' => self::cam_nghi( $bai->ID ), 'cach_hieu' => self::cam_nghi( $bai->ID, 'cach_hieu' ) ) + $tp;
 	}
 
@@ -146,13 +148,13 @@ final class DocBai {
 		return $ra;
 	}
 
-	/** @return array<int,array{0:string,1:string,ma:string}> [tên, đường dẫn] mỗi mục phân loại */
+	/** @return array<int,array{0:string,1:string,ma:string,so:int}> [tên, đường dẫn] mỗi mục phân loại, kèm mã và số bài */
 	private static function term( \WP_Post $bai, string $phan_loai ): array {
 		$ra = array();
 		foreach ( get_the_terms( $bai, $phan_loai ) ?: array() as $t ) {
 			if ( $t instanceof \WP_Term ) {
 				$url  = get_term_link( $t );
-				$ra[] = array( $t->name, is_string( $url ) ? $url : '', 'ma' => $t->slug );
+				$ra[] = array( $t->name, is_string( $url ) ? $url : '', 'ma' => $t->slug, 'so' => (int) $t->count );
 			}
 		}
 		return $ra;
@@ -182,13 +184,23 @@ final class DocBai {
 		return $ra;
 	}
 
-	/** Tuyển tập đã đăng có bài này (vài chục tuyển tập, đọc thẳng meta). */
+	/** Tuyển tập đã đăng có bài này: [tên, đường dẫn]. */
 	private static function tuyen_tap( int $id ): array {
+		return array_map( static fn( array $t ): array => array( $t['ten'], $t['url'] ), self::tuyen_tap_co( $id ) );
+	}
+
+	/**
+	 * Tuyển tập đã đăng có bài này, kèm các bài theo thứ tự trong bộ (Đọc tiếp lấy bài kề). Vài chục tuyển tập, đọc thẳng
+	 * meta.
+	 *
+	 * @return list<array{ten:string,url:string,ids:int[]}>
+	 */
+	public static function tuyen_tap_co( int $id ): array {
 		$ra = array();
 		foreach ( get_posts( array( 'post_type' => KhaiBao::TUYEN_TAP, 'post_status' => 'publish', 'numberposts' => 200, 'orderby' => 'title', 'order' => 'ASC' ) ) as $tt ) {
-			$muc = PhanBai::lay( $tt->ID, 'muc' )['muc'] ?? array();
-			if ( in_array( $id, array_map( 'intval', array_column( $muc, 'tac_pham_id' ) ), true ) ) {
-				$ra[] = array( $tt->post_title, (string) get_permalink( $tt ) );
+			$ids = array_values( array_map( 'intval', array_column( PhanBai::lay( $tt->ID, 'muc' )['muc'] ?? array(), 'tac_pham_id' ) ) );
+			if ( in_array( $id, $ids, true ) ) {
+				$ra[] = array( 'ten' => $tt->post_title, 'url' => (string) get_permalink( $tt ), 'ids' => $ids );
 			}
 		}
 		return $ra;
