@@ -132,4 +132,50 @@ final class GopTuLieu {
 		$h .= '</div></div></details>';
 		return $h;
 	}
+
+	/**
+	 * Lời mời góp theo thể loại của trang bài gọn (D-119): thể loại => [câu hỏi (%s: "câu" / "bài"), lối chính]. Lối
+	 * "cach_hieu" là form cách hiểu; "tu_lieu" mở trang Góp để người đọc tự chọn loại. Không thêm loại góp mới.
+	 */
+	private const MOI = array(
+		'ca-dao'   => array( 'Bạn hiểu %s này thế nào?', array( 'cach_hieu', 'di_ban', 'so_trang' ) ),
+		'tuc-ngu'  => array( 'Bạn hiểu và dùng câu này thế nào?', array( 'cach_hieu', 'di_ban', 'so_trang' ) ),
+		'dong-dao' => array( 'Bạn hiểu %s này thế nào? Ở quê bạn hát khác?', array( 'cach_hieu', 'di_ban', 'bao_loi' ) ),
+		've'       => array( 'Bạn hiểu bài này thế nào? Biết thêm về sự kiện?', array( 'cach_hieu', 'tu_lieu', 'so_trang' ) ),
+		'cau-do'   => array( 'Ở quê bạn đố khác?', array( 'di_ban', 'bao_loi' ) ),
+	);
+
+	/**
+	 * Lời mời góp duy nhất cuối trang bài gọn (D-119) thay khối "Bạn muốn góp gì?" và lời mời ở tầng Hiểu thêm: một câu
+	 * hỏi theo thể loại, các lối chính, các lối còn lại một dòng nhỏ. $form_ch (trang chưa có tầng Hiểu thêm): form cách
+	 * hiểu mở ngay tại chỗ từ "Góp cách hiểu", giữ mốc #cach-hieu, #cach-hieu-form, #cam-nhan, #cam-nghi cho liên kết cũ
+	 * và đường dẫn sau khi gửi. $co_hieu_them: tầng Hiểu thêm đã có — "Góp cách hiểu" dẫn tới form ở đó, không lặp nút
+	 * Viết cảm nhận / Viết cảm nghĩ. Câu đố không có lối cách hiểu, cảm nhận, cảm nghĩ.
+	 */
+	public static function moi_gon( int $bai_id, string $the_loai, string $danh, bool $da_gui, string $form_ch, bool $co_hieu_them ): string {
+		$goc           = Ve::url( 'gop' );
+		$cau_do        = 'cau-do' === $the_loai;
+		[ $hoi, $chinh ] = self::MOI[ $the_loai ] ?? self::MOI['ca-dao'];
+		$den           = static fn( string $loai ): string => esc_url( add_query_arg( array_filter( array( 'loai' => 'tu_lieu' === $loai ? '' : $loai, 'bai' => $bai_id ) ), $goc ) . '#gop-form' );
+		$hang          = '';
+		foreach ( $chinh as $loai ) {
+			if ( 'cach_hieu' === $loai ) {
+				$hang .= '' !== $form_ch ? $form_ch : ( $co_hieu_them ? '<a href="#cach-hieu-form" data-mo-cach-hieu>Góp cách hiểu</a>' : '' );
+			} else {
+				$hang .= '<a href="' . $den( $loai ) . '">' . esc_html( 'tu_lieu' === $loai ? 'Góp tư liệu' : self::LOI[ $loai ][0] ) . '</a>';
+			}
+		}
+		$khac = array();
+		foreach ( array_diff( array_keys( self::LOI ), $chinh ) as $loai ) {
+			$khac[] = '<a href="' . $den( $loai ) . '">' . esc_html( self::LOI[ $loai ][0] ) . '</a>';
+		}
+		if ( ! $cau_do && ! $co_hieu_them ) {
+			$khac[] = '<span id="cam-nhan"><a href="' . $den( 'phan_tich' ) . '">Viết cảm nhận</a></span>';
+			$khac[] = '<span id="cam-nghi"><a href="' . $den( 'cam_nghi' ) . '">Viết cảm nghĩ</a></span>';
+		}
+		return '<section class="gop-gon no-print" id="gop" aria-labelledby="gop-tieu-de">'
+			. ( $da_gui ? '<div class="notice success" role="status"><strong>Cảm ơn bạn!</strong> Nội dung đã tới người biên soạn; chỉ hiện sau khi được duyệt.</div>' : '' )
+			. '<h2 id="gop-tieu-de">' . esc_html( sprintf( $hoi, $danh ) ) . '</h2><div class="gop-hang">' . $hang . '</div>'
+			. ( $khac ? '<p class="gop-khac">Góp khác: ' . implode( '<span aria-hidden="true"> · </span>', $khac ) . '</p>' : '' ) . '</section>';
+	}
 }

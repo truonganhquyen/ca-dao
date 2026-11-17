@@ -72,8 +72,9 @@ final class AnhChiaSe {
 
 	/**
 	 * @param array{ma:string,the_loai:string,ten_the_loai:string,kieu:string,loi:string[],y_nghia?:array{chu:string},url:string} $tp
+	 * @param bool $hang hàng mở một dòng của trang bài gọn (D-119) thay khối có biểu tượng
 	 */
-	public static function hien( array $tp ): string {
+	public static function hien( array $tp, bool $hang = false ): string {
 		$k     = $tp['the_loai'];
 		$nen   = VeAnh::nen_cua( $k );
 		$cau_do = 'cau-do' === $k;
@@ -94,7 +95,7 @@ final class AnhChiaSe {
 			$chon_nen .= '<label class="nen-chon"><input type="radio" name="nen-' . $ma . '" value="' . $n . '"' . ( 0 === $i ? ' checked' : '' ) . '><span class="mau nen-' . $n . '" aria-hidden="true"></span><span>' . self::TEN_NEN[ $n ] . '</span></label>';
 		}
 		// Thu gọn mặc định (D-114): bấm tên khối hoặc "Tạo ảnh để chia sẻ" trong hộp Chia sẻ mới mở; tắt JavaScript vẫn mở được
-		return '<details class="block acs" id="anh-chia-se"><summary id="acs-' . $ma . '">' . Ve::icon( 'download' ) . 'Ảnh để chia sẻ</summary><div class="detail-body">'
+		return '<details class="' . ( $hang ? 'hang-mo' : 'block' ) . ' acs" id="anh-chia-se"><summary id="acs-' . $ma . '">' . ( $hang ? '' : Ve::icon( 'download' ) ) . 'Ảnh để chia sẻ</summary><div class="detail-body">'
 			. '<p class="small muted">Chọn khổ và nền rồi tải ảnh để đăng Facebook, Zalo. Ảnh luôn kèm tên thư viện và đường dẫn bài' . ( $cau_do ? '; không lộ đáp án' : '' ) . '.</p>'
 			. '<div class="acs-khung"><figure class="anh-chia-se" data-nen="' . $nen[0] . '" data-fit-h aria-label="Xem trước ảnh chia sẻ">' . $hinh . ( $cau_do ? '<span class="dau-hoi" aria-hidden="true">?</span>' : '' )
 			. '<div class="acs-trong"><span class="acs-the-loai">' . esc_html( $tp['ten_the_loai'] . ( empty( $tp['co_nghi'] ) ? '' : ' · Có thể không phải dân gian' ) ) . '</span>'
