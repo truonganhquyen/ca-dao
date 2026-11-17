@@ -27,9 +27,12 @@ final class HieuThem {
 	);
 
 	/**
-	 * @param array{gui?:string,ma?:string} $bao lời báo sau khi gửi cách hiểu (đã gửi / mã lỗi)
+	 * @param array{gui?:string,ma?:string}    $bao lời báo sau khi gửi cách hiểu (đã gửi / mã lỗi)
+	 * @param array{gon?:bool,cach_hieu?:bool} $tuy gon: trang bài gọn (D-119) — chưa có bài nào của bạn đọc thì trả '' (form
+	 *                                              cách hiểu nằm ở lời mời góp cuối trang, GopTuLieu::moi_gon); cach_hieu =
+	 *                                              false: bỏ phần Cách hiểu (câu đố)
 	 */
-	public static function hien( int $bai_id, array $tp, array $bao = array() ): string {
+	public static function hien( int $bai_id, array $tp, array $bao = array(), array $tuy = array() ): string {
 		$goc  = Ve::url( 'gop' );
 		$nut  = static fn( string $loai, string $chu, string $icon ): string => '<a class="btn" href="' . esc_url( add_query_arg( array( 'loai' => $loai, 'bai' => $bai_id ), $goc ) . '#gop-form' ) . '">' . Ve::icon( $icon ) . esc_html( $chu ) . '</a>';
 		$viet = static fn( string $loai, string $chu, string $icon ): string => '<p class="ht-viet">' . $nut( $loai, $chu, $icon ) . '</p>';
@@ -39,8 +42,15 @@ final class HieuThem {
 		$pt   = PhanTich::cua_bai( $bai_id );
 		$cn   = (array) ( $tp['cam_nghi'] ?? array() );
 		$so   = array( 'cach_hieu' => count( $ch ), 'cam_nhan' => count( $pt ), 'cam_nghi' => count( $cn ) );
+		$cac  = self::PHAN;
+		if ( false === ( $tuy['cach_hieu'] ?? true ) ) {
+			unset( $so['cach_hieu'], $cac['cach_hieu'] );
+		}
+		if ( ! empty( $tuy['gon'] ) && ! array_sum( $so ) ) {
+			return '';
+		}
 		$danh = self::danh( $tp );
-		$ghi  = '<p class="small muted">Bạn đọc viết theo cách mình hiểu — không phải giải nghĩa của ban biên tập.</p>';
+		$ghi  = self::GHI;
 		$form = '<details class="disclosure" data-form-cach-hieu' . ( empty( $bao['gui'] ) ? '' : ' open' ) . '><summary>Chia sẻ cách hiểu</summary><div class="detail-body">' . self::form( $bai_id, $bao, $danh ) . '</div></details>';
 
 		// Cả ba phần đều trống (D-114): một dòng mời gọn thay ba thẻ "0"; giữ id cũ (#cach-hieu, #cach-hieu-form, #cam-nhan,
@@ -87,7 +97,7 @@ final class HieuThem {
 		$nut = '';
 		$than = '';
 		$i    = 0;
-		foreach ( self::PHAN as $ma => [ $ten, $id ] ) {
+		foreach ( $cac as $ma => [ $ten, $id ] ) {
 			$nhan  = esc_html( $ten ) . ' <span class="ht-so">' . (int) $so[ $ma ] . '</span>';
 			$nut  .= '<button type="button" role="tab" id="ht-nut-' . $id . '" aria-controls="' . $id . '" aria-selected="' . ( $i === $mo ? 'true' : 'false' ) . '"' . ( $i === $mo ? '' : ' tabindex="-1"' ) . '>' . $nhan . '</button>';
 			$than .= '<div class="ht-phan" id="' . $id . '"><h3 class="ht-ten">' . $nhan . '</h3>' . $phan[ $ma ] . '</div>';
@@ -104,6 +114,18 @@ final class HieuThem {
 	 */
 	public static function danh( array $tp ): string {
 		return 've' === ( $tp['the_loai'] ?? '' ) || count( (array) ( $tp['loi'] ?? array() ) ) > 4 ? 'bài' : 'câu';
+	}
+
+	private const GHI = '<p class="small muted">Bạn đọc viết theo cách mình hiểu — không phải giải nghĩa của ban biên tập.</p>';
+
+	/**
+	 * Form cách hiểu trong lời mời góp cuối trang bài gọn (D-119, GopTuLieu::moi_gon) khi trang chưa có tầng Hiểu thêm:
+	 * "Góp cách hiểu" mở form ngay tại chỗ; vừa gửi (đã gửi / lỗi) thì mở sẵn. Giữ mốc #cach-hieu, #cach-hieu-form.
+	 *
+	 * @param array{gui?:string,ma?:string} $bao
+	 */
+	public static function form_gon( int $bai_id, array $bao, string $danh ): string {
+		return '<details class="gop-ch" id="cach-hieu" data-form-cach-hieu' . ( empty( $bao['gui'] ) ? '' : ' open' ) . '><summary>Góp cách hiểu</summary><div class="detail-body">' . self::GHI . self::form( $bai_id, $bao, $danh ) . '</div></details>';
 	}
 
 	/** Form nhanh "Chia sẻ cách hiểu": gửi admin-post như trang Góp (nonce, ô bẫy, Turnstile khi có khoá, 5 lần mỗi giờ). */

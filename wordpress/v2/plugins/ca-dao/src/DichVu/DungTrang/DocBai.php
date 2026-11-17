@@ -59,6 +59,8 @@ final class DocBai {
 		}
 		$tp['dap_an_them'] = '' === $tp['dap_an'] ? '' : \Phongdao\GiaoTiep\Khoi\DiaDanh::html( \Phongdao\GiaoTiep\Khoi\DiaDanh::cua_dap_an( $tp['dap_an'] ) ?? array(), 'thumbnail' );
 		$tp['anh_minh_hoa_html'] = \Phongdao\GiaoTiep\Khoi\AnhMinhHoa::html( (int) $tp['anh_minh_hoa'] );
+		// Đồng dao: trò chơi gắn với bài và cách chơi người biên soạn đã lưu ở trò chơi (D-119, khối Cách chơi)
+		$tp['tro_choi'] = 'dong-dao' === $tp['the_loai'] ? self::tro_choi( $bai ) : array();
 		return array( 'cam_nghi' => self::cam_nghi( $bai->ID ), 'cach_hieu' => self::cam_nghi( $bai->ID, 'cach_hieu' ) ) + $tp;
 	}
 
@@ -152,6 +154,30 @@ final class DocBai {
 				$url  = get_term_link( $t );
 				$ra[] = array( $t->name, is_string( $url ) ? $url : '', 'ma' => $t->slug );
 			}
+		}
+		return $ra;
+	}
+
+	/**
+	 * Trò chơi của bài đồng dao kèm cách chơi đã lưu ở trò chơi (`_phongdao_cach_choi`: số người, độ tuổi, đồ dùng, các
+	 * bước, nguồn, giấy phép); tên hồ sơ nguồn chỉ lấy khi hồ sơ đã đăng. Trò chơi chưa có cách chơi vẫn có tên, đường dẫn.
+	 *
+	 * @return list<array{ten:string,url:string,cach_choi:array<string,mixed>}>
+	 */
+	private static function tro_choi( \WP_Post $bai ): array {
+		$ra = array();
+		foreach ( get_the_terms( $bai, 'tro_choi' ) ?: array() as $t ) {
+			if ( ! $t instanceof \WP_Term ) {
+				continue;
+			}
+			$cc = get_term_meta( $t->term_id, '_phongdao_cach_choi', true );
+			$cc = is_array( $cc ) ? $cc : array();
+			if ( is_array( $cc['nguon'] ?? null ) ) {
+				$hs                        = empty( $cc['nguon']['ho_so'] ) ? null : get_post( (int) $cc['nguon']['ho_so'] );
+				$cc['nguon']['ten_ho_so'] = $hs && KhaiBao::HO_SO_NGUON === $hs->post_type && 'publish' === $hs->post_status ? $hs->post_title : '';
+			}
+			$url  = get_term_link( $t );
+			$ra[] = array( 'ten' => $t->name, 'url' => is_string( $url ) ? $url : '', 'cach_choi' => $cc );
 		}
 		return $ra;
 	}

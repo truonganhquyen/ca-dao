@@ -327,8 +327,8 @@ try {
       chac(await t.$$eval('[data-chi-js], [data-action=mong-co-cau]', bs => bs.every(b => b.hidden)), 'nút chỉ chạy bằng JavaScript vẫn hiện');
       // Hiểu thêm: tắt JavaScript thì ba phần nằm liền nhau, mỗi phần một tiêu đề, không phần nào bị giấu
       if (await t.$('[data-hieu-them]')) chac(3 === await t.$$eval('[data-hieu-them] .ht-phan', ps => ps.filter(p => !p.hidden && p.offsetParent).length) && await coChu(t, 'Cách hiểu của bạn đọc'), 'tắt JavaScript: tầng Hiểu thêm không hiện đủ ba phần');
-      // Hiểu thêm trống (D-114): một dòng mời, form Chia sẻ cách hiểu mở được bằng phần tử details khi tắt JavaScript
-      else chac(await t.$('#hieu-them.ht-gon [data-form-cach-hieu] > summary') && await coChu(t, 'Chưa có cách hiểu, bài cảm nhận hay cảm nghĩ'), 'tắt JavaScript: Hiểu thêm trống không có dòng mời và form gọn');
+      // Chưa có bài nào của bạn đọc (D-119): không có tầng Hiểu thêm; "Góp cách hiểu" ở lời mời góp cuối trang mở form bằng phần tử details khi tắt JavaScript
+      else chac(!(await t.$('#hieu-them')) && await t.$('#gop [data-form-cach-hieu] > summary'), 'tắt JavaScript: chưa có bài của bạn đọc mà không có form cách hiểu ở lời mời góp');
       await ctx.close();
       tabDangChay = k;
     });
@@ -815,13 +815,13 @@ try {
       }
     });
 
-    await thu('Cách hiểu của bạn đọc: Hiểu thêm trống là một dòng gọn; khách gửi bằng form nhanh trên bài chưa có Ý nghĩa, chưa hiện ngay; người biên soạn bấm Hiện ở Hộp việc; khách thấy ở phần Cách hiểu, Hiểu thêm thành ba thẻ', async () => {
+    await thu('Cách hiểu của bạn đọc: chưa có bài của bạn đọc thì không có tầng Hiểu thêm, form ở lời mời góp; khách gửi bằng form nhanh trên bài chưa có Ý nghĩa, chưa hiện ngay; người biên soạn bấm Hiện ở Hộp việc; khách thấy ở phần Cách hiểu, Hiểu thêm thành ba thẻ', async () => {
       const bai = '/ca-dao/cau-mau-thu-hai/', chu = 'Cách hiểu thử đầu-cuối: câu nói về lòng biết ơn.';
       await di(k, bai);
       chac(await coChu(k, 'Chưa có giải nghĩa'), 'bài chưa có Ý nghĩa không có dòng mời góp cách hiểu');
       chac(await k.$eval('[data-form-cach-hieu]', d => !d.open), 'form cách hiểu chưa thu gọn lúc đầu');
-      // Chưa có bài nào của bạn đọc (D-114): một dòng mời, không ba thẻ số 0
-      if (!(await k.$('[data-hieu-them]'))) chac(await k.$('#hieu-them.ht-gon') && !(await k.$('#hieu-them [role=tab]')) && await coChu(k, 'Chưa có cách hiểu, bài cảm nhận hay cảm nghĩ'), 'Hiểu thêm trống chưa thu thành một dòng');
+      // Chưa có bài nào của bạn đọc (D-119): không có tầng Hiểu thêm, form cách hiểu nằm ở lời mời góp cuối trang
+      if (!(await k.$('[data-hieu-them]'))) chac(!(await k.$('#hieu-them')) && await k.$('#gop #cach-hieu[data-form-cach-hieu]'), 'chưa có bài của bạn đọc mà vẫn có tầng Hiểu thêm, hoặc lời mời góp thiếu form cách hiểu');
       await bam(k, 'a[data-mo-cach-hieu]');
       chac(await k.$eval('[data-form-cach-hieu]', d => d.open), 'lời mời không mở form cách hiểu');
       chac(await k.$eval('#cach-hieu', e => !e.hidden), '"Chia sẻ cách hiểu" không mở phần Cách hiểu');
