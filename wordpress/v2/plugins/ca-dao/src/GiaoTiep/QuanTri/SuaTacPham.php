@@ -34,6 +34,7 @@ final class SuaTacPham {
 		add_action( 'admin_post_phongdao_doi_trang_thai', array( self::class, 'doi_trang_thai' ) );
 		add_action( 'admin_post_phongdao_doi_the_loai', array( self::class, 'doi_the_loai' ) );
 		add_action( 'admin_post_phongdao_doi_chieu_sach', array( self::class, 'doi_chieu_sach' ) );
+		add_action( 'admin_post_phongdao_gop_nghia_bong', array( self::class, 'gop_nghia_bong' ) );
 	}
 
 	/** Tên trạng thái bài cho người đọc màn. */
@@ -143,7 +144,7 @@ final class SuaTacPham {
 		$loai = is_array( $terms ) && $terms ? $terms[0]->slug : '';
 		$mo = Viec::mo( 'post', $id );
 		$ket_qua = sanitize_key( (string) ( $_GET['ket_qua'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc thông báo
-		$bao = array( 'da_luu_sang' => 'Đã lưu riêng phần vừa gửi. Đây là bài tiếp theo trong danh sách. Các phần khác cần lưu riêng.', 'da_luu' => 'Đã lưu phần bài.', 'da_luu_pl' => 'Đã lưu phân loại.', 'da_khoi_phuc' => 'Đã khôi phục bản trước; lần khôi phục được ghi vào Lịch sử.', 'nhap' => 'Đã lưu nháp vào Hộp việc; người đọc chưa thấy.', 'khong_doi' => 'Không có gì thay đổi.', 'dang' => 'Đã đăng: người đọc thấy bài.', 'an' => 'Đã ẩn bài khỏi người đọc; lấy lại bằng nút Đăng.', 've_nhap' => 'Đã chuyển về bản nháp.', 'loi' => 'Chưa lưu được. Kiểm lại dữ liệu và thử tiếp.', 'them' => 'Đã thêm bài (bản nháp). Viết tiếp các phần rồi bấm Đăng khi xong.', 'them_dang' => 'Đã thêm và đăng bài. Viết tiếp các phần nếu muốn.', 'doi_the_loai' => 'Đã đổi thể loại. Đường dẫn cũ tự chuyển sang đường mới; Lịch sử ghi lại lần đổi.', 'doi_chieu' => 'Đã ghi đối chiếu sách; Lịch sử ghi lại.' )[ $ket_qua ] ?? '';
+		$bao = array( 'da_luu_sang' => 'Đã lưu riêng phần vừa gửi. Đây là bài tiếp theo trong danh sách. Các phần khác cần lưu riêng.', 'da_luu' => 'Đã lưu phần bài.', 'da_luu_pl' => 'Đã lưu phân loại.', 'da_khoi_phuc' => 'Đã khôi phục bản trước; lần khôi phục được ghi vào Lịch sử.', 'nhap' => 'Đã lưu nháp vào Hộp việc; người đọc chưa thấy.', 'khong_doi' => 'Không có gì thay đổi.', 'dang' => 'Đã đăng: người đọc thấy bài.', 'an' => 'Đã ẩn bài khỏi người đọc; lấy lại bằng nút Đăng.', 've_nhap' => 'Đã chuyển về bản nháp.', 'loi' => 'Chưa lưu được. Kiểm lại dữ liệu và thử tiếp.', 'them' => 'Đã thêm bài (bản nháp). Viết tiếp các phần rồi bấm Đăng khi xong.', 'them_dang' => 'Đã thêm và đăng bài. Viết tiếp các phần nếu muốn.', 'doi_the_loai' => 'Đã đổi thể loại. Đường dẫn cũ tự chuyển sang đường mới; Lịch sử ghi lại lần đổi.', 'doi_chieu' => 'Đã ghi đối chiếu sách; Lịch sử ghi lại.', 'gop_nghia' => 'Đã gộp Nghĩa bóng cũ vào Ý nghĩa; Lịch sử ghi cả hai phần.' )[ $ket_qua ] ?? '';
 		if ( 'loi' === $ket_qua ) {
 			$khoa_loi = 'phongdao_sua_loi_' . $id . '_' . get_current_user_id();
 			$bao = (string) get_transient( $khoa_loi ) ?: $bao;
@@ -167,33 +168,43 @@ final class SuaTacPham {
 		if ( $bao ) {
 			$ra .= '<div class="notice ' . ( 'loi' === $ket_qua ? 'notice-error' : 'notice-success' ) . '"><p role="status">' . esc_html( $bao ) . ( $sau && 'loi' !== $ket_qua ? ' <a href="' . esc_url( self::url( $sau ) ) . '">Sang bài tiếp theo →</a>' : '' ) . '</p></div>';
 		}
-		// Cột chính: lời luôn hiện, rồi các phần — phần đã có mở sẵn để thấy nội dung, phần "Chưa có" gập lại
-		$chinh = self::loi_xem( $ctx['phan']['loi'] ?? null ) . self::khoi_doi_chieu( $bai, $ctx ) . '<h2>Các phần của bài</h2>';
+		// Màn sửa gọn (D-119, docs/41 mục 2 điều 9): Lời → Nghĩa → Phân loại ở cột chính, các phần ít dùng gom vào "Phần khác";
+		// máy nhắc lỗi trình bày theo quy tắc viết, không chặn lưu, không tự sửa chữ
+		$chinh = self::loi_xem( $ctx['phan']['loi'] ?? null ) . self::nhac_html( 'loi', $ctx['phan']['loi'] ?? null, $ctx ) . self::khoi_doi_chieu( $bai, $ctx );
 		$an_sau = $sau ? '<input type="hidden" name="bai_sau" value="' . $sau . '">' : '';
 		// Phần chưa có gom thành một hàng "Thêm: …"; bấm mới mở ô (báo cáo trinh sát lần 2, mục 3.3). Cờ "Có thể không phải
 		// dân gian" là công tắc ở cột bên, không nằm trong danh sách phần (D-104, D-105).
 		$them = array();
 		// Ý nghĩa dùng cho mọi thể loại; Nghĩa đen · Nghĩa bóng · Dùng khi của tục ngữ là các phần tuỳ chọn (D-118).
-		$ds_phan = self::phan_theo_loai( $loai );
-		foreach ( $ds_phan as $phan ) {
-			if ( 'co_nghi' !== $phan && 'tho_tuc' !== $phan && null === ( $ctx['phan'][ $phan ] ?? null ) && $phan !== ( $_GET['phan'] ?? '' ) ) { // phpcs:ignore WordPress.Security.NonceVerification -- chỉ mở lại phần vừa lưu
+		// Tục ngữ nhập Ý nghĩa và Nghĩa đen; Nghĩa bóng, Dùng khi chỉ hiện ở bài cũ đã có (D-119)
+		$ds_phan = array_values( array_filter( self::phan_theo_loai( $loai ), static fn( string $p ): bool => ! in_array( $p, array( 'nghia_bong', 'dung_khi' ), true ) || null !== ( $ctx['phan'][ $p ] ?? null ) || $p === $phan_loi ) );
+		$nghia   = array( 'tuc-ngu' => array( 'y_nghia', 'nghia_den', 'nghia_bong', 'dung_khi' ), 'cau-do' => array( 'cau_hoi', 'dap_an', 'goi_y', 'y_nghia' ), 've' => array( 'boi_canh', 'y_nghia' ) )[ $loai ] ?? array( 'y_nghia' );
+		$khac    = array_values( array_diff( $ds_phan, $nghia, array( 'loi', 'co_nghi', 'tho_tuc' ) ) );
+		foreach ( $khac as $phan ) {
+			if ( null === ( $ctx['phan'][ $phan ] ?? null ) && $phan !== ( $_GET['phan'] ?? '' ) ) { // phpcs:ignore WordPress.Security.NonceVerification -- chỉ mở lại phần vừa lưu
 				$ten_t  = TamSua::ten( $phan, (string) $loai );
 				$them[] = '<a class="button button-small" href="#phan-' . esc_attr( $phan ) . '" data-mo-phan="' . esc_attr( $phan ) . '">' . esc_html( str_starts_with( $ten_t, 'Sửa ' ) ? mb_substr( $ten_t, 4 ) : $ten_t ) . '</a>';
 			}
 		}
-		$chinh .= $them ? '<p class="phongdao-sua-them"><strong>Thêm:</strong> ' . implode( ' ', $them ) . '</p>' : '';
+		$khoi = array();
 		foreach ( $ds_phan as $phan ) {
 			if ( 'co_nghi' === $phan || 'tho_tuc' === $phan ) {
 				continue;
 			}
+			$chinh_cu = $chinh;
+			$chinh    = '';
 			$ten = TamSua::ten( $phan, (string) $loai );
 			$cu = $ctx['phan'][ $phan ] ?? null;
-			$mo_phan = $phan === ( $_GET['phan'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ mở lại phần vừa lưu
+			// Ý nghĩa là ô chính của màn gọn: mở sẵn; phần khác mở khi vừa lưu
+			$mo_phan = $phan === ( $_GET['phan'] ?? '' ) || 'y_nghia' === $phan; // phpcs:ignore WordPress.Security.NonceVerification -- chỉ mở lại phần vừa lưu
 			$ten_goc = str_starts_with( $ten, 'Sửa ' ) ? mb_substr( $ten, 4 ) : $ten;
 			// Phần chưa có: "Thêm ý nghĩa" (không phải "Sửa ý nghĩa · Chưa có")
 			$chinh .= '<details class="phongdao-sua-phan' . ( null === $cu ? ' chua-co' : '' ) . '" id="phan-' . esc_attr( $phan ) . '" data-ten-phan="' . esc_attr( TamSua::nhan( $phan, $loai ) ) . '"' . ( $mo_phan ? ' open' : '' ) . '><summary>' . esc_html( null === $cu ? 'Thêm ' . $ten_goc : $ten ) . '<span data-phan-trang-thai></span></summary>';
 			$ten_goc = mb_strtoupper( mb_substr( $ten_goc, 0, 1 ) ) . mb_substr( $ten_goc, 1 );
-			$chinh .= CheDoSua::goc( $ten_goc, $cu, $ctx );
+			$chinh .= CheDoSua::goc( $ten_goc, $cu, $ctx ) . self::nhac_html( $phan, $cu, $ctx );
+			if ( 'y_nghia' === $phan && 'tuc-ngu' === $loai ) {
+				$chinh .= self::moi_gop_nghia_bong( $bai, $ctx );
+			}
 			if ( 'chu_thich' === $phan && $cu ) {
 				// Từ không có trong lời: nhắc kiểm chính tả (vẫn lưu được — chú thích chung)
 				$thieu_tu = \Phongdao\MienDuLieu\TuKho::thieu( (array) ( $ctx['phan']['loi']['dong'] ?? array() ), array_column( (array) ( $cu['muc'] ?? array() ), 'tu' ) );
@@ -220,8 +231,18 @@ final class SuaTacPham {
 				$chinh .= TamSua::doi_chieu_phien( $cu, $phien_moi );
 			}
 			$chinh .= '<p class="phongdao-sua-nut">' . TamSua::nut_luu( $phan, $ctx, 'button button-primary', 'button', 'Lưu ' . mb_strtolower( TamSua::nhan( $phan, $loai ) ) ) . '</p></form></details>';
+			$khoi[ $phan ] = $chinh;
+			$chinh         = $chinh_cu;
 		}
-		// Quản lý trạng thái ở đầu; cột bên ưu tiên phân loại, rồi căn cứ nội bộ và lịch sử.
+		$lay   = static fn( array $ds ): string => implode( '', array_map( static fn( string $p ): string => $khoi[ $p ] ?? '', $ds ) );
+		$co_tt = array_values( array_filter( $khac, static fn( string $p ): bool => null !== ( $ctx['phan'][ $p ] ?? null ) ) );
+		$mo_kh = in_array( $phan_loi, $khac, true );
+		$chinh .= $lay( array( 'loi' ) )
+			. '<h2 class="phongdao-sua-nhom">Nghĩa</h2>' . $lay( array_values( array_intersect( $ds_phan, $nghia ) ) )
+			. self::phan_loai( $bai, $loai )
+			. ( $khac ? '<details class="phongdao-phan-khac" id="phan-khac"' . ( $mo_kh ? ' open' : '' ) . '><summary>Phần khác (' . count( $khac ) . ')<span class="description">' . esc_html( $co_tt ? ' · đã có: ' . implode( ', ', array_map( static fn( string $p ): string => TamSua::nhan( $p, $loai ) . ( isset( $ctx['phan'][ $p ]['muc'] ) ? ' ' . count( (array) $ctx['phan'][ $p ]['muc'] ) : '' ), $co_tt ) ) : ' · chưa có phần nào' ) . '</span></summary>'
+				. ( $them ? '<p class="phongdao-sua-them"><strong>Thêm:</strong> ' . implode( ' ', $them ) . '</p>' : '' ) . $lay( $khac ) . '</details>' : '' );
+		// Quản lý trạng thái ở đầu; cột bên: đường dẫn, căn cứ nội bộ, công tắc, lịch sử (phân loại ở cột chính — D-119).
 		$ra .= '<details class="phongdao-quan-ly-bai"><summary>Quản lý trạng thái bài · ' . esc_html( self::TEN_TRANG_THAI[ $bai->post_status ] ?? $bai->post_status ) . '</summary>' . self::thanh_trang_thai( $bai ) . '</details>' . self::muc_luc( $ds_phan, $ctx, $loai );
 		$ben = ''
 			. ( $sau ? '<p class="phongdao-sang" data-chi-js hidden><label><input type="checkbox" id="phongdao-sang-tiep"> Lưu xong tự sang bài tiếp theo trong danh sách</label></p>' : '' );
@@ -240,7 +261,7 @@ final class SuaTacPham {
 			}
 			$ben .= '</ul></section>';
 		}
-		$ben = SuaDuongDan::hien( $bai, self::$ve ) . self::phan_loai( $bai, $loai ) . '<section id="can-cu-noi-bo"><h2>Căn cứ nội bộ và việc cần xem</h2>' . $ben . self::cong_tac_co( $bai, $ctx ) . self::cong_tac_tho_tuc( $bai, $ctx ) . '</section>' . self::lich_su( $id );
+		$ben = SuaDuongDan::hien( $bai, self::$ve ) . '<section id="can-cu-noi-bo"><h2>Căn cứ nội bộ và việc cần xem</h2>' . $ben . self::cong_tac_co( $bai, $ctx ) . self::cong_tac_tho_tuc( $bai, $ctx ) . '</section>' . self::lich_su( $id );
 		return $ra . '<div class="phongdao-sua-bo"><div class="phongdao-sua-chinh">' . $chinh . '</div><aside class="phongdao-sua-ben" aria-label="Trạng thái, phân loại và lịch sử">' . $ben . '</aside></div><div class="phongdao-thanh-luu" data-thanh-luu hidden><p data-thanh-luu-ten></p><div data-thanh-luu-nut></div></div></div>';
 	}
 
@@ -529,6 +550,82 @@ final class SuaTacPham {
 			$o .= '' === trim( (string) $d ) ? '<li class="ngat" aria-hidden="true"></li>' : '<li><span class="so" aria-hidden="true">' . sprintf( '%02d', ++$so ) . '</span>' . esc_html( (string) $d ) . '</li>';
 		}
 		return '<section class="phongdao-loi-xem" id="loi-doi-chieu"><h2>Lời <span class="description">(' . $so . ' dòng)</span></h2><ol tabindex="0" aria-label="Lời của bài">' . $o . '</ol></section>';
+	}
+
+	/** Nhắc lỗi trình bày của phần đang lưu (MienDuLieu\KiemTrinhBay) — chỉ nhắc, không chặn lưu, không tự sửa chữ. */
+	private static function nhac_html( string $phan, ?array $cu, array $ctx ): string {
+		$nhac = \Phongdao\MienDuLieu\KiemTrinhBay::nhac( $phan, $cu, (array) ( $ctx['phan']['loi']['dong'] ?? array() ) );
+		return $nhac ? '<div class="notice notice-warning inline phongdao-nhac"><p><strong>Nhắc (không chặn lưu):</strong> ' . esc_html( implode( ' ', array_column( $nhac, 'chu' ) ) ) . '</p></div>' : '';
+	}
+
+	/**
+	 * Tục ngữ chưa có Ý nghĩa mà còn "Nghĩa bóng" cũ do người viết (D-118, D-119): mời người có quyền duyệt bấm gộp chữ đó
+	 * vào Ý nghĩa. Nghĩa bóng máy chép (Wiktionary) không gộp được — Ý nghĩa không nhận chữ máy chép. Máy không tự chuyển.
+	 */
+	private static function moi_gop_nghia_bong( \WP_Post $bai, array $ctx ): string {
+		$nb = $ctx['phan']['nghia_bong'] ?? null;
+		if ( null !== ( $ctx['phan']['y_nghia'] ?? null ) || ! is_array( $nb ) || '' === trim( (string) ( $nb['chu'] ?? '' ) ) || ! in_array( $nb['nguoi_lam'] ?? '', array( \Phongdao\MienDuLieu\NguoiLam::NGUOI_VIET, \Phongdao\MienDuLieu\NguoiLam::AI_DA_DUYET ), true ) ) {
+			return '';
+		}
+		$chu = '<p>Bài này còn "Nghĩa bóng" cũ: «' . esc_html( mb_strimwidth( (string) $nb['chu'], 0, 300, '…' ) ) . '»</p>';
+		if ( ! current_user_can( 'cadao_duyet' ) ) {
+			return '<div class="notice notice-info inline phongdao-gop-nb">' . $chu . '<p class="description">Người có quyền duyệt có thể gộp chữ này vào Ý nghĩa.</p></div>';
+		}
+		return '<div class="notice notice-info inline phongdao-gop-nb">' . $chu
+			. '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="phongdao_gop_nghia_bong"><input type="hidden" name="id" value="' . (int) $bai->ID . '">' . self::an_ve() . wp_nonce_field( 'phongdao_gop_nghia_bong_' . $bai->ID, '_wpnonce', true, false )
+			. '<p><button type="submit" class="button">Gộp vào Ý nghĩa</button> <span class="description">Chữ chuyển nguyên sang Ý nghĩa (giữ người làm, dấu có hỗ trợ AI), Nghĩa bóng để trống; Lịch sử ghi cả hai. Không gộp thì Nghĩa bóng vẫn hiện như cũ.</span></p></form></div>';
+	}
+
+	/**
+	 * Gộp Nghĩa bóng cũ vào Ý nghĩa (người có quyền duyệt bấm): một lượt lưu hai phần — Ý nghĩa nhận đúng chữ, người làm,
+	 * dấu AI, định dạng, nguồn; Nghĩa bóng gỡ. Hỏng giữa chừng thì cả hai giữ như cũ.
+	 *
+	 * @return array{ok:bool,loi:string}
+	 */
+	public static function gop_nghia_bong_bai( int $id, int $nguoi ): array {
+		global $wpdb;
+		if ( ! user_can( $nguoi, 'cadao_duyet' ) || ! user_can( $nguoi, 'edit_post', $id ) || 'tuc-ngu' !== \Phongdao\DichVu\DungTrang\DocBai::the_loai( get_post( $id ) ) ) {
+			return array( 'ok' => false, 'loi' => 'Cần quyền duyệt trên một bài tục ngữ.' );
+		}
+		if ( false === $wpdb->query( 'START TRANSACTION' ) ) {
+			return array( 'ok' => false, 'loi' => 'Chưa mở được lượt lưu. Thử lại sau.' );
+		}
+		$nc = array( 'nguoi' => $nguoi, 'goi' => \Phongdao\MienDuLieu\KiemPhan::GOI_NGUOI, 'duyet' => true );
+		try {
+			if ( ! \Phongdao\DichVu\LuuPhan\LuuPhan::khoa_bai( $id ) ) {
+				throw new \RuntimeException( 'Không tìm thấy bài.' );
+			}
+			$nb = \Phongdao\KhoLuu\PhanBai::lay( $id, 'nghia_bong' );
+			if ( null !== \Phongdao\KhoLuu\PhanBai::lay( $id, 'y_nghia' ) || ! is_array( $nb ) || ! in_array( $nb['nguoi_lam'] ?? '', array( \Phongdao\MienDuLieu\NguoiLam::NGUOI_VIET, \Phongdao\MienDuLieu\NguoiLam::AI_DA_DUYET ), true ) ) {
+				throw new \RuntimeException( 'Bài đã có Ý nghĩa, hoặc Nghĩa bóng không gộp được. Tải lại để xem bản mới.' );
+			}
+			$yn = array_intersect_key( $nb, array_flip( array( 'chu', 'ai', 'nguoi_lam', 'nguon', 'dinh_dang' ) ) );
+			$k1 = \Phongdao\DichVu\LuuPhan\LuuPhan::luu( $id, 'y_nghia', $yn, $nc );
+			$k2 = $k1['ok'] ? \Phongdao\DichVu\LuuPhan\LuuPhan::luu( $id, 'nghia_bong', null, $nc ) : $k1;
+			if ( ! $k1['ok'] || ! $k2['ok'] ) {
+				throw new \RuntimeException( implode( ' ', array_merge( $k1['loi'], $k2['loi'] ) ) ?: 'Chưa gộp được.' );
+			}
+			if ( false === $wpdb->query( 'COMMIT' ) ) {
+				throw new \RuntimeException( 'Chưa gộp được. Thử lại sau.' );
+			}
+		} catch ( \Throwable $e ) {
+			$wpdb->query( 'ROLLBACK' );
+			clean_post_cache( $id );
+			return array( 'ok' => false, 'loi' => $e->getMessage() );
+		}
+		return array( 'ok' => true, 'loi' => '' );
+	}
+
+	public static function gop_nghia_bong(): void {
+		$id = absint( $_POST['id'] ?? 0 );
+		check_admin_referer( 'phongdao_gop_nghia_bong_' . $id );
+		$kq = self::gop_nghia_bong_bai( $id, get_current_user_id() );
+		if ( ! $kq['ok'] ) {
+			set_transient( 'phongdao_sua_loi_' . $id . '_' . get_current_user_id(), $kq['loi'], MINUTE_IN_SECONDS );
+		}
+		self::$ve = self::ve_hop_le( wp_unslash( (string) ( $_POST['ve'] ?? '' ) ) );
+		wp_safe_redirect( add_query_arg( array( 'ket_qua' => $kq['ok'] ? 'gop_nghia' : 'loi', 'phan' => 'y_nghia' ), self::url( $id, self::$ve ) ) . '#phan-y_nghia' );
+		exit;
 	}
 
 	/** Nút Đăng / Ẩn / Về nháp: kiểm quyền trên bài và nonce, ghi qua dịch vụ đổi trạng thái của trang đọc. */

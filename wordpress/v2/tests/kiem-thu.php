@@ -387,7 +387,7 @@ $h_tn_sua = $xem( $tn_dai );
 $_GET     = array( 'id' => (string) $tn_dai );
 $h_tn_adm = \Phongdao\GiaoTiep\QuanTri\SuaTacPham::hien();
 $_GET     = array();
-kt( 'tục ngữ chưa có Ý nghĩa: thêm được trên trang đọc (Thêm ý nghĩa, Thêm nghĩa đen; không có nút Nghĩa bóng, Dùng khi khi bài chưa có — D-119) và wp-admin, trước các phần chi tiết tuỳ chọn', str_contains( $h_tn_sua, 'Thêm ý nghĩa' ) && str_contains( $h_tn_sua, 'Thêm nghĩa đen' ) && ! str_contains( $h_tn_sua, 'Thêm nghĩa bóng' ) && ! str_contains( $h_tn_sua, 'Thêm &quot;Dùng khi&quot;' ) && str_contains( $h_tn_adm, 'id="phan-y_nghia"' ) && strpos( $h_tn_adm, 'id="phan-y_nghia"' ) < strpos( $h_tn_adm, 'id="phan-nghia_bong"' ) && ! str_contains( $h_tn_adm, 'Ý nghĩa đã có từ trước' ) );
+kt( 'tục ngữ chưa có Ý nghĩa: thêm được trên trang đọc (Thêm ý nghĩa, Thêm nghĩa đen; không có nút Nghĩa bóng, Dùng khi khi bài chưa có — D-119) và wp-admin, trước các phần chi tiết tuỳ chọn', str_contains( $h_tn_sua, 'Thêm ý nghĩa' ) && str_contains( $h_tn_sua, 'Thêm nghĩa đen' ) && ! str_contains( $h_tn_sua, 'Thêm nghĩa bóng' ) && ! str_contains( $h_tn_sua, 'Thêm &quot;Dùng khi&quot;' ) && str_contains( $h_tn_adm, 'id="phan-y_nghia"' ) && strpos( $h_tn_adm, 'id="phan-y_nghia"' ) < strpos( $h_tn_adm, 'id="phan-nghia_den"' ) && ! str_contains( $h_tn_adm, 'id="phan-nghia_bong"' ) && ! str_contains( $h_tn_adm, 'Ý nghĩa đã có từ trước' ) );
 kt( 'tục ngữ chưa có Ý nghĩa: khách không thấy nhãn Ý nghĩa trống, dù đã có Nghĩa bóng', ! str_contains( $h_tn_ngan, '<span class="eyebrow">Ý nghĩa</span>' ) && ! str_contains( $h_tn_ngan, '<h2>Ý nghĩa</h2>' ) );
 $tn_trong = $bai_tl( '[UX-TEST] empty meaning', 'tuc-ngu', array( '[UX-TEST] line 211' ) );
 wp_set_current_user( 0 );
@@ -2136,7 +2136,7 @@ $dtl      = $SUA::doi_the_loai_bai( $bai_dtl, 'ca-dao', $ai_ql );
 clean_post_cache( $bai_dtl );
 $duong_moi = (string) wp_make_link_relative( (string) get_permalink( $bai_dtl ) );
 $ls_dtl    = array_values( array_filter( Viec::lich_su( 'post', $bai_dtl, 10 ), static fn( array $r ): bool => 'the_loai' === $r['phan'] ) );
-kt( 'Sửa tác phẩm gọn: phần chưa có gom thành hàng "Thêm: …" (bấm mới mở ô), cờ "Có thể không phải dân gian" là công tắc ở cột bên (không nằm trong danh sách phần), người có quyền duyệt có "Đổi thể loại" kèm lời báo đường dẫn đổi', str_contains( $h_gon, '<p class="phongdao-sua-them"><strong>Thêm:</strong>' ) && str_contains( $h_gon, 'data-mo-phan="y_nghia"' ) && str_contains( $h_gon, '<section class="phongdao-sua-co" id="phan-co_nghi">' ) && ! str_contains( $h_gon, '<details class="phongdao-sua-phan chua-co" id="phan-co_nghi"' ) && str_contains( $h_gon, 'Đang tắt.' ) && str_contains( $h_gon, 'value="phongdao_doi_the_loai"' ) && str_contains( $h_gon, 'đường cũ tự chuyển sang đường mới' ) );
+kt( 'Sửa tác phẩm gọn: phần ít dùng chưa có gom thành hàng "Thêm: …" trong "Phần khác" (bấm mới mở ô), Ý nghĩa mở sẵn (D-119), cờ "Có thể không phải dân gian" là công tắc ở cột bên (không nằm trong danh sách phần), người có quyền duyệt có "Đổi thể loại" kèm lời báo đường dẫn đổi', str_contains( $h_gon, '<p class="phongdao-sua-them"><strong>Thêm:</strong>' ) && str_contains( $h_gon, 'data-mo-phan="chu_thich"' ) && ! str_contains( $h_gon, 'data-mo-phan="y_nghia"' ) && (bool) preg_match( '/id="phan-y_nghia"[^>]* open>/', $h_gon ) && str_contains( $h_gon, '<section class="phongdao-sua-co" id="phan-co_nghi">' ) && ! str_contains( $h_gon, '<details class="phongdao-sua-phan chua-co" id="phan-co_nghi"' ) && str_contains( $h_gon, 'Đang tắt.' ) && str_contains( $h_gon, 'value="phongdao_doi_the_loai"' ) && str_contains( $h_gon, 'đường cũ tự chuyển sang đường mới' ) );
 kt( 'Đổi thể loại: chỉ người có quyền duyệt; đường dẫn theo thể loại mới, đường cũ dẫn về đúng bài (chuyển 301 về đường chuẩn), Lịch sử ghi trước / sau và người đổi; phần riêng của thể loại cũ (đáp án) vẫn giữ', ! $dtl_q['ok'] && $dtl['ok'] && 'ca-dao' === \Phongdao\DichVu\DungTrang\DocBai::the_loai( get_post( $bai_dtl ) ) && str_starts_with( $duong_cu, '/cau-do/' ) && str_starts_with( $duong_moi, '/ca-dao/' ) && $bai_dtl === url_to_postid( home_url( $duong_cu ) ) && 'Đáp án giữ lại' === ( PhanBai::lay( $bai_dtl, 'dap_an' )['chu'] ?? '' ) && 1 === count( $ls_dtl ) && 'cau-do' === ( $ls_dtl[0]['truoc']['the_loai'] ?? '' ) && 'ca-dao' === ( $ls_dtl[0]['sau']['the_loai'] ?? '' ) && $ai_ql === (int) $ls_dtl[0]['nguoi_quyet'] && 'ca-dao' === ( \Phongdao\DichVu\TomTat\TomTat::lay( $bai_dtl )['the_loai'] ?? '' ), array( $dtl_q, $dtl, $duong_cu, $duong_moi, $ls_dtl ) );
 // Cờ: bật thiếu nguồn thì không lưu; bật đủ lý do và nguồn thì bật; Tắt cờ thì gỡ
 $bat_co = static function ( $vi_tri ): string {
@@ -2167,14 +2167,14 @@ $_GET = array();
 $_GET   = array( 'id' => (string) $tp1 );
 $h_hc   = $SUA::hien();
 $co_yn  = null !== PhanBai::lay( $tp1, 'y_nghia' );
-kt( 'Sửa tác phẩm: mục lục và quản lý bài ở đầu, hai cột giữ lời/biểu mẫu và phân loại/lịch sử, phần chưa chọn gập',
+kt( 'Sửa tác phẩm: mục lục và quản lý bài ở đầu, hai cột — lời, Ý nghĩa (mở sẵn), phân loại ở cột chính (D-119); lịch sử ở cột bên; Sửa lời gập',
   str_contains( $h_hc, '<div class="phongdao-sua-bo"><div class="phongdao-sua-chinh"><section class="phongdao-loi-xem" id="loi-doi-chieu">' )
   && strpos( $h_hc, 'class="phongdao-quan-ly-bai"' ) < strpos( $h_hc, '<div class="phongdao-sua-bo">' )
   && strpos( $h_hc, 'class="phongdao-muc-luc"' ) < strpos( $h_hc, '<div class="phongdao-sua-bo">' )
   && ( array() === Viec::mo( 'post', $tp1 ) ? ! str_contains( $h_hc, 'Việc đang chờ' ) : strpos( $h_hc, '<aside class="phongdao-sua-ben"' ) < strpos( $h_hc, 'Việc đang chờ' ) )
-  && strpos( $h_hc, '<aside class="phongdao-sua-ben"' ) < strpos( $h_hc, 'id="phan-loai"' )
+  && strpos( $h_hc, 'id="phan-loai"' ) < strpos( $h_hc, '<aside class="phongdao-sua-ben"' )
   && strpos( $h_hc, '<aside class="phongdao-sua-ben"' ) < strpos( $h_hc, 'id="lich-su"' )
-  && ! preg_match( '/<details[^>]+id="phan-(loi|y_nghia)"[^>]* open/', $h_hc ) && ! str_contains( $h_hc, 'data-bai-sau' ), array( $co_yn ) );
+  && ! preg_match( '/<details[^>]+id="phan-loi"[^>]* open/', $h_hc ) && (bool) preg_match( '/<details[^>]+id="phan-y_nghia"[^>]* open/', $h_hc ) && ! str_contains( $h_hc, 'data-bai-sau' ), array( $co_yn ) );
 $ds_tat  = add_query_arg( array( 'page' => 'phongdao-tac-pham', 'tt' => 'tat_ca' ), admin_url( 'admin.php' ) );
 $ids_tat = \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::ids_loc( array( 'tt' => 'tat_ca' ), 1000 );
 $p_hc    = (int) ( $ids_tat[0] ?? 0 );
@@ -3757,6 +3757,7 @@ require '/repo/tests/kiem-trang-sua-day-du.php';
 require '/repo/tests/kiem-editor-url.php';
 require '/repo/tests/kiem-tho-tuc.php';
 require '/repo/tests/kiem-chuyen-quanh.php';
+require '/repo/tests/kiem-sua-gon.php';
 
 require '/repo/tests/kiem-tim-doc.php';
 require '/repo/tests/kiem-xoa-va-cho-trung.php';

@@ -152,7 +152,7 @@ final class Module implements \Phongdao\HaTang\Module {
 					'uu_tien'        => 35,
 				)
 			);
-			return array( 'ok' => (bool) $viec, 'loi' => array(), 'viec' => 0, 'thong_bao' => 'Đã lưu nháp vào Hộp việc; người đọc chưa thấy.' );
+			return array( 'ok' => (bool) $viec, 'loi' => array(), 'viec' => 0, 'thong_bao' => 'Đã lưu nháp vào Hộp việc; người đọc chưa thấy.' . self::nhac( $id, $phan, $doc['nhap'] ) );
 		}
 		$loai = (string) \Phongdao\DichVu\DungTrang\DocBai::the_loai( get_post( $id ) );
 		if ( 'gan_nghia' === $phan ) {
@@ -191,7 +191,13 @@ final class Module implements \Phongdao\HaTang\Module {
 			$thieu = \Phongdao\MienDuLieu\TuKho::thieu( (array) ( PhanBai::lay( $id, 'loi' )['dong'] ?? array() ), array_column( (array) ( $doc['gia_tri']['muc'] ?? $doc['gia_tri'] ?? array() ), 'tu' ) );
 			$bao  .= $thieu ? ' Không thấy từ ' . implode( ', ', array_map( static fn( string $t ): string => '«' . $t . '»', $thieu ) ) . ' trong lời, kiểm lại chính tả.' : '';
 		}
-		return $kq + array( 'thong_bao' => $bao . $them_bao );
+		return $kq + array( 'thong_bao' => $bao . $them_bao . ( $kq['ok'] ? self::nhac( $id, $phan, $doc['gia_tri'] ) : '' ) );
+	}
+
+	/** Nhắc lỗi trình bày theo quy tắc viết (D-119): chỉ nhắc sau khi lưu, không chặn, không tự sửa chữ. */
+	private static function nhac( int $id, string $phan, ?array $gia_tri ): string {
+		$nhac = \Phongdao\MienDuLieu\KiemTrinhBay::nhac( $phan, $gia_tri, (array) ( PhanBai::lay( $id, 'loi' )['dong'] ?? array() ) );
+		return $nhac ? ' Nhắc (không chặn lưu): ' . implode( ' ', array_column( $nhac, 'chu' ) ) : '';
 	}
 
 	/**

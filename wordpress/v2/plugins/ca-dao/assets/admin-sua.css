@@ -145,3 +145,11 @@ body.folded .phongdao-thanh-luu { left: 36px; }
   .phongdao-thanh-luu button { font-size: 13px; white-space: normal; }
   .phongdao-muc-gon > summary { min-height: 54px; }
 }
+/* Màn sửa gọn (D-119, T-216): Lời → Nghĩa → Phân loại, phần ít dùng gom vào "Phần khác"; nhắc lỗi trình bày (không chặn) */
+.phongdao-sua-nhom { margin: 24px 0 4px; font-size: 18px; }
+.phongdao-phan-khac { margin: 24px 0; border: 1px solid #c3c4c7; border-radius: 6px; background: #f6f7f7; padding: 0 16px; }
+.phongdao-phan-khac > summary { min-height: 48px; display: flex; flex-wrap: wrap; align-items: center; gap: 0 6px; cursor: pointer; font-size: 16px; font-weight: 600; }
+.phongdao-phan-khac > summary .description { font-weight: 400; }
+.phongdao-phan-khac[open] { padding-bottom: 8px; }
+.phongdao-nhac, .phongdao-gop-nb { margin: 8px 0 12px; }
+.phongdao-gop-nb form { border: 0; padding: 0; }
