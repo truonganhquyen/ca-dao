@@ -154,8 +154,32 @@ final class Module implements \Phongdao\HaTang\Module {
 			);
 			return array( 'ok' => (bool) $viec, 'loi' => array(), 'viec' => 0, 'thong_bao' => 'Đã lưu nháp vào Hộp việc; người đọc chưa thấy.' );
 		}
-		$kq = LuuPhan::luu( $id, $phan, $doc['gia_tri'], self::nc() );
 		$loai = (string) \Phongdao\DichVu\DungTrang\DocBai::the_loai( get_post( $id ) );
+		if ( 'gan_nghia' === $phan ) {
+			$loi_gn = self::kiem_gan_nghia( $id, $doc );
+			if ( $loi_gn ) {
+				return array( 'ok' => false, 'loi' => $loi_gn, 'doi' => false, 'viec' => 0 );
+			}
+		}
+		$kq = LuuPhan::luu( $id, $phan, $doc['gia_tri'], self::nc() );
+		$them_bao = '';
+		if ( $kq['ok'] && ! empty( $doc['chuyen'] ) ) {
+			// Người đánh dấu "Chuyển sang Chuyện quanh bài" (D-119): mục rời Từ khó, nối vào cuối Chuyện quanh bài, cùng một lượt
+			// lưu (một phần hỏng thì cả hai không đổi); người làm, nguồn của mục giữ nguyên
+			$ten_cq = TamSua::ten_chuyen_quanh( $loai );
+			$kq_cq  = LuuPhan::luu( $id, 'chuyen_quanh', array_merge( array_values( PhanBai::lay( $id, 'chuyen_quanh' )['muc'] ?? array() ), $doc['chuyen'] ), self::nc() );
+			if ( ! $kq_cq['ok'] ) {
+				return array( 'ok' => false, 'loi' => array_merge( array( 'Chưa chuyển được mục sang ' . $ten_cq . '; từ khó chưa đổi.' ), $kq_cq['loi'] ), 'doi' => false, 'viec' => 0 );
+			}
+			$them_bao = ' Đã chuyển ' . count( $doc['chuyen'] ) . ' mục sang ' . $ten_cq . '.';
+		}
+		if ( $kq['ok'] && 'gan_nghia' === $phan && ! empty( $vao['hai_chieu'] ) ) {
+			$hai = self::gan_nghia_hai_chieu( $id, $cu, (array) ( $doc['gia_tri'] ?? array() ) );
+			if ( ! $hai['ok'] ) {
+				return $hai;
+			}
+			$them_bao = $hai['so'] ? ' Đã ghi cả ở ' . $hai['so'] . ' câu kia.' : '';
+		}
 		$ten = TamSua::nhan( $phan, $loai );
 		$kq['loi'] = TamSua::nhan_loi( $phan, $kq['loi'], $loai );
 		$bao = $kq['ok'] ? ( $kq['doi'] ? 'Đã lưu.' : 'Không có gì thay đổi.' ) : '';
@@ -167,7 +191,62 @@ final class Module implements \Phongdao\HaTang\Module {
 			$thieu = \Phongdao\MienDuLieu\TuKho::thieu( (array) ( PhanBai::lay( $id, 'loi' )['dong'] ?? array() ), array_column( (array) ( $doc['gia_tri']['muc'] ?? $doc['gia_tri'] ?? array() ), 'tu' ) );
 			$bao  .= $thieu ? ' Không thấy từ ' . implode( ', ', array_map( static fn( string $t ): string => '«' . $t . '»', $thieu ) ) . ' trong lời, kiểm lại chính tả.' : '';
 		}
-		return $kq + array( 'thong_bao' => $bao );
+		return $kq + array( 'thong_bao' => $bao . $them_bao );
+	}
+
+	/**
+	 * Câu gần nghĩa · trái nghĩa (D-119): dòng dán phải ra đúng một bài; câu được nối là tác phẩm (chưa vào thùng rác) và không
+	 * phải chính câu này. Không đoán: chưa chắc thì báo, chữ đang nhập được giữ.
+	 *
+	 * @return string[]
+	 */
+	private static function kiem_gan_nghia( int $id, array $doc ): array {
+		$loi = array();
+		foreach ( (array) ( $doc['khong_thay'] ?? array() ) as $dong ) {
+			$loi[] = 'Không tìm thấy bài cho “' . mb_substr( (string) $dong, 0, 80 ) . '”. Dán đúng đường dẫn bài, số bài, hoặc tên bài đúng từng chữ.';
+		}
+		foreach ( (array) ( $doc['gia_tri'] ?? array() ) as $m ) {
+			$bai = get_post( (int) $m['tac_pham_id'] );
+			if ( (int) $m['tac_pham_id'] === $id ) {
+				$loi[] = 'Không nối một câu với chính nó.';
+			} elseif ( ! $bai || \Phongdao\HaTang\KhaiBao::TAC_PHAM !== $bai->post_type || 'trash' === $bai->post_status ) {
+				$loi[] = 'Bài #' . (int) $m['tac_pham_id'] . ' không phải tác phẩm đang có.';
+			}
+		}
+		return array_values( array_unique( $loi ) );
+	}
+
+	/**
+	 * "Ghi cả ở câu kia": câu vừa nối thêm (không phải câu đã nối từ trước) mà là tục ngữ người đang sửa có quyền sửa thì nhận
+	 * chiều ngược lại cùng quan hệ, trong cùng lượt lưu, có Lịch sử ở câu kia. Bỏ nối không lan sang câu kia.
+	 *
+	 * @param list<array{tac_pham_id:int,quan_he:string}> $moi
+	 * @return array{ok:bool,loi:string[],doi:bool,viec:int,so:int}
+	 */
+	private static function gan_nghia_hai_chieu( int $id, ?array $cu, array $moi ): array {
+		$truoc = array_map( 'intval', array_column( (array) ( $cu['muc'] ?? array() ), 'tac_pham_id' ) );
+		$so    = 0;
+		foreach ( $moi as $m ) {
+			$kia = (int) $m['tac_pham_id'];
+			$bai = get_post( $kia );
+			if ( in_array( $kia, $truoc, true ) || ! $bai || 'tuc-ngu' !== \Phongdao\DichVu\DungTrang\DocBai::the_loai( $bai ) || ! current_user_can( 'edit_post', $kia ) ) {
+				continue;
+			}
+			if ( ! LuuPhan::khoa_bai( $kia ) ) {
+				return array( 'ok' => false, 'loi' => array( 'Chưa ghi được ở câu kia. Thử lại sau.' ), 'doi' => false, 'viec' => 0, 'so' => 0 );
+			}
+			$ds = array_values( PhanBai::lay( $kia, 'gan_nghia' )['muc'] ?? array() );
+			if ( in_array( $id, array_map( 'intval', array_column( $ds, 'tac_pham_id' ) ), true ) ) {
+				continue;
+			}
+			$ds[] = array( 'tac_pham_id' => $id, 'quan_he' => $m['quan_he'] );
+			$kq   = LuuPhan::luu( $kia, 'gan_nghia', $ds, self::nc() );
+			if ( ! $kq['ok'] ) {
+				return array( 'ok' => false, 'loi' => array_merge( array( 'Chưa ghi được ở câu #' . $kia . '; câu này chưa đổi.' ), $kq['loi'] ), 'doi' => false, 'viec' => 0, 'so' => 0 );
+			}
+			++$so;
+		}
+		return array( 'ok' => true, 'loi' => array(), 'doi' => true, 'viec' => 0, 'so' => $so );
 	}
 
 	/** Đăng / Ẩn / về nháp. Đăng cần quyền duyệt. Ghi một dòng nhật ký. */

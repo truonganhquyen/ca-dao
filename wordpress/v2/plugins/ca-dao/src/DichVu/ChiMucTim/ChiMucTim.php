@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
 final class ChiMucTim implements Module {
 
 	/** Phần của bài có trong chỉ mục: chính (tên + lời + dị bản), phụ (nghĩa, chú thích). */
-	private const PHAN = array( 'loi', 'di_ban', 'y_nghia', 'nghia_den', 'nghia_bong', 'dung_khi', 'chu_thich' );
+	private const PHAN = array( 'loi', 'di_ban', 'y_nghia', 'nghia_den', 'nghia_bong', 'dung_khi', 'chu_thich', 'chuyen_quanh' );
 
 	public const TU_VUNG = 'phongdao_tim_am_tiet';
 
@@ -87,7 +87,8 @@ final class ChiMucTim implements Module {
 				"\n",
 				array_merge(
 					array_map( static fn( string $p ): string => (string) ( $phan[ $p ]['chu'] ?? '' ), array( 'y_nghia', 'nghia_den', 'nghia_bong', 'dung_khi' ) ),
-					array_map( static fn( $c ): string => ( $c['tu'] ?? '' ) . ' ' . ( $c['loi_giai'] ?? '' ), $phan['chu_thich']['muc'] ?? array() )
+					array_map( static fn( $c ): string => ( $c['tu'] ?? '' ) . ' ' . ( $c['loi_giai'] ?? '' ), $phan['chu_thich']['muc'] ?? array() ),
+					array_map( static fn( $c ): string => ( $c['tieu_de'] ?? '' ) . ' ' . ( $c['chu'] ?? '' ), $phan['chuyen_quanh']['muc'] ?? array() )
 				)
 			)
 		);

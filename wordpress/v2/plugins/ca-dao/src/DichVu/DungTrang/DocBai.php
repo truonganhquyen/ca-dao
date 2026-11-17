@@ -22,7 +22,7 @@ final class DocBai {
 		}
 		$phan = self::phan( $bai );
 		$ho_so = array();
-		foreach ( array_merge( array( $phan['loi']['doi_chieu']['ho_so'] ?? 0 ), array_map( static fn( $c ) => $c['nguon']['ho_so'] ?? 0, $phan['chu_thich']['muc'] ?? array() ) ) as $id ) {
+		foreach ( array_merge( array( $phan['loi']['doi_chieu']['ho_so'] ?? 0 ), array_map( static fn( $c ) => $c['nguon']['ho_so'] ?? 0, array_merge( $phan['chu_thich']['muc'] ?? array(), $phan['chuyen_quanh']['muc'] ?? array() ) ) ) as $id ) {
 			$hs = $id ? get_post( (int) $id ) : null;
 			if ( $hs && KhaiBao::HO_SO_NGUON === $hs->post_type && 'publish' === $hs->post_status ) {
 				$ho_so[ $hs->ID ] = $hs->post_title;
@@ -61,9 +61,35 @@ final class DocBai {
 		$tp['anh_minh_hoa_html'] = \Phongdao\GiaoTiep\Khoi\AnhMinhHoa::html( (int) $tp['anh_minh_hoa'] );
 		// Đồng dao: trò chơi gắn với bài và cách chơi người biên soạn đã lưu ở trò chơi (D-119, khối Cách chơi)
 		$tp['tro_choi'] = 'dong-dao' === $tp['the_loai'] ? self::tro_choi( $bai ) : array();
+		// Câu gần nghĩa · trái nghĩa (D-119): chỉ câu đã đăng, không mật khẩu, không bật "Có từ ngữ thô tục"
+		$tp['gan_nghia'] = self::gan_nghia( (array) $tp['gan_nghia'] );
 		// Mô-típ của bài (D-119): nhãn ở trang bài, chỉ mô-típ có từ hai bài (trang mô-típ một bài không dẫn đi đâu)
 		$tp['mo_tip'] = array_values( array_filter( self::term( $bai, 'mo_tip' ), static fn( array $t ): bool => $t['so'] >= 2 ) );
 		return array( 'cam_nghi' => self::cam_nghi( $bai->ID ), 'cach_hieu' => self::cam_nghi( $bai->ID, 'cach_hieu' ) ) + $tp;
+	}
+
+	/**
+	 * Câu gần nghĩa · trái nghĩa người biên soạn đã nối → câu hiện cho người đọc: câu ngắn (một, hai dòng) hiện chính lời trên
+	 * một dòng, câu dài hiện tên bài. Bỏ câu chưa đăng, có mật khẩu hay có từ ngữ thô tục.
+	 *
+	 * @param list<array{id:int,quan_he:string}> $ds
+	 * @return list<array{url:string,cau:string,quan_he:string}>
+	 */
+	private static function gan_nghia( array $ds ): array {
+		$ra = array();
+		foreach ( $ds as $m ) {
+			$b = get_post( (int) $m['id'] );
+			if ( ! $b || KhaiBao::TAC_PHAM !== $b->post_type || 'publish' !== $b->post_status || '' !== $b->post_password || null !== PhanBai::lay( $b->ID, 'tho_tuc' ) ) {
+				continue;
+			}
+			$loi  = array_values( array_filter( array_map( 'trim', (array) ( PhanBai::lay( $b->ID, 'loi' )['dong'] ?? array() ) ), 'strlen' ) );
+			$ra[] = array(
+				'url'     => (string) get_permalink( $b ),
+				'cau'     => $loi && count( $loi ) <= 2 ? implode( ' ', \Phongdao\GiaoTiep\Khoi\TacPham::mot_dong( $loi ) ) : (string) $b->post_title,
+				'quan_he' => (string) $m['quan_he'],
+			);
+		}
+		return $ra;
 	}
 
 	/**

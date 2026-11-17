@@ -58,7 +58,7 @@ $h202  = TacPham::hien( $tp202 );
 $vi_che202 = strpos( $h202, '<details class="tho-tuc tho-tuc-bai">' );
 $vi_loi202 = strpos( $h202, '[UX-TEST] Dòng cần che' );
 kt( 'thô tục: trang đọc đóng sẵn khối che có đúng lời báo và nút "Hiển thị lời"; lời nằm trong khối, không trước khối', false !== $vi_che202 && false !== $vi_loi202 && $vi_loi202 > $vi_che202 && str_contains( $h202, '<span class="tho-tuc-bao">' . esc_html( Ve::BAO_THO_TUC ) . '</span>' ) && str_contains( $h202, 'Hiển thị lời' ) && 'Bài có từ ngữ thô tục - cân nhắc khi xem.' === Ve::BAO_THO_TUC );
-kt( 'thô tục: tên bài trên trang (tiêu đề, đường dẫn vị trí) trung tính, không lộ tên', str_contains( $h202, '<h1 class="read-title">Ca dao có từ ngữ thô tục</h1>' ) && str_contains( $h202, '<span>Bài có từ ngữ thô tục</span></nav>' ) && false === strpos( substr( $h202, 0, (int) $vi_che202 ), '[UX-TEST] Tên bài cần che' ) );
+kt( 'thô tục: tên bài trên trang (tiêu đề, đường dẫn vị trí) trung tính, không lộ tên', str_contains( $h202, '<h1 class="read-title tho-tuc-ten">Ca dao có từ ngữ thô tục</h1>' ) && str_contains( $h202, '<span>Bài có từ ngữ thô tục</span></nav>' ) && false === strpos( substr( $h202, 0, (int) $vi_che202 ), '[UX-TEST] Tên bài cần che' ) );
 $sua202 = \Phongdao\GiaoTiep\BienTap\CheDoSua::ngu_canh( get_post( $an202 ) );
 $h_sua_doc202 = $sua202 ? TacPham::hien( $tp202, $sua202 ) : '';
 kt( 'thô tục: người biên soạn ở chế độ sửa thấy khối mở sẵn và tên thật', str_contains( $h_sua_doc202, '<details class="tho-tuc tho-tuc-bai" open>' ) && str_contains( $h_sua_doc202, '[UX-TEST] Tên bài cần che' ) );
@@ -76,16 +76,13 @@ $hom202 = (array) get_transient( 'phongdao_cau_hom_nay_ds' );
 kt( 'thô tục: danh sách chọn Câu hôm nay không có bài bị che', ! in_array( $an202, $hom202, true ) );
 $doc_tiep202 = array_column( DocTiep::cho( get_post( $sau202 ) ), 'id' );
 kt( 'thô tục: Đọc tiếp không gợi ý bài bị che (kể cả bài cùng thể loại ngay trước)', ! in_array( $an202, $doc_tiep202, true ), $doc_tiep202 );
-$sql202 = array();
-$bat_sql202 = static function ( string $sql ) use ( &$sql202 ): string {
-	$sql202[] = $sql;
-	return $sql;
-};
-// get_posts tắt bộ lọc truy vấn (suppress_filters): bắt câu SQL ở tầng $wpdb
-add_filter( 'query', $bat_sql202 );
-\Phongdao\GiaoTiep\Khoi\KhamPha::hien( 'ngau-nhien' );
-remove_filter( 'query', $bat_sql202 );
-kt( 'thô tục: Một câu ngẫu nhiên lọc bỏ bài bị che (và bài có cờ nghi)', (bool) array_filter( $sql202, static fn( string $s ): bool => str_contains( $s, '_phongdao_tho_tuc' ) && str_contains( $s, '_phongdao_co_nghi' ) ) );
+// Một câu ngẫu nhiên lấy vài bài ngẫu nhiên rồi lọc cờ / thô tục bằng PHP (không dùng NOT EXISTS trên postmeta): cho
+// truy vấn ngẫu nhiên trả bài bị che đứng đầu — trang phải bỏ bài đó, chọn bài kế tiếp
+$tron202 = static fn( $kq, $q ) => 'rand' === $q->get( 'orderby' ) && KhaiBao::TAC_PHAM === $q->get( 'post_type' ) ? array( $an202, $sau202 ) : $kq;
+add_filter( 'posts_pre_query', $tron202, 10, 2 );
+$h_nn202 = \Phongdao\GiaoTiep\Khoi\KhamPha::hien( 'ngau-nhien' );
+remove_filter( 'posts_pre_query', $tron202, 10 );
+kt( 'thô tục: Một câu ngẫu nhiên bỏ bài bị che (lọc bằng PHP trên các bài lấy ngẫu nhiên, cùng cách với bài có cờ nghi), chọn bài kế tiếp', ! str_contains( $h_nn202, 'Tên bài cần che' ) && ! str_contains( $h_nn202, 'Dòng cần che' ) && str_contains( $h_nn202, esc_url( (string) get_permalink( $sau202 ) ) ), substr( $h_nn202, 0, 800 ) );
 
 // ---------- Chia sẻ link ----------
 $mo_ta202 = \Phongdao\GiaoTiep\Seo\Module::mo_ta_tac_pham( $an202 );

@@ -32,9 +32,13 @@ final class Phan {
 			'dung_khi'    => array( 'dang' => self::MOT, 'the_loai' => array( 'tuc-ngu' ), 'nguoi_lam' => array( NguoiLam::NGUOI_VIET, NguoiLam::AI_DA_DUYET, NguoiLam::MAY_CHEP ), 'may' => true, 'truong' => array( 'chu' => 'chu!', 'ai' => 'bool' ) ),
 			// Ca dao, đồng dao (D-105): mỗi dòng một cặp "hình ảnh → điều được nói tới"; người viết, có AI hỗ trợ thì phải được duyệt
 			'hinh_anh'    => array( 'dang' => self::MOT, 'the_loai' => array( 'ca-dao', 'dong-dao' ), 'nguoi_lam' => self::NGHIA, 'may' => false, 'truong' => array( 'chu' => 'chu!', 'ai' => 'bool' ) ),
+			// Câu gần nghĩa · trái nghĩa của tục ngữ (D-119): người biên soạn chọn câu, máy không tự nối
 			'gan_nghia'   => array( 'dang' => self::DS, 'the_loai' => array( 'tuc-ngu' ), 'nguoi_lam' => null, 'may' => false, 'truong' => array( 'tac_pham_id' => 'id!', 'quan_he' => 'chon:gan|trai!' ) ),
 			'giai_sach'   => array( 'dang' => self::MOT, 'the_loai' => null, 'nguoi_lam' => array( NguoiLam::MAY_CHEP ), 'may' => true, 'truong' => array( 'chu' => 'chu!' ) ),
 			'chu_thich'   => array( 'dang' => self::DS, 'the_loai' => null, 'nguoi_lam' => array( NguoiLam::MAY_CHEP, NguoiLam::NGUOI_VIET ), 'may' => true, 'truong' => array( 'tu' => 'chu_ngan', 'loi_giai' => 'chu!', 'muc_tu_id' => 'id', 'vi_tri' => 'ds_so' ) ),
+			// Chuyện quanh bài (tục ngữ: Nguồn gốc) — giai thoại, điển tích (D-119). Người biên soạn viết, hoặc chuyển mục từ chú
+			// thích (giữ người làm và nguồn của mục); máy không tự ghi, không tự chuyển chữ giữa các phần
+			'chuyen_quanh' => array( 'dang' => self::DS, 'the_loai' => null, 'nguoi_lam' => array( NguoiLam::MAY_CHEP, NguoiLam::NGUOI_VIET ), 'may' => false, 'truong' => array( 'tieu_de' => 'chu_ngan', 'chu' => 'chu!' ) ),
 			'cau_hoi'     => array( 'dang' => self::MOT, 'the_loai' => array( 'cau-do' ), 'nguoi_lam' => array( NguoiLam::MAY_CHEP, NguoiLam::NGUOI_VIET ), 'may' => true, 'truong' => array( 'chu' => 'chu_ngan!' ) ),
 			'dap_an'      => array( 'dang' => self::MOT, 'the_loai' => array( 'cau-do' ), 'nguoi_lam' => array( NguoiLam::MAY_CHEP, NguoiLam::NGUOI_VIET ), 'may' => true, 'truong' => array( 'chu' => 'chu!' ) ),
 			'goi_y'       => array( 'dang' => self::MOT, 'the_loai' => array( 'cau-do' ), 'nguoi_lam' => self::NGHIA, 'may' => false, 'truong' => array( 'chu' => 'chu!', 'ai' => 'bool' ) ),

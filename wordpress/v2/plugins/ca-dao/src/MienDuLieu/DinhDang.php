@@ -5,7 +5,7 @@ namespace Phongdao\MienDuLieu;
 /** Định dạng nhỏ đi kèm chữ thuần; không diễn giải HTML nằm trong dữ liệu cũ. */
 final class DinhDang {
 
-	public const PHAN = array( 'y_nghia', 'nghia_den', 'nghia_bong', 'dap_an', 'goi_y', 'boi_canh', 'chu_thich' );
+	public const PHAN = array( 'y_nghia', 'nghia_den', 'nghia_bong', 'dap_an', 'goi_y', 'boi_canh', 'chu_thich', 'chuyen_quanh' );
 	public static function truong( string $phan ): ?string {
 		return in_array( $phan, self::PHAN, true ) ? ( 'chu_thich' === $phan ? 'loi_giai' : 'chu' ) : null;
 	}

@@ -29,6 +29,8 @@ final class GieoMau {
 					array( 'loi_giai' => 'Chú thích không ghi từ, người biên soạn viết.', 'nguoi_lam' => NguoiLam::NGUOI_VIET ),
 				),
 				'di_ban'    => array( array( 'dong' => array( 'Dòng mẫu khác của bài này', 'Dòng mẫu hai khác dài hơn cho vừa' ), 'nguoi_lam' => NguoiLam::MAY_CHEP ) ),
+				// Chuyện quanh bài (D-119): chữ mẫu tự đặt, không phải giai thoại thật
+				'chuyen_quanh' => array( array( 'tieu_de' => 'Chuyện mẫu', 'chu' => 'Một đoạn kể tổng hợp để xem hàng Chuyện quanh bài.', 'nguoi_lam' => NguoiLam::NGUOI_VIET ) ),
 			),
 		),
 		'cau-mau-thu-hai'      => array(
@@ -206,7 +208,8 @@ final class GieoMau {
 
 	/** @return array<string,int> tên đường dẫn => ID các tác phẩm mẫu (đã có thì giữ) */
 	public static function gieo( int $nguoi ): array {
-		$ra = array();
+		$ra  = array();
+		$moi = array();
 		$anh = self::anh_mau();
 		foreach ( self::BAI as $ten => $bai ) {
 			$co = get_page_by_path( $ten, OBJECT, KhaiBao::TAC_PHAM );
@@ -234,9 +237,14 @@ final class GieoMau {
 				LuuPhan::luu( $id, $phan, $gia_tri, array( 'nguoi' => $nguoi, 'goi' => KiemPhan::GOI_NGUOI, 'duyet' => true ) );
 			}
 			$ra[ $ten ] = $id;
+			$moi[]      = $ten;
 			if ( $anh ) {
 				LuuPhan::luu( $id, 'media', array( array( 'attachment_id' => $anh, 'loai' => 'anh' ) ), array( 'nguoi' => $nguoi, 'goi' => KiemPhan::GOI_NGUOI ) );
 			}
+		}
+		// Câu gần nghĩa mẫu (D-119): tục ngữ mẫu nối với một câu mẫu khác — chỉ để xem hàng "Câu gần nghĩa", không phải quan hệ thật
+		if ( in_array( 'tuc-ngu-mau-ngan', $moi, true ) && isset( $ra['cau-mau-thu-hai'] ) ) {
+			LuuPhan::luu( $ra['tuc-ngu-mau-ngan'], 'gan_nghia', array( array( 'tac_pham_id' => $ra['cau-mau-thu-hai'], 'quan_he' => 'gan' ) ), array( 'nguoi' => $nguoi, 'goi' => KiemPhan::GOI_NGUOI, 'duyet' => true ) );
 		}
 		return $ra;
 	}

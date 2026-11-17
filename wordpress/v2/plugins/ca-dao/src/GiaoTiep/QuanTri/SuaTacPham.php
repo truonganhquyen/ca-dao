@@ -60,18 +60,18 @@ final class SuaTacPham {
 	/** @return string[] */
 	private static function phan_theo_loai( string $loai ): array {
 		$ra = array();
-		$rieng = array( 'nghia_den' => 'tuc-ngu', 'nghia_bong' => 'tuc-ngu', 'dung_khi' => 'tuc-ngu', 'hinh_anh' => 'ca-dao|dong-dao', 'cau_hoi' => 'cau-do', 'dap_an' => 'cau-do', 'goi_y' => 'cau-do', 'boi_canh' => 've', 'doan' => 've' );
+		$rieng = array( 'nghia_den' => 'tuc-ngu', 'nghia_bong' => 'tuc-ngu', 'dung_khi' => 'tuc-ngu', 'gan_nghia' => 'tuc-ngu', 'hinh_anh' => 'ca-dao|dong-dao', 'cau_hoi' => 'cau-do', 'dap_an' => 'cau-do', 'goi_y' => 'cau-do', 'boi_canh' => 've', 'doan' => 've' );
 		foreach ( array_keys( TamSua::TAM ) as $phan ) {
 			if ( ! isset( $rieng[ $phan ] ) || in_array( $loai, explode( '|', $rieng[ $phan ] ), true ) ) {
 				$ra[] = $phan;
 			}
 		}
 		$thu_tu = array(
-			'ca-dao' => array( 'loi', 'y_nghia', 'chu_thich', 'di_ban', 'hinh_anh' ),
-			'tuc-ngu' => array( 'loi', 'y_nghia', 'nghia_den', 'nghia_bong', 'dung_khi', 'chu_thich', 'di_ban' ),
-			'dong-dao' => array( 'loi', 'y_nghia', 'chu_thich', 'hinh_anh', 'di_ban' ),
-			've' => array( 'loi', 'boi_canh', 'doan', 'y_nghia', 'chu_thich', 'di_ban' ),
-			'cau-do' => array( 'loi', 'cau_hoi', 'dap_an', 'goi_y', 'y_nghia', 'chu_thich', 'di_ban' ),
+			'ca-dao' => array( 'loi', 'y_nghia', 'chu_thich', 'chuyen_quanh', 'di_ban', 'hinh_anh' ),
+			'tuc-ngu' => array( 'loi', 'y_nghia', 'nghia_den', 'nghia_bong', 'dung_khi', 'chu_thich', 'chuyen_quanh', 'gan_nghia', 'di_ban' ),
+			'dong-dao' => array( 'loi', 'y_nghia', 'chu_thich', 'chuyen_quanh', 'hinh_anh', 'di_ban' ),
+			've' => array( 'loi', 'boi_canh', 'doan', 'y_nghia', 'chu_thich', 'chuyen_quanh', 'di_ban' ),
+			'cau-do' => array( 'loi', 'cau_hoi', 'dap_an', 'goi_y', 'y_nghia', 'chu_thich', 'chuyen_quanh', 'di_ban' ),
 		);
 		return array_values( array_unique( array_merge( $thu_tu[ $loai ] ?? array(), $ra ) ) );
 	}
