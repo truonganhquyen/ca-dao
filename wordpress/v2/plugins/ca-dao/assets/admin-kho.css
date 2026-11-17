@@ -31,3 +31,11 @@
 	height: 24px;
 	margin: 0;
 }
+/* Bài mới → Đăng nhanh (D-119, T-216): mỗi câu một thẻ */
+.phongdao-xem-kieu { margin: 8px 0 12px; }
+.phongdao-dn-the { max-width: 760px; margin: 12px 0 24px; padding: 16px 20px; background: #fff; border: 1px solid #c3c4c7; border-radius: 6px; }
+.phongdao-dn-dem { margin: 0 0 6px; font-weight: 600; }
+.phongdao-dn-the h2 { margin: 6px 0 8px; font-size: 20px; }
+.phongdao-dn-loi { font-size: 17px; line-height: 1.7; margin: 0 0 10px; }
+.phongdao-dn-nut { display: flex; flex-wrap: wrap; gap: 8px; }
+.phongdao-dn-nut .button { min-height: 40px; display: inline-flex; align-items: center; }

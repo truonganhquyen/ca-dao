@@ -3759,6 +3759,7 @@ require '/repo/tests/kiem-tho-tuc.php';
 require '/repo/tests/kiem-chuyen-quanh.php';
 require '/repo/tests/kiem-sua-gon.php';
 require '/repo/tests/kiem-can-sua.php';
+require '/repo/tests/kiem-dang-nhanh.php';
 
 require '/repo/tests/kiem-tim-doc.php';
 require '/repo/tests/kiem-xoa-va-cho-trung.php';

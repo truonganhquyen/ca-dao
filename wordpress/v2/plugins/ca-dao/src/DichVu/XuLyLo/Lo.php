@@ -272,6 +272,11 @@ final class Lo {
 		return array( $kq['ok'] || ! str_contains( (string) $kq['thong_bao'], 'Thử lại' ) ? 'bo_qua' : 'loi', (string) $kq['thong_bao'] );
 	}
 
+	/** Đăng một câu kho (Đăng nhanh ở Bài mới, D-119): đúng đường của lô "Xem trước và đăng". @return array{0:string,1:string} */
+	public static function dang_mot_kho( int $id, string $ban, int $nguoi ): array {
+		return self::mot_kho_dang( $id, $ban, $nguoi, user_can( $nguoi, 'cadao_duyet' ) );
+	}
+
 	/**
 	 * Đăng một câu kho một mạch (D-101): còn đúng trạng thái lúc xem trước, không chờ quyết trùng, thì đưa vào Hộp việc qua
 	 * đúng đường của nút đơn (máy so trùng lại; thấy có thể trùng thì dừng ở thẻ "Có thể trùng") rồi quyết Đăng trên thẻ
