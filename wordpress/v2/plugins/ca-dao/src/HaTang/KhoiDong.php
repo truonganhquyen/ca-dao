@@ -23,6 +23,7 @@ final class KhoiDong {
 		DichVu\DungTrang\DuLieuTrangChu::class,
 		DichVu\ChiMucTim\ChiMucTim::class,
 		DichVu\TomTat\TomTat::class,
+		DichVu\CanSua\CanSua::class,
 		DichVu\NhapNguon\NguonTuDong::class,
 		DichVu\ChongTrung\ChongTrung::class,
 		DichVu\UngVien\UngVien::class,

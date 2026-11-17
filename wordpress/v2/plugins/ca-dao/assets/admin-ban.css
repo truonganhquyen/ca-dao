@@ -68,3 +68,9 @@
 .phongdao-tt-tim li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 8px; }
 .phongdao-tt-nut-luu { display: flex; flex-wrap: wrap; gap: 8px; }
 .phongdao-tt-trang-thai { max-width: 760px; padding: 12px 16px; border-left: 4px solid #2271b1; background: #fff; }
+/* Bổ sung → Cần sửa (D-119, T-216): nhóm theo loại lỗi, mỗi bài một dòng có "Bỏ qua" */
+.phongdao-can-sua-nhom { margin: 8px 0; border: 1px solid #c3c4c7; border-radius: 6px; background: #fff; padding: 0 12px; }
+.phongdao-can-sua-nhom > summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-weight: 600; }
+.phongdao-can-sua-nhom li { margin: 0 0 10px; }
+.phongdao-bo-qua { display: inline; }
+.phongdao-bo-qua .button { min-height: 32px; }

@@ -41,3 +41,10 @@ kt(
 	&& array( 'cach_dau' ) === $ma( KiemTrinhBay::nhac( 'loi', array( 'dong' => array( 'Một dòng , hai' ) ) ) )
 	&& array() === KiemTrinhBay::nhac( 'chu_thich', array( 'muc' => array() ) )
 );
+kt(
+	'trình bày: từ khó có lời giải quá 80 chữ thì nhắc (đếm số mục), mục ngắn không; mọi mã nhắc đều có tên nhóm "Cần sửa"',
+	array( 'ct_dai' ) === $ma( KiemTrinhBay::chu_thich( array( array( 'tu' => 'a', 'loi_giai' => trim( str_repeat( 'chữ ', 81 ) ) ), array( 'tu' => 'b', 'loi_giai' => 'ngắn' ) ) ) )
+	&& str_contains( KiemTrinhBay::nhac( 'chu_thich', array( 'muc' => array( array( 'loi_giai' => trim( str_repeat( 'x ', 90 ) ) ) ) ) )[0]['chu'], '1 mục từ khó' )
+	&& array() === KiemTrinhBay::chu_thich( array( array( 'loi_giai' => 'ngắn' ) ) )
+	&& array() === array_diff( array( 'qua_dai', 'nhac_cau', 'thieu_dau', 'tac_gia', 'ct_dai', 'cach_dau', 'd_sai', 'viet_hoa', 'vung' ), array_keys( KiemTrinhBay::NHOM ) )
+);
