@@ -3327,7 +3327,7 @@ kt(
 	'Bổ sung "Ý nghĩa dài, nên rút còn 2–3 câu": bài đã đăng hơn 80 chữ có tên, số chữ, lối mở phần Ý nghĩa ở trang sửa kèm lối về; đúng 80 chữ, bài nháp, câu đố không vào; có dòng trong danh sách ưu tiên; máy không sửa chữ',
 	90 === ( $ds_yd[ $yd_dai ] ?? 0 ) && ! isset( $ds_yd[ $yd_do ] ) && ! isset( $ds_yd[ $yd_nap ] ) && ! isset( $ds_yd[ $yd_vua ] ) && 80 === \Phongdao\GiaoTiep\QuanTri\BoSung::so_chu( '<b>' . trim( str_repeat( 'chữ ', 80 ) ) . '</b>' )
 	&& str_contains( $h_yd, 'id="y-nghia-dai"' ) && str_contains( $h_yd, 'Ý nghĩa dài thử' ) && str_contains( $h_yd, '90 chữ' ) && str_contains( $h_yd, esc_url( \Phongdao\GiaoTiep\QuanTri\BoSung::url_sua_y_nghia( $yd_dai ) ) ) && str_contains( \Phongdao\GiaoTiep\QuanTri\BoSung::url_sua_y_nghia( $yd_dai ), 'phan=y_nghia' )
-	&& str_contains( $h_yd, 'Ý nghĩa dài, nên rút gọn (hơn 80 chữ)' ) && ! str_contains( $h_yd, 'Giải thích câu đố dài thử' ) && trim( str_repeat( 'chữ ', 90 ) ) === ( PhanBai::lay( $yd_dai, 'y_nghia' )['chu'] ?? '' ),
+	&& str_contains( $h_yd, 'Ý nghĩa dài, nên rút gọn (hơn 80 chữ)' ) && ! str_contains( (string) strstr( $h_yd, 'id="y-nghia-dai"' ), 'Giải thích câu đố dài thử' ) && trim( str_repeat( 'chữ ', 90 ) ) === ( PhanBai::lay( $yd_dai, 'y_nghia' )['chu'] ?? '' ),
 	$ds_yd
 );
 foreach ( array( $yd_dai, $yd_do, $yd_nap, $yd_vua ) as $id_yd ) {
@@ -3758,6 +3758,7 @@ require '/repo/tests/kiem-editor-url.php';
 require '/repo/tests/kiem-tho-tuc.php';
 require '/repo/tests/kiem-chuyen-quanh.php';
 require '/repo/tests/kiem-sua-gon.php';
+require '/repo/tests/kiem-can-sua.php';
 
 require '/repo/tests/kiem-tim-doc.php';
 require '/repo/tests/kiem-xoa-va-cho-trung.php';

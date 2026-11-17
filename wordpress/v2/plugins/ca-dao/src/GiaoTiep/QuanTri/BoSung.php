@@ -112,6 +112,51 @@ final class BoSung {
 
 	public static function dang_ky(): void {
 		add_action( 'admin_post_' . self::HANH_DONG, array( self::class, 'nhan_goi_y' ) );
+		add_action( 'admin_post_' . self::BO_QUA, array( self::class, 'nhan_bo_qua' ) );
+	}
+
+	public const BO_QUA = 'phongdao_bo_sung_bo_qua';
+
+	/** Số bài hiện ở mỗi nhóm "Cần sửa". */
+	private const CAN_SUA_HIEN = 20;
+
+	/**
+	 * Khối "Cần sửa" (D-119): máy rà nội dung đã đăng theo quy tắc viết và xếp theo loại lỗi. Mỗi bài: tên dẫn tới đúng phần ở
+	 * màn Sửa tác phẩm, một đoạn trích, nút "Bỏ qua". Máy chỉ đánh dấu, không sửa chữ.
+	 */
+	private static function khoi_can_sua( array $ds ): string {
+		$o = '';
+		foreach ( \Phongdao\MienDuLieu\KiemTrinhBay::NHOM as $ma => [ $ten, $phan ] ) {
+			$ids = $ds[ $ma ] ?? array();
+			if ( ! $ids ) {
+				continue;
+			}
+			$li = '';
+			foreach ( array_slice( $ids, 0, self::CAN_SUA_HIEN ) as $id ) {
+				$den = 'vung' === $phan ? add_query_arg( 'phan_loai', 'vung', SuaTacPham::url( $id, self::url() . '#can-sua' ) ) . '#phan-loai-vung' : add_query_arg( 'phan', $phan, SuaTacPham::url( $id, self::url() . '#can-sua' ) ) . '#' . ( 'loi' === $phan ? 'loi-doi-chieu' : 'phan-' . $phan );
+				$li .= '<li><a href="' . esc_url( $den ) . '">' . esc_html( get_the_title( $id ) ?: 'Bài #' . $id ) . '</a> <span class="description">' . esc_html( \Phongdao\DichVu\CanSua\CanSua::trich( $id, $ma ) ) . '</span>'
+					. ' <form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="phongdao-bo-qua"><input type="hidden" name="action" value="' . self::BO_QUA . '"><input type="hidden" name="id" value="' . (int) $id . '"><input type="hidden" name="ma" value="' . esc_attr( $ma ) . '">'
+					. wp_nonce_field( self::BO_QUA . '_' . $id . '_' . $ma, '_wpnonce', true, false ) . '<button type="submit" class="button button-small">Bỏ qua</button></form></li>';
+			}
+			$o .= '<details class="phongdao-can-sua-nhom" id="can-sua-' . esc_attr( $ma ) . '"><summary>' . esc_html( $ten . ' · ' . number_format_i18n( count( $ids ) ) . ' bài' ) . '</summary><ol class="phongdao-nen-lam">' . $li . '</ol>'
+				. ( count( $ids ) > self::CAN_SUA_HIEN ? '<p class="description">' . esc_html( 'Còn ' . number_format_i18n( count( $ids ) - self::CAN_SUA_HIEN ) . ' bài nữa; sửa hoặc bỏ qua các bài trên rồi danh sách tự cập nhật.' ) . '</p>' : '' ) . '</details>';
+		}
+		return '<h2 id="can-sua">Cần sửa</h2>'
+			. '<p class="description">Máy rà nội dung đã đăng theo quy tắc viết (Ý nghĩa 2–3 câu, khoảng 30–60 chữ, bắt đầu bằng nghĩa, có dấu câu cuối, không nêu tác giả; từ khó gọn; lời không lỗi gõ) và xếp theo loại lỗi. Máy chỉ đánh dấu: bạn sửa ở màn Sửa tác phẩm, hoặc bấm "Bỏ qua" nếu chỗ đó đúng như ý. Lời chỉ sửa theo nguồn.</p>'
+			. ( '' === $o ? '<p>Chưa thấy lỗi trình bày nào.</p>' : $o );
+	}
+
+	/** "Bỏ qua" một lỗi trình bày của một bài: kiểm quyền, nonce; không đổi nội dung bài. */
+	public static function nhan_bo_qua(): void {
+		$id = absint( $_POST['id'] ?? 0 );
+		$ma = sanitize_key( (string) ( $_POST['ma'] ?? '' ) );
+		if ( ! current_user_can( 'cadao_soan' ) || ! current_user_can( 'edit_post', $id ) ) {
+			wp_die( 'Bạn không có quyền sửa bài này.', '', array( 'response' => 403 ) );
+		}
+		check_admin_referer( self::BO_QUA . '_' . $id . '_' . $ma );
+		\Phongdao\DichVu\CanSua\CanSua::bo_qua( $id, $ma );
+		wp_safe_redirect( self::url() . '#can-sua-' . $ma );
+		exit;
 	}
 
 	public static function url_goi_y( array $them = array() ): string {
@@ -286,7 +331,9 @@ final class BoSung {
 		$hang = '';
 		$dai  = self::y_nghia_dai();
 		$ut   = self::uu_tien();
+		$cs   = \Phongdao\DichVu\CanSua\CanSua::ds();
 		array_splice( $ut, 1, 0, array( array( 'Ý nghĩa dài, nên rút gọn (hơn ' . self::Y_NGHIA_DAI . ' chữ)', count( $dai ), self::url() . '#y-nghia-dai', $dai ? self::url_sua_y_nghia( (int) array_key_first( $dai ) ) : self::url() . '#y-nghia-dai' ) ) );
+		$ut[] = array( 'Cần sửa trình bày (máy rà theo quy tắc viết)', \Phongdao\DichVu\CanSua\CanSua::so_bai( $cs ), self::url() . '#can-sua', self::url() . '#can-sua' );
 		foreach ( $ut as [ $ten, $so, $ds, $dau ] ) {
 			$hang .= '<tr><th scope="row">' . esc_html( $ten ) . '</th><td>' . ( $so ? '<a href="' . esc_url( $ds ) . '">' . esc_html( number_format_i18n( $so ) ) . '</a>' : '0' ) . '</td>'
 				. '<td>' . ( $so ? '<a class="button" href="' . esc_url( $dau ) . '" aria-label="' . esc_attr( 'Bắt đầu: ' . $ten ) . '">Bắt đầu</a>' : '—' ) . '</td></tr>';
@@ -298,7 +345,7 @@ final class BoSung {
 			. '<h2>Bài đọc nhiều tuần này chưa có Ý nghĩa</h2>'
 			. ( $o ? '<ol class="phongdao-nen-lam">' . $o . '</ol>' : '<p>Tuần này chưa có bài đọc nhiều nào thiếu Ý nghĩa.</p>' )
 			. '<h2>Danh sách ưu tiên</h2><table class="widefat striped phongdao-ban-so-lieu"><caption class="screen-reader-text">Việc bổ sung theo loại</caption><thead><tr><th scope="col">Việc</th><th scope="col">Số bài</th><th scope="col">Làm</th></tr></thead><tbody>' . $hang . '</tbody></table>'
-			. self::khoi_y_nghia_dai( $dai ) . NapNhap::khoi() . TrangLo::lay_bao() . self::khoi_goi_y()
+			. self::khoi_can_sua( $cs ) . self::khoi_y_nghia_dai( $dai ) . NapNhap::khoi() . TrangLo::lay_bao() . self::khoi_goi_y()
 			. '<p class="description">Máy chỉ đếm và xếp thứ tự; không viết nội dung, không tự gắn chủ đề hay vùng.</p></div>';
 	}
 }

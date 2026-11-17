@@ -12,6 +12,22 @@ final class KiemTrinhBay {
 	/** Ý nghĩa: 2–3 câu, khoảng 30–60 chữ. */
 	public const Y_NGHIA_TOI_DA = 60;
 
+	/** Lời giải một từ khó nên gọn; dài hơn thì nên chuyển phần kể sang Chuyện quanh bài. */
+	public const TU_KHO_TOI_DA = 80;
+
+	/** Tên nhóm lỗi (danh sách "Cần sửa" ở Bổ sung) => [tên, phần cần mở để sửa]. */
+	public const NHOM = array(
+		'nhac_cau'  => array( 'Ý nghĩa mở đầu nhắc lại câu', 'y_nghia' ),
+		'thieu_dau' => array( 'Ý nghĩa thiếu dấu câu cuối', 'y_nghia' ),
+		'qua_dai'   => array( 'Ý nghĩa quá 60 chữ', 'y_nghia' ),
+		'tac_gia'   => array( 'Ý nghĩa nhắc tác giả, bài thơ', 'y_nghia' ),
+		'ct_dai'    => array( 'Từ khó quá 80 chữ', 'chu_thich' ),
+		'cach_dau'  => array( 'Lời có dấu cách trước dấu câu', 'loi' ),
+		'd_sai'     => array( 'Lời dùng chữ "Ð" thay "Đ"', 'loi' ),
+		'viet_hoa'  => array( 'Lời viết hoa giữa câu', 'loi' ),
+		'vung'      => array( 'Nơi lưu truyền mâu thuẫn', 'vung' ),
+	);
+
 	/** Mở đầu nói về chính câu thay vì nói nghĩa ("Câu ca dao…", "Bài ca dao…", "Thành ngữ…"). */
 	private const MO_DAU = array( 'câu ca dao', 'bài ca dao', 'lời ca dao', 'câu tục ngữ', 'tục ngữ', 'câu thành ngữ', 'thành ngữ', 'câu thơ', 'bài thơ', 'câu đố', 'bài vè', 'bài đồng dao', 'đồng dao', 'câu hát', 'bài hát', 'câu này', 'bài này' );
 
@@ -35,6 +51,7 @@ final class KiemTrinhBay {
 			'y_nghia'   => self::y_nghia( (string) ( $gia_tri['chu'] ?? '' ), $loi ),
 			'nghia_den' => array_values( array_filter( self::y_nghia( (string) ( $gia_tri['chu'] ?? '' ), array() ), static fn( array $n ): bool => 'thieu_dau' === $n['ma'] ) ),
 			'loi'       => self::loi( (array) ( $gia_tri['dong'] ?? array() ) ),
+			'chu_thich' => self::chu_thich( (array) ( $gia_tri['muc'] ?? $gia_tri ) ),
 			default     => array(),
 		};
 	}
@@ -89,6 +106,22 @@ final class KiemTrinhBay {
 			}
 		}
 		return array_values( $ra );
+	}
+
+	/**
+	 * Từ khó: lời giải dài hơn 80 chữ (thường là chuyện kể — nên chuyển sang Chuyện quanh bài).
+	 *
+	 * @param list<array> $muc
+	 * @return list<array{ma:string,chu:string}>
+	 */
+	public static function chu_thich( array $muc ): array {
+		$dai = 0;
+		foreach ( $muc as $m ) {
+			if ( is_array( $m ) && self::so_chu( (string) ( $m['loi_giai'] ?? '' ) ) > self::TU_KHO_TOI_DA ) {
+				++$dai;
+			}
+		}
+		return $dai ? array( array( 'ma' => 'ct_dai', 'chu' => $dai . ' mục từ khó dài quá ' . self::TU_KHO_TOI_DA . ' chữ; phần kể chuyện nên chuyển sang Chuyện quanh bài.' ) ) : array();
 	}
 
 	/** Ý nghĩa mở đầu bằng "Câu ca dao…", hay nhắc lại ba tiếng đầu của lời trong mười hai tiếng đầu. */
