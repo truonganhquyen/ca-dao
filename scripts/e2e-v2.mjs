@@ -919,16 +919,14 @@ try {
         await di(k, baiMoi);
         chac(!await k.$('.the-dau .eyebrow') && !await k.$('.meaning'), 'bài trống vẫn mang nhãn Ý nghĩa');
         await di(p, url);
-        await bam(p, '[data-mo-phan="y_nghia"]');
-        await bam(p, '#phan-y_nghia>summary');
+        chac(await p.$eval('#phan-y_nghia', d => d.open), 'màn sửa gọn: Ý nghĩa chưa mở sẵn');
         await p.type('#phan-y_nghia textarea[name=chu]', chu);
         await bamDoiTrang(p, '#phan-y_nghia button[name=duyet][value=""]', { banPhim: true });
         chac(await coChu(p, 'Hộp việc'), 'lưu nháp không có thông báo');
         await di(k, baiMoi);
         chac(!await coChu(k, chu), 'nháp chưa duyệt đã xuất hiện cho khách');
         await di(p, url);
-        await bam(p, '[data-mo-phan="y_nghia"]');
-        await bam(p, '#phan-y_nghia>summary');
+        chac(await p.$eval('#phan-y_nghia', d => d.open), 'màn sửa gọn: Ý nghĩa chưa mở sẵn');
         await p.type('#phan-y_nghia textarea[name=chu]', chu);
         await bamDoiTrang(p, '#phan-y_nghia button[name=duyet][value="1"]', { banPhim: true });
         chac(await p.$eval('#phan-y_nghia textarea[name=chu]', e => e.value) === chu, 'không lưu được Ý nghĩa chung');
