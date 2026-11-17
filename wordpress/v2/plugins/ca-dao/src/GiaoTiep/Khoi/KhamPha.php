@@ -6,6 +6,7 @@ use Phongdao\DichVu\DungTrang\DocBai;
 use Phongdao\DichVu\DungTrang\DuLieuTrangChu;
 use Phongdao\HaTang\KhaiBao;
 use Phongdao\KhoLuu\PhanBai;
+use Phongdao\MienDuLieu\Phan;
 use Phongdao\MienDuLieu\TheLoai;
 
 defined( 'ABSPATH' ) || exit;
@@ -107,21 +108,26 @@ final class KhamPha {
 
 	/** /ngau-nhien/ (R20): một bài đã đăng, không có cờ nghi, không có từ ngữ thô tục (D-111); "Câu khác" là liên kết (chạy cả khi tắt JavaScript). */
 	private static function ngau_nhien(): string {
-		$ds  = get_posts(
+		// Lấy 20 bài ngẫu nhiên rồi lọc cờ / thô tục bằng PHP: truy vấn "NOT EXISTS" trên postmeta kèm sắp ngẫu nhiên làm
+		// SQLite (Playground) chậm hàng phút và giữ luồng PHP duy nhất (CI hết giờ ở các bước khác)
+		$ids = get_posts(
 			array(
-				'post_type'   => KhaiBao::TAC_PHAM,
-				'post_status' => 'publish',
-				'numberposts' => 1,
-				'orderby'     => 'rand',
-				// phpcs:ignore WordPress.DB.SlowDBQuery -- một bài, ít bài có cờ hoặc bị che
-				'meta_query'  => array(
-					'relation' => 'AND',
-					array( 'key' => '_phongdao_co_nghi', 'compare' => 'NOT EXISTS' ),
-					array( 'key' => '_phongdao_tho_tuc', 'compare' => 'NOT EXISTS' ),
-				),
+				'post_type'     => KhaiBao::TAC_PHAM,
+				'post_status'   => 'publish',
+				'numberposts'   => 20,
+				'orderby'       => 'rand',
+				'fields'        => 'ids',
+				'no_found_rows' => true,
 			)
 		);
-		$c   = $ds ? DocBai::the( $ds[0] ) : null;
+		$bai = null;
+		foreach ( $ids as $id ) {
+			if ( ! metadata_exists( 'post', (int) $id, Phan::khoa( 'co_nghi' ) ) && ! metadata_exists( 'post', (int) $id, Phan::khoa( 'tho_tuc' ) ) ) {
+				$bai = get_post( (int) $id );
+				break;
+			}
+		}
+		$c   = $bai ? DocBai::the( $bai ) : null;
 		$dau = self::dau( 'Một câu ngẫu nhiên', 'Mở một trang bất chợt', 'Một câu ngẫu nhiên' );
 		if ( ! $c ) {
 			return $dau . '<div class="empty"><h2>Chưa có bài đủ điều kiện</h2><p>Trở về kho để đọc các tác phẩm đã có.</p>' . Ve::lien_ket( 'kho', 'Mở kho tác phẩm', 'btn primary' ) . '</div>';
