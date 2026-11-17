@@ -153,3 +153,4 @@ body.folded .phongdao-thanh-luu { left: 36px; }
 .phongdao-phan-khac[open] { padding-bottom: 8px; }
 .phongdao-nhac, .phongdao-gop-nb { margin: 8px 0 12px; }
 .phongdao-gop-nb form { border: 0; padding: 0; }
+.phongdao-nghia .phongdao-sua-phan.chua-co:not([open]) { display: block; }

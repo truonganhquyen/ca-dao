@@ -41,8 +41,8 @@ kt(
 	substr( (string) strstr( $h216, 'phongdao-sua-bo' ), 0, 1500 )
 );
 kt(
-	'tục ngữ: nhập Ý nghĩa và Nghĩa đen; không có ô Nghĩa bóng, Dùng khi khi bài chưa có (D-119)',
-	str_contains( $h216, 'id="phan-nghia_den"' ) && ! str_contains( $h216, 'id="phan-nghia_bong"' ) && ! str_contains( $h216, 'id="phan-dung_khi"' ) && $vt216( 'id="phan-nghia_den"' ) < $vt216( 'id="phan-loai"' )
+	'tục ngữ: nhập Ý nghĩa và Nghĩa đen (ô "Thêm nghĩa đen" nằm trong nhóm Nghĩa, luôn thấy); không có ô Nghĩa bóng, Dùng khi khi bài chưa có (D-119)',
+	str_contains( (string) strstr( $h216, '<div class="phongdao-nghia">' ), 'id="phan-nghia_den"' ) && ! str_contains( $h216, 'id="phan-nghia_bong"' ) && ! str_contains( $h216, 'id="phan-dung_khi"' ) && $vt216( 'id="phan-nghia_den"' ) < $vt216( 'id="phan-loai"' )
 );
 
 // ---------- Nhắc lỗi trình bày khi lưu: không chặn ----------

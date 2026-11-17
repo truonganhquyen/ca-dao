@@ -238,7 +238,8 @@ final class SuaTacPham {
 		$co_tt = array_values( array_filter( $khac, static fn( string $p ): bool => null !== ( $ctx['phan'][ $p ] ?? null ) ) );
 		$mo_kh = in_array( $phan_loi, $khac, true );
 		$chinh .= $lay( array( 'loi' ) )
-			. '<h2 class="phongdao-sua-nhom">Nghĩa</h2>' . $lay( array_values( array_intersect( $ds_phan, $nghia ) ) )
+			// Nhóm Nghĩa: phần chưa có vẫn hiện thành ô gập "Thêm …" (tục ngữ: Nghĩa đen tuỳ chọn; vè: Bối cảnh)
+			. '<h2 class="phongdao-sua-nhom">Nghĩa</h2><div class="phongdao-nghia">' . $lay( array_values( array_intersect( $ds_phan, $nghia ) ) ) . '</div>'
 			. self::phan_loai( $bai, $loai )
 			. ( $khac ? '<details class="phongdao-phan-khac" id="phan-khac"' . ( $mo_kh ? ' open' : '' ) . '><summary>Phần khác (' . count( $khac ) . ')<span class="description">' . esc_html( $co_tt ? ' · đã có: ' . implode( ', ', array_map( static fn( string $p ): string => TamSua::nhan( $p, $loai ) . ( isset( $ctx['phan'][ $p ]['muc'] ) ? ' ' . count( (array) $ctx['phan'][ $p ]['muc'] ) : '' ), $co_tt ) ) : ' · chưa có phần nào' ) . '</span></summary>'
 				. ( $them ? '<p class="phongdao-sua-them"><strong>Thêm:</strong> ' . implode( ' ', $them ) . '</p>' : '' ) . $lay( $khac ) . '</details>' : '' );
