@@ -132,7 +132,7 @@ final class TacPham {
 				. ( '' === $so_lieu ? '' : '<p class="read-sub">' . $so_lieu . '</p>' )
 				. ( $y_truoc ? $boi_canh . '<div class="hieu-gon">' . $hieu . '</div>' : $boi_canh ) . $be . $loi_gon
 				. ( $cau_do && ! empty( $tp['cau_hoi'] ) ? '<p class="riddle-q">' . esc_html( $tp['cau_hoi'] ) . '</p>' : '' )
-				. ( $cau_do ? $y : '' )
+				. ( $cau_do ? $y . self::do_tiep( $tp ) : '' )
 				. ( '' === $ct_sau_loi ? '' : '<div class="ct-khung">' . $ct_sau_loi . '</div>' )
 				. self::dong_nguon( $tp ) . '</section>'
 				. ( $y_truoc || '' === $hieu ? '' : '<div class="hieu-gon">' . $hieu . '</div>' ) . $cach_choi;
@@ -248,10 +248,14 @@ final class TacPham {
 		if ( $hinh && in_array( $tp['the_loai'], array( 'ca-dao', 'dong-dao' ), true ) ) {
 			$hang .= self::hang( 'Hình ảnh trong bài', count( $hinh ), 'hinh-anh', self::hinh_anh( $tp ) );
 		}
-		// Viên phân loại: chủ đề, nơi lưu truyền chỉ khi đã có (lời mời "Ở quê nói khác" nằm ở lời mời góp), tuyển tập
+		// Viên phân loại: chủ đề, mô-típ (D-119), nơi lưu truyền chỉ khi đã có (lời mời "Ở quê nói khác" nằm ở lời mời góp),
+		// tuyển tập
 		$nhan = '';
 		foreach ( $tp['chu_de'] as $c ) {
 			$nhan .= self::nhan_lien_ket( $c, 'chu-de', 'Chủ đề: ', 'tag-pill' );
+		}
+		foreach ( (array) ( $tp['mo_tip'] ?? array() ) as $c ) {
+			$nhan .= self::nhan_lien_ket( $c, 'mo-tip', 'Mô-típ: ', 'tag-pill' );
 		}
 		$vung  = self::ten_vung( $tp );
 		$nhan .= '' === $vung ? '' : '<span class="tag-pill plain">Nơi lưu truyền: ' . esc_html( $vung ) . '</span>';
@@ -267,9 +271,32 @@ final class TacPham {
 			. $ht
 			. '<section class="tang" id="doc-them" aria-labelledby="doc-them-tieu-de"><h2 class="tang-dau" id="doc-them-tieu-de">Đọc thêm</h2>'
 			. ( '' === $nhan ? '' : '<div class="work-tags">' . $nhan . '</div>' )
-			. ( empty( $tp['doc_tiep'] ) ? '' : Ve::khoi( 'Đọc tiếp', '<div class="grid two doc-tiep">' . implode( '', array_map( array( DanhSach::class, 'the' ), $tp['doc_tiep'] ) ) . '</div>', '', 'doc-tiep' ) )
+			. ( $cau_do ? '' : self::doc_tiep_gon( $tp ) )
 			. '<div class="hang-nhom">' . AnhChiaSe::hien( $tp, true ) . '</div></section>'
 			. ( $bai_that ? GopTuLieu::moi_gon( (int) $tp['ma'], (string) $tp['the_loai'], HieuThem::danh( $tp ), 'da_gui' === $gui && ! $gui_ch, $form_ch, '' !== $ht ) : '' );
+	}
+
+	/**
+	 * Đọc tiếp gọn (D-119): tối đa 3 dòng — hai dòng đầu của bài, rồi thể loại · lý do. Không có bài gần thì một dòng mời
+	 * xem các bài cùng thể loại, không lấp bằng thẻ "cùng thể loại".
+	 */
+	private static function doc_tiep_gon( array $tp ): string {
+		$o = '';
+		foreach ( array_slice( (array) ( $tp['doc_tiep'] ?? array() ), 0, \Phongdao\DichVu\DungTrang\DocTiep::TOI_DA ) as $c ) {
+			$o .= '<li><a href="' . esc_url( (string) $c['url'] ) . '">' . esc_html( implode( ' / ', array_slice( (array) $c['dong'], 0, 2 ) ) ) . '</a>'
+				. '<span class="dt-ly-do">' . esc_html( implode( ' · ', array_filter( array( (string) ( $c['ten_the_loai'] ?? '' ), (string) ( $c['ly_do'] ?? '' ) ), 'strlen' ) ) ) . '</span></li>';
+		}
+		$than = '' !== $o ? '<ul class="dt-ds">' . $o . '</ul>'
+			: '<p class="dt-trong">Chưa có bài gần với bài này. ' . Ve::lien_ket( (string) $tp['the_loai'], esc_html( 'Xem các bài ' . mb_strtolower( (string) $tp['ten_the_loai'] ) . ' khác' ) ) . '</p>';
+		return '<section class="doc-tiep-gon" id="doc-tiep" aria-labelledby="doc-tiep-tieu-de"><h3 id="doc-tiep-tieu-de">Đọc tiếp</h3>' . $than . '</section>';
+	}
+
+	/** Câu đố (D-119): "Đố tiếp" tới câu đố kế tiếp và "Cả bộ" (chủ đề đầu của câu, chưa có thì mọi câu đố) thay thẻ Đọc tiếp. */
+	private static function do_tiep( array $tp ): string {
+		$url = (string) ( $tp['do_tiep'] ?? '' );
+		$cd  = $tp['chu_de'][0] ?? null;
+		return '<p class="do-tiep no-print">' . ( '' === $url ? '' : '<a class="btn primary" href="' . esc_url( $url ) . '">Đố tiếp ' . Ve::icon( 'arrow' ) . '</a>' )
+			. ( null === $cd ? Ve::lien_ket( 'cau-do', 'Cả bộ câu đố', 'btn' ) : self::nhan_lien_ket( $cd, 'chu-de', 'Cả bộ: ', 'btn' ) ) . '</p>';
 	}
 
 	/**

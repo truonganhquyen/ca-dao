@@ -73,6 +73,22 @@ final class DuLieuTrangChu implements Module {
 		return $ra;
 	}
 
+	/**
+	 * Số bài đã đăng của một thể loại có giải nghĩa (mức ưu tiên đọc 2 trong bảng tóm tắt: Ý nghĩa, nghĩa đen / bóng, hình
+	 * ảnh hoặc bối cảnh) — lối "Hiểu nghĩa tục ngữ" ở trang chủ chỉ hứa điều đã có (D-119).
+	 */
+	public static function so_co_nghia( string $the_loai ): int {
+		global $wpdb;
+		\Phongdao\DichVu\TomTat\TomTat::xong();
+		return (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . \Phongdao\DichVu\TomTat\TomTat::bang() . " s JOIN {$wpdb->posts} p ON p.ID = s.post_id WHERE p.post_type = %s AND p.post_status = 'publish' AND s.the_loai = %s AND s.uu_tien_doc >= 2", KhaiBao::TAC_PHAM, $the_loai ) ); // phpcs:ignore WordPress.DB.PreparedSQL -- tên bảng của plugin
+	}
+
+	/** Số bài đã đăng có nơi lưu truyền (lối "Tìm theo vùng" chỉ hiện khi đủ bài, D-119). */
+	public static function so_bai_co_vung(): int {
+		global $wpdb;
+		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(DISTINCT r.object_id) FROM {$wpdb->term_relationships} r JOIN {$wpdb->term_taxonomy} t ON t.term_taxonomy_id = r.term_taxonomy_id AND t.taxonomy = 'vung' JOIN {$wpdb->posts} p ON p.ID = r.object_id WHERE p.post_type = %s AND p.post_status = 'publish'", KhaiBao::TAC_PHAM ) );
+	}
+
 	/** Thẻ các bài mới đăng gần nhất (bỏ bài có từ ngữ thô tục, D-111). */
 	public static function vua_bo_sung( int $so = 2 ): array {
 		$ra = array();

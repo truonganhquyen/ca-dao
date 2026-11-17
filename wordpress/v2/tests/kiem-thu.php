@@ -512,13 +512,34 @@ $so_ca_dao = count( get_posts( array( 'post_type' => KhaiBao::TAC_PHAM, 'numberp
 kt( 'trang thể loại: tiêu đề, đường dẫn về Kho, chỉ bài của thể loại', str_contains( $h, '<h1>Ca dao</h1>' ) && str_contains( $h, 'Đọc theo thể loại' ) && str_contains( $h, 'Kho tác phẩm' ) && $so_ca_dao === substr_count( $h, '<article class="card g-ca-dao"' ) && ! str_contains( $h, 'g-cau-do' ), $so_ca_dao );
 $h = \Phongdao\GiaoTiep\Khoi\DanhSach::the( array( 'id' => 1, 'tieu_de' => '<script>x</script>', 'url' => 'javascript:alert(1)', 'the_loai' => 'ca-dao', 'ten_the_loai' => 'Ca dao', 'dong' => array( '<b>a</b>' ), 'y_nghia' => '', 'co_nghi' => false ) );
 kt( 'thẻ bài: chữ lạ được thoát, không có đường dẫn javascript:', ! preg_match( '/<script|<b>|javascript:/i', $h ) );
-wp_reset_query();
+$c_trung = array( 'id' => 1, 'tieu_de' => 'Một chữ nên thầy', 'url' => home_url( '/' ), 'the_loai' => 'tuc-ngu', 'ten_the_loai' => 'Tục ngữ – Thành ngữ', 'y_nghia' => '', 'co_nghi' => false );
+$h_trung = \Phongdao\GiaoTiep\Khoi\DanhSach::the( $c_trung + array( 'dong' => array( 'Một chữ nên thầy,', 'Một ngày nên nghĩa' ) ) );
+$h_mot   = \Phongdao\GiaoTiep\Khoi\DanhSach::the( $c_trung + array( 'dong' => array( 'Một chữ nên thầy' ) ) );
+$h_khac  = \Phongdao\GiaoTiep\Khoi\DanhSach::the( array( 'tieu_de' => 'Tên riêng của bài' ) + $c_trung + array( 'dong' => array( 'Một chữ nên thầy,', 'Một ngày nên nghĩa' ) ) );
+kt( 'thẻ bài (D-119): tên trùng dòng đầu thì không in lại dòng đó; câu một dòng chỉ còn tên; tên khác dòng đầu thì giữ hai dòng', ! str_contains( $h_trung, '<span class="dong">Một chữ nên thầy,</span>' ) && str_contains( $h_trung, '<span class="dong">Một ngày nên nghĩa</span>' ) && ! str_contains( $h_mot, 'dong-wrap' ) && str_contains( $h_khac, '<span class="dong">Một chữ nên thầy,</span><span class="dong">Một ngày nên nghĩa</span>' ) );
+$q_co  = new WP_Query( array( KhaiBao::THE_LOAI => 'tuc-ngu', 'co' => 'nghia', 'phongdao_danh_sach' => true, 'posts_per_page' => 30 ) );
+$q_het = new WP_Query( array( KhaiBao::THE_LOAI => 'tuc-ngu', 'phongdao_danh_sach' => true, 'posts_per_page' => 30 ) );
+$uu_tn = static fn( $id ): int => \Phongdao\MienDuLieu\UuTienDoc::tinh( PhanBai::tat_ca( (int) $id, KhaiBao::TAC_PHAM ), 'tuc-ngu' );
+$h_co  = \Phongdao\GiaoTiep\Khoi\DanhSach::hien( $q_co );
+kt(
+	'lọc "Chỉ bài đã có giải nghĩa" (?co=nghia, D-119): chỉ bài có Ý nghĩa / nghĩa đen / nghĩa bóng…, số khớp số ở trang chủ; ô lọc đánh dấu sẵn, đếm ghi "đã có giải nghĩa"; không lọc thì đủ bài',
+	$q_co->found_posts > 0 && (int) $q_co->found_posts === DuLieuTrangChu::so_co_nghia( 'tuc-ngu' ) && array() === array_filter( wp_list_pluck( $q_co->posts, 'ID' ), static fn( $id ): bool => $uu_tn( $id ) < 2 ) && $q_het->found_posts >= $q_co->found_posts
+	&& str_contains( $h_co, 'name="co" value="nghia" checked' ) && str_contains( $h_co, ' tác phẩm đã có giải nghĩa' ) && ! str_contains( \Phongdao\GiaoTiep\Khoi\DanhSach::hien( $q_het ), 'name="co" value="nghia" checked' ),
+	array( $q_co->found_posts, $q_het->found_posts )
+);wp_reset_query();
 
 // ---------- Trang chủ ----------
 kt( 'đã đăng ký khối cadao/trang-chu', $dang_ky->is_registered( 'cadao/trang-chu' ) );
 delete_transient( 'phongdao_cau_hom_nay_ds' );
 $h = do_blocks( '<!-- wp:cadao/trang-chu /-->' );
-kt( 'trang chủ: tên thư viện, ô tìm tới /tim/, 3 lối tìm', str_contains( $h, '<h1>Thư viện Văn học Dân gian Việt Nam</h1>' ) && str_contains( $h, 'action="' . esc_url( home_url( '/tim/' ) ) . '"' ) && 3 === substr_count( $h, 'class="entry-card"' ) );
+kt( 'trang chủ: tên thư viện, ô tìm tới /tim/; lối tìm không có thẻ trùng ô tìm, "Tìm theo vùng" chỉ khi đủ bài có nơi lưu truyền (D-119)', str_contains( $h, '<h1>Thư viện Văn học Dân gian Việt Nam</h1>' ) && str_contains( $h, 'action="' . esc_url( home_url( '/tim/' ) ) . '"' ) && ( DuLieuTrangChu::so_bai_co_vung() >= \Phongdao\GiaoTiep\Khoi\TrangChu::NGUONG_VUNG ? 2 : 1 ) === substr_count( $h, 'class="entry-card"' ) && ! str_contains( $h, 'Tìm khi nhớ vài chữ' ) );
+$bat_dau = (string) strstr( (string) strstr( $h, '<h2>Bắt đầu từ đâu?</h2>' ), '</section>', true );
+$n_tn_ng = DuLieuTrangChu::so_co_nghia( 'tuc-ngu' );
+kt(
+	'Bắt đầu từ đâu? (D-119): "Hiểu nghĩa tục ngữ" dẫn tới các câu đã có nghĩa và ghi số câu (chưa có câu nào thì ẩn); không hứa "10 giây", "lọc theo tuổi"; "Đọc theo dịp" chỉ khi đã có tuyển tập theo dịp',
+	'' !== $bat_dau && ( $n_tn_ng ? str_contains( $bat_dau, 'co=nghia' ) && str_contains( $bat_dau, $n_tn_ng . ' câu đã có nghĩa' ) : ! str_contains( $bat_dau, 'Hiểu nghĩa tục ngữ' ) ) && ! str_contains( $h, '10 giây' ) && ! str_contains( $h, 'lọc theo tuổi' ) && ! str_contains( $bat_dau, 'Đọc theo dịp' ) && str_contains( $bat_dau, 'Cùng bé chơi' ),
+	array( $n_tn_ng, $bat_dau )
+);
 kt( '"Bạn là" ẩn sẵn (cần JavaScript; tắt JavaScript không có nút chết), 4 vai + Bỏ qua', str_contains( $h, '<div class="role-bar" hidden>' ) && 4 === substr_count( $h, 'data-action="role"' ) && str_contains( $h, 'data-action="role-reset"' ) );
 $hom_nay = (string) strstr( (string) strstr( $h, '<section class="today-card"' ), '</section>', true );
 preg_match( '/<a class="btn primary" href="([^"]+)">Đọc bài/', $hom_nay, $doc_bai );
@@ -962,7 +983,40 @@ kt( 'vè dài: lời đủ 48 dòng (không dòng nào bị bỏ; khối Ảnh �
 $h_dd = $xem( $mau_id['dong-dao-mau'] );
 $h_cd = $xem( $mau_id['dong-mau-mot-cua-bai'] );
 kt( 'Đọc cùng bé chỉ ở bài đồng dao (nút ẩn khi không có JavaScript); Trình chiếu ở cột công cụ đọc', str_contains( $h_dd, 'data-action="kids" data-chi-js hidden' ) && ! str_contains( $h_cd, 'data-action="kids"' ) && str_contains( $h_cd, 'data-action="present"' ) );
-kt( 'Đọc tiếp: bài cùng chủ đề kèm lý do, đủ tối thiểu 3 bài (thêm bài cùng thể loại), không có chính bài này', str_contains( $h_cd, 'id="doc-tiep"' ) && str_contains( $h_cd, 'Cùng chủ đề Lao động' ) && str_contains( $h_cd, '/ca-dao/cau-mau-thu-hai/' ) && 3 <= substr_count( (string) strstr( (string) strstr( $h_cd, 'id="doc-tiep"' ), 'id="anh-chia-se"', true ), '<article class="card' ) && ! str_contains( (string) strstr( (string) strstr( $h_cd, 'id="doc-tiep"' ), 'id="anh-chia-se"', true ), 'dong-mau-mot-cua-bai/"' ), substr( (string) strstr( $h_cd, 'id="doc-tiep"' ), 0, 800 ) );
+$dt_k = (string) strstr( (string) strstr( $h_cd, '<section class="doc-tiep-gon" id="doc-tiep"' ), '</section>', true );
+kt( 'Đọc tiếp gọn (D-119): tối đa 3 dòng, bài cùng chủ đề kèm lý do thật, không lấp "cùng thể loại", không có chính bài này', '' !== $dt_k && str_contains( $dt_k, '<ul class="dt-ds">' ) && str_contains( $dt_k, 'Cùng chủ đề Lao động' ) && str_contains( $dt_k, '/ca-dao/cau-mau-thu-hai/' ) && substr_count( $dt_k, '<li>' ) >= 1 && substr_count( $dt_k, '<li>' ) <= 3 && ! str_contains( $dt_k, 'Cùng thể loại' ) && ! str_contains( $dt_k, 'dong-mau-mot-cua-bai/"' ), substr( $dt_k, 0, 800 ) );
+$tp_dt0 = (array) \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_post( $mau_id['dong-mau-mot-cua-bai'] ) );
+kt( 'Đọc tiếp gọn: không có bài gần thì một dòng mời xem các bài cùng thể loại, không thẻ lấp', str_contains( TacPham::hien( array( 'doc_tiep' => array() ) + $tp_dt0 ), '<p class="dt-trong">Chưa có bài gần với bài này. <a href="' . esc_url( home_url( '/the-loai/ca-dao/' ) ) . '">Xem các bài ca dao khác</a></p>' ) );
+$tt_dt = (int) wp_insert_post( wp_slash( array( 'post_type' => KhaiBao::TUYEN_TAP, 'post_status' => 'publish', 'post_title' => 'Bộ thử Đọc tiếp', 'post_name' => 'bo-thu-doc-tiep' ) ) );
+$kq_tt_dt = LuuPhan::luu( $tt_dt, 'muc', array_map( static fn( int $b ): array => array( 'tac_pham_id' => $b ), array( $mau_id['dong-mau-mot-cua-bai'], $mau_id['ve-mau'], $mau_id['cau-do-mau'] ) ), array( 'nguoi' => $ai_ql, 'goi' => KiemPhan::GOI_NGUOI, 'duyet' => true ) );
+$dt_tt = \Phongdao\DichVu\DungTrang\DocTiep::cho( get_post( $mau_id['dong-mau-mot-cua-bai'] ) );
+kt(
+	'Đọc tiếp (D-119): bài kề trong cùng tuyển tập đứng trước (tối đa 2 khi còn bài gần theo phân loại), rồi bài gần theo phân loại; tối đa 3 bài',
+	$kq_tt_dt['ok'] && 3 === count( $dt_tt ) && array( $mau_id['ve-mau'], $mau_id['cau-do-mau'] ) === array( (int) $dt_tt[0]['id'], (int) $dt_tt[1]['id'] ) && 'Cùng tuyển tập Bộ thử Đọc tiếp' === $dt_tt[0]['ly_do'] && str_starts_with( (string) $dt_tt[2]['ly_do'], 'Cùng ' ) && ! str_starts_with( (string) $dt_tt[2]['ly_do'], 'Cùng tuyển tập' ),
+	array( $kq_tt_dt, array_column( $dt_tt, 'ly_do', 'id' ) )
+);
+wp_delete_post( $tt_dt, true );
+$cd_dt = (int) wp_insert_post( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'post_title' => 'Câu đố thử Đố tiếp', 'post_name' => 'cau-do-thu-do-tiep' ) );
+wp_set_object_terms( $cd_dt, 'cau-do', KhaiBao::THE_LOAI );
+$ds_cd   = array_map( static fn( int $id ): string => (string) get_permalink( $id ), get_posts( array( 'post_type' => KhaiBao::TAC_PHAM, 'numberposts' => -1, 'fields' => 'ids', 'tax_query' => array( array( 'taxonomy' => KhaiBao::THE_LOAI, 'field' => 'slug', 'terms' => 'cau-do' ) ) ) ) );
+$url_dt  = \Phongdao\DichVu\DungTrang\DocTiep::do_tiep( get_post( $mau_id['cau-do-mau'] ) );
+$url_dt2 = \Phongdao\DichVu\DungTrang\DocTiep::do_tiep( get_post( $cd_dt ) );
+$h_cdo   = TacPham::hien( array( 'do_tiep' => $url_dt, 'doc_tiep' => array() ) + (array) \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_post( $mau_id['cau-do-mau'] ) ) );
+kt(
+	'câu đố (D-119): nút "Đố tiếp" tới một câu đố khác (câu mới nhất vòng lại câu đầu), "Cả bộ" theo chủ đề hoặc mọi câu đố, nằm trong khung sau đáp án; không có danh sách Đọc tiếp',
+	'' !== $url_dt && in_array( $url_dt, $ds_cd, true ) && (string) get_permalink( $mau_id['cau-do-mau'] ) !== $url_dt && '' !== $url_dt2 && in_array( $url_dt2, $ds_cd, true ) && (string) get_permalink( $cd_dt ) !== $url_dt2
+	&& str_contains( $h_cdo, '<p class="do-tiep no-print"><a class="btn primary" href="' . esc_url( $url_dt ) . '">Đố tiếp ' ) && str_contains( $h_cdo, 'Cả bộ' ) && (int) strpos( $h_cdo, 'class="do-tiep' ) < (int) strpos( $h_cdo, 'id="tu-lieu"' ) && ! str_contains( $h_cdo, 'id="doc-tiep"' ),
+	array( $url_dt, $url_dt2 )
+);
+wp_delete_post( $cd_dt, true );
+$mt_dt = wp_insert_term( 'Mô-típ thử nhãn', 'mo_tip' );
+$mt_dt = is_array( $mt_dt ) ? (int) $mt_dt['term_id'] : 0;
+wp_set_object_terms( $mau_id['dong-mau-mot-cua-bai'], $mt_dt, 'mo_tip', true );
+$h_mt1 = TacPham::hien( (array) \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_post( $mau_id['dong-mau-mot-cua-bai'] ) ) );
+wp_set_object_terms( $mau_id['cau-mau-thu-hai'], $mt_dt, 'mo_tip', true );
+$h_mt2 = TacPham::hien( (array) \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_post( $mau_id['dong-mau-mot-cua-bai'] ) ) );
+kt( 'nhãn mô-típ ở trang bài (D-119): chỉ khi mô-típ có từ hai bài, dẫn tới trang mô-típ', $mt_dt && ! str_contains( $h_mt1, 'Mô-típ: Mô-típ thử nhãn' ) && (bool) preg_match( '#<a class="tag-pill" href="[^"]*/mo-tip/[^"]*">Mô-típ: Mô-típ thử nhãn</a>#', $h_mt2 ) );
+wp_delete_term( $mt_dt, 'mo_tip' );
 wp_set_current_user( $ai_ql );
 $h_ve = $xem( $ve );
 kt( 'người biên soạn mở vè: nút và tấm "Chia đoạn", "Bối cảnh"; bài ca dao không có hai tấm này', str_contains( $h_ve, 'id="tam-doan"' ) && str_contains( $h_ve, 'id="tam-boi_canh"' ) && str_contains( $h_ve, 'lời hiện có 48 dòng' ) && ! str_contains( $xem( $tp1 ), 'id="tam-doan"' ) );
@@ -3670,7 +3724,7 @@ kt( 'form câu đố ghi Giải thích đáp án; lỗi ô chữ dùng nhãn ti�
 $tt_hien = \Phongdao\GiaoTiep\Khoi\TuyenTap::cong_khai_ds();
 foreach ( $tt_hien as $tt_mock ) { wp_update_post( array( 'ID' => $tt_mock->ID, 'post_status' => 'draft' ) ); }
 $kp_trong = \Phongdao\GiaoTiep\Khoi\KhamPha::hien( 'kham-pha' );
-kt( 'lối vào tuyển tập chưa có nội dung công khai nói đang chuẩn bị, không quảng bá trình chiếu sẵn', str_contains( $kp_trong, 'Chưa có tuyển tập công khai' ) && str_contains( $kp_trong, 'Các bộ theo dịp đang được chuẩn bị' ) && ! str_contains( $kp_trong, 'Đọc liền một chủ đề, trình chiếu cả bộ' ) );
+kt( 'lối vào tuyển tập chưa có nội dung công khai nói đang chuẩn bị, không quảng bá trình chiếu sẵn; lối "Theo dịp" ẩn khi chưa có bộ theo dịp (D-119)', str_contains( $kp_trong, 'Chưa có tuyển tập công khai' ) && ! str_contains( $kp_trong, '<h3>Theo dịp</h3>' ) && ! str_contains( $kp_trong, 'đang được chuẩn bị' ) && ! str_contains( $kp_trong, 'Đọc liền một chủ đề, trình chiếu cả bộ' ) );
 foreach ( $tt_hien as $tt_mock ) { wp_update_post( array( 'ID' => $tt_mock->ID, 'post_status' => 'publish' ) ); }
 
 // Khôi phục phải nguyên tử; khi Hộp việc sở hữu giao dịch, không được COMMIT lồng làm mất khả năng rollback.

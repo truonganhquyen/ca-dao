@@ -147,7 +147,7 @@ final class Module implements \Phongdao\HaTang\Module {
 
 	private static function dang_loc(): bool {
 		// phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc
-		return (bool) array_intersect( array_keys( $_GET ), array_merge( array_keys( KhaiBao::PHAN_LOAI ), array( 'sap', 'loai', 'chu', 'q' ) ) );
+		return (bool) array_intersect( array_keys( $_GET ), array_merge( array_keys( KhaiBao::PHAN_LOAI ), array( 'sap', 'co', 'loai', 'chu', 'q' ) ) );
 	}
 
 	public static function robots( array $r ): array {

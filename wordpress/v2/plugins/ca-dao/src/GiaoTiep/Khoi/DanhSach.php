@@ -45,7 +45,8 @@ final class DanhSach {
 			$c    = $bai instanceof \WP_Post ? DocBai::the( $bai ) : null;
 			$the .= $c ? self::the( $c ) : '';
 		}
-		$dang_loc = $tat_ca && array_filter( array_map( static fn( string $k ): string => (string) $q->get( $k ), array_keys( self::LOC ) ) );
+		$co_nghia = KhaiBao::chi_co_nghia( $q );
+		$dang_loc = ( $tat_ca && array_filter( array_map( static fn( string $k ): string => (string) $q->get( $k ), array_keys( self::LOC ) ) ) ) || $co_nghia;
 
 		if ( $tat_ca ) {
 			$dau = self::duong_dan( 'Tất cả tác phẩm' ) . '<p class="eyebrow">Kho tác phẩm</p><h1>Mỗi câu, một lối đọc.</h1><p class="muted">Tìm theo thể loại, hình thức, chủ đề hoặc nơi lưu truyền.</p>' . self::bo_loc( $q );
@@ -60,10 +61,11 @@ final class DanhSach {
 			$dau .= '<form class="filters" method="get" action="' . esc_url( (string) get_term_link( $term ) ) . '"><div class="field-grid">' . self::bo_sap( $q ) . '</div><div class="actions"><button type="submit" class="btn">Áp dụng</button></div></form>';
 		}
 		$dem = (int) $q->found_posts;
-		$giua = '<p class="small muted">' . number_format( $dem, 0, ',', '.' ) . ' tác phẩm' . ( $q->max_num_pages > 1 ? ' · 30 bài mỗi trang' : '' ) . '</p>';
+		$giua = '<p class="small muted">' . number_format( $dem, 0, ',', '.' ) . ' tác phẩm' . ( $co_nghia ? ' đã có giải nghĩa' : '' ) . ( $q->max_num_pages > 1 ? ' · 30 bài mỗi trang' : '' ) . '</p>';
 		if ( '' === $the ) {
+			$xoa  = $tat_ca ? (string) get_post_type_archive_link( KhaiBao::TAC_PHAM ) : (string) get_term_link( $term );
 			$giua = $dang_loc
-				? self::trong( 'Chưa có bài khớp các bộ lọc', 'Thử bỏ một lựa chọn hoặc xoá toàn bộ bộ lọc.', '<a class="btn primary" href="' . esc_url( (string) get_post_type_archive_link( KhaiBao::TAC_PHAM ) ) . '">Xoá lọc</a>' )
+				? self::trong( $co_nghia ? 'Chưa có bài đã có giải nghĩa ở đây' : 'Chưa có bài khớp các bộ lọc', $co_nghia ? 'Thư viện đang bổ sung giải nghĩa dần. Bạn có thể đọc các bài khác ở đây.' : 'Thử bỏ một lựa chọn hoặc xoá toàn bộ bộ lọc.', '<a class="btn primary" href="' . esc_url( $xoa ) . '">Xoá lọc</a>' )
 				: self::trong( 'Chưa có bài nào ở đây', 'Thư viện đang bổ sung dần. Bạn có thể đọc các bài khác trong kho.', Ve::lien_ket( 'kho', 'Xem tất cả tác phẩm', 'btn primary' ) );
 		} else {
 			$giua .= '<div class="grid">' . $the . '</div>' . self::phan_trang( $q );
@@ -86,11 +88,16 @@ final class DanhSach {
 		return '<p class="small muted">Nguồn lời giải: ' . ( '' === $url ? esc_html( $ten ) : '<a href="' . esc_url( $url ) . '" rel="nofollow">' . esc_html( '' === $ten ? $url : $ten ) . '</a>' ) . '</p>';
 	}
 
-	/** Thẻ bài (bộ thiết kế: card trong common.mjs). */
+	/** Thẻ bài (bộ thiết kế: card trong common.mjs). Tên trùng dòng đầu thì không in lại dòng đó (D-119). */
 	public static function the( array $c ): string {
-		$dong = implode( '', array_map( static fn( string $d ): string => '<span class="dong">' . esc_html( $d ) . '</span>', $c['dong'] ) );
+		$ds   = (array) $c['dong'];
+		if ( $ds && Ve::khoa_cum( (string) $c['tieu_de'] ) === Ve::khoa_cum( (string) $ds[0] ) ) {
+			array_shift( $ds );
+		}
+		$dong = implode( '', array_map( static fn( string $d ): string => '<span class="dong">' . esc_html( $d ) . '</span>', $ds ) );
+		$chu  = $c['tim_chu_html'] ?? $dong;
 		$than = '<h3><a href="' . esc_url( $c['url'] ) . '">' . ( $c['tim_ten_html'] ?? esc_html( $c['tieu_de'] ) ) . '</a></h3>'
-			. '<p class="serif dong-wrap">' . ( $c['tim_chu_html'] ?? $dong ) . '</p>'
+			. ( '' === $chu ? '' : '<p class="serif dong-wrap">' . $chu . '</p>' )
 			. ( isset( $c['tim_chu_html'] ) || '' === $c['y_nghia'] ? '' : '<p class="muted">' . esc_html( $c['y_nghia'] ) . '</p>' );
 		// Có từ ngữ thô tục (D-111): tên, lời, ý nghĩa nằm trong khối đóng; nút Đọc không đọc to tên bài
 		$tho  = ! empty( $c['tho_tuc'] );
@@ -137,7 +144,8 @@ final class DanhSach {
 		foreach ( $ds as $k => $ten ) {
 			$o .= '<option value="' . $k . '"' . selected( $sap, $k, false ) . '>' . esc_html( $ten ) . '</option>';
 		}
-		return $o . '</select></div>';
+		// Chỉ bài đã có giải nghĩa (D-119; lối "Hiểu nghĩa tục ngữ" ở trang chủ dẫn tới đây)
+		return $o . '</select></div><div class="loc-co"><label class="choice"><input type="checkbox" name="co" value="nghia"' . checked( KhaiBao::chi_co_nghia( $q ), true, false ) . '> Chỉ bài đã có giải nghĩa</label></div>';
 	}
 
 	/** Phân trang: mọi trang khi ≤ 7 trang; nhiều hơn thì trang đầu, cuối và hai trang quanh trang đang xem. */

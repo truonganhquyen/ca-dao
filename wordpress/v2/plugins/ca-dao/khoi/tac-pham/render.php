@@ -19,6 +19,7 @@ if ( '' !== $ma ) {
 	$tp  = $bai instanceof WP_Post ? \Phongdao\DichVu\DungTrang\DocBai::tac_pham( $bai ) : null;
 	if ( $tp ) {
 		$tp['doc_tiep'] = \Phongdao\DichVu\DungTrang\DocTiep::cho( $bai ); // chỉ trang bài (không tính cho từng câu trong tuyển tập)
+		$tp['do_tiep']  = 'cau-do' === $tp['the_loai'] ? \Phongdao\DichVu\DungTrang\DocTiep::do_tiep( $bai ) : ''; // câu đố: nút "Đố tiếp" (D-119)
 	}
 	$sua = $tp ? \Phongdao\GiaoTiep\BienTap\CheDoSua::ngu_canh( $bai ) : null;
 }
