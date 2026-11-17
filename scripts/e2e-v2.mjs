@@ -933,7 +933,7 @@ try {
         chac(await p.$eval('#phan-y_nghia textarea[name=chu]', e => e.value) === chu, 'không lưu được Ý nghĩa chung');
         await di(k, baiMoi);
         chac(await k.$eval('.meaning .y-nghia-chu', e => e.textContent) === chu, 'khách không thấy Ý nghĩa đã lưu');
-        chac(!await k.$('#nghia'), 'bắt buộc hoặc tự sinh các phần nghĩa chi tiết');
+        chac(!await k.$('#nghia .nghia-dong'), 'bắt buộc hoặc tự sinh các phần nghĩa chi tiết'); // D-119: Ý nghĩa nằm trong khối Nghĩa
       } finally { await p.close(); }
     });
 
@@ -944,8 +944,11 @@ try {
         const styles = await k.evaluate(async () => {
           // Như quet:v2: chờ fit.js co chữ sau fonts.ready/resize, trước khi đo bố cục đã vẽ.
           await new Promise(ok => requestAnimationFrame(() => requestAnimationFrame(ok)));
-          const read = sel => { const c = getComputedStyle(document.querySelector(sel)); return [c.fontSize, c.fontWeight, c.lineHeight]; };
-          return { den: read('.nghia-den p'), bong: read('.nghia-bong p'), overflow: document.documentElement.scrollWidth > innerWidth };
+          // D-119: Nghĩa đen, Nghĩa bóng là các dòng của khối Nghĩa
+          const dong = [...document.querySelectorAll('#nghia p.nghia-dong')], nhan = d => d && d.querySelector('.nghia-nhan').textContent.trim();
+          const read = e => { const c = getComputedStyle(e); return [c.fontSize, c.fontWeight, c.lineHeight]; };
+          const den = dong.find(d => nhan(d) === 'Nghĩa đen'), bong = dong.find(d => nhan(d) === 'Nghĩa bóng');
+          return { den: den ? read(den) : 'thiếu', bong: bong ? read(bong) : 'thiếu', overflow: document.documentElement.scrollWidth > innerWidth };
         });
         chac(JSON.stringify(styles.den) === JSON.stringify(styles.bong), `${width}: Nghĩa bóng còn khác chữ thường (${JSON.stringify(styles)})`);
         chac(!styles.overflow, `${width}: tràn ngang`);

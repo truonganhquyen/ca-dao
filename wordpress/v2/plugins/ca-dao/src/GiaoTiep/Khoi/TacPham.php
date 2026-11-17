@@ -314,11 +314,12 @@ final class TacPham {
 		}
 		$dd   = (array) ( $tp['dinh_dang'] ?? array() );
 		$dong = static fn( string $nhan, string $chu, string $ma ): string => '<p class="nghia-dong"><span class="nghia-nhan">' . $nhan . '</span> ' . \Phongdao\MienDuLieu\DinhDang::hien( $chu, $dd[ $ma ] ?? '' ) . '</p>';
-		$o    = '' === $nd ? '' : $dong( 'Nghĩa đen', $nd, 'nghia_den' );
-		if ( '' !== $y ) {
-			$o .= '' !== $nd && '' === $nb ? $dong( 'Nghĩa bóng', $y, 'y_nghia' ) : '<p class="y-nghia-chu">' . \Phongdao\MienDuLieu\DinhDang::hien( $y, $dd['y_nghia'] ?? '' ) . '</p>';
-		}
-		$o .= '' === $nb ? '' : $dong( 'Nghĩa bóng', $nb, 'nghia_bong' );
+		// Ý nghĩa chung đứng đầu (D-118); có Nghĩa đen mà chưa có Nghĩa bóng riêng thì Ý nghĩa là dòng Nghĩa bóng ngay sau
+		$y_la_bong = '' !== $y && '' !== $nd && '' === $nb;
+		$o         = '' === $y || $y_la_bong ? '' : '<p class="y-nghia-chu">' . \Phongdao\MienDuLieu\DinhDang::hien( $y, $dd['y_nghia'] ?? '' ) . '</p>';
+		$o        .= '' === $nd ? '' : $dong( 'Nghĩa đen', $nd, 'nghia_den' );
+		$o        .= $y_la_bong ? $dong( 'Nghĩa bóng', $y, 'y_nghia' ) : '';
+		$o        .= '' === $nb ? '' : $dong( 'Nghĩa bóng', $nb, 'nghia_bong' );
 		if ( $dk ) {
 			$o .= '<div class="nghia-dong"><span class="nghia-nhan">Dùng khi</span><ul class="uses">' . implode( '', array_map( static fn( string $x ): string => '<li>' . esc_html( $x ) . '</li>', $dk ) ) . '</ul></div>';
 		}

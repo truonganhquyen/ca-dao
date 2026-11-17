@@ -223,7 +223,7 @@
   // D-119: chú thích, Ý nghĩa dài thu gọn khi có JavaScript
   const gon = () => {
     $$('.ct-ds .term:not(.mo)').forEach(t => { t.classList.add('gon'); t.scrollHeight - t.clientHeight < 3 ? t.classList.remove('gon') : $('.ct-them', t) || $('dd', t).insertAdjacentHTML('beforeend', '<button class="ct-them" type="button" aria-expanded="false">thêm</button>'); });
-    $$('.hieu-gon .y-nghia-chu:not(.gon,.mo)').forEach(p => p.scrollHeight > 8.5 * parseFloat(getComputedStyle(p).lineHeight) && (p.classList.add('gon'), p.insertAdjacentHTML('afterend', '<button class="ct-them y-het" type="button" aria-expanded="false">Đọc hết</button>')));
+    $$('.hieu-gon .y-nghia-chu:not(.gon,.mo)').forEach(p => p.scrollHeight > 14 * parseFloat(getComputedStyle(p).fontSize) && (p.classList.add('gon'), p.insertAdjacentHTML('afterend', '<button class="ct-them y-het" type="button" aria-expanded="false">Đọc hết</button>')));
   };
   document.addEventListener('click', e => { const b = e.target.closest('.ct-them'); if (!b) return; const t = b.closest('.term') || b.previousElementSibling, m = t.classList.toggle('mo'); t.classList.toggle('gon', !m); b.textContent = m ? 'thu gọn' : b.matches('.y-het') ? 'Đọc hết' : 'thêm'; b.setAttribute('aria-expanded', m); });
   if ($('.ct-ds,.hieu-gon')) { gon(); addEventListener('resize', gon); document.addEventListener('toggle', gon, true); }
