@@ -40,17 +40,51 @@ final class TacPham {
 		if ( $tp['di_ban'] ) {
 			$nhan[] = array( 'Bản tham chiếu · ' . count( $tp['di_ban'] ) . ' dị bản', true, '#di-ban' );
 		}
+		// Trang bài gọn cho người đọc (D-119, docs/41): khung lời có nhãn thể loại, bài ngắn lấy lời làm tiêu đề, chú thích
+		// kiểu sách ngay dưới lời, một dòng nguồn, Sao chép ở thanh công cụ, hiểu bài ngay sau khung lời. Chế độ sửa và bài có
+		// từ ngữ thô tục giữ bố cục cũ tới T-215.
+		$gon       = ! $sua && ! $tho;
+		$ngan      = false;
+		$dong_hien = $tp['loi'];
+		$ct_muc    = $tp['chu_thich'];
+		$ct_chung  = array();
+		$ct_goc    = array();
+		$so_ct     = array();
+		if ( $gon ) {
+			$ngan      = empty( $tp['doan'] ) && ( $tuc_ngu ? ! $cau_dai : ( in_array( $tp['the_loai'], array( 'ca-dao', 'cau-do' ), true ) && count( $tp['loi'] ) <= 4 ) );
+			$dong_hien = $cau_ten ? self::mot_dong( $tp['loi'] ) : $tp['loi'];
+			$ca_cau    = Ve::khoa_cum( implode( ' ', $tp['loi'] ) );
+			$ct_muc    = array();
+			foreach ( $tp['chu_thich'] as $c ) {
+				$t = trim( (string) ( $c['tu'] ?? '' ) );
+				if ( '' === $t ) {
+					$ct_chung[] = $c; // chú thích chung, không gắn từ: hàng "Chuyện quanh bài"
+				} elseif ( $tuc_ngu && Ve::khoa_cum( $t ) === $ca_cau ) {
+					$ct_goc[] = $c; // mục trùng cả câu tục ngữ (điển tích): hàng "Nguồn gốc", câu không bị tô
+				} else {
+					$ct_muc[] = $c;
+				}
+			}
+			$tu    = array_values( array_filter( array_map( static fn( array $c ): string => trim( (string) $c['tu'] ), $ct_muc ) ) );
+			$so_ct = Ve::danh_so_chu_thich( self::cac_dong( $tp, $dong_hien ), $tu );
+		}
 		// Câu là tiêu đề: từ khó được tô cả trong câu tiêu đề
 		$tieu_de = $cau_ten
-			? str_replace( array( '<div', '</div>' ), array( '<span', '</span>' ), Ve::loi( $tp['loi'], 'proverb', $tu, array( 'max' => '48' ) ) )
+			? str_replace( array( '<div', '</div>' ), array( '<span', '</span>' ), Ve::loi( $dong_hien, 'proverb', $tu, array( 'max' => '48', 'so_ct' => $so_ct ) ) )
 			: esc_html( $cau_dai ? (string) ( $tp['loi'][0] ?? $tp['tieu_de'] ) : $tp['tieu_de'] );
+		if ( $gon && $ngan && ! $cau_ten ) {
+			// Ca dao, câu đố từ 4 dòng trở xuống: lời là tiêu đề trang (D-119)
+			$tieu_de = str_replace( array( '<div', '</div>' ), array( '<span', '</span>' ), Ve::loi( $dong_hien, $kieu, $tu, array( 'nhom' => (string) $tp['ma'], 'so_ct' => $so_ct ) ) );
+		}
 		if ( $che ) {
 			$tieu_de = esc_html( ( $tp['ten_the_loai'] ?: 'Bài' ) . ' có từ ngữ thô tục' );
 		}
 		$y = empty( $tp['y_nghia']['chu'] )
 			? ( $sua ? '<div class="meaning trong" data-chi-sua><div class="meaning-head"><h2>Ý nghĩa</h2>' . $nut( 'y_nghia', 'Thêm ý nghĩa' ) . '</div><p class="small muted">Chưa có ý nghĩa' . ( $sua['nhap'] ? ' · có ' . count( $sua['nhap'] ) . ' nháp chờ duyệt trong Hộp việc' : '' ) . '.</p></div>'
-				: ( $tuc_ngu && ! empty( $tp['nghia_bong'] ) ? '' : self::moi_cach_hieu( ctype_digit( (string) $tp['ma'] ), HieuThem::danh( $tp ) ) ) )
+				: ( $gon ? self::chua_nghia( ctype_digit( (string) $tp['ma'] ) ) : ( $tuc_ngu && ! empty( $tp['nghia_bong'] ) ? '' : self::moi_cach_hieu( ctype_digit( (string) $tp['ma'] ), HieuThem::danh( $tp ) ) ) ) )
 			: Ve::y_nghia( $tp['y_nghia']['chu'], ! empty( $tp['y_nghia']['ai'] ), 'Ý nghĩa', $nut( 'y_nghia', 'Sửa' ), $tp['dinh_dang']['y_nghia'] ?? '' ) . $goc( 'Ý nghĩa', 'y_nghia' );
+		// Hiểu bài ngay sau khung lời (D-119): tục ngữ một khối Nghĩa; thể khác Ý nghĩa hoặc một dòng "Chưa có giải nghĩa"
+		$hieu = $gon && ! $cau_do ? ( $tuc_ngu ? ( self::nghia_tuc_ngu( $tp ) ?: self::chua_nghia( ctype_digit( (string) $tp['ma'] ) ) ) : $y ) : '';
 		if ( $cau_do ) {
 			// Câu đố: đáp án thu gọn sau nút "Hiện đáp án", tắt JavaScript vẫn mở được (D-087). Giải nghĩa của câu đố là "Giải
 			// thích đáp án" (vì sao đáp án là như vậy), nằm trong khối ẩn sau đáp án — không lộ đáp án trước khi đoán (D-105)
@@ -76,10 +110,38 @@ final class TacPham {
 					: Ve::loi_doan( $tp['doan'], $kieu, $tu, array( 'so_dong' => ! $cau_do, 'nhom' => $tp['ma'], 'bai' => $tp['ma'] ) ) )
 				. ( $cau_do && ! empty( $tp['cau_hoi'] ) ? '<p class="riddle-q">' . esc_html( $tp['cau_hoi'] ) . '</p>' : '' )
 				. $goc( 'Lời', 'loi' ) . $muc_kiem . $y;
+		$co_nghi = empty( $tp['co_nghi'] ) ? '' : '<div class="co-nghi"><p class="flag">Có thể không phải dân gian</p><details class="disclosure vi-sao" id="vi-sao"><summary>Vì sao?</summary><div class="detail-body"><p>' . esc_html( $tp['co_nghi'] ) . '</p>'
+			. ( empty( $tp['co_nghi_nguon'] ) ? '' : '<p class="small">Nguồn: ' . ( empty( $tp['co_nghi_nguon']['url'] ) ? esc_html( $tp['co_nghi_nguon']['chu'] ) : '<a href="' . esc_url( $tp['co_nghi_nguon']['url'] ) . '" rel="nofollow">' . esc_html( $tp['co_nghi_nguon']['chu'] ) . '</a>' ) . '</p>' ) . '</div></details></div>';
+		$the_gon = '';
+		if ( $gon ) {
+			// Khung lời gọn: nhãn thể loại → tiêu đề (bài ngắn: chính lời) → lời → chú thích kiểu sách → một dòng nguồn
+			[ $ct_sau_loi, $sau_doan ] = self::chu_thich_gon( $tp, $ct_muc, $so_ct, self::cac_dong( $tp, $dong_hien ) );
+			$the_tho  = in_array( (string) $tp['hinh_thuc'], array( 'Lục bát', 'Song thất lục bát' ), true ) ? ' · ' . $tp['hinh_thuc'] : '';
+			$so_lieu  = Ve::so_lieu( $tp['so_lieu'] );
+			$y_truoc  = 've' === $tp['the_loai'] && ! empty( $tp['y_nghia']['chu'] ); // vè: Bối cảnh, Ý nghĩa trước lời dài
+			$loi_gon  = $ngan ? '' : ( empty( $tp['doan'] )
+				? Ve::loi( $dong_hien, $kieu, $tu, array( 'so_dong' => ! $cau_do && count( $tp['loi'] ) >= 8, 'nhom' => $tp['ma'], 'so_ct' => $so_ct ) )
+				: Ve::loi_doan( $tp['doan'], $kieu, $tu, array( 'so_dong' => ! $cau_do, 'nhom' => $tp['ma'], 'bai' => $tp['ma'], 'so_ct' => $so_ct, 'sau_doan' => $sau_doan ) ) );
+			$the_gon  = '<section class="verse-card the-gon g-' . esc_attr( (string) $tp['the_loai'] ) . '" id="chu-thich" aria-label="Lời và chú thích">'
+				. '<p class="the-gon-dau"><span class="the-gon-loai">' . esc_html( $tp['ten_the_loai'] . $the_tho ) . '</span>'
+				. '<span class="row">' . ( $tp['di_ban'] ? '<a class="the-gon-di-ban" href="#di-ban">' . count( $tp['di_ban'] ) . ' dị bản</a>' : '' ) . Ve::nut_nghe() . '</span></p>'
+				. '<h1 class="read-title' . ( $ngan ? ' loi-ten' : '' ) . '">' . $tieu_de . '</h1>' . $co_nghi
+				. ( '' === $so_lieu ? '' : '<p class="read-sub">' . $so_lieu . '</p>' )
+				. ( $y_truoc ? $boi_canh . '<div class="hieu-gon">' . $hieu . '</div>' : $boi_canh ) . $be . $loi_gon
+				. ( $cau_do && ! empty( $tp['cau_hoi'] ) ? '<p class="riddle-q">' . esc_html( $tp['cau_hoi'] ) . '</p>' : '' )
+				. ( $cau_do ? $y : '' )
+				. ( '' === $ct_sau_loi ? '' : '<div class="ct-khung">' . $ct_sau_loi . '</div>' )
+				. self::dong_nguon( $tp ) . '</section>'
+				. ( $y_truoc || '' === $hieu ? '' : '<div class="hieu-gon">' . $hieu . '</div>' );
+		}
 
 		$sau = '';
+		if ( $gon ) {
+			// Điển tích trùng cả câu tục ngữ và chú thích chung thành hàng mở một dòng (D-119)
+			$sau .= self::hang_chu_thich( 'Nguồn gốc', 'nguon-goc', $ct_goc ) . self::hang_chu_thich( 'Chuyện quanh bài', 'chuyen-quanh-bai', $ct_chung );
+		}
 		// Tầng Đọc: lời → Ý nghĩa → các phần nghĩa chi tiết nếu có → Từ khó → Dị bản (D-118).
-		if ( $tuc_ngu && ( '' !== $tp['nghia_den'] || '' !== (string) ( $tp['nghia_bong'] ?? '' ) || $tp['dung_khi'] || $sua ) ) {
+		if ( ! $gon && $tuc_ngu && ( '' !== $tp['nghia_den'] || '' !== (string) ( $tp['nghia_bong'] ?? '' ) || $tp['dung_khi'] || $sua ) ) {
 			$o = '';
 			foreach ( array( 'nghia_den' => 'Nghĩa đen', 'nghia_bong' => 'Nghĩa bóng' ) as $ma => $ten ) {
 				$chu = (string) ( $tp[ $ma ] ?? '' );
@@ -113,13 +175,10 @@ final class TacPham {
 				$sau .= '<section class="block tint-vang" id="chu-thich" data-chi-sua><div class="block-dau"><h2>Từ khó</h2>' . $nut( 'chu_thich', 'Thêm' ) . '</div><p class="small muted">Chưa có từ khó.</p></section>';
 			}
 		}
-		if ( $tp['chu_thich'] ) {
+		if ( ! $gon && $tp['chu_thich'] ) {
 			$muc_tk = array();
 			foreach ( $tp['chu_thich'] as $c ) {
-				// Nguồn người biên soạn điền thì hiện (D-081); nguồn của chú thích máy chép ẩn theo chính sách (D-068)
-				$nguon    = empty( $c['nguon'] ) ? '' : '<br><span class="small">Nguồn: ' . ( empty( $c['nguon']['url'] ) ? esc_html( $c['nguon']['chu'] ) : '<a href="' . esc_url( $c['nguon']['url'] ) . '" rel="nofollow">' . esc_html( $c['nguon']['chu'] ) . '</a>' ) . '</span>';
-				$muc      = is_array( $c['muc'] ?? null ) ? '<br><a class="small" href="' . esc_url( $c['muc']['url'] ) . '">Xem trong Từ điển · ' . (int) $c['muc']['so_bai'] . ' bài</a>' . $c['muc']['them'] : '';
-				$muc_tk[] = '<div class="term"><dt>' . esc_html( '' !== $c['tu'] ? $c['tu'] : 'Chú thích chung' ) . '</dt><dd>' . \Phongdao\MienDuLieu\DinhDang::hien( $c['giai'], $c['dinh_dang'] ?? '' ) . $nguon . $muc . '</dd></div>';
+				$muc_tk[] = '<div class="term"><dt>' . esc_html( '' !== $c['tu'] ? $c['tu'] : 'Chú thích chung' ) . '</dt><dd>' . self::giai_chu_thich( $c ) . '</dd></div>';
 			}
 			// Người biên soạn: từ không có trong lời thì nhắc kiểm chính tả (vẫn lưu được — chú thích chung)
 			$thieu_tu = $sua ? \Phongdao\MienDuLieu\TuKho::thieu( $tp['loi'], $tu ) : array();
@@ -172,10 +231,14 @@ final class TacPham {
 		$sau .= '<section class="tang" id="doc-them" aria-labelledby="doc-them-tieu-de"><h2 class="tang-dau" id="doc-them-tieu-de">Đọc thêm</h2>'
 			. '<div class="work-tags">' . $nhan_cuoi . '</div>'
 			. ( empty( $tp['doc_tiep'] ) ? '' : Ve::khoi( 'Đọc tiếp', '<div class="grid two doc-tiep">' . implode( '', array_map( array( DanhSach::class, 'the' ), $tp['doc_tiep'] ) ) . '</div>', '', 'doc-tiep' ) )
-			. self::tu_lieu( $tp ) . AnhChiaSe::hien( $tp ) . '</section>'
+			. ( $gon ? '' : self::tu_lieu( $tp ) ) . AnhChiaSe::hien( $tp ) . '</section>'
 			. ( $bai_that ? GopTuLieu::cuoi_bai( (int) $tp['ma'], 'da_gui' === $gui && ! $gui_ch ) : '' )
 			. ( $sua ? CheDoSua::lich_su( $sua ) : '' );
 		$nhan_loi = $cau_ten ? ( empty( $tp['y_nghia']['chu'] ) ? '' : 'Ý nghĩa' ) : 'Lời';
+		$duong_dan = '<nav aria-label="Đường dẫn" class="breadcrumbs">' . Ve::lien_ket( 'trang-chu', 'Trang chủ' ) . '<span aria-hidden="true">/</span>' . Ve::lien_ket( $tp['the_loai'], esc_html( $tp['ten_the_loai'] ) ) . '<span aria-hidden="true">/</span><span>' . esc_html( $che ? 'Bài có từ ngữ thô tục' : $tp['tieu_de'] ) . '</span></nav>';
+		if ( $gon ) {
+			return $duong_dan . '<div class="work-layout trang-gon"><div class="work-main">' . $the_gon . '</div>' . Ve::cong_cu( $tp, true ) . '<div class="work-rest">' . $sau . '</div></div>';
+		}
 		$bo_cuc = '<div class="work-layout"><div class="work-main">' . Ve::the_loi( $than_loi, $tp['url'], $nhan_loi, 'Lời và ý nghĩa', $nut( 'loi', 'Sửa lời' ) ) . '</div>' . Ve::cong_cu( $tp ) . '<div class="work-rest">' . $sau . '</div></div>';
 
 		return ( $sua ? CheDoSua::dai( $sua ) : '' )
@@ -187,6 +250,178 @@ final class TacPham {
 			. '<p class="read-sub">' . Ve::so_lieu( $tp['so_lieu'] ) . '</p></header>'
 			. ( $tho ? Ve::che_tho_tuc( $bo_cuc, ! $che, 'tho-tuc-bai' ) : $bo_cuc )
 			. ( $sua ? CheDoSua::tam( $sua, (string) $tp['the_loai'] ) . ( ( $bai_sua = get_post( (int) $sua['id'] ) ) ? CheDoSua::tam_phan_loai( $bai_sua, (string) $tp['the_loai'] ) : '' ) . CheDoSua::tam_doi_chieu( $sua ) : '' );
+	}
+
+	/**
+	 * Tục ngữ câu ngắn hai dòng hiện một dòng (D-119): "Một chữ nên thầy, / Một ngày nên nghĩa" → "Một chữ nên thầy, một
+	 * ngày nên nghĩa". Chỉ là cách hiện; lời đã lưu giữ nguyên. Vế sau viết thường chữ đầu khi tiếng thứ hai của vế viết
+	 * thường (tránh hạ chữ của tên riêng như "Hà Nội"); vế trước chưa có dấu ngắt thì nối bằng dấu phẩy.
+	 *
+	 * @param string[] $loi
+	 * @return string[]
+	 */
+	public static function mot_dong( array $loi ): array {
+		$loi = array_values( array_filter( array_map( 'trim', $loi ), 'strlen' ) );
+		if ( 2 !== count( $loi ) ) {
+			return $loi;
+		}
+		[ $a, $b ] = $loi;
+		$tieng     = preg_split( '/\s+/u', $b ) ?: array();
+		$thu_hai   = (string) ( $tieng[1] ?? '' );
+		if ( '' === $thu_hai || mb_strtolower( mb_substr( $thu_hai, 0, 1 ) ) === mb_substr( $thu_hai, 0, 1 ) ) {
+			$b = mb_strtolower( mb_substr( $b, 0, 1 ) ) . mb_substr( $b, 1 );
+		}
+		return array( ( preg_match( '/[,;:–—-]$/u', $a ) ? $a : $a . ',' ) . ' ' . $b );
+	}
+
+	/**
+	 * Mọi dòng đúng như sẽ hiện (bài chia đoạn: nối các khổ theo thứ tự) — để đánh số chú thích khớp với lời.
+	 *
+	 * @param string[] $dong_hien
+	 * @return string[]
+	 */
+	private static function cac_dong( array $tp, array $dong_hien ): array {
+		if ( empty( $tp['doan']['doan'] ) ) {
+			return array_values( $dong_hien );
+		}
+		$ra = array();
+		foreach ( $tp['doan']['doan'] as $d ) {
+			foreach ( $d['kho'] as $kho ) {
+				foreach ( $kho as $l ) {
+					$ra[] = (string) $l;
+				}
+			}
+		}
+		return $ra;
+	}
+
+	/** Bài chưa có nghĩa (D-119): một dòng thay hộp mời lớn; lời mời góp chính ở cuối trang. */
+	private static function chua_nghia( bool $co_form ): string {
+		return '<p class="chua-nghia">Chưa có giải nghĩa' . ( $co_form ? ' · <a href="#cach-hieu-form" data-mo-cach-hieu>Góp cách hiểu</a>' : '.' ) . '</p>';
+	}
+
+	/**
+	 * Tục ngữ: một khối Nghĩa ngay sau câu (D-119) — Nghĩa đen khi có, Ý nghĩa (gọi là Nghĩa bóng khi có Nghĩa đen mà bài
+	 * chưa có Nghĩa bóng riêng), Nghĩa bóng và Dùng khi của bài cũ vẫn hiện. Không tự chuyển chữ giữa các phần.
+	 */
+	private static function nghia_tuc_ngu( array $tp ): string {
+		$y  = (string) ( $tp['y_nghia']['chu'] ?? '' );
+		$nd = (string) ( $tp['nghia_den'] ?? '' );
+		$nb = (string) ( $tp['nghia_bong'] ?? '' );
+		$dk = (array) ( $tp['dung_khi'] ?? array() );
+		if ( '' === $y && '' === $nd && '' === $nb && ! $dk ) {
+			return '';
+		}
+		$dd   = (array) ( $tp['dinh_dang'] ?? array() );
+		$dong = static fn( string $nhan, string $chu, string $ma ): string => '<p class="nghia-dong"><span class="nghia-nhan">' . $nhan . '</span> ' . \Phongdao\MienDuLieu\DinhDang::hien( $chu, $dd[ $ma ] ?? '' ) . '</p>';
+		// Ý nghĩa chung đứng đầu (D-118); có Nghĩa đen mà chưa có Nghĩa bóng riêng thì Ý nghĩa là dòng Nghĩa bóng ngay sau
+		$y_la_bong = '' !== $y && '' !== $nd && '' === $nb;
+		$o         = '' === $y || $y_la_bong ? '' : '<p class="y-nghia-chu">' . \Phongdao\MienDuLieu\DinhDang::hien( $y, $dd['y_nghia'] ?? '' ) . '</p>';
+		$o        .= '' === $nd ? '' : $dong( 'Nghĩa đen', $nd, 'nghia_den' );
+		$o        .= $y_la_bong ? $dong( 'Nghĩa bóng', $y, 'y_nghia' ) : '';
+		$o        .= '' === $nb ? '' : $dong( 'Nghĩa bóng', $nb, 'nghia_bong' );
+		if ( $dk ) {
+			$o .= '<div class="nghia-dong"><span class="nghia-nhan">Dùng khi</span><ul class="uses">' . implode( '', array_map( static fn( string $x ): string => '<li>' . esc_html( $x ) . '</li>', $dk ) ) . '</ul></div>';
+		}
+		return '<section class="meaning nghia-gon" id="nghia" aria-labelledby="nghia-tieu-de"><div class="meaning-head"><h2 id="nghia-tieu-de">Nghĩa</h2></div>' . $o
+			. ( empty( $tp['y_nghia']['ai'] ) ? '' : '<p class="ai-note">Có hỗ trợ của AI, đã được người biên soạn duyệt.</p>' ) . '</section>';
+	}
+
+	/** Lời giải một mục chú thích: chữ, nguồn người viết điền (D-081; nguồn máy chép ẩn — D-068), liên kết Từ điển. */
+	private static function giai_chu_thich( array $c ): string {
+		$nguon = empty( $c['nguon'] ) ? '' : '<br><span class="small">Nguồn: ' . ( empty( $c['nguon']['url'] ) ? esc_html( $c['nguon']['chu'] ) : '<a href="' . esc_url( $c['nguon']['url'] ) . '" rel="nofollow">' . esc_html( $c['nguon']['chu'] ) . '</a>' ) . '</span>';
+		$muc   = is_array( $c['muc'] ?? null ) ? '<br><a class="small" href="' . esc_url( $c['muc']['url'] ) . '">Xem trong Từ điển · ' . (int) $c['muc']['so_bai'] . ' bài</a>' . $c['muc']['them'] : '';
+		return \Phongdao\MienDuLieu\DinhDang::hien( $c['giai'], $c['dinh_dang'] ?? '' ) . $nguon . $muc;
+	}
+
+	/** Một mục chú thích kiểu sách; $n > 0: mốc #ct-N và số (CSS vẽ từ data-so, chữ trong dt giữ nguyên cho ô chạm từ). */
+	private static function mot_chu_thich( int $n, array $c ): string {
+		return '<div class="term"' . ( $n ? ' id="ct-' . $n . '" data-so="' . $n . '"' : '' ) . '><dt>' . esc_html( '' !== $c['tu'] ? $c['tu'] : 'Chú thích chung' ) . '</dt><dd>' . self::giai_chu_thich( $c ) . '</dd></div>';
+	}
+
+	/** @param list<array{0:int,1:array}> $ds [số, mục]; $toi_da > 0: phần sau mục thứ $toi_da thu vào "Xem thêm N chú thích". */
+	private static function ds_chu_thich( array $ds, int $toi_da ): string {
+		$muc = array_map( static fn( array $x ): string => self::mot_chu_thich( (int) $x[0], $x[1] ), $ds );
+		if ( $toi_da <= 0 || count( $muc ) <= $toi_da ) {
+			return '<dl class="terms ct-ds">' . implode( '', $muc ) . '</dl>';
+		}
+		return '<dl class="terms ct-ds">' . implode( '', array_slice( $muc, 0, $toi_da ) ) . '</dl>'
+			. '<details class="ct-con"><summary>' . esc_html( 'Xem thêm ' . ( count( $muc ) - $toi_da ) . ' chú thích' ) . '</summary><dl class="terms ct-ds">' . implode( '', array_slice( $muc, $toi_da ) ) . '</dl></details>';
+	}
+
+	/**
+	 * Chú thích kiểu sách (D-119): xếp theo số (lần xuất hiện đầu trong lời), mục không thấy trong lời xếp cuối. Bài chia
+	 * đoạn có từ TU_KHO_NHOM mục: chú thích nằm sau từng đoạn, thu gọn; mục không thấy trong lời thành "Chú thích chung".
+	 *
+	 * @param array<string,int> $so
+	 * @param string[]          $cac_dong
+	 * @return array{0:string,1:array<int,string>} [HTML sau lời, HTML sau từng đoạn theo số đoạn]
+	 */
+	private static function chu_thich_gon( array $tp, array $muc, array $so, array $cac_dong ): array {
+		if ( ! $muc ) {
+			return array( '', array() );
+		}
+		$ds = array();
+		foreach ( $muc as $c ) {
+			$ds[] = array( $so[ Ve::khoa_cum( trim( (string) $c['tu'] ) ) ] ?? 0, $c );
+		}
+		usort( $ds, static fn( array $a, array $b ): int => array( 0 === $a[0], $a[0] ) <=> array( 0 === $b[0], $b[0] ) );
+		$doan = (array) ( $tp['doan']['doan'] ?? array() );
+		if ( count( $doan ) < 2 || count( $ds ) < self::TU_KHO_NHOM ) {
+			return array( self::ds_chu_thich( $ds, 4 ), array() );
+		}
+		$nhom = array();
+		foreach ( $ds as $x ) {
+			$dong = array_key_first( \Phongdao\MienDuLieu\TuKho::tim( $cac_dong, array( trim( (string) $x[1]['tu'] ) ) ) );
+			$k    = 0;
+			if ( null !== $dong ) {
+				foreach ( $doan as $d ) {
+					if ( $dong + 1 >= (int) $d['tu'] && $dong + 1 <= (int) $d['den'] ) {
+						$k = (int) $d['so'];
+						break;
+					}
+				}
+			}
+			$nhom[ $k ][] = $x;
+		}
+		$sau_doan = array();
+		foreach ( $doan as $d ) {
+			$k = (int) $d['so'];
+			if ( ! empty( $nhom[ $k ] ) ) {
+				$ten            = '' !== trim( (string) $d['tieu_de'] ) ? (string) $d['tieu_de'] : 'đoạn ' . $k;
+				$sau_doan[ $k ] = '<details class="ct-doan"><summary>' . esc_html( 'Chú thích ' . $ten . ' · ' . count( $nhom[ $k ] ) ) . '</summary>' . self::ds_chu_thich( $nhom[ $k ], 0 ) . '</details>';
+			}
+		}
+		$chung = empty( $nhom[0] ) ? '' : '<details class="ct-doan"><summary>' . esc_html( 'Chú thích chung · ' . count( $nhom[0] ) ) . '</summary>' . self::ds_chu_thich( $nhom[0], 0 ) . '</details>';
+		return array( $chung, $sau_doan );
+	}
+
+	/** Hàng mở một dòng (D-119) cho chú thích không gắn từ ("Chuyện quanh bài") hay điển tích của cả câu ("Nguồn gốc"). */
+	private static function hang_chu_thich( string $ten, string $id, array $ds ): string {
+		if ( ! $ds ) {
+			return '';
+		}
+		$than = implode( '', array_map( static fn( array $c ): string => '<p>' . self::giai_chu_thich( $c ) . '</p>', $ds ) );
+		return '<details class="hang-mo" id="' . esc_attr( $id ) . '"><summary>' . esc_html( $ten ) . '</summary><div class="detail-body">' . $than . '</div></details>';
+	}
+
+	/**
+	 * Một dòng nguồn ở chân khung lời (D-119) thay nhãn mức kiểm + ⓘ + khối "Lời này từ đâu?": trạng thái bên trái,
+	 * "Nguồn" bên phải; mở ra là giải thích, bảng nguồn và lối gửi số trang. Giữ mốc #tu-lieu cho liên kết cũ (Câu hôm nay).
+	 */
+	private static function dong_nguon( array $tp ): string {
+		$dc   = $tp['doi_chieu'];
+		$co   = null !== $dc && '' !== ( $dc['sach'] ?? '' );
+		$chu  = $co
+			? '<b>Đã đối chiếu</b> · ' . esc_html( $dc['sach'] . ( empty( $dc['trang'] ) ? '' : ', tr. ' . $dc['trang'] ) )
+			: '<b>Bản lưu truyền phổ biến</b> · chưa đối chiếu sách in';
+		$giai = $co
+			? 'Lời khớp với bản in trong sách, đúng trang đã ghi. Người biên soạn đối chiếu; máy không tự gắn nhãn này.'
+			: 'Lời ghi theo cách người Việt thường đọc, hát hiện nay. Thư viện đang đối chiếu dần với sách in; khi xong, dòng này ghi tên sách và số trang.';
+		$nut  = ( $co ? '' : Ve::lien_ket( 'gop', 'Có sách? Gửi số trang', 'btn compact' ) ) . Ve::lien_ket( 'phuong-phap', 'Cách biên soạn' );
+		$bang = self::tu_lieu_dong( $tp, false, false );
+		return '<details class="dong-nguon" id="tu-lieu"><summary>' . Ve::icon( $co ? 'check' : 'book' ) . '<span class="dong-nguon-chu">' . $chu . '</span><span class="dong-nguon-mo">Nguồn</span></summary>'
+			. '<div class="dong-nguon-than"><p>' . $giai . '</p>' . ( '' === $bang ? '' : '<dl class="metadata">' . $bang . '</dl>' ) . '<p class="dong-nguon-nut">' . $nut . '</p></div></details>';
 	}
 
 	/** Bài chưa có Ý nghĩa: mời bạn đọc chia sẻ cách hiểu (form nhanh ở tầng Hiểu thêm; D-105). Bài dài gọi là "bài" (D-114). */
@@ -252,10 +487,15 @@ final class TacPham {
 
 	/** "Lời này từ đâu?" (D-085, D-093): nguồn đã ẩn không có trong HTML gửi người đọc. */
 	private static function tu_lieu( array $tp ): string {
-		$loi = null === $tp['doi_chieu']
+		return Ve::khoi_gon( Ve::icon( 'info' ) . 'Lời này từ đâu?', '<dl class="metadata">' . self::tu_lieu_dong( $tp ) . '</dl>', 'tu-lieu', 'dat' );
+	}
+
+	/** Các dòng của bảng nguồn: Lời ($loi), Ý nghĩa, Chú thích, Cách làm ($cach_lam). */
+	private static function tu_lieu_dong( array $tp, bool $loi_dong = true, bool $cach_lam = true ): string {
+		$loi  = null === $tp['doi_chieu']
 			? 'Bản lưu truyền phổ biến, chưa đối chiếu với sách in. ' . Ve::lien_ket( 'gop', 'Có sách? Gửi số trang' )
 			: 'Đã đối chiếu với ' . esc_html( $tp['doi_chieu']['sach'] ) . '.';
-		$dong = '<dt>Lời</dt><dd>' . $loi . '</dd>';
+		$dong = $loi_dong ? '<dt>Lời</dt><dd>' . $loi . '</dd>' : '';
 		if ( ! empty( $tp['y_nghia']['chu'] ) ) {
 			$dong .= '<dt>' . ( 'cau-do' === $tp['the_loai'] ? 'Giải thích đáp án' : 'Ý nghĩa' ) . '</dt><dd>Người biên soạn của thư viện viết' . ( empty( $tp['y_nghia']['ai'] ) ? '' : '; có hỗ trợ của AI, đã duyệt' ) . '.</dd>';
 		}
@@ -272,7 +512,6 @@ final class TacPham {
 			}
 			$dong .= '<dt>Chú thích</dt><dd>' . implode( '<br>', $o ) . '</dd>';
 		}
-		$dong .= '<dt>Cách làm</dt><dd>' . Ve::lien_ket( 'phuong-phap', 'Cách chúng tôi biên soạn' ) . '</dd>';
-		return Ve::khoi_gon( Ve::icon( 'info' ) . 'Lời này từ đâu?', '<dl class="metadata">' . $dong . '</dl>', 'tu-lieu', 'dat' );
+		return $dong . ( $cach_lam ? '<dt>Cách làm</dt><dd>' . Ve::lien_ket( 'phuong-phap', 'Cách chúng tôi biên soạn' ) . '</dd>' : '' );
 	}
 }

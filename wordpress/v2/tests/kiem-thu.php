@@ -205,21 +205,22 @@ kt( 'theme có mẫu trang chủ, trang tác phẩm, Tất cả, trang phân lo�
 wp_set_current_user( 0 );
 $h    = do_blocks( '<!-- wp:cadao/tac-pham {"mau":"ca-dao"} /-->' );
 $chinh = (string) strstr( (string) strstr( $h, 'class="work-main"' ), 'class="work-rail', true );
-kt( 'trang ca dao: một h1 đúng tên bài', 1 === substr_count( $h, '<h1' ) && str_contains( $h, '<h1 class="read-title">Dòng mẫu một của bài</h1>' ) );
+$ray   = (string) strstr( (string) strstr( $h, 'class="work-rail' ), 'class="work-rest"', true );
+kt( 'trang ca dao ngắn (4 câu): đúng một h1, chính là lời, nằm trong khung lời có nhãn thể loại (D-119)', 1 === substr_count( $h, '<h1' ) && str_contains( $h, '<h1 class="read-title loi-ten">' ) && str_contains( (string) strstr( (string) strstr( $h, '<h1' ), '</h1>', true ), 'Dòng mẫu một của bài' ) && str_contains( $chinh, '<section class="verse-card the-gon g-ca-dao"' ) && str_contains( $chinh, '<span class="the-gon-loai">Ca dao' ) );
 kt( 'thẻ lời: 4 câu, mỗi câu một .line, có data-fit và --dai (mỗi câu một dòng)', 4 === substr_count( $chinh, 'class="line"' ) && str_contains( $chinh, 'data-fit' ) && str_contains( $chinh, '--dai:' ) );
-kt( 'từ có chú thích “chút” là liên kết tới khối Từ khó', str_contains( $chinh, '<a class="word" href="#chu-thich"' ) );
-kt( 'nút Sao chép trong thẻ lời có đường dẫn bài', str_contains( $chinh, 'data-action="copy-loi"' ) && str_contains( $chinh, 'data-url="' ) );
-kt( 'nhãn mức kiểm “Bản lưu truyền phổ biến” + ⓘ (không tự đặt “đã đối chiếu”)', str_contains( $chinh, 'Bản lưu truyền phổ biến' ) && str_contains( $chinh, 'class="vi-sao"' ) && ! str_contains( $chinh, 'pill checked' ) );
+kt( 'từ có chú thích dẫn tới mục chú thích có số ngay dưới lời (chú thích kiểu sách, D-119)', (bool) preg_match( '/<a class="word" href="#ct-(\d+)"[^>]*>[^<]+<\/a><sup class="so-ct" aria-hidden="true">\1<\/sup>/', $chinh, $m_ct ) && str_contains( $chinh, '<div class="term" id="ct-' . ( $m_ct[1] ?? 'x' ) . '" data-so="' . ( $m_ct[1] ?? 'x' ) . '">' ) && str_contains( $chinh, '<div class="ct-khung"><dl class="terms ct-ds">' ) );
+kt( 'Sao chép nằm trong thanh công cụ có đường dẫn bài, không còn nút riêng trong khung lời (D-119)', ! str_contains( $chinh, 'data-action="copy-loi"' ) && str_contains( $ray, 'data-action="copy-loi" data-url="' ) && strpos( $ray, 'data-action="cite"' ) < strpos( $ray, 'data-action="copy-loi"' ) );
+kt( 'một dòng nguồn “Bản lưu truyền phổ biến · chưa đối chiếu sách in” ở chân khung lời, mở ra bảng nguồn (không tự đặt “đã đối chiếu”, không còn ⓘ)', str_contains( $chinh, '<details class="dong-nguon" id="tu-lieu">' ) && str_contains( $chinh, '<b>Bản lưu truyền phổ biến</b> · chưa đối chiếu sách in' ) && str_contains( $chinh, 'Có sách? Gửi số trang' ) && ! str_contains( $h, 'pill checked' ) && ! str_contains( $h, 'class="vi-sao"' ) );
 kt( 'khối Ý nghĩa có ghi chú hỗ trợ AI đã duyệt', str_contains( $chinh, '<h2>Ý nghĩa</h2>' ) && str_contains( $chinh, 'Có hỗ trợ của AI, đã được người biên soạn duyệt.' ) );
 $moi_id = array_map( static fn( $id ) => substr_count( $h, 'id="' . $id . '"' ), array( 'chu-thich' => 'chu-thich', 'di-ban' => 'di-ban', 'tu-lieu' => 'tu-lieu', 'anh-chia-se' => 'anh-chia-se' ) );
-kt( 'có đúng một khối Từ khó, Dị bản, Lời này từ đâu?, Ảnh để chia sẻ', array( 1, 1, 1, 1 ) === array_values( $moi_id ), $moi_id );
+kt( 'có đúng một khung chú thích, Dị bản, dòng nguồn (#tu-lieu), Ảnh để chia sẻ', array( 1, 1, 1, 1 ) === array_values( $moi_id ), $moi_id );
 kt( 'ảnh chia sẻ: 3 khổ, 3 nền, có ô Kèm ý nghĩa', 3 === substr_count( $h, 'name="kho-mau-ca-dao"' ) && 3 === substr_count( $h, 'name="nen-mau-ca-dao"' ) && str_contains( $h, 'name="yn-mau-ca-dao"' ) );
 kt( 'công cụ đọc: Trích dẫn, Lưu, Chia sẻ, Trình chiếu, Cỡ chữ', str_contains( $h, 'data-action="cite"' ) && str_contains( $h, 'data-action="save"' ) && str_contains( $h, 'data-action="share"' ) && str_contains( $h, 'data-action="present"' ) );
 kt( 'người đọc không nhận giao diện sửa, không thấy nguồn đã ẩn', ! preg_match( '/nut-sua|editor-strip|dai-bien-tap|tam-sua|Nguồn đã ẩn:/', $h ) );
 
 $tn = do_blocks( '<!-- wp:cadao/tac-pham {"mau":"tuc-ngu"} /-->' );
-kt( 'tục ngữ: câu là tiêu đề, dạng câu một dòng, có khối Nghĩa (Nghĩa đen · Nghĩa bóng · Dùng khi)', str_contains( $tn, '<h1 class="read-title"><span class="verse-box"><span class="verse proverb"' ) && str_contains( $tn, 'id="nghia"><h2>Nghĩa</h2>' ) && str_contains( $tn, '<h3>Dùng khi</h3>' ) );
-kt( 'tục ngữ không có dị bản, từ khó thì không hiện khối (không độn)', ! str_contains( $tn, 'id="di-ban"' ) && ! str_contains( $tn, 'id="chu-thich"' ) );
+kt( 'tục ngữ: câu là tiêu đề trong khung, một khối Nghĩa ngay sau khung (Nghĩa đen · Nghĩa bóng · Dùng khi, D-119)', str_contains( $tn, '<h1 class="read-title loi-ten"><span class="verse-box"><span class="verse proverb"' ) && str_contains( $tn, '<section class="meaning nghia-gon" id="nghia"' ) && str_contains( $tn, '<span class="nghia-nhan">Dùng khi</span>' ) && strpos( $tn, 'id="nghia"' ) < strpos( $tn, 'class="work-rail' ) );
+kt( 'tục ngữ không có dị bản, chú thích thì không hiện khối (không độn)', ! str_contains( $tn, 'id="di-ban"' ) && ! str_contains( $tn, 'class="ct-khung"' ) );
 kt( 'mã mẫu lạ: khối không in gì', '' === trim( do_blocks( '<!-- wp:cadao/tac-pham {"mau":"khong-co"} /-->' ) ) );
 
 $doc = DuLieuMau::lay( 'ca-dao' );
@@ -250,9 +251,9 @@ $xem = static function ( int $id ): string {
 };
 wp_set_current_user( 0 );
 $h = $xem( $mau_id['dong-mau-mot-cua-bai'] );
-kt( 'trang bài thật: tiêu đề, 4 câu lục bát, nhãn "Ca dao · Lục bát"', str_contains( $h, '<h1 class="read-title">Dòng mẫu một của bài</h1>' ) && 4 === substr_count( (string) strstr( (string) strstr( $h, 'class="work-main"' ), 'class="work-rail', true ), 'class="line"' ) && str_contains( $h, 'verse lucbat' ) && str_contains( $h, 'Ca dao · Lục bát' ), substr( $h, 0, 600 ) );
+kt( 'trang bài thật: lời là tiêu đề, 4 câu lục bát, nhãn "Ca dao · Lục bát"', str_contains( $h, '<h1 class="read-title loi-ten">' ) && 4 === substr_count( (string) strstr( (string) strstr( $h, 'class="work-main"' ), 'class="work-rail', true ), 'class="line"' ) && str_contains( $h, 'verse lucbat' ) && str_contains( $h, 'Ca dao · Lục bát' ), substr( $h, 0, 600 ) );
 kt( 'trang bài thật: Ý nghĩa có ghi chú hỗ trợ AI đã duyệt', str_contains( $h, 'Một câu giải nghĩa tổng hợp để xem khối Ý nghĩa.' ) && str_contains( $h, 'Có hỗ trợ của AI, đã được người biên soạn duyệt.' ) );
-kt( 'trang bài thật: Từ khó 2 mục, từ "chút" trong lời dẫn tới Từ khó', 2 === substr_count( $h, '<div class="term">' ) && str_contains( $h, '<a class="word" href="#chu-thich"' ) );
+kt( 'trang bài thật: chú thích "chút" ngay dưới lời, từ trong lời dẫn tới mục có số; chú thích không ghi từ thành hàng "Chuyện quanh bài"', 1 === substr_count( (string) strstr( (string) strstr( $h, 'class="ct-khung"' ), 'class="dong-nguon"', true ), '<div class="term"' ) && str_contains( (string) strstr( $h, 'id="chuyen-quanh-bai"' ), 'Chú thích không ghi từ, người biên soạn viết.' ) && (bool) preg_match( '/<a class="word" href="#ct-\d+"[^>]*>chút<\/a><sup class="so-ct"/', $h ) );
 kt( 'trang bài thật: dị bản gạch dưới chữ khác', str_contains( $h, '<ins>khác</ins>' ) );
 kt( '"Lời này từ đâu?": tách chú thích chép từ nguồn (nguồn ẩn) với chú thích người viết', str_contains( $h, '1 mục chép từ nguồn tham khảo · nguồn đã ẩn' ) && str_contains( $h, '1 mục người biên soạn viết' ) );
 kt( 'trang bài thật: chủ đề dẫn tới trang chủ đề, nút Sao chép mang đường dẫn bài', str_contains( $h, 'href="' . esc_url( (string) get_term_link( 'lao-dong', 'chu_de' ) ) . '"' ) && str_contains( $h, 'data-url="' . esc_url( (string) get_permalink( $mau_id['dong-mau-mot-cua-bai'] ) ) . '"' ) );
@@ -269,10 +270,10 @@ $h_sua_cau_do = $xem( $mau_id['cau-do-mau'] );
 kt( 'câu đố từ danh sách "Câu đố thiếu giải thích đáp án" (wp-admin Tác phẩm) mở được nút Thêm giải thích đáp án khi người biên soạn sửa', str_contains( $ds_thieu_cau_do, esc_html( get_the_title( $mau_id['cau-do-mau'] ) ) ) && str_contains( $h_sua_cau_do, 'data-tam="y_nghia"' ) && str_contains( $h_sua_cau_do, 'Thêm giải thích đáp án' ) );
 wp_set_current_user( 0 );
 $h = $xem( $mau_id['tuc-ngu-mau-ngan'] );
-kt( 'tục ngữ thật: câu là tiêu đề, khối Nghĩa có Nghĩa bóng, Dùng khi 2 ví dụ', str_contains( $h, '<h1 class="read-title"><span class="verse-box"><span class="verse proverb"' ) && str_contains( $h, 'id="nghia"><h2>Nghĩa</h2>' ) && str_contains( $h, '<div class="nghia-bong"><h3>Nghĩa bóng</h3>' ) && 2 === substr_count( (string) strstr( (string) strstr( $h, '<ul class="uses">' ), '</ul>', true ), '<li>' ) );
+kt( 'tục ngữ thật: câu là tiêu đề, khối Nghĩa có Nghĩa bóng, Dùng khi 2 ví dụ', str_contains( $h, '<h1 class="read-title loi-ten"><span class="verse-box"><span class="verse proverb"' ) && str_contains( $h, 'id="nghia" aria-labelledby="nghia-tieu-de"><div class="meaning-head"><h2 id="nghia-tieu-de">Nghĩa</h2>' ) && str_contains( $h, '<span class="nghia-nhan">Nghĩa bóng</span>' ) && 2 === substr_count( (string) strstr( (string) strstr( $h, '<ul class="uses">' ), '</ul>', true ), '<li>' ) );
 $h = $xem( $mau_id['cau-mau-thu-hai'] );
 $ch_form = (string) strstr( (string) strstr( $h, '<form id="cach-hieu-form"' ), '</form>', true );
-kt( 'bài chưa có ý nghĩa: mời "Bạn hiểu câu này thế nào?" kèm nút "Chia sẻ cách hiểu" tới form nhanh ở tầng Hiểu thêm; không tự điền', str_contains( $h, 'Câu này chưa có lời giải nghĩa. Bạn hiểu câu này thế nào? Viết vài dòng để người đọc sau hiểu rõ hơn.' ) && str_contains( $h, 'href="#cach-hieu-form"' ) && str_contains( $h, 'Chia sẻ cách hiểu' ) && '' !== $ch_form && ! str_contains( $h, 'Bài đang được bổ sung ý nghĩa' ) && ! str_contains( $h, 'class="meaning"' ) );
+kt( 'bài chưa có ý nghĩa: một dòng "Chưa có giải nghĩa · Góp cách hiểu" tới form nhanh ở tầng Hiểu thêm, không hộp mời lớn (D-119); không tự điền', str_contains( $h, '<p class="chua-nghia">Chưa có giải nghĩa · <a href="#cach-hieu-form" data-mo-cach-hieu>Góp cách hiểu</a></p>' ) && ! str_contains( $h, 'moi-cach-hieu' ) && str_contains( $h, 'Chia sẻ cách hiểu' ) && '' !== $ch_form && ! str_contains( $h, 'Bài đang được bổ sung ý nghĩa' ) && ! str_contains( $h, 'class="meaning"' ) );
 kt(
 	'form "Chia sẻ cách hiểu": gửi admin-post có nonce, một ô chữ tối đa 1.000 ký tự, bút danh tuỳ chọn, cam kết tự viết và đồng ý CC BY 4.0 bắt buộc, ô bẫy; không có ô tên thật, email, số điện thoại, nơi nghe',
 	str_contains( $ch_form, 'action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"' ) && str_contains( $ch_form, 'name="_wpnonce"' ) && str_contains( $ch_form, 'name="loai" value="cach_hieu"' ) && str_contains( $ch_form, 'name="bai" value="' . $mau_id['cau-mau-thu-hai'] . '"' )
@@ -285,8 +286,8 @@ $vi_tri = static fn( string $kim ): int => (int) strpos( $h, $kim );
 $tp_ht     = (array) \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_post( $mau_id['cau-mau-thu-hai'] ) );
 $so_ht_bai = count( (array) ( $tp_ht['cach_hieu'] ?? array() ) ) + count( (array) ( $tp_ht['cam_nghi'] ?? array() ) ) + count( \Phongdao\GiaoTiep\Khoi\PhanTich::cua_bai( $mau_id['cau-mau-thu-hai'] ) );
 kt(
-	'trang bài ba tầng: Đọc (lời, Ý nghĩa, Từ khó, Dị bản) → Hiểu thêm (Cách hiểu của bạn đọc · Bài cảm nhận · Cảm nghĩ, mỗi phần có số và nút viết) → Đọc thêm (phân loại, Đọc tiếp, Lời này từ đâu?, ảnh chia sẻ) → Bạn muốn góp gì?',
-	$vi_tri( 'class="work-main"' ) < $vi_tri( 'id="hieu-them"' ) && $vi_tri( 'id="hieu-them"' ) < $vi_tri( 'id="doc-them"' ) && $vi_tri( 'id="doc-them"' ) < $vi_tri( 'class="work-tags"' ) && $vi_tri( 'class="work-tags"' ) < $vi_tri( 'id="tu-lieu"' ) && $vi_tri( 'id="tu-lieu"' ) < $vi_tri( 'id="gop"' )
+	'trang bài ba tầng: Đọc (khung lời có chú thích và dòng nguồn, rồi Ý nghĩa) → Hiểu thêm (Cách hiểu của bạn đọc · Bài cảm nhận · Cảm nghĩ, mỗi phần có số và nút viết) → Đọc thêm (phân loại, Đọc tiếp, ảnh chia sẻ) → Bạn muốn góp gì?',
+	$vi_tri( 'class="work-main"' ) < $vi_tri( 'id="tu-lieu"' ) && $vi_tri( 'id="tu-lieu"' ) < $vi_tri( 'class="work-rail' ) && $vi_tri( 'class="work-rail' ) < $vi_tri( 'id="hieu-them"' ) && $vi_tri( 'id="hieu-them"' ) < $vi_tri( 'id="doc-them"' ) && $vi_tri( 'id="doc-them"' ) < $vi_tri( 'class="work-tags"' ) && $vi_tri( 'class="work-tags"' ) < $vi_tri( 'id="gop"' )
 	&& ( $so_ht_bai
 		? 3 === substr_count( $h, 'class="ht-phan"' ) && str_contains( $h, '<h3 class="ht-ten">Cách hiểu của bạn đọc <span class="ht-so">0</span></h3>' ) && str_contains( $h, '<h3 class="ht-ten">Bài cảm nhận <span class="ht-so">' ) && str_contains( $h, '<h3 class="ht-ten">Cảm nghĩ <span class="ht-so">' ) && str_contains( $h, 'role="tablist" aria-label="Hiểu thêm" data-chi-js hidden' )
 		: str_contains( $h, '<section class="tang ht-gon" id="hieu-them"' ) && ! str_contains( $h, 'class="ht-phan"' ) && ! str_contains( $h, 'role="tablist"' ) )
@@ -371,8 +372,8 @@ $tn_dai = $bai_tl( 'Tục ngữ dài thử', 'tuc-ngu', array( 'Dòng tục ng�
 wp_set_current_user( 0 );
 $h_tn_ngan = $xem( $tn_ngan );
 $h_tn_dai  = $xem( $tn_dai );
-kt( 'tục ngữ ngắn: câu là tiêu đề, từ khó được tô ngay trong câu tiêu đề; có Nghĩa bóng thì không mời chia sẻ cách hiểu', str_contains( (string) strstr( (string) strstr( $h_tn_ngan, '<h1 class="read-title">' ), '</h1>', true ), '<a class="word" href="#chu-thich" aria-label="Xem chú thích từ kẻ trồng cây">kẻ trồng cây</a>' ) && ! str_contains( $h_tn_ngan, 'Câu này chưa có lời giải nghĩa' ) );
-kt( 'tục ngữ dài (từ 3 dòng): hiện như ca dao — tên là dòng đầu, cỡ tiêu đề thường; lời đủ trong khung lời, không phải kiểu câu là tiêu đề', str_contains( $h_tn_dai, '<h1 class="read-title">Dòng tục ngữ dài thứ nhất</h1>' ) && ! str_contains( $tn_dai_chinh = (string) strstr( (string) strstr( $h_tn_dai, '<header class="work-head">' ), 'class="work-rest"', true ), 'verse proverb' ) && 3 === substr_count( $tn_dai_chinh, '<span class="line">' ), substr( (string) strstr( $h_tn_dai, '<h1' ), 0, 300 ) );
+kt( 'tục ngữ ngắn: câu là tiêu đề, từ khó được tô ngay trong câu tiêu đề kèm số chú thích; có Nghĩa bóng thì không ghi chưa có giải nghĩa', str_contains( (string) strstr( (string) strstr( $h_tn_ngan, '<h1 class="read-title loi-ten">' ), '</h1>', true ), '<a class="word" href="#ct-1" aria-label="Xem chú thích từ kẻ trồng cây">kẻ trồng cây</a><sup class="so-ct" aria-hidden="true">1</sup>' ) && ! str_contains( $h_tn_ngan, 'class="chua-nghia"' ) );
+kt( 'tục ngữ dài (từ 3 dòng): hiện như ca dao — tên là dòng đầu, cỡ tiêu đề thường; lời đủ trong khung lời, không phải kiểu câu là tiêu đề', str_contains( $h_tn_dai, '<h1 class="read-title">Dòng tục ngữ dài thứ nhất</h1>' ) && ! str_contains( $tn_dai_chinh = (string) strstr( (string) strstr( $h_tn_dai, '<section class="verse-card the-gon' ), 'class="work-rest"', true ), 'verse proverb' ) && 3 === substr_count( $tn_dai_chinh, '<span class="line">' ), substr( (string) strstr( $h_tn_dai, '<h1' ), 0, 300 ) );
 wp_set_current_user( $ai_ql );
 $h_tn_sua = $xem( $tn_dai );
 $_GET     = array( 'id' => (string) $tn_dai );
@@ -391,7 +392,7 @@ $h_tn_co_adm = \Phongdao\GiaoTiep\QuanTri\SuaTacPham::hien();
 $_GET = array();
 wp_set_current_user( 0 );
 $h_tn_co = $xem( $tn_trong );
-kt( 'tục ngữ chỉ cần Ý nghĩa chung: lưu/hiện/sửa được, không tự tạo phần chi tiết hay đổi dữ liệu cũ', $luu_tn['ok'] && str_contains( $h_tn_co, '<h2>Ý nghĩa</h2>' ) && str_contains( $h_tn_co, '[UX-TEST] general meaning 211' ) && ! str_contains( $h_tn_co, 'id="nghia"' ) && str_contains( $h_tn_co_adm, 'Sửa ý nghĩa' ) && ! str_contains( $h_tn_co_adm, 'Sửa ý nghĩa đã có từ trước' ) && null === PhanBai::lay( $tn_trong, 'nghia_bong' ) && 'Nghĩa bóng thử: nhớ ơn người làm ra.' === PhanBai::lay( $tn_ngan, 'nghia_bong' )['chu'] );
+kt( 'tục ngữ chỉ cần Ý nghĩa chung: lưu/hiện (trong khối Nghĩa, D-119)/sửa được, không tự tạo phần chi tiết hay đổi dữ liệu cũ', $luu_tn['ok'] && str_contains( $h_tn_co, 'id="nghia"' ) && str_contains( $h_tn_co, '<p class="y-nghia-chu">[UX-TEST] general meaning 211</p>' ) && ! str_contains( $h_tn_co, 'class="nghia-dong"' ) && str_contains( $h_tn_co_adm, 'Sửa ý nghĩa' ) && ! str_contains( $h_tn_co_adm, 'Sửa ý nghĩa đã có từ trước' ) && null === PhanBai::lay( $tn_trong, 'nghia_bong' ) && 'Nghĩa bóng thử: nhớ ơn người làm ra.' === PhanBai::lay( $tn_ngan, 'nghia_bong' )['chu'] );
 wp_set_current_user( $ai_ql );
 // Câu đố: "Giải thích đáp án" nằm trong khối ẩn "Hiện đáp án", sau đáp án
 $cd_bai = $bai_tl( 'Câu đố giải thích thử', 'cau-do', array( 'Mình tròn thân trắng thử', 'Đố là cái gì thử' ) );
@@ -813,7 +814,7 @@ $loi1 = PhanBai::lay( $tp1, 'loi' );
 wp_set_current_user( 0 );
 $h_khach = $xem( $tp1 );
 wp_set_current_user( $ai_ql );
-kt( 'thêm đối chiếu sách (người điền) mà không đổi lời: lời vẫn là "máy chép"; trang hiện "Đã đối chiếu: Sách mẫu, tr. 12"', ( $kq->get_data()['ok'] ?? false ) && NguoiLam::MAY_CHEP === $loi1['nguoi_lam'] && $sach->ID === ( $loi1['doi_chieu']['ho_so'] ?? 0 ) && str_contains( $h_khach, 'Đã đối chiếu: Sách mẫu, tr. 12' ), $kq->get_data() );
+kt( 'thêm đối chiếu sách (người điền) mà không đổi lời: lời vẫn là "máy chép"; trang hiện "Đã đối chiếu: Sách mẫu, tr. 12"', ( $kq->get_data()['ok'] ?? false ) && NguoiLam::MAY_CHEP === $loi1['nguoi_lam'] && $sach->ID === ( $loi1['doi_chieu']['ho_so'] ?? 0 ) && str_contains( $h_khach, '<b>Đã đối chiếu</b> · Sách mẫu, tr. 12' ), $kq->get_data() );
 $kq = $rest( "/tac-pham/$tp1/phan/loi", array( 'dong' => "Dòng một mẫu\nDòng hai mẫu sửa", 'doi_chieu' => array( 'ho_so' => (string) $sach->ID, 'trang' => '12', 'url' => '' ) ) );
 kt( 'sửa chữ trong lời: người làm thành "người viết"', ( $kq->get_data()['ok'] ?? false ) && NguoiLam::NGUOI_VIET === PhanBai::lay( $tp1, 'loi' )['nguoi_lam'] );
 $viec_sua = (int) ( $kq->get_data()['viec'] ?? 0 );
@@ -873,8 +874,39 @@ kt(
 	&& '' === TacPham::tu_kho_theo_doan( $tp_tk, array_slice( $muc_tk, 0, 7 ) ) && '' === TacPham::tu_kho_theo_doan( array( 'doan' => null ) + $tp_tk, $muc_tk ),
 	$nh_tk
 );
+// Trang bài gọn (D-119): chú thích kiểu sách theo đoạn, đánh số theo lần xuất hiện đầu; chú thích chung thành hàng "Chuyện quanh bài"
+$tp_ve_ct              = (array) \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_post( $mau_id['ve-mau'] ) );
+$tp_ve_ct['loi']       = $dong_tk;
+$tp_ve_ct['doan']      = $tp_tk['doan'];
+$tp_ve_ct['chu_thich'] = array_merge(
+	array_map( static fn( string $t ): array => array( 'tu' => $t, 'giai' => 'Giải nghĩa thử ' . $t ), array( 'ngo', 'tre', 'nua', 'lua', 'mia', 'cau', 'trau', 'rom', 'khong co' ) ),
+	array( array( 'tu' => '', 'giai' => 'Ghi chú chung thử về bài' ) )
+);
+$h_ct_doan = TacPham::hien( $tp_ve_ct );
+$vt_ct     = static fn( string $kim ): int => (int) strpos( $h_ct_doan, $kim );
+kt(
+	'chú thích kiểu sách (D-119): bài chia đoạn có từ 8 mục thì chú thích nằm ngay sau đoạn có lần đầu của từ, thu gọn; số theo thứ tự xuất hiện trong lời; mục không thấy trong lời ở "Chú thích chung"; chú thích không gắn từ thành hàng "Chuyện quanh bài"',
+	2 === substr_count( $h_ct_doan, '<details class="ct-doan"><summary>Chú thích đoạn ' ) && str_contains( $h_ct_doan, '<summary>Chú thích chung · 1</summary>' )
+	&& $vt_ct( 'id="cadao-doan-1"' ) < $vt_ct( '<summary>Chú thích đoạn 1 · 4</summary>' ) && $vt_ct( '<summary>Chú thích đoạn 1 · 4</summary>' ) < $vt_ct( 'id="cadao-doan-2"' )
+	&& str_contains( $h_ct_doan, '<div class="term" id="ct-1" data-so="1"><dt>tre</dt>' ) && str_contains( $h_ct_doan, '<div class="term" id="ct-8" data-so="8"><dt>ngo</dt>' ) && str_contains( $h_ct_doan, '<div class="term"><dt>khong co</dt>' )
+	&& str_contains( $h_ct_doan, '>tre</a><sup class="so-ct" aria-hidden="true">1</sup>' )
+	&& str_contains( $h_ct_doan, '<details class="hang-mo" id="chuyen-quanh-bai"><summary>Chuyện quanh bài</summary>' ) && str_contains( $h_ct_doan, 'Ghi chú chung thử về bài' ) && ! str_contains( $h_ct_doan, '<dt>Chú thích chung</dt>' ),
+	substr( (string) strstr( $h_ct_doan, 'class="ct-doan"' ), 0, 400 )
+);
+$tp_it_ct              = $tp_ve_ct;
+$tp_it_ct['doan']      = null;
+$tp_it_ct['chu_thich'] = array_slice( $tp_ve_ct['chu_thich'], 0, 6 );
+$h_it_ct               = TacPham::hien( $tp_it_ct );
+kt( 'chú thích kiểu sách: bài không chia đoạn hiện 4 mục đầu, phần sau trong "Xem thêm N chú thích"', 4 === substr_count( (string) strstr( $h_it_ct, '<details class="ct-con">', true ), '<div class="term"' ) && str_contains( $h_it_ct, '<details class="ct-con"><summary>Xem thêm 2 chú thích</summary>' ) );
+kt(
+	'tục ngữ câu ngắn hai dòng hiện một dòng (D-119): nối bằng dấu phẩy, vế sau viết thường trừ tên riêng; một hay ba dòng giữ nguyên',
+	array( 'Một chữ nên thầy, một ngày nên nghĩa' ) === TacPham::mot_dong( array( 'Một chữ nên thầy,', 'Một ngày nên nghĩa' ) )
+	&& array( 'Dốt nát tìm thầy, bóng bẩy tìm thợ' ) === TacPham::mot_dong( array( 'Dốt nát tìm thầy', 'Bóng bẩy tìm thợ' ) )
+	&& array( 'Chơi cho lịch mới là chơi, Hà Nội băm sáu phố phường' ) === TacPham::mot_dong( array( 'Chơi cho lịch mới là chơi', 'Hà Nội băm sáu phố phường' ) )
+	&& array( 'Một câu' ) === TacPham::mot_dong( array( 'Một câu' ) ) && 3 === count( TacPham::mot_dong( array( 'A', 'B', 'C' ) ) )
+);
 $h_ve_moi = TacPham::hien( (array) \Phongdao\DichVu\DungTrang\DocBai::tac_pham( get_post( $mau_id['ve-mau'] ) ) );
-kt( 'vè chưa có Ý nghĩa: lời mời gọi là "bài" ("Bài này chưa có lời giải nghĩa. Bạn hiểu bài này thế nào?")', str_contains( $h_ve_moi, 'Bài này chưa có lời giải nghĩa. Bạn hiểu bài này thế nào?' ) && ! str_contains( $h_ve_moi, 'Câu này chưa có lời giải nghĩa' ) );
+kt( 'vè chưa có Ý nghĩa: một dòng "Chưa có giải nghĩa · Góp cách hiểu", không hộp mời lớn (D-119)', str_contains( $h_ve_moi, '<p class="chua-nghia">Chưa có giải nghĩa · <a href="#cach-hieu-form" data-mo-cach-hieu>Góp cách hiểu</a></p>' ) && ! str_contains( $h_ve_moi, 'moi-cach-hieu' ) );
 $ve = $mau_id['ve-mau'];
 wp_set_current_user( 0 );
 $h_ve = $xem( $ve );

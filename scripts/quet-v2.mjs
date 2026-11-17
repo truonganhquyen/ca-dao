@@ -91,14 +91,14 @@ try {
       // khung hình là đo trạng thái không bao giờ hiện trên màn hình.
       const tran = () => doTran(tab);
       const tranLucTai = await tran();
-      // Mỗi câu một dòng: không khối lời nào phải xuống dòng dự phòng, không dòng nào bị gãy
+      // Mỗi câu một dòng: không khối lời nào phải xuống dòng dự phòng, không dòng nào bị gãy (số dòng và số chú thích là dấu chỉ, không tính)
       await tab.evaluate(() => document.fonts.ready);
       await new Promise(ok => setTimeout(ok, 150));
       const tranSau = await tran();
       if (tranLucTai) loi.push(`${duong} (${c.ten}): trang tràn ngang lúc vừa tải ${tranLucTai}`);
       if (tranSau) loi.push(`${duong} (${c.ten}): trang tràn ngang sau khi nạp phông ${tranSau}`);
       const gay = await tab.evaluate(() => {
-        const dong = el => { const s = new Set(); const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); let t; while ((t = w.nextNode())) { if (!t.textContent.trim() || t.parentElement.closest('.ln')) continue; const r = document.createRange(); r.selectNodeContents(t); for (const x of r.getClientRects()) if (x.width > 1) s.add(Math.round((x.top + x.height / 2) / 6)); } return s.size; };
+        const dong = el => { const s = new Set(); const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); let t; while ((t = w.nextNode())) { if (!t.textContent.trim() || t.parentElement.closest('.ln, .so-ct')) continue; const r = document.createRange(); r.selectNodeContents(t); for (const x of r.getClientRects()) if (x.width > 1) s.add(Math.round((x.top + x.height / 2) / 6)); } return s.size; };
         const o = [];
         for (const v of document.querySelectorAll('[data-fit]')) { if (!v.offsetParent) continue; if (v.classList.contains('tran')) { o.push('dự phòng: ' + v.textContent.trim().slice(0, 30)); continue; } for (const l of v.classList.contains('theo-ve') ? v.querySelectorAll('.ve') : v.querySelectorAll('.line')) if (dong(l) > 1) o.push(l.textContent.trim().slice(0, 30)); }
         return o;
