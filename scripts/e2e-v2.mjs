@@ -874,7 +874,8 @@ try {
       await bamDoiTrang(bt, `${form} button[type=submit]`);
       await di(k, bai);
       chac(!(await coChu(k, 'Chủ đề: ' + o.ten)), 'gỡ chủ đề trên trang đọc không được');
-      chac(await coChu(k, 'Ở quê bạn có câu này không? Góp'), 'bài chưa có nơi lưu truyền không mời người đọc góp');
+      // D-119: bài chưa có nơi lưu truyền không còn viên trống; lối "Ở quê nói khác" ở lời mời góp cuối trang
+      chac(!(await coChu(k, 'Nơi lưu truyền:')) && await k.$('#gop a[href*="loai=di_ban"]'), 'bài chưa có nơi lưu truyền: còn viên trống, hoặc lời mời góp thiếu "Ở quê nói khác"');
     });
 
     await thu('Biên tập: sửa lời rồi Hoàn tác', async () => {
@@ -1403,11 +1404,15 @@ try {
       await k.setJavaScriptEnabled(true);
       await di(bt, edit.pathname + edit.search);
     });
-    await thu('Hiểu thêm gọn: 390/1440 px, bàn phím và không JavaScript vẫn mở được form, đủ consent', async () => {
+    // D-119: form cách hiểu ở lời mời góp cuối trang khi bài chưa có bài của bạn đọc (vè mẫu); câu đố không có lối cách hiểu
+    await thu('Góp cách hiểu ở lời mời góp: 390/1440 px, bàn phím và không JavaScript vẫn mở được form, đủ consent; câu đố không có form cách hiểu', async () => {
+      await di(k, MAU.cauDo);
+      chac(!(await k.$('[data-form-cach-hieu]')) && !(await k.$('#cach-hieu-form')) && await k.$('#gop'), 'câu đố vẫn có form cách hiểu, hoặc thiếu lời mời góp');
       for (const width of [390, 1440]) for (const js of [true, false]) {
         await k.setViewport({ width, height: 900 });
         await k.setJavaScriptEnabled(js);
-        await di(k, MAU.cauDo);
+        await di(k, MAU.ve);
+        chac(!(await k.$('#hieu-them')) && await k.$('#gop [data-form-cach-hieu]'), 'bài chưa có bài của bạn đọc mà form cách hiểu không ở lời mời góp');
         chac(await k.$eval('[data-form-cach-hieu]', d => !d.open), 'form trải sẵn khi vừa mở bài');
         const summary = await k.$('[data-form-cach-hieu] > summary');
         await summary.focus(); await k.keyboard.press('Enter');
@@ -1415,7 +1420,7 @@ try {
         chac(await k.$$eval('#cach-hieu-form input[type=checkbox][required]', os => os.length) === 2, 'mở gọn làm mất cam kết hoặc đồng ý giấy phép');
         chac(await k.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `form tràn ngang ${width} px`);
         await k.goto('about:blank'); // mở liên kết trực tiếp từ trang khác, có HTTP response để kiểm
-        await di(k, MAU.cauDo + '#cach-hieu-form');
+        await di(k, MAU.ve + '#cach-hieu-form');
         chac(await k.$eval('[data-form-cach-hieu]', d => d.open) && await k.$eval('#cach-hieu-chu', e => e.getBoundingClientRect().height > 0), 'liên kết trực tiếp không mở form');
       }
       await k.setJavaScriptEnabled(true);
