@@ -18,8 +18,8 @@ final class UuTienDoc {
 		if ( $giai || $chu( 'nghia_den' ) || $chu( 'nghia_bong' ) || $chu( 'hinh_anh' ) || $boi_canh ) {
 			return 2;
 		}
-		foreach ( $phan['chu_thich']['muc'] ?? array() as $m ) {
-			if ( '' !== trim( (string) ( $m['loi_giai'] ?? '' ) ) ) {
+		foreach ( array_merge( $phan['chu_thich']['muc'] ?? array(), $phan['chuyen_quanh']['muc'] ?? array() ) as $m ) {
+			if ( '' !== trim( (string) ( $m['loi_giai'] ?? $m['chu'] ?? '' ) ) ) {
 				return 1;
 			}
 		}

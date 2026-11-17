@@ -118,22 +118,6 @@ final class GopTuLieu {
 	}
 
 	/**
-	 * Cuối trang bài: các lối góp tư liệu, thu gọn mặc định (D-114) — vừa gửi xong hoặc theo liên kết #gop thì mở sẵn. Cảm
-	 * nghĩ, bài cảm nhận, cách hiểu đã duyệt nằm ở tầng Hiểu thêm (HieuThem).
-	 */
-	public static function cuoi_bai( int $bai_id, bool $da_gui ): string {
-		$goc = Ve::url( 'gop' );
-		$h   = '<details class="block tint-xanh gop-cuoi" id="gop"' . ( $da_gui ? ' open' : '' ) . '><summary id="gop-tieu-de">' . Ve::icon( 'pen' ) . 'Bạn muốn góp gì?</summary><div class="detail-body">'
-			. ( $da_gui ? '<div class="notice success" role="status"><strong>Cảm ơn bạn!</strong> Nội dung đã tới người biên soạn; chỉ hiện sau khi được duyệt.</div>' : '' )
-			. '<p class="small muted">Dị bản ở quê bạn, chú thích, lỗi, số trang trong sách — một chi tiết nhỏ cũng giúp trang đọc đầy đủ hơn. Không cần đăng nhập.</p><div class="gop-grid bon">';
-		foreach ( self::LOI as $loai => [ $chu, $icon ] ) {
-			$h .= '<a class="gop-nut" href="' . esc_url( add_query_arg( array( 'loai' => $loai, 'bai' => $bai_id ), $goc ) . '#gop-form' ) . '">' . Ve::icon( $icon ) . '<span>' . esc_html( $chu ) . '</span></a>';
-		}
-		$h .= '</div></div></details>';
-		return $h;
-	}
-
-	/**
 	 * Lời mời góp theo thể loại của trang bài gọn (D-119): thể loại => [câu hỏi (%s: "câu" / "bài"), lối chính]. Lối
 	 * "cach_hieu" là form cách hiểu; "tu_lieu" mở trang Góp để người đọc tự chọn loại. Không thêm loại góp mới.
 	 */

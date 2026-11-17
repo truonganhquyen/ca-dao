@@ -58,7 +58,7 @@ $h202  = TacPham::hien( $tp202 );
 $vi_che202 = strpos( $h202, '<details class="tho-tuc tho-tuc-bai">' );
 $vi_loi202 = strpos( $h202, '[UX-TEST] Dòng cần che' );
 kt( 'thô tục: trang đọc đóng sẵn khối che có đúng lời báo và nút "Hiển thị lời"; lời nằm trong khối, không trước khối', false !== $vi_che202 && false !== $vi_loi202 && $vi_loi202 > $vi_che202 && str_contains( $h202, '<span class="tho-tuc-bao">' . esc_html( Ve::BAO_THO_TUC ) . '</span>' ) && str_contains( $h202, 'Hiển thị lời' ) && 'Bài có từ ngữ thô tục - cân nhắc khi xem.' === Ve::BAO_THO_TUC );
-kt( 'thô tục: tên bài trên trang (tiêu đề, đường dẫn vị trí) trung tính, không lộ tên', str_contains( $h202, '<h1 class="read-title">Ca dao có từ ngữ thô tục</h1>' ) && str_contains( $h202, '<span>Bài có từ ngữ thô tục</span></nav>' ) && false === strpos( substr( $h202, 0, (int) $vi_che202 ), '[UX-TEST] Tên bài cần che' ) );
+kt( 'thô tục: tên bài trên trang (tiêu đề, đường dẫn vị trí) trung tính, không lộ tên', str_contains( $h202, '<h1 class="read-title tho-tuc-ten">Ca dao có từ ngữ thô tục</h1>' ) && str_contains( $h202, '<span>Bài có từ ngữ thô tục</span></nav>' ) && false === strpos( substr( $h202, 0, (int) $vi_che202 ), '[UX-TEST] Tên bài cần che' ) );
 $sua202 = \Phongdao\GiaoTiep\BienTap\CheDoSua::ngu_canh( get_post( $an202 ) );
 $h_sua_doc202 = $sua202 ? TacPham::hien( $tp202, $sua202 ) : '';
 kt( 'thô tục: người biên soạn ở chế độ sửa thấy khối mở sẵn và tên thật', str_contains( $h_sua_doc202, '<details class="tho-tuc tho-tuc-bai" open>' ) && str_contains( $h_sua_doc202, '[UX-TEST] Tên bài cần che' ) );

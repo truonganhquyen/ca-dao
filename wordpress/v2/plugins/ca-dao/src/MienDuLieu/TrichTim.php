@@ -29,6 +29,7 @@ final class TrichTim {
 		}
 		foreach ( array( 'y_nghia', 'nghia_den', 'nghia_bong', 'dung_khi' ) as $p ) { $ds[] = array( 'giải nghĩa', (string) ( $phan[ $p ]['chu'] ?? '' ) ); }
 		foreach ( $phan['chu_thich']['muc'] ?? array() as $m ) { $ds[] = array( 'chú thích', ( $m['tu'] ?? '' ) . ' ' . ( $m['loi_giai'] ?? '' ) ); }
+		foreach ( $phan['chuyen_quanh']['muc'] ?? array() as $m ) { $ds[] = array( 'chuyện quanh bài', ( $m['tieu_de'] ?? '' ) . ' ' . ( $m['chu'] ?? '' ) ); }
 		$tot = -1; $chon = array( 'lời', implode( ' ', array_slice( $phan['loi']['dong'] ?? array(), 0, 2 ) ) );
 		$chuan = $rong ? ChiMuc::khong_dau( ChiMuc::chu( $q ) ) : ChiMuc::chu( $q );
 		foreach ( $ds as $x ) {

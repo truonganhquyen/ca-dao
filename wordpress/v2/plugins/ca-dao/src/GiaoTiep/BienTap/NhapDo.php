@@ -43,7 +43,7 @@ final class NhapDo {
 	/** Chỉ để dựng lại form bị lỗi: tuyệt đối không ghi kết quả này vào phần bài. */
 	public static function de_hien( string $phan, array $vao, ?array $cu ): array {
 		$ra = $cu ?? array();
-		if ( in_array( $phan, array( 'chu_thich', 'di_ban', 'doan' ), true ) ) {
+		if ( in_array( $phan, array( 'chu_thich', 'chuyen_quanh', 'gan_nghia', 'di_ban', 'doan' ), true ) ) {
 			$ra['muc'] = array();
 			foreach ( (array) ( $vao['muc'] ?? array() ) as $k => $m ) {
 				if ( '__i__' === (string) $k || ! is_array( $m ) ) {
@@ -51,7 +51,7 @@ final class NhapDo {
 				}
 				$goc = (string) ( $m['goc'] ?? '' );
 				$hang = '' === $goc ? array() : ( $cu['muc'][ (int) $goc ] ?? array() );
-				foreach ( array( 'tu', 'loi_giai', 'noi', 'nguoi_ke', 'nam', 'tieu_de', 'tu_dong', 'den_dong', 'dinh_dang' ) as $ten ) {
+				foreach ( array( 'tu', 'loi_giai', 'chu', 'cau', 'tac_pham_id', 'quan_he', 'noi', 'nguoi_ke', 'nam', 'tieu_de', 'tu_dong', 'den_dong', 'dinh_dang' ) as $ten ) {
 					if ( isset( $m[ $ten ] ) && is_scalar( $m[ $ten ] ) ) {
 						$hang[ $ten ] = (string) $m[ $ten ];
 					}
@@ -64,6 +64,7 @@ final class NhapDo {
 				}
 				$hang['_goc_form'] = $goc;
 				$hang['xoa'] = ! empty( $m['xoa'] );
+				$hang['chuyen'] = ! empty( $m['chuyen'] );
 				$ra['muc'][] = $hang;
 			}
 			return $ra;

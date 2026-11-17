@@ -31,14 +31,27 @@ final class TamSua {
 		'co_nghi'     => array( 'Cờ "Có thể không phải dân gian"', 'co_nghi' ),
 		'tho_tuc'     => array( 'Từ ngữ thô tục', 'tho_tuc' ),
 		'chu_thich'   => array( 'Sửa từ khó', 'chu_thich' ),
+		'chuyen_quanh' => array( 'Sửa chuyện quanh bài', 'chuyen_quanh' ),
+		'gan_nghia'   => array( 'Câu gần nghĩa · trái nghĩa', 'gan_nghia' ),
 		'di_ban'      => array( 'Sửa dị bản', 'di_ban' ),
 		'boi_canh'    => array( 'Bối cảnh của bài vè', 'boi_canh' ),
 		'doan'        => array( 'Chia đoạn', 'doan' ),
 	);
 
-	/** Tên tấm sửa theo thể loại: giải nghĩa của câu đố là "Giải thích đáp án" (cùng chỗ lưu với Ý nghĩa, D-105). */
+	/**
+	 * Tên tấm sửa theo thể loại: giải nghĩa của câu đố là "Giải thích đáp án" (cùng chỗ lưu với Ý nghĩa, D-105); Chuyện quanh
+	 * bài của tục ngữ gọi là "Nguồn gốc" (D-119).
+	 */
 	public static function ten( string $phan, string $the_loai = '' ): string {
+		if ( 'chuyen_quanh' === $phan && 'tuc-ngu' === $the_loai ) {
+			return 'Sửa nguồn gốc';
+		}
 		return 'y_nghia' === $phan && 'cau-do' === $the_loai ? 'Sửa giải thích đáp án' : (string) ( self::TAM[ $phan ][0] ?? $phan );
+	}
+
+	/** Tên phần Chuyện quanh bài cho người đọc: tục ngữ là "Nguồn gốc". */
+	public static function ten_chuyen_quanh( string $the_loai ): string {
+		return 'tuc-ngu' === $the_loai ? 'Nguồn gốc' : 'Chuyện quanh bài';
 	}
 
 	public static function nhan( string $phan, string $the_loai = '' ): string {
@@ -97,6 +110,8 @@ final class TamSua {
 			'co_nghi'   => self::vung( "s-$phan", 'ly_do', 'Lý do (để trống = gỡ cờ)', (string) ( $cu['ly_do'] ?? '' ) ) . self::nguon( "s-$phan", 'nguon', $cu['nguon'] ?? array(), $ctx ),
 			'tho_tuc'   => self::hop( "s-$phan", 'bat', 'Bài có từ ngữ thô tục', null !== $cu ),
 			'chu_thich' => self::form_ds( $phan, $cu, $ctx ),
+			'chuyen_quanh' => self::form_ds( $phan, $cu, $ctx ),
+			'gan_nghia' => self::form_gan_nghia( $cu, $ctx ),
 			'di_ban'    => self::form_ds( $phan, $cu, $ctx ),
 			'boi_canh'  => self::vung( 's-bc-chu', 'chu', 'Lời giới thiệu', (string) ( $cu['chu'] ?? '' ), 'hiện ngay trên lời', 3, $rich )
 				. '<div class="field-grid">' . self::o( 's-bc-su-kien', 'su_kien', 'Sự kiện', (string) ( $cu['su_kien'] ?? '' ), 'không bắt buộc' ) . self::o( 's-bc-nam', 'nam', 'Năm', (string) ( $cu['nam'] ?? '' ) ) . self::o( 's-bc-noi', 'noi', 'Nơi', (string) ( $cu['noi'] ?? '' ) ) . '</div>'
@@ -158,10 +173,47 @@ final class TamSua {
 			$o .= self::muc( $phan, (string) $i, $m, $ctx );
 		}
 		$mau = self::muc( $phan, '__i__', array(), $ctx );
-		$them = '<button type="button" class="btn" data-action="them-muc">+ Thêm ' . ( 'di_ban' === $phan ? 'dị bản' : 'từ khó' ) . '</button>';
+		$them = '<button type="button" class="btn" data-action="them-muc">+ Thêm ' . ( array( 'di_ban' => 'dị bản', 'chuyen_quanh' => 'mục' )[ $phan ] ?? 'từ khó' ) . '</button>';
+		$dau  = 'chuyen_quanh' === $phan ? '<p class="small muted">Giai thoại, điển tích, chuyện về bài. Chú thích sẵn có chuyển sang ở "Sửa từ khó" (giữ người làm và nguồn của mục).</p>' : '';
 		$loc = ! empty( $ctx['sua_day_du'] ) ? '<div class="phongdao-ds-cong-cu">' . $them . '<label data-chi-js hidden>Lọc mục trong phần này <input type="search" data-loc-hang autocomplete="off"></label><button type="button" class="button" data-mo-hang data-chi-js hidden>Mở tất cả</button><button type="button" class="button" data-gap-hang data-chi-js hidden>Gập tất cả</button></div>' : '';
 		$khong_js = ! empty( $ctx['sua_day_du'] ) ? '<noscript><p>Thêm một mục mới bên dưới rồi lưu; tải lại có thể thêm mục tiếp theo.</p><ol class="ds-sua">' . self::muc( $phan, (string) count( $cu['muc'] ?? array() ), array( '_goc_form' => '' ), $ctx ) . '</ol></noscript>' : '';
-		return $loc . '<ol class="ds-sua" data-ds>' . $o . '</ol><template data-mau>' . $mau . '</template>' . $khong_js . $them;
+		return $dau . $loc . '<ol class="ds-sua" data-ds>' . $o . '</ol><template data-mau>' . $mau . '</template>' . $khong_js . $them;
+	}
+
+	/**
+	 * Câu gần nghĩa · trái nghĩa (D-119): câu đã nối hiện tên và đường dẫn; câu mới dán đường dẫn bài, số bài hoặc tên bài
+	 * đúng từng chữ (cùng cách với màn Tuyển tập). Máy không tự nối. "Ghi cả ở câu kia" thêm chiều ngược lại ở câu tục ngữ kia.
+	 */
+	private static function form_gan_nghia( ?array $cu, array $ctx ): string {
+		$o = '';
+		foreach ( array_values( $cu['muc'] ?? array() ) as $i => $m ) {
+			$o .= self::muc_gan_nghia( (string) $i, $m );
+		}
+		$khong_js = ! empty( $ctx['sua_day_du'] ) ? '<noscript><p>Thêm một câu bên dưới rồi lưu; tải lại có thể thêm câu tiếp theo.</p><ol class="ds-sua">' . self::muc_gan_nghia( (string) count( $cu['muc'] ?? array() ), array() ) . '</ol></noscript>' : '';
+		return '<p class="small muted">Chọn câu gần nghĩa hoặc trái nghĩa với câu này; máy không tự nối. Câu mới: dán đường dẫn bài, số bài, hoặc tên bài đúng từng chữ.</p>'
+			. '<ol class="ds-sua" data-ds>' . $o . '</ol><template data-mau>' . self::muc_gan_nghia( '__i__', array() ) . '</template>' . $khong_js
+			. '<button type="button" class="btn" data-action="them-muc">+ Thêm câu</button>'
+			. self::hop( 's-gn-hai-chieu', 'hai_chieu', 'Ghi cả ở câu kia (hai câu trỏ nhau; bỏ nối chỉ bỏ ở câu này)', true );
+	}
+
+	private static function muc_gan_nghia( string $i, array $m ): string {
+		$p   = "muc[$i]";
+		$id  = 's-gan_nghia-' . $i;
+		$bai = (int) ( $m['tac_pham_id'] ?? 0 );
+		$cau = $bai
+			? '<p class="gn-cau">' . esc_html( (string) get_the_title( $bai ) ) . ' <span class="small muted">· #' . $bai . ( 'publish' === get_post_status( $bai ) ? '' : ' · chưa đăng' ) . '</span></p><input type="hidden" name="' . $p . '[tac_pham_id]" value="' . $bai . '">'
+			: self::o( "$id-cau", $p . '[cau]', 'Câu', (string) ( $m['cau'] ?? '' ), 'đường dẫn, số bài hoặc tên bài' );
+		return '<li class="muc-sua">' . $cau
+			. self::chon_chu( "$id-qh", $p . '[quan_he]', 'Quan hệ', array( 'gan' => 'Gần nghĩa', 'trai' => 'Trái nghĩa' ), (string) ( $m['quan_he'] ?? 'gan' ) )
+			. ( $bai ? self::hop( "$id-xoa", $p . '[xoa]', 'Bỏ nối câu này', ! empty( $m['xoa'] ) ) : '' ) . '</li>';
+	}
+
+	private static function chon_chu( string $id, string $ten, string $nhan, array $ds, string $chon ): string {
+		$o = '';
+		foreach ( $ds as $gt => $chu ) {
+			$o .= '<option value="' . esc_attr( (string) $gt ) . '"' . selected( (string) $gt, $chon, false ) . '>' . esc_html( $chu ) . '</option>';
+		}
+		return '<div class="o-nhap"><label for="' . esc_attr( $id ) . '">' . esc_html( $nhan ) . '</label><select id="' . esc_attr( $id ) . '" name="' . esc_attr( $ten ) . '">' . $o . '</select></div>';
 	}
 
 	private static function muc( string $phan, string $i, array $m, array $ctx ): string {
@@ -169,17 +221,39 @@ final class TamSua {
 		$id    = 's-' . $phan . '-' . $i;
 		$goc   = (string) ( $m['_goc_form'] ?? ( '__i__' === $i ? '' : $i ) );
 		$nguoi = isset( $m['nguoi_lam'] ) ? array( NguoiLam::MAY_CHEP => 'máy chép', NguoiLam::NGUOI_VIET => 'người viết', NguoiLam::DOC_GIA_GOP => 'người đọc góp' )[ $m['nguoi_lam'] ] ?? '' : '';
-		$than  = 'di_ban' === $phan
-			? self::vung( "$id-dong", $p . '[dong]', 'Lời', implode( "\n", $m['dong'] ?? array() ), '', 4 )
-				. '<div class="field-grid">' . self::o( "$id-noi", $p . '[noi]', 'Nơi', (string) ( $m['noi'] ?? '' ), 'không bắt buộc' ) . self::o( "$id-ke", $p . '[nguoi_ke]', 'Người kể', (string) ( $m['nguoi_ke'] ?? '' ), 'cần đồng ý' ) . self::o( "$id-nam", $p . '[nam]', 'Năm', (string) ( $m['nam'] ?? '' ) ) . '</div>'
-			: '<div class="field-grid">' . self::o( "$id-tu", $p . '[tu]', 'Từ trong lời', (string) ( $m['tu'] ?? '' ), 'để trống = chú thích chung' ) . '</div>'
-				. ( ! empty( $ctx['sua_day_du'] ) ? \Phongdao\GiaoTiep\QuanTri\EditorDonGian::o( "$id-giai", $p . '[loi_giai]', 'Lời giải', $m, 'loi_giai', $p ) : self::vung( "$id-giai", $p . '[loi_giai]', 'Lời giải', (string) ( $m['loi_giai'] ?? '' ), '', 3 ) );
-		$tom = 'di_ban' === $phan ? implode( ' ', $m['dong'] ?? array() ) : ( (string) ( $m['tu'] ?? '' ) ?: 'Chú thích chung' ) . ' · ' . (string) ( $m['loi_giai'] ?? '' );
+		$than  = match ( $phan ) {
+			'di_ban'       => self::vung( "$id-dong", $p . '[dong]', 'Lời', implode( "\n", $m['dong'] ?? array() ), '', 4 )
+				. '<div class="field-grid">' . self::o( "$id-noi", $p . '[noi]', 'Nơi', (string) ( $m['noi'] ?? '' ), 'không bắt buộc' ) . self::o( "$id-ke", $p . '[nguoi_ke]', 'Người kể', (string) ( $m['nguoi_ke'] ?? '' ), 'cần đồng ý' ) . self::o( "$id-nam", $p . '[nam]', 'Năm', (string) ( $m['nam'] ?? '' ) ) . '</div>',
+			'chuyen_quanh' => '<div class="field-grid">' . self::o( "$id-ten", $p . '[tieu_de]', 'Tên chuyện', (string) ( $m['tieu_de'] ?? '' ), 'không bắt buộc; vd. tên điển tích' ) . '</div>'
+				. ( ! empty( $ctx['sua_day_du'] ) ? \Phongdao\GiaoTiep\QuanTri\EditorDonGian::o( "$id-chu", $p . '[chu]', 'Nội dung', $m, 'chu', $p ) : self::vung( "$id-chu", $p . '[chu]', 'Nội dung', (string) ( $m['chu'] ?? '' ), '', 4 ) ),
+			default        => '<div class="field-grid">' . self::o( "$id-tu", $p . '[tu]', 'Từ trong lời', (string) ( $m['tu'] ?? '' ), 'để trống = chú thích chung' ) . '</div>'
+				. ( ! empty( $ctx['sua_day_du'] ) ? \Phongdao\GiaoTiep\QuanTri\EditorDonGian::o( "$id-giai", $p . '[loi_giai]', 'Lời giải', $m, 'loi_giai', $p ) : self::vung( "$id-giai", $p . '[loi_giai]', 'Lời giải', (string) ( $m['loi_giai'] ?? '' ), '', 3 ) )
+				. ( '' === $goc ? '' : self::chuyen( $id, $p, $m, $ctx ) ),
+		};
+		$tom = match ( $phan ) {
+			'di_ban'       => implode( ' ', $m['dong'] ?? array() ),
+			'chuyen_quanh' => ( (string) ( $m['tieu_de'] ?? '' ) ?: 'Chuyện' ) . ' · ' . (string) ( $m['chu'] ?? '' ),
+			default        => ( (string) ( $m['tu'] ?? '' ) ?: 'Chú thích chung' ) . ' · ' . (string) ( $m['loi_giai'] ?? '' ),
+		};
 		$gon = ! empty( $ctx['sua_day_du'] );
 		return '<li class="muc-sua" id="hang-' . esc_attr( $id ) . '">' . ( $gon ? '<details class="phongdao-muc-gon"' . ( ! $m || ! empty( $ctx['form_loi'] ) ? ' open' : '' ) . '><summary><span data-tom-tat-muc>' . esc_html( $tom ? mb_strimwidth( $tom, 0, 120, '…' ) : 'Mục mới · nhập nội dung' ) . '</span></summary><div class="phongdao-muc-than">' : '' ) . '<input type="hidden" name="' . $p . '[goc]" value="' . esc_attr( $goc ) . '">'
 			. ( '' === $nguoi ? '' : '<p class="small muted">' . esc_html( 'Hiện: ' . $nguoi ) . '</p>' )
 			. $than . self::nguon( $id, $p . '[nguon]', $m['nguon'] ?? array(), $ctx )
 			. self::hop( "$id-xoa", $p . '[xoa]', 'Xoá mục này', ! empty( $m['xoa'] ) ) . ( $gon ? '</div></details>' : '' ) . '</li>';
+	}
+
+	/**
+	 * Ô "Chuyển sang Chuyện quanh bài" (tục ngữ: Nguồn gốc) của một mục từ khó đã lưu (D-119). Mục chung (không gắn từ) hay
+	 * mục trùng cả câu tục ngữ thì máy ghi một dòng gợi ý; người đánh dấu mới chuyển, máy không tự chuyển chữ giữa các phần.
+	 */
+	private static function chuyen( string $id, string $p, array $m, array $ctx ): string {
+		$the_loai = (string) ( $ctx['the_loai'] ?? '' );
+		$ten      = self::ten_chuyen_quanh( $the_loai );
+		$tu       = trim( (string) ( $m['tu'] ?? '' ) );
+		$ca_cau   = \Phongdao\GiaoTiep\Khoi\Ve::khoa_cum( implode( ' ', (array) ( $ctx['phan']['loi']['dong'] ?? array() ) ) );
+		$goi_y    = '' === $tu ? 'mục chung, không gắn từ nào trong lời' : ( 'tuc-ngu' === $the_loai && '' !== $ca_cau && \Phongdao\GiaoTiep\Khoi\Ve::khoa_cum( $tu ) === $ca_cau ? 'mục trùng cả câu, có thể là điển tích' : '' );
+		return ( '' === $goi_y ? '' : '<p class="small muted goi-y-chuyen">' . esc_html( 'Máy gợi ý: ' . $goi_y . '. Chuyển sang ' . $ten . ' nếu đúng.' ) . '</p>' )
+			. self::hop( "$id-chuyen", $p . '[chuyen]', 'Chuyển sang ' . $ten . ' khi lưu (giữ người làm và nguồn)', ! empty( $m['chuyen'] ) );
 	}
 
 	/** Nguồn của một mục: hồ sơ nguồn, trang, đường dẫn — trống = chưa rõ (không điền sẵn gì). */
@@ -312,8 +386,38 @@ final class TamSua {
 				// Không có ô "bat" = tắt (gỡ phần); bật giữ nguyên bản cũ để lần bấm lại không ghi lịch sử giả
 				return array( 'gia_tri' => empty( $f['bat'] ) ? null : ( $cu ?? array( 'nguoi_lam' => NguoiLam::NGUOI_VIET ) ), 'nhap' => null );
 			case 'chu_thich':
+				$chuyen = array();
+				return array( 'gia_tri' => self::doc_ds( $phan, (array) ( $f['muc'] ?? array() ), $cu, $chuyen ), 'nhap' => null, 'chuyen' => array_map( array( self::class, 'sang_chuyen_quanh' ), $chuyen ) );
+			case 'chuyen_quanh':
 			case 'di_ban':
 				return array( 'gia_tri' => self::doc_ds( $phan, (array) ( $f['muc'] ?? array() ), $cu ), 'nhap' => null );
+			case 'gan_nghia':
+				$ra    = array();
+				$thay  = array();
+				$khong = array();
+				foreach ( (array) ( $f['muc'] ?? array() ) as $k => $h ) {
+					if ( '__i__' === (string) $k || ! is_array( $h ) || ! empty( $h['xoa'] ) ) {
+						continue;
+					}
+					$bai = absint( $h['tac_pham_id'] ?? 0 );
+					if ( ! $bai ) {
+						$dong = $chu( $h['cau'] ?? '' );
+						if ( '' === $dong ) {
+							continue;
+						}
+						$bai = (int) \Phongdao\GiaoTiep\QuanTri\SuaTuyenTap::tim_bai( $dong );
+						if ( ! $bai ) {
+							$khong[] = $dong;
+							continue;
+						}
+					}
+					if ( isset( $thay[ $bai ] ) ) {
+						continue;
+					}
+					$thay[ $bai ] = true;
+					$ra[]         = array( 'tac_pham_id' => $bai, 'quan_he' => 'trai' === ( $h['quan_he'] ?? '' ) ? 'trai' : 'gan' );
+				}
+				return array( 'gia_tri' => $ra ?: null, 'nhap' => null, 'khong_thay' => $khong );
 			case 'boi_canh':
 				$v = array_filter( array( 'chu' => $chu( $f['chu'] ?? '' ), 'su_kien' => $chu( $f['su_kien'] ?? '' ), 'nam' => $chu( $f['nam'] ?? '' ), 'noi' => $chu( $f['noi'] ?? '' ) ), 'strlen' );
 				if ( ! $v ) {
@@ -339,7 +443,25 @@ final class TamSua {
 		return array( 'gia_tri' => $cu, 'nhap' => null );
 	}
 
-	private static function doc_ds( string $phan, array $hang, ?array $cu ): ?array {
+	/**
+	 * Mục từ khó → mục Chuyện quanh bài (D-119): từ thành tên chuyện, lời giải thành nội dung (kèm định dạng); người làm và
+	 * nguồn của mục giữ nguyên. Liên kết Từ điển, vị trí trong lời không áp dụng nên bỏ.
+	 */
+	public static function sang_chuyen_quanh( array $c ): array {
+		return array_filter(
+			array(
+				'tieu_de'   => trim( (string) ( $c['tu'] ?? '' ) ),
+				'chu'       => (string) ( $c['loi_giai'] ?? '' ),
+				'dinh_dang' => $c['dinh_dang'] ?? null,
+				'nguoi_lam' => (string) ( $c['nguoi_lam'] ?? NguoiLam::NGUOI_VIET ),
+				'nguon'     => $c['nguon'] ?? null,
+			),
+			static fn( $v ): bool => null !== $v && '' !== $v && array() !== $v
+		);
+	}
+
+	/** @param list<array> $chuyen (từ khó) mục người đánh dấu "Chuyển sang Chuyện quanh bài": không giữ ở phần này, trả ra đây */
+	private static function doc_ds( string $phan, array $hang, ?array $cu, array &$chuyen = array() ): ?array {
 		$cu_muc = array_values( $cu['muc'] ?? array() );
 		$ra     = array();
 		foreach ( $hang as $k => $h ) {
@@ -362,6 +484,13 @@ final class TamSua {
 				}
 				$moi = array_filter( array( 'dong' => $dong, 'noi' => trim( (string) ( $h['noi'] ?? '' ) ), 'nguoi_ke' => trim( (string) ( $h['nguoi_ke'] ?? '' ) ), 'nam' => trim( (string) ( $h['nam'] ?? '' ) ), 'nguon' => $nguon ) );
 				$so  = array_filter( array( 'dong' => array_values( array_filter( array_map( 'trim', $goc['dong'] ?? array() ), 'strlen' ) ), 'noi' => $goc['noi'] ?? '', 'nguoi_ke' => $goc['nguoi_ke'] ?? '', 'nam' => $goc['nam'] ?? '', 'nguon' => $goc_so['nguon'] ?? null ) );
+			} elseif ( 'chuyen_quanh' === $phan ) {
+				$noi = trim( str_replace( "\r", '', (string) ( $h['chu'] ?? '' ) ) );
+				if ( '' === $noi ) {
+					continue;
+				}
+				$moi = array_filter( array( 'tieu_de' => trim( (string) ( $h['tieu_de'] ?? '' ) ), 'chu' => $noi, 'nguon' => $nguon ) );
+				$so  = array_filter( array( 'tieu_de' => trim( (string) ( $goc['tieu_de'] ?? '' ) ), 'chu' => trim( (string) ( $goc['chu'] ?? '' ) ), 'nguon' => $goc_so['nguon'] ?? null ) );
 			} else {
 				$giai = trim( str_replace( "\r", '', (string) ( $h['loi_giai'] ?? '' ) ) );
 				if ( '' === $giai ) {
@@ -371,13 +500,18 @@ final class TamSua {
 				$so  = array_filter( array( 'tu' => trim( (string) ( $goc['tu'] ?? '' ) ), 'loi_giai' => trim( (string) ( $goc['loi_giai'] ?? '' ) ), 'nguon' => $goc_so['nguon'] ?? null ) );
 			}
 			// Không đổi gì → giữ nguyên mục cũ (máy chép giữ người làm, nguồn); đổi → người viết
-			$ra[] = $goc && $moi == $so ? $goc : $moi + array( 'nguoi_lam' => NguoiLam::NGUOI_VIET );
-			if ( 'chu_thich' === $phan ) {
-				$last = array_key_last( $ra );
-				unset( $ra[ $last ]['dinh_dang'] );
-				$rich = \Phongdao\GiaoTiep\QuanTri\EditorDonGian::doc( $h, $goc, 'loi_giai' );
-				if ( null !== $rich ) { $ra[ $last ]['dinh_dang'] = $rich; }
+			$muc = $goc && $moi == $so ? $goc : $moi + array( 'nguoi_lam' => NguoiLam::NGUOI_VIET ); // phpcs:ignore Universal.Operators.StrictComparisons -- thứ tự khoá không quan trọng
+			if ( 'chu_thich' === $phan || 'chuyen_quanh' === $phan ) {
+				$truong = 'chu_thich' === $phan ? 'loi_giai' : 'chu';
+				unset( $muc['dinh_dang'] );
+				$rich = \Phongdao\GiaoTiep\QuanTri\EditorDonGian::doc( $h, $goc, $truong );
+				if ( null !== $rich ) { $muc['dinh_dang'] = $rich; }
 			}
+			if ( 'chu_thich' === $phan && $goc && ! empty( $h['chuyen'] ) ) {
+				$chuyen[] = $muc; // người đánh dấu chuyển: mục rời Từ khó, sang Chuyện quanh bài (Module::doc_va_luu ghi)
+				continue;
+			}
+			$ra[] = $muc;
 		}
 		return $ra ?: null;
 	}

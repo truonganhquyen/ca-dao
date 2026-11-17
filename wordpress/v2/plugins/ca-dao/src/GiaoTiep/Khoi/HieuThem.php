@@ -28,9 +28,9 @@ final class HieuThem {
 
 	/**
 	 * @param array{gui?:string,ma?:string}    $bao lời báo sau khi gửi cách hiểu (đã gửi / mã lỗi)
-	 * @param array{gon?:bool,cach_hieu?:bool} $tuy gon: trang bài gọn (D-119) — chưa có bài nào của bạn đọc thì trả '' (form
-	 *                                              cách hiểu nằm ở lời mời góp cuối trang, GopTuLieu::moi_gon); cach_hieu =
-	 *                                              false: bỏ phần Cách hiểu (câu đố)
+	 * @param array{gon?:bool,cach_hieu?:bool} $tuy cach_hieu = false: bỏ phần Cách hiểu (câu đố). Chưa có bài nào của bạn đọc
+	 *                                              thì trả '' — form cách hiểu nằm ở lời mời góp cuối trang (D-119,
+	 *                                              GopTuLieu::moi_gon); gon giữ cho lối gọi cũ, không còn đổi gì
 	 */
 	public static function hien( int $bai_id, array $tp, array $bao = array(), array $tuy = array() ): string {
 		$goc  = Ve::url( 'gop' );
@@ -46,21 +46,12 @@ final class HieuThem {
 		if ( false === ( $tuy['cach_hieu'] ?? true ) ) {
 			unset( $so['cach_hieu'], $cac['cach_hieu'] );
 		}
-		if ( ! empty( $tuy['gon'] ) && ! array_sum( $so ) ) {
+		if ( ! array_sum( $so ) ) {
 			return '';
 		}
 		$danh = self::danh( $tp );
 		$ghi  = self::GHI;
 		$form = '<details class="disclosure" data-form-cach-hieu' . ( empty( $bao['gui'] ) ? '' : ' open' ) . '><summary>Chia sẻ cách hiểu</summary><div class="detail-body">' . self::form( $bai_id, $bao, $danh ) . '</div></details>';
-
-		// Cả ba phần đều trống (D-114): một dòng mời gọn thay ba thẻ "0"; giữ id cũ (#cach-hieu, #cach-hieu-form, #cam-nhan,
-		// #cam-nghi) để lời mời dưới lời, đường dẫn sau khi gửi và liên kết cũ vẫn tới đúng chỗ
-		if ( ! array_sum( $so ) ) {
-			return '<section class="tang ht-gon" id="hieu-them" aria-labelledby="hieu-them-tieu-de"><h2 class="tang-dau" id="hieu-them-tieu-de">Hiểu thêm</h2>'
-				. '<p class="small">Chưa có cách hiểu, bài cảm nhận hay cảm nghĩ nào của bạn đọc về ' . esc_html( $danh ) . ' này.</p>'
-				. '<div id="cach-hieu">' . str_replace( '<div class="detail-body">', '<div class="detail-body">' . $ghi, $form ) . '</div>'
-				. '<p class="ht-viet hai"><span id="cam-nhan">' . $nut( 'phan_tich', 'Viết cảm nhận', 'pen' ) . '</span> <span id="cam-nghi">' . $nut( 'cam_nghi', 'Viết cảm nghĩ', 'heart' ) . '</span></p></section>';
-		}
 
 		// Cách hiểu của bạn đọc
 		$o = $ghi;

@@ -97,8 +97,8 @@ final class Module implements \Phongdao\HaTang\Module {
 		$in   = implode( ',', array_fill( 0, count( $khoa ), '%s' ) );
 		$ids  = $wpdb->get_col(
 			$wpdb->prepare(
-				"SELECT DISTINCT m.post_id FROM {$wpdb->postmeta} m JOIN {$wpdb->posts} p ON p.ID = m.post_id WHERE p.post_type = %s AND p.post_status = 'publish' AND p.post_password = '' AND ( m.meta_key IN ($in) OR ( m.meta_key = %s AND m.meta_value LIKE %s ) OR ( m.meta_key = %s AND ( m.meta_value LIKE %s OR m.meta_value LIKE %s ) ) OR ( m.meta_key = %s AND m.meta_value LIKE %s ) )", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $in chỉ là dãy %s
-				array_merge( array( KhaiBao::TAC_PHAM ), $khoa, array( Phan::khoa( 'chu_thich' ), '%' . $wpdb->esc_like( NguoiLam::NGUOI_VIET ) . '%', Phan::khoa( 'di_ban' ), '%' . $wpdb->esc_like( NguoiLam::NGUOI_VIET ) . '%', '%' . $wpdb->esc_like( NguoiLam::DOC_GIA_GOP ) . '%', Phan::khoa( 'loi' ), '%' . $wpdb->esc_like( 'doi_chieu' ) . '%' ) )
+				"SELECT DISTINCT m.post_id FROM {$wpdb->postmeta} m JOIN {$wpdb->posts} p ON p.ID = m.post_id WHERE p.post_type = %s AND p.post_status = 'publish' AND p.post_password = '' AND ( m.meta_key IN ($in) OR ( m.meta_key IN ( %s, %s ) AND m.meta_value LIKE %s ) OR ( m.meta_key = %s AND ( m.meta_value LIKE %s OR m.meta_value LIKE %s ) ) OR ( m.meta_key = %s AND m.meta_value LIKE %s ) )", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $in chỉ là dãy %s
+				array_merge( array( KhaiBao::TAC_PHAM ), $khoa, array( Phan::khoa( 'chu_thich' ), Phan::khoa( 'chuyen_quanh' ), '%' . $wpdb->esc_like( NguoiLam::NGUOI_VIET ) . '%', Phan::khoa( 'di_ban' ), '%' . $wpdb->esc_like( NguoiLam::NGUOI_VIET ) . '%', '%' . $wpdb->esc_like( NguoiLam::DOC_GIA_GOP ) . '%', Phan::khoa( 'loi' ), '%' . $wpdb->esc_like( 'doi_chieu' ) . '%' ) )
 			)
 		) ?: array();
 		$ra = array_values( array_filter( array_map( 'intval', $ids ), static fn( int $id ): bool => PhanRieng::co( PhanBai::tat_ca( $id, KhaiBao::TAC_PHAM ) ) ) );

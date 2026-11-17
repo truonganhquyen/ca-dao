@@ -4,7 +4,7 @@ namespace Phongdao\MienDuLieu;
 
 /**
  * "Phần riêng" của một tác phẩm (D-117): phần thư viện tự làm thêm ngoài lời lấy về — Ý nghĩa (câu đố: giải thích đáp án),
- * nghĩa tục ngữ, Dùng khi, Hình ảnh trong bài, Bối cảnh, Gợi ý câu đố, chú thích do người biên soạn viết, dị bản người viết
+ * nghĩa tục ngữ, Dùng khi, Hình ảnh trong bài, Bối cảnh, Gợi ý câu đố, chú thích và chuyện quanh bài do người biên soạn viết, dị bản người viết
  * hoặc bạn đọc góp, đối chiếu sách, ảnh hay bản thu người thật, câu SGK. Không tính: lời, đáp án, câu hỏi, và mọi phần máy
  * chép từ nguồn (chú thích, dị bản, nghĩa Wiktionary) — đó vẫn là nội dung của nơi khác. Chỉ bài có phần riêng mới được lập
  * chỉ mục khi mở Google, để thư viện không thành bản sao hàng loạt của nguồn. PHP thuần.
@@ -15,7 +15,7 @@ final class PhanRieng {
 	public const MOT = array( 'y_nghia', 'nghia_den', 'nghia_bong', 'dung_khi', 'hinh_anh', 'boi_canh', 'goi_y' );
 
 	/** Phần danh sách: có ít nhất một mục không phải máy chép (media: ảnh, giọng người — không tính giọng máy). */
-	public const DS = array( 'chu_thich', 'di_ban', 'media', 'sgk' );
+	public const DS = array( 'chu_thich', 'chuyen_quanh', 'di_ban', 'media', 'sgk' );
 
 	/** Tên hiện cho người biên soạn. */
 	public const TEN = array(
@@ -27,6 +27,7 @@ final class PhanRieng {
 		'boi_canh'  => 'Bối cảnh',
 		'goi_y'     => 'Gợi ý',
 		'chu_thich' => 'chú thích người viết',
+		'chuyen_quanh' => 'chuyện quanh bài người viết',
 		'di_ban'    => 'dị bản người viết / bạn đọc góp',
 		'media'     => 'ảnh, bản thu',
 		'sgk'       => 'câu SGK',

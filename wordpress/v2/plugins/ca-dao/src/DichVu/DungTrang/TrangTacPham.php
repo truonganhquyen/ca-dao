@@ -48,6 +48,21 @@ final class TrangTacPham {
 			);
 		}
 
+		// Chuyện quanh bài (D-119): cùng dạng mục chú thích để vẽ chung; nguồn máy chép ẩn, nguồn người viết hiện như chú thích
+		$chuyen_quanh = array();
+		foreach ( $phan['chuyen_quanh']['muc'] ?? array() as $c ) {
+			$may            = NguoiLam::MAY_CHEP === ( $c['nguoi_lam'] ?? '' );
+			$chuyen_quanh[] = array(
+				'tu'        => '',
+				'tieu_de'   => (string) ( $c['tieu_de'] ?? '' ),
+				'giai'      => (string) ( $c['chu'] ?? '' ),
+				'dinh_dang' => (string) ( $c['dinh_dang'] ?? '' ),
+				'muc'       => null,
+				'may'       => $may,
+				'nguon'     => $may ? null : self::nguon( $c['nguon'] ?? null, $ho_so ),
+			);
+		}
+
 		$di_ban = array();
 		foreach ( $phan['di_ban']['muc'] ?? array() as $d ) {
 			$loi_db   = array_values( array_filter( $d['dong'] ?? array(), static fn( $x ): bool => '' !== $x ) );
@@ -76,6 +91,9 @@ final class TrangTacPham {
 			'y_nghia'      => empty( $phan['y_nghia']['chu'] ) ? array() : array( 'chu' => $phan['y_nghia']['chu'], 'ai' => ! empty( $phan['y_nghia']['ai'] ) ),
 			'dinh_dang'    => array_filter( array_map( static fn( string $p ): string => (string) ( $phan[ $p ]['dinh_dang'] ?? '' ), array_combine( \Phongdao\MienDuLieu\DinhDang::PHAN, \Phongdao\MienDuLieu\DinhDang::PHAN ) ) ),
 			'chu_thich'    => $chu_thich,
+			'chuyen_quanh' => $chuyen_quanh,
+			// Câu gần nghĩa · trái nghĩa: ID và quan hệ; DocBai đổi thành câu đã đăng kèm đường dẫn
+			'gan_nghia'    => array_values( array_map( static fn( array $m ): array => array( 'id' => (int) ( $m['tac_pham_id'] ?? 0 ), 'quan_he' => 'trai' === ( $m['quan_he'] ?? '' ) ? 'trai' : 'gan' ), $phan['gan_nghia']['muc'] ?? array() ) ),
 			'di_ban'       => $di_ban,
 			'nghia_den'    => (string) ( $phan['nghia_den']['chu'] ?? '' ),
 			'nghia_bong'   => (string) ( $phan['nghia_bong']['chu'] ?? '' ),

@@ -137,9 +137,10 @@ Mỗi phần (hoặc mỗi mục trong phần dạng danh sách) mang:
 | `y_nghia` | `{chu, ai, duyet_boi, duyet_luc}` — 2–3 câu; tên hiển thị "Ý nghĩa" (trước gọi `hieu_nhanh`) | mọi | `nguoi_viet`, `ai_da_duyet` |
 | `nghia_den`, `nghia_bong`, `dung_khi` | `{chu, ai}` | tục ngữ – thành ngữ | `nguoi_viet`, `ai_da_duyet`, `may_chep` (Wiktionary, CC BY-SA) |
 | `hinh_anh` | `{chu, ai}` — mỗi dòng "hình ảnh → điều được nói tới" | ca dao, đồng dao | `nguoi_viet`, `ai_da_duyet` (D-105; máy không chép) |
-| `gan_nghia` | danh sách `{tac_pham_id, quan_he: gan / trai}` | tục ngữ – thành ngữ | `nguoi_viet` |
+| `gan_nghia` | danh sách `{tac_pham_id, quan_he: gan / trai}` — câu gần nghĩa · trái nghĩa người biên soạn chọn (D-119; dán đường dẫn, số bài hoặc tên bài; "Ghi cả ở câu kia" thêm chiều ngược lại ở câu tục ngữ kia); trang đọc chỉ hiện câu đã đăng, không có từ ngữ thô tục | tục ngữ – thành ngữ | không ghi người làm (người chọn; máy không tự nối) |
 | `giai_sach` | `{chu}` (chính tả xưa) | mọi | `may_chep` (sách hết bản quyền) |
 | `chu_thich` | danh sách `{tu?, loi_giai, muc_tu_id?, vi_tri?}` | mọi | `may_chep`, `nguoi_viet` |
+| `chuyen_quanh` | danh sách `{tieu_de?, chu}` — Chuyện quanh bài (tục ngữ: Nguồn gốc): giai thoại, điển tích (D-119). Người viết, hoặc người đánh dấu "Chuyển sang Chuyện quanh bài" ở một mục từ khó: mục rời `chu_thich`, sang đây cùng một lượt lưu, giữ người làm và nguồn; máy chỉ gợi ý (mục chung, mục trùng cả câu tục ngữ), không tự chuyển | mọi | `may_chep` (chỉ khi chuyển mục máy chép), `nguoi_viet` |
 | `cau_hoi` | `{chu}` — dòng hỏi nguồn tách khỏi lời ("Là cái gì?") | câu đố | `may_chep`, `nguoi_viet` |
 | `dap_an` | `{chu}` | câu đố | `may_chep`, `nguoi_viet` |
 | `goi_y` | `{chu, ai}` | câu đố | `nguoi_viet`, `ai_da_duyet` |

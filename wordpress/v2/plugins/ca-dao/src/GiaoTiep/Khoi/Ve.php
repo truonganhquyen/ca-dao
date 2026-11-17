@@ -328,10 +328,6 @@ final class Ve {
 		return '<button type="button" class="nut-chep no-print" data-action="copy-loi" data-url="' . esc_url( $url ) . '"' . ( '' === $the_loai ? '' : ' data-the-loai="' . esc_attr( $the_loai ) . '"' ) . ' aria-label="Sao chép lời kèm đường dẫn bài" title="Sao chép lời kèm đường dẫn bài">' . self::icon( 'copy' ) . '<span class="nhan">Sao chép</span></button>';
 	}
 
-	public static function the_loi( string $than, string $url, string $nhan = 'Lời', string $aria = 'Lời và ý nghĩa', string $nut = '' ): string {
-		return '<section class="verse-card' . ( '' === $nut ? '' : ' dang-sua' ) . '" aria-label="' . esc_attr( $aria ) . '"><div class="the-dau">' . ( '' === $nhan ? '' : '<span class="eyebrow">' . esc_html( $nhan ) . '</span>' ) . '<span class="row">' . $nut . self::nut_nghe() . self::nut_chep( $url ) . '</span></div>' . $than . '</section>';
-	}
-
 	/** Nút Nghe giọng máy (D-095): doc.js chỉ cho hiện khi máy người đọc có giọng tiếng Việt; không tự phát. */
 	public static function nut_nghe(): string {
 		return '<button type="button" class="nut-chep no-print" data-action="nghe" aria-pressed="false" hidden aria-label="Nghe lời bằng giọng đọc có sẵn trên máy" title="Nghe lời bằng giọng đọc có sẵn trên máy">' . self::icon( 'nghe' ) . '<span class="nhan">Nghe</span></button>';
@@ -364,16 +360,6 @@ final class Ve {
 			. '<p class="rail-note chi-rong">Lời luôn giữ mỗi câu một dòng; cỡ lớn tự co cho vừa màn hình.</p></div></aside>';
 	}
 
-	/** @param array<int,array{0:string,1?:bool,2?:string}> $nhan [chữ, nhạt?, đường dẫn trong trang?] */
-	public static function nhan_dau( array $nhan ): string {
-		$html = '<div class="pills">';
-		foreach ( $nhan as $n ) {
-			$lop   = 'tag-pill' . ( empty( $n[1] ) ? '' : ' plain' );
-			$html .= empty( $n[2] ) ? '<span class="' . $lop . '">' . esc_html( $n[0] ) . '</span>' : '<a class="' . $lop . '" href="' . esc_attr( $n[2] ) . '">' . esc_html( $n[0] ) . '</a>';
-		}
-		return $html . '</div>';
-	}
-
 	/** Số liệu dưới tiêu đề, chỉ khi đủ ngưỡng (D-069): đọc ≥ 10, chia sẻ và trích dẫn ≥ 3. */
 	public static function so_lieu( array $s ): string {
 		$o = array();
@@ -387,15 +373,6 @@ final class Ve {
 			$o[] = self::icon( 'quote' ) . (int) $s['trich'] . ' trích dẫn';
 		}
 		return implode( '', array_map( static fn( string $x ): string => '<span>' . $x . '</span>', $o ) );
-	}
-
-	public static function khoi( string $tieu_de, string $than, string $lop = '', string $id = '', string $nut = '' ): string {
-		$dau = '<h2>' . esc_html( $tieu_de ) . '</h2>';
-		return '<section class="block ' . esc_attr( $lop ) . '"' . ( $id ? ' id="' . esc_attr( $id ) . '"' : '' ) . '>' . ( '' === $nut ? $dau : '<div class="block-dau">' . $dau . $nut . '</div>' ) . $than . '</section>';
-	}
-
-	public static function khoi_gon( string $tieu_de, string $than, string $id, string $mau ): string {
-		return '<details class="block tint-' . esc_attr( $mau ) . '" id="' . esc_attr( $id ) . '"><summary>' . $tieu_de . '</summary><div class="detail-body">' . $than . '</div></details>';
 	}
 
 	/** Lời báo của bài có từ ngữ thô tục (D-111), đúng chữ người sáng lập chốt. */
