@@ -65,7 +65,7 @@ final class TrangChu {
 		}
 		// "Bạn là" chỉ đổi thứ tự khối, cần JavaScript: ẩn sẵn, doc.js hiện ra (tắt JavaScript không có nút chết)
 		return '<section class="home-hero"><div><p class="eyebrow">Thư viện mở · phi lợi nhuận</p><h1>Thư viện Văn học Dân gian Việt Nam</h1>'
-			. '<p class="slogan">Đọc một câu. Hiểu một đời sống.</p><p class="promise">Mỗi câu ghi rõ lấy từ đâu, và đã được kiểm đến mức nào.</p>'
+			. '<p class="slogan">Đọc một câu. Hiểu một đời sống.</p><p class="promise">Lời giữ nguyên văn. Mỗi câu ghi rõ đã được kiểm đến mức nào.</p>'
 			. '<form class="search-form big" role="search" action="' . esc_url( Ve::url( 'tim' ) ) . '"><label for="home-q" class="sr-only">Tìm câu bạn nhớ</label><input id="home-q" type="search" name="q" placeholder="Gõ câu bạn nhớ…" aria-describedby="search-hint"><button type="submit" class="btn primary">' . Ve::icon( 'search' ) . ' Tìm</button></form>'
 			. '<p id="search-hint" class="small muted" style="margin-top:10px">Gõ câu bạn nhớ, gõ không dấu cũng được</p>'
 			. '<div class="role-bar" hidden><span>Bạn là</span>' . $vai . '<button type="button" class="btn compact ghost" data-action="role-reset">Bỏ qua</button></div></div>'
