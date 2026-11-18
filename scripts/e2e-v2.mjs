@@ -78,6 +78,8 @@ const doi = async (tab, fn, arg, bao, ms = 15_000) => {
 // Đưa phần tử ra giữa màn trước khi bấm: thanh nổi ở đáy màn (wp-admin) không che chỗ bấm
 const bam = async (tab, sel) => {
 	await tab.bringToFront(); // hai tab: thao tác ở tab đang hiện như người dùng thực
+  // Chữ web (Be Vietnam Pro, Literata) đổi phông sau khi trang tải xong làm nút xê dịch đúng lúc bấm: chờ phông và hai khung hình
+  if (tab.isJavaScriptEnabled()) await tab.evaluate(() => document.fonts.ready.then(() => new Promise(ok => requestAnimationFrame(() => requestAnimationFrame(ok))))).catch(() => {});
   const node=await tab.$(sel);
   if(node)await node.evaluate(e=>{const parents=[];for(let d=e.closest('details');d;d=d.parentElement?.closest('details'))if(!d.open&&e!==d.querySelector(':scope>summary'))parents.push(d);parents.reverse().forEach(d=>d.querySelector(':scope>summary')?.click());});
   const b = await tab.waitForSelector(sel, { visible: true, timeout: 15_000 }).catch(() => null);
@@ -91,10 +93,20 @@ const bam = async (tab, sel) => {
 // Bấm rồi chờ trang mới (form gửi thẳng, tải lại sau khi lưu). Không dựa vào sự kiện chuyển trang của puppeteer: Chrome mới
 // có lúc thay khung trang khi gửi form rồi chuyển hướng, làm waitForNavigation treo 120 giây hoặc "frame detached" ngẫu
 // nhiên ở các bước lô (#141–#145). Đánh dấu trang cũ, bấm, rồi chờ tới khi trang hiện tại là trang mới đã tải xong.
-const choSangTrang = async (tab, sel) => {
-  const het = Date.now() + 120_000;
+let soBamLai = 0;
+const choSangTrang = async (tab, sel, bamLai = null) => {
+  const dau = Date.now(), het = dau + 120_000;
+  let daBamLai = !bamLai;
   for (;;) {
     try { if (await tab.evaluate(() => !window.__trangCu && document.readyState === 'complete')) return; } catch { /* đang chuyển trang */ }
+    const dangTai = tab.dangCho ? [...tab.dangCho.keys()].some(r => r.resourceType() === 'document') : true;
+    if (!daBamLai && !dangTai && Date.now() - dau > 20_000) {
+      // Cú bấm bị nuốt (trang không gửi đi, máy chủ không nhận gì): bấm lại một lần như người dùng, ghi nhắc để theo dõi
+      daBamLai = true;
+      soBamLai++;
+      console.log(`NHẮC     [${TEN}] bấm ${sel} 20 giây mà trang chưa gửi đi — bấm lại một lần`);
+      try { await bamLai(); } catch { /* nút đã mất: để hết giờ báo lỗi */ }
+    }
     if (Date.now() > het) throw new Error(`bấm ${sel} mà không sang trang mới sau 120 giây`);
     await new Promise(ok => setTimeout(ok, 200));
   }
@@ -107,7 +119,7 @@ const bamDoiTrang = async (tab, sel, { banPhim = false } = {}) => {
     await nut.focus();
     await tab.keyboard.press('Enter');
   } else await bam(tab, sel);
-  await choSangTrang(tab, sel);
+  await choSangTrang(tab, sel, () => tab.$eval(sel, b => (b.form && b.matches('button, input[type=submit]') ? b.form.requestSubmit(b) : b.click())));
 };
 // Màn Sửa tác phẩm (D-121): có JavaScript thì nút lưu riêng từng phần nhường chỗ cho "Lưu thay đổi"; luồng lưu một phần
 // (vẫn dùng khi không có JavaScript) được kiểm bằng cách gửi đúng form với đúng nút đó
@@ -1481,6 +1493,6 @@ try {
   await trinhDuyet?.close();
   if (may) await may.dong();
 }
-console.log(`E2E V2 ${SITE ? `(site thật ${SITE}, chỉ đọc — đã chặn ${daChan} yêu cầu ghi)` : '(bản xem trước)'}: ${dat} bước đạt, ${loi.length} lỗi, ${nhac.length} bỏ qua.`);
+console.log(`E2E V2 ${SITE ? `(site thật ${SITE}, chỉ đọc — đã chặn ${daChan} yêu cầu ghi)` : '(bản xem trước)'}: ${dat} bước đạt, ${loi.length} lỗi, ${nhac.length} bỏ qua${soBamLai ? `, ${soBamLai} lần phải bấm lại` : ''}.`);
 for (const l of loi) console.log(`LỖI      [${TEN}] ${l}`);
 process.exit(loi.length ? 1 : 0);

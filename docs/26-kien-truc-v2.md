@@ -300,7 +300,7 @@ Cron thật của máy chủ gọi WP-Cron mỗi 5 phút (như MVP); mỗi loạ
 
 - Dữ liệu mẫu: chỉ chữ mẫu và các bài mẫu đã có trong kiểm thử MVP (D-050); không chép kho thô hay lời từ site thật vào repo (AGENTS.md, KHÔNG BAO GIỜ 14).
 - SQL chạy được trên SQLite (Playground) và MySQL; tránh cú pháp chỉ MySQL có.
-- CI: job `v2` (kiểm thử, quét, e2e) chạy khi chạm `wordpress/v2/`, `tests/chuyen-doi-mvp/`, kịch bản; job `kiem-tra` (bắt buộc) kiểm nhất quán; job `wordpress` của MVP đã gỡ (T-192). Không có bản dựng JavaScript để so.
+- CI: quy trình V2 chạy khi chạm `wordpress/v2/`, `tests/chuyen-doi-mvp/`, kịch bản — ba việc **song song** trên ba máy, mỗi việc một Playground riêng: `kiem-thu` (diễn tập quay lại bản cũ, `test:v2`), `quet` (`quet:v2`), `dau-cuoi` (`e2e:v2`); việc `v2` gộp kết quả (dấu kiểm "v2" của PR). Giới hạn giờ: mỗi việc 20–30 phút (treo thì dừng sớm, không chờ 6 giờ). Ảnh chụp: `anh-chup-v2-kiem-thu`, `-quet`, `-dau-cuoi`. Kiểm thử đầu-cuối chờ chữ web tải xong trước khi bấm; bấm 20 giây mà trang chưa gửi đi thì bấm lại một lần và ghi "NHẮC … bấm lại" (dòng tổng kết đếm số lần) — theo dõi để tìm nguyên nhân gốc. Job `kiem-tra` (bắt buộc) kiểm nhất quán; job `wordpress` của MVP đã gỡ (T-192). Không có bản dựng JavaScript để so.
 - `npm run kiem-site-that`: site thật có đúng phiên bản plugin, theme của `main` không (chỉ đọc).
 - AGENTS.md "LUÔN LUÔN": task V2 chạy `npm run kiem-tra`, `npm run test:v2`, `npm run quet:v2` trước khi kết thúc.
 

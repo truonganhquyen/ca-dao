@@ -36,10 +36,12 @@ permissions:
   contents: read
 
 jobs:
-  v2:
+  # Ba việc nặng chạy song song, mỗi việc một máy và một Playground riêng (trước: nối tiếp, 16–20 phút; nay ≈ việc lâu
+  # nhất). Việc "v2" ở cuối gộp kết quả để PR vẫn có một dấu kiểm "v2".
+  kiem-thu:
+    name: Kiểm thử (PHP thuần + Playground)
     runs-on: ubuntu-latest
-    # Bình thường cả việc 16–20 phút; treo thì dừng sớm (mặc định GitHub chờ tới 6 giờ)
-    timeout-minutes: 45
+    timeout-minutes: 20
     steps:
       - name: Lấy mã nguồn
         uses: actions/checkout@v4
@@ -57,7 +59,7 @@ jobs:
           php -r 'exit(class_exists("Normalizer") ? 0 : 1);' || sudo apt-get install -y php-intl
           php -r 'exit(function_exists("imagettftext") ? 0 : 1);' || sudo apt-get install -y php-gd
 
-      - name: Cài gói (axe-core, puppeteer-core cho bước quét)
+      - name: Cài gói
         run: npm ci
 
       - name: Diễn tập quay lại bản cũ trên bản sao
@@ -70,23 +72,85 @@ jobs:
         env:
           ANH_MAU: qa-anh-v2
 
+      - name: Lưu ảnh mẫu
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: anh-chup-v2-kiem-thu
+          path: qa-anh-v2/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  quet:
+    name: Quét trợ năng, ngân sách (WCAG 2.2 AA)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Lấy mã nguồn
+        uses: actions/checkout@v4
+
+      - name: Cài Node.js (theo .node-version; Playground cần Node ≥ 24.18)
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Cài gói (axe-core, puppeteer-core)
+        run: npm ci
+
       - name: Quét trợ năng, ngân sách V2 (WCAG 2.2 AA)
         timeout-minutes: 15
         run: npm run quet:v2 -- --anh qa-anh-v2
-
-      # Đi từng thao tác như người dùng thật: người đọc (tìm, sao chép, lưu, trích dẫn, cỡ chữ, vè dài, câu đố, góp) và
-      # người biên soạn (tấm sửa, Hộp việc, Hoàn tác, Thêm bài, Ẩn bài, sửa mục từ); ảnh chụp bước hỏng vào qa-anh-v2
-      - name: Kiểm thử đầu-cuối V2
-        if: always()
-        timeout-minutes: 25
-        run: npm run e2e:v2 -- --anh qa-anh-v2
 
       # Ảnh chụp 390 px từng trang để xem bằng mắt (tải ở trang lần chạy CI)
       - name: Lưu ảnh chụp
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: anh-chup-v2
+          name: anh-chup-v2-quet
           path: qa-anh-v2/
           if-no-files-found: ignore
           retention-days: 14
+
+  dau-cuoi:
+    name: Kiểm thử đầu-cuối
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Lấy mã nguồn
+        uses: actions/checkout@v4
+
+      - name: Cài Node.js (theo .node-version; Playground cần Node ≥ 24.18)
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Cài gói (puppeteer-core)
+        run: npm ci
+
+      # Đi từng thao tác như người dùng thật: người đọc (tìm, sao chép, lưu, trích dẫn, cỡ chữ, vè dài, câu đố, góp) và
+      # người biên soạn (tấm sửa, Hộp việc, Hoàn tác, Thêm bài, Ẩn bài, sửa mục từ); ảnh chụp bước hỏng vào qa-anh-v2
+      - name: Kiểm thử đầu-cuối V2
+        timeout-minutes: 25
+        run: npm run e2e:v2 -- --anh qa-anh-v2
+
+      - name: Lưu ảnh chụp
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: anh-chup-v2-dau-cuoi
+          path: qa-anh-v2/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  v2:
+    name: v2
+    runs-on: ubuntu-latest
+    needs: [kiem-thu, quet, dau-cuoi]
+    if: always()
+    steps:
+      - name: Gộp kết quả ba việc
+        run: |
+          echo "Kiểm thử: ${{ needs.kiem-thu.result }} · Quét: ${{ needs.quet.result }} · Đầu-cuối: ${{ needs.dau-cuoi.result }}"
+          test "${{ needs.kiem-thu.result }}" = success && test "${{ needs.quet.result }}" = success && test "${{ needs.dau-cuoi.result }}" = success
