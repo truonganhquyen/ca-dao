@@ -1,16 +1,175 @@
 /*
- * Chung cho mọi màn Phongdao trong wp-admin (T-189, báo cáo trinh sát lần 2 mục 5.5): thanh dưới cố định trên điện thoại
- * Hôm nay · Hộp việc · Bổ sung · Bài mới — đổi màn một chạm, không phải mở menu ☰. Máy tính không hiện (đã có menu trái).
+ * Bộ kiểu quản trị chung của Phongdao (D-121, docs/42 mục 2). Ba tầng:
+ *   1. body.phongdao-menu — mọi màn wp-admin của người biên soạn: menu trái cùng màu, mục Phongdao có biểu tượng và số việc.
+ *   2. body.pq — màn Phongdao: nền, chữ Be Vietnam Pro, đầu màn, nút (một nút chính tím đậm mỗi việc), thẻ trạng thái màu.
+ *   3. Thành phần lớp `pq-*` dùng chung cho mọi màn (khối, lưới, ô việc, số liệu, danh sách, thanh dưới điện thoại).
+ * Màn riêng (admin-sua.css, admin-tac-pham.css…) giữ kiểu riêng của mình; tệp này chỉ đặt nền chung.
  */
+@font-face { font-family: "Be Vietnam Pro"; font-style: normal; font-weight: 400; font-display: swap; src: url("phong/bvp-400.ttf") format("truetype"); }
+@font-face { font-family: "Be Vietnam Pro"; font-style: normal; font-weight: 600; font-display: swap; src: url("phong/bvp-600.ttf") format("truetype"); }
+
+body.phongdao-menu {
+	--pq-nen: #f4f3f7; --pq-trang: #fff; --pq-chu: #1f1b2a; --pq-nhat: #5c5868; --pq-vien: #e3e0ea; --pq-vien-dam: #cfcbd9;
+	--pq-tim: #5e3aae; --pq-tim-dam: #4a2c8c; --pq-tim-nhat: #f1ecfb; --pq-tim-vien: #d9ccf5;
+	--pq-luc: #17703f; --pq-luc-nen: #e5f4ea; --pq-vang: #7a4f00; --pq-vang-nen: #fff3d6; --pq-do: #b42318; --pq-do-nen: #fde8e7; --pq-xanh: #1f5fa8; --pq-xanh-nen: #e7f0fb; --pq-xam-nen: #eeedf2;
+	--pq-menu: #1e1a2b; --pq-menu-con: #2c2640; --pq-menu-chu: #e9e6f2; --pq-menu-mo: #b9b4c8;
+	--pq-bo: 12px; --pq-bong: 0 1px 2px rgba(31, 27, 42, .06), 0 2px 8px rgba(31, 27, 42, .05);
+	--pq-font: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ---------- 1. Menu trái ---------- */
+body.phongdao-menu #adminmenuback, body.phongdao-menu #adminmenuwrap, body.phongdao-menu #adminmenu { background: var(--pq-menu); }
+body.phongdao-menu #adminmenu a { color: var(--pq-menu-chu); }
+body.phongdao-menu #adminmenu div.wp-menu-image::before { color: var(--pq-menu-mo); }
+body.phongdao-menu #adminmenu li.menu-top:hover, body.phongdao-menu #adminmenu li.opensub > a.menu-top, body.phongdao-menu #adminmenu li > a.menu-top:focus { background: var(--pq-menu-con); color: #fff; }
+body.phongdao-menu #adminmenu li.wp-has-current-submenu a.wp-has-current-submenu, body.phongdao-menu #adminmenu li.current a.menu-top { background: var(--pq-tim); color: #fff; }
+body.phongdao-menu #adminmenu li.wp-has-current-submenu div.wp-menu-image::before, body.phongdao-menu #adminmenu li.current div.wp-menu-image::before { color: #fff; }
+body.phongdao-menu #adminmenu .wp-submenu, body.phongdao-menu #adminmenu .wp-has-current-submenu .wp-submenu, body.phongdao-menu #adminmenu .wp-has-current-submenu.opensub .wp-submenu { background: var(--pq-menu-con); }
+body.phongdao-menu #adminmenu .wp-submenu a { color: var(--pq-menu-mo); }
+body.phongdao-menu #adminmenu .wp-submenu a:hover, body.phongdao-menu #adminmenu .wp-submenu a:focus { color: #fff; box-shadow: none; }
+body.phongdao-menu #adminmenu .wp-submenu li.current a, body.phongdao-menu #adminmenu .wp-submenu li.current a:hover { color: #fff; font-weight: 600; }
+body.phongdao-menu #adminmenu li.wp-has-submenu.wp-not-current-submenu.opensub:hover::after, body.phongdao-menu #adminmenu li.wp-has-current-submenu a.wp-has-current-submenu::after { border-right-color: var(--pq-nen); }
+body.phongdao-menu #collapse-button { color: var(--pq-menu-mo); }
+/* Mục Phongdao mở: mỗi việc một dòng cao, có biểu tượng */
+body.phongdao-menu #toplevel_page_phongdao-ban-lam-viec .wp-submenu a { display: flex; align-items: center; gap: 8px; min-height: 30px; font-size: 14px; }
+body.phongdao-menu #toplevel_page_phongdao-ban-lam-viec .wp-submenu a::before { font: normal 16px/1 dashicons; width: 16px; flex: none; opacity: .85; }
+body.phongdao-menu #toplevel_page_phongdao-ban-lam-viec .wp-submenu a[href$="page=phongdao-ban-lam-viec"]::before { content: "\f102"; }
+body.phongdao-menu #toplevel_page_phongdao-ban-lam-viec .wp-submenu a[href$="page=phongdao-kho"]::before { content: "\f132"; }
+body.phongdao-menu #toplevel_page_phongdao-ban-lam-viec .wp-submenu a[href$="page=phongdao-hop-viec"]::before { content: "\f12a"; }
+body.phongdao-menu #toplevel_page_phongdao-ban-lam-viec .wp-submenu a[href$="page=phongdao-bo-sung"]::before { content: "\f464"; }
+body.phongdao-menu #toplevel_page_phongdao-ban-lam-viec .wp-submenu a[href$="page=phongdao-tac-pham"]::before { content: "\f330"; }
+body.phongdao-menu #toplevel_page_phongdao-ban-lam-viec .wp-submenu a[href$="page=phongdao-tuyen-tap"]::before { content: "\f322"; }
+body.phongdao-menu #toplevel_page_phongdao-ban-lam-viec .wp-submenu a[href$="page=phongdao-danh-muc"]::before { content: "\f323"; }
+body.phongdao-menu #toplevel_page_phongdao-ban-lam-viec .wp-submenu a[href$="page=phongdao"]::before { content: "\f111"; }
+/* Danh mục, Nguồn & cài đặt: nhóm "Thiết lập", tách bằng một vạch */
+body.phongdao-menu #toplevel_page_phongdao-ban-lam-viec .wp-submenu li:has(> a[href$="page=phongdao-danh-muc"]) { margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255, 255, 255, .12); }
+body.phongdao-menu #adminmenu .awaiting-mod, body.phongdao-menu #adminmenu .phongdao-menu-so { margin-left: auto; }
+body.phongdao-menu #adminmenu .phongdao-menu-so { display: inline-block; min-width: 18px; padding: 0 6px; border-radius: 9px; background: #3b3452; color: var(--pq-menu-chu); font-size: 11px; line-height: 18px; text-align: center; }
+body.phongdao-menu #adminmenu li.current .phongdao-menu-so { background: var(--pq-tim); color: #fff; }
+
+/* ---------- 2. Khung màn Phongdao ---------- */
+html:has(body.pq), body.pq, body.pq #wpwrap { background: var(--pq-nen); }
+body.pq #wpbody-content { font-family: var(--pq-font); color: var(--pq-chu); }
+body.pq #wpbody-content .wrap { font-size: 14px; line-height: 1.55; }
+body.pq #wpbody-content :is(h1, h2, h3, .button, input, select, textarea, button) { font-family: var(--pq-font); }
+body.pq .wrap > h1, body.pq .pq-dau h1 { font-size: 24px; font-weight: 600; line-height: 1.25; color: var(--pq-chu); }
+:where(body.pq #wpbody-content) a { color: var(--pq-tim); }
+:where(body.pq #wpbody-content) a:hover, :where(body.pq #wpbody-content) a:active { color: var(--pq-tim-dam); }
+body.pq #wpbody-content a:focus-visible, body.pq #wpbody-content :is(button, input, select, textarea, summary):focus-visible { outline: 3px solid var(--pq-tim); outline-offset: 2px; box-shadow: none; }
+
+/* Nút: nút chính tím đậm, nút phụ viền nhạt chữ tím */
+body.pq .button { border-radius: 8px; border-color: var(--pq-vien-dam); background: var(--pq-trang); color: var(--pq-tim); font-weight: 600; }
+body.pq .button:hover, body.pq .button:focus { border-color: var(--pq-tim); background: var(--pq-tim-nhat); color: var(--pq-tim-dam); }
+body.pq .button-primary { border-color: var(--pq-tim); background: var(--pq-tim); color: #fff; }
+body.pq .button-primary:hover, body.pq .button-primary:focus { border-color: var(--pq-tim-dam); background: var(--pq-tim-dam); color: #fff; }
+body.pq .button:disabled, body.pq .button[disabled], body.pq .button.disabled { border-color: var(--pq-vien) !important; background: var(--pq-xam-nen) !important; color: #6b6778 !important; }
+body.pq .button.button-link-delete, body.pq .button.phongdao-nguy { color: var(--pq-do); }
+body.pq .wrap .page-title-action { border-color: var(--pq-vien-dam); border-radius: 8px; background: var(--pq-trang); color: var(--pq-tim); font-weight: 600; }
+body.pq .wrap .page-title-action:hover, body.pq .wrap .page-title-action:focus { border-color: var(--pq-tim); background: var(--pq-tim-nhat); color: var(--pq-tim-dam); }
+
+/* Đầu màn: tiêu đề + một câu nói màn làm gì + nút */
+.pq-dau { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px 20px; margin: 4px 0 18px; }
+.pq-dau-chu { flex: 1 1 360px; min-width: 0; }
+.pq-dau h1 { margin: 0; padding: 0; }
+.pq-dau p { margin: 6px 0 0; color: var(--pq-nhat); font-size: 15px; }
+.pq-dau-nut { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.pq-dau-nut .button, .pq-viec-nut .button { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; font-size: 14px; line-height: 1.3; }
+.pq-duong { margin: 0 0 6px; color: var(--pq-nhat); font-size: 14px; }
+.pq-duong a { color: var(--pq-nhat); }
+
+/* Thẻ trạng thái (dùng ở mọi danh sách): xanh lá đã đăng, xám nháp, vàng cần xem, đỏ có thể trùng, xanh dương thông tin */
+.pq-the { display: inline-flex; align-items: center; gap: 5px; padding: 2px 10px; border-radius: 999px; background: var(--pq-xam-nen); color: var(--pq-nhat); font-size: 13px; font-weight: 600; white-space: nowrap; }
+.pq-the::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; opacity: .8; }
+.pq-the.luc { background: var(--pq-luc-nen); color: var(--pq-luc); }
+.pq-the.vang { background: var(--pq-vang-nen); color: var(--pq-vang); }
+.pq-the.do { background: var(--pq-do-nen); color: var(--pq-do); }
+.pq-the.xanh { background: var(--pq-xanh-nen); color: var(--pq-xanh); }
+.pq-the.tim { background: var(--pq-tim-nhat); color: var(--pq-tim); }
+/* Phần còn thiếu: thẻ nét đứt */
+.pq-thieu { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.pq-thieu > span { padding: 0 7px; border: 1px dashed var(--pq-vien-dam); border-radius: 6px; color: var(--pq-nhat); font-size: 12.5px; }
+
+/* ---------- 3. Thành phần ---------- */
+.pq-khoi { box-sizing: border-box; min-width: 0; margin: 0 0 16px; padding: 18px 20px; border: 1px solid var(--pq-vien); border-radius: var(--pq-bo); background: var(--pq-trang); box-shadow: var(--pq-bong); }
+.pq-khoi > h2, .pq-khoi > .section > h2 { margin: 0 0 6px; font-size: 17px; font-weight: 600; line-height: 1.3; }
+.pq-khoi h3 { margin: 16px 0 6px; font-size: 15px; font-weight: 600; }
+.pq-khoi > :last-child { margin-bottom: 0; }
+.pq-mo-ta { margin: 0 0 10px; color: var(--pq-nhat); font-size: 14px; }
+.pq-luoi { display: grid; gap: 16px; margin: 0 0 16px; }
+.pq-luoi > .pq-khoi { margin: 0; }
+.pq-luoi.ba { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.pq-luoi.hai { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.pq-bang { border-radius: 8px; }
+.pq-cuon { overflow-x: auto; }
+
+/* Ô việc: số to, một câu, một nút */
+.pq-viec { display: flex; flex-direction: column; gap: 10px; border-top: 4px solid var(--pq-tim); }
+.pq-viec.vang { border-top-color: #c98a12; }
+.pq-viec.luc { border-top-color: var(--pq-luc); }
+.pq-viec > h2 { margin: 0; }
+.pq-viec p { margin: 0; color: var(--pq-nhat); font-size: 14px; }
+.pq-so-lon strong { display: inline-block; margin-right: 4px; color: var(--pq-chu); font-size: 40px; font-weight: 600; line-height: 1; }
+.pq-viec .pq-viec-nut { margin-top: auto; padding-top: 4px; }
+
+/* Việc gấp: một dòng đỏ */
+.pq-gap { margin: 0 0 16px; padding: 10px 14px; border: 1px solid #f3b8b3; border-left: 4px solid var(--pq-do); border-radius: 10px; background: var(--pq-do-nen); color: #6e1610; font-size: 14px; }
+.pq-gap a { color: #8f1d14; font-weight: 600; }
+
+/* Số liệu: bốn ô số */
+.pq-so-lieu { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 6px 0 14px; padding: 0; list-style: none; }
+.pq-so-lieu li { margin: 0; padding: 10px 12px; border-radius: 10px; background: var(--pq-nen); }
+.pq-so-lieu strong { display: block; color: var(--pq-chu); font-size: 22px; font-weight: 600; line-height: 1.2; }
+.pq-so-lieu span { color: var(--pq-nhat); font-size: 13px; }
+.pq-lap { margin-bottom: 6px; }
+progress.pq-tien-do { display: block; width: 100%; height: 10px; border: 0; border-radius: 999px; background: var(--pq-xam-nen); color: var(--pq-tim); overflow: hidden; -webkit-appearance: none; appearance: none; }
+progress.pq-tien-do::-webkit-progress-bar { background: var(--pq-xam-nen); border-radius: 999px; }
+progress.pq-tien-do::-webkit-progress-value { background: var(--pq-tim); border-radius: 999px; }
+progress.pq-tien-do::-moz-progress-bar { background: var(--pq-tim); border-radius: 999px; }
+.pq-lien { margin: 12px 0 0; }
+.pq-lien a, .pq-gap a { display: inline-flex; align-items: center; min-height: 32px; }
+
+/* Danh sách ngắn: tên (liên kết) + mô tả nhạt */
+.pq-ds-phan, .pq-ds-muc, .pq-ds-viec { margin: 0; padding: 0; list-style: none; }
+.pq-ds-phan li, .pq-ds-muc li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; margin: 0; padding: 8px 0; border-top: 1px solid var(--pq-vien); }
+.pq-ds-phan li:first-child, .pq-ds-muc li:first-child { border-top: 0; }
+.pq-ds-phan a, .pq-ds-muc a { display: inline-flex; align-items: center; min-height: 32px; font-weight: 600; font-size: 15px; }
+.pq-ds-phan span, .pq-ds-muc span { color: var(--pq-nhat); font-size: 13.5px; }
+.pq-ds-viec > li { margin: 0; padding: 8px 0; border-top: 1px solid var(--pq-vien); }
+.pq-ds-viec > li:first-child { border-top: 0; }
+.pq-ds-viec > li > a { display: inline-flex; align-items: center; min-height: 32px; font-weight: 600; }
+.pq-ds-viec ul { margin: 2px 0 0 18px; list-style: disc; }
+.pq-ds-viec ul li { margin: 0; }
+.pq-ds-viec ul a { display: inline-flex; align-items: center; min-height: 28px; }
+
+/* Khối thu gọn */
+details.pq-gon > summary { display: flex; align-items: center; gap: 8px; min-height: 44px; margin: -8px 0; font-size: 15px; font-weight: 600; list-style: none; cursor: pointer; }
+details.pq-gon > summary::-webkit-details-marker { display: none; }
+details.pq-gon > summary::before { content: "▸"; color: var(--pq-tim); }
+details.pq-gon[open] > summary::before { content: "▾"; }
+details.pq-gon[open] > summary { margin-bottom: 8px; }
+.pq-dem { padding: 0 8px; border-radius: 999px; background: var(--pq-xam-nen); color: var(--pq-nhat); font-size: 12.5px; font-weight: 600; }
+
+@media (max-width: 1100px) {
+	.pq-luoi.ba { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.pq-so-lieu { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 782px) {
+	.pq-luoi.ba, .pq-luoi.hai { grid-template-columns: minmax(0, 1fr); }
+	.pq-khoi { padding: 14px 16px; }
+	.pq-so-lon strong { font-size: 34px; }
+	body.pq .wrap > h1, body.pq .pq-dau h1 { font-size: 22px; }
+}
+
+/* ---------- Thanh dưới điện thoại: Hôm nay · Bài mới · Hộp việc · Bổ sung · Thêm ---------- */
 .phongdao-thanh-duoi { display: none; }
 @media (max-width: 782px) {
-	body.phongdao-co-thanh-duoi { --phongdao-thanh-duoi: calc(56px + env(safe-area-inset-bottom, 0px)); }
+	body.phongdao-co-thanh-duoi { --phongdao-thanh-duoi: calc(58px + env(safe-area-inset-bottom, 0px)); }
 	body.phongdao-co-thanh-duoi #wpbody-content { padding-bottom: calc(var(--phongdao-thanh-duoi) + 24px); }
-	.phongdao-thanh-duoi { position: fixed; z-index: 9991; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(4, 1fr); padding-bottom: env(safe-area-inset-bottom, 0px); background: #1d2327; box-shadow: 0 -2px 8px rgba(0, 0, 0, .2); }
-	.phongdao-thanh-duoi a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; color: #f0f0f1; font-size: 12px; text-decoration: none; }
-	.phongdao-thanh-duoi a .dashicons { font-size: 20px; width: 20px; height: 20px; }
-	.phongdao-thanh-duoi a[aria-current] { color: #72aee6; font-weight: 600; box-shadow: inset 0 3px 0 #72aee6; }
-	.phongdao-thanh-duoi a:focus-visible { outline: 3px solid #72aee6; outline-offset: -3px; }
+	.phongdao-thanh-duoi { position: fixed; z-index: 9991; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(5, 1fr); padding: 2px 2px env(safe-area-inset-bottom, 0px); border-top: 1px solid var(--pq-vien); background: var(--pq-trang); box-shadow: 0 -2px 10px rgba(31, 27, 42, .08); font-family: var(--pq-font); }
+	.phongdao-thanh-duoi a { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; color: var(--pq-nhat); font-size: 12px; font-weight: 600; text-decoration: none; }
+	.phongdao-thanh-duoi a .dashicons { width: 20px; height: 20px; font-size: 20px; }
+	.phongdao-thanh-duoi a[aria-current] { color: var(--pq-tim); box-shadow: inset 0 3px 0 var(--pq-tim); }
+	.phongdao-thanh-duoi a:focus-visible { outline: 3px solid var(--pq-tim); outline-offset: -3px; }
 	.phongdao-thanh-duoi .phongdao-thanh-duoi-so { display: inline-block; min-width: 16px; padding: 0 4px; border-radius: 8px; background: #d63638; color: #fff; font-size: 11px; line-height: 16px; }
 	/* Thanh chọn nhiều ở đáy màn đứng trên thanh dưới */
 	body.phongdao-co-thanh-duoi .phongdao-thanh-noi { bottom: var(--phongdao-thanh-duoi); }

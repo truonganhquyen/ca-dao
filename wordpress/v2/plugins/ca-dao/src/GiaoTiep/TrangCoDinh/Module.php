@@ -50,7 +50,7 @@ final class Module implements \Phongdao\HaTang\Module {
 			case 'bien-tap/them':
 				return $di( 'phongdao-them' );
 			case 'bien-tap/so-lieu':
-				return $di( 'phongdao-ban-lam-viec' );
+				return $di( 'phongdao-so-lieu' );
 			default:
 				return $di( 'phongdao-hop-viec', array( 'viec' => absint( $q['viec'] ?? 0 ) ?: '', 'loai' => sanitize_key( (string) ( $q['loai'] ?? '' ) ), 'tt' => 'de_sau' === ( $q['tt'] ?? '' ) ? 'de_sau' : '' ) );
 		}
