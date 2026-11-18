@@ -67,6 +67,29 @@ $h_tr = Kho216::hien();
 $_GET = array();
 kt( 'Đăng nhanh: thẻ của câu chờ quyết trùng không có nút Đăng, có lời báo quyết ở Hộp việc', str_contains( $h_tr, 'Câu đang chờ quyết trùng' ) && ! str_contains( $h_tr, 'value="dang"' ), substr( (string) strstr( $h_tr, 'phongdao-dn-the' ), 0, 800 ) );
 
+// ---------- Chủ đề máy gợi ý (D-121): chip nét đứt chưa đánh dấu; người bấm thì gắn khi Đăng ----------
+$k5     = $them_dn( 'nam', "[UX-TEST] Hò ơi thuyền ai xuôi bến zqp\nNước trong veo bóng trăng chao zqp" );
+$m5     = Kho::lay( $k5 );
+$gy5    = \Phongdao\DichVu\GoiY\GoiY::cho_kho( $m5 );
+$_GET   = array( 'page' => Kho216::TRANG, 'nguon' => 'dn-thu', 'xem' => 'nhanh', 'q' => 'zqp' );
+$h_gy   = Kho216::hien();
+$_GET   = array();
+$cd_dn  = wp_insert_term( '[UX-TEST] Chủ đề Đăng nhanh', 'chu_de', array( 'slug' => 'ux-test-chu-de-dang-nhanh' ) );
+$kq5    = Kho216::dang_nhanh_mot( $k5, array( 'lam' => 'dang', 'ban' => 'moi', 'pl' => array( 'chu_de:' . (int) $cd_dn['term_id'], 'tac_gia:1', 'chu_de:abc' ) ), $ai_ql );
+$bai5   = (int) Kho::lay( $k5 )->post_id;
+kt(
+	'Đăng nhanh: chủ đề, vùng máy gợi ý (nếu có) là chip nét đứt chưa đánh dấu; Đăng kèm mục người bấm thì gắn mục đó (bỏ giá trị lạ), có Lịch sử; có thanh tiến độ và gợi ý phím tắt',
+	( $gy5 ? str_contains( $h_gy, 'class="pq-chip goi-y"' ) && str_contains( $h_gy, 'name="pl[]" value="' . $gy5[0]['loai'] . ':' . (int) $gy5[0]['term']->term_id . '">' ) : ! str_contains( $h_gy, 'name="pl[]"' ) )
+		&& str_contains( $h_gy, '<progress class="pq-tien-do"' ) && str_contains( $h_gy, '<kbd>Ctrl</kbd>+<kbd>Enter</kbd> Đăng' )
+		&& $kq5['ok'] && $bai5 > 0 && has_term( (int) $cd_dn['term_id'], 'chu_de', $bai5 ) && str_contains( $kq5['chu'], 'Đã gắn chủ đề.' )
+		&& (bool) array_filter( \Phongdao\KhoLuu\Viec::lich_su( 'post', $bai5, 20 ), static fn( array $r ): bool => 'chu_de' === $r['phan'] ),
+	array( $gy5 ? $gy5[0]['ma'] : 'không có gợi ý', $kq5 )
+);
+if ( $bai5 ) {
+	wp_delete_post( $bai5, true );
+}
+wp_delete_term( (int) $cd_dn['term_id'], 'chu_de' );
+
 // ---------- Để sau ----------
 $kq3 = Kho216::dang_nhanh_mot( $k3, array( 'lam' => 'de_sau', 'ban' => 'moi' ), $ai_ql );
 kt( 'Đăng nhanh: Để sau đánh dấu "Để dành", câu vẫn ở Bài mới (chưa đăng)', $kq3['ok'] && 'de_danh' === ( DanhDau::cua( $k3 )['loai'] ?? '' ) && 0 === (int) Kho::lay( $k3 )->post_id, $kq3 );
