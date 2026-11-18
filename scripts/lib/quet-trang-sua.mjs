@@ -11,7 +11,7 @@ export async function quetTrangSua({bt,G,axeNguon,THE_WCAG,loi,thuMucAnh,doTran}
     const result=await bt.evaluate(tags=>window.axe.run('.phongdao-admin-sua',{runOnly:{type:'tag',values:tags}}),THE_WCAG);
     for(const v of result.violations)for(const n of v.nodes.slice(0,3))loi.push(`Trang sửa 36 mục (${width}): ${v.id} — ${n.target.join(' ')}`);
     if(thuMucAnh)await bt.screenshot({path:`${thuMucAnh}/sua-36-muc-${width}.png`,fullPage:true});
-    await bt.evaluate(()=>{document.querySelector('#phan-chu_thich .phongdao-muc-gon').open=true;document.querySelector('#the-tho').open=true;document.querySelector('#phan-loai-chu_de').open=true;document.querySelector('#phan-loai-chu_de .phongdao-them-muc').open=true;});
+    await bt.evaluate(()=>{document.querySelector('#phan-chu_thich .phongdao-muc-gon').open=true;document.querySelector('#the-tho').open=true;document.querySelector('#phan-loai-chu_de .pq-pl-them').open=true;document.querySelector('#phan-loai-chu_de .phongdao-them-muc').open=true;document.querySelector('#lich-su').open=true;});
     const opened=await bt.evaluate(tags=>window.axe.run('.phongdao-admin-sua',{runOnly:{type:'tag',values:tags}}),THE_WCAG);
     for(const v of opened.violations)for(const n of v.nodes.slice(0,3))loi.push(`Trang sửa đang nhập (${width}): ${v.id} — ${n.target.join(' ')}`);
     if([390,1440].includes(width)){

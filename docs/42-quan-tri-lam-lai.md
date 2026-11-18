@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Phiên bản | 1.0 · 18/11/2026 |
-| Trạng thái | **Đang làm.** Đợt 1 (T-217) xong; đợt 2–4 (T-218..T-220) chờ làm theo thứ tự |
+| Trạng thái | **Đang làm.** Đợt 1 (T-217), đợt 2 (T-218) xong; đợt 3–4 (T-219, T-220) chờ làm theo thứ tự |
 | Quyết định | D-121 — người sáng lập duyệt bản xem trước quản trị và ba điều chốt ngày 18/11/2026 |
 | Bản xem trước | Bản tĩnh ngoài kho mã, trên máy người sáng lập: `output/xem-truoc-quan-tri/index.html` (không đưa vào repo) |
 | Đọc khi | Làm bất kỳ màn nào trong wp-admin của Phongdao |
@@ -91,21 +91,29 @@ Cách làm nhanh:
 - Số dùng chung (việc chờ theo loại, câu gợi ý, đề nghị đăng) chỉ hỏi cơ sở dữ liệu một lần mỗi lượt mở.
 - Danh sách bài lên Google nạp thông tin mọi bài ứng viên một lần khi tính lại.
 
-## 4. Đợt sau
+## 4. Sửa tác phẩm (đợt 2)
+
+- **Cột chính:** Lời (chỉ đọc; "Sửa lời", Đối chiếu sách) → Nghĩa (Ý nghĩa mở sẵn) → Phân loại (chip) → Phần khác (mỗi phần một hàng có tình trạng).
+- **Cột bên:** khung Đăng dính khi cuộn → Bài này còn thiếu → Công tắc → Căn cứ nội bộ → Đường dẫn → Lịch sử (gập).
+- **Điều chốt 2 — một nút "Lưu thay đổi":** nút gửi lần lượt form của mọi phần đã sửa tới đúng đường lưu cũ (`admin-post.php`, hành động `phongdao_sua_phan`, `phongdao_sua_phan_loai`, `phongdao_sua_the_tho`) kèm `tra_json=1`; máy chủ trả `{ok, phan, ket_qua, loi}`. Mỗi phần vẫn là một lượt lưu có kiểm phiên, kiểm quyền, Lịch sử riêng — nút chung chỉ đổi cách bấm. Phần lỗi giữ chữ trên tab (bộ đệm 30 phút), trang tải lại kèm lời báo. Không có JavaScript: nút lưu riêng từng phần như trước.
+- **Điều chốt 3 — chủ đề máy gợi ý:** thẻ "Gợi ý chủ đề, vùng" đang mở của bài hiện thành chip nét đứt trong hàng của bộ đó, chưa đánh dấu. Người bấm (đánh dấu) rồi lưu thì mục được gắn, thẻ gợi ý xong với quyết "Đồng ý". Máy không tự gắn.
+- Thanh lưu nổi ở đáy trên điện thoại khi có phần chưa lưu; Ctrl/⌘ + S lưu mọi thay đổi.
+- **Đã dọn:** mục lục 16 nút, ô "Đi tới phần", thanh lưu theo phần đang làm, nhóm "Quản lý trạng thái bài", hàng "Thêm: …", ô gập "Phần khác (N)".
+
+## 5. Đợt sau
 
 | Đợt | Việc | Gồm |
 |---|---|---|
-| 2 | T-218 Sửa tác phẩm | Hai cột, khung "Đăng" luôn bên phải (trạng thái, đăng / ẩn, xem bài); **điều chốt 2:** một nút "Lưu thay đổi" lưu mọi phần đã sửa, Lịch sử vẫn ghi từng phần; phân loại thành chip, **điều chốt 3:** chủ đề máy gợi ý là chip nét đứt, bấm mới gắn; "Bài này còn thiếu" để biết làm gì tiếp; thanh lưu nổi ở đáy trên điện thoại; bỏ mục lục 16 nút và kiểu cũ |
 | 3 | T-219 Danh sách | Tác phẩm (tab trạng thái, lọc nhanh, hàng gọn có thẻ trạng thái và phần còn thiếu); Bài mới (tab Gợi ý hôm nay · Để dành · Đề nghị đăng, hàng đọc được lời, nút Đăng cuối hàng, thanh chọn nhiều nổi); Đăng nhanh (chủ đề gợi ý chip nét đứt, phím tắt); Hộp việc (ba lựa chọn viết rõ chữ, so hai bản tô chỗ khác); Tuyển tập (mỗi bộ một hàng, ghi còn thiếu gì để công khai) |
 | 4 | T-220 Bổ sung, Thêm | Bổ sung chia năm tab (Thiếu Ý nghĩa, Cần sửa, Gợi ý chủ đề / vùng, Đối chiếu sách, Nháp theo lô), tiến độ lên Google một dòng; Thêm tác phẩm báo trùng ngay dưới ô, một nút Đăng ngay |
 
 Mỗi đợt: một PR có link bản xem trước, `npm run quet:v2` đạt, dọn mã và kiểu cũ của màn mình chạm, cập nhật `docs/02`, `docs/22`.
 
-## 5. Giữ nguyên
+## 6. Giữ nguyên
 
 Dữ liệu, quyền theo vai, Lịch sử và khôi phục, kiểm trùng, nháp AI chờ duyệt, lời báo khi lưu. Đây là đổi cách trình bày và cách thao tác, không đổi điều máy được phép làm.
 
-## 6. Đã dọn ở đợt 1
+## 7. Đã dọn ở đợt 1
 
 - Khung "Phongdao hôm nay" ở trang chào mừng WordPress (người biên soạn vào thẳng Hôm nay; người quản trị mở Bảng tin như WordPress gốc).
 - Ba ô cũ, "3 việc gấp nhất", "Nên làm tuần này" của Hôm nay; khối "Thử làm sâu 20–30 bài".

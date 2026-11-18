@@ -18,13 +18,13 @@
     if (f.closest('.phongdao-admin-sua')) {
       let p=f.querySelector('[data-nhap-trang-thai]');
       if(!p){p=document.createElement('p');p.dataset.nhapTrangThai='1';p.setAttribute('role','status');f.prepend(p);}
-      const text=dirty?(storage?'Chưa lưu vào bài · đã giữ trên tab này (tối đa 30 phút).':'Chưa lưu vào bài · bộ nhớ tab không dùng được, hãy lưu trước khi rời trang.'):'Đang xem bản đã lưu; thay đổi mới cần lưu riêng phần này.';
-      if(p.textContent!==text)p.textContent=text;
+      const text=dirty?(storage?'Chưa lưu vào bài · đã giữ trên tab này (tối đa 30 phút).':'Chưa lưu vào bài · bộ nhớ tab không dùng được, hãy lưu trước khi rời trang.'):'';
+      if(p.textContent!==text)p.textContent=text;p.hidden=!dirty;
       const flag=f.closest('details.phongdao-sua-phan')?.querySelector(':scope>summary [data-phan-trang-thai]');
       if(flag)flag.textContent=dirty?' · Chưa lưu':'';
     }
     const banner=document.querySelector('[data-tong-chua-luu]');
-    if(banner){banner.hidden=false;const text=changed.size?`${changed.size} phần chưa lưu vào bài: ${[...changed].map(title).join(', ')}.`:'Chưa có thay đổi chưa lưu trên trang này. Mỗi phần được lưu riêng.';if(banner.textContent!==text)banner.textContent=text;}
+    if(banner){banner.hidden=false;const text=changed.size?`${changed.size} phần chưa lưu: ${[...changed].map(title).join(', ')}.`:'Chưa có thay đổi nào.';if(banner.textContent!==text)banner.textContent=text;}
     document.dispatchEvent(new CustomEvent('phongdao:nhap-do'));
   };
   const remove = k => { try { sessionStorage.removeItem(k); } catch (_) { storage = false; } };
@@ -99,7 +99,7 @@
       changed.clear(); leaving = true;
     }
   });
-  window.phongdaoNhapDo = { coDoi(f) {return changed.has(f);}, cacPhan() {return [...changed];}, themTruong(f) {const base=JSON.parse(initial.get(f)||'[]');for(const item of values(f))if(!base.some(old=>old[0]===item[0]&&old[2]===item[2]))base.push(item);initial.set(f,JSON.stringify(sorted(base)));save(f);}, daLuu(f) { changed.delete(f); remove(key(f)); initial.set(f,JSON.stringify(values(f)));delete f.dataset.giuLoi;paint(f);leaving = true; } };
+  window.phongdaoNhapDo = { coDoi(f) {return changed.has(f);}, cacPhan() {return [...changed];}, themTruong(f) {const base=JSON.parse(initial.get(f)||'[]');for(const item of values(f))if(!base.some(old=>old[0]===item[0]&&old[2]===item[2]))base.push(item);initial.set(f,JSON.stringify(sorted(base)));save(f);}, daLuu(f) { changed.delete(f); remove(key(f)); initial.set(f,JSON.stringify(values(f)));delete f.dataset.giuLoi;paint(f);leaving = true; }, giuDuoc() { return storage; }, roiTrang() { forms.forEach(f => { if (changed.has(f)) save(f); }); leaving = true; } };
   if (forms.some(f => f.dataset.giuLoi === '1')) {
     const error = document.querySelector('.notice-error');
     if (error) { error.tabIndex = -1; error.focus(); }

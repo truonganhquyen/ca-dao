@@ -3,7 +3,7 @@ export async function kiemEditorUrl({bt,G,di,bam,datO,bamDoiTrang,chac,thu,thuMu
   const accept=d=>d.accept().catch(()=>{});bt.on('dialog',accept);
   const clear=()=>bt.evaluate(()=>document.querySelectorAll('form[data-giu-nhap]').forEach(f=>window.phongdaoNhapDo?.daLuu(f)));
   let url,id;
-  const open=async part=>{if(await bt.evaluate(()=>innerWidth)<1200)await bt.select('[data-chon-phan]',part);else await bam(bt,`[data-toi-phan="${part}"]`);};
+  const open=async part=>{await bt.evaluate(p=>{location.hash=p;},part);await bt.waitForFunction(p=>{const e=document.getElementById(p);if(!e)return false;for(let d=e.closest('details');d;d=d.parentElement?.closest('details'))if(!d.open)return false;return true;},{timeout:15000},part);};
   const ready=async()=>{await bt.waitForFunction(()=>{const f=document.querySelector('#phan-y_nghia iframe');return f&&window.tinymce?.get(f.id.replace(/_ifr$/,''))?.initialized;},{timeout:30000});};
   try {
     await di(bt,'/ve/ux-test-trang-sua-dai/');id=await bt.$eval('.dai-bien-tap',e=>e.dataset.bai);url=`/wp-admin/admin.php?page=phongdao-sua-tac-pham&id=${id}`;
@@ -24,7 +24,7 @@ export async function kiemEditorUrl({bt,G,di,bam,datO,bamDoiTrang,chac,thu,thuMu
       chac(await bt.$eval('#phan-y_nghia [data-editor-html]',e=>e.value.includes('strong')&&e.value.includes('href=')&&e.value.includes('pd-chu-tim')),'editor không đồng bộ định dạng về form');
       chac(await bt.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'editor tràn ngang điện thoại');
       if(thuMucAnh)await bt.screenshot({path:`${thuMucAnh}/editor-don-gian-390.png`,fullPage:true});
-      await bamDoiTrang(bt,'#phan-y_nghia button[name=duyet][value="1"]');
+      await bamDoiTrang(bt,'#dang [data-luu-tat-ca]');
       chac(await bt.$eval('#phan-y_nghia [data-editor-chu]',e=>e.value==='[EDITOR-TEST] formatted body'),'sau lưu chữ thuần bị lẫn markup');
       const ctx=await bt.browser().createBrowserContext();try{const guest=await ctx.newPage();await di(guest,'/ve/ux-test-trang-sua-dai/');chac(await guest.$('.y-nghia-chu strong a, .y-nghia-chu a strong, .y-nghia-chu strong'),'khách không thấy đậm');chac(await guest.$('.y-nghia-chu a[href="/ca-dao/dong-mau-mot-cua-bai/"]'),'khách không thấy link');chac(await guest.$('.y-nghia-chu .pd-chu-tim'),'khách không thấy màu');}finally{await ctx.close();}
       await clear();
