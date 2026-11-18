@@ -1176,7 +1176,7 @@ try {
       // Thử trên khổ điện thoại: chọn câu thì thanh ở đáy màn hiện số đã chọn và nút đăng; khối lô ở đầu không tự mở
       await bt.setViewport({ width: 390, height: 844 });
       await di(bt, '/wp-admin/admin.php?page=phongdao-kho');
-      chac(await coChu(bt, 'Bài mới') && await coChu(bt, 'Câu trong Kho'), 'màn Kho không mang tên "Bài mới"');
+      chac(await coChu(bt, 'Bài mới') && await coChu(bt, 'Câu máy đã thu thập trong Kho'), 'màn Kho không mang tên "Bài mới"');
       const chon = await bt.$$eval('input[name="ids[]"][form=phongdao-kho-lo]', os => os.map(o => o.value));
       chac(chon.length >= 2, `màn Kho không có đủ câu để chọn nhiều (thấy ${chon.length})`);
       chac(await bt.$eval('.phongdao-thanh-noi', d => d.hidden), 'điện thoại: thanh nổi đã hiện khi chưa chọn câu nào');
@@ -1333,12 +1333,16 @@ try {
       chac(await bt.$('.phongdao-tp-hanh a[href*="phongdao-sua-tac-pham"]') && await bt.$('.phongdao-tp-nhanh a.button'), 'Tác phẩm thiếu Sửa · Xem · Ẩn trên hàng hoặc nút lọc nhanh');
     });
 
-    await thu('wp-admin Bài mới: Xem trước và đăng một câu → màn kết quả có "Bài vừa đăng" kèm Xem bài · Ẩn nếu nhầm; Ẩn một bấm, người đọc không còn thấy', async () => {
+    await thu('wp-admin Bài mới: chọn một câu, Xem trước và đăng → màn kết quả có "Bài vừa đăng" kèm Xem bài · Ẩn nếu nhầm; Ẩn một bấm, người đọc không còn thấy; mỗi hàng có "Đăng" mở thẻ Đăng nhanh', async () => {
       await bt.setViewport({ width: 1280, height: 800 });
       await di(bt, '/wp-admin/admin.php?page=phongdao-kho');
-      const mot = await bt.$eval('button[name=mot]', b => b.value).catch(() => '');
+      const dang = await bt.$eval('.phongdao-tp-hanh a.button-primary[href*="xem=nhanh"]', a => a.textContent.trim()).catch(() => '');
+      chac(dang === 'Đăng', 'hàng Bài mới không có nút "Đăng" mở thẻ Đăng nhanh');
+      const mot = await bt.$eval('input[name="ids[]"][form=phongdao-kho-lo]', o => o.value).catch(() => '');
       chac(mot, 'Bài mới không còn câu nào để thử đăng');
-      await bamDoiTrang(bt, `button[name=mot][value="${mot}"]`);
+      await bam(bt, `input[name="ids[]"][value="${mot}"]`);
+      await bt.waitForSelector('.phongdao-thanh-noi:not([hidden])', { visible: true, timeout: 15_000 });
+      await bamDoiTrang(bt, '.phongdao-thanh-noi button[name=lam][value=dang]');
       await bamDoiTrang(bt, 'button[name=lam][value=ap_dung]', { banPhim: true });
       await doi(bt, () => document.body.innerText.includes('Lô đã chạy xong.'), null, 'lô đăng một câu không chạy xong', 120_000);
       chac(await coChu(bt, 'Bài vừa đăng'), 'màn kết quả không có "Bài vừa đăng"');

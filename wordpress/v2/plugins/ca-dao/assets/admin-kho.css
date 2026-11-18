@@ -31,11 +31,24 @@
 	height: 24px;
 	margin: 0;
 }
-/* Bài mới → Đăng nhanh (D-119, T-216): mỗi câu một thẻ */
-.phongdao-xem-kieu { margin: 8px 0 12px; }
-.phongdao-dn-the { max-width: 760px; margin: 12px 0 24px; padding: 16px 20px; background: #fff; border: 1px solid #c3c4c7; border-radius: 6px; }
-.phongdao-dn-dem { margin: 0 0 6px; font-weight: 600; }
-.phongdao-dn-the h2 { margin: 6px 0 8px; font-size: 20px; }
-.phongdao-dn-loi { font-size: 17px; line-height: 1.7; margin: 0 0 10px; }
-.phongdao-dn-nut { display: flex; flex-wrap: wrap; gap: 8px; }
-.phongdao-dn-nut .button { min-height: 40px; display: inline-flex; align-items: center; }
+/* Bài mới → Đăng nhanh (D-119; làm lại D-121): thanh tiến độ, thẻ lớn, chip chủ đề máy gợi ý, phím tắt */
+.phongdao-dn-tien { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; max-width: 820px; margin: 0 0 10px; }
+.phongdao-dn-tien .pq-tien-do { flex: 1 1 200px; max-width: 360px; }
+.phongdao-dn-dem { margin: 0; font-weight: 600; }
+.phongdao-dn-the { max-width: 820px; }
+.phongdao-dn-the h2 { margin: 6px 0 8px; font-size: 21px; }
+.phongdao-dn-loi { margin: 0 0 10px; font-family: Literata, Georgia, serif; font-size: 20px; line-height: 1.7; }
+.phongdao-dn-form textarea { width: 100%; min-height: 96px; border-radius: 10px; }
+.phongdao-dn-pl { margin: 12px 0; padding: 0; border: 0; }
+.phongdao-dn-pl legend { margin-bottom: 8px; padding: 0; font-weight: 600; }
+.phongdao-dn-pl .pq-chip-ds { display: flex; flex-wrap: wrap; gap: 8px; }
+.phongdao-dn-pl .pq-chip { position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border: 1px dashed var(--pq-tim-vien, #d9ccf5); border-radius: 999px; background: #fff; color: var(--pq-tim, #5e3aae); font-size: 14px; cursor: pointer; }
+.phongdao-dn-pl .pq-chip input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.phongdao-dn-pl .pq-chip:has(input:checked) { border-style: solid; background: var(--pq-tim-nhat, #f1ecfb); font-weight: 600; }
+.phongdao-dn-pl .pq-chip:has(input:focus-visible) { outline: 3px solid var(--pq-tim, #5e3aae); outline-offset: 2px; }
+.phongdao-dn-pl .pq-chip small { color: var(--pq-nhat, #5c5868); font-size: 12px; }
+.phongdao-dn-nut { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.phongdao-dn-nut .button { display: inline-flex; align-items: center; min-height: 44px; }
+.phongdao-dn-phim { margin: 8px 0 0; }
+.phongdao-dn-phim kbd { padding: 0 5px; border: 1px solid var(--pq-vien-dam, #cfcbd9); border-bottom-width: 2px; border-radius: 5px; background: #fff; font-size: 12px; }
+@media (max-width: 782px) { .phongdao-dn-phim { display: none; } }

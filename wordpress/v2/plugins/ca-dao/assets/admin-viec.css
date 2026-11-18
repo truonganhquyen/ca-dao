@@ -164,11 +164,6 @@
 .phongdao-admin-viec .phongdao-viec-tiep .button, .phongdao-admin-viec .phongdao-viec-bai .button { min-height: 44px; display: inline-flex; align-items: center; }
 
 /* Hộp việc kiểu hộp thư (T-188): tab có số; danh sách bên trái, thẻ đang chọn bên phải (màn rộng) */
-.phongdao-hv-tab { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
-.phongdao-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border: 1px solid #c3c4c7; border-radius: 22px; background: #fff; color: #1d2327; text-decoration: none; }
-.phongdao-chip:hover { border-color: var(--pq-tim, #2271b1); color: var(--pq-tim-dam, #135e96); }
-.phongdao-chip[aria-current] { background: var(--pq-tim, #2271b1); border-color: var(--pq-tim, #2271b1); color: #fff; }
-.phongdao-chip-so { font-weight: 600; }
 .phongdao-hv-tim { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0; }
 .phongdao-hv-tim label { font-weight: 600; }
 .phongdao-admin-viec .phongdao-hv-tim input[type="search"] { width: auto; flex: 1 1 240px; max-width: 420px; }
@@ -182,7 +177,7 @@
 .phongdao-hv-dong.dang-chon { background: #f0f6fc; box-shadow: inset 4px 0 0 var(--pq-tim, #2271b1); }
 .phongdao-admin-viec .phongdao-hv-mo { flex: 1; min-width: 0; display: grid; gap: 2px; padding: 10px 12px 10px 4px; color: #1d2327; text-decoration: none; }
 .phongdao-admin-viec .phongdao-hv-mo:hover .phongdao-hv-ten { color: var(--pq-tim-dam, #135e96); text-decoration: underline; }
-.phongdao-hv-dau, .phongdao-hv-luc { font-size: 12px; color: #50575e; }
+.phongdao-hv-dau, .phongdao-hv-luc { font-size: 12px; color: var(--pq-nhat, #50575e); }
 .phongdao-hv-dau { font-weight: 600; }
 .phongdao-hv-ten { overflow-wrap: anywhere; }
 .phongdao-hv-tom { color: #3c434a; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -206,7 +201,7 @@
 /* Mở một thẻ ở màn hẹp (T-189, báo cáo trinh sát lần 2 mục 2.2): ẩn tab, ô tìm, số thẻ — chỉ còn "← Danh sách · Thẻ 3 / 20",
    Trước / Sau ở đầu thẻ; nút quyết dính đáy màn (trên thanh dưới của điện thoại) để thấy ngay ở màn đầu */
 @media (max-width: 1199px) {
-	.phongdao-admin-viec.co-the > h1 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+	.phongdao-admin-viec.co-the > .pq-dau { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); margin: 0; }
 	.phongdao-admin-viec.co-the > .phongdao-hv-tab, .phongdao-admin-viec.co-the > .phongdao-hv-tim, .phongdao-admin-viec.co-the > .phongdao-hv-so { display: none; }
 	.phongdao-admin-viec .phongdao-hv-phai { display: flex; flex-direction: column; }
 	.phongdao-admin-viec .phongdao-hv-phai[data-tu-chon] { display: none; }

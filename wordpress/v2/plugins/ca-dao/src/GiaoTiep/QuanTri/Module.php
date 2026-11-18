@@ -83,6 +83,7 @@ final class Module implements \Phongdao\HaTang\Module {
 					wp_enqueue_style( 'phongdao-admin-kho', plugins_url( 'assets/admin-kho.css', $tep_goc ), array( 'phongdao-admin-tac-pham' ), CADAO_PHIEN_BAN );
 					wp_enqueue_style( 'phongdao-admin-chon', plugins_url( 'assets/admin-chon.css', $tep_goc ), array(), CADAO_PHIEN_BAN );
 					wp_enqueue_script( 'phongdao-admin-chon', plugins_url( 'assets/admin-chon.js', $tep_goc ), array(), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
+					wp_enqueue_script( 'phongdao-admin-dang-nhanh', plugins_url( 'assets/admin-dang-nhanh.js', $tep_goc ), array(), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
 				}
 			} );
 		}

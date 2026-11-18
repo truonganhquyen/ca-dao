@@ -265,18 +265,33 @@ final class DanhSachKho {
 		return $cau . '<span class="description">' . esc_html( implode( ' · ', $them ) ) . '</span>' . ( $co ? '<span class="phongdao-kho-co">Cờ: ' . esc_html( implode( ', ', $co ) ) . '</span>' : '' );
 	}
 
-	private static function dong( object $m, array $tt_trang, array $nguon, string $quay_lai, array $dau = array() ): string {
-		$id   = (int) $m->id;
-		$cau  = self::o_cau( $m );
-
+	/**
+	 * Một hàng (D-121 đợt 3): ô chọn · số câu · ô câu (thể loại, tên, lời bốn dòng, dòng 2: chú thích / dị bản từ nguồn,
+	 * nguồn, ngày lấy, cờ, trạng thái) · cột việc: "Đăng" mở thẻ Đăng nhanh đúng câu này (người có quyền duyệt), "Để dành" /
+	 * "Đề nghị đăng" / "Bỏ dấu". Câu đã có thẻ, chờ quyết trùng hay chưa chọn được thì chỉ ghi lý do.
+	 *
+	 * @param int $so vị trí của câu trong bộ lọc (từ 1) — mở đúng thẻ Đăng nhanh
+	 */
+	private static function dong( object $m, array $tt_trang, array $nguon, string $quay_lai, array $dau, array $loc, int $so ): string {
+		$id        = (int) $m->id;
+		$d         = Kho::du_lieu( $m );
+		$dong      = array_values( array_filter( explode( "\n", (string) $m->loi ), static fn( string $l ): bool => '' !== trim( $l ) ) );
+		$ten       = '' !== trim( (string) $m->tieu_de ) ? (string) $m->tieu_de : (string) ( $dong[0] ?? '' );
 		$ten_nguon = NguonTuDong::ten( (string) $m->nguon_id );
 		$doc       = (string) $m->doc_trang;
-		$goc       = esc_html( $ten_nguon ) . '<br><span class="description">Lấy ' . esc_html( self::ngay( (string) $m->ngay_lay ) )
-			. ( '' === $doc ? ' · chưa đọc trang gốc' : ( preg_match( '/^\d{4}-/', $doc ) ? '' : ' · không đọc được trang gốc' ) ) . '</span>'
-			. ( '' === (string) $m->url ? '' : '<br><a href="' . esc_url( (string) $m->url ) . '" rel="noreferrer nofollow">Trang gốc</a>' );
+		$so_ct     = count( (array) ( $d['chu_thich'] ?? array() ) );
+		$so_db     = count( (array) ( $d['di_ban'] ?? array() ) );
+		$co        = self::ten_co( (array) ( $d['co'] ?? array() ) );
+		$phu       = ( $so_ct ? '<span class="pq-the xanh">' . $so_ct . ' chú thích</span>' : '' ) . ( $so_db ? '<span class="pq-the xanh">' . $so_db . ' dị bản</span>' : '' )
+			. ( $co ? '<span class="pq-the do phongdao-kho-co">Cờ: ' . esc_html( implode( ', ', $co ) ) . '</span>' : '' )
+			. '<span class="pq-mo">' . esc_html( $ten_nguon . ' · lấy ' . self::ngay( (string) $m->ngay_lay ) . ( '' === $doc ? ' · chưa đọc trang gốc' : ( preg_match( '/^\d{4}-/', $doc ) ? '' : ' · không đọc được trang gốc' ) ) ) . '</span>'
+			. ( '' === (string) $m->url ? '' : '<a href="' . esc_url( (string) $m->url ) . '" rel="noreferrer nofollow">Trang gốc ↗</a>' );
 
-		$tt   = array( esc_html( self::TRANG_THAI[ $m->trang_thai ] ?? (string) $m->trang_thai ) );
-		$bai  = (int) $m->post_id ? get_post( (int) $m->post_id ) : null;
+		$tt  = array();
+		$bai = (int) $m->post_id ? get_post( (int) $m->post_id ) : null;
+		if ( 'moi' !== (string) $m->trang_thai ) {
+			$tt[] = '<span class="pq-the">' . esc_html( self::TRANG_THAI[ $m->trang_thai ] ?? (string) $m->trang_thai ) . '</span>';
+		}
 		if ( $bai ) {
 			$tt[] = current_user_can( 'edit_post', $bai->ID ) ? '<a href="' . esc_url( SuaTacPham::url( $bai->ID ) ) . '">Bài #' . (int) $bai->ID . '</a>' : 'Bài #' . (int) $bai->ID;
 		} elseif ( 'da_gop' === $m->trang_thai && '' !== (string) $m->gop_vao ) {
@@ -289,25 +304,23 @@ final class DanhSachKho {
 		$dau_cau = $dau[ $id ] ?? null;
 		if ( $dau_cau ) {
 			$ai   = get_userdata( (int) $dau_cau['nguoi'] );
-			$tt[] = '<strong>' . esc_html( DanhDau::LOAI[ $dau_cau['loai'] ] ?? '' ) . '</strong>' . ( $ai ? ' <span class="description">(' . esc_html( $ai->display_name ) . ')</span>' : '' );
+			$tt[] = '<span class="pq-the tim"><strong>' . esc_html( DanhDau::LOAI[ $dau_cau['loai'] ] ?? '' ) . '</strong></span>' . ( $ai ? ' <span class="description">(' . esc_html( $ai->display_name ) . ')</span>' : '' );
 		}
-		$trung    = array_key_exists( $id, $tt_trang['trung'] );
+		$trung = array_key_exists( $id, $tt_trang['trung'] );
 		if ( $trung ) {
-			$tt[] = 'Đang chờ quyết trùng';
+			$tt[] = '<span class="pq-the do">Đang chờ quyết trùng</span>';
 		}
 
 		$ly_do = UngVien::chua_chon_duoc( $m );
-		$chon  = '' === $ly_do && ! $the && ! $trung
-			? '<input type="checkbox" name="ids[]" value="' . $id . '" form="' . self::FORM_LO . '" id="chon-kho-' . $id . '"><label for="chon-kho-' . $id . '" class="screen-reader-text">Chọn câu #' . $id . '</label>'
-			: '';
-		if ( '' === $ly_do && ! $the && ! $trung ) {
-			// Thao tác nhỏ trên hàng (không còn 30 nút chính trên một trang): xem trước và đăng một câu (gửi form lô), đưa vào Hộp việc
-			// "Để dành / Đề nghị đăng" thay "Đưa vào Hộp việc" (D-104): câu nằm lại Bài mới, lọc lại được
-			$dang  = current_user_can( Lo::THAO_TAC['kho_dang'][2] ) ? '<button type="submit" form="' . self::FORM_LO . '" name="mot" value="' . $id . '" class="button button-small" aria-label="' . esc_attr( 'Xem trước và đăng: câu #' . $id ) . '">Xem trước và đăng</button>' : '';
-			$nhan  = $dau_cau ? 'Bỏ dấu' : DanhDau::LOAI[ DanhDau::loai_cua( get_current_user_id() ) ];
-			$lam   = '<form method="post" class="phongdao-kho-lam" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="' . self::DANH_DAU . '"><input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="lam" value="' . ( $dau_cau ? 'bo' : 'danh' ) . '"><input type="hidden" name="quay_lai" value="' . esc_attr( $quay_lai ) . '">'
+		$duoc  = '' === $ly_do && ! $the && ! $trung;
+		$chon  = $duoc ? '<input type="checkbox" name="ids[]" value="' . $id . '" form="' . self::FORM_LO . '" id="chon-kho-' . $id . '"><label for="chon-kho-' . $id . '" class="screen-reader-text">Chọn câu #' . $id . '</label>' : '';
+		if ( $duoc ) {
+			// "Đăng" mở thẻ Đăng nhanh của đúng câu này (đọc lại, Ý nghĩa nếu có, chủ đề, rồi Đăng); "Để dành / Đề nghị đăng" (D-104)
+			$dang = current_user_can( 'cadao_duyet' ) ? '<a class="button button-small button-primary" href="' . esc_url( self::url_nhanh( $loc, $so ) ) . '" aria-label="' . esc_attr( 'Đăng câu #' . $id . ' (mở thẻ Đăng nhanh)' ) . '">Đăng</a>' : '';
+			$nhan = $dau_cau ? 'Bỏ dấu' : DanhDau::LOAI[ DanhDau::loai_cua( get_current_user_id() ) ];
+			$lam  = $dang . '<form method="post" class="phongdao-kho-lam" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="' . self::DANH_DAU . '"><input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="lam" value="' . ( $dau_cau ? 'bo' : 'danh' ) . '"><input type="hidden" name="quay_lai" value="' . esc_attr( $quay_lai ) . '">'
 				. wp_nonce_field( self::DANH_DAU . '_' . $id, '_wpnonce', false, false )
-				. $dang . '<button type="submit" class="button button-small" aria-label="' . esc_attr( $nhan . ': câu #' . $id ) . '">' . esc_html( $nhan ) . '</button></form>';
+				. '<button type="submit" class="button button-small" aria-label="' . esc_attr( $nhan . ': câu #' . $id ) . '">' . esc_html( $nhan ) . '</button></form>';
 		} else {
 			$lam = '<span class="description">' . esc_html( $the ? 'Đã có trong Hộp việc' : ( $trung ? 'Quyết trùng trước' : $ly_do ) ) . '</span>';
 			if ( $trung ) {
@@ -315,9 +328,19 @@ final class DanhSachKho {
 					. wp_nonce_field( self::DOI_SOAT . '_' . $id, '_wpnonce', false, false ) . '<button type="submit" class="button button-small">Kiểm tra chờ trùng</button></form>';
 			}
 		}
-		// Điện thoại (thẻ ba dòng): câu; thể loại · nguồn; trạng thái và nút — các cột ID, Thể loại, Nguồn ẩn
-		$dong2 = '<span class="phongdao-tp-dong2">' . esc_html( self::ten_loai( (string) $m->loai ) . ' · ' . $ten_nguon ) . '</span>';
-		return '<tr><td class="phongdao-tp-chon" data-nhan="Chọn">' . $chon . '</td><td class="phongdao-tp-an-dt" data-nhan="ID">' . $id . '</td><td class="phongdao-kho-cau phongdao-tp-ten" data-nhan="Câu">' . $cau . $dong2 . '</td><td class="phongdao-tp-an-dt" data-nhan="Thể loại">' . esc_html( self::ten_loai( (string) $m->loai ) ) . '</td><td class="phongdao-tp-an-dt" data-nhan="Nguồn">' . $goc . '</td><td class="phongdao-kho-tt" data-nhan="Trạng thái">' . implode( '<br>', $tt ) . '</td><td class="phongdao-kho-lam-o" data-nhan="Làm gì">' . $lam . '</td></tr>';
+		return '<tr><td class="phongdao-tp-chon">' . $chon . '</td><td class="phongdao-tp-id" data-nhan="ID">' . $id . '</td>'
+			. '<td class="phongdao-kho-cau phongdao-tp-ten" data-nhan="Câu"><span class="pq-loai">' . esc_html( self::ten_loai( (string) $m->loai ) ) . '</span> <strong>' . esc_html( $ten ) . '</strong>'
+			. '<span class="phongdao-kho-loi">' . implode( '<br>', array_map( 'esc_html', array_slice( $dong, 0, 4 ) ) ) . ( count( $dong ) > 4 ? ' <span class="pq-mo">… ' . count( $dong ) . ' dòng</span>' : '' ) . '</span>'
+			. '<span class="phongdao-tp-dong2">' . $phu . '</span>' . ( $tt ? '<span class="phongdao-tp-dong3 phongdao-kho-tt">' . implode( ' ', $tt ) . '</span>' : '' ) . '</td>'
+			. '<td class="phongdao-tp-lam phongdao-kho-lam-o"><span class="phongdao-tp-hanh">' . $lam . '</span></td></tr>';
+	}
+
+	/** Đổi cách xem Bài mới: Danh sách · Đăng nhanh (người có quyền duyệt). */
+	private static function chuyen_xem( array $loc, bool $nhanh ): string {
+		if ( ! current_user_can( 'cadao_duyet' ) ) {
+			return '';
+		}
+		return '<nav class="pq-chuyen-xem" aria-label="Cách xem Bài mới"><a href="' . esc_url( self::url( $loc ) ) . '"' . ( $nhanh ? '' : ' aria-current="page"' ) . '>Danh sách</a><a href="' . esc_url( self::url_nhanh( $loc ) ) . '"' . ( $nhanh ? ' aria-current="page"' : '' ) . '>Đăng nhanh</a></nav>';
 	}
 
 	public static function hien(): string {
@@ -363,7 +386,11 @@ final class DanhSachKho {
 		$bao     .= TrangLo::lay_bao();
 		$quay_lai = self::url( $loc, (int) $loc['paged'] );
 		$dau      = DanhDau::cua_trang( array_map( static fn( object $m ): int => (int) $m->id, $kq['ds'] ) );
-		$dong     = implode( '', array_map( static fn( object $m ): string => self::dong( $m, $tt, $nguon, $quay_lai, $dau ), $kq['ds'] ) );
+		$vt       = ( (int) $loc['paged'] - 1 ) * self::MOI_TRANG;
+		$dong     = '';
+		foreach ( $kq['ds'] as $i => $m ) {
+			$dong .= self::dong( $m, $tt, $nguon, $quay_lai, $dau, $loc, $vt + $i + 1 );
+		}
 		$so_trang = (int) ceil( $kq['tong'] / self::MOI_TRANG );
 		$phan_trang = $so_trang > 1 ? '<nav class="phongdao-tp-trang" aria-label="Phân trang"><span>Trang ' . (int) $loc['paged'] . ' / ' . $so_trang . '</span>'
 			. ( $loc['paged'] > 1 ? '<a class="button" href="' . esc_url( self::url( $loc, (int) $loc['paged'] - 1 ) ) . '">Trang trước</a>' : '' )
@@ -376,15 +403,15 @@ final class DanhSachKho {
 			( $duyet ? '<button type="submit" form="' . self::FORM_LO . '" name="lam" value="dang" class="button button-primary">Xem trước và đăng</button>' : '' )
 				. '<button type="submit" form="' . self::FORM_LO . '" name="lam" value="de_danh" class="button' . ( $duyet ? '' : ' button-primary' ) . '">' . esc_html( $ten_dau ) . '</button>'
 		) : '';
-		return '<div class="wrap phongdao-admin-tp phongdao-admin-kho"><h1 class="wp-heading-inline">Bài mới</h1> <a class="page-title-action" href="' . esc_url( ThemTacPham::url() ) . '">Thêm tác phẩm</a><hr class="wp-header-end"><h2 class="phongdao-kho-dau">Câu trong Kho</h2>'
-			. '<p class="description">' . ( $duyet
-				? 'Câu máy đã thu thập, chưa lên trang. Chọn câu rồi bấm "Xem trước và đăng": đọc lại một lượt, bấm Đăng là xong. Câu muốn quyết sau thì "Để dành". Không có gì được đăng khi bạn chưa bấm; máy không sửa lời.'
-				: 'Câu máy đã thu thập, chưa lên trang. Câu nên đăng thì bấm "Đề nghị đăng": người có quyền duyệt thấy số đề nghị ở Hôm nay và đăng qua màn xem trước. Nút không đăng, không sửa lời.' ) . '</p>'
-			. $bao . self::nhanh( $loc ) . ( $duyet ? '<p class="phongdao-xem-kieu">Xem: <strong>Danh sách</strong> · <a href="' . esc_url( add_query_arg( 'xem', 'nhanh', self::url( $loc ) ) ) . '">Đăng nhanh</a> <span class="description">mỗi câu một thẻ: đọc, viết Ý nghĩa nếu có, bấm Đăng</span></p>' : '' ) . $form
-			. '<p class="phongdao-tp-tong" role="status"><strong>' . (int) $kq['tong'] . '</strong> câu khớp bộ lọc. Hiện ' . count( $kq['ds'] ) . ' câu trên trang này.</p>'
+		return '<div class="wrap pq-man phongdao-admin-tp phongdao-admin-kho"><div class="pq-dau"><div class="pq-dau-chu"><h1>Bài mới</h1><p>' . ( $duyet
+				? 'Câu máy đã thu thập trong Kho, chưa lên trang. Bấm "Đăng" để mở thẻ đọc lại rồi đăng; chọn nhiều câu để xem trước và đăng một lượt. Không có gì được đăng khi bạn chưa bấm; máy không sửa lời.'
+				: 'Câu máy đã thu thập trong Kho, chưa lên trang. Câu nên đăng thì bấm "Đề nghị đăng": người có quyền duyệt thấy ở Hôm nay. Nút không đăng, không sửa lời.' ) . '</p></div>'
+			. '<div class="pq-dau-nut">' . self::chuyen_xem( $loc, false ) . '<a class="button" href="' . esc_url( ThemTacPham::url() ) . '">＋ Thêm tác phẩm</a></div></div><hr class="wp-header-end">'
+			. $bao . self::nhanh( $loc ) . $form
+			. '<p class="phongdao-tp-tong pq-mo-ta" role="status"><strong>' . (int) $kq['tong'] . '</strong> câu khớp bộ lọc. Hiện ' . count( $kq['ds'] ) . ' câu trên trang này.</p>'
 			. ( $kq['tong'] > 0 ? self::khoi_lo( $loc, $so_chon, $duyet ) . TrangLo::chon_het( $so_chon, 'câu' ) : '' )
-			. '<table class="widefat striped phongdao-tp-bang"><thead><tr><th scope="col">Chọn</th><th scope="col">ID</th><th scope="col">Câu</th><th scope="col">Thể loại</th><th scope="col">Nguồn</th><th scope="col">Trạng thái</th><th scope="col">Làm gì</th></tr></thead><tbody>'
-			. ( $dong ?: '<tr><td colspan="7">' . ( 'hom_nay' === $loc['goi_y'] && ! UngVien::goi_y_hom_nay()['ids'] ? 'Máy chưa có gợi ý hôm nay (máy chọn lúc 06:00 cho các nguồn đang bật).' : 'Không có câu nào khớp. Thử đổi bộ lọc.' ) . '</td></tr>' ) . '</tbody></table>' . $phan_trang . $noi
+			. '<table class="widefat phongdao-tp-bang pq-ds-bang"><thead class="screen-reader-text"><tr><th scope="col">Chọn</th><th scope="col">Số câu</th><th scope="col">Câu</th><th scope="col">Làm gì</th></tr></thead><tbody>'
+			. ( $dong ?: '<tr><td colspan="4">' . ( 'hom_nay' === $loc['goi_y'] && ! UngVien::goi_y_hom_nay()['ids'] ? 'Máy chưa có gợi ý hôm nay (máy chọn lúc 06:00 cho các nguồn đang bật).' : 'Không có câu nào khớp. Thử đổi bộ lọc.' ) . '</td></tr>' ) . '</tbody></table>' . $phan_trang . $noi
 			. self::khoi_nhap() . '</div>';
 	}
 
@@ -418,8 +445,8 @@ final class DanhSachKho {
 			$bao = '<div class="notice ' . ( empty( $ket['ok'] ) ? 'notice-error' : 'notice-success' ) . '"><p role="status">' . esc_html( (string) ( $ket['chu'] ?? '' ) )
 				. ( empty( $ket['bai'] ) ? '' : ' <a href="' . esc_url( (string) get_permalink( (int) $ket['bai'] ) ) . '">Xem bài</a> · <a href="' . esc_url( SuaTacPham::url( (int) $ket['bai'] ) ) . '">Sửa đầy đủ</a>' ) . '</p></div>';
 		}
-		$dau = '<div class="wrap phongdao-admin-tp phongdao-admin-kho phongdao-dang-nhanh"><h1 class="wp-heading-inline">Bài mới · Đăng nhanh</h1><hr class="wp-header-end">'
-			. '<p class="phongdao-xem-kieu">Xem: <a href="' . esc_url( self::url( $loc ) ) . '">Danh sách</a> · <strong>Đăng nhanh</strong></p>' . $bao . self::nhanh( $loc );
+		$dau = '<div class="wrap pq-man phongdao-admin-tp phongdao-admin-kho phongdao-dang-nhanh"><div class="pq-dau"><div class="pq-dau-chu"><h1>Bài mới · Đăng nhanh</h1><p>Mỗi câu một thẻ. Câu không cần sửa: đọc, bấm Đăng — tự sang câu kế.</p></div><div class="pq-dau-nut">' . self::chuyen_xem( $loc, true ) . '</div></div><hr class="wp-header-end">'
+			. $bao . self::nhanh( $loc );
 		$m = $kq['cau'];
 		if ( ! $m ) {
 			return $dau . '<p>Không có câu nào khớp bộ lọc. <a href="' . esc_url( self::url( $loc ) ) . '">Về danh sách</a></p></div>';
@@ -432,9 +459,10 @@ final class DanhSachKho {
 		$trung  = ChongTrung::dang_cho( (int) $m->id );
 		$da_co  = (int) $m->post_id;
 		$o_y    = 'cau-do' === $loai ? 'Giải thích đáp án' : 'Ý nghĩa';
-		$sau    = $so < $kq['tong'] ? '<a class="button" href="' . esc_url( self::url_nhanh( $loc, $so + 1 ) ) . '">Sang thẻ sau</a>' : '';
-		$the    = '<article class="phongdao-dn-the" aria-labelledby="dn-ten"><p class="phongdao-dn-dem">Thẻ ' . (int) $so . ' / ' . (int) $kq['tong'] . '</p>'
-			. '<p class="description">' . esc_html( self::ten_loai( (string) $m->loai ) . ' · Nguồn: ' . $nguon ) . ( '' === (string) $m->url ? '' : ' · <a href="' . esc_url( (string) $m->url ) . '" rel="noreferrer nofollow">trang gốc ↗</a>' ) . '</p>'
+		$sau    = $so < $kq['tong'] ? '<a class="button" href="' . esc_url( self::url_nhanh( $loc, $so + 1 ) ) . '" data-phim="sau">Sang thẻ sau</a>' : '';
+		$the    = '<div class="phongdao-dn-tien"><p class="phongdao-dn-dem">Thẻ ' . (int) $so . ' / ' . (int) $kq['tong'] . '</p><progress class="pq-tien-do" max="' . (int) max( 1, $kq['tong'] ) . '" value="' . (int) $so . '" aria-label="' . esc_attr( 'Thẻ ' . $so . ' trên ' . $kq['tong'] ) . '">' . (int) $so . ' / ' . (int) $kq['tong'] . '</progress></div>'
+			. '<article class="pq-khoi phongdao-dn-the" aria-labelledby="dn-ten">'
+			. '<p class="pq-mo-ta"><span class="pq-loai">' . esc_html( self::ten_loai( (string) $m->loai ) ) . '</span> · Nguồn: ' . esc_html( $nguon ) . ( '' === (string) $m->url ? '' : ' · <a href="' . esc_url( (string) $m->url ) . '" rel="noreferrer nofollow">trang gốc ↗</a>' ) . '</p>'
 			. '<h2 id="dn-ten">' . esc_html( $ten ) . '</h2><div class="phongdao-dn-loi">' . implode( '<br>', array_map( 'esc_html', $dong ) ) . '</div>'
 			. '<p class="description">' . esc_html( count( (array) ( $d['chu_thich'] ?? array() ) ) . ' chú thích, ' . count( (array) ( $d['di_ban'] ?? array() ) ) . ' dị bản từ nguồn (chú thích chỉ chép khi nguồn bật "Chép chú thích"). Máy so trùng lại khi đăng.' ) . '</p>';
 		if ( $da_co || 'moi' !== (string) $m->trang_thai ) {
@@ -444,10 +472,26 @@ final class DanhSachKho {
 			. '<input type="hidden" name="id" value="' . (int) $m->id . '"><input type="hidden" name="ban" value="' . esc_attr( (string) $m->trang_thai ) . '"><input type="hidden" name="quay_lai" value="' . esc_attr( self::url_nhanh( $loc, $so ) ) . '"><input type="hidden" name="sau" value="' . esc_attr( self::url_nhanh( $loc, $so + 1 ) ) . '">'
 			. wp_nonce_field( self::DANG_NHANH . '_' . (int) $m->id, '_wpnonce', true, false )
 			. '<p><label for="dn-y">' . esc_html( $o_y ) . ' <span class="description">tuỳ chọn · 2–3 câu, khoảng 30–60 chữ, bắt đầu bằng nghĩa; để trống thì đăng chưa có nghĩa</span></label><textarea id="dn-y" name="y_nghia" rows="3" class="large-text"></textarea></p>'
+			. self::chip_goi_y( $m )
 			. '<p><label><input type="checkbox" name="tho_tuc" value="1"> Có từ ngữ thô tục <span class="description">(chỉ người bật; trang đọc che lời sau lời báo)</span></label></p>'
-			. '<p class="phongdao-dn-nut">' . ( $trung ? '' : '<button type="submit" name="lam" value="dang" class="button button-primary">Đăng</button>' )
-			. '<button type="submit" name="lam" value="de_sau" class="button">Để sau</button>' . $sau . '</p></form>';
+			. '<p class="phongdao-dn-nut">' . ( $trung ? '' : '<button type="submit" name="lam" value="dang" class="button button-primary" data-phim="dang">Đăng</button>' )
+			. '<button type="submit" name="lam" value="de_sau" class="button" data-phim="de-sau">Để sau</button>' . $sau . '</p>'
+			. '<p class="phongdao-dn-phim description" data-chi-js hidden><kbd>Ctrl</kbd>+<kbd>Enter</kbd> Đăng · <kbd>Alt</kbd>+<kbd>S</kbd> Để sau · <kbd>Alt</kbd>+<kbd>→</kbd> Thẻ sau</p></form>';
 		return $dau . $the . ( $trung ? '<div class="notice notice-warning inline"><p>Câu đang chờ quyết trùng: quyết thẻ "Có thể trùng" ở Hộp việc trước khi đăng.</p></div>' : '' ) . $form . '</article></div>';
+	}
+
+	/**
+	 * Chủ đề, vùng máy gợi ý cho câu (cùng quy tắc với bài đã đăng): chip nét đứt chưa đánh dấu — người bấm mới gắn khi Đăng
+	 * (D-121). Không có gợi ý thì không hiện gì.
+	 */
+	private static function chip_goi_y( object $m ): string {
+		$o = '';
+		foreach ( \Phongdao\DichVu\GoiY\GoiY::cho_kho( $m ) as $g ) {
+			$t   = $g['term'];
+			$ma  = 'dn-pl-' . $g['loai'] . '-' . (int) $t->term_id;
+			$o  .= '<label class="pq-chip goi-y" for="' . esc_attr( $ma ) . '" title="' . esc_attr( (string) $g['ly_do'] ) . '"><input type="checkbox" id="' . esc_attr( $ma ) . '" name="pl[]" value="' . esc_attr( $g['loai'] . ':' . (int) $t->term_id ) . '"> <span aria-hidden="true">＋</span> ' . esc_html( $t->name ) . ' <small>' . esc_html( \Phongdao\HaTang\KhaiBao::PHAN_LOAI[ $g['loai'] ][1] ?? $g['loai'] ) . '</small></label>';
+		}
+		return '' === $o ? '' : '<fieldset class="phongdao-dn-pl"><legend>Chủ đề, vùng máy gợi ý <span class="description">nét đứt — bấm để gắn khi Đăng</span></legend><div class="pq-chip-ds">' . $o . '</div></fieldset>';
 	}
 
 	/**
@@ -476,6 +520,27 @@ final class DanhSachKho {
 			$t     = \Phongdao\DichVu\LuuPhan\LuuPhan::luu( $bai, 'tho_tuc', array( 'nguoi_lam' => \Phongdao\MienDuLieu\NguoiLam::NGUOI_VIET ), $nc );
 			$them .= $t['ok'] ? ' Đã bật "Có từ ngữ thô tục".' : ' Chưa bật được "Có từ ngữ thô tục": ' . implode( ' ', $t['loi'] );
 		}
+		// Chủ đề, vùng người bấm trong chip gợi ý: gắn qua đường lưu phân loại (Lịch sử), thẻ gợi ý tương ứng đóng "Đồng ý"
+		$pl = array();
+		foreach ( (array) ( $vao['pl'] ?? array() ) as $x ) {
+			if ( preg_match( '/^(chu_de|vung):(\d+)$/', (string) $x, $k ) ) {
+				$pl[ $k[1] ][] = (int) $k[2];
+			}
+		}
+		$loai_bai = (string) \Phongdao\DichVu\DungTrang\DocBai::the_loai( get_post( $bai ) );
+		foreach ( $pl as $tax => $ids ) {
+			if ( ! \Phongdao\DichVu\LuuPhan\LuuPhanLoai::sua_duoc( $tax, $loai_bai ) ) {
+				continue;
+			}
+			$cu = (array) \Phongdao\DichVu\LuuPhan\LuuPhanLoai::dang_gan( $bai, $tax );
+			$t  = \Phongdao\DichVu\LuuPhan\LuuPhanLoai::luu( $bai, $tax, array_values( array_unique( array_merge( $cu, $ids ) ) ), $cu, $nguoi );
+			if ( $t['ok'] ) {
+				SuaTacPham::dong_goi_y_da_gan( $bai, $tax, $nguoi );
+				$them .= ' Đã gắn ' . mb_strtolower( (string) ( \Phongdao\HaTang\KhaiBao::PHAN_LOAI[ $tax ][1] ?? $tax ) ) . '.';
+			} else {
+				$them .= ' Chưa gắn được ' . mb_strtolower( (string) ( \Phongdao\HaTang\KhaiBao::PHAN_LOAI[ $tax ][1] ?? $tax ) ) . ': ' . implode( ' ', $t['loi'] );
+			}
+		}
 		$y = trim( str_replace( "\r", '', (string) ( $vao['y_nghia'] ?? '' ) ) );
 		if ( '' !== $y ) {
 			$t     = \Phongdao\DichVu\LuuPhan\LuuPhan::luu( $bai, 'y_nghia', array( 'chu' => $y, 'ai' => false, 'nguoi_lam' => \Phongdao\MienDuLieu\NguoiLam::NGUOI_VIET ), $nc );
@@ -491,7 +556,8 @@ final class DanhSachKho {
 			wp_die( 'Bạn không có quyền với câu kho.', '', array( 'response' => 403 ) );
 		}
 		check_admin_referer( self::DANG_NHANH . '_' . $id );
-		$vao   = array_map( static fn( $v ): string => is_scalar( $v ) ? (string) $v : '', wp_unslash( array_intersect_key( $_POST, array_flip( array( 'lam', 'y_nghia', 'tho_tuc', 'ban' ) ) ) ) );
+		$vao       = array_map( static fn( $v ): string => is_scalar( $v ) ? (string) $v : '', wp_unslash( array_intersect_key( $_POST, array_flip( array( 'lam', 'y_nghia', 'tho_tuc', 'ban' ) ) ) ) );
+		$vao['pl'] = array_map( 'sanitize_text_field', array_filter( (array) wp_unslash( $_POST['pl'] ?? array() ), 'is_scalar' ) );
 		$nguoi = get_current_user_id();
 		$kq    = self::dang_nhanh_mot( $id, $vao, $nguoi );
 		set_transient( 'phongdao_kho_bao_' . $nguoi, array( 'ok' => $kq['ok'], 'chu' => $kq['chu'], 'bai' => $kq['bai'] ), MINUTE_IN_SECONDS );
@@ -504,7 +570,8 @@ final class DanhSachKho {
 	/** Lọc nhanh của Bài mới: Máy gợi ý hôm nay (thay thẻ Câu mới hằng ngày), Để dành, Đề nghị đăng — kèm số. */
 	private static function nhanh( array $loc ): string {
 		$goi = UngVien::goi_y_hom_nay();
-		$o   = '';
+		$tat = '' === $loc['goi_y'] && '' === $loc['danh'];
+		$o   = '<a class="phongdao-chip" href="' . esc_url( self::url( array( 'goi_y' => '', 'danh' => '' ) + $loc ) ) . '"' . ( $tat ? ' aria-current="true"' : '' ) . '>Tất cả <span class="phongdao-chip-so">' . esc_html( number_format_i18n( (int) ( Kho::dem()['moi'] ?? 0 ) ) ) . '</span></a>';
 		foreach (
 			array(
 				array( 'goi_y', 'hom_nay', 'Máy gợi ý hôm nay', count( $goi['ids'] ) ),
@@ -516,7 +583,7 @@ final class DanhSachKho {
 			$moi  = array( $khoa => $dang ? '' : $gia_tri ) + ( 'goi_y' === $khoa ? array( 'danh' => '' ) : array( 'goi_y' => '' ) ) + $loc;
 			$o   .= '<a class="phongdao-chip" href="' . esc_url( self::url( $moi ) ) . '"' . ( $dang ? ' aria-current="true"' : '' ) . '>' . esc_html( $chu ) . ' <span class="phongdao-chip-so">' . esc_html( number_format_i18n( $so ) ) . '</span></a>';
 		}
-		return '<nav class="phongdao-hv-tab" aria-label="Lọc nhanh câu kho">' . $o . '</nav>';
+		return '<nav class="phongdao-hv-tab" aria-label="Nhóm câu trong Kho">' . $o . '</nav>';
 	}
 
 	/**

@@ -22,6 +22,9 @@ defined( 'ABSPATH' ) || exit;
 final class DanhSachViec {
 
 	public const TRANG = 'phongdao-hop-viec';
+
+	/** Màu thẻ loại việc trong danh sách (D-121): đỏ có thể trùng, tím nháp, xanh dương người đọc gửi, vàng cần xem, xanh lá câu mới. */
+	private const MAU_LOAI = array( 'co_the_trung' => 'do', 'nhap_y_nghia' => 'tim', 'nguoi_doc' => 'xanh', 'can_xem' => 'vang', 'cau_moi' => 'luc', 'goi_y' => 'tim' );
 	private const MOI_TRANG = 30;
 	/** id của form lô (thanh nổi gửi form này bằng thuộc tính `form`). */
 	public const FORM_LO = 'phongdao-hv-lo';
@@ -375,7 +378,7 @@ final class DanhSachViec {
 			$dong .= '<li class="phongdao-hv-dong' . ( $dang ? ' dang-chon' : '' ) . '">'
 				. ( $lo ? '<input type="checkbox" name="ids[]" value="' . $id . '" id="chon-viec-' . $id . '"><label for="chon-viec-' . $id . '" class="screen-reader-text">Chọn thẻ #' . $id . '</label>' : '' )
 				. '<a class="phongdao-hv-mo" href="' . esc_url( self::url( $loc, (int) $loc['paged'], $id ) ) . '"' . ( $dang ? ' aria-current="true"' : '' ) . '>'
-				. '<span class="phongdao-hv-dau">' . esc_html( $ten ) . ' #' . $id . '</span>'
+				. '<span class="phongdao-hv-dau"><span class="pq-the ' . ( self::MAU_LOAI[ $x['loai'] ] ?? '' ) . '">' . esc_html( $ten ) . ' #' . $id . '</span></span>'
 				. '<strong class="phongdao-hv-ten">' . esc_html( $tom[ $id ][0] ?? self::doi_tuong( $x, $ten_trang ) ) . '</strong>'
 				. ( '' !== ( $tom[ $id ][1] ?? '' ) ? '<span class="phongdao-hv-tom">' . esc_html( $tom[ $id ][1] ) . '</span>' : '' )
 				. '<span class="phongdao-hv-luc">' . esc_html( ( self::TRANG_THAI[ $x['trang_thai'] ] ?? $x['trang_thai'] ) . ' · ' . get_date_from_gmt( (string) $x['tao_luc'], 'd/m/Y H:i' ) ) . '</span></a></li>';
@@ -389,7 +392,7 @@ final class DanhSachViec {
 		$ds   = ( $lo ? TrangLo::chon_het( (int) $kq['tong'], 'thẻ' ) : '' ) . ( $dong ? '<ul class="phongdao-hv-ds">' . $dong . '</ul>' : $rong );
 		$tim  = '<form class="phongdao-hv-tim" method="get" action="' . esc_url( admin_url( 'admin.php' ) ) . '"><input type="hidden" name="page" value="' . self::TRANG . '"><input type="hidden" name="tt" value="' . esc_attr( $loc['tt'] ) . '"><input type="hidden" name="loai" value="' . esc_attr( $loc['loai'] ) . '">'
 			. '<label for="phongdao-viec-q">Tìm thẻ</label><input id="phongdao-viec-q" name="q" type="search" value="' . esc_attr( $loc['q'] ) . '" placeholder="ID, tên bài hoặc chữ trong thẻ"><button class="button" type="submit">Tìm</button></form>';
-		return '<div class="wrap phongdao-admin-viec' . ( $v ? ' co-the' : '' ) . '"><h1>Hộp việc</h1>'
+		return '<div class="wrap pq-man phongdao-admin-viec' . ( $v ? ' co-the' : '' ) . '"><div class="pq-dau"><div class="pq-dau-chu"><h1>Hộp việc</h1><p>Việc cần người quyết. Chọn một thẻ bên trái, quyết ở bên phải; quyết xong tự sang thẻ kế.</p></div></div><hr class="wp-header-end">'
 			. self::bao_quyet( $loc ) . TrangLo::lay_bao() . self::tab( $loc ) . $tim
 			. '<p class="phongdao-hv-so" role="status"><strong>' . (int) $kq['tong'] . '</strong> thẻ khớp bộ lọc; hiện ' . count( $kq['ds'] ) . ' thẻ trên trang này.</p>'
 			. '<div class="phongdao-hv' . ( $v ? ' co-chon' : '' ) . '"><div class="phongdao-hv-trai">'

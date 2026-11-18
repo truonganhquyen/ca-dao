@@ -129,6 +129,35 @@ final class GoiY implements \Phongdao\HaTang\Module {
 		return ( $v['noi_dung']['loai'] ?? '' ) . ':' . ( $v['noi_dung']['ma'] ?? '' );
 	}
 
+	/**
+	 * Chủ đề, vùng máy gợi ý cho một câu trong Kho (chưa thành bài) — cùng quy tắc với bài đã đăng, dữ liệu lấy từ câu kho
+	 * (lời, thể loại, chú thích, chủ đề của nguồn). Chỉ để hiện chip nét đứt ở Đăng nhanh: người bấm mới gắn (D-121).
+	 *
+	 * @return array<int,array{loai:string,ma:string,ly_do:string,term:\WP_Term}>
+	 */
+	public static function cho_kho( object $m ): array {
+		$d      = Kho::du_lieu( $m );
+		$anh_xa = get_option( 'cadao_anh_xa_chu_de' );
+		$vao    = array(
+			'tieu_de'    => (string) $m->tieu_de,
+			'loi'        => array_values( array_filter( array_map( 'trim', explode( "\n", (string) $m->loi ) ), 'strlen' ) ),
+			'the_loai'   => (string) ( \Phongdao\MienDuLieu\TheLoai::TU_LOAI_GOC[ (string) $m->loai ] ?? '' ),
+			'chu_thich'  => array_map( static fn( $c ): array => array( 'tu' => (string) ( $c['tu'] ?? '' ), 'loi_giai' => (string) ( $c['loi_giai'] ?? '' ), 'toa_do' => null ), array_filter( (array) ( $d['chu_thich'] ?? array() ), 'is_array' ) ),
+			'chu_de_goc' => array_map( 'strval', (array) ( $d['chu_de_goc'] ?? array() ) ),
+			'anh_xa'     => is_array( $anh_xa ) ? $anh_xa : Quy::ANH_XA_DE_XUAT,
+			'da_co'      => array(),
+			'da_quyet'   => array(),
+		);
+		$ra = array();
+		foreach ( Quy::cho( $vao ) as $g ) {
+			$t = term_exists( $g['ma'], $g['loai'] ) ? get_term_by( 'slug', $g['ma'], $g['loai'] ) : false;
+			if ( $t instanceof \WP_Term ) {
+				$ra[] = $g + array( 'term' => $t );
+			}
+		}
+		return $ra;
+	}
+
 	/** Dữ liệu vào của quy tắc gợi ý (MienDuLieu\GoiY::cho). */
 	private static function vao( \WP_Post $bai, array $viec ): array {
 		global $wpdb;

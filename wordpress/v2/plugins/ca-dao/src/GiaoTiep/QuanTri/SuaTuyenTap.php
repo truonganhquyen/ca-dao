@@ -276,25 +276,30 @@ final class SuaTuyenTap {
 		return $o;
 	}
 
+	/**
+	 * Danh sách tuyển tập (D-121 đợt 3): mỗi bộ một hàng — loại, tên, trạng thái màu (người đọc đang thấy / đã đăng nhưng
+	 * chưa thấy / bản nháp), điều còn thiếu để công khai thành thẻ nét đứt (chưa đăng, chưa có lời dẫn, chưa đủ câu đã
+	 * đăng), số câu đã đăng; nút Sửa (bộ nháp còn thiếu: "Làm tiếp") và Xem.
+	 */
 	private static function danh_sach( array $bao ): string {
 		$ds   = get_posts( array( 'post_type' => KhaiBao::TUYEN_TAP, 'post_status' => array( 'publish', 'draft', 'pending', 'private' ), 'numberposts' => 200, 'orderby' => 'modified', 'order' => 'DESC' ) );
 		$hang = '';
 		foreach ( $ds as $tt ) {
 			$thieu = self::thieu( $tt->ID );
-			$tt_ch = $thieu ? ( 'publish' === $tt->post_status ? 'Đã đăng, người đọc chưa thấy: ' : 'Nháp: ' ) . implode( '; ', $thieu ) : 'Người đọc đang thấy';
-			$hang .= '<tr><th scope="row"><a href="' . esc_url( self::url( array( 'id' => $tt->ID ) ) ) . '">' . esc_html( $tt->post_title ?: '(chưa có tên)' ) . '</a></th>'
-				. '<td><span class="phongdao-dcd-nhan">Loại: </span>' . esc_html( TuyenTap::LOAI[ TuyenTap::loai( $tt ) ] ) . '</td>'
-				. '<td><span class="phongdao-dcd-nhan">Câu đã đăng: </span>' . count( TuyenTap::muc( $tt ) ) . ' / ' . count( self::muc( $tt->ID ) ) . '</td>'
-				. '<td><span class="phongdao-dcd-nhan">Trạng thái: </span>' . esc_html( $tt_ch ) . '</td>'
-				. '<td><a class="button" href="' . esc_url( self::url( array( 'id' => $tt->ID ) ) ) . '">Sửa</a> <a class="button" href="' . esc_url( 'publish' === $tt->post_status ? (string) get_permalink( $tt ) : (string) get_preview_post_link( $tt ) ) . '">Xem</a></td></tr>';
+			$dang  = 'publish' === $tt->post_status;
+			$the   = $dang ? ( $thieu ? '<span class="pq-the vang">Đã đăng, người đọc chưa thấy</span>' : '<span class="pq-the luc">Người đọc đang thấy</span>' ) : '<span class="pq-the">Bản nháp</span>';
+			$con   = array_values( array_diff( $thieu, array( 'chưa đăng' ) ) );
+			$sua   = esc_url( self::url( array( 'id' => $tt->ID ) ) );
+			$hang .= '<li class="pq-tt-hang"><div class="pq-tt-chu"><span class="pq-loai">' . esc_html( TuyenTap::LOAI[ TuyenTap::loai( $tt ) ] ) . '</span> <a class="pq-tt-ten" href="' . $sua . '">' . esc_html( $tt->post_title ?: '(chưa có tên)' ) . '</a>'
+				. '<span class="pq-tt-phu">' . $the . ( $con ? '<span class="pq-mo">Còn thiếu:</span><span class="pq-thieu">' . implode( '', array_map( static fn( string $x ): string => '<span>' . esc_html( $x ) . '</span>', $con ) ) . '</span>' : '' )
+				. '<span class="pq-mo">· ' . esc_html( count( TuyenTap::muc( $tt ) ) . ' / ' . count( self::muc( $tt->ID ) ) . ' câu đã đăng' ) . '</span></span></div>'
+				. '<div class="pq-tt-nut"><a class="button button-small' . ( ! $dang && $thieu ? ' button-primary' : '' ) . '" href="' . $sua . '">' . ( ! $dang && $thieu ? 'Làm tiếp' : 'Sửa' ) . '<span class="screen-reader-text">: ' . esc_html( $tt->post_title ) . '</span></a>'
+				. '<a class="button button-small" href="' . esc_url( $dang ? (string) get_permalink( $tt ) : (string) get_preview_post_link( $tt ) ) . '">Xem ↗<span class="screen-reader-text">: ' . esc_html( $tt->post_title ) . '</span></a></div></li>';
 		}
-		return '<div class="wrap phongdao-ban phongdao-tuyen-tap"><h1>Tuyển tập</h1>' . self::thong_bao( $bao )
-			. '<p class="description">Một tuyển tập gom nhiều câu theo một mạch (chủ đề, dịp, tình huống, bài học), có lời dẫn của bạn. Người đọc thấy bộ khi đã đăng, có lời dẫn và đủ ' . TuyenTap::nguong( 'chu_de' ) . ' câu đã đăng (loại Tình huống: ' . TuyenTap::nguong( 'tinh_huong' ) . '). Hướng dẫn: docs/huong-dan/lam-tuyen-tap.md.</p>'
-			. '<p><a class="button button-primary phongdao-tt-nut" href="' . esc_url( self::url( array( 'moi' => 1 ) ) ) . '">+ Tuyển tập mới</a></p>'
-			. ( $hang
-				? '<table class="widefat striped phongdao-dcd"><caption class="screen-reader-text">Các tuyển tập, loại, số câu đã đăng trên tổng số câu, trạng thái</caption><thead><tr><th scope="col">Tên</th><th scope="col">Loại</th><th scope="col">Câu đã đăng</th><th scope="col">Trạng thái</th><th scope="col">Làm</th></tr></thead><tbody>' . $hang . '</tbody></table>'
-				: '<table class="widefat phongdao-dcd"><caption class="screen-reader-text">Các tuyển tập</caption><tbody><tr><td>Chưa có tuyển tập nào. Bấm “+ Tuyển tập mới” để bắt đầu.</td></tr></tbody></table>' )
-			. '</div>';
+		return '<div class="wrap pq-man phongdao-ban phongdao-tuyen-tap"><div class="pq-dau"><div class="pq-dau-chu"><h1>Tuyển tập</h1><p>Bộ câu theo chủ đề, dịp, tình huống, có lời dẫn của bạn. Người đọc thấy bộ khi đã đăng, có lời dẫn và đủ ' . TuyenTap::nguong( 'chu_de' ) . ' câu đã đăng (loại Tình huống: ' . TuyenTap::nguong( 'tinh_huong' ) . ').</p></div>'
+			. '<div class="pq-dau-nut"><a class="button button-primary phongdao-tt-nut" href="' . esc_url( self::url( array( 'moi' => 1 ) ) ) . '">+ Tuyển tập mới</a></div></div><hr class="wp-header-end">' . self::thong_bao( $bao )
+			. ( $hang ? '<ul class="pq-ds pq-tt-ds" aria-label="Các tuyển tập">' . $hang . '</ul>' : '<p class="pq-khoi pq-tt-ds">Chưa có tuyển tập nào. Bấm “+ Tuyển tập mới” để bắt đầu.</p>' )
+			. '<p class="pq-mo-ta">Hướng dẫn: docs/huong-dan/lam-tuyen-tap.md.</p></div>';
 	}
 
 	/** Màn soạn một tuyển tập (mới hoặc đang có). */

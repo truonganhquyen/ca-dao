@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Phiên bản | 1.0 · 18/11/2026 |
-| Trạng thái | **Đang làm.** Đợt 1 (T-217), đợt 2 (T-218) xong; đợt 3–4 (T-219, T-220) chờ làm theo thứ tự |
+| Trạng thái | **Đang làm.** Đợt 1–3 (T-217..T-219) xong; đợt 4 (T-220: Bổ sung, Thêm tác phẩm) còn lại |
 | Quyết định | D-121 — người sáng lập duyệt bản xem trước quản trị và ba điều chốt ngày 18/11/2026 |
 | Bản xem trước | Bản tĩnh ngoài kho mã, trên máy người sáng lập: `output/xem-truoc-quan-tri/index.html` (không đưa vào repo) |
 | Đọc khi | Làm bất kỳ màn nào trong wp-admin của Phongdao |
@@ -100,20 +100,28 @@ Cách làm nhanh:
 - Thanh lưu nổi ở đáy trên điện thoại khi có phần chưa lưu; Ctrl/⌘ + S lưu mọi thay đổi.
 - **Đã dọn:** mục lục 16 nút, ô "Đi tới phần", thanh lưu theo phần đang làm, nhóm "Quản lý trạng thái bài", hàng "Thêm: …", ô gập "Phần khác (N)".
 
-## 5. Đợt sau
+## 5. Danh sách (đợt 3)
+
+- **Chung:** đầu màn; tab gạch chân có số; lọc nhanh dạng chip; ô tìm một hàng; bảng thành hàng gọn (`.pq-ds-bang`: ô chọn · số · nội dung · nút), hàng dạng danh sách (`.pq-ds`).
+- **Tác phẩm:** hàng có thể loại, tên, hai dòng lời, thẻ trạng thái màu, phần còn thiếu nét đứt, cờ, nguồn, ngày sửa; cột Sửa · Xem · Ẩn · Thùng rác. Lọc nhanh thêm "Cần sửa trình bày".
+- **Bài mới:** nút chuyển Danh sách · Đăng nhanh; tab Tất cả · Máy gợi ý hôm nay · Để dành · Đề nghị đăng; nút "Đăng" cuối hàng mở thẻ Đăng nhanh đúng câu (chọn nhiều vẫn "Xem trước và đăng" ở thanh nổi).
+- **Đăng nhanh:** thanh tiến độ; chủ đề, vùng máy gợi ý là chip nét đứt, bấm mới gắn khi Đăng (cùng quy tắc gợi ý với bài đã đăng, `GoiY::cho_kho`); phím tắt Ctrl/⌘ + Enter · Alt + S · Alt + →.
+- **Hộp việc:** thẻ loại việc màu trong danh sách. Chữ trên nút quyết giữ nguyên.
+- **Tuyển tập:** mỗi bộ một hàng, trạng thái màu, còn thiếu gì để công khai, "Làm tiếp" cho bộ nháp còn thiếu.
+
+## 6. Đợt sau
 
 | Đợt | Việc | Gồm |
 |---|---|---|
-| 3 | T-219 Danh sách | Tác phẩm (tab trạng thái, lọc nhanh, hàng gọn có thẻ trạng thái và phần còn thiếu); Bài mới (tab Gợi ý hôm nay · Để dành · Đề nghị đăng, hàng đọc được lời, nút Đăng cuối hàng, thanh chọn nhiều nổi); Đăng nhanh (chủ đề gợi ý chip nét đứt, phím tắt); Hộp việc (ba lựa chọn viết rõ chữ, so hai bản tô chỗ khác); Tuyển tập (mỗi bộ một hàng, ghi còn thiếu gì để công khai) |
 | 4 | T-220 Bổ sung, Thêm | Bổ sung chia năm tab (Thiếu Ý nghĩa, Cần sửa, Gợi ý chủ đề / vùng, Đối chiếu sách, Nháp theo lô), tiến độ lên Google một dòng; Thêm tác phẩm báo trùng ngay dưới ô, một nút Đăng ngay |
 
 Mỗi đợt: một PR có link bản xem trước, `npm run quet:v2` đạt, dọn mã và kiểu cũ của màn mình chạm, cập nhật `docs/02`, `docs/22`.
 
-## 6. Giữ nguyên
+## 7. Giữ nguyên
 
 Dữ liệu, quyền theo vai, Lịch sử và khôi phục, kiểm trùng, nháp AI chờ duyệt, lời báo khi lưu. Đây là đổi cách trình bày và cách thao tác, không đổi điều máy được phép làm.
 
-## 7. Đã dọn ở đợt 1
+## 8. Đã dọn ở đợt 1
 
 - Khung "Phongdao hôm nay" ở trang chào mừng WordPress (người biên soạn vào thẳng Hôm nay; người quản trị mở Bảng tin như WordPress gốc).
 - Ba ô cũ, "3 việc gấp nhất", "Nên làm tuần này" của Hôm nay; khối "Thử làm sâu 20–30 bài".
