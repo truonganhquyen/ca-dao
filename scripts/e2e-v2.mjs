@@ -91,6 +91,14 @@ const bam = async (tab, sel) => {
 // Bấm rồi chờ trang mới (form gửi thẳng, tải lại sau khi lưu). Không dựa vào sự kiện chuyển trang của puppeteer: Chrome mới
 // có lúc thay khung trang khi gửi form rồi chuyển hướng, làm waitForNavigation treo 120 giây hoặc "frame detached" ngẫu
 // nhiên ở các bước lô (#141–#145). Đánh dấu trang cũ, bấm, rồi chờ tới khi trang hiện tại là trang mới đã tải xong.
+const choSangTrang = async (tab, sel) => {
+  const het = Date.now() + 120_000;
+  for (;;) {
+    try { if (await tab.evaluate(() => !window.__trangCu && document.readyState === 'complete')) return; } catch { /* đang chuyển trang */ }
+    if (Date.now() > het) throw new Error(`bấm ${sel} mà không sang trang mới sau 120 giây`);
+    await new Promise(ok => setTimeout(ok, 200));
+  }
+};
 const bamDoiTrang = async (tab, sel, { banPhim = false } = {}) => {
   await tab.evaluate(() => { window.__trangCu = 1; });
   if (banPhim) {
@@ -99,12 +107,14 @@ const bamDoiTrang = async (tab, sel, { banPhim = false } = {}) => {
     await nut.focus();
     await tab.keyboard.press('Enter');
   } else await bam(tab, sel);
-  const het = Date.now() + 120_000;
-  for (;;) {
-    try { if (await tab.evaluate(() => !window.__trangCu && document.readyState === 'complete')) return; } catch { /* đang chuyển trang */ }
-    if (Date.now() > het) throw new Error(`bấm ${sel} mà không sang trang mới sau 120 giây`);
-    await new Promise(ok => setTimeout(ok, 200));
-  }
+  await choSangTrang(tab, sel);
+};
+// Màn Sửa tác phẩm (D-121): có JavaScript thì nút lưu riêng từng phần nhường chỗ cho "Lưu thay đổi"; luồng lưu một phần
+// (vẫn dùng khi không có JavaScript) được kiểm bằng cách gửi đúng form với đúng nút đó
+const luuRieng = async (tab, sel) => {
+  await tab.evaluate(() => { window.__trangCu = 1; });
+  chac(await tab.$eval(sel, b => { b.form.requestSubmit(b); return true; }).catch(() => false), `không thấy ${sel}`);
+  await choSangTrang(tab, sel);
 };
 const baoCo = (tab, chu) => doi(tab, c => (document.querySelector('#phongdao-bao')?.textContent || '').includes(c), chu, `không hiện thông báo "${chu}"`);
 const coChu = (tab, chu) => tab.evaluate(c => document.body.innerText.includes(c), chu);
@@ -663,7 +673,7 @@ try {
       // Phần đã có mở sẵn; phần chưa có thì mở bằng tay
       await bt.$eval('#phan-y_nghia', d => { d.open = true; });
       await datO(bt, '#phan-y_nghia textarea[name=chu]', moi);
-      await bamDoiTrang(bt, '#phan-y_nghia button[name=duyet][value="1"]');
+      await luuRieng(bt, '#phan-y_nghia button[name=duyet][value="1"]');
       chac(await coChu(bt, 'Đã lưu phần bài.'), 'wp-admin không báo lưu thành công');
       await di(k, caDao);
       chac(await coChu(k, moi), 'người đọc không thấy Ý nghĩa vừa duyệt trong wp-admin');
@@ -676,20 +686,20 @@ try {
       await bam(bt, '#phan-chu_thich [data-action=them-muc]');
       const last = '#phan-chu_thich li.muc-sua:last-child';
       await datO(bt, `${last} input[name$="[tu]"]`, '[UX-TEST] Từ kỹ thuật');
-      await bamDoiTrang(bt, '#phan-chu_thich button[type=submit]');
+      await luuRieng(bt, '#phan-chu_thich button[type=submit]');
       chac(await coChu(bt, 'cần điền Lời giải'), 'hàng điền dở không báo thiếu');
       chac(await bt.$eval(`${last} input[name$="[tu]"]`, o => o.value) === '[UX-TEST] Từ kỹ thuật', 'từ vừa gõ đã mất');
       chac(await bt.$eval('#phan-hinh_anh textarea[name=chu]', o => o.value) === '[UX-TEST] Phần chữ chưa lưu cần giữ', 'chữ ở phần khác đã mất');
       await datO(bt, `${last} textarea[name$="[loi_giai]"]`, 'a'.repeat(4001));
-      await bamDoiTrang(bt, '#phan-chu_thich button[type=submit]');
+      await luuRieng(bt, '#phan-chu_thich button[type=submit]');
       chac(await bt.$eval(`${last} textarea[name$="[loi_giai]"]`, o => o.value.length) === 4001, 'lỗi giới hạn làm mất đầu vào');
       await datO(bt, `${last} textarea[name$="[loi_giai]"]`, '[UX-TEST] Lời giải kỹ thuật');
-      await bamDoiTrang(bt, '#phan-chu_thich button[type=submit]');
+      await luuRieng(bt, '#phan-chu_thich button[type=submit]');
       chac(await coChu(bt, 'Đã lưu phần bài.'), 'không lưu được hàng sau khi sửa lỗi');
       chac(await bt.$eval('#phan-hinh_anh textarea[name=chu]', o => o.value) === '[UX-TEST] Phần chữ chưa lưu cần giữ', 'lưu thành công phần khác làm mất chữ');
       await bt.$eval('#phan-chu_thich', d => { d.open = true; });
       await bam(bt, `${last} input[name$="[xoa]"]`);
-      await bamDoiTrang(bt, '#phan-chu_thich button[type=submit]');
+      await luuRieng(bt, '#phan-chu_thich button[type=submit]');
       await bt.evaluate(() => document.querySelectorAll('form[data-giu-nhap]').forEach(f => window.phongdaoNhapDo.daLuu(f)));
     });
 
@@ -698,13 +708,13 @@ try {
       const id = await bt.$eval('.dai-bien-tap', e => e.dataset.bai);
       const duong = `/wp-admin/admin.php?page=phongdao-sua-tac-pham&id=${id}`;
       const chipChuDe = async () => k.$$eval('a.tag-pill', as => as.map(a => a.textContent.trim()).filter(t => t.startsWith('Chủ đề: ')));
-      const doiMot = async () => {
+      const doiMot = async ma => {
         await di(bt, duong);
-        await bam(bt, '#phan-loai-chu_de summary');
-        const o = await bt.$eval('#phan-loai-chu_de label.choice', l => ({ ten: l.textContent.trim(), co: l.querySelector('input').checked }));
-        await bam(bt, '#phan-loai-chu_de label.choice input');
-        await bamDoiTrang(bt, '#phan-loai-chu_de form [type=submit]');
-        chac(await coChu(bt, 'Đã lưu phân loại.'), 'wp-admin không báo lưu phân loại');
+        const o = await bt.$eval(ma ? `#pl-chu_de-${ma}` : '#phan-loai-chu_de input[name="chon[]"]', i => ({ ma: i.value, ten: i.closest('label').textContent.replace(/[×＋]|máy gợi ý/g, '').trim(), co: i.checked }));
+        await bam(bt, `#pl-chu_de-${o.ma}`);
+        chac(await bt.$eval('[data-tong-chua-luu]', e => e.textContent.includes('1 phần chưa lưu: Chủ đề')), 'khung Đăng không báo phần chưa lưu');
+        await bamDoiTrang(bt, '#dang [data-luu-tat-ca]');
+        chac(await coChu(bt, 'Đã lưu 1 phần: Chủ đề.'), 'wp-admin không báo lưu phân loại');
         await di(k, caDao);
         chac((await chipChuDe()).includes(`Chủ đề: ${o.ten}`) === !o.co, `người đọc thấy sai chủ đề "${o.ten}" sau khi ${o.co ? 'gỡ' : 'gắn'}`);
         return o;
@@ -712,10 +722,40 @@ try {
       await di(k, caDao);
       const truoc = await chipChuDe();
       const lan1 = await doiMot();
-      const lan2 = await doiMot();
+      const lan2 = await doiMot(lan1.ma);
       chac(lan1.ten === lan2.ten && lan1.co !== lan2.co, 'lần hai không trả lại đúng mục vừa đổi');
       chac(JSON.stringify(await chipChuDe()) === JSON.stringify(truoc), 'chủ đề trên trang đọc không về như cũ');
       chac(await bt.$eval('#lich-su', (e, ten) => e.textContent.includes('Chủ đề: sửa') && e.textContent.includes(ten), lan1.ten), 'Lịch sử trong wp-admin không ghi lần sửa chủ đề');
+    });
+
+    await thu('wp-admin Sửa tác phẩm (D-121): một nút "Lưu thay đổi" lưu mọi phần đã sửa, Lịch sử ghi từng phần; điện thoại có thanh lưu nổi', async () => {
+      await di(bt, caDao);
+      const id = await bt.$eval('.dai-bien-tap', e => e.dataset.bai);
+      const duong = `/wp-admin/admin.php?page=phongdao-sua-tac-pham&id=${id}`;
+      await bt.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
+      await di(bt, duong);
+      chac(await bt.$eval('[data-thanh-luu]', e => e.hidden) && await bt.$eval('#dang [data-luu-tat-ca]', b => b.disabled), 'chưa sửa gì mà đã có thanh lưu hoặc nút Lưu thay đổi bật');
+      chac(await bt.evaluate(() => [...document.querySelectorAll('.phongdao-sua-chinh .phongdao-sua-nut .button-primary')].every(b => !b.offsetParent)), 'nút lưu riêng từng phần vẫn hiện khi đã có Lưu thay đổi');
+      const cu = await bt.$eval('#phan-y_nghia textarea[name=chu]', e => e.value);
+      const ghiChu = await bt.$eval('#phan-ban_co_biet textarea[name=chu]', e => e.value).catch(() => null);
+      await datO(bt, '#phan-y_nghia textarea[name=chu]', cu + ' [UX-TEST] một nút');
+      if (ghiChu !== null) await datO(bt, '#phan-ban_co_biet textarea[name=chu]', '[UX-TEST] Bạn có biết lưu chung.');
+      const so = ghiChu !== null ? 2 : 1;
+      const thanh = await bt.$eval('[data-thanh-luu]', e => { const r = e.getBoundingClientRect(), b = e.querySelector('button').getBoundingClientRect(); return { hien: !e.hidden && r.height > 0, day: r.bottom <= innerHeight + 1, chu: e.textContent, nut: b.height }; });
+      chac(thanh.hien && thanh.day && thanh.chu.includes(`${so} phần chưa lưu`) && thanh.nut >= 44, `thanh lưu điện thoại sai: ${JSON.stringify(thanh)}`);
+      chac(await bt.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'màn sửa tràn ngang ở 390 px');
+      await bamDoiTrang(bt, '[data-thanh-luu] [data-luu-tat-ca]');
+      chac(await coChu(bt, `Đã lưu ${so} phần:`) && await coChu(bt, 'Lịch sử ghi từng phần'), 'không báo đã lưu chung');
+      chac(await bt.$eval('#phan-y_nghia textarea[name=chu]', e => e.value).then(v => v.endsWith('[UX-TEST] một nút')), 'Ý nghĩa không được lưu');
+      chac(await bt.evaluate(() => window.phongdaoNhapDo.cacPhan().length === 0) && await bt.$eval('[data-thanh-luu]', e => e.hidden), 'lưu xong vẫn còn phần chưa lưu');
+      // Trả lại như cũ (lưu chung lần nữa)
+      await datO(bt, '#phan-y_nghia textarea[name=chu]', cu);
+      if (ghiChu !== null) await datO(bt, '#phan-ban_co_biet textarea[name=chu]', ghiChu);
+      await bt.setViewport({ width: 1280, height: 800 });
+      await bamDoiTrang(bt, '#dang [data-luu-tat-ca]');
+      chac(await bt.$eval('#phan-y_nghia textarea[name=chu]', e => e.value) === cu, 'không trả lại được Ý nghĩa');
+      const ls = await bt.$eval('#lich-su', e => e.textContent);
+      chac(ls.includes('Ý nghĩa: sửa'), 'Lịch sử không ghi riêng phần Ý nghĩa');
     });
 
     await thu('wp-admin Sửa tác phẩm: nút riêng "Đối chiếu sách" — thêm sách mới ngay tại chỗ, ghi trang, "Người đọc sẽ thấy" đổi theo', async () => {
@@ -901,7 +941,7 @@ try {
       await doi(bt, () => /Máy nhận/.test(document.getElementById('them-phan-tich')?.textContent || ''), null, 'máy không nhận thể thơ');
       await bamDoiTrang(bt, 'form[data-them-bai] button[name=dang][value="1"]');
       chac(new URL(bt.url()).searchParams.get('page') === 'phongdao-sua-tac-pham' && await coChu(bt, loiMoi), `đăng xong không mở trang Sửa tác phẩm của bài (${bt.url()})`);
-      baiMoi = new URL(await bt.$eval('.phongdao-sua-lien a[href*="preview"], .phongdao-sua-lien a:nth-of-type(2)', a => a.href)).pathname;
+      baiMoi = new URL(await bt.$eval('.pq-dang-lien a', a => a.href)).pathname;
       chac(baiMoi.startsWith('/tuc-ngu/'), `bài vừa đăng không nằm ở /tuc-ngu/ (${baiMoi})`);
       await di(k, baiMoi);
       chac(await coChu(k, loiMoi), 'người đọc không thấy bài vừa đăng');
@@ -928,7 +968,7 @@ try {
         await di(p, url);
         chac(await p.$eval('#phan-y_nghia', d => d.open), 'màn sửa gọn: Ý nghĩa chưa mở sẵn');
         await p.type('#phan-y_nghia textarea[name=chu]', chu);
-        await bamDoiTrang(p, '#phan-y_nghia button[name=duyet][value="1"]', { banPhim: true });
+        await luuRieng(p, '#phan-y_nghia button[name=duyet][value="1"]');
         chac(await p.$eval('#phan-y_nghia textarea[name=chu]', e => e.value) === chu, 'không lưu được Ý nghĩa chung');
         await di(k, baiMoi);
         chac(await k.$eval('.meaning .y-nghia-chu', e => e.textContent) === chu, 'khách không thấy Ý nghĩa đã lưu');
@@ -1314,17 +1354,17 @@ try {
         await di(bt2, edit);
         for (const tab of [bt, bt2]) await tab.$eval('#phan-y_nghia', d => { d.open = true; });
         await datO(bt, '#phan-y_nghia textarea[name=chu]', '[UX-TEST] Bản A');
-        await bamDoiTrang(bt, '#phan-y_nghia button[name=duyet][value="1"]');
+        await luuRieng(bt, '#phan-y_nghia button[name=duyet][value="1"]');
         await datO(bt2, '#phan-y_nghia textarea[name=chu]', '[UX-TEST] Bản B đang nhập');
-        await bamDoiTrang(bt2, '#phan-y_nghia button[name=duyet][value="1"]');
+        await luuRieng(bt2, '#phan-y_nghia button[name=duyet][value="1"]');
         chac(await coChu(bt2, 'Phần này đã đổi'), 'wp-admin không báo xung đột');
         chac(await bt2.$eval('#phan-y_nghia textarea[name=chu]', o => o.value) === '[UX-TEST] Bản B đang nhập', 'xung đột làm mất chữ B');
         await bam(bt2, '#phan-y_nghia [data-phien-moi] > summary');
         chac(await bt2.$eval('#phan-y_nghia [data-phien-moi] pre', o => o.textContent.includes('[UX-TEST] Bản A')), 'không thấy bản A để đối chiếu');
         await bam(bt2, '#phan-y_nghia [data-phien-moi] input[type=checkbox]');
-        await bamDoiTrang(bt2, '#phan-y_nghia button[name=duyet][value="1"]');
+        await luuRieng(bt2, '#phan-y_nghia button[name=duyet][value="1"]');
         chac(await coChu(bt2, 'Đã lưu phần bài.'), 'không lưu được sau khi đã đối chiếu');
-        const preview = await bt2.$eval('.phongdao-sua-lien a', a => { const u = new URL(a.parentElement.querySelectorAll('a')[1].href); return u.pathname + u.search; });
+        const preview = await bt2.$eval('.pq-dang-lien a', a => { const u = new URL(a.href); return u.pathname + u.search; });
         await di(bt, preview); await di(bt2, preview);
         for (const tab of [bt, bt2]) await bam(tab, '[data-action=mo-tam][data-tam=y_nghia]');
         await datO(bt, '#tam-y_nghia textarea[name=chu]', '[UX-TEST] Bản C sửa nhanh');
@@ -1364,13 +1404,13 @@ try {
       await doi(bt, () => Number(document.querySelector('#phan-media [name=attachment_id]').value) > 0 && !!document.querySelector('[data-anh-xem] img'), null, 'chọn ảnh chưa có bản xem trước');
       const idAnh = await bt.$eval('#phan-media [name=attachment_id]', e => e.value);
       chac(await coChu(bt, 'chưa lưu vào bài'), 'không phân biệt chọn ảnh với lưu ảnh vào bài');
-      await bamDoiTrang(bt, '#phan-media button[type=submit]');
+      await luuRieng(bt, '#phan-media button[type=submit]');
       chac(await bt.$eval('#phan-media [name=attachment_id]', e => e.value) === idAnh, 'lưu không giữ ảnh đã chọn');
-      const xem = await bt.$eval('.phongdao-sua-lien a:nth-child(2)', e => e.href);
+      const xem = await bt.$eval('.pq-dang-lien a', e => e.href);
       await k.goto(xem, { waitUntil: 'load' });
       chac(!(await k.$('.phongdao-anh-minh-hoa')), 'ảnh của bài nháp hiện cho khách');
-      await bamDoiTrang(bt, '.phongdao-quan-ly-bai form:has(input[name=trang_thai][value=publish]) button[type=submit]');
-      const publicUrl = await bt.$eval('.phongdao-sua-lien a:nth-child(2)', e => e.href);
+      await bamDoiTrang(bt, '#dang form:has(input[name=trang_thai][value=publish]) button[type=submit]');
+      const publicUrl = await bt.$eval('.pq-dang-lien a', e => e.href);
       const fault = r => {
         if (r.url().includes('admin-ajax.php') && (r.postData() || '').includes('action=get-attachment')) r.respond({ status: 403, contentType: 'application/json', body: '{"success":false}' });
         else r.continue();
@@ -1387,7 +1427,7 @@ try {
       chac(await k.$eval('.phongdao-anh-minh-hoa img', i => i.naturalWidth > 0 && i.alt === '[UX-TEST] Ảnh tải từ màn sửa' && i.hasAttribute('width')), 'khách thiếu tệp/alt/kích thước ảnh');
       chac(await k.$eval('.phongdao-anh-minh-hoa figcaption', c => c.textContent.includes('[UX-TEST] Ghi công mẫu kỹ thuật') && !!c.querySelector('a[href="https://example.org/credit"]')), 'ghi công đã điền không đến trang khách');
       await bam(bt, '[data-anh-bo]');
-      await bamDoiTrang(bt, '#phan-media button[type=submit]');
+      await luuRieng(bt, '#phan-media button[type=submit]');
       await k.reload({ waitUntil: 'load' });
       chac(!(await k.$('.phongdao-anh-minh-hoa')), 'bỏ ảnh mà khách vẫn thấy');
       const restore = '.phongdao-sua-ben form:has(input[name=viec]) button[type=submit]';
@@ -1401,7 +1441,7 @@ try {
       await bam(bt, other);
       const replacement = await bt.$eval(other, e => e.dataset.id);
       await bam(bt, '.media-button-select');
-      await bamDoiTrang(bt, '#phan-media button[type=submit]');
+      await luuRieng(bt, '#phan-media button[type=submit]');
       chac(await bt.$eval('#phan-media [name=attachment_id]', e => e.value) === replacement, 'chọn ảnh sẵn để thay nhưng không lưu đúng');
       for (const js of [true, false]) {
         await k.setJavaScriptEnabled(js);
@@ -1434,7 +1474,7 @@ try {
       }
       await k.setJavaScriptEnabled(true);
     });
-		await kiemTrangSua({bt,G,di,bam,datO,bamDoiTrang,chac,thu,thuMucAnh});
+		await kiemTrangSua({bt,G,di,bam,datO,bamDoiTrang,luuRieng,chac,thu,thuMucAnh});
 		await kiemEditorUrl({bt,G,di,bam,datO,bamDoiTrang,chac,thu,thuMucAnh});
   }
 } catch (e) {

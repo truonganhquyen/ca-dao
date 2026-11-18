@@ -33,11 +33,11 @@ $tn216 = $tao216( '[UX-TEST] Tục ngữ sửa gọn', 'tuc-ngu', array( '[UX-TE
 $h216  = $man216( $tn216 );
 $vt216 = static fn( string $kim ): int => (int) strpos( $h216, $kim );
 kt(
-	'Sửa tác phẩm gọn: cột chính theo thứ tự Lời → Nghĩa (Ý nghĩa mở sẵn) → Phân loại → "Phần khác (N)" gập; cột bên còn đường dẫn, căn cứ, công tắc, lịch sử',
-	$vt216( 'id="loi-doi-chieu"' ) < $vt216( '<h2 class="phongdao-sua-nhom">Nghĩa</h2>' ) && $vt216( '<h2 class="phongdao-sua-nhom">Nghĩa</h2>' ) < $vt216( 'id="phan-y_nghia"' )
-		&& $vt216( 'id="phan-y_nghia"' ) < $vt216( 'id="phan-loai"' ) && $vt216( 'id="phan-loai"' ) < $vt216( 'id="phan-khac"' ) && $vt216( 'id="phan-khac"' ) < $vt216( '<aside class="phongdao-sua-ben"' )
-		&& (bool) preg_match( '/<details class="phongdao-sua-phan chua-co" id="phan-y_nghia"[^>]* open>/', $h216 ) && (bool) preg_match( '/<details class="phongdao-phan-khac" id="phan-khac"><summary>Phần khác \(\d+\)/', $h216 )
-		&& $vt216( 'id="phan-khac"' ) < $vt216( 'id="phan-chu_thich"' ) && $vt216( 'id="phan-khac"' ) < $vt216( 'id="phan-gan_nghia"' ) && $vt216( '<aside class="phongdao-sua-ben"' ) < $vt216( 'id="lich-su"' ),
+	'Sửa tác phẩm gọn: cột chính theo thứ tự Lời → Nghĩa (Ý nghĩa mở sẵn) → Phân loại → "Phần khác" (mỗi phần một hàng); cột bên khung Đăng, còn thiếu, công tắc, đường dẫn, lịch sử',
+	$vt216( 'id="loi-doi-chieu"' ) < $vt216( '<h2 class="phongdao-sua-nhom" id="pq-nghia">Nghĩa</h2>' ) && $vt216( '<h2 class="phongdao-sua-nhom" id="pq-nghia">Nghĩa</h2>' ) < $vt216( 'id="phan-y_nghia"' )
+		&& $vt216( 'id="phan-y_nghia"' ) < $vt216( 'id="phan-loai"' ) && $vt216( 'id="phan-loai"' ) < $vt216( 'id="phan-khac"' ) && $vt216( 'id="phan-khac"' ) < $vt216( '<aside class="pq-cot-phai phongdao-sua-ben"' )
+		&& (bool) preg_match( '/<details class="phongdao-sua-phan chua-co" id="phan-y_nghia"[^>]* open>/', $h216 ) && (bool) preg_match( '/<section class="pq-khoi phongdao-phan-khac" id="phan-khac"[^>]*><h2 id="pq-phan-khac">Phần khác <span class="pq-dem">\d+<\/span><\/h2>/', $h216 )
+		&& $vt216( 'id="phan-khac"' ) < $vt216( 'id="phan-chu_thich"' ) && $vt216( 'id="phan-khac"' ) < $vt216( 'id="phan-gan_nghia"' ) && $vt216( '<aside class="pq-cot-phai phongdao-sua-ben"' ) < $vt216( 'id="lich-su"' ),
 	substr( (string) strstr( $h216, 'phongdao-sua-bo' ), 0, 1500 )
 );
 kt(

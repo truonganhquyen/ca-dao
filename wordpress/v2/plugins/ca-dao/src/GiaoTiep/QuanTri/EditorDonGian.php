@@ -19,7 +19,7 @@ final class EditorDonGian {
 	public static function o( string $id, string $ten, string $nhan, array $cu, string $truong = 'chu', string $tien_to = '' ): string {
 		return '<div class="pd-editor" data-editor' . ( $tien_to ? ' data-editor-hang' : '' ) . '><label for="' . esc_attr( $id ) . '">' . esc_html( $nhan ) . '</label><textarea id="' . esc_attr( $id ) . '" name="' . esc_attr( $ten ) . '" rows="5" data-editor-chu>' . esc_textarea( (string) ( $cu[ $truong ] ?? '' ) ) . '</textarea>'
 			. '<input type="hidden" data-editor-html name="' . esc_attr( $tien_to ? $tien_to . '[dinh_dang]' : 'dinh_dang' ) . '" value="' . esc_attr( DinhDang::sach( (string) ( $cu['dinh_dang'] ?? '' ) ) ) . '"><input type="hidden" data-editor-bat name="' . esc_attr( $tien_to ? $tien_to . '[editor_truc_quan]' : 'editor_truc_quan' ) . '" value="0">'
-			. '<p class="description">Bôi chọn chữ để định dạng hoặc chèn liên kết. Bấm Lưu riêng phần này khi xong.</p></div>';
+			. '<p class="description">Bôi chọn chữ để định dạng hoặc chèn liên kết. Xong thì bấm "Lưu thay đổi".</p></div>';
 	}
 
 	/** Nhập không JavaScript/sửa nhanh vẫn dùng chữ thuần; định dạng cũ chỉ giữ khi chữ không đổi. */
