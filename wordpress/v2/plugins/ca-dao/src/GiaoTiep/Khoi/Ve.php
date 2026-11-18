@@ -100,7 +100,7 @@ final class Ve {
 
 	public static function url( string $ma ): string {
 		// Nơi làm việc của người biên soạn là wp-admin (D-104): các lối "Hộp việc", "Tác phẩm", "Thêm", "Số liệu" mở màn Phongdao
-		$quan_tri = array( 'bien-tap' => 'phongdao-hop-viec', 'bt-tac-pham' => 'phongdao-tac-pham', 'bt-them' => 'phongdao-them', 'bt-so-lieu' => 'phongdao-ban-lam-viec' )[ $ma ] ?? '';
+		$quan_tri = array( 'bien-tap' => 'phongdao-hop-viec', 'bt-tac-pham' => 'phongdao-tac-pham', 'bt-them' => 'phongdao-them', 'bt-so-lieu' => 'phongdao-so-lieu' )[ $ma ] ?? '';
 		return '' !== $quan_tri ? admin_url( 'admin.php?page=' . $quan_tri ) : home_url( self::DUONG[ $ma ] ?? '/' );
 	}
 

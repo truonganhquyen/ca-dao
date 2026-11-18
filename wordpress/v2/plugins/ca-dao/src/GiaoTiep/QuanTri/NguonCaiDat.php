@@ -450,6 +450,37 @@ final class NguonCaiDat {
 		return array( 'tong' => $tong, 'phan' => $phan );
 	}
 
+	/**
+	 * Số tác phẩm (chưa vào thùng rác) dùng từng hồ sơ nguồn, cho nhiều hồ sơ trong **một** lượt quét post meta (như
+	 * `anh_huong()['tong']` của từng hồ sơ, không chia theo phần). Màn Số liệu dùng để kê hồ sơ nguồn chưa rõ.
+	 *
+	 * @param int[] $ho_so
+	 * @return array<int,int> mã hồ sơ => số bài
+	 */
+	public static function dem_bai_dung( array $ho_so ): array {
+		global $wpdb;
+		$ho_so = array_values( array_unique( array_filter( array_map( 'intval', $ho_so ) ) ) );
+		if ( ! $ho_so ) {
+			return array();
+		}
+		$ra = array();
+		// Mỗi lượt quét tối đa 100 hồ sơ (mỗi hồ sơ một cột đếm)
+		foreach ( array_chunk( $ho_so, 100 ) as $lo ) {
+			$cot  = array();
+			$tham = array();
+			foreach ( $lo as $i => $id ) {
+				$cot[]  = "COUNT(DISTINCT CASE WHEN pm.meta_value LIKE %s THEN pm.post_id END) AS h$i";
+				$tham[] = '%' . $wpdb->esc_like( '"ho_so";i:' . $id . ';' ) . '%';
+			}
+			$tham = array_merge( $tham, array( KhaiBao::TAC_PHAM, $wpdb->esc_like( '_phongdao_' ) . '%', '%' . $wpdb->esc_like( '"ho_so";i:' ) . '%' ) );
+			$hang = $wpdb->get_row( $wpdb->prepare( 'SELECT ' . implode( ', ', $cot ) . " FROM {$wpdb->postmeta} pm JOIN {$wpdb->posts} p ON p.ID = pm.post_id WHERE p.post_type = %s AND p.post_status <> 'trash' AND pm.meta_key LIKE %s AND pm.meta_value LIKE %s", $tham ), ARRAY_A ) ?: array(); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- cột chỉ có %s và số
+			foreach ( $lo as $i => $id ) {
+				$ra[ $id ] = (int) ( $hang[ "h$i" ] ?? 0 );
+			}
+		}
+		return $ra;
+	}
+
 	private static function chong_rac(): string {
 		$site = (string) get_option( 'cadao_turnstile_site', '' );
 		$co   = '' !== (string) get_option( 'cadao_turnstile_bi_mat', '' );

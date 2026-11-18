@@ -492,11 +492,11 @@ try {
       await den('/bien-tap/?loai=nguoi_doc&tt=de_sau', 'phongdao-hop-viec', { loai: 'nguoi_doc', tt: 'de_sau' });
       await den('/bien-tap/tac-pham/?loc=thieu-y-nghia', 'phongdao-tac-pham', { muc: 'thieu_y_nghia' });
       await den('/bien-tap/them/', 'phongdao-them');
-      await den('/bien-tap/so-lieu/', 'phongdao-ban-lam-viec');
+      await den('/bien-tap/so-lieu/', 'phongdao-so-lieu');
       await den('/wp-admin/edit.php?post_type=tac_pham', 'phongdao-tac-pham');
       await den('/wp-admin/post-new.php?post_type=tac_pham', 'phongdao-them');
-      // Menu trái vẫn đủ: mục Tác phẩm của Phongdao, và menu gốc của WordPress (Bài viết, Trang, Bình luận) không bị ẩn
-      chac(await bt.$('#adminmenu a[href*="page=phongdao-tac-pham"]') && await bt.$('#adminmenu a[href="edit.php"]') && await bt.$('#adminmenu a[href="edit-comments.php"]'), 'menu trái thiếu mục Tác phẩm của Phongdao hoặc menu gốc WordPress bị ẩn');
+      // Menu trái: mục Tác phẩm của Phongdao; menu gốc WordPress (Bài viết, Bình luận) gom dưới mục "WordPress" của người quản trị (D-121)
+      chac(await bt.$('#adminmenu a[href*="page=phongdao-tac-pham"]') && await bt.$('#toplevel_page_phongdao-wordpress a[href="edit.php"]') && await bt.$('#toplevel_page_phongdao-wordpress a[href="edit-comments.php"]') && !(await bt.$('#menu-posts')) && !(await bt.$('#menu-comments')), 'menu trái thiếu mục Tác phẩm của Phongdao hoặc menu gốc WordPress bị ẩn');
       // Khách mở /bien-tap/ thì sang trang đăng nhập (wp-admin tự đòi đăng nhập), không thấy Hộp việc
       await di(k, '/bien-tap/');
       chac(/wp-login\.php/.test(k.url()) && !(await coChu(k, 'Hộp việc')), `khách mở /bien-tap/ không sang trang đăng nhập (${k.url()})`);
@@ -613,7 +613,7 @@ try {
       chac(await coChu(k, yNghia + ' Đã sửa trên thẻ.'), 'duyệt bản đã sửa rồi người đọc vẫn chưa thấy đúng bản đã sửa');
     });
 
-    await thu('wp-admin Hộp việc trên điện thoại: mở một thẻ chỉ còn "← Danh sách · Thẻ N / M", nút quyết thấy ngay ở màn đầu; thanh dưới Hôm nay · Hộp việc · Bổ sung · Bài mới', async () => {
+    await thu('wp-admin Hộp việc trên điện thoại: mở một thẻ chỉ còn "← Danh sách · Thẻ N / M", nút quyết thấy ngay ở màn đầu; thanh dưới Hôm nay · Bài mới · Hộp việc · Bổ sung · Thêm', async () => {
       // Có ít nhất một thẻ chờ: người biên soạn "Lưu nháp" một ý nghĩa
       await di(bt, caDao);
       await bam(bt, '[data-action=mo-tam][data-tam=y_nghia]');
@@ -622,7 +622,7 @@ try {
       await bt.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
       await di(bt, '/wp-admin/admin.php?page=phongdao-hop-viec&tt=cho&loai=nhap_y_nghia');
       const duoi = await bt.$$eval('.phongdao-thanh-duoi a', as => as.filter(a => a.offsetParent).map(a => a.textContent.replace(/\d+/g, '').trim()));
-      chac(JSON.stringify(duoi) === JSON.stringify(['Hôm nay', 'Hộp việc', 'Bổ sung', 'Bài mới']), `thanh dưới điện thoại: ${duoi.join(' · ')}`);
+      chac(JSON.stringify(duoi) === JSON.stringify(['Hôm nay', 'Bài mới', 'Hộp việc', 'Bổ sung', 'Thêm']), `thanh dưới điện thoại: ${duoi.join(' · ')}`);
       const mo = await bt.$eval('.phongdao-hv-ds a.phongdao-hv-mo', a => a.href).catch(() => '');
       chac(mo, 'không có thẻ nháp để mở trên điện thoại');
       await di(bt, mo.replace(G, ''));
@@ -1160,30 +1160,41 @@ try {
       chac(await coChu(k, 'Kho mẫu'), 'người đọc không thấy bài vừa đăng theo lô');
     });
 
-    await thu('wp-admin menu theo ba dòng việc, màn Hôm nay, khung "Phongdao hôm nay" ở trang chào mừng WordPress (máy tính và điện thoại)', async () => {
+    await thu('wp-admin menu theo ba dòng việc, màn Hôm nay (việc gấp, ba việc chính, Tuần này, Đang làm dở), màn Số liệu, Tất cả mục (máy tính và điện thoại)', async () => {
       await bt.setViewport({ width: 1280, height: 800 });
       await di(bt, '/wp-admin/admin.php?page=phongdao-ban-lam-viec');
       const muc = await bt.$$eval('#toplevel_page_phongdao-ban-lam-viec .wp-submenu a', as => as.map(a => a.textContent.replace(/\d+/g, '').trim()));
       chac(JSON.stringify(muc) === JSON.stringify(['Hôm nay', 'Bài mới', 'Hộp việc', 'Bổ sung', 'Tác phẩm', 'Tuyển tập', 'Danh mục', 'Nguồn & cài đặt']), `menu Phongdao: ${muc.join(' · ')}`);
       chac(await bt.$eval('h1', h => h.textContent.trim()) === 'Hôm nay', 'màn đầu không mang tên "Hôm nay"');
-      chac(await bt.$$eval('.phongdao-ban-so > .phongdao-ban-o', os => os.map(o => o.querySelector('h3').textContent).join()) === 'Bài mới,Hộp việc,Bổ sung', 'Hôm nay không có ba ô Bài mới · Hộp việc · Bổ sung');
-      chac(await bt.$$eval('.phongdao-ban-so > .phongdao-ban-o a.button', as => as.length) === 3, 'mỗi ô của Hôm nay không có nút bắt đầu');
+      chac(await bt.$$eval('.pq-luoi.ba > .pq-viec h2', hs => hs.map(h => h.textContent).join()) === 'Câu mới chờ đăng,Việc cần quyết,Bài cần bổ sung', 'Hôm nay không có ba việc chính');
+      chac(await bt.$$eval('.pq-luoi.ba > .pq-viec .pq-viec-nut a.button', as => as.length) === 3, 'mỗi việc chính của Hôm nay không có nút bắt đầu');
+      chac(await bt.$('.pq-khoi h2#pq-tuan') && await bt.$('.pq-khoi h2#pq-dang-lam'), 'Hôm nay thiếu Tuần này hoặc Đang làm dở');
       chac(await bt.$('a[href*="page=phongdao-lo"]'), 'Hôm nay không có lối Lịch sử thao tác hàng loạt');
+      // Màn khác: chữ Be Vietnam Pro, nút chính tím (bộ kiểu chung)
+      chac(await bt.evaluate(() => getComputedStyle(document.querySelector('.pq-viec .button-primary') || document.body).backgroundColor === 'rgb(94, 58, 174)' || !document.querySelector('.pq-viec .button-primary')), 'nút chính ở Hôm nay không theo màu chung');
+      // Số liệu: mở từ Hôm nay, menu vẫn tô Hôm nay
+      await bamDoiTrang(bt, '.pq-lien a[href*="page=phongdao-so-lieu"]');
+      chac(await coChu(bt, 'Ngoại lệ dữ liệu') && await coChu(bt, 'Tuổi thẻ đang mở'), 'màn Số liệu thiếu bảng kê');
+      chac(await bt.$eval('#toplevel_page_phongdao-ban-lam-viec .wp-submenu li.current a', a => a.href.includes('page=phongdao-ban-lam-viec')).catch(() => false), 'Số liệu: menu không tô Hôm nay');
       // Bổ sung mở được, có danh sách ưu tiên
-      await bamDoiTrang(bt, '.phongdao-ban-so a[href*="page=phongdao-bo-sung"]');
+      await di(bt, '/wp-admin/admin.php?page=phongdao-ban-lam-viec');
+      await bamDoiTrang(bt, '.pq-viec a[href*="page=phongdao-bo-sung"]');
       chac(await coChu(bt, 'Danh sách ưu tiên'), 'nút "Bắt đầu bổ sung" không mở màn Bổ sung');
-      // Trang chào mừng WordPress: khung ở đầu, phần còn lại của WordPress giữ nguyên
+      // Người quản trị: trang chào mừng WordPress vẫn mở được (mục "WordPress" → Bảng tin), không còn khung riêng của Phongdao
       await di(bt, '/wp-admin/');
-      chac(await bt.$('.phongdao-khung-wp') && await bt.$('#dashboard-widgets'), 'trang chào mừng WordPress không có khung "Phongdao hôm nay" hoặc mất phần của WordPress');
-      chac(await bt.evaluate(() => { const k = document.querySelector('.phongdao-khung-wp'); const w = document.querySelector('#dashboard-widgets-wrap'); return !!(k && w && (k.compareDocumentPosition(w) & Node.DOCUMENT_POSITION_FOLLOWING)); }), 'khung "Phongdao hôm nay" không nằm ở đầu trang chào mừng');
-      // Điện thoại: Hôm nay không tràn ngang, nút bắt đầu đủ lớn để chạm
+      chac(await bt.$('#dashboard-widgets') && !(await bt.$('.phongdao-khung-wp')), 'trang chào mừng WordPress của người quản trị hỏng hoặc còn khung cũ');
+      // Điện thoại: Hôm nay không tràn ngang, nút bắt đầu đủ lớn để chạm; "Thêm" mở Tất cả mục
       await bt.setViewport({ width: 390, height: 844 });
       await di(bt, '/wp-admin/admin.php?page=phongdao-ban-lam-viec');
       chac(await bt.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Hôm nay tràn ngang ở 390 px');
-      chac(await bt.$$eval('.phongdao-ban-so a.button', as => as.every(a => a.getBoundingClientRect().height >= 44)), 'nút bắt đầu ở Hôm nay nhỏ hơn 44 px');
+      chac(await bt.$$eval('.pq-viec-nut a.button', as => as.length === 3 && as.every(a => a.getBoundingClientRect().height >= 44)), 'nút bắt đầu ở Hôm nay nhỏ hơn 44 px');
+      await bamDoiTrang(bt, '.phongdao-thanh-duoi a[href*="page=phongdao-muc"]');
+      chac(await coChu(bt, 'Tất cả mục') && await bt.$('.pq-ds-muc a[href*="page=phongdao-tac-pham"]') && await bt.$('.phongdao-thanh-duoi a[href*="page=phongdao-muc"][aria-current]'), '"Thêm" ở thanh dưới không mở Tất cả mục');
+      chac(await bt.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Tất cả mục tràn ngang ở 390 px');
       await bt.setViewport({ width: 1280, height: 800 });
       // Màn con giữ menu Phongdao mở và tô đúng mục
-      const sua = await bt.$eval('.phongdao-nen-lam a[href*="phongdao-sua-tac-pham"], .phongdao-ban a[href*="phongdao-sua-tac-pham"]', a => a.href).catch(() => '');
+      await di(bt, '/wp-admin/admin.php?page=phongdao-ban-lam-viec');
+      const sua = await bt.$eval('.phongdao-ban a[href*="phongdao-sua-tac-pham"]', a => a.href).catch(() => '');
       await di(bt, sua ? sua.replace(G, '') : '/wp-admin/admin.php?page=phongdao-tac-pham');
       if (!sua) await bamDoiTrang(bt, 'a[href*="page=phongdao-sua-tac-pham"]');
       chac(await bt.$eval('#toplevel_page_phongdao-ban-lam-viec', li => li.classList.contains('wp-has-current-submenu')).catch(() => false), 'Sửa tác phẩm: menu Phongdao không mở');

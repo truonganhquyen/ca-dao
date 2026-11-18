@@ -1,16 +1,5 @@
-/* Hôm nay (đổi tên Bàn làm việc; T-180, T-188, T-189): 3 việc gấp nhất, ba ô theo ba dòng việc, khối thu gọn ở cuối. */
-.phongdao-ban-so { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 16px 0; padding: 0; list-style: none; }
-.phongdao-ban-so li { margin: 0; }
-.phongdao-ban .phongdao-ban-o { display: flex; flex-direction: column; gap: 4px; box-sizing: border-box; padding: 14px 16px; border: 1px solid #c3c4c7; border-radius: 8px; background: #fff; color: #1d2327; }
-.phongdao-ban-o h3 { margin: 0; font-size: 15px; }
-.phongdao-ban-o p { margin: 0; }
-.phongdao-ban-o strong { font-size: 28px; line-height: 1.2; color: #135e96; }
-.phongdao-ban-o .button { display: inline-flex; align-items: center; min-height: 44px; margin-top: 8px; }
-.phongdao-ban-gap { margin: 16px 0; padding: 8px 16px; border: 1px solid #c3c4c7; border-left: 4px solid #d63638; border-radius: 6px; background: #fff; }
-.phongdao-ban-gap h2 { margin: 8px 0; font-size: 16px; }
-.phongdao-ban-gap ol { margin: 0 0 8px 20px; }
-.phongdao-ban-gap li { margin: 0; }
-.phongdao-ban-gap a, .phongdao-nen-lam a, .phongdao-ban-lo a { display: inline-flex; align-items: center; min-height: 44px; }
+/* Bổ sung, Dọn chủ đề, Tuyển tập (Hôm nay dùng bộ kiểu chung admin-chung.css từ D-121). */
+.phongdao-nen-lam a { display: inline-flex; align-items: center; min-height: 44px; }
 /* Bổ sung: duyệt gợi ý chủ đề, vùng theo nhóm / theo bài (T-189.4) */
 .phongdao-bs-nhom { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; padding: 0; list-style: none; }
 .phongdao-bs-nhom li { margin: 0; }
@@ -25,21 +14,7 @@
 .phongdao-bs-loi { color: #3c434a; }
 .phongdao-bs-nut { position: sticky; bottom: 0; display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 10px 0; background: #f0f0f1; }
 .phongdao-bs-nut .button { min-height: 44px; }
-.phongdao-bs-loi-bai { margin: 8px 0 16px; padding: 8px 12px; border-left: 4px solid #2271b1; background: #fff; }
-/* Khung "Phongdao hôm nay" ở đầu trang chào mừng WordPress */
-.phongdao-khung-wp { margin: 16px 20px 0 2px; padding: 4px 16px 8px; border: 1px solid #c3c4c7; border-radius: 8px; background: #f6f7f7; }
-.phongdao-khung-wp h2 { margin: 12px 0 0; font-size: 18px; }
-.phongdao-khung-wp .phongdao-ban-so { margin: 12px 0 4px; }
-.phongdao-khung-wp > p a { display: inline-flex; align-items: center; min-height: 44px; }
-.phongdao-ban-bat-dau { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin: 16px 0 24px; }
-.phongdao-ban-bat-dau .button-hero { display: inline-flex; align-items: center; min-height: 48px; }
-.phongdao-ban-gon { margin: 24px 0; border: 1px solid #c3c4c7; border-radius: 6px; background: #fff; overflow-x: auto; }
-.phongdao-ban-gon > summary { display: flex; align-items: center; min-height: 44px; padding: 0 16px; font-weight: 600; cursor: pointer; }
-.phongdao-ban-gon > summary:focus-visible { outline: 3px solid #135e96; outline-offset: -3px; }
-.phongdao-ban-gon[open] > summary { border-bottom: 1px solid #dcdcde; }
-.phongdao-ban-gon > :not(summary) { margin-left: 16px; margin-right: 16px; }
-.phongdao-ban-gon > .widefat { width: calc(100% - 32px); }
-.phongdao-ban-gon .section { margin: 0; }
+.phongdao-bs-loi-bai { margin: 8px 0 16px; padding: 8px 12px; border-left: 4px solid var(--pq-tim, #2271b1); background: #fff; }
 /* Dọn chủ đề (D-114): ô chọn không tràn; màn hẹp thì mỗi dòng của bảng thành một thẻ, có nhãn ô */
 .phongdao-dcd-form { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
 .phongdao-dcd-form select { max-width: 100%; min-height: 44px; }
@@ -67,7 +42,7 @@
 .phongdao-tt-tim { max-width: 760px; }
 .phongdao-tt-tim li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 8px; }
 .phongdao-tt-nut-luu { display: flex; flex-wrap: wrap; gap: 8px; }
-.phongdao-tt-trang-thai { max-width: 760px; padding: 12px 16px; border-left: 4px solid #2271b1; background: #fff; }
+.phongdao-tt-trang-thai { max-width: 760px; padding: 12px 16px; border-left: 4px solid var(--pq-tim, #2271b1); background: #fff; }
 /* Bổ sung → Cần sửa (D-119, T-216): nhóm theo loại lỗi, mỗi bài một dòng có "Bỏ qua" */
 .phongdao-can-sua-nhom { margin: 8px 0; border: 1px solid #c3c4c7; border-radius: 6px; background: #fff; padding: 0 12px; }
 .phongdao-can-sua-nhom > summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-weight: 600; }

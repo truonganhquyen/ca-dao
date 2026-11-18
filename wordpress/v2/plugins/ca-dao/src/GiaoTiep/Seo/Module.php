@@ -101,6 +101,10 @@ final class Module implements \Phongdao\HaTang\Module {
 				array_merge( array( KhaiBao::TAC_PHAM ), $khoa, array( Phan::khoa( 'chu_thich' ), Phan::khoa( 'chuyen_quanh' ), '%' . $wpdb->esc_like( NguoiLam::NGUOI_VIET ) . '%', Phan::khoa( 'di_ban' ), '%' . $wpdb->esc_like( NguoiLam::NGUOI_VIET ) . '%', '%' . $wpdb->esc_like( NguoiLam::DOC_GIA_GOP ) . '%', Phan::khoa( 'loi' ), '%' . $wpdb->esc_like( 'doi_chieu' ) . '%' ) )
 			)
 		) ?: array();
+		// Nạp meta mọi bài ứng viên một lần (không mỗi bài một truy vấn)
+		foreach ( array_chunk( array_map( 'intval', $ids ), 500 ) as $lo ) {
+			update_meta_cache( 'post', $lo );
+		}
 		$ra = array_values( array_filter( array_map( 'intval', $ids ), static fn( int $id ): bool => PhanRieng::co( PhanBai::tat_ca( $id, KhaiBao::TAC_PHAM ) ) ) );
 		sort( $ra );
 		set_transient( self::DS_LAP, $ra, DAY_IN_SECONDS );

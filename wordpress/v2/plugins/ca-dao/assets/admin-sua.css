@@ -11,12 +11,12 @@
 .phongdao-sua-ben .phongdao-sua-phan, .phongdao-sua-ben .phongdao-sua-viec { padding: 12px; }
 .phongdao-sua-ben .phongdao-chon-muc { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; max-height: 260px; }
 .phongdao-sua-ben .phongdao-chon-muc .choice { min-height: 36px; padding: 0 10px; border: 1px solid #c3c4c7; border-radius: 18px; background: #f6f7f7; }
-.phongdao-sua-ben .phongdao-chon-muc .choice:has(input:checked) { background: #f0f6fc; border-color: #2271b1; }
+.phongdao-sua-ben .phongdao-chon-muc .choice:has(input:checked) { background: #f0f6fc; border-color: var(--pq-tim, #2271b1); }
 .phongdao-sua-lien { display: flex; flex-wrap: wrap; gap: 4px 8px; }
 .phongdao-sang label { display: flex; align-items: center; gap: 8px; min-height: 44px; }
 .phongdao-sang input[type=checkbox] { width: 20px; height: 20px; margin: 0; }
-.phongdao-lich-cu summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; color: #2271b1; }
-.phongdao-admin-sua a:focus-visible, .phongdao-admin-sua button:focus-visible, .phongdao-admin-sua summary:focus-visible, .phongdao-admin-sua input:focus-visible, .phongdao-admin-sua textarea:focus-visible, .phongdao-admin-sua select:focus-visible { outline: 3px solid #2271b1; outline-offset: 2px; }
+.phongdao-lich-cu summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; color: var(--pq-tim, #2271b1); }
+.phongdao-admin-sua a:focus-visible, .phongdao-admin-sua button:focus-visible, .phongdao-admin-sua summary:focus-visible, .phongdao-admin-sua input:focus-visible, .phongdao-admin-sua textarea:focus-visible, .phongdao-admin-sua select:focus-visible { outline: 3px solid var(--pq-tim, #2271b1); outline-offset: 2px; }
 .phongdao-sua-viec, .phongdao-sua-phan { background: #fff; border: 1px solid #c3c4c7; border-radius: 6px; margin: 16px 0; padding: 16px; }
 .phongdao-sua-viec h2 { margin: 0 0 8px; }
 .phongdao-sua-phan summary { font-size: 16px; font-weight: 600; cursor: pointer; min-height: 44px; display: flex; align-items: center; }
@@ -45,7 +45,7 @@
 .phongdao-admin-sua .goc-nguon { display: flex; align-items: center; gap: 8px; }
 /* Lịch sử: so trước/sau từng dòng ("−" bỏ, "+" thêm — có chữ, không chỉ dựa vào màu) và nút khôi phục */
 .phongdao-so-sanh { margin: 6px 0; }
-.phongdao-so-sanh summary { cursor: pointer; min-height: 44px; display: inline-flex; align-items: center; color: #2271b1; }
+.phongdao-so-sanh summary { cursor: pointer; min-height: 44px; display: inline-flex; align-items: center; color: var(--pq-tim, #2271b1); }
 .phongdao-so-sanh ul { margin: 4px 0 8px; padding: 8px; list-style: none; background: #f6f7f7; border: 1px solid #dcdcde; border-radius: 4px; font-family: inherit; white-space: pre-wrap; overflow-wrap: anywhere; }
 .phongdao-so-sanh li { margin: 0; padding: 2px 4px; }
 .phongdao-so-sanh li.bo { background: #fcf0f1; }
@@ -77,7 +77,7 @@
 .phongdao-sua-co h2 { margin: 4px 0 8px; font-size: 14px; }
 .phongdao-sua-co form { margin: 0 0 8px; }
 .phongdao-sua-co .button, .phongdao-sua-co summary { min-height: 44px; }
-.phongdao-sua-co summary { display: flex; align-items: center; cursor: pointer; color: #135e96; font-weight: 600; }
+.phongdao-sua-co summary { display: flex; align-items: center; cursor: pointer; color: var(--pq-tim-dam, #135e96); font-weight: 600; }
 /* Điện thoại, máy tính hẹp: trạng thái và Đăng / Ẩn ngay dưới tên bài (cột bên nằm sau mọi phần) */
 .phongdao-sua-dau-dt { display: none; }
 @media (max-width: 1199px) {
@@ -91,20 +91,20 @@
 .phongdao-doi-chieu[open] > summary { margin: 8px 0; }
 .phongdao-dc-hien { font-weight: 600; }
 .phongdao-doi-chieu fieldset label { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; }
-.phongdao-sach-moi summary { display: inline-flex; align-items: center; min-height: 44px; cursor: pointer; color: #135e96; font-weight: 600; }
+.phongdao-sach-moi summary { display: inline-flex; align-items: center; min-height: 44px; cursor: pointer; color: var(--pq-tim-dam, #135e96); font-weight: 600; }
 
 /* D-109: đi thẳng tới phần cần làm, form gọn và luôn thấy phạm vi lưu. */
 .phongdao-admin-sua { padding-bottom: 180px; }
 .phongdao-admin-sua button, .phongdao-admin-sua .button, .phongdao-admin-sua select { min-height: 44px; }
 .phongdao-sua-lien a { min-height: 44px; display: inline-flex; align-items: center; }
 .phongdao-quan-ly-bai { margin: 8px 0 14px; }
-.phongdao-quan-ly-bai > summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; color: #135e96; }
+.phongdao-quan-ly-bai > summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; color: var(--pq-tim-dam, #135e96); }
 .phongdao-tong-nhap { border-left: 4px solid #996800; padding: 10px 12px; background: #fff8e5; }
 .phongdao-muc-luc { position: static; top: 32px; z-index: 20; padding: 8px 0; background: #f0f0f1; border-block: 1px solid #c3c4c7; }
 .phongdao-co-js .phongdao-muc-luc { position: sticky; }
 .phongdao-muc-luc-link { display: flex; flex-wrap: wrap; gap: 6px; }
 .phongdao-muc-luc a { min-height: 44px; display: flex; flex-direction: column; justify-content: center; padding: 6px 10px; border: 1px solid #8c8f94; border-radius: 4px; text-decoration: none; background: white; }
-.phongdao-muc-luc a[aria-current] { border-color: #2271b1; background: #f0f6fc; box-shadow: inset 0 0 0 1px #2271b1; }
+.phongdao-muc-luc a[aria-current] { border-color: var(--pq-tim, #2271b1); background: #f0f6fc; box-shadow: inset 0 0 0 1px var(--pq-tim, #2271b1); }
 .phongdao-muc-luc a span { font-size: 12px; color: #50575e; }
 .phongdao-muc-luc-chon { display: block; font-weight: 600; }
 .phongdao-muc-luc-chon select { display: block; width: 100%; max-width: none; font-weight: 400; }
@@ -120,14 +120,14 @@
 .phongdao-ds-cong-cu input { display: block; width: 100%; min-height: 44px; }
 .phongdao-admin-sua .muc-sua { padding: 0; }
 .phongdao-muc-gon > summary { padding: 10px 12px; display: flex; justify-content: space-between; font-size: 14px; font-weight: 400; overflow-wrap: anywhere; }
-.phongdao-muc-gon > summary::after { content: 'Mở'; color: #135e96; font-size: 12px; flex-shrink: 0; }
+.phongdao-muc-gon > summary::after { content: 'Mở'; color: var(--pq-tim-dam, #135e96); font-size: 12px; flex-shrink: 0; }
 .phongdao-muc-gon[open] > summary::after { content: 'Gập'; }
 .phongdao-muc-gon[open] > summary { border-bottom: 1px solid #dcdcde; background: #f6f7f7; }
 .phongdao-muc-than { padding: 12px; }
 .phongdao-admin-sua .muc-sua:target { outline: 3px solid #996800; outline-offset: 2px; }
 .phongdao-admin-sua .goc-nguon a, .phongdao-sua-viec a, .phongdao-them-muc a { min-height: 44px; display: inline-flex; align-items: center; }
 .phongdao-admin-sua h1 { font-size: 23px; line-height: 1.4; overflow-wrap: anywhere; }
-.phongdao-them-muc summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; color: #135e96; }
+.phongdao-them-muc summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; color: var(--pq-tim-dam, #135e96); }
 .phongdao-them-muc input { display: block; width: 100%; min-height: 44px; margin: 8px 0; }
 .phongdao-thanh-luu { position: fixed; z-index: 90; bottom: 0; left: 160px; right: 0; padding: 10px 20px; background: #fff; border-top: 1px solid #8c8f94; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 -2px 8px #0000000d; }
 .phongdao-thanh-luu[hidden] { display: none; }

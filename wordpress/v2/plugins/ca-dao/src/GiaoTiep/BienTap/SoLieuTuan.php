@@ -2,44 +2,38 @@
 
 namespace Phongdao\GiaoTiep\BienTap;
 
-use Phongdao\DichVu\DungTrang\DocBai;
-use Phongdao\DichVu\DungTrang\DuLieuTrangChu;
-use Phongdao\GiaoTiep\Khoi\Ve;
-use Phongdao\HaTang\KhaiBao;
+use Phongdao\DichVu\TomTat\TomTat;
 use Phongdao\KhoLuu\Kho;
-use Phongdao\KhoLuu\PhanBai;
-use Phongdao\KhoLuu\Viec;
-use Phongdao\MienDuLieu\CapChatLuong;
-use Phongdao\MienDuLieu\TheLoai;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Số liệu tuần (nay hiện ở màn Hôm nay trong wp-admin — D-104; docs/28 mục 4.6; màn mẫu B05): số bài, theo thể loại, theo cấp L0–L3, việc chờ, kho,
- * kèm "Nên làm tuần này". Lượt đọc, câu tìm không ra, sao chép, chia sẻ thêm khi có phần đo lường. Không định danh người đọc.
+ * Số liệu tuần (màn Số liệu trong wp-admin — D-121, docs/42; trước ở Hôm nay — D-104): số bài, theo cấp L0–L3, kho, lượt
+ * đọc 7 ngày, bài đọc nhiều, câu tìm không ra. Không định danh người đọc.
  */
 final class SoLieuTuan {
 
 	/**
-	 * Số đếm của trang (dùng cả ở Bàn làm việc wp-admin): số bài đã đăng, theo cấp L0–L3, bài thiếu ý nghĩa, câu kho chưa
-	 * xử lý.
+	 * Số đếm cho màn Số liệu (wp-admin): số bài đã đăng, theo cấp L0–L3, bài thiếu ý nghĩa, câu kho chưa xử lý. Đọc từ bảng
+	 * tóm tắt bài (một truy vấn gộp), không đọc phần của từng bài: kho 16.000 bài trước đây mất 80 giây, 32.000 câu SQL.
 	 *
 	 * @return array{bai:int,cap:array<int,int>,thieu:int,kho:int}
 	 */
 	public static function so(): array {
-		$ids = get_posts( array( 'post_type' => KhaiBao::TAC_PHAM, 'post_status' => 'publish', 'numberposts' => -1, 'fields' => 'ids' ) );
-		update_meta_cache( 'post', $ids );
-		$cap    = array( 0 => 0, 1 => 0, 2 => 0, 3 => 0 );
-		$thieu  = 0;
-		foreach ( $ids as $id ) {
-			$bai = get_post( $id );
-			$c   = CapChatLuong::tinh( PhanBai::tat_ca( (int) $id, KhaiBao::TAC_PHAM ), DocBai::the_loai( $bai ) );
-			if ( null !== $c ) {
-				++$cap[ $c ];
+		global $wpdb;
+		$cap   = array( 0 => 0, 1 => 0, 2 => 0, 3 => 0 );
+		$bai   = 0;
+		$thieu = 0;
+		$hang  = $wpdb->get_results( $wpdb->prepare( 'SELECT cap, COUNT(*) AS so, SUM(CASE WHEN thieu LIKE %s THEN 1 ELSE 0 END) AS thieu FROM ' . TomTat::bang() . ' WHERE trang_thai = %s GROUP BY cap', '%,y_nghia,%', 'publish' ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- tên bảng
+		foreach ( $hang ?: array() as $h ) {
+			$c      = (int) $h['cap'];
+			$bai   += (int) $h['so'];
+			$thieu += (int) $h['thieu'];
+			if ( isset( $cap[ $c ] ) ) {
+				$cap[ $c ] += (int) $h['so'];
 			}
-			$thieu += null === PhanBai::lay( (int) $id, 'y_nghia' ) ? 1 : 0;
 		}
-		return array( 'bai' => count( $ids ), 'cap' => $cap, 'thieu' => $thieu, 'kho' => (int) ( Kho::dem()['moi'] ?? 0 ) );
+		return array( 'bai' => $bai, 'cap' => $cap, 'thieu' => $thieu, 'kho' => (int) ( Kho::dem()['moi'] ?? 0 ) );
 	}
 
 	/**
