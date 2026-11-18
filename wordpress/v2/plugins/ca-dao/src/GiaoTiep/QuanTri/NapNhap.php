@@ -239,7 +239,7 @@ final class NapNhap {
 		delete_transient( $khoa );
 		$r    = is_array( $kq ) ? self::tao_the( (array) ( $kq['dong'] ?? array() ), get_current_user_id() ) : array( 'tao' => 0, 'bo' => 0 );
 		set_transient( 'phongdao_nap_bao_' . get_current_user_id(), is_array( $kq ) ? 'Đã tạo ' . $r['tao'] . ' thẻ nháp ý nghĩa trong Hộp việc' . ( $r['bo'] ? ' (' . $r['bo'] . ' dòng bỏ qua vì vừa thay đổi)' : '' ) . '. Mở Hộp việc để sửa, Duyệt hoặc Bỏ từng thẻ.' : 'Phiên xem trước đã hết hạn; nạp lại tệp.', 120 );
-		wp_safe_redirect( add_query_arg( array( 'page' => BoSung::TRANG ), admin_url( 'admin.php' ) ) . '#nhap-theo-lo' );
+		wp_safe_redirect( BoSung::url_tab( 'nhap' ) . '#nhap-theo-lo' );
 		exit;
 	}
 
@@ -271,7 +271,7 @@ final class NapNhap {
 	/** Màn xem trước một tệp nháp đã nạp. */
 	public static function xem_truoc( string $ma ): string {
 		$kq = get_transient( 'phongdao_nap_' . get_current_user_id() . '_' . $ma );
-		$ve = '<p><a href="' . esc_url( add_query_arg( array( 'page' => BoSung::TRANG ), admin_url( 'admin.php' ) ) . '#nhap-theo-lo' ) . '">← Bổ sung</a></p>';
+		$ve = '<p><a href="' . esc_url( BoSung::url_tab( 'nhap' ) . '#nhap-theo-lo' ) . '">← Bổ sung</a></p>';
 		if ( ! is_array( $kq ) ) {
 			return '<div class="wrap phongdao-ban phongdao-bo-sung">' . $ve . '<h1>Xem trước nháp Ý nghĩa</h1><p role="alert">Phiên xem trước đã hết hạn hoặc không có. Nạp lại tệp.</p></div>';
 		}
@@ -287,7 +287,7 @@ final class NapNhap {
 			. ( '' !== (string) ( $kq['loi'] ?? '' ) ? '<div class="notice notice-error" role="alert"><p>' . esc_html( (string) $kq['loi'] ) . '</p></div>' : '' )
 			. '<p>' . esc_html( $so . ' / ' . count( $dong ) ) . ' dòng sẽ thành thẻ nháp trong Hộp việc (đánh dấu có hỗ trợ AI). Chưa có gì ghi vào bài; bạn vẫn sửa, Duyệt hoặc Bỏ từng thẻ.</p>'
 			. ( $dong ? '<table class="widefat striped"><caption class="screen-reader-text">Các dòng của tệp nháp: bài, nháp, việc sẽ làm</caption><thead><tr><th scope="col">Bài</th><th scope="col">Nháp Ý nghĩa</th><th scope="col">Sẽ làm</th></tr></thead><tbody>' . $hang . '</tbody></table>' : '' )
-			. ( $so && current_user_can( 'cadao_duyet' ) ? '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="' . self::TAO . '"><input type="hidden" name="ma" value="' . esc_attr( $ma ) . '">' . wp_nonce_field( self::TAO . '_' . $ma, '_wpnonce', true, false ) . '<p><button type="submit" class="button button-primary">Tạo ' . (int) $so . ' thẻ nháp</button> <a class="button" href="' . esc_url( add_query_arg( array( 'page' => BoSung::TRANG ), admin_url( 'admin.php' ) ) . '#nhap-theo-lo' ) . '">Huỷ</a></p></form>' : '' )
+			. ( $so && current_user_can( 'cadao_duyet' ) ? '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="' . self::TAO . '"><input type="hidden" name="ma" value="' . esc_attr( $ma ) . '">' . wp_nonce_field( self::TAO . '_' . $ma, '_wpnonce', true, false ) . '<p><button type="submit" class="button button-primary">Tạo ' . (int) $so . ' thẻ nháp</button> <a class="button" href="' . esc_url( BoSung::url_tab( 'nhap' ) . '#nhap-theo-lo' ) . '">Huỷ</a></p></form>' : '' )
 			. '</div>';
 	}
 }

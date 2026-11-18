@@ -130,3 +130,27 @@
 .phongdao-admin-tp .phongdao-tp-hanh .button-link { color: var(--pq-tim, #2271b1); text-decoration: underline; }
 .phongdao-admin-tp .phongdao-tp-hanh .button-link-delete { color: #a00; }
 body.pq .phongdao-admin-tp table.pq-ds-bang tr { margin: 0; padding: 0; border-left: 0; border-right: 0; background: transparent; }
+
+/* Thêm tác phẩm (D-121 đợt 4): một thẻ trắng rộng vừa đọc; lời chữ Literata; thể loại và tên hai cột; báo trùng nền vàng */
+.phongdao-them .phongdao-them-the { display: grid; gap: 16px; max-width: 760px; }
+.phongdao-them .phongdao-them-the > p { margin: 0; }
+.phongdao-them .phongdao-them-o { display: grid; gap: 6px; }
+.phongdao-them .phongdao-them-o > label, .phongdao-them .phongdao-them-nhom legend { font-weight: 600; }
+.phongdao-them .phongdao-them-o .description { font-weight: 400; }
+.phongdao-them .phongdao-them-o input[type=text] { width: 100%; max-width: none; min-height: 44px; }
+.phongdao-them textarea.phongdao-them-loi-o { width: 100%; min-height: 200px; padding: 12px 14px; border-radius: 8px; font-size: 18px; line-height: 1.7; }
+body.pq #wpbody-content .phongdao-them textarea.phongdao-them-loi-o { font-family: Literata, Georgia, serif; }
+.phongdao-them .phongdao-them-hai { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.phongdao-them .phongdao-them-nhom { display: flex; flex-wrap: wrap; gap: 0 14px; margin: 0; padding: 0; border: 0; }
+.phongdao-them .phongdao-them-nhom legend { margin-bottom: 4px; padding: 0; }
+.phongdao-them .phongdao-them-loai { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; }
+.phongdao-them .phongdao-them-kiem { margin-top: -8px; }
+.phongdao-them .phongdao-them-kiem > p { margin: 0; }
+.phongdao-them .phongdao-them-kiem .nhan-may { display: inline-flex; padding: 2px 10px; border-radius: 999px; background: var(--pq-tim-nhat, #f1ecfb); color: var(--pq-tim-dam, #4a2c8c); font-size: 13px; font-weight: 600; }
+.phongdao-them .phongdao-them-kiem .notice { margin: 8px 0 0; padding: 10px 14px; border: 1px solid #f0d68a; border-left: 4px solid var(--pq-vang, #7a4f00); border-radius: 8px; background: var(--pq-vang-nen, #fff3d6); color: var(--pq-chu, #1f1b2a); box-shadow: none; }
+.phongdao-them .phongdao-them-nut { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 4px; border-top: 1px solid var(--pq-vien, #e3e0ea); }
+.phongdao-them .phongdao-them-nut .button { min-height: 44px; padding: 0 18px; }
+@media (max-width: 782px) {
+	.phongdao-them .phongdao-them-hai { grid-template-columns: minmax(0, 1fr); }
+	.phongdao-them .phongdao-them-nut .button { flex: 1 1 auto; }
+}

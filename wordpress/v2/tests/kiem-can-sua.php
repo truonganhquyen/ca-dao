@@ -49,12 +49,13 @@ kt( 'Cần sửa: lưu phần làm mới danh sách; chữ đã đổi thì lỗ
 LuuPhan::luu( $a_cs, 'y_nghia', array( 'chu' => 'Nỗi nhớ quê của người đi xa.', 'nguoi_lam' => NguoiLam::NGUOI_VIET ), $nc_cs );
 $ds_sua_cs = CanSua::ds();
 kt( 'Cần sửa: Ý nghĩa đã sửa đúng quy tắc thì rời các nhóm Ý nghĩa', ! in_array( $a_cs, $ds_sua_cs['thieu_dau'], true ) && ! in_array( $a_cs, $ds_sua_cs['nhac_cau'], true ) && in_array( $a_cs, $ds_sua_cs['cach_dau'], true ) );
-$_GET  = array();
+$_GET  = array( 'xem' => 'can_sua' );
 $h_cs  = \Phongdao\GiaoTiep\QuanTri\BoSung::hien();
+$_GET  = array();
 kt(
-	'Bổ sung: khối "Cần sửa" có nhóm theo loại kèm số bài, tên bài dẫn tới đúng phần ở màn sửa, đoạn trích, nút "Bỏ qua" có nonce; bảng ưu tiên có dòng Cần sửa',
+	'Bổ sung: khối "Cần sửa" có nhóm theo loại kèm số bài, tên bài dẫn tới đúng phần ở màn sửa, đoạn trích, nút "Bỏ qua" có nonce; nằm ở tab Cần sửa của Bổ sung',
 	str_contains( $h_cs, '<h2 id="can-sua">Cần sửa</h2>' ) && str_contains( $h_cs, 'id="can-sua-cach_dau"' ) && str_contains( $h_cs, 'Lời có dấu cách trước dấu câu · ' )
-		&& str_contains( $h_cs, '[UX-TEST] Dòng một , có dấu cách' ) && str_contains( $h_cs, 'value="phongdao_bo_sung_bo_qua"' ) && str_contains( $h_cs, 'name="_wpnonce"' ) && str_contains( $h_cs, 'Cần sửa trình bày (máy rà theo quy tắc viết)' )
+		&& str_contains( $h_cs, '[UX-TEST] Dòng một , có dấu cách' ) && str_contains( $h_cs, 'value="phongdao_bo_sung_bo_qua"' ) && str_contains( $h_cs, 'name="_wpnonce"' ) && str_contains( $h_cs, 'xem=can_sua" aria-current="page">Cần sửa' )
 		&& str_contains( $h_cs, 'phan_loai=vung' ),
 	substr( (string) strstr( $h_cs, 'id="can-sua"' ), 0, 1500 )
 );

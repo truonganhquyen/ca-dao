@@ -1,10 +1,18 @@
 /* Bổ sung, Dọn chủ đề, Tuyển tập (Hôm nay dùng bộ kiểu chung admin-chung.css từ D-121). */
 .phongdao-nen-lam a { display: inline-flex; align-items: center; min-height: 44px; }
+/* Bổ sung (D-121 đợt 4): tiến độ Google một dòng, năm tab gạch chân (kiểu chung), bảng việc khác gọn */
+.phongdao-bs-google { display: grid; gap: 8px; max-width: 760px; margin: 0 0 14px; }
+.phongdao-bs-google p { margin: 0; }
+.phongdao-bs-google .pq-tien-do { width: 100%; }
+.phongdao-bs-bat-dau { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.phongdao-bs-bat-dau .button { min-height: 44px; line-height: 42px; }
+.phongdao-bs-uu-tien { max-width: 760px; }
+.phongdao-bs-uu-tien .button { min-height: 36px; }
 /* Bổ sung: duyệt gợi ý chủ đề, vùng theo nhóm / theo bài (T-189.4) */
 .phongdao-bs-nhom { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; padding: 0; list-style: none; }
 .phongdao-bs-nhom li { margin: 0; }
-.phongdao-bo-sung .phongdao-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border: 1px solid #c3c4c7; border-radius: 22px; background: #fff; color: #1d2327; text-decoration: none; }
-.phongdao-bo-sung .phongdao-chip-so { font-weight: 600; }
+.phongdao-bs-nhom .phongdao-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border: 1px solid #c3c4c7; border-radius: 22px; background: #fff; color: #1d2327; text-decoration: none; }
+.phongdao-bs-nhom .phongdao-chip-so { font-weight: 600; }
 .phongdao-bs-ds { margin: 12px 0; padding: 0; list-style: none; border: 1px solid #c3c4c7; border-radius: 6px; background: #fff; }
 .phongdao-bs-ds li { display: flex; gap: 10px; align-items: flex-start; margin: 0; padding: 10px 12px; border-bottom: 1px solid #dcdcde; }
 .phongdao-bs-ds li:last-child { border-bottom: 0; }

@@ -7,10 +7,11 @@ use Phongdao\KhoLuu\Viec;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Màn **Bổ sung** trong wp-admin (D-103, docs/32 mục 3.5): làm bài đã đăng đầy đủ hơn, không chỉ tiêu. Đọc từ bảng tóm tắt
- * bài. Bài đọc nhiều chưa có Ý nghĩa lên đầu; danh sách ưu tiên (thiếu Ý nghĩa, tục ngữ thiếu nghĩa, câu đố thiếu đáp án
- * rồi thiếu giải thích, thiếu từ khó, thiếu đối chiếu sách, có cờ) xếp bài đọc nhiều trước; nút "Bắt đầu" mở bài đầu ở
- * trang Sửa tác phẩm kèm lối "Bài tiếp theo". Chỉ đọc và dẫn đường; máy không viết nội dung, không tự gắn phân loại.
+ * Màn **Bổ sung** trong wp-admin (D-103; làm lại D-121, docs/42 mục 6): làm bài đã đăng đầy đủ hơn, không chỉ tiêu. Một
+ * dòng tiến độ lên Google ở đầu, rồi năm tab (tham số `xem`): **Thiếu Ý nghĩa** (bài đọc nhiều chưa có, nút Bắt đầu) ·
+ * **Cần sửa** (máy rà theo quy tắc viết, Ý nghĩa dài) · **Gợi ý chủ đề, vùng** · **Việc khác** (danh sách ưu tiên: đối
+ * chiếu sách, từ khó, nghĩa tục ngữ, câu đố, cờ) · **Nháp Ý nghĩa theo lô**. Đọc từ bảng tóm tắt bài; nút "Bắt đầu" mở
+ * bài đầu ở trang Sửa tác phẩm kèm lối "Bài tiếp theo". Chỉ đọc và dẫn đường; máy không viết nội dung, không tự gắn.
  */
 final class BoSung {
 
@@ -18,6 +19,20 @@ final class BoSung {
 
 	public static function url(): string {
 		return admin_url( 'admin.php?page=' . self::TRANG );
+	}
+
+	/** Năm tab của màn (khoá tham số `xem` => tên). */
+	public const TAB = array(
+		'y_nghia' => 'Thiếu Ý nghĩa',
+		'can_sua' => 'Cần sửa',
+		'goi_y'   => 'Gợi ý chủ đề, vùng',
+		'khac'    => 'Việc khác',
+		'nhap'    => 'Nháp Ý nghĩa theo lô',
+	);
+
+	/** Địa chỉ một tab (tab đầu không cần tham số). */
+	public static function url_tab( string $tab ): string {
+		return 'y_nghia' === $tab || ! isset( self::TAB[ $tab ] ) ? self::url() : add_query_arg( array( 'page' => self::TRANG, 'xem' => $tab ), admin_url( 'admin.php' ) );
 	}
 
 	/**
@@ -94,7 +109,7 @@ final class BoSung {
 
 	/** Mở phần Ý nghĩa của bài ở trang Sửa tác phẩm, lối về là danh sách "Ý nghĩa dài" của Bổ sung. */
 	public static function url_sua_y_nghia( int $id ): string {
-		return add_query_arg( 'phan', 'y_nghia', SuaTacPham::url( $id, self::url() . '#y-nghia-dai' ) ) . '#phan-y_nghia';
+		return add_query_arg( 'phan', 'y_nghia', SuaTacPham::url( $id, self::url_tab( 'can_sua' ) . '#y-nghia-dai' ) ) . '#phan-y_nghia';
 	}
 
 	/** Khối "Ý nghĩa dài" của màn Bổ sung: tối đa 50 bài, dài nhất trước. */
@@ -133,7 +148,7 @@ final class BoSung {
 			}
 			$li = '';
 			foreach ( array_slice( $ids, 0, self::CAN_SUA_HIEN ) as $id ) {
-				$den = 'vung' === $phan ? add_query_arg( 'phan_loai', 'vung', SuaTacPham::url( $id, self::url() . '#can-sua' ) ) . '#phan-loai-vung' : add_query_arg( 'phan', $phan, SuaTacPham::url( $id, self::url() . '#can-sua' ) ) . '#' . ( 'loi' === $phan ? 'loi-doi-chieu' : 'phan-' . $phan );
+				$den = 'vung' === $phan ? add_query_arg( 'phan_loai', 'vung', SuaTacPham::url( $id, self::url_tab( 'can_sua' ) . '#can-sua' ) ) . '#phan-loai-vung' : add_query_arg( 'phan', $phan, SuaTacPham::url( $id, self::url_tab( 'can_sua' ) . '#can-sua' ) ) . '#' . ( 'loi' === $phan ? 'loi-doi-chieu' : 'phan-' . $phan );
 				$li .= '<li><a href="' . esc_url( $den ) . '">' . esc_html( get_the_title( $id ) ?: 'Bài #' . $id ) . '</a> <span class="description">' . esc_html( \Phongdao\DichVu\CanSua\CanSua::trich( $id, $ma ) ) . '</span>'
 					. ' <form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="phongdao-bo-qua"><input type="hidden" name="action" value="' . self::BO_QUA . '"><input type="hidden" name="id" value="' . (int) $id . '"><input type="hidden" name="ma" value="' . esc_attr( $ma ) . '">'
 					. wp_nonce_field( self::BO_QUA . '_' . $id . '_' . $ma, '_wpnonce', true, false ) . '<button type="submit" class="button button-small">Bỏ qua</button></form></li>';
@@ -155,7 +170,7 @@ final class BoSung {
 		}
 		check_admin_referer( self::BO_QUA . '_' . $id . '_' . $ma );
 		\Phongdao\DichVu\CanSua\CanSua::bo_qua( $id, $ma );
-		wp_safe_redirect( self::url() . '#can-sua-' . $ma );
+		wp_safe_redirect( self::url_tab( 'can_sua' ) . '#can-sua-' . $ma );
 		exit;
 	}
 
@@ -323,29 +338,58 @@ final class BoSung {
 		if ( '' !== $nap ) {
 			return NapNhap::xem_truoc( $nap );
 		}
-		$doc = self::doc_nhieu_thieu();
-		$o   = '';
-		foreach ( $doc as $id ) {
+		$xem  = sanitize_key( wp_unslash( (string) ( $_GET['xem'] ?? '' ) ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ chọn tab
+		$xem  = isset( self::TAB[ $xem ] ) ? $xem : 'y_nghia';
+		$cs   = \Phongdao\DichVu\CanSua\CanSua::ds();
+		$dai  = self::y_nghia_dai();
+		$thieu = DanhSachTacPham::dem_loc( array( 'tt' => 'publish', 'muc' => 'thieu_y_nghia' ) );
+		$dem  = array( 'y_nghia' => $thieu, 'can_sua' => \Phongdao\DichVu\CanSua\CanSua::so_bai( $cs ) + count( $dai ), 'goi_y' => Viec::dem( Viec::CHO, 'goi_y' ), 'khac' => null, 'nhap' => null );
+		$tab  = '';
+		foreach ( self::TAB as $ma => $ten ) {
+			$tab .= '<a class="phongdao-chip" href="' . esc_url( self::url_tab( $ma ) ) . '"' . ( $ma === $xem ? ' aria-current="page"' : '' ) . '>' . esc_html( $ten ) . ( null === $dem[ $ma ] ? '' : ' <span class="phongdao-chip-so">' . esc_html( number_format_i18n( (int) $dem[ $ma ] ) ) . '</span>' ) . '</a>';
+		}
+		// D-117: chỉ bài có phần riêng lên Google — tiến độ một dòng
+		$lap  = count( \Phongdao\GiaoTiep\Seo\Module::ds_lap() );
+		$tong = (int) wp_count_posts( \Phongdao\HaTang\KhaiBao::TAC_PHAM )->publish;
+		$tien = '<section class="pq-khoi phongdao-bs-google" aria-label="Tiến độ lên Google"><p><strong>' . esc_html( number_format_i18n( $lap ) . ' / ' . number_format_i18n( $tong ) ) . '</strong> bài có phần thư viện tự viết (lên Google). Mỗi Ý nghĩa bạn viết thêm một bài; bài chỉ có lời vẫn đọc được.</p>'
+			. '<progress class="pq-tien-do" max="' . (int) max( 1, $tong ) . '" value="' . (int) min( $lap, max( 1, $tong ) ) . '" aria-label="' . esc_attr( $lap . ' trên ' . $tong . ' bài lên Google' ) . '">' . (int) $lap . ' / ' . (int) $tong . '</progress></section>';
+		$than = match ( $xem ) {
+			'can_sua' => self::khoi_can_sua( $cs ) . self::khoi_y_nghia_dai( $dai ),
+			'goi_y'   => self::khoi_goi_y(),
+			'khac'    => self::khoi_uu_tien(),
+			'nhap'    => NapNhap::khoi(),
+			default   => self::khoi_thieu( $thieu ),
+		};
+		return '<div class="wrap pq-man phongdao-ban phongdao-bo-sung"><div class="pq-dau"><div class="pq-dau-chu"><h1>Bổ sung</h1><p>Làm bài đã đăng đầy đủ hơn. Bài đọc nhiều trước; làm xong một bài, lưu và sang bài kế. Không có chỉ tiêu phải điền kín cả kho.</p></div></div><hr class="wp-header-end">'
+			. TrangLo::lay_bao() . $tien . '<nav class="phongdao-hv-tab" aria-label="Việc bổ sung">' . $tab . '</nav>'
+			. '<div class="phongdao-bs-than">' . $than . '</div>'
+			. '<p class="description">Máy chỉ đếm và xếp thứ tự; không viết nội dung, không tự gắn chủ đề hay vùng.</p></div>';
+	}
+
+	/** Tab "Thiếu Ý nghĩa": bài đọc nhiều tuần này chưa có, nút Bắt đầu (bài đầu, đọc nhiều trước) và lối mở cả danh sách. */
+	private static function khoi_thieu( int $thieu ): string {
+		$o = '';
+		foreach ( self::doc_nhieu_thieu() as $id ) {
 			$o .= '<li><a href="' . esc_url( SuaTacPham::url( $id ) ) . '">' . esc_html( get_the_title( $id ) ?: 'Bài #' . $id ) . '</a></li>';
 		}
+		$loc = array( 'tt' => 'publish', 'muc' => 'thieu_y_nghia', 'xep' => 'doc' );
+		$ds  = DanhSachTacPham::url_loc( $loc );
+		$dau = $thieu ? (int) ( DanhSachTacPham::ids_loc( $loc, 1 )[0] ?? 0 ) : 0;
+		return '<p class="phongdao-bs-bat-dau">' . ( $dau ? '<a class="button button-primary" href="' . esc_url( SuaTacPham::url( $dau, $ds ) ) . '">Bắt đầu viết Ý nghĩa →</a> ' : '' )
+			. '<a href="' . esc_url( $ds ) . '">Xem cả danh sách (' . esc_html( number_format_i18n( $thieu ) ) . ' bài, đọc nhiều trước)</a></p>'
+			. '<h2>Bài đọc nhiều tuần này chưa có Ý nghĩa</h2>'
+			. ( $o ? '<ol class="phongdao-nen-lam">' . $o . '</ol>' : '<p>Tuần này chưa có bài đọc nhiều nào thiếu Ý nghĩa.</p>' );
+	}
+
+	/** Tab "Việc khác": những việc không có tab riêng (nghĩa tục ngữ, câu đố, từ khó, đối chiếu sách, cờ), mỗi việc một số và nút Bắt đầu. */
+	private static function khoi_uu_tien(): string {
+		// Bỏ dòng đầu (Thiếu Ý nghĩa) và dòng cuối (Gợi ý chủ đề, vùng): đã có tab riêng
+		$ut = array_slice( self::uu_tien(), 1, -1 );
 		$hang = '';
-		$dai  = self::y_nghia_dai();
-		$ut   = self::uu_tien();
-		$cs   = \Phongdao\DichVu\CanSua\CanSua::ds();
-		array_splice( $ut, 1, 0, array( array( 'Ý nghĩa dài, nên rút gọn (hơn ' . self::Y_NGHIA_DAI . ' chữ)', count( $dai ), self::url() . '#y-nghia-dai', $dai ? self::url_sua_y_nghia( (int) array_key_first( $dai ) ) : self::url() . '#y-nghia-dai' ) ) );
-		$ut[] = array( 'Cần sửa trình bày (máy rà theo quy tắc viết)', \Phongdao\DichVu\CanSua\CanSua::so_bai( $cs ), self::url() . '#can-sua', self::url() . '#can-sua' );
 		foreach ( $ut as [ $ten, $so, $ds, $dau ] ) {
 			$hang .= '<tr><th scope="row">' . esc_html( $ten ) . '</th><td>' . ( $so ? '<a href="' . esc_url( $ds ) . '">' . esc_html( number_format_i18n( $so ) ) . '</a>' : '0' ) . '</td>'
 				. '<td>' . ( $so ? '<a class="button" href="' . esc_url( $dau ) . '" aria-label="' . esc_attr( 'Bắt đầu: ' . $ten ) . '">Bắt đầu</a>' : '—' ) . '</td></tr>';
 		}
-		return '<div class="wrap phongdao-ban phongdao-bo-sung"><h1>Bổ sung</h1>'
-			. '<p class="description">Làm bài đã đăng đầy đủ hơn: Ý nghĩa, từ khó, dị bản, đối chiếu sách. Bài đọc nhiều lên đầu. Không có chỉ tiêu phải điền kín cả kho; viết xong một bài, lưu và sang bài kế.</p>'
-			// D-117: chỉ bài có phần riêng lên Google khi mở
-			. '<p class="phongdao-bs-google"><strong>Khi mở Google:</strong> ' . esc_html( number_format_i18n( count( \Phongdao\GiaoTiep\Seo\Module::ds_lap() ) ) ) . ' / ' . esc_html( number_format_i18n( (int) wp_count_posts( \Phongdao\HaTang\KhaiBao::TAC_PHAM )->publish ) ) . ' bài đã đăng sẽ được lập chỉ mục — bài có phần thư viện tự làm thêm (Ý nghĩa, nghĩa tục ngữ, chú thích người viết, dị bản, đối chiếu sách…). Bài chỉ có lời vẫn đọc được; bổ sung xong thì tự vào danh sách.</p>'
-			. '<h2>Bài đọc nhiều tuần này chưa có Ý nghĩa</h2>'
-			. ( $o ? '<ol class="phongdao-nen-lam">' . $o . '</ol>' : '<p>Tuần này chưa có bài đọc nhiều nào thiếu Ý nghĩa.</p>' )
-			. '<h2>Danh sách ưu tiên</h2><table class="widefat striped phongdao-ban-so-lieu"><caption class="screen-reader-text">Việc bổ sung theo loại</caption><thead><tr><th scope="col">Việc</th><th scope="col">Số bài</th><th scope="col">Làm</th></tr></thead><tbody>' . $hang . '</tbody></table>'
-			. self::khoi_can_sua( $cs ) . self::khoi_y_nghia_dai( $dai ) . NapNhap::khoi() . TrangLo::lay_bao() . self::khoi_goi_y()
-			. '<p class="description">Máy chỉ đếm và xếp thứ tự; không viết nội dung, không tự gắn chủ đề hay vùng.</p></div>';
+		return '<h2>Danh sách ưu tiên</h2><p class="description">Mỗi việc mở bài đầu ở trang sửa, kèm lối "Bài tiếp theo" (bài đọc nhiều trước). Thiếu Ý nghĩa, Cần sửa, Gợi ý chủ đề và vùng ở tab riêng.</p><table class="widefat striped phongdao-bs-uu-tien"><caption class="screen-reader-text">Việc bổ sung theo loại</caption><thead><tr><th scope="col">Việc</th><th scope="col">Số bài</th><th scope="col">Làm</th></tr></thead><tbody>' . $hang . '</tbody></table>';
 	}
 }
