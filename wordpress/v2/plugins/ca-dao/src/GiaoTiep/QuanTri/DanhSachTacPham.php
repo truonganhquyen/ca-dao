@@ -372,7 +372,7 @@ final class DanhSachTacPham {
 			$dang = $muc === $loc['muc'];
 			$o   .= '<a class="button" href="' . esc_url( self::url( array( 'muc' => $dang ? 'tat_ca' : $muc, 'paged' => 1 ) + $loc ) ) . '"' . ( $dang ? ' aria-current="true"' : '' ) . '>' . esc_html( $chu ) . ( $dang ? ' ✓' : '' ) . '</a> ';
 		}
-		return $o . '<a class="button" href="' . esc_url( BoSung::url() . '#can-sua' ) . '">Cần sửa trình bày</a></p>';
+		return $o . '<a class="button" href="' . esc_url( BoSung::url_tab( 'can_sua' ) ) . '">Cần sửa trình bày</a></p>';
 	}
 
 	/** Ô tìm luôn hiện; các bộ lọc còn lại gập trong "Thêm bộ lọc" (mở sẵn khi đang dùng một bộ lọc trong đó). */

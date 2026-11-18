@@ -37,21 +37,27 @@ final class ThemTacPham {
 		if ( ! current_user_can( 'cadao_soan' ) ) {
 			return '<div class="wrap"><p>Bạn không có quyền thêm tác phẩm.</p></div>';
 		}
-		$da   = sanitize_text_field( wp_unslash( (string) ( $_GET['da'] ?? '' ) ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc lời báo
-		$loai = '';
+		$da    = sanitize_text_field( wp_unslash( (string) ( $_GET['da'] ?? '' ) ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc lời báo
+		$duyet = current_user_can( 'cadao_duyet' );
+		$loai  = '';
 		foreach ( TheLoai::DS as $ma => $ten ) {
 			$loai .= '<label class="phongdao-them-loai"><input type="radio" name="the_loai" value="' . esc_attr( $ma ) . '"' . checked( 'ca-dao', $ma, false ) . '> ' . esc_html( $ten ) . '</label>';
 		}
-		return '<div class="wrap phongdao-admin-tp phongdao-them"><h1>Thêm tác phẩm</h1>'
-			. '<p><a href="' . esc_url( DanhSachKho::url() ) . '">← Bài mới</a></p>'
+		// Người có quyền duyệt: "Đăng ngay" là nút chính, "Lưu nháp" phụ; người chỉ soạn: chỉ "Lưu nháp"
+		$nut = $duyet
+			? '<button type="submit" name="dang" value="1" class="button button-primary">Đăng ngay</button> <button type="submit" name="dang" value="0" class="button">Lưu nháp</button>'
+			: '<button type="submit" name="dang" value="0" class="button button-primary">Lưu nháp</button>';
+		return '<div class="wrap pq-man phongdao-admin-tp phongdao-them">'
+			. '<p class="pq-duong"><a href="' . esc_url( admin_url( 'admin.php?page=' . DanhSachTacPham::TRANG ) ) . '">Tác phẩm</a> › Thêm</p>'
+			. '<div class="pq-dau"><div class="pq-dau-chu"><h1>Thêm tác phẩm</h1><p>Dán lời đúng như nguồn; máy nhận thể thơ và báo nếu có thể trùng. Lưu xong mở trang sửa để viết tiếp.</p></div><div class="pq-dau-nut"><a class="button" href="' . esc_url( DanhSachKho::url() ) . '">← Bài mới</a></div></div><hr class="wp-header-end">'
 			. ( '' === $da ? '' : '<div class="notice notice-error"><p role="status">' . esc_html( $da ) . '</p></div>' )
-			. '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" data-them-bai><input type="hidden" name="action" value="' . ThemBai::HANH_DONG . '"><input type="hidden" name="tu" value="quan_tri">' . wp_nonce_field( ThemBai::HANH_DONG, '_wpnonce', true, false )
-			. '<fieldset class="phongdao-them-nhom"><legend>Thể loại</legend>' . $loai . '</fieldset>'
-			. '<p><label for="them-loi">Lời · dán vào, mỗi dòng một câu <span class="description">không sửa theo trí nhớ</span></label><br><textarea id="them-loi" name="loi" rows="8" class="large-text" required></textarea></p>'
+			. '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="pq-khoi phongdao-them-the" data-them-bai><input type="hidden" name="action" value="' . ThemBai::HANH_DONG . '"><input type="hidden" name="tu" value="quan_tri">' . wp_nonce_field( ThemBai::HANH_DONG, '_wpnonce', true, false )
+			. '<div class="phongdao-them-o"><label for="them-loi">Lời <span class="description">dán vào, mỗi dòng một câu — không sửa theo trí nhớ</span></label><textarea id="them-loi" name="loi" rows="8" class="large-text phongdao-them-loi-o" required></textarea></div>'
 			. '<div id="them-phan-tich" class="phongdao-them-kiem" aria-live="polite"><p class="description">Dán lời để máy nhận thể thơ và kiểm trùng (chỉ báo, không chặn).</p></div>'
-			. '<p><label for="them-ten">Tên bài <span class="description">để trống = dòng đầu</span></label><br><input id="them-ten" name="ten" type="text" class="regular-text"></p>'
-			. '<p><label for="them-nguon">Nguồn <span class="description">sách, trang, đường dẫn, hoặc người kể (cần đồng ý) — không bắt buộc</span></label><br><input id="them-nguon" name="nguon" type="text" class="large-text"></p>'
-			. '<p class="phongdao-them-nut"><button type="submit" name="dang" value="0" class="button button-primary">Lưu nháp</button> ' . ( current_user_can( 'cadao_duyet' ) ? '<button type="submit" name="dang" value="1" class="button">Đăng ngay</button>' : '' ) . '</p>'
-			. '<p class="description">Lưu xong mở trang Sửa tác phẩm để viết tiếp (ý nghĩa, từ khó, chủ đề). Không bắt buộc đủ phần mới được đăng.</p></form></div>';
+			. '<div class="phongdao-them-hai"><fieldset class="phongdao-them-nhom"><legend>Thể loại</legend>' . $loai . '</fieldset>'
+			. '<div class="phongdao-them-o"><label for="them-ten">Tên bài <span class="description">để trống = dòng đầu</span></label><input id="them-ten" name="ten" type="text" class="regular-text"></div></div>'
+			. '<div class="phongdao-them-o"><label for="them-nguon">Nguồn <span class="description">sách, trang, đường dẫn, hoặc người kể (cần đồng ý) — không bắt buộc, không đoán</span></label><input id="them-nguon" name="nguon" type="text" class="large-text"></div>'
+			. '<p class="phongdao-them-nut">' . $nut . '</p>'
+			. '<p class="description">Không bắt buộc đủ phần mới được đăng. Ý nghĩa, từ khó, chủ đề viết tiếp ở trang sửa.</p></form></div>';
 	}
 }

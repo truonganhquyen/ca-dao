@@ -1706,7 +1706,7 @@ $DD::bo( $kd[1], $ai_ql );
 wp_set_current_user( $soan_k );
 $h_them = \Phongdao\GiaoTiep\QuanTri\ThemTacPham::hien();
 wp_set_current_user( $ai_ql );
-kt( 'Thêm tác phẩm trong wp-admin: biểu mẫu gửi cùng đường lưu của Thêm bài, có kiểm trùng khi dán lời (data-them-bai), người chỉ soạn không có "Đăng ngay"; lối từ Tác phẩm, Bài mới, thanh trên cùng', str_contains( $h_them, 'data-them-bai' ) && str_contains( $h_them, 'name="tu" value="quan_tri"' ) && str_contains( $h_them, 'value="' . \Phongdao\GiaoTiep\BienTap\ThemBai::HANH_DONG . '"' ) && str_contains( $h_them, 'id="them-phan-tich"' ) && ! str_contains( $h_them, 'Đăng ngay' ) && str_contains( $h_kd_q, esc_url( \Phongdao\GiaoTiep\QuanTri\ThemTacPham::url() ) ) );
+kt( 'Thêm tác phẩm trong wp-admin: biểu mẫu gửi cùng đường lưu của Thêm bài, có kiểm trùng khi dán lời (data-them-bai), người chỉ soạn không có "Đăng ngay"; lối từ Tác phẩm, Bài mới, thanh trên cùng', str_contains( $h_them, 'data-them-bai' ) && str_contains( $h_them, 'name="tu" value="quan_tri"' ) && str_contains( $h_them, 'value="' . \Phongdao\GiaoTiep\BienTap\ThemBai::HANH_DONG . '"' ) && str_contains( $h_them, 'id="them-phan-tich"' ) && ! str_contains( $h_them, 'Đăng ngay' ) && str_contains( $h_them, 'name="dang" value="0" class="button button-primary">Lưu nháp' ) && str_contains( $h_kd_q, esc_url( \Phongdao\GiaoTiep\QuanTri\ThemTacPham::url() ) ) );
 add_filter( 'wp_die_handler', $chan_die_kho );
 add_filter( 'wp_redirect', $chan_di_kho );
 $r_kd_s   = $gui_tk( $soan_k, array( 'pham_vi' => 'chon', 'lam' => 'dang', 'ids' => array_map( 'strval', $kd ), 'loc_nguon' => 'kho-thu' ) );
@@ -2654,6 +2654,7 @@ $kt = ThemBai::kiem( "Dòng một mẫu\nDòng hai mẫu" );
 kt( 'Thêm bài: máy nhận thể thơ, báo trùng y hệt với tác phẩm có sẵn (kèm đường dẫn)', 2 === $kt['so_dong'] && '' !== $kt['the_tho'] && 'Trùng y hệt' === ( $kt['trung'][0]['muc'] ?? '' ) && (string) get_permalink( $tp1 ) === ( $kt['trung'][0]['url'] ?? '' ), $kt );
 $h = \Phongdao\GiaoTiep\QuanTri\ThemTacPham::hien();
 kt( 'wp-admin Thêm tác phẩm: form gửi admin-post có nonce, 5 thể loại, Lưu nháp / Đăng ngay', str_contains( $h, 'data-them-bai' ) && str_contains( $h, 'name="_wpnonce"' ) && 5 === substr_count( $h, 'name="the_loai"' ) && str_contains( $h, 'Đăng ngay' ) );
+kt( 'wp-admin Thêm tác phẩm (D-121): đầu màn có đường "Tác phẩm › Thêm", biểu mẫu là một thẻ, lời ô chữ lớn; người duyệt có "Đăng ngay" là nút chính đứng trước "Lưu nháp" (nút phụ)', str_contains( $h, '<p class="pq-duong"><a href="' . esc_url( admin_url( 'admin.php?page=phongdao-tac-pham' ) ) . '">Tác phẩm</a> › Thêm</p>' ) && str_contains( $h, 'class="pq-khoi phongdao-them-the" data-them-bai' ) && str_contains( $h, 'class="large-text phongdao-them-loi-o" required' ) && str_contains( $h, '<button type="submit" name="dang" value="1" class="button button-primary">Đăng ngay</button> <button type="submit" name="dang" value="0" class="button">Lưu nháp</button>' ) );
 
 // ---------- Tuyển tập, Từ điển, Nguồn ----------
 wp_set_current_user( 0 );
@@ -3392,13 +3393,16 @@ foreach ( array( $yd_dai => 90, $yd_do => 120, $yd_nap => 100, $yd_vua => 80 ) a
 }
 $ds_yd = \Phongdao\GiaoTiep\QuanTri\BoSung::y_nghia_dai();
 wp_set_current_user( $chi_soan );
-$h_yd = \Phongdao\GiaoTiep\QuanTri\BoSung::hien();
+$get_yd = $_GET;
+$_GET   = array( 'xem' => 'can_sua' );
+$h_yd   = \Phongdao\GiaoTiep\QuanTri\BoSung::hien();
+$_GET   = $get_yd;
 wp_set_current_user( $ai_ql );
 kt(
-	'Bổ sung "Ý nghĩa dài, nên rút còn 2–3 câu": bài đã đăng hơn 80 chữ có tên, số chữ, lối mở phần Ý nghĩa ở trang sửa kèm lối về; đúng 80 chữ, bài nháp, câu đố không vào; có dòng trong danh sách ưu tiên; máy không sửa chữ',
+	'Bổ sung "Ý nghĩa dài, nên rút còn 2–3 câu": bài đã đăng hơn 80 chữ có tên, số chữ, lối mở phần Ý nghĩa ở trang sửa kèm lối về; đúng 80 chữ, bài nháp, câu đố không vào; nằm ở tab Cần sửa (số của tab tính cả bài này); máy không sửa chữ',
 	90 === ( $ds_yd[ $yd_dai ] ?? 0 ) && ! isset( $ds_yd[ $yd_do ] ) && ! isset( $ds_yd[ $yd_nap ] ) && ! isset( $ds_yd[ $yd_vua ] ) && 80 === \Phongdao\GiaoTiep\QuanTri\BoSung::so_chu( '<b>' . trim( str_repeat( 'chữ ', 80 ) ) . '</b>' )
 	&& str_contains( $h_yd, 'id="y-nghia-dai"' ) && str_contains( $h_yd, 'Ý nghĩa dài thử' ) && str_contains( $h_yd, '90 chữ' ) && str_contains( $h_yd, esc_url( \Phongdao\GiaoTiep\QuanTri\BoSung::url_sua_y_nghia( $yd_dai ) ) ) && str_contains( \Phongdao\GiaoTiep\QuanTri\BoSung::url_sua_y_nghia( $yd_dai ), 'phan=y_nghia' )
-	&& str_contains( $h_yd, 'Ý nghĩa dài, nên rút gọn (hơn 80 chữ)' ) && ! str_contains( (string) strstr( $h_yd, 'id="y-nghia-dai"' ), 'Giải thích câu đố dài thử' ) && trim( str_repeat( 'chữ ', 90 ) ) === ( PhanBai::lay( $yd_dai, 'y_nghia' )['chu'] ?? '' ),
+	&& str_contains( $h_yd, 'Ý nghĩa dài, nên rút còn 2–3 câu</h2>' ) && (bool) preg_match( '#xem=can_sua" aria-current="page">Cần sửa <span class="phongdao-chip-so">[1-9]#', $h_yd ) && ! str_contains( (string) strstr( $h_yd, 'id="y-nghia-dai"' ), 'Giải thích câu đố dài thử' ) && trim( str_repeat( 'chữ ', 90 ) ) === ( PhanBai::lay( $yd_dai, 'y_nghia' )['chu'] ?? '' ),
 	$ds_yd
 );
 foreach ( array( $yd_dai, $yd_do, $yd_nap, $yd_vua ) as $id_yd ) {
@@ -3470,10 +3474,18 @@ foreach ( array( $nn_a, $nn_y, $nn_tn, $nn_d ) as $x ) {
 }
 // Bổ sung: danh sách ưu tiên, nút Bắt đầu mở bài đầu ở trang sửa kèm lối về đúng danh sách (để sang bài kế)
 wp_set_current_user( $chi_soan );
-$h_bs  = \Phongdao\GiaoTiep\QuanTri\BoSung::hien();
+$get_bs = $_GET;
+$h_bs_t = array();
+foreach ( array( '', 'can_sua', 'goi_y', 'khac', 'nhap', 'la' ) as $tab_bs ) {
+	$_GET              = '' === $tab_bs ? array() : array( 'xem' => $tab_bs );
+	$h_bs_t[ $tab_bs ] = \Phongdao\GiaoTiep\QuanTri\BoSung::hien();
+}
+$h_bs  = $h_bs_t['khac'];
 $uu_bs = \Phongdao\GiaoTiep\QuanTri\BoSung::uu_tien();
+$_GET  = array();
 wp_set_current_user( 0 );
 $h_bs0 = \Phongdao\GiaoTiep\QuanTri\BoSung::hien();
+$_GET  = $get_bs;
 wp_set_current_user( $ai_ql );
 $thieu_bs = array( 'tt' => 'publish', 'muc' => 'thieu_y_nghia', 'xep' => 'doc' );
 $dau_bs   = \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::ids_loc( $thieu_bs, 1 )[0] ?? 0;
@@ -3517,6 +3529,7 @@ $h_hv_gy  = \Phongdao\GiaoTiep\QuanTri\DanhSachViec::hien();
 $_GET     = array();
 kt( 'Hộp việc chỉ việc cần quyết: gợi ý chủ đề, vùng không nằm trong danh sách, tab, số việc của Hộp việc (vẫn mở được bằng đường dẫn cũ loai=goi_y)', ! str_contains( $h_hv_bs, 'viec=' . $bs_v[0] . '"' ) && ! str_contains( $h_hv_bs, 'loai=goi_y' ) && str_contains( $h_hv_gy, 'viec=' . $bs_v[0] ) && Viec::dem_hop_viec() === Viec::dem_cho() - Viec::dem( Viec::CHO, 'goi_y' ) );
 $nhom_bs = $BS::nhom_goi_y()['chu_de:chu-de-thu-bo-sung'] ?? null;
+$_GET    = array( 'page' => $BS::TRANG, 'xem' => 'goi_y' );
 $h_bs_c  = $BS::hien();
 $_GET    = array( 'page' => $BS::TRANG, 'xem' => 'goi_y', 'nhom' => 'chu_de:chu-de-thu-bo-sung' );
 $h_bs_n  = $BS::hien();
@@ -3612,7 +3625,20 @@ foreach ( $tt_b as $id_tt ) {
 	wp_delete_post( $id_tt, true );
 }
 kt( 'bảng tóm tắt: xoá hẳn bài thì xoá dòng', null === $TT::lay( $tt_b['ca-dao'] ) );
-kt( 'màn Bổ sung: danh sách ưu tiên có số đúng bộ lọc Tác phẩm; "Bắt đầu" mở bài đầu ở trang sửa kèm lối về danh sách đã lọc; người chỉ soạn chỉ có form Tải lô (không có form nạp nháp); khách không xem được', str_contains( $h_bs, '<h1>Bổ sung</h1>' ) && str_contains( $h_bs, 'Danh sách ưu tiên' ) && \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::dem_loc( $thieu_bs ) === $uu_bs[0][1] && ( ! $dau_bs || $uu_bs[0][3] === \Phongdao\GiaoTiep\QuanTri\SuaTacPham::url( (int) $dau_bs, \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::url_loc( $thieu_bs ) ) ) && 1 === substr_count( $h_bs, '<form' ) && str_contains( $h_bs, 'value="' . \Phongdao\GiaoTiep\QuanTri\NapNhap::TAI . '"' ) && ! str_contains( $h_bs, 'value="' . \Phongdao\GiaoTiep\QuanTri\NapNhap::NAP . '"' ) && str_contains( $h_bs0, 'không có quyền' ), $uu_bs );
+kt(
+	'màn Bổ sung (D-121): một dòng tiến độ lên Google có thanh tiến độ; năm tab gạch chân, tab đang xem có aria-current, ba tab có số; tab đầu (mặc định, cả khi tham số lạ) là Thiếu Ý nghĩa có nút "Bắt đầu viết Ý nghĩa" mở bài đầu đọc nhiều trước; mỗi tab chỉ hiện phần của nó; Việc khác không lặp các việc đã có tab riêng',
+	str_contains( $h_bs_t[''], 'class="pq-khoi phongdao-bs-google"' ) && str_contains( $h_bs_t[''], '<progress class="pq-tien-do"' ) && str_contains( $h_bs_t[''], 'bài có phần thư viện tự viết (lên Google)' ) && ! str_contains( $h_bs_t[''], 'Khi mở Google' )
+		&& 5 === substr_count( $h_bs_t[''], '<a class="phongdao-chip" href=' ) && 1 === substr_count( $h_bs_t['goi_y'], 'aria-current="page"' ) && str_contains( $h_bs_t['goi_y'], 'xem=goi_y" aria-current="page">Gợi ý chủ đề, vùng <span class="phongdao-chip-so">' ) && 3 === substr_count( $h_bs_t[''], '<span class="phongdao-chip-so">' )
+		&& str_contains( $h_bs_t[''], esc_url( \Phongdao\GiaoTiep\QuanTri\BoSung::url() ) . '" aria-current="page">Thiếu Ý nghĩa' ) && $h_bs_t[''] === $h_bs_t['la'] && str_contains( $h_bs_t[''], 'Bài đọc nhiều tuần này chưa có Ý nghĩa' )
+		&& ( ! $dau_bs || str_contains( $h_bs_t[''], 'href="' . esc_url( \Phongdao\GiaoTiep\QuanTri\SuaTacPham::url( (int) $dau_bs, \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::url_loc( $thieu_bs ) ) ) . '">Bắt đầu viết Ý nghĩa →</a>' ) )
+		&& ! str_contains( $h_bs_t[''], 'Danh sách ưu tiên' ) && ! str_contains( $h_bs_t[''], 'id="can-sua"' ) && ! str_contains( $h_bs_t[''], 'id="goi-y"' ) && ! str_contains( $h_bs_t[''], 'id="nhap-theo-lo"' )
+		&& str_contains( $h_bs_t['can_sua'], 'id="can-sua"' ) && str_contains( $h_bs_t['can_sua'], 'id="y-nghia-dai"' ) && ! str_contains( $h_bs_t['can_sua'], 'Danh sách ưu tiên' )
+		&& str_contains( $h_bs_t['goi_y'], 'id="goi-y"' ) && ! str_contains( $h_bs_t['goi_y'], 'id="can-sua"' ) && str_contains( $h_bs_t['nhap'], 'id="nhap-theo-lo"' ) && ! str_contains( $h_bs_t['nhap'], 'id="goi-y"' )
+		&& str_contains( $h_bs, 'Thiếu đối chiếu sách' ) && str_contains( $h_bs, 'Câu đố thiếu đáp án' ) && ! str_contains( $h_bs, 'Bài đã đăng chưa có Ý nghĩa' ) && ! str_contains( $h_bs, 'Gợi ý chủ đề, vùng của máy chờ duyệt' ) && ! str_contains( $h_bs, 'Cần sửa trình bày (máy rà' )
+		&& str_contains( \Phongdao\GiaoTiep\QuanTri\BoSung::url_tab( 'can_sua' ), 'xem=can_sua' ) && \Phongdao\GiaoTiep\QuanTri\BoSung::url() === \Phongdao\GiaoTiep\QuanTri\BoSung::url_tab( 'y_nghia' ) && \Phongdao\GiaoTiep\QuanTri\BoSung::url() === \Phongdao\GiaoTiep\QuanTri\BoSung::url_tab( 'la' ),
+	array_map( static fn( string $h ): string => substr( (string) strstr( $h, '<nav class="phongdao-hv-tab"' ), 0, 900 ), $h_bs_t )
+);
+kt( 'màn Bổ sung: danh sách ưu tiên có số đúng bộ lọc Tác phẩm; "Bắt đầu" mở bài đầu ở trang sửa kèm lối về danh sách đã lọc; người chỉ soạn chỉ có form Tải lô (không có form nạp nháp); khách không xem được', str_contains( $h_bs, '<h1>Bổ sung</h1>' ) && str_contains( $h_bs, 'Danh sách ưu tiên' ) && \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::dem_loc( $thieu_bs ) === $uu_bs[0][1] && ( ! $dau_bs || $uu_bs[0][3] === \Phongdao\GiaoTiep\QuanTri\SuaTacPham::url( (int) $dau_bs, \Phongdao\GiaoTiep\QuanTri\DanhSachTacPham::url_loc( $thieu_bs ) ) ) && 1 === substr_count( $h_bs_t['nhap'], '<form' ) && str_contains( $h_bs_t['nhap'], 'value="' . \Phongdao\GiaoTiep\QuanTri\NapNhap::TAI . '"' ) && ! str_contains( $h_bs_t['nhap'], 'value="' . \Phongdao\GiaoTiep\QuanTri\NapNhap::NAP . '"' ) && str_contains( $h_bs0, 'không có quyền' ), $uu_bs );
 foreach ( $the_blv as $id_blv ) {
 	Viec::xoa( (int) $id_blv );
 }

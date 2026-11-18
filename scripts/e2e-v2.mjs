@@ -1229,7 +1229,7 @@ try {
       // Bổ sung mở được, có danh sách ưu tiên
       await di(bt, '/wp-admin/admin.php?page=phongdao-ban-lam-viec');
       await bamDoiTrang(bt, '.pq-viec a[href*="page=phongdao-bo-sung"]');
-      chac(await coChu(bt, 'Danh sách ưu tiên'), 'nút "Bắt đầu bổ sung" không mở màn Bổ sung');
+      chac(await coChu(bt, 'Bài đọc nhiều tuần này chưa có Ý nghĩa') && await bt.$('.phongdao-hv-tab [aria-current="page"]') !== null, 'nút "Bắt đầu bổ sung" không mở màn Bổ sung (tab Thiếu Ý nghĩa)');
       // Người quản trị: trang chào mừng WordPress vẫn mở được (mục "WordPress" → Bảng tin), không còn khung riêng của Phongdao
       await di(bt, '/wp-admin/');
       chac(await bt.$('#dashboard-widgets') && !(await bt.$('.phongdao-khung-wp')), 'trang chào mừng WordPress của người quản trị hỏng hoặc còn khung cũ');
@@ -1277,9 +1277,10 @@ try {
       await di(bt, '/wp-admin/admin.php?page=phongdao-hop-viec');
       chac(!(await bt.$('nav[aria-label="Loại việc"] a[href*="loai=goi_y"]')), 'Hộp việc còn tab Gợi ý chủ đề, vùng');
       await di(bt, '/wp-admin/admin.php?page=phongdao-bo-sung');
+      let bam_ = 1; // mở Bổ sung
+      await bamDoiTrang(bt, '.phongdao-hv-tab a[href*="xem=goi_y"]'); bam_++;
       const nhom = await bt.$eval('.phongdao-bs-nhom a', a => a.href).catch(() => '');
       chac(nhom, 'Bổ sung không có nhóm gợi ý nào (dữ liệu mẫu có gợi ý chủ đề "Lao động")');
-      let bam_ = 1; // mở Bổ sung
       await bamDoiTrang(bt, '.phongdao-bs-nhom a'); bam_++;
       const so = await bt.$$eval('.phongdao-bs-ds input[name="ids[]"]:checked', os => os.length);
       chac(so > 0, 'màn nhóm không có gợi ý đánh dấu sẵn');

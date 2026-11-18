@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Phiên bản | 1.0 · 18/11/2026 |
-| Trạng thái | **Đang làm.** Đợt 1–3 (T-217..T-219) xong; đợt 4 (T-220: Bổ sung, Thêm tác phẩm) còn lại |
+| Trạng thái | **Xong.** Bốn đợt (T-217..T-220) đã gộp |
 | Quyết định | D-121 — người sáng lập duyệt bản xem trước quản trị và ba điều chốt ngày 18/11/2026 |
 | Bản xem trước | Bản tĩnh ngoài kho mã, trên máy người sáng lập: `output/xem-truoc-quan-tri/index.html` (không đưa vào repo) |
 | Đọc khi | Làm bất kỳ màn nào trong wp-admin của Phongdao |
@@ -109,13 +109,13 @@ Cách làm nhanh:
 - **Hộp việc:** thẻ loại việc màu trong danh sách. Chữ trên nút quyết giữ nguyên.
 - **Tuyển tập:** mỗi bộ một hàng, trạng thái màu, còn thiếu gì để công khai, "Làm tiếp" cho bộ nháp còn thiếu.
 
-## 6. Đợt sau
+## 6. Bổ sung và Thêm tác phẩm (đợt 4)
 
-| Đợt | Việc | Gồm |
-|---|---|---|
-| 4 | T-220 Bổ sung, Thêm | Bổ sung chia năm tab (Thiếu Ý nghĩa, Cần sửa, Gợi ý chủ đề / vùng, Đối chiếu sách, Nháp theo lô), tiến độ lên Google một dòng; Thêm tác phẩm báo trùng ngay dưới ô, một nút Đăng ngay |
+- **Bổ sung:** một dòng tiến độ lên Google (số bài có phần thư viện tự viết / số bài đã đăng, thanh tiến độ); năm tab gạch chân: Thiếu Ý nghĩa (mặc định, nút "Bắt đầu viết Ý nghĩa →") · Cần sửa · Gợi ý chủ đề, vùng · Việc khác · Nháp Ý nghĩa theo lô. Tab "Đối chiếu sách" của bản xem trước thành **Việc khác** vì gồm cả nghĩa tục ngữ, câu đố, từ khó, cờ. Mọi lối về trỏ đúng tab (`BoSung::url_tab()`).
+- **Thêm tác phẩm:** đường "Tác phẩm › Thêm"; một thẻ; ô lời chữ Literata; báo trùng nền vàng ngay dưới ô; thể loại và tên hai cột; "Đăng ngay" là nút chính với người có quyền duyệt, "Lưu nháp" phụ.
+- **Đã dọn:** bố cục một trang dài của Bổ sung, đoạn "Khi mở Google", kiểu chip viên tròn cho cả màn.
 
-Mỗi đợt: một PR có link bản xem trước, `npm run quet:v2` đạt, dọn mã và kiểu cũ của màn mình chạm, cập nhật `docs/02`, `docs/22`.
+Mỗi đợt đã là một PR có link bản xem trước, `npm run quet:v2` đạt, dọn mã và kiểu cũ của màn mình chạm.
 
 ## 7. Giữ nguyên
 
