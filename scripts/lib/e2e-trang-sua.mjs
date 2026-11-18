@@ -3,11 +3,13 @@ export async function kiemTrangSua({bt,G,di,bam,datO,bamDoiTrang,luuRieng,chac,t
   const dialog=d=>d.accept().catch(()=>{});bt.on('dialog',dialog);
   let url,id;
   const clear=()=>bt.evaluate(()=>document.querySelectorAll('form[data-giu-nhap]').forEach(f=>window.phongdaoNhapDo?.daLuu(f)));
+  // Bước hỏng giữa chừng không để lại chữ chưa lưu trên tab cho bước sau (không hỏng dây chuyền)
+  const buoc=(ten,fn)=>thu(ten,async()=>{try{await fn();}finally{await clear().catch(()=>{});}});
   // Không còn mục lục (D-121): mở phần bằng neo trên địa chỉ (như lối "Bài này còn thiếu")
   const open=async part=>{await bt.evaluate(p=>{location.hash=p;},part);await bt.waitForFunction(p=>{const e=document.getElementById(p);if(!e)return false;for(let d=e.closest('details');d;d=d.parentElement?.closest('details'))if(!d.open)return false;return true;},{timeout:15000},part);};
   try {
     await di(bt,'/ve/ux-test-trang-sua-dai/');id=await bt.$eval('.dai-bien-tap',e=>e.dataset.bai);url=`/wp-admin/admin.php?page=phongdao-sua-tac-pham&id=${id}`;
-    await thu('Sửa đầy đủ: 36 mục gọn, mở được phân loại/ảnh/lịch sử bằng neo ở sáu cỡ màn hình',async()=>{
+    await buoc('Sửa đầy đủ: 36 mục gọn, mở được phân loại/ảnh/lịch sử bằng neo ở sáu cỡ màn hình',async()=>{
       for(const width of [390,768,1024,1199,1200,1440]){
         await bt.setViewport({width,height:900});await di(bt,url);await open('phan-chu_thich');
         chac(await bt.$$eval('#phan-chu_thich [data-ds]>li',a=>a.length)===36,'thiếu mục mẫu');
@@ -21,18 +23,18 @@ export async function kiemTrangSua({bt,G,di,bam,datO,bamDoiTrang,luuRieng,chac,t
       }
       await open('phan-media');chac(await bt.$eval('[data-anh-minh-hoa]',e=>e.textContent.includes('Tệp tối đa')&&e.querySelector('[data-anh-bo]').disabled),'không báo giới hạn sớm hoặc bỏ ảnh bật khi trống');
     });
-    await thu('Sửa đầy đủ: gập/lọc/tải lại giữ lời giải và nguồn của mục, tóm tắt khôi phục đúng chữ',async()=>{
+    await buoc('Sửa đầy đủ: gập/lọc/tải lại giữ lời giải và nguồn của mục, tóm tắt khôi phục đúng chữ',async()=>{
       await di(bt,url);await open('phan-chu_thich');const first='#phan-chu_thich [data-ds]>li:first-child';await bam(bt,first+' .phongdao-muc-gon>summary');await datO(bt,first+' textarea','[UX-TEST] preserved row 01');
       await bam(bt,first+' .disclosure>summary');await datO(bt,first+' input[name$="[url]"]','https://example.invalid/ux-test');await bam(bt,first+' .phongdao-muc-gon>summary');await datO(bt,'#phan-chu_thich [data-loc-hang]','item 2');
       chac(await bt.$eval(first,e=>e.hidden),'lọc không thu gọn danh sách');await di(bt,url);
       chac(await bt.$eval(first,e=>e.querySelector('textarea').value==='[UX-TEST] preserved row 01'&&e.querySelector('input[name$="[url]"]').value==='https://example.invalid/ux-test'&&e.querySelector('[data-tom-tat-muc]').textContent.includes('preserved row 01')),'khôi phục làm mất lời giải/nguồn hoặc tóm tắt rỗng');
       chac(await bt.$$eval('#phan-chu_thich [data-ds]>li',es=>es.length)===36,'lọc đã loại mục khỏi biểu mẫu');await clear();
     });
-    await thu('Sửa đầy đủ: khôi phục mở phần trên điện thoại, giữ đúng nhiều checkbox và không tự sang bài khi còn chữ',async()=>{
+    await buoc('Sửa đầy đủ: khôi phục mở phần trên điện thoại, giữ đúng nhiều checkbox và không tự sang bài khi còn chữ',async()=>{
       await bt.setViewport({width:390,height:900});await di(bt,url);await open('phan-y_nghia');await datO(bt,'#phan-y_nghia textarea','[UX-TEST] recovery');
       await open('phan-boi_canh');await datO(bt,'#s-bc-chu','[UX-TEST] another part');
       await open('phan-loai');
-      const selected=await bt.$$eval('#pl-chu_de-ds input:not(:checked)',es=>es.slice(0,2).map(e=>{e.checked=true;e.dispatchEvent(new Event('change',{bubbles:true}));return e.value;}));
+      const selected=await bt.$$eval('#pl-chu_de-ds input[type=checkbox]:not(:checked)',es=>es.slice(0,2).map(e=>{e.checked=true;e.dispatchEvent(new Event('change',{bubbles:true}));return e.value;}));
       await di(bt,url);
       chac(await bt.$eval('#phan-y_nghia',d=>d.open&&d.getBoundingClientRect().height>0&&d.querySelector('textarea').value==='[UX-TEST] recovery'),'phần khôi phục bị ẩn hoặc mất chữ');
       chac(await bt.$$eval('#pl-chu_de-ds input:checked',(es,sel)=>sel.every(v=>es.some(e=>e.value===v)),selected),'khôi phục checkbox chọn nhầm hoặc mất mục');
@@ -44,14 +46,14 @@ export async function kiemTrangSua({bt,G,di,bam,datO,bamDoiTrang,luuRieng,chac,t
       chac(await bt.$eval('#s-bc-chu',e=>e.value==='[UX-TEST] another part'),'lưu một phần làm mất chữ phần khác');
       chac(await bt.$eval('[data-tong-chua-luu]',e=>e.textContent.includes('2 phần chưa lưu')),'phần vừa lưu chưa được dọn đúng bộ đệm');await clear();
     });
-    await thu('Sửa đầy đủ: bộ phân loại trống đổi ở tab khác không bị bộ đệm ghi đè; đối chiếu rồi mới lưu tiếp',async()=>{
-      await di(bt,url);await open('phan-loai');const ids=await bt.$$eval('#pl-chu_de-ds input:not(:checked)',es=>es.slice(0,2).map(e=>e.value));chac(ids.length===2,'mẫu thiếu hai chủ đề');await bam(bt,`#pl-chu_de-${ids[0]}`);
+    await buoc('Sửa đầy đủ: bộ phân loại trống đổi ở tab khác không bị bộ đệm ghi đè; đối chiếu rồi mới lưu tiếp',async()=>{
+      await di(bt,url);await open('phan-loai');const ids=await bt.$$eval('#pl-chu_de-ds input[type=checkbox]:not(:checked)',es=>es.slice(0,2).map(e=>e.value));chac(ids.length===2,'mẫu thiếu hai chủ đề');await bam(bt,`#pl-chu_de-${ids[0]}`);
       const other=await bt.browserContext().newPage();try{await di(other,url);await bam(other,`#pl-chu_de-${ids[1]}`);await bamDoiTrang(other,'#dang [data-luu-tat-ca]');}finally{await other.close();}
       await di(bt,url);chac(await bt.$('#phan-loai-chu_de [data-moc-moi]'),'không nhận ra mốc trống cũ sau khôi phục');await bamDoiTrang(bt,'#dang [data-luu-tat-ca]');chac(new URL(bt.url()).searchParams.get('ket_qua')==='luu_chua_het'&&await bt.$eval('[data-luu-bao]',e=>!e.hidden&&e.textContent.includes('Chủ đề')),'bộ đệm dùng mốc mới âm thầm ghi đè, hoặc không báo phần chưa lưu được');
       const verify=await bt.browserContext().newPage();try{await di(verify,url);chac(await verify.$$eval('#pl-chu_de-ds input:checked',es=>es.map(e=>e.value).join(','))===ids[1],'bài đã bị ghi đè trước khi đối chiếu');}finally{await verify.close();}
       await bam(bt,'#phan-loai-chu_de [data-moc-moi]');await bamDoiTrang(bt,'#dang [data-luu-tat-ca]');chac(await bt.$$eval('#pl-chu_de-ds input:checked',es=>es.map(e=>e.value).join(','))===ids[0],'đối chiếu xong không lưu tiếp được');await clear();
     });
-    await thu('Sửa đầy đủ: thêm/trùng mục không mất chữ, không tự chọn, nonce sai bị chặn',async()=>{
+    await buoc('Sửa đầy đủ: thêm/trùng mục không mất chữ, không tự chọn, nonce sai bị chặn',async()=>{
       await di(bt,url);await open('phan-boi_canh');await datO(bt,'#s-bc-chu','[UX-TEST] retained while adding');await open('phan-loai');await bam(bt,'#phan-loai-chu_de .pq-pl-them>summary');await bam(bt,'#phan-loai-chu_de .phongdao-them-muc>summary');
       const name='[UX-TEST] New category '+Date.now(),box='#phan-loai-chu_de [data-them-danh-muc]';
       await datO(bt,box+' input',name);await bam(bt,box+' button');await bt.waitForFunction(s=>document.querySelector(s).textContent.includes('Đã thêm'),{},box+' [data-tao-muc-bao]');
@@ -63,7 +65,7 @@ export async function kiemTrangSua({bt,G,di,bam,datO,bamDoiTrang,luuRieng,chac,t
       const status=await bt.evaluate(async()=>{const b=new FormData();b.set('action','phongdao_them_muc');b.set('tax','chu_de');b.set('ten','[UX-TEST] bad nonce');b.set('_ajax_nonce','invalid');return (await fetch(ajaxurl,{method:'POST',body:b})).status;});chac(status===403,'nonce sai vẫn tạo mục');
       await bt.evaluate(()=>{const f=document.querySelector('#phan-boi_canh form');window.phongdaoNhapDo.daLuu(f);});await bam(bt,`#pl-chu_de-${item.id}`);await bamDoiTrang(bt,'#dang [data-luu-tat-ca]');chac(await bt.$eval(`#pl-chu_de-${item.id}`,e=>e.checked),'mục mới không lưu được');await clear();
     });
-    await thu('Sửa đầy đủ: người chọn/bỏ/quay lại thể thơ máy, sửa lời giữ lựa chọn, POST phiên cũ bị chặn',async()=>{
+    await buoc('Sửa đầy đủ: người chọn/bỏ/quay lại thể thơ máy, sửa lời giữ lựa chọn, POST phiên cũ bị chặn',async()=>{
       await di(bt,url);await open('phan-loai');await bam(bt,'#the-tho>summary');const old=await bt.$eval('#the-tho [name=phien_the_tho]',e=>e.value);const choice=await bt.$eval('#the-tho-ma',e=>[...e.options].find(o=>o.value).value);
       await bam(bt,'#the-tho [name=che_do][value=nguoi]');await bt.select('#the-tho-ma',choice);await bamDoiTrang(bt,'#dang [data-luu-tat-ca]');
       await open('phan-loi');await bt.$eval('#phan-loi textarea',e=>{e.value+='\n[UX-TEST] changed technical line';e.dispatchEvent(new Event('input',{bubbles:true}));});await bamDoiTrang(bt,'#dang [data-luu-tat-ca]');
@@ -73,7 +75,7 @@ export async function kiemTrangSua({bt,G,di,bam,datO,bamDoiTrang,luuRieng,chac,t
       chac(await bt.$eval('#the-tho>summary',e=>e.textContent.includes('không gắn nhãn')),'không bỏ được nhãn thể thơ');
       await bam(bt,'#the-tho>summary');await bam(bt,'#the-tho [name=che_do][value=may]');await bamDoiTrang(bt,'#dang [data-luu-tat-ca]');chac(await bt.$eval('#the-tho [value=may]',e=>e.checked),'không quay lại dùng máy');await clear();
     });
-    await thu('Sửa đầy đủ không JavaScript: mở một phần, sửa và lưu riêng phần đó được',async()=>{
+    await buoc('Sửa đầy đủ không JavaScript: mở một phần, sửa và lưu riêng phần đó được',async()=>{
       const p=await bt.browserContext().newPage();try{await p.setJavaScriptEnabled(false);await p.setViewport({width:390,height:900});await di(p,url);await bam(p,'#phan-chu_thich>summary');await bam(p,'#phan-chu_thich [data-ds]>li:first-child .phongdao-muc-gon>summary');
         const selector='#phan-chu_thich [data-ds]>li:first-child textarea';await p.focus(selector);await p.keyboard.down('Control');await p.keyboard.press('A');await p.keyboard.up('Control');await p.type(selector,'[UX-TEST] saved without JavaScript');await bamDoiTrang(p,'#phan-chu_thich button[type=submit]');
         chac(await p.$eval(selector,e=>e.value==='[UX-TEST] saved without JavaScript'),'no-JS không lưu được từ khó');chac(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'no-JS tràn ngang');

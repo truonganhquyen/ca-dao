@@ -650,13 +650,11 @@ try {
       const id = await bt.$eval('.dai-bien-tap', e => e.dataset.bai);
       await di(bt, `/wp-admin/admin.php?page=phongdao-sua-tac-pham&id=${id}`);
       chac(await bt.$('.phongdao-loi-xem li'), 'trang sửa chưa hiện lời ở đầu');
-      await bam(bt, '.phongdao-quan-ly-bai>summary');
-      await bamDoiTrang(bt, '.phongdao-quan-ly-bai .phongdao-trang-thai form:has(input[name=trang_thai][value=private]) [type=submit]');
+      await bamDoiTrang(bt, '#dang .phongdao-trang-thai form:has(input[name=trang_thai][value=private]) [type=submit]');
       chac(await coChu(bt, 'Đã ẩn bài khỏi người đọc'), 'không báo đã ẩn bài');
       const an = await k.goto(G + caDao, { waitUntil: 'load', timeout: 120_000 });
       chac(an.status() === 404, `ẩn rồi khách vẫn mở được bài (HTTP ${an.status()})`);
-      await bam(bt, '.phongdao-quan-ly-bai>summary');
-      await bamDoiTrang(bt, '.phongdao-quan-ly-bai .phongdao-trang-thai form:has(input[name=trang_thai][value=publish]) [type=submit]');
+      await bamDoiTrang(bt, '#dang .phongdao-trang-thai form:has(input[name=trang_thai][value=publish]) [type=submit]');
       chac(await coChu(bt, 'Đã đăng: người đọc thấy bài'), 'không báo đã đăng lại');
       await di(k, caDao);
     });
@@ -729,10 +727,10 @@ try {
     });
 
     await thu('wp-admin Sửa tác phẩm (D-121): một nút "Lưu thay đổi" lưu mọi phần đã sửa, Lịch sử ghi từng phần; điện thoại có thanh lưu nổi', async () => {
-      await di(bt, caDao);
+      await di(bt, T.ve);
       const id = await bt.$eval('.dai-bien-tap', e => e.dataset.bai);
       const duong = `/wp-admin/admin.php?page=phongdao-sua-tac-pham&id=${id}`;
-      await bt.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
+      await bt.setViewport({ width: 390, height: 844 });
       await di(bt, duong);
       chac(await bt.$eval('[data-thanh-luu]', e => e.hidden) && await bt.$eval('#dang [data-luu-tat-ca]', b => b.disabled), 'chưa sửa gì mà đã có thanh lưu hoặc nút Lưu thay đổi bật');
       chac(await bt.evaluate(() => [...document.querySelectorAll('.phongdao-sua-chinh .phongdao-sua-nut .button-primary')].every(b => !b.offsetParent)), 'nút lưu riêng từng phần vẫn hiện khi đã có Lưu thay đổi');
@@ -1386,7 +1384,7 @@ try {
       await datO(bt, '#them-ten', '[UX-TEST] Tác phẩm có ảnh');
       await bamDoiTrang(bt, 'button[type=submit][name=dang][value="0"]');
       const edit = new URL(bt.url());
-      await bam(bt, '[data-mo-phan=media]');
+      await bam(bt, '#phan-media>summary');
       await bam(bt, '[data-anh-chon]');
       await bam(bt, '#menu-item-upload');
       const file = await bt.waitForSelector('.media-frame input[type=file]');
