@@ -85,6 +85,7 @@ final class DuyetTacPham {
 		}
 		$ten = ! empty( $d['hien_ten'] ) && ! empty( $f['gop_hien_ten'] ) ? (string) ( $d['ten'] ?? '' ) : '';
 		$xuat_xu = sanitize_textarea_field( (string) ( $f['gop_nguon'] ?? $d['xuat_xu'] ?? '' ) );
+		if ( 'gop_nguon' === $lam && '' === trim( $xuat_xu ) ) { return $hong( 'Bổ sung nguồn cần có thông tin nguồn. Lời đã có mà chưa có tư liệu thêm thì bạn có thể Để sau hoặc Bỏ; thẻ và bản gửi vẫn được giữ.' ); }
 		$credits = PhanBai::lay( $bai, 'dong_gop' )['muc'] ?? array();
 		$credits[] = array( 'gop_id' => $id, 'phan' => $phan, 'dau_loi' => $vt['vt1'], 'ten' => $ten, 'xuat_xu' => mb_substr( $xuat_xu, 0, 2000 ) );
 		if ( ! LuuPhan::luu( $bai, 'dong_gop', $credits, $nc )['ok'] ) { return $hong( 'Chưa ghi được nguồn và ghi công.' ); }
