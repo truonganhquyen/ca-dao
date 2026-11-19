@@ -45,12 +45,13 @@ final class DanhSachViec {
 			'q'     => sanitize_text_field( wp_unslash( (string) ( $_GET['q'] ?? '' ) ) ), // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc
 			'paged' => max( 1, (int) ( $_GET['paged'] ?? 1 ) ), // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc
 			'viec'  => max( 0, (int) ( $_GET['viec'] ?? 0 ) ), // phpcs:ignore WordPress.Security.NonceVerification -- chỉ đọc
+			'lan_nhap' => max( 0, (int) ( $_GET['lan_nhap'] ?? 0 ) ),
 		);
 	}
 
 	public static function url( array $loc, int $trang = 1, int $viec = 0 ): string {
-		$loc += array( 'tt' => Viec::CHO, 'loai' => '', 'q' => '' );
-		return add_query_arg( array_filter( array( 'page' => self::TRANG, 'tt' => $loc['tt'], 'loai' => $loc['loai'], 'q' => $loc['q'], 'paged' => $trang > 1 ? $trang : 0, 'viec' => $viec ), static fn( $v ) => '' !== $v && 0 !== $v ), admin_url( 'admin.php' ) );
+		$loc += array( 'tt' => Viec::CHO, 'loai' => '', 'q' => '', 'lan_nhap' => 0 );
+		return add_query_arg( array_filter( array( 'page' => self::TRANG, 'tt' => $loc['tt'], 'loai' => $loc['loai'], 'q' => $loc['q'], 'paged' => $trang > 1 ? $trang : 0, 'viec' => $viec, 'lan_nhap' => $loc['lan_nhap'] ), static fn( $v ) => '' !== $v && 0 !== $v ), admin_url( 'admin.php' ) );
 	}
 
 	/** Tên của đúng các đối tượng trên trang; tối đa hai truy vấn thay vì từng dòng một. */
@@ -171,6 +172,8 @@ final class DanhSachViec {
 
 	/** Nhãn quyết định cho người đọc (không in mã như "dang"). */
 	private static function nhan_quyet( array $v ): string {
+		$ket = array( 'cung' => 'Đã gắn vào bài có sẵn', 'di_ban' => 'Đã thêm dị bản', 'khac' => 'Đã xác nhận là bài khác', 'dang' => 'Đã đăng bài mới' );
+		if ( isset( $ket[ $v['quyet'] ] ) ) { return $ket[ $v['quyet'] ]; }
 		$nut = QuyetViec::LOAI[ $v['loai'] ][1][ $v['quyet'] ][0] ?? '';
 		if ( '' !== $nut ) {
 			return $nut;
@@ -308,6 +311,9 @@ final class DanhSachViec {
 		// Quyết xong: sang thẻ sau; thẻ cuối thì thẻ trước; không còn thì về danh sách (báo hết thẻ)
 		$dich = $sau ?: $truoc;
 		$tiep = self::url( $loc, (int) $loc['paged'], $dich );
+		if ( ! empty( $loc['lan_nhap'] ) && \Phongdao\DichVu\UngVien\LanNhap::lay( (int) $loc['lan_nhap'] ) ) {
+			$tiep = NhapKho::url_lan( (int) $loc['lan_nhap'] );
+		}
 		$vi   = false !== $i ? ( (int) $loc['paged'] - 1 ) * self::MOI_TRANG + $i + 1 : 0;
 		$di   = '<nav class="phongdao-hv-di" aria-label="Chuyển thẻ">'
 			. ( $truoc ? '<a class="button" data-hv="truoc" href="' . esc_url( self::url( $loc, (int) $loc['paged'], $truoc ) ) . '">← Thẻ trước</a>' : '' )
@@ -381,7 +387,7 @@ final class DanhSachViec {
 				. '<span class="phongdao-hv-dau"><span class="pq-the ' . ( self::MAU_LOAI[ $x['loai'] ] ?? '' ) . '">' . esc_html( $ten ) . ' #' . $id . '</span></span>'
 				. '<strong class="phongdao-hv-ten">' . esc_html( $tom[ $id ][0] ?? self::doi_tuong( $x, $ten_trang ) ) . '</strong>'
 				. ( '' !== ( $tom[ $id ][1] ?? '' ) ? '<span class="phongdao-hv-tom">' . esc_html( $tom[ $id ][1] ) . '</span>' : '' )
-				. '<span class="phongdao-hv-luc">' . esc_html( ( self::TRANG_THAI[ $x['trang_thai'] ] ?? $x['trang_thai'] ) . ' · ' . get_date_from_gmt( (string) $x['tao_luc'], 'd/m/Y H:i' ) ) . '</span></a></li>';
+				. '<span class="phongdao-hv-luc">' . esc_html( ( Viec::XONG === $x['trang_thai'] ? self::nhan_quyet( $x ) : ( self::TRANG_THAI[ $x['trang_thai'] ] ?? $x['trang_thai'] ) ) . ' · ' . ( ! empty( $x['quyet_luc'] ) ? 'quyết ' . get_date_from_gmt( (string) $x['quyet_luc'], 'd/m/Y H:i' ) : 'tạo ' . get_date_from_gmt( (string) $x['tao_luc'], 'd/m/Y H:i' ) ) ) . '</span></a></li>';
 		}
 		$phan_trang = $so_trang > 1 ? '<nav class="phongdao-viec-trang" aria-label="Phân trang Hộp việc"><span>Trang ' . (int) $loc['paged'] . ' / ' . $so_trang . '</span>'
 			. ( $loc['paged'] > 1 ? '<a class="button" href="' . esc_url( self::url( $loc, $loc['paged'] - 1 ) ) . '">Trang trước</a>' : '' )
@@ -393,7 +399,7 @@ final class DanhSachViec {
 		$tim  = '<form class="phongdao-hv-tim" method="get" action="' . esc_url( admin_url( 'admin.php' ) ) . '"><input type="hidden" name="page" value="' . self::TRANG . '"><input type="hidden" name="tt" value="' . esc_attr( $loc['tt'] ) . '"><input type="hidden" name="loai" value="' . esc_attr( $loc['loai'] ) . '">'
 			. '<label for="phongdao-viec-q">Tìm thẻ</label><input id="phongdao-viec-q" name="q" type="search" value="' . esc_attr( $loc['q'] ) . '" placeholder="ID, tên bài hoặc chữ trong thẻ"><button class="button" type="submit">Tìm</button></form>';
 		return '<div class="wrap pq-man phongdao-admin-viec' . ( $v ? ' co-the' : '' ) . '"><div class="pq-dau"><div class="pq-dau-chu"><h1>Hộp việc</h1><p>Việc cần người quyết. Chọn một thẻ bên trái, quyết ở bên phải; quyết xong tự sang thẻ kế.</p></div></div><hr class="wp-header-end">'
-			. self::bao_quyet( $loc ) . TrangLo::lay_bao() . self::tab( $loc ) . $tim
+			. ( ! empty( $loc['lan_nhap'] ) ? '<p><a class="button" href="' . esc_url( NhapKho::url_lan( (int) $loc['lan_nhap'] ) ) . '">← Về lần nhập</a></p>' : '' ) . self::bao_quyet( $loc ) . TrangLo::lay_bao() . self::tab( $loc ) . $tim
 			. '<p class="phongdao-hv-so" role="status"><strong>' . (int) $kq['tong'] . '</strong> thẻ khớp bộ lọc; hiện ' . count( $kq['ds'] ) . ' thẻ trên trang này.</p>'
 			. '<div class="phongdao-hv' . ( $v ? ' co-chon' : '' ) . '"><div class="phongdao-hv-trai">'
 			. ( $lo ? '<form method="post" id="' . self::FORM_LO . '" class="phongdao-lo-form" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">' . TrangLo::khoi_chon( $loc, (int) $kq['tong'] ) . $ds . '</form>' : $ds )

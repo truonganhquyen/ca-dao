@@ -183,13 +183,12 @@ final class ChongTrung implements Module {
 	}
 
 	/** Chỉ mục cho một câu trong kho: chỉ câu "mới" (chưa thành tác phẩm, chưa gộp, chưa bỏ) và đã có lời. */
-	public static function van_tay_kho( int $kho_id ): void {
+	public static function van_tay_kho( int $kho_id ): bool {
 		$m = Kho::lay( $kho_id );
 		if ( ! $m || 'moi' !== $m->trang_thai || '' === $m->loi ) {
-			self::xoa( 'kho:' . $kho_id );
-			return;
+			return self::xoa( 'kho:' . $kho_id );
 		}
-		self::ghi( 'kho:' . $kho_id, array_merge( array( $m->loi ), array_map( 'strval', (array) ( Kho::du_lieu( $m )['di_ban'] ?? array() ) ) ) );
+		return self::ghi( 'kho:' . $kho_id, array_merge( array( $m->loi ), array_map( 'strval', (array) ( Kho::du_lieu( $m )['di_ban'] ?? array() ) ) ) );
 	}
 
 	/**
@@ -296,17 +295,18 @@ final class ChongTrung implements Module {
 	// ---------- Cặp và quyết định ----------
 
 	/** Ghi một cặp nghi trùng (đã có — kể cả chiều ngược — thì giữ quyết định cũ); cặp mới thành việc "Có thể trùng". */
-	public static function ghi_cho( string $a, string $b, string $cap_do, int $giong, string $ly_do ): void {
+	public static function ghi_cho( string $a, string $b, string $cap_do, int $giong, string $ly_do ): bool {
 		global $wpdb;
 		$t = self::bang( 'trung' );
 		$cu = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $t WHERE (a = %s AND b = %s) OR (a = %s AND b = %s)", $a, $b, $b, $a ) );
-		if ( $wpdb->last_error ) { return; }
+		if ( $wpdb->last_error ) { return false; }
 		if ( $cu ) {
 			// Chỉ tái phát hiện cặp hết hiệu lực kỹ thuật; giữ mọi quyết định nội dung của người.
-			if ( 'het_hieu_luc' !== $cu->trang_thai || 1 !== $wpdb->update( $t, array( 'trang_thai' => 'cho', 'muc' => $cap_do, 'giong' => $giong, 'ly_do' => $ly_do ), array( 'id' => $cu->id, 'trang_thai' => 'het_hieu_luc' ) ) ) { return; }
-		} elseif ( 1 !== $wpdb->query( $wpdb->prepare( "INSERT IGNORE INTO $t (a, b, muc, giong, ly_do, trang_thai, ngay) VALUES (%s, %s, %s, %d, %s, 'cho', %s)", $a, $b, $cap_do, $giong, $ly_do, current_time( 'mysql' ) ) ) ) { return; }
+			if ( 'het_hieu_luc' !== $cu->trang_thai ) { return true; }
+			if ( 1 !== $wpdb->update( $t, array( 'trang_thai' => 'cho', 'muc' => $cap_do, 'giong' => $giong, 'ly_do' => $ly_do ), array( 'id' => $cu->id, 'trang_thai' => 'het_hieu_luc' ) ) ) { return false; }
+		} elseif ( 1 !== $wpdb->query( $wpdb->prepare( "INSERT IGNORE INTO $t (a, b, muc, giong, ly_do, trang_thai, ngay) VALUES (%s, %s, %s, %d, %s, 'cho', %s)", $a, $b, $cap_do, $giong, $ly_do, current_time( 'mysql' ) ) ) ) { return false; }
 		[ $loai_a, $id_a ] = self::tach_muc( $a );
-		Viec::tao(
+		return 0 < Viec::tao(
 			array(
 				'loai'           => 'co_the_trung',
 				'doi_tuong_loai' => $loai_a,
@@ -443,14 +443,16 @@ final class ChongTrung implements Module {
 	 *
 	 * @return string 'khong' | 'da_gop' | 'cho_quyet'
 	 */
-	public static function kiem_kho( int $kho_id ): string {
+	public static function kiem_kho( int $kho_id, bool $trong_giao_dich = false ): string {
 		global $wpdb;
 		$m = Kho::lay( $kho_id );
 		if ( ! $m || 'moi' !== $m->trang_thai || '' === $m->loi ) {
 			return 'khong';
 		}
 		$khoa = 'kho:' . $kho_id;
-		foreach ( self::tim( $m->loi, array_merge( array( $khoa ), self::da_khac( $khoa ) ), 5 ) as $t ) {
+		$cac = self::tim( $m->loi, array_merge( array( $khoa ), self::da_khac( $khoa ) ), 5 );
+		if ( $wpdb->last_error ) { return 'loi'; }
+		foreach ( $cac as $t ) {
 			if ( 'lien_quan' === $t['cap_do'] ) {
 				continue;
 			}
@@ -462,15 +464,20 @@ final class ChongTrung implements Module {
 			} else {
 				$lam = '';
 			}
+			if ( $lam && ! empty( Kho::du_lieu( $m )['nhap_chi_kho'] ) ) {
+				// Tệp mới: khác dấu/chữ phải để người đối chiếu; chỉ tự nối khi vân tay có dấu khớp.
+				$vt = $wpdb->get_var( $wpdb->prepare( 'SELECT vt1 FROM ' . self::bang( 'van_tay' ) . ' WHERE muc = %s AND phan = %d', $t['muc'], $t['phan'] ) );
+				if ( $vt !== VanTay::cua( (string) $m->loi )['vt1'] ) { $lam = ''; }
+			}
 			if ( $lam ) {
-				if ( self::gop_tu_dong( $khoa, $t['muc'], $lam ) ) {
+				if ( self::gop_tu_dong( $khoa, $t['muc'], $lam, $trong_giao_dich ) ) {
 					return 'da_gop';
 				}
-				self::ghi_cho( $khoa, $t['muc'], $t['cap_do'], $t['giong'], trim( 'Chưa gộp tự động được; cần kiểm lại. ' . $t['ly_do'] ) );
+				if ( $trong_giao_dich || ! self::ghi_cho( $khoa, $t['muc'], $t['cap_do'], $t['giong'], trim( 'Chưa gộp tự động được; cần kiểm lại. ' . $t['ly_do'] ) ) ) { return 'loi'; }
 				return self::dang_cho( $kho_id ) ? 'cho_quyet' : 'khong';
 			}
 			$ly_do = $cung_loai ? $t['ly_do'] : trim( 'khác thể loại' . ( $t['ly_do'] ? '; ' . $t['ly_do'] : '' ) );
-			self::ghi_cho( $khoa, $t['muc'], $t['cap_do'], $t['giong'], $ly_do );
+			if ( ! self::ghi_cho( $khoa, $t['muc'], $t['cap_do'], $t['giong'], $ly_do ) ) { return 'loi'; }
 			$tt = $wpdb->get_var( $wpdb->prepare( 'SELECT trang_thai FROM ' . self::bang( 'trung' ) . ' WHERE (a = %s AND b = %s) OR (a = %s AND b = %s)', $khoa, $t['muc'], $t['muc'], $khoa ) );
 			if ( in_array( $tt, array( 'cho', 'de_sau' ), true ) ) {
 				return 'cho_quyet';
@@ -480,8 +487,11 @@ final class ChongTrung implements Module {
 	}
 
 	/** Gộp từ nguồn nằm ngoài lượt quyết thẻ: giữ kho, cặp, phần bài và chỉ mục trong cùng giao dịch. */
-	private static function gop_tu_dong( string $a, string $b, string $lam ): bool {
+	private static function gop_tu_dong( string $a, string $b, string $lam, bool $trong_giao_dich = false ): bool {
 		global $wpdb;
+		if ( $trong_giao_dich ) {
+			return self::gop( $a, $b, $lam ); // bên nhập giữ giao dịch cả mục; không START/COMMIT lồng
+		}
 		if ( false === $wpdb->query( 'START TRANSACTION' ) ) {
 			return false;
 		}
@@ -518,7 +528,7 @@ final class ChongTrung implements Module {
 	 * 'di_ban' (lời của $a thành một dị bản của $b). Tác phẩm đích chỉ được máy cập nhật phần còn do máy chép
 	 * (UngVien::dong_bo); phần người đã sửa thì thành việc gợi ý cho người quyết. Không xoá gì.
 	 */
-	public static function gop( string $a, string $b, string $lam ): bool {
+	public static function gop( string $a, string $b, string $lam, int $nguoi = 0 ): bool {
 		global $wpdb;
 		[ $loai_a, $id_a ] = self::tach_muc( $a );
 		if ( 'kho' !== $loai_a || $a === $b ) {
@@ -527,6 +537,14 @@ final class ChongTrung implements Module {
 		$m = Kho::lay( $id_a );
 		if ( ! $m || $m->post_id || 'moi' !== $m->trang_thai || ! in_array( $lam, array( 'trung', 'di_ban' ), true ) ) {
 			return false;
+		}
+		$d = Kho::du_lieu( $m );
+		$chi_kho = ! empty( $d['nhap_chi_kho'] );
+		if ( $chi_kho && $nguoi ) {
+			$d['nhap_da_quyet'] = true;
+			if ( false === $wpdb->update( Kho::bang(), array( 'du_lieu' => wp_json_encode( $d, JSON_UNESCAPED_UNICODE ) ), array( 'id' => $id_a ) ) ) {
+				return false;
+			}
 		}
 		$bai  = self::bai_cua_muc( $b );
 		$dich = $bai ? 'bai:' . $bai : $b;
@@ -542,8 +560,8 @@ final class ChongTrung implements Module {
 		if ( ! self::dat( $a, $b, 'da_gop' ) ) {
 			return false;
 		}
-		if ( $bai ) {
-			if ( ! UngVien::dong_bo( $bai ) ) {
+		if ( $bai && ( ! $chi_kho || $nguoi ) ) {
+			if ( ! UngVien::dong_bo( $bai, $nguoi ) ) {
 				return false;
 			}
 			if ( ! self::van_tay_bai( $bai ) ) {

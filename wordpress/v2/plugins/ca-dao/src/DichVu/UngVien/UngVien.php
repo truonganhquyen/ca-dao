@@ -181,6 +181,9 @@ final class UngVien implements Module {
 			return self::kq_chon( false, false, 0, 'Câu đang chờ quyết trùng ở thẻ "Có thể trùng" trong Hộp việc. Quyết thẻ đó trước.' );
 		}
 		$trung = ChongTrung::kiem_kho( $kho_id ); // ngoài giao dịch: bước gộp tự động tự mở giao dịch riêng
+		if ( 'loi' === $trung ) {
+			return self::kq_chon( false, false, 0, 'Chưa kiểm được trùng. Thử lại sau.' );
+		}
 		if ( 'da_gop' === $trung ) {
 			return self::kq_chon( false, false, 0, 'Câu trùng hẳn một bài đã có nên máy đã gắn vào bài đó theo quy tắc tự gộp; không tạo thẻ mới.' );
 		}
@@ -264,21 +267,18 @@ final class UngVien implements Module {
 	 */
 	public static function phan_tu_kho( object $muc, int $bai = 0 ): array {
 		global $wpdb;
-		$nguon = NguonTuDong::lay( (string) $muc->nguon_id ) ?? NguonTuDong::mac_dinh();
-		// Câu nhập từ tệp: lời là chữ người gõ từ sách (người viết), nguồn là hồ sơ người chọn lúc nhập — máy không điền
-		$nhap  = NhapTep::NGUON === (string) $muc->nguon_id;
-		if ( $nhap ) {
-			$nguon = array( 'ho_so' => (int) ( Kho::du_lieu( $muc )['ho_so'] ?? 0 ), 'chep_chu_thich' => false ) + $nguon;
-		}
-		$goc   = static fn( array $n ): array => empty( $n['ho_so'] ) ? array() : array( 'nguon' => array( 'ho_so' => (int) $n['ho_so'] ) );
+		$nguon = self::nguon_muc( $muc );
+		$goc = static fn( array $n ): array => array_filter( array( 'nguon' => array_filter( array( 'ho_so' => (int) ( $n['ho_so'] ?? 0 ), 'trang' => (string) ( $n['trang'] ?? '' ), 'url' => (string) ( $n['url_muc'] ?? '' ) ) ) ) );
 		$khoa  = array( 'kho:' . $muc->id );
 		if ( $bai ) {
 			$khoa[] = 'bai:' . $bai;
 		}
 		$gop  = $wpdb->get_results( 'SELECT * FROM ' . Kho::bang() . " WHERE trang_thai = 'da_gop' AND gop_vao IN (" . implode( ',', array_map( static fn( $k ) => $wpdb->prepare( '%s', $k ), $khoa ) ) . ') ORDER BY id' ) ?: array();
-		$cac  = array_merge( array( array( $muc, $nguon ) ), array_map( static fn( $m ) => array( $m, NguonTuDong::lay( (string) $m->nguon_id ) ?? NguonTuDong::mac_dinh() ), $gop ) );
+		// D-122: chứng cứ tệp mới gắn trong Kho không tự đi vào phần công khai khi nguồn khác đồng bộ về sau.
+		$gop = array_filter( $gop, static fn( $m ): bool => empty( Kho::du_lieu( $m )['nhap_chi_kho'] ) || ! empty( Kho::du_lieu( $m )['nhap_da_quyet'] ) );
+		$cac  = array_merge( array( array( $muc, $nguon ) ), array_map( static fn( $m ) => array( $m, self::nguon_muc( $m ) ), $gop ) );
 		$phan = array(
-			'loi'       => array( 'dong' => explode( "\n", (string) $muc->loi ), 'nguoi_lam' => $nhap ? NguoiLam::NGUOI_VIET : NguoiLam::MAY_CHEP ) + $goc( $nguon ),
+			'loi'       => array( 'dong' => explode( "\n", (string) $muc->loi ), 'nguoi_lam' => $nguon['nguoi_lam'] ) + $goc( $nguon ),
 			'nguon_may' => array( 'nguon_id' => (string) $muc->nguon_id, 'url_goc' => (string) $muc->url, 'ma_goc' => (string) $muc->ma_goc, 'ngay_lay' => substr( (string) $muc->ngay_lay, 0, 10 ) ),
 		);
 		// Dị bản: của câu chính giữ thứ tự; thêm lời câu gộp làm dị bản, dị bản của câu đã gộp — bỏ cái đã có
@@ -298,7 +298,7 @@ final class UngVien implements Module {
 				$k = VanTay::chuan_loi( $l );
 				if ( '' !== $k && ! isset( $da[ $k ] ) ) {
 					$da[ $k ]  = true;
-					$di_ban[] = array( 'dong' => explode( "\n", $l ), 'nguoi_lam' => NguoiLam::MAY_CHEP ) + $goc( $n );
+					$di_ban[] = array( 'dong' => explode( "\n", $l ), 'nguoi_lam' => $n['nguoi_lam'] ) + $goc( $n );
 				}
 			}
 			$cau_hoi ??= empty( $d['cau_hoi'] ) ? null : array( 'chu' => (string) $d['cau_hoi'], 'nguoi_lam' => NguoiLam::MAY_CHEP ) + $goc( $n );
@@ -330,6 +330,17 @@ final class UngVien implements Module {
 			$phan['dap_an'] = $dap;
 		}
 		return $phan;
+	}
+
+	/** Hồ sơ và vị trí của chính mục tư liệu; không dùng cấu hình chung nhap-tay cho mọi tệp. */
+	private static function nguon_muc( object $m ): array {
+		$n = NguonTuDong::lay( (string) $m->nguon_id ) ?? NguonTuDong::mac_dinh();
+		$n['nguoi_lam'] = NguoiLam::MAY_CHEP;
+		if ( NhapTep::NGUON === (string) $m->nguon_id ) {
+			$d = Kho::du_lieu( $m );
+			$n = array( 'ho_so' => (int) ( $d['ho_so'] ?? 0 ), 'trang' => (string) ( $d['trang'] ?? '' ), 'url_muc' => (string) $m->url, 'chep_chu_thich' => false, 'nguoi_lam' => NguoiLam::MAY_CHEP === ( $d['nguoi_lam'] ?? '' ) ? NguoiLam::MAY_CHEP : NguoiLam::NGUOI_VIET ) + $n;
+		}
+		return $n;
 	}
 
 	/**
@@ -369,7 +380,7 @@ final class UngVien implements Module {
 		foreach ( self::phan_tu_kho( $m ) as $phan => $gia_tri ) {
 			// Lời từ tệp là chữ người nhập, không phải máy chép. Người đang bấm Đăng lưu phần này bằng ngữ cảnh
 			// người; các phần máy thu (kể cả nguon_may) vẫn qua đầy đủ lằn ranh GOI_MAY.
-			$goi = NhapTep::NGUON === (string) $m->nguon_id && 'loi' === $phan ? KiemPhan::GOI_NGUOI : KiemPhan::GOI_MAY;
+			$goi = NhapTep::NGUON === (string) $m->nguon_id && 'nguon_may' !== $phan ? KiemPhan::GOI_NGUOI : KiemPhan::GOI_MAY;
 			$kq  = LuuPhan::luu( $id, $phan, $gia_tri, array( 'nguoi' => (int) $nc['nguoi'], 'goi' => $goi ) );
 			$loi = array_merge( $loi, $kq['loi'] );
 		}
@@ -418,7 +429,7 @@ final class UngVien implements Module {
 	 * Tác phẩm tạo từ kho: làm lại các phần từ kho (câu đã gộp, dị bản mới…) — chỉ phần còn hoàn toàn do máy chép.
 	 * Phần người đã sửa (có mục người viết / người đọc góp, hoặc lời đã sửa tay) giữ nguyên.
 	 */
-	public static function dong_bo( int $bai_id ): bool {
+	public static function dong_bo( int $bai_id, int $nguoi = 0 ): bool {
 		global $wpdb;
 		$m = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . Kho::bang() . ' WHERE post_id = %d ORDER BY id LIMIT 1', $bai_id ) );
 		if ( KhaiBao::TAC_PHAM !== get_post_type( $bai_id ) ) {
@@ -430,9 +441,37 @@ final class UngVien implements Module {
 		foreach ( self::phan_tu_kho( $m, $bai_id ) as $phan => $gia_tri ) {
 			$cu = PhanBai::lay( $bai_id, $phan );
 			if ( null !== $cu && ! self::chi_may( $cu ) ) {
-				continue;
+				if ( ! $nguoi || ! isset( $cu['muc'] ) || ! in_array( $phan, array( 'chu_thich', 'di_ban' ), true ) ) {
+					continue;
+				}
+				$ds = $cu['muc'];
+				$keys = array_flip( 'chu_thich' === $phan ? array( 'tu', 'loi_giai' ) : array( 'dong' ) );
+				foreach ( $gia_tri as $moi ) {
+					$da_co = false;
+					foreach ( $ds as $old ) {
+						$da_co = $da_co || array_intersect_key( $moi, $keys ) == array_intersect_key( $old, $keys );
+					}
+					if ( ! $da_co ) { $ds[] = $moi; }
+				}
+				$gia_tri = $ds;
 			}
-			if ( ! LuuPhan::luu( $bai_id, $phan, $gia_tri, array( 'nguoi' => 0, 'goi' => KiemPhan::GOI_MAY ) )['ok'] ) {
+			if ( ! $nguoi && ! self::chi_may( $gia_tri ) ) {
+				continue; // phần người gõ chỉ vào bài qua lần quyết của người, kể cả sau khi nguồn máy cập nhật
+			}
+			if ( $cu && isset( $cu['muc'] ) && in_array( $phan, array( 'chu_thich', 'di_ban' ), true ) ) {
+				foreach ( $gia_tri as &$moi ) {
+					foreach ( $cu['muc'] as $cu_muc ) {
+						$keys = 'chu_thich' === $phan ? array( 'tu', 'loi_giai', 'nguoi_lam', 'nguon' ) : array( 'dong', 'nguoi_lam', 'nguon' );
+						$giu = array_flip( $keys );
+						if ( array_intersect_key( $moi, $giu ) == array_intersect_key( $cu_muc, $giu ) ) {
+							$moi = $cu_muc; // giữ muc_tu_id, vị trí, định dạng và dấu vết của mục không đổi
+							break;
+						}
+					}
+				}
+				unset( $moi );
+			}
+			if ( ! LuuPhan::luu( $bai_id, $phan, $gia_tri, array( 'nguoi' => $nguoi, 'goi' => $nguoi ? KiemPhan::GOI_NGUOI : KiemPhan::GOI_MAY ) )['ok'] ) {
 				return false;
 			}
 		}
@@ -441,7 +480,7 @@ final class UngVien implements Module {
 
 	/** Phần (hoặc mọi mục của phần) do máy chép. */
 	private static function chi_may( array $gia_tri ): bool {
-		$muc = isset( $gia_tri['muc'] ) ? $gia_tri['muc'] : array( $gia_tri );
+		$muc = $gia_tri['muc'] ?? ( array_is_list( $gia_tri ) ? $gia_tri : array( $gia_tri ) );
 		foreach ( $muc as $x ) {
 			if ( isset( $x['nguoi_lam'] ) && NguoiLam::MAY_CHEP !== $x['nguoi_lam'] ) {
 				return false;

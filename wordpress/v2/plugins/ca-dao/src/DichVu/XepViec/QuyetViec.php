@@ -265,7 +265,7 @@ final class QuyetViec {
 					if ( ! ChongTrung::dat( $a, $b, 'khac' ) ) {
 						return self::kq( false, 'Chưa lưu được quyết định về cặp câu. Thử lại sau.' );
 					}
-				} elseif ( ! ChongTrung::gop( $a, $b, 'cung' === $quyet ? 'trung' : 'di_ban' ) ) {
+				} elseif ( ! ChongTrung::gop( $a, $b, 'cung' === $quyet ? 'trung' : 'di_ban', $nguoi ) ) {
 					return self::kq( false, 'Chưa gộp được (câu đã thành tác phẩm hoặc đã gộp).' );
 				}
 				Viec::dong( $id, Viec::XONG, $quyet, $nguoi );

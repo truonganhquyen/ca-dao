@@ -211,10 +211,14 @@ final class Lo {
 		$gan_co = array();
 		foreach ( array_chunk( $ids, 500 ) as $phan ) {
 			$dau = implode( ',', array_fill( 0, count( $phan ), '%d' ) );
-			$sql = 'SELECT k.id, k.trang_thai, k.du_lieu FROM ' . Kho::bang() . " k WHERE k.id IN ($dau) AND k.trang_thai = 'moi' AND k.post_id = 0 AND k.loi <> ''"
-				. ' AND NOT EXISTS (SELECT 1 FROM ' . Viec::bang() . " v WHERE v.doi_tuong_loai = 'kho' AND v.doi_tuong_id = k.id AND v.loai = %s AND v.trang_thai IN ('cho','de_sau'))";
-			foreach ( $wpdb->get_results( $wpdb->prepare( $sql, array_merge( $phan, array( UngVien::VIEC ) ) ), ARRAY_A ) ?: array() as $h ) { // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				$co[ (int) $h['id'] ] = (string) $h['trang_thai'];
+			$sql = 'SELECT k.* FROM ' . Kho::bang() . " k WHERE k.id IN ($dau) AND k.trang_thai = 'moi' AND k.post_id = 0 AND k.loi <> ''";
+			$tham = $phan;
+			if ( 'kho_dang' !== $thao_tac ) {
+				$sql .= ' AND NOT EXISTS (SELECT 1 FROM ' . Viec::bang() . " v WHERE v.doi_tuong_loai = 'kho' AND v.doi_tuong_id = k.id AND v.loai = %s AND v.trang_thai IN ('cho','de_sau'))";
+				$tham[] = UngVien::VIEC;
+			}
+			foreach ( $wpdb->get_results( $wpdb->prepare( $sql, $tham ), ARRAY_A ) ?: array() as $h ) { // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$co[ (int) $h['id'] ] = self::phien_kho( (object) $h );
 				if ( ! empty( ( json_decode( (string) $h['du_lieu'], true ) ?: array() )['co'] ) ) {
 					$gan_co[ (int) $h['id'] ] = true;
 				}
@@ -256,13 +260,23 @@ final class Lo {
 		return $id ? array( 'ok' => true, 'lo' => $id, 'loi' => '' ) : self::sai( 'Chưa tạo được lô. Thử lại sau.' );
 	}
 
+	/** Bản câu kho đã xem: không chỉ trạng thái, cả lời, nguồn và dữ liệu liên quan. */
+	public static function phien_kho( object $m ): string {
+		return 'kho:' . hash( 'sha256', wp_json_encode( array_map( static fn( $k ) => (string) ( $m->$k ?? '' ), array( 'id', 'trang_thai', 'post_id', 'loi', 'loai', 'url', 'du_lieu' ) ) ) );
+	}
+
+	public static function con_phien_kho( object $m, string $ban ): bool {
+		// Lô đã lưu trước D-122 chỉ có trạng thái; bản xem trước mới luôn ghi dấu đầy đủ.
+		return str_starts_with( $ban, 'kho:' ) ? hash_equals( self::phien_kho( $m ), $ban ) : $ban === (string) $m->trang_thai;
+	}
+
 	/** Một câu kho: còn đúng trạng thái lúc xem trước thì đưa vào Hộp việc qua đúng đường của nút đơn (UngVien). @return array{0:string,1:string} */
 	private static function mot_kho( int $id, string $ban, int $nguoi ): array {
 		$m = Kho::lay( $id );
 		if ( ! $m ) {
 			return array( 'loi', 'Không còn câu này trong kho.' );
 		}
-		if ( $ban !== (string) $m->trang_thai || (int) $m->post_id ) {
+		if ( ! self::con_phien_kho( $m, $ban ) || (int) $m->post_id ) {
 			return array( 'xung_dot', 'Câu đã đổi trạng thái sau lúc xem trước.' );
 		}
 		$kq = UngVien::dua_vao_hop_viec( $id, $nguoi );
@@ -290,7 +304,7 @@ final class Lo {
 		if ( ! $m ) {
 			return array( 'loi', 'Không còn câu này trong kho.' );
 		}
-		if ( $ban !== (string) $m->trang_thai || (int) $m->post_id ) {
+		if ( ! self::con_phien_kho( $m, $ban ) || (int) $m->post_id ) {
 			return array( 'xung_dot', 'Câu đã đổi trạng thái sau lúc xem trước.' );
 		}
 		if ( ChongTrung::dang_cho( $id ) ) {
@@ -648,6 +662,24 @@ final class Lo {
 		}
 		$loi = implode( ' ', $kq['loi'] );
 		return array( str_contains( $loi, 'phiên khác' ) ? 'xung_dot' : ( str_contains( $loi, 'đã được quyết' ) || str_contains( $loi, 'không còn chờ' ) ? 'bo_qua' : 'loi' ), $loi );
+	}
+
+	/** Thử lại bằng lô con, chỉ mục lỗi; chốt lại bản hiện tại qua bước xem trước và giữ nguyên biên nhận cũ. */
+	public static function thu_lai( int $id, int $phien, int $nguoi ): array {
+		[ $v, $loi ] = self::lay_cua( $id, $nguoi, array( Viec::LO_XONG ) );
+		if ( ! $v || $phien !== (int) $v['phien'] ) { return self::sai( $loi ?: 'Lô đã đổi; tải lại kết quả trước khi thử lại.' ); }
+		$ids = array();
+		foreach ( (array) ( $v['sau']['ket_qua'] ?? array() ) as $ma => $k ) {
+			if ( 'loi' === ( $k[0] ?? '' ) ) { $ids[] = (int) $ma; }
+		}
+		if ( ! $ids ) { return self::sai( 'Lô không có mục lỗi cần thử lại.' ); }
+		$nd = $v['noi_dung'];
+		if ( ! in_array( $nd['thao_tac'], array( 'kho_dang', 'cau_moi_dang' ), true ) ) {
+			return self::sai( 'Thử lại mục lỗi hiện dành cho luồng đăng câu mới.' );
+		}
+		$loc = (array) ( $nd['loc'] ?? array() );
+		$loc['thu_lai_tu'] = (string) $id;
+		return self::tao( (string) $nd['thao_tac'], $ids, 'chon', $loc, $nguoi, (array) ( $nd['tham_so'] ?? array() ) );
 	}
 
 	/** Dừng lô: mục chưa làm giữ nguyên; mục đã làm vẫn có kết quả và nhật ký. */
