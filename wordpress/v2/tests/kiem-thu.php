@@ -1452,7 +1452,7 @@ $t_1 = Viec::mo( 'kho', $k1, 'cau_moi' );
 kt( 'Kho: đưa một câu vào Hộp việc tạo đúng một thẻ Câu mới (người chọn, đứng trước câu máy chọn); bấm lại không thêm thẻ', $d_1['ok'] && $d_1['moi'] && $d_2['ok'] && ! $d_2['moi'] && $d_1['viec'] === $d_2['viec'] && 1 === count( $t_1 ) && (string) $ai_ql === $t_1[0]['nguoi_tao'] && UngVien::UU_TIEN_CHON_TAY === $t_1[0]['uu_tien'] && $ai_ql === (int) ( $t_1[0]['noi_dung']['chon_boi'] ?? 0 ) && 'moi' === Kho::lay( $k1 )->trang_thai && 0 === (int) Kho::lay( $k1 )->post_id, array( $d_1, $d_2, $t_1 ) );
 $_GET = array( 'nguon' => 'kho-thu', 'the' => 'co' );
 $h_co = $DSK::hien();
-kt( 'wp-admin Kho: câu đã có thẻ hiện liên kết thẻ, không còn nút; lọc "Đang có thẻ Câu mới"', str_contains( $h_co, '<strong>1</strong> câu khớp' ) && str_contains( $h_co, 'Thẻ Câu mới #' . $d_1['viec'] ) && ! str_contains( $h_co, 'name="id" value="' . $k1 . '"' ) );
+kt( 'wp-admin Kho: câu đã có thẻ hiện liên kết và nút Tiếp tục đăng; lọc "Đang có thẻ Câu mới"', str_contains( $h_co, '<strong>1</strong> câu khớp' ) && str_contains( $h_co, 'Thẻ Câu mới #' . $d_1['viec'] ) && str_contains( $h_co, '>Tiếp tục đăng</a>' ) );
 kt( 'Hộp việc: thẻ Câu mới chọn tay ghi "người chọn từ Kho"', str_contains( \Phongdao\GiaoTiep\BienTap\HopViec::the( Viec::lay( $d_1['viec'] ) ), 'người chọn từ Kho' ) );
 $wpdb->update( $bang_kho, array( 'trang_thai' => 'bo_qua' ), array( 'id' => $kt_ids[1] ) );
 $wpdb->update( $bang_kho, array( 'trang_thai' => 'da_tao_bai', 'post_id' => $tp1 ), array( 'id' => $kt_ids[2] ) );
@@ -1532,7 +1532,7 @@ $h_lo_k  = $DSK::hien();
 $_GET    = array( 'q' => (string) $k1 );
 $h_lo_k1 = $DSK::hien();
 $dem_k   = $DSK::dem_chon( $DSK::loc_tu( array( 'nguon' => 'kho-thu' ) ) );
-kt( 'Kho chọn nhiều: có khối "Đăng hoặc để dành nhiều câu"; ô chọn gắn form lô ở câu đưa vào được, câu đã có thẻ không có ô; đếm đúng câu còn đưa vào được', str_contains( $h_lo_k, 'value="' . $TL::TAO_KHO . '"' ) && str_contains( $h_lo_k, 'Đăng hoặc để dành nhiều câu' ) && str_contains( $h_lo_k, 'name="ids[]" value="' . $kt_ids[1049] . '" form="phongdao-kho-lo"' ) && 30 === preg_match_all( '#name="ids\[\]" value="\d+" form="phongdao-kho-lo"#', $h_lo_k ) && ! str_contains( $h_lo_k1, 'name="ids[]"' ) && 1043 === $dem_k, $dem_k );
+kt( 'Kho chọn nhiều: có khối "Đăng hoặc để dành nhiều câu"; ô chọn gắn form lô ở câu đưa vào được, câu đã có thẻ vẫn chọn để tiếp tục đăng; đếm đúng tập còn xử lý được', str_contains( $h_lo_k, 'value="' . $TL::TAO_KHO . '"' ) && str_contains( $h_lo_k, 'Đăng hoặc để dành nhiều câu' ) && str_contains( $h_lo_k, 'name="ids[]" value="' . $kt_ids[1049] . '" form="phongdao-kho-lo"' ) && 30 === preg_match_all( '#name="ids\[\]" value="\d+" form="phongdao-kho-lo"#', $h_lo_k ) && str_contains( $h_lo_k1, 'name="ids[]"' ) && 1047 === $dem_k, $dem_k );
 add_filter( 'wp_die_handler', $chan_die_kho );
 add_filter( 'wp_redirect', $chan_di_kho );
 $gui_tk = static function ( int $nguoi, array $post, bool $nonce = true ) use ( $TL ): string {

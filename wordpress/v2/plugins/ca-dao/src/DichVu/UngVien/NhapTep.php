@@ -157,8 +157,12 @@ final class NhapTep {
 			}
 			return $kq( 'da_gop' === $trung ? 'da_gop' : ( 'cho_quyet' === $trung ? 'nghi_trung' : 'moi' ), $id, 'da_gop' === $trung ? 'Đã có lời khớp; chứng cứ nguồn giữ trong Kho, chưa đổi bài cũ.' : ( 'cho_quyet' === $trung ? 'Đã vào Kho; cần xem đối chiếu.' : 'Đã vào Kho, chưa đăng.' ) );
 		} catch ( \Throwable $e ) {
-			$wpdb->query( $trong_giao_dich ? 'ROLLBACK TO SAVEPOINT phongdao_nhap_muc' : 'ROLLBACK' );
-			if ( $trong_giao_dich ) { $wpdb->query( 'RELEASE SAVEPOINT phongdao_nhap_muc' ); }
+			if ( false === $wpdb->query( $trong_giao_dich ? 'ROLLBACK TO SAVEPOINT phongdao_nhap_muc' : 'ROLLBACK' ) && $trong_giao_dich ) {
+				throw new \RuntimeException( 'Giao dịch bị ngắt; dừng lượt nhập để đối soát, không xử lý tiếp các mục khác.' );
+			}
+			if ( $trong_giao_dich && false === $wpdb->query( 'RELEASE SAVEPOINT phongdao_nhap_muc' ) ) {
+				throw new \RuntimeException( 'Chưa khép được lượt ghi mục; dừng lượt nhập để đối soát.' );
+			}
 			return $kq( 'loi', 0, 'Chưa ghi được mục vào Kho; dữ liệu cũ giữ nguyên. Thử lại sau.' );
 		}
 	}

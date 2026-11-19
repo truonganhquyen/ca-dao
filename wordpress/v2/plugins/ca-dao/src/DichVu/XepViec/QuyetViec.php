@@ -269,7 +269,7 @@ final class QuyetViec {
 					return self::kq( false, 'Chưa gộp được (câu đã thành tác phẩm hoặc đã gộp).' );
 				}
 				Viec::dong( $id, Viec::XONG, $quyet, $nguoi );
-				return self::kq( true, 'khac' === $quyet ? 'Đã ghi: là bài khác.' : 'Đã gộp.' );
+				return self::kq( true, array( 'khac' => 'Đã xác nhận là bài khác.', 'di_ban' => 'Đã thêm dị bản.', 'cung' => 'Đã gắn vào bài có sẵn.' )[ $quyet ] );
 		}
 		return self::kq( false, 'Chưa xử lý được việc này.' );
 	}

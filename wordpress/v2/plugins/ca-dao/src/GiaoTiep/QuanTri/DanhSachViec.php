@@ -243,7 +243,7 @@ final class DanhSachViec {
 	}
 
 	/** Lời báo sau khi quyết (chuyển trang): kết quả, Hoàn tác 10 giây của thẻ vừa quyết, lối xem lại thẻ đó. */
-	private static function bao_quyet( array $loc ): string {
+	public static function bao_quyet( array $loc ): string {
 		// phpcs:disable WordPress.Security.NonceVerification -- chỉ hiện lời báo và form; máy chủ kiểm lại khi gửi
 		$da    = sanitize_text_field( wp_unslash( (string) ( $_GET['da'] ?? '' ) ) );
 		$vua   = (int) ( $_GET['vua'] ?? 0 );
@@ -254,12 +254,13 @@ final class DanhSachViec {
 		if ( '' === $da ) {
 			return '';
 		}
+		$ve = ! empty( $loc['lan_nhap'] ) ? NhapKho::url_lan( (int) $loc['lan_nhap'] ) : self::url( $loc, (int) $loc['paged'], (int) $loc['viec'] );
 		$o = '<div class="notice notice-info phongdao-hv-bao"><p role="status">' . esc_html( $da ) . ( $vua ? ' <a href="' . esc_url( self::url( $loc, (int) $loc['paged'], $vua ) ) . '">Xem lại thẻ vừa quyết</a>' : '' ) . '</p>'
-			. self::lui_sau_dang( $dang, self::url( $loc, (int) $loc['paged'], (int) $loc['viec'] ) );
+			. self::lui_sau_dang( $dang, $ve );
 		$v = $hoan ? Viec::lay( $hoan ) : null;
 		if ( $v && QuyetViec::co_the_hoan_tac( $v, get_current_user_id(), $phien ) ) {
 			$o .= '<form method="post" data-hv-hoan data-han="' . ( strtotime( $v['quyet_luc'] . ' UTC' ) + 10 ) . '" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="' . HopViec::HOAN_TAC . '"><input type="hidden" name="viec" value="' . $hoan . '"><input type="hidden" name="phien" value="' . (int) $v['phien'] . '">'
-				. '<input type="hidden" name="tiep" value="' . esc_attr( self::url( $loc, (int) $loc['paged'], $hoan ) ) . '">'
+				. '<input type="hidden" name="tiep" value="' . esc_attr( ! empty( $loc['lan_nhap'] ) ? $ve : self::url( $loc, (int) $loc['paged'], $hoan ) ) . '">'
 				. wp_nonce_field( HopViec::HOAN_TAC . $hoan, '_wpnonce', true, false ) . '<p><button class="button" type="submit">Hoàn tác trong 10 giây</button></p></form>';
 		}
 		return $o . '</div>';

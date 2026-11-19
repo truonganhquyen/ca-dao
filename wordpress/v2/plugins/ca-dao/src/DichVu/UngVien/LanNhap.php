@@ -20,7 +20,7 @@ final class LanNhap {
 
 	public static function lay( int $id ): ?array {
 		$v = Viec::lay( $id );
-		return $v && self::LOAI === $v['loai'] && in_array( $v['trang_thai'], array( self::XEM, self::DANG, self::XONG ), true ) ? $v : null;
+		return $v && self::LOAI === $v['loai'] && is_array( $v['noi_dung']['muc'] ?? null ) && in_array( $v['trang_thai'], array( self::XEM, self::DANG, self::XONG ), true ) ? $v : null;
 	}
 
 	/** Cùng dữ liệu và lựa chọn nhập mở lại biên nhận cũ, kể cả đổi tên tệp. */
@@ -89,7 +89,7 @@ final class LanNhap {
 			$tt = $chi_luu ? self::XEM : ( $con ? self::DANG : self::XONG );
 			$so = $wpdb->update( Viec::bang(), array( 'phien' => $phien + 2, 'trang_thai' => $tt, 'noi_dung' => wp_json_encode( $nd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ), 'sau' => wp_json_encode( array( 'ket_qua' => $kq ), JSON_UNESCAPED_UNICODE ), 'nguoi_quyet' => $nguoi, 'quyet_luc' => gmdate( 'Y-m-d H:i:s' ) ), array( 'id' => $id, 'loai' => self::LOAI, 'phien' => $phien + 1 ) );
 			if ( 1 !== $so || false === $wpdb->query( 'COMMIT' ) ) {
-				throw new \RuntimeException( 'Chưa chốt được kết quả lượt nhập; lượt này được huỷ. Tải lại rồi tiếp tục.' );
+				throw new \RuntimeException( 'Chưa xác nhận được kết quả lượt nhập. Tải lại để đối soát trước khi tiếp tục.' );
 			}
 			return array( 'ok' => true, 'lan' => $id, 'con' => $con, 'loi' => '', 'nhac' => $nhac );
 		} catch ( \Throwable $e ) {
@@ -99,15 +99,15 @@ final class LanNhap {
 	}
 
 	/** Tạo bản xem trước con chỉ gồm mục lỗi; giữ biên nhận gốc và đối soát lại khi áp dụng. */
-	public static function thu_lai( int $id, int $phien, int $nguoi ): array {
+	public static function thu_lai( int $id, int $phien, int $nguoi, string $ket_qua = 'loi' ): array {
 		$v = self::lay( $id );
-		if ( ! $v || (int) $v['phien'] !== $phien || self::XONG !== $v['trang_thai'] || ! user_can( $nguoi, 'cadao_soan' ) ) {
+		if ( ! $v || (int) $v['phien'] !== $phien || self::XONG !== $v['trang_thai'] || ! user_can( $nguoi, 'cadao_soan' ) || ! in_array( $ket_qua, array( 'loi', 'bo_qua' ), true ) ) {
 			return self::sai( 'Lần nhập đã đổi hoặc chưa xử lý xong. Tải lại để xem.' );
 		}
 		$nd = $v['noi_dung'];
 		$muc = array();
 		foreach ( (array) ( $v['sau']['ket_qua'] ?? array() ) as $i => $k ) {
-			if ( 'loi' === $k['tt'] ) { $muc[] = $nd['muc'][ $i ]; }
+			if ( $ket_qua === $k['tt'] ) { $muc[] = $nd['muc'][ $i ]; }
 		}
 		return self::tao( $muc, (int) $nd['ho_so'], (string) $nd['ten'], (string) $nd['bam_tep'], $nguoi, (string) $nd['nguoi_lam'], $id );
 	}

@@ -23,7 +23,7 @@ Cách nhận lời phân biệt người cung cấp gõ/chép với máy trích 
 - Nạp lại cùng tệp/lựa chọn mở biên nhận cũ, đổi tên tệp không tạo lần nhập khác. Mục có cùng nhận diện nhưng lời/thể loại/vị trí đã đổi báo xung đột, không cập nhật đè. Mục kiểu cũ chỉ tái dùng khi lời và hồ sơ thật sự khớp, không chuyển khoá hoặc sửa lại dữ liệu cũ.
 - Luồng nhập tệp mới chỉ ghi Kho và quan hệ: lời khớp có thể gắn với bài đã có nhưng không đồng bộ phần công khai. Khác dấu/chữ để người đối chiếu. Các chứng cứ chưa được người quyết cũng không vào bài khi nguồn máy đồng bộ về sau.
 - Người quyết gộp dị bản qua thẻ mới cho phép bổ sung đúng phần đó, giữ hồ sơ/trang/URL/người làm từng mục và liên kết mục từ của chú thích không đổi. Phần người đã sửa được giữ; chỉ nối mục mới phù hợp.
-- Dữ liệu mỗi lượt nhập và biên nhận chốt trong cùng giao dịch. Mỗi mục có savepoint để lỗi một mục không làm mất kết quả các mục khác. Lỗi chốt biên nhận huỷ cả lượt đang làm. Phiên bảo vệ giữa các tab; thử lại là bản xem trước con chỉ chứa mục lỗi, giữ biên nhận cũ.
+- Dữ liệu mỗi lượt nhập và biên nhận chốt trong cùng giao dịch. Mỗi mục có savepoint để lỗi ghi có thể phục hồi không làm mất kết quả các mục khác; nếu giao dịch bị ngắt thì dừng cả lượt. Lỗi chốt biên nhận huỷ cả lượt đang làm. Phiên bảo vệ giữa các tab; thử lại là bản xem trước con chỉ chứa mục lỗi, giữ biên nhận cũ. Mục đã bỏ chọn cũng có thể mở lại qua bản xem trước con.
 
 ## Kết quả và làm tiếp
 

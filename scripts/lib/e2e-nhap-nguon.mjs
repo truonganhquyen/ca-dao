@@ -18,7 +18,7 @@ export async function kiemNhapNguon({bt,k,di,datO,bamDoiTrang,thu,chac,coChu,doi
     await bt.goto(preview,{waitUntil:'load',timeout:120000});
     await bamDoiTrang(bt,'button[name=lam][value=nhap]');
     lan=new URL(bt.url()).searchParams.get('lan_nhap');
-    chac(lan && await coChu(bt,'2 câu khớp') && await coChu(bt,'Lượt nhập chưa đăng bài nào.'),'nhập không trả đúng tập hai mục');
+    chac(lan && await coChu(bt,'2 câu khớp') && await coChu(bt,'Hiện tại: đã đăng 0 bài'),'nhập không trả đúng tập hai mục');
   });
   await thu('nhập lại CSV mở cùng biên nhận, không ghi đè hoặc tạo thêm mục',async()=>{
     chac(lan,'bước nhập trước chưa có biên nhận');

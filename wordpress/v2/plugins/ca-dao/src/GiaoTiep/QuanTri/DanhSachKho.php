@@ -391,6 +391,9 @@ final class DanhSachKho {
 			$ds_loai[ $l ] = self::ten_loai( $l );
 		}
 		$bao = self::lay_bao();
+		if ( ! empty( $loc['lan_nhap'] ) && \Phongdao\DichVu\UngVien\LanNhap::lay( (int) $loc['lan_nhap'] ) ) {
+			$bao .= DanhSachViec::bao_quyet( array( 'tt' => Viec::CHO, 'loai' => '', 'q' => '', 'paged' => 1, 'viec' => 0, 'lan_nhap' => (int) $loc['lan_nhap'] ) );
+		}
 		// Ô tìm luôn hiện; bộ lọc còn lại gập trong "Thêm bộ lọc" (mở sẵn khi đang dùng) — điện thoại thấy câu ngay màn đầu
 		$dang_loc = '' !== $loc['nguon'] || '' !== $loc['loai'] || 'moi' !== $loc['tt'] || 'tat_ca' !== $loc['the'] || '' !== $loc['dac'] || in_array( $loc['danh'], array( 'tat_ca' ), true );
 		$form = '<form class="phongdao-tp-tim" method="get" action="' . esc_url( admin_url( 'admin.php' ) ) . '"><input type="hidden" name="page" value="' . self::TRANG . '">'

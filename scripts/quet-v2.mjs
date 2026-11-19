@@ -219,6 +219,7 @@ try {
     for (const v of kq.violations) for (const n of v.nodes.slice(0, 3)) loi.push(`${duong}: [${v.id}] ${v.help} — ${n.target.join(' ')}`);
   }
   // D-122: form nhập mở, xem trước và biên nhận trong Bài mới; chỉ dữ liệu kỹ thuật trên Playground.
+  await bt.setViewport({width:390,height:900}); // đổi chế độ thiết bị trước khi điền, tránh reload làm mất chữ
   await bt.goto(G+'/wp-admin/admin.php?page=phongdao-kho&nhap=1',{waitUntil:'load',timeout:120_000});
   await bt.evaluate(()=>document.querySelectorAll('.phongdao-kho-nhap details').forEach(d=>{d.open=true;}));
   await bt.$eval('#nhap-chu',e=>{e.value='[UX-TEST-223-AXE] Amber223 maple cedar oak';});

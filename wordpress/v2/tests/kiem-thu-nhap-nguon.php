@@ -58,7 +58,7 @@ kt( 'Lời khác dấu câu vẫn giữ bản đã nhận; vân tay không ghi �
 kt( 'Lời máy trích cần URL và giữ đúng người làm, không dùng đuôi tệp để đổi nguồn gốc', 'loi' === Tep222::nhap_muc( array( 'loi' => 'Machine222 cobalt nickel', 'loai' => 'ca_dao' ), $hs222a, $ai_ql, 'm', NguoiLam::MAY_CHEP )['tt'] && 'moi' === ( $may222 = Tep222::nhap_muc( array( 'loi' => 'Machine222 cobalt nickel', 'loai' => 'ca_dao', 'url' => 'https://example.org/fixture222-machine' ), $hs222a, $ai_ql, 'm', NguoiLam::MAY_CHEP ) )['tt'] && NguoiLam::MAY_CHEP === UngVien::phan_tu_kho( Kho::lay( $may222['id'] ) )['loi']['nguoi_lam'] );
 
 // Ghi lỗi từng mục và ghi lỗi biên nhận: kiểm rollback thật bằng bộ lọc truy vấn.
-$loi222 = static fn( $sql ) => preg_match( '/^INSERT\s+INTO\s+`?' . preg_quote( Kho::bang(), '/' ) . '`?/i', $sql ) && str_contains( $sql, 'Fail222' ) ? 'TEST_NHAP_222_INSERT_ERROR' : $sql;
+$loi222 = static fn( $sql ) => preg_match( '/^INSERT\s+INTO\s+`?' . preg_quote( Kho::bang(), '/' ) . '`?/i', $sql ) && str_contains( $sql, 'Fail222' ) ? '' : $sql;
 $docfail222 = Tep222::doc( "Works222 opal jade ruby\n\nFail222 gold silver platinum", 'txt', 'ca_dao' );
 $lf222 = Lan222::tao( $docfail222['muc'], $hs222a, 'failure.txt', 'failure-222', $ai_ql );
 $old_errors222 = $wpdb->suppress_errors( true );
@@ -67,11 +67,11 @@ $af222 = Lan222::ap_dung( $lf222['lan'], 0, $ai_ql, array( 0, 1 ) );
 remove_filter( 'query', $loi222 );
 $wpdb->suppress_errors( $old_errors222 );
 $vf222 = Lan222::lay( $lf222['lan'] );
-kt( 'Lỗi ghi một mục được báo thật; mục lỗi rollback, mục thành công có biên nhận cùng giao dịch', $af222['ok'] && 1 === Lan222::dem( $vf222 )['moi'] && 1 === Lan222::dem( $vf222 )['loi'] && 1 === count( Lan222::ids( $vf222['id'] ) ), $vf222['sau'] );
+kt( 'Lỗi ghi một mục được báo thật; mục lỗi rollback, mục thành công có biên nhận cùng giao dịch', $af222['ok'] && 1 === Lan222::dem( $vf222 )['moi'] && 1 === Lan222::dem( $vf222 )['loi'] && 1 === count( Lan222::ids( $vf222['id'] ) ), array( $af222, $vf222['sau'] ) );
 $retry222 = Lan222::thu_lai( $vf222['id'], $vf222['phien'], $ai_ql );
 $rv222 = Lan222::lay( $retry222['lan'] );
 $before_retry222 = $ct222();
-$ar222 = Lan222::ap_dung( $rv222['id'], 0, $ai_ql, array( 0 ) );
+$ar222 = Lan222::ap_dung( (int) ( $rv222['id'] ?? 0 ), 0, $ai_ql, array( 0 ) );
 kt( 'Thử lại nhập chỉ lấy mục lỗi qua xem trước con; giữ biên nhận gốc và không chạy mục đã thành công', $retry222['ok'] && 1 === count( $rv222['noi_dung']['muc'] ) && $rv222['noi_dung']['cha'] === $vf222['id'] && $ar222['ok'] && $before_retry222 + 1 === $ct222() && $vf222['sau'] === Lan222::lay( $vf222['id'] )['sau'], $retry222 );
 $atomic222 = Lan222::tao( array( array( 'loi' => 'Atomic222 coral kelp reef', 'loai' => 'ca_dao' ) ), $hs222a, 'atomic.txt', 'atomic-222', $ai_ql );
 $before_atomic222 = $ct222();
@@ -84,6 +84,8 @@ kt( 'Tiếp tục sau lỗi biên nhận nhập đúng một mục', Lan222::ap_
 
 // Câu cũ có thẻ vẫn đăng theo lô được; snapshot phát hiện cả thay lời/nguồn chứ không chỉ trạng thái.
 $t222 = UngVien::dua_vao_hop_viec( $ids222[0], $ai_ql );
+$ve222 = \Phongdao\GiaoTiep\QuanTri\NhapKho::url_lan( $v222['id'] );
+kt( 'Quyết thẻ chỉ trở về đúng lần nhập chứa mục; chặn URL ngoài và lần nhập không liên quan', $ve222 === \Phongdao\GiaoTiep\QuanTri\NhapKho::ve_tu_the( $ve222, $t222['viec'] ) && '' === \Phongdao\GiaoTiep\QuanTri\NhapKho::ve_tu_the( 'https://example.org/wp-admin/admin.php?page=phongdao-kho&lan_nhap=' . $v222['id'], $t222['viec'] ) && '' === \Phongdao\GiaoTiep\QuanTri\NhapKho::ve_tu_the( \Phongdao\GiaoTiep\QuanTri\NhapKho::url_lan( $vf222['id'] ), $t222['viec'] ) );
 $lo222 = Lo::tao( 'kho_dang', array( $ids222[0] ), 'chon', array( 'lan_nhap' => (string) $v222['id'] ), $ai_ql );
 $publish222 = Lo::ap_dung( $lo222['lo'], $ai_ql, true );
 $p222id = (int) Kho::lay( $ids222[0] )->post_id;

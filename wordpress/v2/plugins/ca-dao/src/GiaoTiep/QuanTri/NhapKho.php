@@ -4,7 +4,7 @@ namespace Phongdao\GiaoTiep\QuanTri;
 
 use Phongdao\DichVu\UngVien\NhapTep;
 use Phongdao\DichVu\UngVien\LanNhap;
-use Phongdao\DichVu\ChongTrung\ChongTrung;
+use Phongdao\KhoLuu\Kho;
 use Phongdao\MienDuLieu\TheLoai;
 use Phongdao\MienDuLieu\NguoiLam;
 
@@ -27,6 +27,18 @@ final class NhapKho {
 
 	public static function url_lan( int $id ): string {
 		return DanhSachKho::url( array( 'lan_nhap' => $id, 'tt' => 'tat_ca' ) );
+	}
+
+	/** Đích sau quyết chỉ là đúng lần nhập chứa câu của thẻ; không nhận URL ngoài hoặc lô không liên quan. */
+	public static function ve_tu_the( string $url, int $viec ): string {
+		$u = wp_parse_url( $url ); $g = wp_parse_url( admin_url( 'admin.php' ) );
+		parse_str( (string) ( $u['query'] ?? '' ), $q );
+		$v = \Phongdao\KhoLuu\Viec::lay( $viec );
+		$id = absint( $q['lan_nhap'] ?? 0 );
+		if ( ! current_user_can( 'cadao_soan' ) || ( $u['host'] ?? '' ) !== ( $g['host'] ?? '' ) || ( $u['path'] ?? '' ) !== ( $g['path'] ?? '' ) || ( $q['page'] ?? '' ) !== DanhSachKho::TRANG || ! $v || 'kho' !== $v['doi_tuong_loai'] || ! in_array( (int) $v['doi_tuong_id'], LanNhap::ids( $id ), true ) ) {
+			return '';
+		}
+		return self::url_lan( $id );
 	}
 
 	private static function bao( string $chu, bool $ok = false ): void {
@@ -82,8 +94,8 @@ final class NhapKho {
 		check_admin_referer( self::AP_DUNG . '_' . $id );
 		$phien = (int) ( $_POST['phien'] ?? -1 );
 		$lam = sanitize_key( (string) ( $_POST['lam'] ?? '' ) );
-		if ( 'thu_lai' === $lam ) {
-			$kq = LanNhap::thu_lai( $id, $phien, get_current_user_id() );
+		if ( in_array( $lam, array( 'thu_lai', 'xem_bo_chon' ), true ) ) {
+			$kq = LanNhap::thu_lai( $id, $phien, get_current_user_id(), 'xem_bo_chon' === $lam ? 'bo_qua' : 'loi' );
 			if ( $kq['ok'] ) { wp_safe_redirect( self::url_xem( $kq['lan'] ) ); exit; }
 		} elseif ( in_array( $lam, array( 'luu', 'nhap', 'tiep' ), true ) ) {
 			$giu = 'tiep' === $lam ? null : array_map( 'absint', (array) wp_unslash( $_POST['giu'] ?? array() ) );
@@ -174,13 +186,16 @@ final class NhapKho {
 
 	public static function chi_tiet( array $v ): string {
 		$d = LanNhap::dem( $v );
-		$o = '<details class="pq-khoi"><summary>Kết quả từng mục của lượt nhập</summary><ol>';
+		$o = '<details class="pq-khoi"><summary>Biên nhận và kết quả từng mục</summary><p>' . esc_html( self::tom_tat( $v ) ) . '</p><ol>';
 		foreach ( (array) ( $v['sau']['ket_qua'] ?? array() ) as $i => $k ) {
 			$o .= '<li>Mục ' . ( (int) $i + 1 ) . ': ' . esc_html( $k['chu'] ) . ( $k['id'] ? ' <a href="' . esc_url( DanhSachKho::url( array( 'q' => (string) $k['id'], 'tt' => 'tat_ca', 'lan_nhap' => $v['id'] ) ) ) . '">Xem trong Kho</a>' : '' ) . '</li>';
 		}
 		$o .= '</ol></details>';
 		if ( $d['loi'] && LanNhap::XONG === $v['trang_thai'] ) {
 			$o .= '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">' . self::an( $v ) . '<p><button name="lam" value="thu_lai" class="button">Xem trước và thử lại ' . $d['loi'] . ' mục lỗi</button></p></form>';
+		}
+		if ( $d['bo_qua'] && LanNhap::XONG === $v['trang_thai'] ) {
+			$o .= '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">' . self::an( $v ) . '<p><button name="lam" value="xem_bo_chon" class="button">Xem lại ' . $d['bo_qua'] . ' mục đã bỏ chọn</button></p></form>';
 		}
 		return $o;
 	}
@@ -190,7 +205,7 @@ final class NhapKho {
 		if ( $id ) {
 			$v = LanNhap::lay( $id );
 			if ( ! $v ) { return '<p role="status">Lần nhập không tồn tại; danh sách được giữ rỗng để tránh chọn nhầm mục.</p>'; }
-			$o .= '<div class="pq-khoi"><p><strong>Lần nhập: ' . esc_html( $v['noi_dung']['ten'] ) . '</strong> · ' . esc_html( wp_date( 'd/m/Y H:i', strtotime( $v['tao_luc'] . ' UTC' ) ) ) . ' · <a href="' . esc_url( DanhSachKho::url() ) . '">Bỏ lọc lần nhập</a></p><p role="status">' . esc_html( self::tom_tat( $v ) ) . '</p>' . ( LanNhap::XONG !== $v['trang_thai'] ? '<p><a class="button" href="' . esc_url( self::url_xem( $id ) ) . '">Tiếp tục nhập</a></p>' : '' ) . self::chi_tiet( $v ) . '</div>';
+			$o .= '<div class="pq-khoi"><p><strong>Lần nhập: ' . esc_html( $v['noi_dung']['ten'] ) . '</strong> · ' . esc_html( wp_date( 'd/m/Y H:i', strtotime( $v['tao_luc'] . ' UTC' ) ) ) . ' · <a href="' . esc_url( DanhSachKho::url() ) . '">Bỏ lọc lần nhập</a></p><p role="status">' . esc_html( self::hien_tai( $id ) ) . '</p>' . ( LanNhap::XONG !== $v['trang_thai'] ? '<p><a class="button" href="' . esc_url( self::url_xem( $id ) ) . '">Tiếp tục nhập</a></p>' : '' ) . self::chi_tiet( $v ) . '</div>';
 		}
 		$ds = LanNhap::gan_day();
 		if ( $ds ) {
@@ -199,5 +214,21 @@ final class NhapKho {
 			$o .= '</ul></details>';
 		}
 		return $o;
+	}
+
+	/** Đếm đúng tình trạng hiện tại, không dùng lời báo nhập chưa đăng sau khi người đã đăng tiếp. */
+	public static function hien_tai( int $id ): string {
+		global $wpdb;
+		$ids = LanNhap::ids( $id );
+		$da = 0; $chua = 0; $khop = 0;
+		if ( $ids ) {
+			$ds = $wpdb->get_results( 'SELECT k.trang_thai, p.post_status, COUNT(*) AS so FROM ' . Kho::bang() . " k LEFT JOIN {$wpdb->posts} p ON p.ID=k.post_id WHERE k.id IN (" . implode( ',', $ids ) . ') GROUP BY k.trang_thai,p.post_status' ); // chỉ ID đã ép int từ biên nhận
+			foreach ( $ds ?: array() as $r ) {
+				if ( 'da_gop' === $r->trang_thai ) { $khop += (int) $r->so; }
+				elseif ( 'da_tao_bai' === $r->trang_thai && 'publish' === $r->post_status ) { $da += (int) $r->so; }
+				else { $chua += (int) $r->so; }
+			}
+		}
+		return 'Hiện tại: đã đăng ' . $da . ' bài · chưa đăng ' . $chua . ' mục · có lời khớp ' . $khop . ' mục. Chi tiết lỗi và mục chưa nhập ở biên nhận bên dưới.';
 	}
 }
