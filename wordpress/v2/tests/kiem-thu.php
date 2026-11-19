@@ -1720,8 +1720,14 @@ kt( 'Đăng nhanh tệp dùng lại thẻ đang chờ; chỉ người có quyề
 $nt_chu_c = "FileflowC quartz ruby sapphire topaz\nFileflowC umber violet wenge xenon";
 $nt_c = $nt_them( $nt_chu_c );
 $nt_lo_c = $LOK::tao( 'kho_dang', array( $nt_c ), 'chon', array( 'nguon' => $NT::NGUON ), $ai_ql );
-$nt_ap_c = $LOK::ap_dung( (int) $nt_lo_c['id'], $ai_ql, true );
+$nt_ap_c = $LOK::ap_dung( (int) $nt_lo_c['lo'], $ai_ql, true );
 kt( 'Đăng theo lô từ tệp đi hết đến bài công khai, giữ người nhập và nguồn; kết quả Thành công', $nt_ap_c['ok'] && 1 === $nt_ap_c['dem']['thanh_cong'] && 0 === $nt_ap_c['dem']['loi'] && $nt_kiem_loi( $nt_c, $nt_chu_c ), $nt_ap_c );
+$nt_chu_e = "FileflowE azalea buttercup chamomile daffodil\nFileflowE echinacea freesia gardenia hibiscus";
+$nt_e = $nt_them( $nt_chu_e );
+$nt_the_e = UngVien::dua_vao_hop_viec( $nt_e, $ai_ql );
+$nt_lo_e = $LOK::tao( 'cau_moi_dang', array( (int) $nt_the_e['viec'] ), 'chon', array( 'loai' => 'cau_moi', 'tt' => 'cho' ), $ai_ql );
+$nt_ap_e = $LOK::ap_dung( (int) $nt_lo_e['lo'], $ai_ql, true );
+kt( 'Đăng lô từ các thẻ tệp đã chờ trong Hộp việc: tạo bài và đóng đúng thẻ cũ', $nt_ap_e['ok'] && 1 === $nt_ap_e['dem']['thanh_cong'] && 0 === $nt_ap_e['dem']['loi'] && $nt_kiem_loi( $nt_e, $nt_chu_e ) && Viec::XONG === Viec::lay( (int) $nt_the_e['viec'] )['trang_thai'], $nt_ap_e );
 $nt_chu_d = "FileflowD violet willow xylem yellow\nFileflowD zephyr acacia bamboo cypress";
 $nt_d = $nt_them( $nt_chu_d );
 $nt_the_d = UngVien::dua_vao_hop_viec( $nt_d, $ai_ql );
@@ -1735,7 +1741,7 @@ $nt_thu_lai_d = QuyetViec::quyet( (int) $nt_the_d['viec'], 'dang', $ai_ql, true,
 kt( 'Thử Đăng lại sau lỗi ghi tệp: thành công đúng một bài, lời và hồ sơ nguồn còn nguyên', $nt_thu_lai_d['ok'] && $nt_dem_bai() === $nt_truoc_d + 1 && $nt_kiem_loi( $nt_d, $nt_chu_d ), $nt_thu_lai_d );
 [ , $nt_loi_may ] = KiemPhan::kiem( 'loi', $p_nt['loi'], array( 'loai_bai' => 'tac_pham', 'the_loai' => 'ca-dao', 'goi' => KiemPhan::GOI_MAY ) );
 kt( 'Sửa đường đăng tệp không nới lằn ranh: ngữ cảnh máy vẫn không được ghi lời người nhập', in_array( 'loi: máy chỉ ghi phần máy chép.', $nt_loi_may, true ), $nt_loi_may );
-foreach ( array( $nt_a, $nt_b, $nt_c, $nt_d ) as $nt_kho ) {
+foreach ( array( $nt_a, $nt_b, $nt_c, $nt_d, $nt_e ) as $nt_kho ) {
 	$nt_bai = (int) ( Kho::lay( $nt_kho )->post_id ?? 0 );
 	if ( $nt_bai ) { wp_delete_post( $nt_bai, true ); }
 }
