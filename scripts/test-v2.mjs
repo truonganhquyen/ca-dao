@@ -81,4 +81,5 @@ if (chinh < 24 || (chinh === 24 && phu < 18)) {
   for (const l of mvp?.loi ?? []) console.log(`LỖI      [v2 · chuyển đổi · tạo dữ liệu MVP] ${l}`);
 }
 
-process.exit(hong ? 1 : 0);
+// Để Node xả hết stdout: exit() cắt log dài ngay trước phần lỗi cuối trên CI.
+process.exitCode = hong ? 1 : 0;
