@@ -1,6 +1,6 @@
 {
   "phien_ban": 2,
-  "cap_nhat": "2026-11-19",
+  "cap_nhat": "2026-11-20",
   "huong": "v2 — Trung thực hơn hoàn hảo (D-039); đại tu V2 — Thư viện Văn học Dân gian Việt Nam (D-082)",
   "thu_tu_giai_doan": [
     "CHUAN_BI",
@@ -31,7 +31,7 @@
   },
   "kiem_tra_cuoi": {
     "trang_thai": "DAT",
-    "thoi_diem": "2026-11-19",
-    "pham_vi": "T-222/T-223 (D-122): nhập nguồn gọn tại Bài mới, PR #202; CI head 944bfdd đủ bốn cổng, E2E 80/80, quét 0 lỗi. Site thật plugin 1.0.85/theme 1.0.16, wp-admin 390/1440 px và mẫu CSV kiểm chỉ đọc đạt. Windows V2 treo không tính đạt; nghiệm thu dùng CI Linux. Không thay dữ liệu thật; pilot T-198 vẫn chờ người biên soạn."
+    "thoi_diem": "2026-11-20",
+    "pham_vi": "T-224 (D-123): Góp một câu, PR #204, CI head 12b5c7d đủ bốn cổng; PHP 292, WordPress 811, chuyển đổi 55, E2E 81/81 (4 lần bấm lại), quét 0 lỗi. Site thật plugin 1.0.86/theme 1.0.17; form/CTA và wp-admin 390/1440 px kiểm chỉ đọc đạt. Windows Playground/trình duyệt treo không tính đạt; nghiệm thu dùng CI Linux. Không thay dữ liệu thật; pilot T-198 vẫn chờ người biên soạn."
   }
 }
