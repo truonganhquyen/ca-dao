@@ -48,7 +48,8 @@ final class SoTrung {
 				$ten = $p->post_title; $url = 'publish' === $p->post_status ? get_permalink( $id ) : '';
 			} elseif ( ! $cong_khai && 'kho' === $loai ) {
 				$m = Kho::lay( $id ); if ( ! $m || 'moi' !== $m->trang_thai ) { continue; }
-				$dong = explode( "\n", $m->loi ); $ten = 'Kho #' . $id;
+				$loi_kho = (int) $r->phan > 0 ? (string) ( Kho::du_lieu( $m )['di_ban'][ (int) $r->phan - 1 ] ?? '' ) : $m->loi;
+				$dong = explode( "\n", $loi_kho ); $ten = 'Kho #' . $id;
 			} elseif ( ! $cong_khai && 'gop' === $loai ) {
 				$p = get_post( $id ); if ( ! $p || ! in_array( $p->post_status, array( 'pending', 'draft' ), true ) ) { continue; }
 				$dong = explode( "\n", DuyetTacPham::loi( $id ) ); $ten = 'Đóng góp đang chờ #' . $id;

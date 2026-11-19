@@ -21,7 +21,7 @@ final class GopMotCau {
 			return $head . '<h1>Cảm ơn bạn đã góp thêm một lời.</h1><p role="status">Đã nhận để người biên soạn xem, chưa đăng lên trang. Đóng góp có thể thành bài mới hoặc bổ sung cho bài đã có.</p><div class="actions">' . Ve::lien_ket( 'gop', 'Góp câu khác', 'btn primary' ) . Ve::lien_ket( 'trang-chu', 'Quay lại đọc', 'btn' ) . '</div></section>';
 		}
 		$head .= '<h1>Bạn còn nhớ câu nào?</h1><p class="muted">Ca dao, tục ngữ, đồng dao, vè hay câu đố.<br>Một câu, một đoạn cũng được. Không cần tài khoản.</p>';
-		if ( 'loi' === $gui ) { $head .= '<p class="notice" id="gop-bao-loi" role="alert" tabindex="-1" autofocus>' . esc_html( GopNguoiDoc::BAO[ $ma ] ?? GopNguoiDoc::BAO['loi'] ) . ' Nội dung bạn nhập vẫn ở bên dưới.</p>'; }
+		if ( 'loi' === $gui ) { $head .= '<p class="notice" id="gop-bao-loi" role="alert" tabindex="-1" autofocus>' . esc_html( 'thieu' === $ma ? 'Bạn ghi lời muốn góp và đánh dấu đồng ý sử dụng nội dung nhé.' : ( GopNguoiDoc::BAO[ $ma ] ?? GopNguoiDoc::BAO['loi'] ) ) . ' Nội dung bạn nhập vẫn ở bên dưới.</p>'; }
 		$bai = $bai_id ? get_post( $bai_id ) : null;
 		if ( $bai && ( KhaiBao::TAC_PHAM !== $bai->post_type || 'publish' !== $bai->post_status || '' !== $bai->post_password || \Phongdao\KhoLuu\PhanBai::lay( $bai->ID, 'tho_tuc' ) ) ) { $bai = null; }
 		if ( $bai ) { $head .= '<p class="small">Bạn đang góp lời khác hoặc nguồn cho <a href="' . esc_url( get_permalink( $bai ) ) . '">' . esc_html( $bai->post_title ) . '</a>.</p>'; }

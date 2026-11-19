@@ -34,6 +34,8 @@ Phần `dong_gop` dùng cơ chế meta/lịch sử sẵn có, không bảng mớ
 
 Ghi công ngay dưới đúng lời/dị bản đã dùng. Không hiện bút danh khi thiếu một trong hai: người gửi đồng ý và quản trị chọn công khai. Nguồn mang nhãn **Nguồn người góp cung cấp — chưa đối chiếu**; ô nguồn quản trị nhắc bỏ thông tin cá nhân. Không đưa bản gửi riêng tư, token hoặc tên không được công khai vào HTML khách. Sửa lời sau này làm vân tay thay đổi thì chứng cứ cũ không tự chuyển sang lời mới.
 
+Trong **Sửa tác phẩm → Phần khác → Ghi công và nguồn bạn đọc**, người có quyền duyệt có thể ẩn bút danh, sửa nguồn công khai hoặc gỡ dòng ghi công. Form chỉ sửa chứng cứ đã có, giữ phần/vân tay/ID bản gửi tại máy chủ; không tự khôi phục tên đã ẩn. Mỗi lần lưu có phiên và lịch sử như các phần khác; bản gửi riêng tư được giữ.
+
 ## Nghiệm thu
 
 Bốn cổng dự án hiện có; fixture tổng hợp kỹ thuật, không ghi dữ liệu thật để thử. Kiểm tra gửi/duyệt lặp, bản gửi cùng lời khác nguồn, lỗi giao dịch, bài đích đổi, quyền, phạm vi khách, ẩn danh, nguồn nhiều chứng cứ, JavaScript bật/tắt, bàn phím và điện thoại. Sau gộp phải kiểm phiên bản live; CI không đồng nghĩa đã triển khai.

@@ -8,6 +8,6 @@
 		{ "step": "runPHP", "code": "<?php require '/wordpress/wp-load.php'; update_option('permalink_structure', '/%postname%/'); ?>" },
 		{ "step": "activatePlugin", "pluginPath": "/wordpress/wp-content/plugins/ca-dao/ca-dao.php" },
 		{ "step": "activateTheme", "themeFolderName": "ca-dao" },
-		{ "step": "runPHP", "code": "<?php require '/repo/tests/kiem-thu.php';" }
+		{ "step": "runPHP", "code": "<?php try { require '/repo/tests/kiem-thu.php'; } catch (Throwable $e) { file_put_contents('/repo/tests/.ket-qua.txt', '\nLỖI NGOẠI LỆ: '.get_class($e).': '.$e->getMessage().'\n'.$e->getTraceAsString().'\n', FILE_APPEND); throw $e; }" }
 	]
 }
