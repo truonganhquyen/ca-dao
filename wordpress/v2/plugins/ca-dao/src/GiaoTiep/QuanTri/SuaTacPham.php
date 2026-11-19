@@ -12,6 +12,7 @@ use Phongdao\GiaoTiep\BienTap\TamSua;
 use Phongdao\GiaoTiep\BienTap\NhapDo;
 use Phongdao\HaTang\KhaiBao;
 use Phongdao\KhoLuu\Viec;
+use Phongdao\KhoLuu\PhanBai;
 use Phongdao\MienDuLieu\SoSanh;
 
 defined( 'ABSPATH' ) || exit;
@@ -73,6 +74,7 @@ final class SuaTacPham {
 		$ra = array();
 		$rieng = array( 'nghia_den' => 'tuc-ngu', 'nghia_bong' => 'tuc-ngu', 'dung_khi' => 'tuc-ngu', 'gan_nghia' => 'tuc-ngu', 'hinh_anh' => 'ca-dao|dong-dao', 'cau_hoi' => 'cau-do', 'dap_an' => 'cau-do', 'goi_y' => 'cau-do', 'boi_canh' => 've', 'doan' => 've' );
 		foreach ( array_keys( TamSua::TAM ) as $phan ) {
+			if ( 'dong_gop' === $phan && ( ! current_user_can( 'cadao_duyet' ) || ! PhanBai::lay( absint( $_GET['id'] ?? 0 ), 'dong_gop' ) ) ) { continue; } // phpcs:ignore WordPress.Security.NonceVerification -- chỉ vẽ phần đã có
 			if ( ! isset( $rieng[ $phan ] ) || in_array( $loai, explode( '|', $rieng[ $phan ] ), true ) ) {
 				$ra[] = $phan;
 			}

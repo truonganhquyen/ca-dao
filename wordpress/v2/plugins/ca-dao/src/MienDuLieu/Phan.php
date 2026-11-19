@@ -24,7 +24,8 @@ final class Phan {
 
 	private const DINH_NGHIA = array(
 		'tac_pham'  => array(
-			'loi'         => array( 'dang' => self::MOT, 'the_loai' => null, 'nguoi_lam' => array( NguoiLam::MAY_CHEP, NguoiLam::NGUOI_VIET ), 'may' => true, 'truong' => array( 'dong' => 'dong!', 'doi_chieu' => 'doi_chieu' ) ),
+			'loi'         => array( 'dang' => self::MOT, 'the_loai' => null, 'nguoi_lam' => array( NguoiLam::MAY_CHEP, NguoiLam::NGUOI_VIET, NguoiLam::DOC_GIA_GOP ), 'may' => true, 'truong' => array( 'dong' => 'dong!', 'doi_chieu' => 'doi_chieu' ) ),
+			'dong_gop'    => array( 'dang' => self::DS, 'the_loai' => null, 'nguoi_lam' => null, 'may' => false, 'truong' => array( 'gop_id' => 'id!', 'phan' => 'chon:loi|di_ban!', 'dau_loi' => 'chu_ngan!', 'ten' => 'chu_ngan', 'xuat_xu' => 'chu' ) ),
 			'di_ban'      => array( 'dang' => self::DS, 'the_loai' => null, 'nguoi_lam' => array( NguoiLam::MAY_CHEP, NguoiLam::NGUOI_VIET, NguoiLam::DOC_GIA_GOP ), 'may' => true, 'truong' => array( 'dong' => 'dong!', 'noi' => 'chu_ngan', 'nguoi_ke' => 'chu_ngan', 'nam' => 'chu_ngan' ) ),
 			'y_nghia'     => array( 'dang' => self::MOT, 'the_loai' => null, 'nguoi_lam' => self::NGHIA, 'may' => false, 'truong' => array( 'chu' => 'chu!', 'ai' => 'bool' ) ),
 			'nghia_den'   => array( 'dang' => self::MOT, 'the_loai' => array( 'tuc-ngu' ), 'nguoi_lam' => array( NguoiLam::NGUOI_VIET, NguoiLam::AI_DA_DUYET, NguoiLam::MAY_CHEP ), 'may' => true, 'truong' => array( 'chu' => 'chu!', 'ai' => 'bool' ) ),

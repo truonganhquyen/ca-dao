@@ -50,12 +50,12 @@ final class NhanGui {
 		}
 		$kq = '' === $ma ? self::luu( $p ) : array( 'ok' => false, 'ma' => $ma, 'bai' => 0 );
 		if ( $kq['ok'] ) {
-			$toi = $kq['bai'] ? add_query_arg( 'gop', 'da_gui', (string) get_permalink( $kq['bai'] ) ) . '#gop' : add_query_arg( 'gui', 'da_gui', home_url( '/gop/' ) );
+			$toi = 'tac_pham' === ( $p['loai'] ?? '' ) ? add_query_arg( array( 'loai' => 'tac_pham', 'gui' => 'da_gui' ), home_url( '/gop/' ) ) : ( $kq['bai'] ? add_query_arg( 'gop', 'da_gui', (string) get_permalink( $kq['bai'] ) ) . '#gop' : add_query_arg( array( 'loai' => $p['loai'], 'gui' => 'da_gui' ), home_url( '/gop/' ) ) );
 			wp_safe_redirect( $toi, 303 );
 			exit;
 		}
 		// Không giữ nonce / token chống rác; lần vẽ lại sinh nonce mới và yêu cầu kiểm chống rác lại.
-		$giu = array_flip( array( 'loai', 'bai', 'vi_pham', 'noi_dung', 'sach', 'trang', 'tieu_de', 'vai', 'noi_nghe', 'nguoi_ke', 'ten', 'tu_viet', 'dong_y' ) );
+		$giu = array_flip( array( 'loai', 'bai', 'vi_pham', 'noi_dung', 'sach', 'trang', 'tieu_de', 'vai', 'noi_nghe', 'nguoi_ke', 'ten', 'tu_viet', 'dong_y', 'xuat_xu', 'hien_ten', 'lan_gui' ) );
 		self::$loi_trang = array( 'ma' => $kq['ma'], 'p' => array_intersect_key( $p, $giu ) );
 		status_header( 422 );
 	}
@@ -89,6 +89,10 @@ final class NhanGui {
 		}
 		// Bấm gửi hai lần (mạng chậm) hoặc gửi lại form vừa gửi: nhận là đã gửi, không tạo bản thứ hai. Khoá chỉ là dấu băm của
 		// chính nội dung gửi, giữ 10 phút; không lưu địa chỉ mạng hay gì của người gửi.
+		if ( 'tac_pham' === $d['loai'] ) {
+			if ( ! self::lan_hop_le( (string) ( $p['lan_gui'] ?? '' ) ) ) { return $hong( 'cu' ); }
+			$d['lan_gui'] = hash( 'sha256', $p['lan_gui'] . wp_json_encode( $d ) );
+		}
 		$lap = 'phongdao_gop_lap_' . substr( wp_hash( (string) wp_json_encode( $d ) ), 0, 24 );
 		$cu  = get_transient( $lap );
 		if ( is_array( $cu ) && Viec::mo( (string) $cu['loai'], (int) $cu['id'], 'nguoi_doc' ) ) {
@@ -106,6 +110,11 @@ final class NhanGui {
 		return array( 'ok' => true, 'ma' => '', 'id' => $luu['id'], 'bai' => $bai_id );
 	}
 
+	public static function lan_hop_le( string $token ): bool {
+		$lan = explode( '.', $token );
+		return 2 === count( $lan ) && (bool) preg_match( '/^[a-f0-9-]{36}$/', $lan[0] ) && hash_equals( wp_hash( $lan[0] . '|gop' ), $lan[1] );
+	}
+
 	/**
 	 * Ghi nội dung và thẻ "Người đọc gửi" trong cùng một giao dịch: một bước lỗi thì không còn nội dung nào nằm ngoài
 	 * Hộp việc (người đọc được báo chưa gửi được để gửi lại).
@@ -119,7 +128,15 @@ final class NhanGui {
 		}
 		$bai_id  = $bai ? $bai->ID : 0;
 		$ten_bai = $bai ? $bai->post_title : 'không gắn bài';
-		if ( 'cam_nghi' === $d['loai'] || 'cach_hieu' === $d['loai'] ) {
+		if ( 'tac_pham' === $d['loai'] ) {
+			if ( ! $wpdb->get_var( "SELECT option_id FROM {$wpdb->options} WHERE option_name='siteurl' FOR UPDATE" ) ) { $wpdb->query( 'ROLLBACK' ); return null; }
+			$cu = (int) $wpdb->get_var( $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key='_phongdao_lan_gui' AND meta_value=%s LIMIT 1", $d['lan_gui'] ) );
+			if ( $cu ) { $wpdb->query( 'COMMIT' ); return array( 'id' => $cu, 'loai' => 'post' ); }
+			$d['dong_y'] = true; $d['giay_phep'] = 'CC BY 4.0'; $d['gui_luc'] = gmdate( 'c' );
+			$id = (int) wp_insert_post( wp_slash( array( 'post_type' => KhaiBao::GOP_Y, 'post_status' => 'pending', 'post_title' => 'Bạn đọc góp tác phẩm', 'post_content' => $d['noi_dung'], 'post_author' => 0, 'meta_input' => array( '_cadao_loai' => 'tac_pham', '_cadao_bai' => $bai_id, '_phongdao_gop' => $d, '_phongdao_lan_gui' => $d['lan_gui'] ) ) ) );
+			$loai = 'post';
+			if ( ! $id || get_post_meta( $id, '_phongdao_lan_gui', true ) !== $d['lan_gui'] || get_post_meta( $id, '_phongdao_gop', true ) !== $d || ! \Phongdao\DichVu\ChongTrung\ChongTrung::ghi( 'gop:' . $id, array( $d['noi_dung'] ) ) ) { $wpdb->query( 'ROLLBACK' ); if ( $id ) { clean_post_cache( $id ); } return null; }
+		} elseif ( 'cam_nghi' === $d['loai'] || 'cach_hieu' === $d['loai'] ) {
 			// Cảm nghĩ và cách hiểu của bạn đọc: bình luận chờ duyệt (cách hiểu mang loại bình luận riêng `cach_hieu`)
 			$id   = (int) wp_insert_comment(
 				array(
@@ -246,7 +263,7 @@ final class NhanGui {
 			// Form nhanh trên trang bài: quay lại đúng tầng Hiểu thêm, lời báo nằm cạnh form
 			$toi = add_query_arg( array( 'gop' => $kq['ok'] ? 'da_gui' : 'loi', 'gop_loai' => 'cach_hieu', 'ma' => $kq['ok'] ? false : $kq['ma'] ), (string) get_permalink( $kq['bai'] ) ) . '#cach-hieu';
 		} elseif ( $kq['ok'] ) {
-			$toi = $kq['bai'] ? add_query_arg( 'gop', 'da_gui', (string) get_permalink( $kq['bai'] ) ) . '#gop' : add_query_arg( 'gui', 'da_gui', $goc );
+			$toi = 'tac_pham' === ( $p['loai'] ?? '' ) || ! $kq['bai'] ? add_query_arg( array( 'loai' => sanitize_key( (string) ( $p['loai'] ?? '' ) ), 'gui' => 'da_gui' ), $goc ) : add_query_arg( 'gop', 'da_gui', (string) get_permalink( $kq['bai'] ) ) . '#gop';
 		} else {
 			$toi = add_query_arg(
 				array_filter(

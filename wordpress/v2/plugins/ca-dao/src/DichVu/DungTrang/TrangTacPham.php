@@ -68,6 +68,7 @@ final class TrangTacPham {
 			$loi_db   = array_values( array_filter( $d['dong'] ?? array(), static fn( $x ): bool => '' !== $x ) );
 			$di_ban[] = array(
 				'loi'      => $loi_db,
+				'ghi_cong' => self::ghi_cong( $phan, 'di_ban', $loi_db ),
 				'khac'     => ToChoKhac::tu_khac( $dong, $loi_db ),
 				'noi'      => (string) ( $d['noi'] ?? '' ),
 				'nguoi_ke' => (string) ( $d['nguoi_ke'] ?? '' ),
@@ -84,6 +85,7 @@ final class TrangTacPham {
 			'kieu'         => 'tuc-ngu' === $the_loai ? 'proverb' : ( 'luc-bat' === $the_tho ? 'lucbat' : '' ),
 			'tieu_de'      => (string) $bai['tieu_de'],
 			'loi'          => $dong,
+			'ghi_cong'     => self::ghi_cong( $phan, 'loi', $dong ),
 			// Bài dài, bài nhiều phần: chia đoạn (null = hiện lời như thường)
 			'doan'         => ChiaDoan::chia( $phan['loi']['dong'] ?? array(), $phan['doan']['muc'] ?? array() ),
 			'boi_canh'     => self::boi_canh( $phan['boi_canh'] ?? null ),
@@ -121,6 +123,12 @@ final class TrangTacPham {
 			'so_lieu'      => $bai['so_lieu'] ?? array(),
 			'url'          => (string) $bai['url'],
 		);
+	}
+
+	/** Nguồn/ghi công đã duyệt, gắn bằng vân tay có dấu với đúng phần lời được sử dụng. */
+	private static function ghi_cong( array $phan, string $noi, array $dong ): array {
+		$bam = \Phongdao\MienDuLieu\VanTay::cua( implode( "\n", $dong ) )['vt1'];
+		return array_values( array_map( static fn( $m ) => array( 'ten' => $m['ten'] ?? '', 'xuat_xu' => $m['xuat_xu'] ?? '' ), array_filter( $phan['dong_gop']['muc'] ?? array(), static fn( $m ) => $noi === ( $m['phan'] ?? '' ) && $bam === ( $m['dau_loi'] ?? '' ) ) ) );
 	}
 
 	/**

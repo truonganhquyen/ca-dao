@@ -48,7 +48,13 @@ final class HopViec {
 		$phien = isset( $_POST['phien'] ) && ctype_digit( (string) $_POST['phien'] ) ? (int) $_POST['phien'] : PHP_INT_MAX; // phpcs:ignore WordPress.Security.NonceVerification -- nonce đã kiểm trên
 		$chu_sua = 'duyet' === $quyet && isset( $_POST['chu'] ) ? sanitize_textarea_field( wp_unslash( (string) $_POST['chu'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification -- nonce đã kiểm trên
 		$ten_sua = 'duyet' === $quyet && isset( $_POST['ten'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['ten'] ) ) : null; // phpcs:ignore WordPress.Security.NonceVerification -- nonce đã kiểm trên
-		$kq   = QuyetViec::quyet( $id, $quyet, get_current_user_id(), current_user_can( 'cadao_duyet' ), $phien, $chu_sua, $ten_sua );
+		$gop = array();
+		if ( str_starts_with( $quyet, 'gop_' ) ) {
+			$gop = array_map( static fn( $x ) => is_scalar( $x ) ? (string) $x : '', wp_unslash( array_intersect_key( $_POST, array_flip( array( 'ban_gop', 'gop_dich', 'gop_the_loai', 'gop_hien_ten', 'gop_nguon' ) ) ) ) );
+			$gop['gop_pl'] = array_filter( (array) wp_unslash( $_POST['gop_pl'] ?? array() ), 'is_scalar' );
+			if ( 'gop_dang' !== $quyet ) { $pair = explode( ':', $gop['gop_dich'] ?? '' ); $gop['bai_dich'] = (int) ( $pair[0] ?? 0 ); $gop['ban_gop'] = $pair[1] ?? ''; }
+		}
+		$kq   = QuyetViec::quyet( $id, $quyet, get_current_user_id(), current_user_can( 'cadao_duyet' ), $phien, $chu_sua, $ten_sua, $gop );
 		$ve   = (string) wp_get_referer() ?: admin_url( 'admin.php?page=' . \Phongdao\GiaoTiep\QuanTri\DanhSachViec::TRANG );
 		// Quyết được thì sang thẻ kế (Hộp việc wp-admin), kèm lối xem lại thẻ vừa quyết; quyết hỏng thì ở lại thẻ này
 		$tiep = $kq['ok'] && ! $kq['chuyen'] ? self::tiep() : '';
@@ -169,6 +175,9 @@ final class HopViec {
 				$than .= '<p class="small muted">Hiện trên trang thì cách hiểu nằm ở tầng "Hiểu thêm", tách riêng với Ý nghĩa của ban biên tập. Muốn dùng làm gốc cho Ý nghĩa: tự viết lại'
 					. ( $bai ? ' ở <a href="' . esc_url( \Phongdao\GiaoTiep\QuanTri\SuaTacPham::url( $bai->ID ) ) . '">trang Sửa tác phẩm</a>' : '' ) . ', ghi "có tham khảo cách hiểu của bạn đọc ' . esc_html( $them[0] ?? '' ) . '".</p>';
 			}
+			if ( 'tac_pham' === $loai ) {
+				$than = \Phongdao\GiaoTiep\QuanTri\GopTacPham::the( $v, $co_form );
+			}
 		} elseif ( 'goi_y' === $v['loai'] ) {
 			$bai = get_post( (int) $v['doi_tuong_id'] );
 			if ( $bai ) {
@@ -218,7 +227,7 @@ final class HopViec {
 			if ( Viec::DE_SAU === $v['trang_thai'] && 'de_sau' === $ma ) {
 				continue;
 			}
-			if ( ( 'dang' === $ma || 'duyet' === $ma ) && ! current_user_can( 'cadao_duyet' ) ) {
+			if ( ( 'dang' === $ma || 'duyet' === $ma || str_starts_with( $ma, 'gop_' ) ) && ! current_user_can( 'cadao_duyet' ) ) {
 				continue;
 			}
 			$form .= '<button type="submit" name="quyet" value="' . esc_attr( $ma ) . '" class="btn ' . esc_attr( $kieu ) . '">' . esc_html( $chu ) . '</button>';

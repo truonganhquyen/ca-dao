@@ -256,6 +256,27 @@ try {
       if(thuMucAnh) await bt.screenshot({path:path.join(thuMucAnh,`admin-${man==='thùng rác'?'rac':'xoa'}-${width}.png`),fullPage:true});
     }
   }
+  // D-123: thẻ góp mới, chỉ gửi fixture trên Playground của chính lượt quét.
+  await bt.goto(G+'/gop/',{waitUntil:'load',timeout:120_000});
+  await bt.$eval('#gop-form',f=>{
+    for(const [name,value] of Object.entries({noi_dung:'[UX-TEST-224-AXE] amber birch cedar drift ember fern glade hill',xuat_xu:'https://example.org/technical-source',ten:'Reader test'}))f.elements[name].value=value;
+    f.elements.hien_ten.checked=true; f.elements.dong_y.checked=true;
+  });
+  await Promise.all([bt.waitForNavigation({waitUntil:'load',timeout:120_000}),bt.click('#gop-form button[type=submit]')]);
+  if(!(await bt.evaluate(()=>document.body.textContent.includes('Đã nhận để người biên soạn xem'))))throw new Error('chưa tạo được fixture thẻ Góp một câu: '+await bt.$eval('#gop-bao-loi',e=>e.textContent));
+  await bt.goto(G+'/wp-admin/admin.php?page=phongdao-hop-viec&loai=nguoi_doc',{waitUntil:'load',timeout:120_000});
+  const denGop=await bt.$$eval('.phongdao-hv-ds .phongdao-hv-mo',as=>as.find(a=>a.textContent.includes('UX-TEST-224-AXE'))?.href);
+  if(!denGop)throw new Error('thiếu thẻ Góp một câu trong Hộp việc');
+  await bt.goto(denGop,{waitUntil:'load',timeout:120_000});
+  for(const width of [390,1440]) {
+    await bt.setViewport({width,height:900});
+    await bt.evaluate(()=>document.querySelectorAll('#wpbody-content details').forEach(d=>{d.open=true;}));
+    const tran=await doTran(bt);if(tran)loi.push(`Góp một câu ${width}: tràn ngang ${tran}`);
+    await bt.addScriptTag({content:axeNguon});
+    const kq=await bt.evaluate(the=>window.axe.run('#wpbody-content .wrap',{runOnly:{type:'tag',values:the}}),THE_WCAG);
+    for(const v of kq.violations)for(const n of v.nodes.slice(0,3))loi.push(`Góp một câu ${width}: [${v.id}] ${v.help} — ${n.target.join(' ')}`);
+    if(thuMucAnh)await bt.screenshot({path:path.join(thuMucAnh,`gop-cau-hop-viec-${width}.png`),fullPage:true});
+  }
   await bt.close();
   console.log(`Quét V2: ${DS_TRANG.length} trang × ${CHE_DO.length} chế độ + ${DS_TINH_320.size} trang tĩnh × 2 chế độ 320 px + ${DS_BIEN_TAP.length} trang biên tập + 19 trang admin + trang sửa 36 mục × 6 cỡ (gập/mở) + Danh mục × 2 cỡ + Thùng rác/Xem trước xoá × 2 cỡ (axe ${THE_WCAG.join(', ')}) — ${loi.length} lỗi.`);
 } catch (e) {

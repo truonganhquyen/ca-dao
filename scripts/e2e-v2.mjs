@@ -813,6 +813,51 @@ try {
       await di(tab, `/wp-admin/admin.php?page=phongdao-hop-viec&loai=nguoi_doc&tt=${tt}`);
       return tab.$$eval('.phongdao-hv-ds .phongdao-hv-mo', (as, c) => as.filter(a => a.textContent.includes(c)).map(a => new URL(a.href).searchParams.get('viec')), chu);
     };
+    await thu('Góp một câu: CTA, gửi và duyệt không JavaScript, ghi công đúng phần, tra lại bài công khai', async () => {
+      const chu = '[UX-TEST] contribution amber birch cedar drift ember fern glade hill';
+      await di(k, '/');
+      chac(await k.$('.gop-moi a[href*="/gop/"]') && await k.$('.bottom-nav a[href*="/gop/"]'), 'thiếu CTA trên trang chủ/điện thoại');
+      await k.setJavaScriptEnabled(false); await bt.setJavaScriptEnabled(false);
+      let url;
+      try {
+        await di(k, '/gop/');
+        chac(!(await k.$('.genre-bar')) && !(await k.$('.bottom-nav')) && !(await k.$('input[type=radio]')), 'form góp vẫn bị điều hướng/chọn loại làm rối');
+        chac(await k.$eval('.gop-them', e => !e.open) && await k.$eval('input[name=dong_y]', e => !e.checked), 'thông tin phụ không gập hoặc đã chọn đồng ý hộ');
+        await datO(k, '#gop-noi-dung', chu);
+        await bam(k, '.gop-them > summary');
+        await datO(k, '#gop-ten', 'E2E reader');
+        await datO(k, '#gop-xuat-xu', 'https://example.org/e2e-contribution');
+        await bam(k, 'input[name=hien_ten]'); await bam(k, 'input[name=dong_y]');
+        await bamDoiTrang(k, '#gop-form button[type=submit]');
+        chac(await coChu(k, 'Đã nhận để người biên soạn xem, chưa đăng'), 'không báo rõ đã nhận/chưa đăng');
+        const [id] = await theGop(bt, chu);
+        chac(id, 'không có đúng thẻ Người đọc gửi');
+        await di(bt, `/wp-admin/admin.php?page=phongdao-hop-viec&loai=nguoi_doc&viec=${id}`);
+        const card = `.phongdao-hv-phai article#viec-${id}`;
+        chac(await bt.$(`${card} button[value=gop_di_ban]`) && await bt.$(`${card} button[value=gop_nguon]`), 'thiếu quyết dị bản/nguồn');
+        await bt.select(`${card} select[name=gop_the_loai]`, 'ca-dao');
+        await bam(bt, `${card} input[name=gop_hien_ten]`);
+        for(const field of ['select[name=gop_the_loai]','select[name=gop_dich]','input[type=number][name=gop_dich]','textarea[name=gop_nguon]','input[name=gop_hien_ten]']) {
+          await bt.focus(`${card} ${field}`);
+          chac(await bt.$eval(`${card} ${field}`,e=>{const r=e.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;return y>0&&y<innerHeight&&e===document.elementFromPoint(x,y);}),`focus ${field} bị thanh thao tác che`);
+        }
+        if (thuMucAnh) await bt.screenshot({path:path.join(thuMucAnh,'gop-cau-duyet-no-js-390.png'),fullPage:true});
+        await bamDoiTrang(bt, `${card} button[value=gop_dang]`);
+        chac(await coChu(bt, 'Đã đăng tác phẩm'), 'quyết chưa đăng thành công');
+        chac(await bt.$('.phongdao-hv-bao .phongdao-viec-bai a'), 'thông báo thành công thiếu lối mở ngay bài vừa nhận đóng góp');
+        await di(bt, `/wp-admin/admin.php?page=phongdao-hop-viec&loai=nguoi_doc&tt=xong&viec=${id}`);
+        url = await bt.$eval('.phongdao-viec-bai a:last-child', e => new URL(e.href).pathname);
+        await di(k, url);
+        chac(await coChu(k, chu) && await coChu(k, 'E2E reader') && await coChu(k, 'Nguồn người góp cung cấp — chưa đối chiếu'), 'lời/ghi công/nguồn không hiện đúng');
+      } finally { await k.setJavaScriptEnabled(true); await bt.setJavaScriptEnabled(true); }
+      await di(k, '/gop/');
+      await datO(k, '#gop-noi-dung', chu);
+      await doi(k, () => document.querySelector('#gop-gan-giong summary')?.textContent.includes('Câu này đã có'), null, 'JavaScript chưa tra ra bài vừa đăng');
+      chac(await k.$eval('#gop-form button[type=submit]', e => !e.disabled), 'tra khớp đã chặn mất đường góp nguồn/dị bản');
+      await bam(k, '#gop-gan-giong summary');
+      chac(await k.$eval('#gop-gan-giong a', (e,u) => new URL(e.href).pathname === u, url), 'tra bài trả sai đường dẫn');
+      if (thuMucAnh) await k.screenshot({path:path.join(thuMucAnh,'gop-cau-tra-390.png'),fullPage:true});
+    });
     await thu('wp-admin Hộp việc: Để sau thẻ góp của người đọc rồi Hoàn tác trong 10 giây, sau đó xử lý thẻ', async () => {
       const [id] = await theGop(bt, 'Góp thử đầu-cuối');
       chac(id, 'không có thẻ góp vừa gửi');
@@ -831,7 +876,8 @@ try {
 
     await thu('wp-admin Hộp việc hai phiên: thẻ đã quyết ở phiên khác thì màn cũ bị chặn, báo rõ, không quyết chồng', async () => {
       const chu = 'Góp thử hai phiên: dòng một nên đọc khác.';
-      await di(k, '/gop/');
+      await di(k, '/gop/?loai=bao_loi');
+      await bam(k, '.gop-chon-loai > summary');
       await bam(k, 'input[name=loai][value=bao_loi]');
       await datO(k, '#gop-noi-dung', chu);
       await bam(k, 'input[name=dong_y]');

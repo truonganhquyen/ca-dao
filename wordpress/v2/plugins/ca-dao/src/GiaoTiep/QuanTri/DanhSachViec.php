@@ -144,7 +144,7 @@ final class DanhSachViec {
 					$ra[ (int) $v['id'] ] = array( $ten_dt, self::gon( implode( ' · ', array_map( 'strval', (array) ( $n['ly_do'] ?? array() ) ) ) ) );
 					break;
 				case 'nguoi_doc':
-					$chu = 'comment' === $v['doi_tuong_loai'] ? ( $bl[ $id ] ?? '' ) : (string) ( get_post( $id )->post_content ?? '' );
+					$chu = \Phongdao\DichVu\NguoiDoc\DuyetTacPham::la( $v ) ? \Phongdao\DichVu\NguoiDoc\DuyetTacPham::loi( $id ) : ( 'comment' === $v['doi_tuong_loai'] ? ( $bl[ $id ] ?? '' ) : (string) ( get_post( $id )->post_content ?? '' ) );
 					$ra[ (int) $v['id'] ] = array( ( \Phongdao\MienDuLieu\GopNguoiDoc::LOAI[ (string) ( $n['loai'] ?? '' ) ][0] ?? 'Người đọc gửi' ) . ( empty( $n['bai'] ) ? '' : ' — ' . get_the_title( (int) $n['bai'] ) ), self::gon( wp_strip_all_tags( $chu ) ) );
 					break;
 				case 'co_the_trung':
@@ -172,6 +172,10 @@ final class DanhSachViec {
 
 	/** Nhãn quyết định cho người đọc (không in mã như "dang"). */
 	private static function nhan_quyet( array $v ): string {
+		if ( \Phongdao\DichVu\NguoiDoc\DuyetTacPham::la( $v ) ) {
+			$nhan = array( 'gop_dang' => 'Đã đăng tác phẩm mới', 'gop_di_ban' => 'Đã thêm dị bản', 'gop_nguon' => 'Đã bổ sung nguồn' );
+			if ( isset( $nhan[ $v['quyet'] ] ) ) { return $nhan[ $v['quyet'] ]; }
+		}
 		$ket = array( 'cung' => 'Đã gắn vào bài có sẵn', 'di_ban' => 'Đã thêm dị bản', 'khac' => 'Đã xác nhận là bài khác', 'dang' => 'Đã đăng bài mới' );
 		if ( isset( $ket[ $v['quyet'] ] ) ) { return $ket[ $v['quyet'] ]; }
 		$nut = QuyetViec::LOAI[ $v['loai'] ][1][ $v['quyet'] ][0] ?? '';
@@ -192,6 +196,7 @@ final class DanhSachViec {
 	/** Bài của thẻ (thẻ trên bài, hoặc bài đã đăng từ câu kho): lối Sửa bài trong quản trị và Xem bài trên trang đọc. */
 	private static function lien_bai( array $v ): string {
 		$bai = 'post' === $v['doi_tuong_loai'] ? (int) $v['doi_tuong_id'] : 0;
+		if ( \Phongdao\DichVu\NguoiDoc\DuyetTacPham::la( $v ) ) { $bai = (int) ( $v['sau']['bai'] ?? 0 ); }
 		if ( 'kho' === $v['doi_tuong_loai'] ) {
 			$bai = (int) ( Kho::lay( (int) $v['doi_tuong_id'] )?->post_id ?? 0 );
 		}
@@ -257,6 +262,8 @@ final class DanhSachViec {
 		$ve = ! empty( $loc['lan_nhap'] ) ? NhapKho::url_lan( (int) $loc['lan_nhap'] ) : self::url( $loc, (int) $loc['paged'], (int) $loc['viec'] );
 		$o = '<div class="notice notice-info phongdao-hv-bao"><p role="status">' . esc_html( $da ) . ( $vua ? ' <a href="' . esc_url( self::url( $loc, (int) $loc['paged'], $vua ) ) . '">Xem lại thẻ vừa quyết</a>' : '' ) . '</p>'
 			. self::lui_sau_dang( $dang, $ve );
+		$gop = $vua ? Viec::lay( $vua ) : null;
+		if ( $gop && current_user_can( 'cadao_soan' ) && \Phongdao\DichVu\NguoiDoc\DuyetTacPham::la( $gop ) && Viec::XONG === $gop['trang_thai'] ) { $o .= self::lien_bai( $gop ); }
 		$v = $hoan ? Viec::lay( $hoan ) : null;
 		if ( $v && QuyetViec::co_the_hoan_tac( $v, get_current_user_id(), $phien ) ) {
 			$o .= '<form method="post" data-hv-hoan data-han="' . ( strtotime( $v['quyet_luc'] . ' UTC' ) + 10 ) . '" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="' . HopViec::HOAN_TAC . '"><input type="hidden" name="viec" value="' . $hoan . '"><input type="hidden" name="phien" value="' . (int) $v['phien'] . '">'

@@ -64,7 +64,11 @@ if (chinh < 24 || (chinh === 24 && phu < 18)) {
     tam.don();
     const kq = fs.existsSync(tepKq) ? fs.readFileSync(tepKq, 'utf8') : '';
     process.stdout.write('\n' + (kq || `LỖI      [${nhan}] không chạy được kiểm thử (mã thoát ${r.status}).\n`));
-    if (r.status !== 0 || !kq.includes('KẾT QUẢ: ĐẠT')) hong = true;
+    if (r.status !== 0 || !kq.includes('KẾT QUẢ: ĐẠT')) {
+      hong = true;
+      // Log CI có thể cắt khối stdout dài; luôn in riêng phần cuối chứa lỗi/ngoại lệ.
+      console.log(`\nCHẨN ĐOÁN CUỐI ${nhan} (mã ${r.status}):\n${kq.slice(-14000)}`);
+    }
   };
   chay('v2 · Playground', path.join(goc, 'tests', 'blueprint-kiem-thu.json'), path.join(goc, 'tests', '.ket-qua.txt'));
   // Chuyển đổi (docs/luu-tru/29-chuyen-doi-v2.md): plugin MVP (chỉ còn làm dữ liệu kiểm thử ở tests/chuyen-doi-mvp, T-192) tạo dữ liệu mẫu, rồi V2 thay chỗ trên cùng cơ sở dữ liệu như ngày chuyển
@@ -77,4 +81,5 @@ if (chinh < 24 || (chinh === 24 && phu < 18)) {
   for (const l of mvp?.loi ?? []) console.log(`LỖI      [v2 · chuyển đổi · tạo dữ liệu MVP] ${l}`);
 }
 
-process.exit(hong ? 1 : 0);
+// Để Node xả hết stdout: exit() cắt log dài ngay trước phần lỗi cuối trên CI.
+process.exitCode = hong ? 1 : 0;

@@ -57,6 +57,9 @@ final class GopTuLieu {
 			$gui      = 'loi';
 			$ma       = $loi['ma'];
 		}
+		if ( '' === $loai || in_array( $loai, array( 'tac_pham', 'di_ban' ), true ) ) {
+			return GopMotCau::hien( $bai_id, $gui, $ma, $giu );
+		}
 		$bai  = $bai_id ? get_post( $bai_id ) : null;
 		$bai  = $bai && KhaiBao::TAC_PHAM === $bai->post_type && 'publish' === $bai->post_status ? $bai : null;
 		$loai = isset( self::CHU[ $loai ] ) && ( 'cam_nghi' !== $loai || $bai ) ? $loai : '';
@@ -92,6 +95,7 @@ final class GopTuLieu {
 		}
 		$h .= '</summary><fieldset><legend>Loại đóng góp <span aria-hidden="true">*</span></legend>';
 		foreach ( GopNguoiDoc::LOAI as $ma_loai => [ $nhan, $can_bai ] ) {
+			if ( 'tac_pham' === $ma_loai ) { continue; }
 			// Cách hiểu gửi bằng form nhanh trên trang bài (tầng Hiểu thêm), không qua trang Góp
 			if ( 'cach_hieu' === $ma_loai || ( 'vi_pham' === $ma_loai && 'vi_pham' !== $loai ) || ( $can_bai && ! $bai ) ) {
 				continue;
@@ -159,7 +163,7 @@ final class GopTuLieu {
 		}
 		return '<section class="gop-gon no-print" id="gop" aria-labelledby="gop-tieu-de">'
 			. ( $da_gui ? '<div class="notice success" role="status"><strong>Cảm ơn bạn!</strong> Nội dung đã tới người biên soạn; chỉ hiện sau khi được duyệt.</div>' : '' )
-			. '<h2 id="gop-tieu-de">' . esc_html( sprintf( $hoi, $danh ) ) . '</h2><div class="gop-hang">' . $hang . '</div>'
+			. '<h2 id="gop-tieu-de">' . esc_html( sprintf( $hoi, $danh ) ) . '</h2><div class="gop-hang">' . $hang . '</div><p>' . Ve::lien_ket( 'gop', 'Bạn còn nhớ câu nào khác? Góp một câu', 'btn primary' ) . '</p>'
 			. ( $khac ? '<p class="gop-khac">Góp khác: ' . implode( '<span aria-hidden="true"> · </span>', $khac ) . '</p>' : '' ) . '</section>';
 	}
 }
