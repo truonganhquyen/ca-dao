@@ -24,6 +24,11 @@
 	min-height: 44px;
 	white-space: normal;
 }
+body.pq .phongdao-admin-kho table.pq-ds-bang .phongdao-tp-hanh .button {
+	min-height: 44px;
+	white-space: nowrap;
+	flex-shrink: 0;
+}
 
 /* Chọn nhiều câu (D-099): ô chọn đủ lớn để chạm */
 .phongdao-admin-kho td input[type=checkbox] {
@@ -52,3 +57,29 @@
 .phongdao-dn-phim { margin: 8px 0 0; }
 .phongdao-dn-phim kbd { padding: 0 5px; border: 1px solid var(--pq-vien-dam, #cfcbd9); border-bottom-width: 2px; border-radius: 5px; background: #fff; font-size: 12px; }
 @media (max-width: 782px) { .phongdao-dn-phim { display: none; } }
+
+/* D-122: nhập ngay trong Bài mới; bảng xem trước thành từng mục trên điện thoại. */
+.phongdao-kho-nhap { margin: 14px 0; }
+.phongdao-kho-nhap summary, .phongdao-nhap summary { min-height: 44px; align-content: center; cursor: pointer; }
+.phongdao-kho-nhap details { margin: 12px 0; }
+.phongdao-kho-nhap select, .phongdao-nhap select { max-width: 100%; min-height: 44px; }
+.phongdao-kho-nhap input[type=file] { max-width: 100%; min-height: 44px; }
+.phongdao-nhap .button { min-height: 44px; white-space: normal; }
+.phongdao-nhap-bang { table-layout: fixed; }
+.phongdao-nhap-bang th:first-child { width: 88px; }
+.phongdao-nhap-bang th:last-child { width: 210px; }
+.phongdao-nhap-bang pre { white-space: pre-wrap; overflow-wrap: anywhere; font: 17px/1.6 Literata, Georgia, serif; margin: 0; }
+.phongdao-nhap-bang td p { overflow-wrap: anywhere; }
+.phongdao-nhap-bang td:first-child label { display: inline-flex; align-items: center; min-height: 44px; }
+.phongdao-nhap-bang input[type=checkbox] { width: 24px; height: 24px; }
+.phongdao-nhap-bang select { width: 100%; }
+@media (max-width: 782px) {
+	/* Giữ nút chạm 44 px mà thẻ danh sách không cao thêm trên điện thoại. */
+	body.pq .phongdao-admin-kho table.pq-ds-bang .phongdao-tp-ten { padding-top: 6px; }
+	body.pq .phongdao-admin-kho table.pq-ds-bang .phongdao-tp-lam { padding-bottom: 6px; }
+	.phongdao-nhap-bang, .phongdao-nhap-bang tbody, .phongdao-nhap-bang tr, .phongdao-nhap-bang td { display: block; width: auto; }
+	.phongdao-nhap-bang thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+	.phongdao-nhap-bang tr { border-bottom: 2px solid #c3c4c7; padding: 10px; }
+	.phongdao-nhap-bang td { padding: 6px 0; }
+	.phongdao-nhap-bang select { width: 100%; }
+}

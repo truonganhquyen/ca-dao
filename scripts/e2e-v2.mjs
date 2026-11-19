@@ -12,6 +12,7 @@ import { dangNhap, kiemNode, moPlayground, timChrome } from './lib/playground-v2
 import { kiemTrangSua } from './lib/e2e-trang-sua.mjs';
 import { kiemEditorUrl } from './lib/e2e-editor-url.mjs';
 import { kiemThungRac } from './lib/e2e-thung-rac.mjs';
+import { kiemNhapNguon } from './lib/e2e-nhap-nguon.mjs';
 
 const TEN = 'e2e v2';
 const thamSo = ten => { const i = process.argv.indexOf(ten); return i > 0 ? process.argv[i + 1] : null; };
@@ -1117,7 +1118,7 @@ try {
       chac(await coChu(bt, 'Chờ xem trước') && await bt.$('input[name="giu[]"]'), 'không sang bước xem trước');
       const so = await bt.$$eval('input[name="giu[]"]', os => os.length);
       await bamDoiTrang(bt, 'button[name=lam][value=ap_dung]', { banPhim: true });
-      await doi(bt, () => document.body.innerText.includes('Lô đã chạy xong.'), null, 'lô không chạy xong', 60_000);
+      await doi(bt, () => document.body.innerText.includes('Đã xử lý hết'), null, 'lô không chạy xong', 60_000);
       chac(await coChu(bt, `Thành công ${so}`), `kết quả không ghi ${so} mục thành công`);
       await di(bt, `/wp-admin/admin.php?page=phongdao-hop-viec&tt=cho&loai=${loai[0]}`);
       chac(await coChu(bt, '0 thẻ khớp bộ lọc') || await coChu(bt, 'Không có thẻ phù hợp'), `còn thẻ loại ${loai[0]} ở Chờ sau lô`);
@@ -1137,7 +1138,7 @@ try {
         await bamDoiTrang(bt, '.phongdao-lo-chon [type=submit]');
         chac(await coChu(bt, 'Chờ xem trước'), 'không sang bước xem trước');
         await bamDoiTrang(bt, 'button[name=lam][value=ap_dung]', { banPhim: true });
-        chac(await coChu(bt, 'Lô đã chạy xong.') && await coChu(bt, 'Thành công 1'), `lô ${thaoTac} không thành công`);
+        chac(await coChu(bt, 'Đã xử lý hết') && await coChu(bt, 'Thành công 1'), `lô ${thaoTac} không thành công`);
       };
       await lam('pl_them');
       await di(k, T.cauDo);
@@ -1171,7 +1172,7 @@ try {
       chac(await coChu(bt, moi) && await bt.$('.phongdao-lo-so-sanh ins'), 'không hiện so trước/sau sau khi lưu giá trị');
       chac(await bt.$eval('input[name=duyet]', o => o.checked), 'lưu giá trị xong ô "đã duyệt" mất dấu');
       await bamDoiTrang(bt, 'button[name=lam][value=ap_dung]', { banPhim: true });
-      chac(await coChu(bt, 'Lô đã chạy xong.') && await coChu(bt, 'Thành công 1'), 'lô sửa từng hàng không thành công');
+      chac(await coChu(bt, 'Đã xử lý hết') && await coChu(bt, 'Thành công 1'), 'lô sửa từng hàng không thành công');
       await di(k, T.cauDo);
       // Câu đố: giải nghĩa là "Giải thích đáp án", nằm trong khối "Hiện đáp án" — mở khối như người đọc rồi mới đọc
       await k.$eval('details.answer', d => { d.open = true; }).catch(() => {});
@@ -1207,7 +1208,7 @@ try {
       await bam(bt, '.phongdao-chon-het-o');
       chac(await bt.$$eval('input[name="giu[]"]:checked', os => os.length) === 2 && await nutDang() === 'Đăng 2 câu', 'chọn tất cả ở xem trước mà không đánh dấu lại đủ 2 câu');
       await bamDoiTrang(bt, 'button[name=lam][value=ap_dung]', { banPhim: true });
-      await doi(bt, () => document.body.innerText.includes('Lô đã chạy xong.'), null, 'lô Đăng không chạy xong', 120_000);
+      await doi(bt, () => document.body.innerText.includes('Đã xử lý hết'), null, 'lô Đăng không chạy xong', 120_000);
       chac(await coChu(bt, `Thành công ${so}`), `lô Đăng không đăng đủ ${so} câu`);
       chac(await bt.$('.phongdao-lo-tiep a.button-primary[href*="page=phongdao-kho"]'), 'lô Đăng từ Kho xong mà không có nút "Về Kho"');
       await bt.setViewport({ width: 1280, height: 800 });
@@ -1340,18 +1341,18 @@ try {
       chac(await bt.$('.phongdao-tp-hanh a[href*="phongdao-sua-tac-pham"]') && await bt.$('.phongdao-tp-nhanh a.button'), 'Tác phẩm thiếu Sửa · Xem · Ẩn trên hàng hoặc nút lọc nhanh');
     });
 
-    await thu('wp-admin Bài mới: chọn một câu, Xem trước và đăng → màn kết quả có "Bài vừa đăng" kèm Xem bài · Ẩn nếu nhầm; Ẩn một bấm, người đọc không còn thấy; mỗi hàng có "Đăng" mở thẻ Đăng nhanh', async () => {
+    await thu('wp-admin Bài mới: chọn một câu, Xem trước và đăng → màn kết quả có "Bài vừa đăng" kèm Xem bài · Ẩn nếu nhầm; Ẩn một bấm, người đọc không còn thấy; mỗi hàng có "Xem để đăng" mở thẻ Đăng nhanh', async () => {
       await bt.setViewport({ width: 1280, height: 800 });
       await di(bt, '/wp-admin/admin.php?page=phongdao-kho');
       const dang = await bt.$eval('.phongdao-tp-hanh a.button-primary[href*="xem=nhanh"]', a => a.textContent.trim()).catch(() => '');
-      chac(dang === 'Đăng', 'hàng Bài mới không có nút "Đăng" mở thẻ Đăng nhanh');
+      chac(dang === 'Xem để đăng', 'hàng Bài mới không có nút "Xem để đăng" mở thẻ Đăng nhanh');
       const mot = await bt.$eval('input[name="ids[]"][form=phongdao-kho-lo]', o => o.value).catch(() => '');
       chac(mot, 'Bài mới không còn câu nào để thử đăng');
       await bam(bt, `input[name="ids[]"][value="${mot}"]`);
       await bt.waitForSelector('.phongdao-thanh-noi:not([hidden])', { visible: true, timeout: 15_000 });
       await bamDoiTrang(bt, '.phongdao-thanh-noi button[name=lam][value=dang]');
       await bamDoiTrang(bt, 'button[name=lam][value=ap_dung]', { banPhim: true });
-      await doi(bt, () => document.body.innerText.includes('Lô đã chạy xong.'), null, 'lô đăng một câu không chạy xong', 120_000);
+      await doi(bt, () => document.body.innerText.includes('Đã xử lý hết'), null, 'lô đăng một câu không chạy xong', 120_000);
       chac(await coChu(bt, 'Bài vừa đăng'), 'màn kết quả không có "Bài vừa đăng"');
       const xem = await bt.$eval('.phongdao-lo-lui .phongdao-hv-lui a', a => a.href).catch(() => '');
       chac(xem, 'bài vừa đăng không có lối "Xem bài"');
@@ -1363,6 +1364,7 @@ try {
       const tl2 = await k.goto(xem, { waitUntil: 'load', timeout: 120_000 });
       chac(tl2.status() === 404, `bài đã ẩn mà người đọc vẫn mở được (HTTP ${tl2.status()})`);
     });
+    await kiemNhapNguon({bt,k,di,datO,bamDoiTrang,thu,chac,coChu,doi});
     await thu('phiên phần bài: wp-admin và sửa nhanh chặn bản cũ, giữ chữ, đối chiếu rồi mới lưu tiếp', async () => {
       await di(bt, '/wp-admin/admin.php?page=phongdao-them');
       await datO(bt, '#them-loi', '[UX-TEST] Dòng kỹ thuật kiểm phiên phần bài');

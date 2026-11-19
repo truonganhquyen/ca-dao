@@ -22,6 +22,7 @@ final class TrangLo {
 	public const TRANG = 'phongdao-lo';
 	/** admin-post tạo lô từ màn Kho. */
 	public const TAO_KHO = 'phongdao_lo_tao_kho';
+	public const THU_LAI = 'phongdao_lo_thu_lai';
 	private const MOI_TRANG = 30;
 	/**
 	 * Thao tác Hộp việc làm nhanh từ thanh nổi (T-188): vài thẻ đã đánh dấu trên trang, làm ngay sau hộp xác nhận ngắn, kết
@@ -32,7 +33,7 @@ final class TrangLo {
 	private const TRANG_THAI = array(
 		Viec::LO_XEM  => 'Chờ xem trước',
 		Viec::LO_DANG => 'Đang chạy',
-		Viec::LO_XONG => 'Xong',
+		Viec::LO_XONG => 'Đã xử lý hết',
 		Viec::LO_HUY  => 'Đã dừng',
 	);
 
@@ -41,6 +42,7 @@ final class TrangLo {
 		add_action( 'admin_post_phongdao_lo_lam', array( self::class, 'lam' ) );
 		add_action( 'admin_post_phongdao_lo_tao_bai', array( self::class, 'tao_bai' ) );
 		add_action( 'admin_post_' . self::TAO_KHO, array( self::class, 'tao_kho' ) );
+		add_action( 'admin_post_' . self::THU_LAI, array( self::class, 'nhan_thu_lai' ) );
 	}
 
 	public static function url( int $lo = 0, array $them = array() ): string {
@@ -213,7 +215,9 @@ final class TrangLo {
 				$hien_lo = Viec::lay( $lo );
 				$them = array( 'tu_chay' => 'xoa_vinh_vien' === ( $hien_lo['noi_dung']['thao_tac'] ?? '' ) || empty( $_POST['tu_chay'] ) ? '' : '1' );
 			} else {
-				self::bao( true, 'Lô đã chạy xong.' );
+				$lo_xong = Viec::lay( $lo );
+				$dem = Lo::dem( (array) ( $lo_xong['sau']['ket_qua'] ?? array() ) );
+				self::bao( ! $dem['loi'] && ! $dem['xung_dot'], self::ket_qua_ngan( $lo_xong ) );
 				$them = array();
 			}
 		} elseif ( 'huy' === $lam ) {
@@ -264,6 +268,12 @@ final class TrangLo {
 			return $h . $xem . '</div>';
 		}
 		$dem = Lo::dem( $kq );
+		if ( Viec::LO_XONG === $lo['trang_thai'] ) {
+			$h .= '<div class="notice ' . ( $dem['loi'] || $dem['xung_dot'] ? 'notice-warning' : 'notice-success' ) . '"><p role="status">' . esc_html( self::ket_qua_ngan( $lo ) ) . '</p></div>';
+			if ( $dem['loi'] && in_array( $nd['thao_tac'], array( 'kho_dang', 'cau_moi_dang' ), true ) ) {
+				$h .= '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="' . self::THU_LAI . '"><input type="hidden" name="lo" value="' . (int) $lo['id'] . '"><input type="hidden" name="phien" value="' . (int) $lo['phien'] . '">' . wp_nonce_field( self::THU_LAI . '_' . $lo['id'], '_wpnonce', true, false ) . '<p><button class="button">Xem trước và thử lại ' . $dem['loi'] . ' mục lỗi</button></p></form>';
+			}
+		}
 		$h  .= '<p class="phongdao-tp-tong" role="status">Đã xử lý <strong>' . count( $kq ) . '</strong> / ' . $tong . ' mục: '
 			. esc_html( implode( ' · ', array_map( static fn( string $ma ): string => Lo::KET_QUA[ $ma ] . ' ' . $dem[ $ma ], array_keys( Lo::KET_QUA ) ) ) ) . '.</p>';
 		if ( Viec::LO_DANG === $lo['trang_thai'] ) {
@@ -274,6 +284,23 @@ final class TrangLo {
 				. ( $tu ? '<p class="description" data-chi-js hidden>Đang tự chạy tiếp từng lượt ' . Lo::moi_luot( (string) $nd['thao_tac'] ) . ' mục. <a href="' . esc_url( self::url( (int) $lo['id'] ) ) . '">Dừng tự chạy</a></p>' : '' ) . '</form>';
 		}
 		return $h . self::buoc_tiep( $lo ) . self::ket_qua( $lo ) . '</div>';
+	}
+
+	public static function ket_qua_ngan( array $lo ): string {
+		$d = Lo::dem( (array) ( $lo['sau']['ket_qua'] ?? array() ) );
+		$n = count( $lo['noi_dung']['muc'] );
+		$dang = in_array( $lo['noi_dung']['thao_tac'], array( 'kho_dang', 'cau_moi_dang' ), true );
+		return ( $dang ? 'Đã đăng ' : 'Đã áp dụng ' ) . $d['thanh_cong'] . '/' . $n . ( $dang ? ' bài.' : ' mục.' ) . ' Lỗi ' . $d['loi'] . ' · Xung đột ' . $d['xung_dot'] . ' · Bỏ qua ' . $d['bo_qua'] . '.';
+	}
+
+	public static function nhan_thu_lai(): void {
+		if ( ! current_user_can( 'cadao_soan' ) ) { wp_die( 'Bạn không có quyền thử lại lô.', '', array( 'response' => 403 ) ); }
+		$id = absint( $_POST['lo'] ?? 0 );
+		check_admin_referer( self::THU_LAI . '_' . $id );
+		$kq = Lo::thu_lai( $id, (int) ( $_POST['phien'] ?? -1 ), get_current_user_id() );
+		if ( ! $kq['ok'] ) { self::bao( false, $kq['loi'] ); }
+		wp_safe_redirect( self::url( $kq['ok'] ? $kq['lo'] : $id ) );
+		exit;
 	}
 
 	/** Lô đã chạy xong: chỉ bước tiếp theo (Kho → Hộp việc → Đăng; đã đăng → Tác phẩm). */
@@ -391,7 +418,7 @@ final class TrangLo {
 			$m   = $cau[ $k ] ?? null;
 			if ( $kho ) {
 				$mo   = $m ? Viec::mo( 'kho', $k, UngVien::VIEC ) : array();
-				$hien = ! $m ? 'Không còn câu này' : ( (string) $m->trang_thai !== (string) $ban || (int) $m->post_id ? 'Đã đổi sau lúc xem trước (sẽ báo xung đột)' : ( $mo ? 'Đã có thẻ Câu mới #' . (int) $mo[0]['id'] . ( $dang ? ' (sẽ đăng qua thẻ đó)' : ' (sẽ bỏ qua)' ) : 'Chưa đăng' ) );
+				$hien = ! $m ? 'Không còn câu này' : ( ! Lo::con_phien_kho( $m, (string) $ban ) || (int) $m->post_id ? 'Đã đổi sau lúc xem trước (sẽ báo xung đột)' : ( $mo ? 'Đã có thẻ Câu mới #' . (int) $mo[0]['id'] . ( $dang ? ' (sẽ đăng qua thẻ đó)' : ' (sẽ bỏ qua)' ) : 'Chưa đăng' ) );
 			} else {
 				$v    = $the[ $mid ] ?? null;
 				$hien = ! $v ? 'Không còn thẻ này' : ( ! in_array( $v['trang_thai'], array( Viec::CHO, Viec::DE_SAU ), true ) ? 'Đã được quyết (sẽ bỏ qua)' : ( (int) $v['phien'] !== (int) $ban ? 'Đã đổi sau lúc xem trước (sẽ báo xung đột)' : ( Viec::DE_SAU === $v['trang_thai'] ? 'Để sau' : 'Chờ' ) ) );
@@ -665,7 +692,7 @@ final class TrangLo {
 		}
 		check_admin_referer( self::TAO_KHO );
 		$vao = array();
-		foreach ( array( 'q', 'nguon', 'loai', 'tt', 'the' ) as $k ) {
+		foreach ( array( 'q', 'nguon', 'loai', 'tt', 'the', 'goi_y', 'danh', 'dac', 'lan_nhap' ) as $k ) {
 			$vao[ $k ] = (string) ( $_POST[ 'loc_' . $k ] ?? '' );
 		}
 		$loc     = DanhSachKho::loc_tu( $vao );

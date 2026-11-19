@@ -36,7 +36,7 @@ final class HopViec {
 	 */
 	private static function tiep(): string {
 		$tiep = esc_url_raw( wp_unslash( (string) ( $_POST['tiep'] ?? '' ) ) ); // phpcs:ignore WordPress.Security.NonceVerification -- nonce kiểm ở nơi gọi
-		return '' !== $tiep && str_starts_with( $tiep, admin_url( 'admin.php?page=' . \Phongdao\GiaoTiep\QuanTri\DanhSachViec::TRANG ) ) ? $tiep : '';
+		return '' !== $tiep && str_starts_with( $tiep, admin_url( 'admin.php?page=' . \Phongdao\GiaoTiep\QuanTri\DanhSachViec::TRANG ) ) ? $tiep : \Phongdao\GiaoTiep\QuanTri\NhapKho::ve_tu_the( $tiep, (int) ( $_POST['viec'] ?? 0 ) );
 	}
 
 	public static function nhan_form(): void {

@@ -1,5 +1,7 @@
 # Đăng nhiều câu từ Kho
 
+Nguồn mới từ tệp: làm theo [Nhập nguồn mới vào Kho](nhap-nguon-vao-kho.md). Nhập xong danh sách giữ đúng lần nhập; có thể mở lại từ **Các lần nhập gần đây**.
+
 Chọn câu ở Kho, bấm **Xem trước và đăng**, đọc lại một lượt rồi bấm **Đăng**. Không phải qua Hộp việc. Máy không tự đăng; bài chỉ lên trang khi bạn bấm.
 
 Nút **Xem trước và đăng** chỉ hiện với tài khoản có quyền duyệt. Tài khoản chỉ biên soạn thì dùng **Đưa vào Hộp việc** (xem cuối trang).
@@ -16,7 +18,7 @@ Nút **Xem trước và đăng** chỉ hiện với tài khoản có quyền duy
    Cách chọn này dùng được cả ở Tác phẩm và Hộp việc; ở đó thanh đáy màn có nút **Làm theo lô…**.
 4. Bấm **Xem trước và đăng** (ở khối đầu danh sách hoặc trên thanh đáy màn).
 
-Chỉ muốn đăng một câu: bấm **Xem trước và đăng** ngay trên dòng của câu đó.
+Chỉ muốn đăng một câu: bấm **Xem để đăng** ngay trên dòng của câu đó; **Tiếp tục đăng** nếu câu đã có thẻ Câu mới đang chờ.
 
 Mỗi lần tối đa 2.000 câu. Kho nhiều hơn thì lọc theo nguồn hoặc thể loại rồi làm vài lần.
 
@@ -26,7 +28,7 @@ Mỗi lần tối đa 2.000 câu. Kho nhiều hơn thì lọc theo nguồn hoặ
    - Câu có cờ (có từ thô tục, nghi là câu hiện đại, nguồn ghi cần xem) đã được bỏ dấu sẵn. Đọc lại; muốn đăng thì đánh dấu.
    - Đọc xong mà muốn đăng hết: bấm ô **Chọn tất cả … câu trên trang này** ngay trên bảng (giữ Shift để chọn một dải). Lô dài hơn một trang thì bấm thêm **Đánh dấu cả … câu đang bỏ dấu ở trang khác**. Nút chính đếm lại ngay số câu sẽ đăng. Chưa có gì được đăng cho tới khi bạn bấm nút chính.
    - Câu đang chờ quyết trùng sẽ được bỏ qua. Lúc đăng, máy so trùng lại từng câu; câu vừa thấy có thể trùng cũng được bỏ qua và thành thẻ **Có thể trùng** ở Hộp việc. Quyết thẻ đó trước rồi đăng sau.
-2. Bấm **Đăng … câu**. Máy làm từng lượt 25 câu; để trang mở cho tới khi hiện **Lô đã chạy xong.**
+2. Bấm **Đăng … câu**. Máy làm từng lượt 25 câu; để trang mở cho tới khi hiện **Đã xử lý hết**. Xem số **Đã đăng X/N bài**, lỗi, xung đột và bỏ qua; xử lý hết không có nghĩa là mọi mục đều đã đăng.
 3. Màn kết quả có liên kết tới từng bài vừa đăng và nút **Về Kho** (giữ bộ lọc lúc chọn). Mục **Bài vừa đăng** có **Xem bài · Ẩn nếu nhầm** cho từng bài: lỡ tay thì một bấm là ẩn (lấy lại bằng nút Đăng ở trang sửa bài).
 
 Mỗi câu được đăng giống hệt khi đưa vào Hộp việc rồi bấm Đăng ở thẻ: lời và dị bản chép từ kho, chú thích chỉ chép từ nguồn bật "Chép chú thích". Máy không điền nguồn, không đánh dấu "đã duyệt".

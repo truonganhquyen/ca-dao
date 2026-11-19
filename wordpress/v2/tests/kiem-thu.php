@@ -1452,7 +1452,7 @@ $t_1 = Viec::mo( 'kho', $k1, 'cau_moi' );
 kt( 'Kho: đưa một câu vào Hộp việc tạo đúng một thẻ Câu mới (người chọn, đứng trước câu máy chọn); bấm lại không thêm thẻ', $d_1['ok'] && $d_1['moi'] && $d_2['ok'] && ! $d_2['moi'] && $d_1['viec'] === $d_2['viec'] && 1 === count( $t_1 ) && (string) $ai_ql === $t_1[0]['nguoi_tao'] && UngVien::UU_TIEN_CHON_TAY === $t_1[0]['uu_tien'] && $ai_ql === (int) ( $t_1[0]['noi_dung']['chon_boi'] ?? 0 ) && 'moi' === Kho::lay( $k1 )->trang_thai && 0 === (int) Kho::lay( $k1 )->post_id, array( $d_1, $d_2, $t_1 ) );
 $_GET = array( 'nguon' => 'kho-thu', 'the' => 'co' );
 $h_co = $DSK::hien();
-kt( 'wp-admin Kho: câu đã có thẻ hiện liên kết thẻ, không còn nút; lọc "Đang có thẻ Câu mới"', str_contains( $h_co, '<strong>1</strong> câu khớp' ) && str_contains( $h_co, 'Thẻ Câu mới #' . $d_1['viec'] ) && ! str_contains( $h_co, 'name="id" value="' . $k1 . '"' ) );
+kt( 'wp-admin Kho: câu đã có thẻ hiện liên kết và nút Tiếp tục đăng; lọc "Đang có thẻ Câu mới"', str_contains( $h_co, '<strong>1</strong> câu khớp' ) && str_contains( $h_co, 'Thẻ Câu mới #' . $d_1['viec'] ) && str_contains( $h_co, '>Tiếp tục đăng</a>' ) );
 kt( 'Hộp việc: thẻ Câu mới chọn tay ghi "người chọn từ Kho"', str_contains( \Phongdao\GiaoTiep\BienTap\HopViec::the( Viec::lay( $d_1['viec'] ) ), 'người chọn từ Kho' ) );
 $wpdb->update( $bang_kho, array( 'trang_thai' => 'bo_qua' ), array( 'id' => $kt_ids[1] ) );
 $wpdb->update( $bang_kho, array( 'trang_thai' => 'da_tao_bai', 'post_id' => $tp1 ), array( 'id' => $kt_ids[2] ) );
@@ -1532,7 +1532,7 @@ $h_lo_k  = $DSK::hien();
 $_GET    = array( 'q' => (string) $k1 );
 $h_lo_k1 = $DSK::hien();
 $dem_k   = $DSK::dem_chon( $DSK::loc_tu( array( 'nguon' => 'kho-thu' ) ) );
-kt( 'Kho chọn nhiều: có khối "Đăng hoặc để dành nhiều câu"; ô chọn gắn form lô ở câu đưa vào được, câu đã có thẻ không có ô; đếm đúng câu còn đưa vào được', str_contains( $h_lo_k, 'value="' . $TL::TAO_KHO . '"' ) && str_contains( $h_lo_k, 'Đăng hoặc để dành nhiều câu' ) && str_contains( $h_lo_k, 'name="ids[]" value="' . $kt_ids[1049] . '" form="phongdao-kho-lo"' ) && 30 === preg_match_all( '#name="ids\[\]" value="\d+" form="phongdao-kho-lo"#', $h_lo_k ) && ! str_contains( $h_lo_k1, 'name="ids[]"' ) && 1043 === $dem_k, $dem_k );
+kt( 'Kho chọn nhiều: có khối "Đăng hoặc để dành nhiều câu"; ô chọn gắn form lô ở câu đưa vào được, câu đã có thẻ vẫn chọn để tiếp tục đăng; đếm đúng tập còn xử lý được', str_contains( $h_lo_k, 'value="' . $TL::TAO_KHO . '"' ) && str_contains( $h_lo_k, 'Đăng hoặc để dành nhiều câu' ) && str_contains( $h_lo_k, 'name="ids[]" value="' . $kt_ids[1049] . '" form="phongdao-kho-lo"' ) && 30 === preg_match_all( '#name="ids\[\]" value="\d+" form="phongdao-kho-lo"#', $h_lo_k ) && str_contains( $h_lo_k1, 'name="ids[]"' ) && 1047 === $dem_k, $dem_k );
 add_filter( 'wp_die_handler', $chan_die_kho );
 add_filter( 'wp_redirect', $chan_di_kho );
 $gui_tk = static function ( int $nguoi, array $post, bool $nonce = true ) use ( $TL ): string {
@@ -1640,7 +1640,7 @@ wp_set_current_user( $soan_k );
 $h_kd_s = $DSK::hien();
 wp_set_current_user( $ai_ql );
 $h_kd_q = $DSK::hien();
-kt( 'Kho: người có quyền duyệt có "Xem trước và đăng" ở khối lô và thanh nổi, từng dòng có nút "Đăng" mở thẻ Đăng nhanh đúng câu (D-121); người chỉ biên soạn chỉ có "Đề nghị đăng" (không còn "Đưa vào Hộp việc")', str_contains( $h_kd_q, 'name="lam" value="dang" class="button button-primary">Xem trước và đăng</button>' ) && str_contains( $h_kd_q, '<button type="submit" form="phongdao-kho-lo" name="lam" value="dang" class="button button-primary">Xem trước và đăng</button>' ) && substr_count( $h_kd_q, '">Đăng</a>' ) === preg_match_all( '#name="ids\[\]" value="\d+" form="phongdao-kho-lo"#', $h_kd_q ) && (bool) preg_match( '/xem=nhanh(?:&#038;|&amp;|&)so=\d+/', $h_kd_q ) && ! str_contains( $h_kd_q, 'name="mot"' ) && str_contains( $h_kd_q, '<div class="phongdao-thanh-noi" hidden data-don-vi="câu">' ) && ! str_contains( $h_kd_q, 'class="button button-primary" aria-label="Đưa vào Hộp việc' ) && ! str_contains( $h_kd_s, 'value="dang"' ) && ! str_contains( $h_kd_s, '">Đăng</a>' ) && str_contains( $h_kd_s, '<summary>Đề nghị đăng nhiều câu' ) && str_contains( $h_kd_s, 'name="lam" value="de_danh" class="button button-primary">Đề nghị đăng</button>' ) && ! str_contains( $h_kd_s, 'Đưa vào Hộp việc' ) && ! str_contains( $h_kd_q, '>Đưa vào Hộp việc' ) );
+kt( 'Kho: người có quyền duyệt có "Xem trước và đăng" ở khối lô và thanh nổi, từng dòng có nút xem/tiếp tục đăng mở đúng thẻ Đăng nhanh (D-121); người chỉ biên soạn chỉ có "Đề nghị đăng" (không còn "Đưa vào Hộp việc")', str_contains( $h_kd_q, 'name="lam" value="dang" class="button button-primary">Xem trước và đăng</button>' ) && str_contains( $h_kd_q, '<button type="submit" form="phongdao-kho-lo" name="lam" value="dang" class="button button-primary">Xem trước và đăng</button>' ) && ( substr_count( $h_kd_q, '">Xem để đăng</a>' ) + substr_count( $h_kd_q, '">Tiếp tục đăng</a>' ) ) === preg_match_all( '#name="ids\[\]" value="\d+" form="phongdao-kho-lo"#', $h_kd_q ) && (bool) preg_match( '/xem=nhanh(?:&#038;|&amp;|&)so=\d+/', $h_kd_q ) && ! str_contains( $h_kd_q, 'name="mot"' ) && str_contains( $h_kd_q, '<div class="phongdao-thanh-noi" hidden data-don-vi="câu">' ) && ! str_contains( $h_kd_q, 'class="button button-primary" aria-label="Đưa vào Hộp việc' ) && ! str_contains( $h_kd_s, 'value="dang"' ) && ! str_contains( $h_kd_s, '">Xem để đăng</a>' ) && ! str_contains( $h_kd_s, '">Tiếp tục đăng</a>' ) && str_contains( $h_kd_s, '<summary>Đề nghị đăng nhiều câu' ) && str_contains( $h_kd_s, 'name="lam" value="de_danh" class="button button-primary">Đề nghị đăng</button>' ) && ! str_contains( $h_kd_s, 'Đưa vào Hộp việc' ) && ! str_contains( $h_kd_q, '>Đưa vào Hộp việc' ) );
 // ---------- Bài mới (T-189.3): Để dành / Đề nghị đăng, Máy gợi ý hôm nay, bộ lọc, nhập câu từ tệp ----------
 $DD    = \Phongdao\DichVu\UngVien\DanhDau::class;
 $dd_a  = $kd[0];
@@ -1747,6 +1747,7 @@ foreach ( array( $nt_a, $nt_b, $nt_c, $nt_d, $nt_e ) as $nt_kho ) {
 }
 $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . Kho::bang() . ' WHERE nguon_id = %s', $NT::NGUON ) );
 wp_delete_post( $hs_nt, true );
+require __DIR__ . '/kiem-thu-nhap-nguon.php';
 // Thẻ Câu mới đang mở chuyển về Kho với dấu Để dành (bước nâng cấp 13), không mất câu
 $cm_kq  = UngVien::dua_vao_hop_viec( $kd[1], $soan_k );
 // Các thẻ Câu mới khác của bộ kiểm còn dùng ở sau: cất tạm (giữ trạng thái), chạy bước chuyển, rồi trả lại

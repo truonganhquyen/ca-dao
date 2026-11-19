@@ -48,9 +48,9 @@ final class Kho {
 	 * Lưu (hoặc cập nhật) một mục. Chỉ các trường có trong $muc được ghi; dị bản, chú thích đã đọc từ trang giữ nguyên
 	 * khi API lấy lại. Nguồn sửa bài (ngay_sua_goc đổi) thì đánh dấu đọc lại trang.
 	 *
-	 * @return string 'moi' | 'cap_nhat' | 'giu_nguyen'
+	 * @return string 'moi' | 'cap_nhat' | 'giu_nguyen' | 'loi'
 	 */
-	public static function luu( string $nguon_id, array $muc ): string {
+	public static function luu( string $nguon_id, array $muc, bool $phat_su_kien = true ): string {
 		global $wpdb;
 		$bang   = self::bang();
 		$ma_goc = (string) $muc['ma_goc'];
@@ -68,6 +68,11 @@ final class Kho {
 				$d[ $k ] = (int) $muc[ $k ];
 			}
 		}
+		foreach ( array( 'trang', 'ma_muc', 'nhap_chi_kho', 'nhap_da_quyet', 'nguoi_lam' ) as $k ) {
+			if ( array_key_exists( $k, $muc ) ) {
+				$d[ $k ] = $muc[ $k ];
+			}
+		}
 		$hang = array(
 			'url'          => (string) ( $muc['url'] ?? $cu->url ?? '' ),
 			'loai'         => (string) ( $muc['loai'] ?? $cu->loai ?? '' ),
@@ -82,9 +87,13 @@ final class Kho {
 			$hang['doc_trang'] = ''; // nguồn đã sửa bài: đọc lại trang
 		}
 		if ( ! $cu ) {
-			$wpdb->insert( $bang, $hang + array( 'nguon_id' => $nguon_id, 'ma_goc' => $ma_goc, 'ngay_lay' => current_time( 'mysql' ), 'trang_thai' => 'moi' ) );
+			if ( 1 !== $wpdb->insert( $bang, $hang + array( 'nguon_id' => $nguon_id, 'ma_goc' => $ma_goc, 'ngay_lay' => current_time( 'mysql' ), 'trang_thai' => 'moi' ) ) ) {
+				return 'loi';
+			}
 			/** Sau khi kho có mục mới / đổi: chống trùng, cập nhật tác phẩm tạo từ mục này (DichVu\UngVien). */
-			do_action( 'phongdao_kho_da_luu', (int) $wpdb->insert_id, 'moi' );
+			if ( $phat_su_kien ) {
+				do_action( 'phongdao_kho_da_luu', (int) $wpdb->insert_id, 'moi' );
+			}
 			return 'moi';
 		}
 		$giong = true;
@@ -94,8 +103,12 @@ final class Kho {
 		if ( $giong ) {
 			return 'giu_nguyen';
 		}
-		$wpdb->update( $bang, $hang + array( 'ngay_lay' => current_time( 'mysql' ) ), array( 'id' => $cu->id ) );
-		do_action( 'phongdao_kho_da_luu', (int) $cu->id, 'cap_nhat' );
+		if ( false === $wpdb->update( $bang, $hang + array( 'ngay_lay' => current_time( 'mysql' ) ), array( 'id' => $cu->id ) ) ) {
+			return 'loi';
+		}
+		if ( $phat_su_kien ) {
+			do_action( 'phongdao_kho_da_luu', (int) $cu->id, 'cap_nhat' );
+		}
 		return 'cap_nhat';
 	}
 

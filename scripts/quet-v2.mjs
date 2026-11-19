@@ -218,6 +218,27 @@ try {
     const kq = await bt.evaluate((vung, the) => window.axe.run(vung, { runOnly: { type: 'tag', values: the } }), vung, THE_WCAG);
     for (const v of kq.violations) for (const n of v.nodes.slice(0, 3)) loi.push(`${duong}: [${v.id}] ${v.help} — ${n.target.join(' ')}`);
   }
+  // D-122: form nhập mở, xem trước và biên nhận trong Bài mới; chỉ dữ liệu kỹ thuật trên Playground.
+  await bt.setViewport({width:390,height:900}); // đổi chế độ thiết bị trước khi điền, tránh reload làm mất chữ
+  await bt.goto(G+'/wp-admin/admin.php?page=phongdao-kho&nhap=1',{waitUntil:'load',timeout:120_000});
+  await bt.evaluate(()=>document.querySelectorAll('.phongdao-kho-nhap details').forEach(d=>{d.open=true;}));
+  await bt.$eval('#nhap-chu',e=>{e.value='[UX-TEST-223-AXE] Amber223 maple cedar oak';});
+  await bt.select('#nhap-loai','ca_dao');
+  for (const man of ['form nhập','xem trước nhập','kết quả nhập']) {
+    if(man!=='form nhập') {
+      const nut=man==='xem trước nhập'?'.phongdao-kho-nhap button[type=submit]':'button[name=lam][value=nhap]';
+      await Promise.all([bt.waitForNavigation({waitUntil:'load',timeout:120_000}),bt.click(nut)]);
+    }
+    for(const width of [390,1440]) {
+      await bt.setViewport({width,height:900});
+      await bt.evaluate(()=>document.querySelectorAll('#wpbody-content details').forEach(d=>{d.open=true;}));
+      const tran=await doTran(bt);if(tran)loi.push(`${man} ${width}: tràn ngang ${tran}`);
+      await bt.addScriptTag({content:axeNguon});
+      const kq=await bt.evaluate(the=>window.axe.run('#wpbody-content .wrap',{runOnly:{type:'tag',values:the}}),THE_WCAG);
+      for(const v of kq.violations)for(const n of v.nodes.slice(0,3))loi.push(`${man} ${width}: [${v.id}] ${v.help} — ${n.target.join(' ')}`);
+      if(thuMucAnh)await bt.screenshot({path:path.join(thuMucAnh,`nhap-${man==='form nhập'?'form':man==='xem trước nhập'?'xem':'ket'}-${width}.png`),fullPage:true});
+    }
+  }
   await quetTrangSua({bt,G,axeNguon,THE_WCAG,loi,thuMucAnh,doTran});
   // T-207: thùng rác và xem trước xoá; chỉ tạo lô mẫu, không bấm xoá.
   await bt.goto(G+'/wp-admin/admin.php?page=phongdao-tac-pham&tt=trash&q=Trash%20207',{waitUntil:'load',timeout:120_000});

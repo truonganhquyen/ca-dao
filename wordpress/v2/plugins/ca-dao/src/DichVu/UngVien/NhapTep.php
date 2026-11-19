@@ -4,6 +4,8 @@ namespace Phongdao\DichVu\UngVien;
 
 use Phongdao\HaTang\KhaiBao;
 use Phongdao\KhoLuu\Kho;
+use Phongdao\DichVu\ChongTrung\ChongTrung;
+use Phongdao\MienDuLieu\NguoiLam;
 use Phongdao\MienDuLieu\TheLoai;
 use Phongdao\MienDuLieu\VanTay;
 
@@ -23,10 +25,11 @@ final class NhapTep {
 	public const HANH_DONG = 'phongdao_nhap_tep';
 
 	/** Mỗi lần nhập tối đa. */
-	public const TOI_DA = 500;
+	public const TOI_DA = 400; // mỗi mục hai trường; đủ dưới max_input_vars=1000 của máy chủ
 
 	public static function dang_ky(): void {
 		add_action( 'admin_post_' . self::HANH_DONG, array( self::class, 'nhan_form' ) );
+		\Phongdao\GiaoTiep\QuanTri\NhapKho::dang_ky();
 	}
 
 	/**
@@ -82,67 +85,145 @@ final class NhapTep {
 			$ra['loi'] = 'Hồ sơ nguồn không có.';
 			return $ra;
 		}
-		global $wpdb;
 		foreach ( $cau as $dong ) {
-			$loi    = implode( "\n", $dong );
-			$ma_goc = 'nhap-' . substr( md5( VanTay::chuan_loi( $loi ) ), 0, 16 );
-			$tt     = Kho::luu(
-				self::NGUON,
-				array(
-					'ma_goc'    => $ma_goc,
-					'url'       => '',
-					'loai'      => $loai,
-					'tieu_de'   => mb_substr( $dong[0], 0, 190 ),
-					'loi'       => $loi,
-					'doc_trang' => gmdate( 'Y-m-d' ),
-					'ho_so'     => $ho_so,
-					'nhap_boi'  => $nguoi,
-				)
-			);
-			$id = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM ' . Kho::bang() . ' WHERE nguon_id = %s AND ma_goc = %s', self::NGUON, $ma_goc ) );
-			if ( 'moi' !== $tt ) {
+			$kq = self::nhap_muc( array( 'loi' => implode( "\n", $dong ), 'loai' => $loai ), $ho_so, $nguoi, hash( 'sha256', $chu ) );
+			if ( 'da_co' === $kq['tt'] ) {
 				++$ra['da_co'];
 				continue;
 			}
-			$m = Kho::lay( $id );
-			if ( $m && 'moi' !== $m->trang_thai ) {
-				++$ra['trung']; // máy đã gắn vào bài có sẵn (trùng hẳn)
+			if ( in_array( $kq['tt'], array( 'loi', 'xung_dot' ), true ) ) {
+				$ra['loi'] = $kq['chu'];
+				return $ra;
 			}
+			$ra['trung'] += 'da_gop' === $kq['tt'] ? 1 : 0;
 			++$ra['them'];
-			$ra['ids'][] = $id;
+			$ra['ids'][] = $kq['id'];
 		}
 		$ra['ok'] = true;
 		return $ra;
 	}
 
-	/** Form nhập (Bài mới): kiểm quyền, nonce; đọc chữ dán hoặc tệp chữ ≤ 1 MB; về lại Bài mới kèm lời báo. */
-	public static function nhan_form(): void {
-		if ( ! current_user_can( 'cadao_soan' ) ) {
-			wp_die( 'Bạn không có quyền nhập câu vào Kho.', '', array( 'response' => 403 ) );
+	/** Một mục tư liệu bất biến: cùng nguồn/vị trí mới được dùng lại; vân tay lời không là khoá của mọi nguồn. */
+	public static function nhap_muc( array $muc, int $ho_so, int $nguoi, string $bam_tep, string $nguoi_lam = NguoiLam::NGUOI_VIET, bool $trong_giao_dich = false ): array {
+		global $wpdb;
+		$loi = (string) ( $muc['loi'] ?? '' );
+		$loai = (string) ( $muc['loai'] ?? '' );
+		$url = (string) ( $muc['url'] ?? '' );
+		$trang = (string) ( $muc['trang'] ?? '' );
+		$ma = (string) ( $muc['ma_muc'] ?? '' );
+		$kq = static fn( string $tt, int $id, string $chu ): array => array( 'tt' => $tt, 'id' => $id, 'chu' => $chu );
+		if ( ! user_can( $nguoi, 'cadao_soan' ) || '' === trim( $loi ) || ! isset( TheLoai::TU_LOAI_GOC[ $loai ] ) || ( $ho_so && KhaiBao::HO_SO_NGUON !== get_post_type( $ho_so ) ) || ! in_array( $nguoi_lam, array( NguoiLam::NGUOI_VIET, NguoiLam::MAY_CHEP ), true ) ) {
+			return $kq( 'loi', 0, 'Kiểm lại quyền, lời, thể loại và hồ sơ nguồn.' );
 		}
-		check_admin_referer( self::HANH_DONG );
-		$chu = (string) wp_unslash( $_POST['chu'] ?? '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- chữ người gõ, chỉ tách dòng, không hiện ra HTML thô
-		$tep = $_FILES['tep'] ?? null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-		if ( is_array( $tep ) && UPLOAD_ERR_OK === (int) ( $tep['error'] ?? UPLOAD_ERR_NO_FILE ) && is_uploaded_file( (string) $tep['tmp_name'] ) ) {
-			$noi = (int) $tep['size'] <= MB_IN_BYTES ? (string) file_get_contents( (string) $tep['tmp_name'] ) : ''; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- tệp tạm vừa tải lên
-			if ( '' !== $noi && mb_check_encoding( $noi, 'UTF-8' ) ) {
-				$chu = trim( $chu . "\n\n" . $noi );
-			} else {
-				self::bao( false, 'Tệp phải là tệp chữ UTF-8 (.txt), tối đa 1 MB.' );
+		if ( ( '' !== $url && ( ! preg_match( '#^https?://#i', $url ) || $url !== esc_url_raw( $url ) ) ) || mb_strlen( $trang ) > 80 || mb_strlen( $ma ) > 120 ) {
+			return $kq( 'loi', 0, 'Trang, mã mục hoặc URL chưa hợp lệ.' );
+		}
+		if ( NguoiLam::MAY_CHEP === $nguoi_lam && '' === $url ) {
+			return $kq( 'loi', 0, 'Lời máy trích cần URL trang nguồn do người nhập cung cấp.' );
+		}
+		$vi_tri = '' !== $ma ? array( 'ma' => $ma ) : array( 'loi' => $loi, 'trang' => $trang, 'url' => $url );
+		$key = 'tep-' . substr( hash( 'sha256', wp_json_encode( array( $ho_so, $ho_so ? '' : $bam_tep, $nguoi_lam, $vi_tri ) ) ), 0, 56 );
+		if ( false === $wpdb->query( $trong_giao_dich ? 'SAVEPOINT phongdao_nhap_muc' : 'START TRANSACTION' ) ) {
+			return $kq( 'loi', 0, 'Chưa mở được lượt nhập. Thử lại sau.' );
+		}
+		try {
+			$cu = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . Kho::bang() . ' WHERE nguon_id = %s AND ma_goc = %s', self::NGUON, $key ) );
+			// Tương thích mục cũ: chỉ dùng lại nếu lời và hồ sơ thật sự giống, không ghi đè hàng cũ.
+			if ( ! $cu && $ho_so && '' === $ma && '' === $trang && '' === $url && NguoiLam::NGUOI_VIET === $nguoi_lam ) {
+				$old = 'nhap-' . substr( md5( VanTay::chuan_loi( $loi ) ), 0, 16 );
+				$ung = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . Kho::bang() . ' WHERE nguon_id = %s AND ma_goc = %s', self::NGUON, $old ) );
+				if ( $ung && $loi === $ung->loi && $ho_so === (int) ( Kho::du_lieu( $ung )['ho_so'] ?? 0 ) ) {
+					$cu = $ung;
+				}
 			}
+			if ( $cu ) {
+				$d = Kho::du_lieu( $cu );
+				$giong = $loi === $cu->loi && $loai === $cu->loai && $url === $cu->url && $ho_so === (int) ( $d['ho_so'] ?? 0 ) && $trang === (string) ( $d['trang'] ?? '' );
+				$wpdb->query( $trong_giao_dich ? 'ROLLBACK TO SAVEPOINT phongdao_nhap_muc' : 'ROLLBACK' );
+				if ( $trong_giao_dich ) { $wpdb->query( 'RELEASE SAVEPOINT phongdao_nhap_muc' ); }
+				return $kq( $giong ? 'da_co' : 'xung_dot', (int) $cu->id, $giong ? 'Đã có từ lần nhập trước; giữ nguyên mục cũ.' : 'Mã mục đã có nhưng lời, thể loại hoặc vị trí nguồn đã đổi. Mục cũ được giữ nguyên.' );
+			}
+			$tt = Kho::luu( self::NGUON, array( 'ma_goc' => $key, 'url' => $url, 'loai' => $loai, 'tieu_de' => mb_substr( (string) strtok( $loi, "\n" ), 0, 190 ), 'loi' => $loi, 'doc_trang' => '', 'ho_so' => $ho_so, 'nhap_boi' => $nguoi, 'trang' => $trang, 'ma_muc' => $ma, 'nhap_chi_kho' => true, 'nguoi_lam' => $nguoi_lam ), false );
+			$id = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM ' . Kho::bang() . ' WHERE nguon_id = %s AND ma_goc = %s', self::NGUON, $key ) );
+			if ( 'moi' !== $tt || ! $id || ! ChongTrung::van_tay_kho( $id ) ) {
+				throw new \RuntimeException( 'Chưa ghi được mục và chỉ mục so trùng. Thử lại sau.' );
+			}
+			$trung = ChongTrung::kiem_kho( $id, true );
+			if ( 'loi' === $trung ) {
+				throw new \RuntimeException( 'Chưa ghi được quan hệ so trùng. Thử lại sau.' );
+			}
+			if ( false === $wpdb->query( $trong_giao_dich ? 'RELEASE SAVEPOINT phongdao_nhap_muc' : 'COMMIT' ) ) {
+				throw new \RuntimeException( 'Chưa chốt được lượt nhập. Thử lại sau.' );
+			}
+			return $kq( 'da_gop' === $trung ? 'da_gop' : ( 'cho_quyet' === $trung ? 'nghi_trung' : 'moi' ), $id, 'da_gop' === $trung ? 'Đã có lời khớp; chứng cứ nguồn giữ trong Kho, chưa đổi bài cũ.' : ( 'cho_quyet' === $trung ? 'Đã vào Kho; cần xem đối chiếu.' : 'Đã vào Kho, chưa đăng.' ) );
+		} catch ( \Throwable $e ) {
+			if ( false === $wpdb->query( $trong_giao_dich ? 'ROLLBACK TO SAVEPOINT phongdao_nhap_muc' : 'ROLLBACK' ) && $trong_giao_dich ) {
+				throw new \RuntimeException( 'Giao dịch bị ngắt; dừng lượt nhập để đối soát, không xử lý tiếp các mục khác.' );
+			}
+			if ( $trong_giao_dich && false === $wpdb->query( 'RELEASE SAVEPOINT phongdao_nhap_muc' ) ) {
+				throw new \RuntimeException( 'Chưa khép được lượt ghi mục; dừng lượt nhập để đối soát.' );
+			}
+			return $kq( 'loi', 0, 'Chưa ghi được mục vào Kho; dữ liệu cũ giữ nguyên. Thử lại sau.' );
 		}
-		$kq = self::nhap( $chu, absint( $_POST['ho_so'] ?? 0 ), sanitize_key( (string) ( $_POST['loai'] ?? '' ) ), get_current_user_id() );
-		self::bao(
-			$kq['ok'],
-			$kq['ok']
-				? 'Đã đưa ' . $kq['them'] . ' câu vào Kho (chưa đăng câu nào)' . ( $kq['da_co'] ? '; ' . $kq['da_co'] . ' câu đã có từ lần nhập trước, bỏ qua' : '' ) . ( $kq['trung'] ? '; ' . $kq['trung'] . ' câu trùng hẳn bài đã có, máy đã gắn vào bài đó' : '' ) . '. Câu máy thấy có thể trùng thành thẻ "Có thể trùng" ở Hộp việc.'
-				: $kq['loi']
-		);
-		wp_safe_redirect( add_query_arg( array( 'page' => \Phongdao\GiaoTiep\QuanTri\DanhSachKho::TRANG, 'nguon' => self::NGUON ), admin_url( 'admin.php' ) ) );
-		exit;
 	}
 
-	private static function bao( bool $ok, string $chu ): void {
-		set_transient( 'phongdao_kho_bao_' . get_current_user_id(), array( 'ok' => $ok, 'chu' => $chu, 'viec' => 0 ), MINUTE_IN_SECONDS );
+	/** Đọc TXT hoặc CSV mẫu cố định, chỉ phân tích, không ghi Kho. Lời CSV giữ cả dòng trống/ngắt khổ. */
+	public static function doi_chieu( array $muc ): array {
+		global $wpdb;
+		$vt = array_map( static fn( array $m ): array => VanTay::cua( (string) $m['loi'] ), $muc );
+		if ( ! $vt ) { return array(); }
+		$a = array_values( array_unique( array_column( $vt, 'vt1' ) ) );
+		$b = array_values( array_unique( array_column( $vt, 'vt2' ) ) );
+		$sql = 'SELECT vt1, vt2 FROM ' . ChongTrung::bang( 'van_tay' ) . ' WHERE vt1 IN (' . implode( ',', array_fill( 0, count( $a ), '%s' ) ) . ') OR vt2 IN (' . implode( ',', array_fill( 0, count( $b ), '%s' ) ) . ') LIMIT 2000';
+		$ds = $wpdb->get_results( $wpdb->prepare( $sql, array_merge( $a, $b ) ), ARRAY_A ) ?: array();
+		$co1 = array_flip( array_column( $ds, 'vt1' ) );
+		$co2 = array_flip( array_column( $ds, 'vt2' ) );
+		return array_map( static fn( array $v ): string => isset( $co1[ $v['vt1'] ] ) ? 'Có lời khớp trong Kho/thư viện; kiểm lại khi nhập.' : ( isset( $co2[ $v['vt2'] ] ) ? 'Có lời gần khớp nhưng khác dấu; cần đối chiếu.' : 'Sẽ kiểm thêm lời gần giống khi nhập.' ), $vt );
+	}
+
+	/** Đọc TXT hoặc CSV mẫu cố định, chỉ phân tích, không ghi Kho. Lời CSV giữ cả dòng trống/ngắt khổ. */
+	public static function doc( string $chu, string $kieu, string $loai = '' ): array {
+		if ( strlen( $chu ) > 1048576 || ! mb_check_encoding( $chu, 'UTF-8' ) || '' === trim( $chu ) ) {
+			return array( 'ok' => false, 'muc' => array(), 'loi' => 'Cần tệp chữ UTF-8, tối đa 1 MB, có lời để nhập.' );
+		}
+		$chu = (string) preg_replace( '/^\x{FEFF}/u', '', str_replace( array( "\r\n", "\r" ), "\n", $chu ) );
+		$muc = array();
+		if ( 'txt' === $kieu ) {
+			foreach ( self::tach( $chu ) as $dong ) {
+				$muc[] = array( 'loi' => implode( "\n", $dong ), 'loai' => $loai, 'ma_muc' => '', 'trang' => '', 'url' => '' );
+			}
+		} elseif ( 'csv' === $kieu ) {
+			$f = fopen( 'php://temp', 'r+' );
+			fwrite( $f, $chu );
+			rewind( $f );
+			$cols = fgetcsv( $f, 0, ',', '"', '' );
+			if ( ! is_array( $cols ) || ! in_array( 'loi', $cols, true ) || count( $cols ) !== count( array_unique( $cols ) ) || array_diff( $cols, array( 'ma_muc', 'loi', 'the_loai', 'trang', 'url' ) ) ) {
+				fclose( $f );
+				return array( 'ok' => false, 'muc' => array(), 'loi' => 'CSV cần cột loi; các cột tuỳ chọn: ma_muc, the_loai, trang, url. Dùng dấu phẩy và mẫu tải ở đây.' );
+			}
+			while ( false !== ( $row = fgetcsv( $f, 0, ',', '"', '' ) ) ) {
+				if ( array( null ) === $row ) { continue; }
+				if ( count( $cols ) !== count( $row ) ) {
+					fclose( $f );
+					return array( 'ok' => false, 'muc' => array(), 'loi' => 'Số cột CSV không khớp. Ô lời nhiều dòng phải nằm trong dấu ngoặc kép.' );
+				}
+				$r = array_combine( $cols, $row );
+				$tl = trim( (string) ( $r['the_loai'] ?? '' ) ) ?: $loai;
+				$tl = array_search( $tl, TheLoai::DS, true ) ?: $tl;
+				$tl = array_search( $tl, TheLoai::TU_LOAI_GOC, true ) ?: $tl;
+				$muc[] = array( 'loi' => \Normalizer::normalize( (string) $r['loi'], \Normalizer::FORM_C ), 'loai' => $tl, 'ma_muc' => trim( (string) ( $r['ma_muc'] ?? '' ) ), 'trang' => trim( (string) ( $r['trang'] ?? '' ) ), 'url' => trim( (string) ( $r['url'] ?? '' ) ) );
+				if ( count( $muc ) > self::TOI_DA ) { break; }
+			}
+			fclose( $f );
+		} else {
+			return array( 'ok' => false, 'muc' => array(), 'loi' => 'Chọn tệp TXT hoặc CSV.' );
+		}
+		$ok = count( $muc ) > 0 && count( $muc ) <= self::TOI_DA;
+		return array( 'ok' => $ok, 'muc' => $ok ? $muc : array(), 'loi' => $ok ? '' : 'Một lần nhập từ 1 đến ' . self::TOI_DA . ' mục. Chia nhỏ tệp rồi nhập lại.' );
+	}
+
+	/** Form nhập (Bài mới): kiểm quyền, nonce; đọc chữ dán hoặc tệp chữ ≤ 1 MB; về lại Bài mới kèm lời báo. */
+	public static function nhan_form(): void {
+		\Phongdao\GiaoTiep\QuanTri\NhapKho::nhan_form();
 	}
 }
