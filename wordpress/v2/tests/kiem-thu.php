@@ -1689,6 +1689,62 @@ $m_nt   = Kho::lay( $nt_1['ids'][0] ?? 0 );
 $p_nt   = $m_nt ? UngVien::phan_tu_kho( $m_nt ) : array();
 kt( 'Nhập câu từ tệp: tách câu theo dòng trống (giữ từng dòng, bỏ BOM), vào Kho nguồn "Nhập từ tệp" kèm hồ sơ người chọn; không tạo bài nào; nhập lại thì bỏ qua câu đã có; chữ rỗng thì báo', array( array( 'Zeta eta theta iota', 'Kappa lambda mu nu' ), array( 'Xi omicron pi rho', 'Sigma tau upsilon phi' ) ) === $tach && $nt_1['ok'] && 2 === $nt_1['them'] && 0 === $nt_2['them'] && 2 === $nt_2['da_co'] && ! $nt_sai['ok'] && $m_nt && $NT::NGUON === $m_nt->nguon_id && 'moi' === $m_nt->trang_thai && "Zeta eta theta iota\nKappa lambda mu nu" === $m_nt->loi && $hs_nt === (int) ( Kho::du_lieu( $m_nt )['ho_so'] ?? 0 ) && $bai_0 === (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s", KhaiBao::TAC_PHAM ) ) && 'Nhập từ tệp' === NguonTuDong::ten( $NT::NGUON ), array( $tach, $nt_1, $nt_2 ) );
 kt( 'Nhập câu từ tệp: khi đăng, lời là chữ người gõ (người viết, không phải máy chép), nguồn đúng hồ sơ người chọn — máy không tự điền', NguoiLam::NGUOI_VIET === ( $p_nt['loi']['nguoi_lam'] ?? '' ) && $hs_nt === (int) ( $p_nt['loi']['nguon']['ho_so'] ?? 0 ) && ! isset( $p_nt['chu_thich'] ), $p_nt );
+
+// T-221: đi hết đường Đăng, không chỉ kiểm hình dạng phan_tu_kho (trước đây GOI_MAY từ chối nguoi_viet).
+$nt_them = static function ( string $chu, string $loai = 'ca_dao' ) use ( $NT, $hs_nt, $ai_ql ): int {
+	$r = $NT::nhap( $chu, $hs_nt, $loai, $ai_ql );
+	return (int) ( $r['ids'][0] ?? 0 );
+};
+$nt_dem_bai = static fn(): int => (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s", KhaiBao::TAC_PHAM ) );
+$nt_kiem_loi = static function ( int $kho, string $chu ) use ( $hs_nt ): bool {
+	$m = Kho::lay( $kho );
+	$p = PhanBai::lay( (int) ( $m->post_id ?? 0 ), 'loi' );
+	return $m && 'da_tao_bai' === $m->trang_thai && 'publish' === get_post_status( (int) $m->post_id )
+		&& explode( "\n", $chu ) === ( $p['dong'] ?? null ) && NguoiLam::NGUOI_VIET === ( $p['nguoi_lam'] ?? '' )
+		&& $hs_nt === (int) ( $p['nguon']['ho_so'] ?? 0 ) && ! isset( $p['ai'] ) && ! isset( $p['duyet_boi'] );
+};
+$nt_chu_a = "FileflowA ash birch cedar date\nFileflowA elm fir gum hazel";
+$nt_a = $nt_them( $nt_chu_a );
+$nt_the_a = UngVien::dua_vao_hop_viec( $nt_a, $ai_ql );
+$nt_truoc_a = $nt_dem_bai();
+$nt_dang_a = QuyetViec::quyet( (int) $nt_the_a['viec'], 'dang', $ai_ql, true, 0 );
+kt( 'Tệp → Hộp việc → Đăng: tạo đúng một bài, nguyên các dòng, người nhập và hồ sơ nguồn; đóng thẻ', $nt_dang_a['ok'] && $nt_dem_bai() === $nt_truoc_a + 1 && $nt_kiem_loi( $nt_a, $nt_chu_a ) && Viec::XONG === Viec::lay( (int) $nt_the_a['viec'] )['trang_thai'], $nt_dang_a );
+$nt_lap_a = QuyetViec::quyet( (int) $nt_the_a['viec'], 'dang', $ai_ql, true, 0 );
+kt( 'Đăng lại thẻ tệp đã xong không tạo bài hoặc thẻ trùng', ! $nt_lap_a['ok'] && $nt_dem_bai() === $nt_truoc_a + 1 && ! Viec::mo( 'kho', $nt_a, 'cau_moi' ), $nt_lap_a );
+$nt_chu_b = "FileflowB iris jade kelp lime\nFileflowB mint nettle oak pine";
+$nt_b = $nt_them( $nt_chu_b, 'thanh_ngu_tuc_ngu' );
+$nt_the_b = UngVien::dua_vao_hop_viec( $nt_b, $ai_ql );
+$nt_khong_quyen = QuyetViec::quyet( (int) $nt_the_b['viec'], 'dang', $soan_k, false, 0 );
+$nt_nhanh_b = $LOK::dang_mot_kho( $nt_b, 'moi', $ai_ql );
+kt( 'Đăng nhanh tệp dùng lại thẻ đang chờ; chỉ người có quyền duyệt đăng được, giữ thể loại', ! $nt_khong_quyen['ok'] && 'thanh_cong' === $nt_nhanh_b[0] && $nt_kiem_loi( $nt_b, $nt_chu_b ) && has_term( 'tuc-ngu', KhaiBao::THE_LOAI, (int) Kho::lay( $nt_b )->post_id ) && Viec::XONG === Viec::lay( (int) $nt_the_b['viec'] )['trang_thai'], array( $nt_khong_quyen, $nt_nhanh_b ) );
+$nt_chu_c = "FileflowC quartz ruby sapphire topaz\nFileflowC umber violet wenge xenon";
+$nt_c = $nt_them( $nt_chu_c );
+$nt_lo_c = $LOK::tao( 'kho_dang', array( $nt_c ), 'chon', array( 'nguon' => $NT::NGUON ), $ai_ql );
+$nt_ap_c = $LOK::ap_dung( (int) $nt_lo_c['lo'], $ai_ql, true );
+kt( 'Đăng theo lô từ tệp đi hết đến bài công khai, giữ người nhập và nguồn; kết quả Thành công', $nt_ap_c['ok'] && 1 === $nt_ap_c['dem']['thanh_cong'] && 0 === $nt_ap_c['dem']['loi'] && $nt_kiem_loi( $nt_c, $nt_chu_c ), $nt_ap_c );
+$nt_chu_e = "FileflowE azalea buttercup chamomile daffodil\nFileflowE echinacea freesia gardenia hibiscus";
+$nt_e = $nt_them( $nt_chu_e );
+$nt_the_e = UngVien::dua_vao_hop_viec( $nt_e, $ai_ql );
+$nt_lo_e = $LOK::tao( 'cau_moi_dang', array( (int) $nt_the_e['viec'] ), 'chon', array( 'loai' => 'cau_moi', 'tt' => 'cho' ), $ai_ql );
+$nt_ap_e = $LOK::ap_dung( (int) $nt_lo_e['lo'], $ai_ql, true );
+kt( 'Đăng lô từ các thẻ tệp đã chờ trong Hộp việc: tạo bài và đóng đúng thẻ cũ', $nt_ap_e['ok'] && 1 === $nt_ap_e['dem']['thanh_cong'] && 0 === $nt_ap_e['dem']['loi'] && $nt_kiem_loi( $nt_e, $nt_chu_e ) && Viec::XONG === Viec::lay( (int) $nt_the_e['viec'] )['trang_thai'], $nt_ap_e );
+$nt_chu_d = "FileflowD violet willow xylem yellow\nFileflowD zephyr acacia bamboo cypress";
+$nt_d = $nt_them( $nt_chu_d );
+$nt_the_d = UngVien::dua_vao_hop_viec( $nt_d, $ai_ql );
+$nt_truoc_d = $nt_dem_bai();
+$nt_chan_ghi = static function ( $kiem, $bai, $khoa ) { return \Phongdao\MienDuLieu\Phan::khoa( 'loi' ) === $khoa ? false : $kiem; };
+add_filter( 'update_post_metadata', $nt_chan_ghi, 10, 3 );
+$nt_hong_d = QuyetViec::quyet( (int) $nt_the_d['viec'], 'dang', $ai_ql, true, 0 );
+remove_filter( 'update_post_metadata', $nt_chan_ghi, 10 );
+kt( 'Ghi lời tệp thất bại: huỷ bài mới, giữ nguyên câu kho và thẻ Chờ để thử lại', ! $nt_hong_d['ok'] && $nt_truoc_d === $nt_dem_bai() && 'moi' === Kho::lay( $nt_d )->trang_thai && 0 === (int) Kho::lay( $nt_d )->post_id && Viec::CHO === Viec::lay( (int) $nt_the_d['viec'] )['trang_thai'] && 0 === Viec::lay( (int) $nt_the_d['viec'] )['phien'], $nt_hong_d );
+$nt_thu_lai_d = QuyetViec::quyet( (int) $nt_the_d['viec'], 'dang', $ai_ql, true, 0 );
+kt( 'Thử Đăng lại sau lỗi ghi tệp: thành công đúng một bài, lời và hồ sơ nguồn còn nguyên', $nt_thu_lai_d['ok'] && $nt_dem_bai() === $nt_truoc_d + 1 && $nt_kiem_loi( $nt_d, $nt_chu_d ), $nt_thu_lai_d );
+[ , $nt_loi_may ] = KiemPhan::kiem( 'loi', $p_nt['loi'], array( 'loai_bai' => 'tac_pham', 'the_loai' => 'ca-dao', 'goi' => KiemPhan::GOI_MAY ) );
+kt( 'Sửa đường đăng tệp không nới lằn ranh: ngữ cảnh máy vẫn không được ghi lời người nhập', in_array( 'loi: máy chỉ ghi phần máy chép.', $nt_loi_may, true ), $nt_loi_may );
+foreach ( array( $nt_a, $nt_b, $nt_c, $nt_d, $nt_e ) as $nt_kho ) {
+	$nt_bai = (int) ( Kho::lay( $nt_kho )->post_id ?? 0 );
+	if ( $nt_bai ) { wp_delete_post( $nt_bai, true ); }
+}
 $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . Kho::bang() . ' WHERE nguon_id = %s', $NT::NGUON ) );
 wp_delete_post( $hs_nt, true );
 // Thẻ Câu mới đang mở chuyển về Kho với dấu Để dành (bước nâng cấp 13), không mất câu

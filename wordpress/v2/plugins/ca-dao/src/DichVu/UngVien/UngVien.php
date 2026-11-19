@@ -367,7 +367,10 @@ final class UngVien implements Module {
 		}
 		$loi = array();
 		foreach ( self::phan_tu_kho( $m ) as $phan => $gia_tri ) {
-			$kq  = LuuPhan::luu( $id, $phan, $gia_tri, array( 'nguoi' => (int) $nc['nguoi'], 'goi' => KiemPhan::GOI_MAY ) );
+			// Lời từ tệp là chữ người nhập, không phải máy chép. Người đang bấm Đăng lưu phần này bằng ngữ cảnh
+			// người; các phần máy thu (kể cả nguon_may) vẫn qua đầy đủ lằn ranh GOI_MAY.
+			$goi = NhapTep::NGUON === (string) $m->nguon_id && 'loi' === $phan ? KiemPhan::GOI_NGUOI : KiemPhan::GOI_MAY;
+			$kq  = LuuPhan::luu( $id, $phan, $gia_tri, array( 'nguoi' => (int) $nc['nguoi'], 'goi' => $goi ) );
 			$loi = array_merge( $loi, $kq['loi'] );
 		}
 		if ( $loi ) { // lời không lưu được thì không đăng; bài nháp giữ để người xem
