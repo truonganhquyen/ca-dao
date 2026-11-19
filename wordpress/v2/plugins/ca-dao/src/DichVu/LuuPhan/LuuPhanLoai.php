@@ -70,7 +70,7 @@ final class LuuPhanLoai {
 	 * @param int[] $da_thay tập mục màn hình đã thấy lúc mở
 	 * @return array{ok:bool,loi:string[],doi:bool,viec:int}
 	 */
-	public static function luu( int $bai_id, string $tax, array $chon, array $da_thay, int $nguoi, string $quyet = 'luu', int $tu_viec = 0 ): array {
+	public static function luu( int $bai_id, string $tax, array $chon, array $da_thay, int $nguoi, string $quyet = 'luu', int $tu_viec = 0, bool $trong_giao_dich = false ): array {
 		global $wpdb;
 		$bai = get_post( $bai_id );
 		if ( ! $bai || KhaiBao::TAC_PHAM !== $bai->post_type || 'trash' === $bai->post_status ) {
@@ -89,7 +89,7 @@ final class LuuPhanLoai {
 				return self::hong( "Mục #{$id} không có trong bộ {$ten}. Màn này chỉ chọn mục có sẵn, không tạo mục mới." );
 			}
 		}
-		if ( false === $wpdb->query( 'START TRANSACTION' ) ) {
+		if ( ! $trong_giao_dich && false === $wpdb->query( 'START TRANSACTION' ) ) {
 			return self::hong( 'Chưa mở được lượt lưu. Thử lại sau.' );
 		}
 		try {
@@ -105,7 +105,7 @@ final class LuuPhanLoai {
 				throw new \RuntimeException( "{$ten} của bài vừa được đổi ở nơi khác. Tải lại trang để xem bản mới rồi sửa tiếp." );
 			}
 			if ( $chon === $hien_tai ) {
-				$wpdb->query( 'ROLLBACK' );
+				if ( ! $trong_giao_dich ) { $wpdb->query( 'ROLLBACK' ); }
 				return self::xong( false, 0 );
 			}
 			$giu = array();
@@ -136,11 +136,11 @@ final class LuuPhanLoai {
 				throw new \RuntimeException( 'Không ghi được nhật ký nên chưa lưu. Thử lại sau.' );
 			}
 			$gan = wp_set_object_terms( $bai->ID, array_merge( $chon, $giu ), $tax, false );
-			if ( is_wp_error( $gan ) || self::dang_gan( $bai->ID, $tax ) !== $chon || false === $wpdb->query( 'COMMIT' ) ) {
+			if ( is_wp_error( $gan ) || self::dang_gan( $bai->ID, $tax ) !== $chon || ( ! $trong_giao_dich && false === $wpdb->query( 'COMMIT' ) ) ) {
 				throw new \RuntimeException( 'Chưa lưu được phân loại; mọi thay đổi đã được huỷ.' );
 			}
 		} catch ( \Throwable $e ) {
-			$wpdb->query( 'ROLLBACK' );
+			if ( ! $trong_giao_dich ) { $wpdb->query( 'ROLLBACK' ); }
 			clean_post_cache( $bai->ID );
 			clean_object_term_cache( $bai->ID, $bai->post_type );
 			return self::hong( $e instanceof \RuntimeException ? $e->getMessage() : 'Chưa lưu được phân loại; mọi thay đổi đã được huỷ.' );

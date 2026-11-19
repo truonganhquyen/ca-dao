@@ -34,6 +34,7 @@ final class TamSua {
 		'chuyen_quanh' => array( 'Sửa chuyện quanh bài', 'chuyen_quanh' ),
 		'gan_nghia'   => array( 'Câu gần nghĩa · trái nghĩa', 'gan_nghia' ),
 		'di_ban'      => array( 'Sửa dị bản', 'di_ban' ),
+		'dong_gop'    => array( 'Ghi công và nguồn bạn đọc', 'ghi_cong' ),
 		'boi_canh'    => array( 'Bối cảnh của bài vè', 'boi_canh' ),
 		'doan'        => array( 'Chia đoạn', 'doan' ),
 	);
@@ -102,6 +103,7 @@ final class TamSua {
 		$kieu = self::TAM[ $phan ][1];
 		$rich = ! empty( $ctx['sua_day_du'] ) && null !== \Phongdao\MienDuLieu\DinhDang::truong( $phan ) ? ( $cu ?? array() ) : null;
 		return match ( $kieu ) {
+			'ghi_cong'  => self::form_ghi_cong( $cu ),
 			'media'     => AnhMinhHoa::form( $cu ),
 			'loi'       => self::form_loi( $cu, $ctx ),
 			'y_nghia'   => self::form_y_nghia( $cu, $ctx ),
@@ -118,6 +120,18 @@ final class TamSua {
 				. self::nguon( 's-bc', 'nguon', $cu['nguon'] ?? array(), $ctx ) . '<p class="small muted">Để trống hết = gỡ bối cảnh.</p>',
 			'doan'      => self::form_doan( $cu, $ctx ),
 		};
+	}
+
+	private static function form_ghi_cong( ?array $cu ): string {
+		$o = '<p class="small muted">Nguồn vẫn mang nhãn chưa đối chiếu. Có thể ẩn bút danh, sửa nguồn công khai hoặc gỡ dòng ghi công; bản gửi riêng tư và lịch sử được giữ. Không chuyển chứng cứ sang lời khác.</p>';
+		foreach ( $cu['muc'] ?? array() as $i => $m ) {
+			$id = 'gop-credit-' . $i; $p = 'muc[' . $i . ']';
+			$o .= '<fieldset><legend>' . esc_html( ( 'loi' === $m['phan'] ? 'Lời chính' : 'Dị bản' ) . ' · ' . ( $m['ten'] ?: 'Bạn đọc ẩn danh' ) ) . '</legend>'
+				. self::vung( $id . '-nguon', $p . '[xuat_xu]', 'Nguồn công khai — không ghi thông tin cá nhân', $m['xuat_xu'] ?? '', '', 2 )
+				. ( empty( $m['ten'] ) ? '' : self::hop( $id . '-ten', $p . '[an_ten]', 'Ẩn bút danh trên dòng này', false ) )
+				. self::hop( $id . '-xoa', $p . '[xoa]', 'Gỡ dòng ghi công khỏi trang đọc', false ) . '</fieldset>';
+		}
+		return $o;
 	}
 
 	private static function form_loi( ?array $cu, array $ctx ): string {
@@ -341,6 +355,16 @@ final class TamSua {
 		$kieu = self::TAM[ $phan ][1] ?? '';
 		$chu  = static fn( $v ): string => trim( str_replace( "\r", '', (string) $v ) );
 		switch ( $kieu ) {
+			case 'ghi_cong':
+				$ds = array();
+				foreach ( $cu['muc'] ?? array() as $i => $m ) {
+					$f_m = is_array( $f['muc'][ $i ] ?? null ) ? $f['muc'][ $i ] : array();
+					if ( ! empty( $f_m['xoa'] ) ) { continue; }
+					if ( ! empty( $f_m['an_ten'] ) ) { $m['ten'] = ''; }
+					if ( isset( $f_m['xuat_xu'] ) && is_string( $f_m['xuat_xu'] ) ) { $m['xuat_xu'] = $chu( $f_m['xuat_xu'] ); }
+					$ds[] = $m;
+				}
+				return array( 'gia_tri' => $ds ?: null, 'nhap' => null );
 			case 'media':
 				$muc = array_values( array_filter( $cu['muc'] ?? array(), static fn( array $m ): bool => 'anh' !== ( $m['loai'] ?? '' ) ) );
 				$id = absint( $f['attachment_id'] ?? 0 );

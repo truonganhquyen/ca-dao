@@ -92,11 +92,12 @@ final class DuyetTacPham {
 			$goiy = (array) ( $f['gop_pl'] ?? array() );
 			foreach ( array( 'chu_de', 'vung' ) as $tax ) {
 				$ids = array(); foreach ( $goiy as $key ) { if ( preg_match( '/^' . $tax . ':(\d+)$/', (string) $key, $m ) && term_exists( (int) $m[1], $tax ) ) { $ids[] = (int) $m[1]; } }
-				if ( $ids && ! LuuPhanLoai::luu( $bai, $tax, $ids, array(), $nguoi )['ok'] ) { return $hong( 'Chưa ghi được phân loại.' ); }
+				if ( $ids && ! LuuPhanLoai::luu( $bai, $tax, $ids, array(), $nguoi, 'luu', $v['id'], true )['ok'] ) { return $hong( 'Chưa ghi được phân loại.' ); }
 			}
 			$r = wp_update_post( array( 'ID' => $bai, 'post_status' => 'publish' ), true ); clean_post_cache( $bai );
 			if ( is_wp_error( $r ) || 'publish' !== get_post_status( $bai ) ) { return $hong( 'Chưa chuyển được bài sang Đăng.' ); }
 		}
+		if ( ! ChongTrung::van_tay_bai( $bai ) ) { return $hong( 'Chưa ghi được chỉ mục kiểm trùng; chưa chốt đóng góp.' ); }
 		$r = wp_update_post( array( 'ID' => $id, 'post_status' => 'private' ), true ); clean_post_cache( $id );
 		$ket = $wpdb->update( Viec::bang(), array( 'sau' => wp_json_encode( array( 'bai' => $bai, 'phan' => $phan ) ) ), array( 'id' => $v['id'] ) );
 		if ( is_wp_error( $r ) || 'private' !== get_post_status( $id ) || false === $ket || ! ChongTrung::xoa( 'gop:' . $id ) || ! Viec::dong( $v['id'], Viec::XONG, $lam, $nguoi, $v['trang_thai'] ) ) { return $hong( 'Chưa chốt được kết quả; đóng góp vẫn cần đối soát.' ); }

@@ -66,6 +66,8 @@ if ( $b123 ) {
 	$view123 = \Phongdao\DichVu\DungTrang\TrangTacPham::tu_phan( PhanBai::tat_ca( $b123 ), array( 'id' => $b123, 'tieu_de' => '[UX-TEST]', 'the_loai' => 'ca-dao', 'url' => get_permalink( $b123 ) ) );
 	$html123 = \Phongdao\GiaoTiep\Khoi\TacPham::hien( $view123 );
 	kt( 'Góp câu: ghi công đúng lời/dị bản, escape tên, không lộ tên riêng tư', str_contains( $html123, 'Reader &lt;test&gt;' ) && ! str_contains( $html123, 'Private test name' ) && str_contains( $html123, 'https://example.org/second-test' ) );
+	$edit123 = \Phongdao\GiaoTiep\BienTap\TamSua::doc( 'dong_gop', array( 'muc' => array( array( 'an_ten' => 1, 'gop_id' => 999, 'phan' => 'di_ban', 'dau_loi' => 'forged', 'xuat_xu' => 'https://example.org/revised-test' ) ) ), PhanBai::lay( $b123, 'dong_gop' ) );
+	kt( 'Góp câu: người duyệt có thể ẩn tên/sửa nguồn, không chuyển chứng cứ qua lời khác từ form', '' === $edit123['gia_tri'][0]['ten'] && $g123['id'] === $edit123['gia_tri'][0]['gop_id'] && 'loi' === $edit123['gia_tri'][0]['phan'] && 'forged' !== $edit123['gia_tri'][0]['dau_loi'] );
 	wp_update_post( array( 'ID' => $b123, 'post_status' => 'draft' ) );
 	kt( 'Góp câu: bài chuyển nháp biến mất khỏi tra khách', ! ST123::cong_khai( $loi123 ) );
 	wp_update_post( array( 'ID' => $b123, 'post_status' => 'publish', 'post_password' => 'technical' ) );
@@ -75,6 +77,17 @@ if ( $b123 ) {
 	kt( 'Góp câu: bài nhạy cảm không ra tra khách', ! ST123::cong_khai( $loi123 ) );
 	wp_delete_post( $b123, true );
 }
+$gfail123 = $gui123( '[UX-TEST] rollback taxonomy quartz river stone willow' );
+$created123 = 0; $term123 = get_terms( array( 'taxonomy' => 'chu_de', 'hide_empty' => false, 'number' => 1 ) );
+$throw_pl123 = static function ( int $bai ) use ( &$created123 ): void { $created123 = $bai; throw new RuntimeException( 'technical taxonomy rollback' ); };
+add_action( 'phongdao_da_luu_phan_loai', $throw_pl123, 99, 1 );
+$rpl123 = $quyet123( $gfail123['id'], 'gop_dang', 0, array( 'gop_pl' => array( 'chu_de:' . $term123[0]->term_id ) ) );
+remove_action( 'phongdao_da_luu_phan_loai', $throw_pl123, 99 );
+kt( 'Góp câu: lỗi sau gắn chủ đề không COMMIT lồng, huỷ cả bài mới/phân loại và giữ thẻ', ! $rpl123['ok'] && $created123 > 0 && ! get_post( $created123 ) && 'pending' === get_post_status( $gfail123['id'] ) && !! $the123( $gfail123['id'] ), $rpl123 );
+$retry123 = $quyet123( $gfail123['id'], 'gop_dang', 0, array( 'gop_pl' => array( 'chu_de:' . $term123[0]->term_id ) ) );
+$closed123 = Viec::cua( 'post', $gfail123['id'], 'nguoi_doc' )[0]; $pub123 = (int) ( $closed123['sau']['bai'] ?? 0 );
+kt( 'Góp câu: thử lại sau lỗi phân loại đăng đúng một bài, có chủ đề người duyệt chọn', $retry123['ok'] && $pub123 > 0 && has_term( $term123[0]->term_id, 'chu_de', $pub123 ), $retry123 );
+if ( $pub123 ) { wp_delete_post( $pub123, true ); }
 // Dọn toàn bộ fixture riêng của nhóm này; không đụng dữ liệu thực hay fixture trước.
 foreach ( get_posts( array( 'post_type' => KhaiBao::GOP_Y, 'post_status' => 'any', 'posts_per_page' => -1, 'meta_key' => '_cadao_loai', 'meta_value' => 'tac_pham' ) ) as $p123 ) {
 	\Phongdao\DichVu\ChongTrung\ChongTrung::xoa( 'gop:' . $p123->ID ); wp_delete_post( $p123->ID, true );

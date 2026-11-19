@@ -4,6 +4,9 @@
  * Dữ liệu tổng hợp — không chứa nội dung thật của nguồn (repo này công khai).
  */
 
+define( 'WP_DISABLE_FATAL_ERROR_HANDLER', true );
+define( 'WP_DEBUG', true );
+define( 'WP_DEBUG_DISPLAY', true );
 require_once '/wordpress/wp-load.php';
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
@@ -298,7 +301,7 @@ kt( 'chữ lạ trong dữ liệu được thoát: không có thẻ script, img,
 $dau = do_blocks( '<!-- wp:cadao/dau-trang /-->' );
 kt( 'đầu trang: logo, ô tìm tới /tim/, thanh thể loại 8 mục, nút sáng / tối', str_contains( $dau, 'class="brand"' ) && str_contains( $dau, 'action="' . esc_url( home_url( '/tim/' ) ) . '"' ) && 8 === substr_count( (string) strstr( $dau, 'genre-bar-inner' ), '<a ' ) && str_contains( $dau, 'data-action="theme"' ) );
 $chan = do_blocks( '<!-- wp:cadao/chan-trang /-->' );
-kt( 'chân trang + thanh dưới điện thoại 4 mục', str_contains( $chan, 'class="site-footer"' ) && 4 === substr_count( (string) strstr( $chan, 'bottom-nav' ), '<a ' ) );
+kt( 'chân trang + thanh dưới điện thoại 5 mục, có Góp câu', str_contains( $chan, 'class="site-footer"' ) && 5 === substr_count( (string) strstr( $chan, 'bottom-nav' ), '<a ' ) && str_contains( $chan, 'Góp câu' ) );
 
 // ---------- Trang đọc từ dữ liệu thật (các phần đã lưu) ----------
 $mau_id = \Phongdao\DichVu\DungTrang\GieoMau::gieo( $ai_ql );

@@ -52,6 +52,9 @@ final class KiemPhan {
 			return array( null, array( 'Không rõ ai đang lưu.' ) );
 		}
 		$loi = array();
+		if ( 'dong_gop' === $phan && empty( $nc['duyet'] ) ) {
+			$loi[] = 'Cần quyền duyệt để thay nguồn và ghi công của người đọc.';
+		}
 		if ( self::GOI_MAY === $goi && ! $dn['may'] ) {
 			$loi[] = "Máy không được ghi phần “{$phan}”.";
 		}
