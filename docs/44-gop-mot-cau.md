@@ -20,9 +20,11 @@ Dùng `VanTay`: vân tay có dấu và không dấu; Jaccard cặp âm tiết li
 
 Quản trị so thêm Kho, bài nháp và bản gửi chờ; không dùng đóng góp chờ trong luồng tự gộp nguồn. Khớp **vân tay có dấu** thì chặn tạo bài mới/thêm dị bản y hệt, vẫn cho bổ sung nguồn. Khác dấu không bị tự gộp. Điểm gần không thay quyết định nội dung của người duyệt.
 
+Mục nguồn đã có thẻ chờ từ trước cũng đối chiếu lại với bài đã nhận đóng góp trước khi đăng: nếu khớp lời thì giữ nguyên Kho/thẻ/nguồn và báo mở mục Kho để đối chiếu. Không tạo thêm tác phẩm hoặc tự gộp nguồn, chép chú thích vào bài bạn đọc đã được duyệt. Lượt đăng nguồn và duyệt đóng góp dùng cùng khoá giao dịch.
+
 ## Quản trị
 
-1. Một bản gửi `gop_y` chờ + một thẻ Người đọc gửi. Bản nguyên gửi, nguồn, bút danh và đồng ý nằm riêng tư. Mã lần gửi có chữ ký; gửi lại cùng lần không tạo thêm thẻ, người gửi khác giữ chứng cứ riêng.
+1. Một bản gửi `gop_y` chờ + một thẻ Người đọc gửi. Bản nguyên gửi, nguồn, bút danh, hai đồng ý, giấy phép hiện hành và giờ nhận nằm riêng tư. Mã lần gửi có chữ ký; gửi lại cùng lần không tạo thêm thẻ, người gửi khác giữ chứng cứ riêng.
 2. Thẻ cho xem đủ lời, nguồn chưa đối chiếu, consent và các mục gần giống. Có thể xem bài đích khác theo số bài. Chọn thể loại khi đăng mới; gợi ý chủ đề chưa chọn hộ, có phần chọn thêm chủ đề/vùng hiện có. Vùng chỉ gắn khi người biên soạn có căn cứ. Không thêm từ vựng hoặc tự đoán thể loại/vùng.
 3. Chọn **Đăng tác phẩm mới**, **Thêm dị bản**, **Bổ sung nguồn**, **Để sau** hoặc **Bỏ**. Thêm dị bản không đổi lời chính/phân loại bài đã có; nguồn chỉ bổ sung khi khớp lời chính/dị bản. Không xoá hay gộp tác phẩm cũ.
 4. Nonce/quyền duyệt/phiên thẻ + snapshot bài đích; khoá giao dịch, tra trùng lại khi quyết. Lời, ghi công, trạng thái bản gửi, chỉ mục và đóng thẻ phải cùng thành công. Lỗi hoàn tác và làm sạch cache, giữ thẻ để thử lại. Hai lượt duyệt đóng góp tạo mới được tuần tự hoá để lượt sau thấy bài lượt trước.

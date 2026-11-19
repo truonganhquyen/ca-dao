@@ -29,6 +29,8 @@ $u123 = wp_generate_uuid4(); $token123 = $u123 . '.' . wp_hash( $u123 . '|gop' )
 $g123 = $gui123( $loi123, array( 'lan_gui' => $token123, 'ten' => 'Reader <test>', 'hien_ten' => 1, 'xuat_xu' => 'https://example.org/reader-test' ) );
 $re123 = $gui123( $loi123, array( 'lan_gui' => $token123, 'ten' => 'Reader <test>', 'hien_ten' => 1, 'xuat_xu' => 'https://example.org/reader-test' ) );
 kt( 'Góp câu: một bản chờ + một thẻ, gửi lại cùng lần không nhân đôi', $g123['ok'] && $re123['id'] === $g123['id'] && 'pending' === get_post_status( $g123['id'] ) && !! $the123( $g123['id'] ) );
+$consent123 = get_post_meta( $g123['id'], '_phongdao_gop', true );
+kt( 'Góp câu: lưu chứng cứ đồng ý giấy phép/hiện tên và thời điểm nhận ở bản riêng tư', true === $consent123['dong_y'] && true === $consent123['hien_ten'] && 'CC BY 4.0' === $consent123['giay_phep'] && ! empty( $consent123['gui_luc'] ) );
 kt( 'Góp câu: đang chờ không ra tra công khai, vẫn ra đối chiếu nội bộ', ! ST123::cong_khai( $loi123 ) && count( ST123::tim( $loi123, false ) ) > 0 );
 $other123 = $gui123( $loi123 );
 kt( 'Góp câu: người gửi khác cùng lời giữ riêng chứng cứ', $other123['ok'] && $other123['id'] !== $g123['id'] );
@@ -37,8 +39,17 @@ $r123 = $quyet123( $g123['id'], 'gop_dang', 0, array( 'gop_hien_ten' => 1, 'gop_
 $done123 = Viec::lay( $v123['id'] ); $b123 = (int) ( $done123['sau']['bai'] ?? 0 );
 kt( 'Góp câu: người duyệt đăng thật, giữ nguyên lời/nguồn, đóng thẻ đúng bài', $r123['ok'] && $b123 > 0 && 'publish' === get_post_status( $b123 ) && 'xong' === $done123['trang_thai'] && array( $loi123 ) === ( PhanBai::lay( $b123, 'loi' )['dong'] ?? null ) && 'doc_gia_gop' === ( PhanBai::lay( $b123, 'loi' )['nguoi_lam'] ?? '' ), $r123 );
 if ( $b123 ) {
+	$wpdb->insert( \Phongdao\KhoLuu\Kho::bang(), array( 'nguon_id' => 'test224', 'ma_goc' => 'queued-before-reader', 'tieu_de' => '[UX-TEST] Queued source', 'loi' => $loi123, 'loai' => 'ca_dao', 'du_lieu' => '{}', 'ngay_lay' => gmdate( 'Y-m-d H:i:s' ), 'trang_thai' => 'moi' ) );
+	$raw123 = (int) $wpdb->insert_id;
+	$before_raw123 = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type='tac_pham'" );
+	$rraw123 = \Phongdao\DichVu\UngVien\UngVien::dang( $raw123, array( 'nguoi' => $ai_ql ) );
+	kt( 'Góp câu: mục nguồn đã chờ từ trước không đăng thêm bài y hệt sau khi bạn đọc được duyệt', ! $rraw123['ok'] && $before_raw123 === (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type='tac_pham'" ) && 'moi' === \Phongdao\KhoLuu\Kho::lay( $raw123 )->trang_thai );
+	$wpdb->delete( \Phongdao\KhoLuu\Kho::bang(), array( 'id' => $raw123 ) );
 	$public123 = ST123::cong_khai( $loi123 );
 	kt( 'Góp câu: tra khách chỉ trả tên/link/khớp của bài đã đăng', 1 === count( $public123 ) && array( 'ten', 'url', 'khop' ) === array_keys( $public123[0] ) && $public123[0]['khop'] );
+	$partial123 = ST123::tim( '[UX-TEST] amber birch cedar drift' );
+	kt( 'Góp câu: đoạn gần 30–60% được gợi ý, không gắn cờ khớp lời', ( $partial123[0]['diem'] ?? 0 ) >= 30 && $partial123[0]['diem'] <= 60 && ! $partial123[0]['khop'] );
+	kt( 'Góp câu: gửi lại quyết định ở phiên cũ không đăng thêm bài', ! Q123::quyet( $v123['id'], 'gop_dang', $ai_ql, true, $v123['phien'], '', null, array( 'ban_gop' => DG::ban( $g123['id'] ), 'gop_the_loai' => 'ca-dao' ) )['ok'] );
 	$r_dup123 = $quyet123( $other123['id'], 'gop_dang' );
 	kt( 'Góp câu: chặn tạo tác phẩm y hệt, giữ thẻ để bổ sung nguồn', ! $r_dup123['ok'] && !! $the123( $other123['id'] ) );
 	$r_src123 = $quyet123( $other123['id'], 'gop_nguon', $b123, array( 'gop_nguon' => 'https://example.org/second-test' ) );

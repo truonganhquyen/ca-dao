@@ -132,6 +132,7 @@ final class NhanGui {
 			if ( ! $wpdb->get_var( "SELECT option_id FROM {$wpdb->options} WHERE option_name='siteurl' FOR UPDATE" ) ) { $wpdb->query( 'ROLLBACK' ); return null; }
 			$cu = (int) $wpdb->get_var( $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key='_phongdao_lan_gui' AND meta_value=%s LIMIT 1", $d['lan_gui'] ) );
 			if ( $cu ) { $wpdb->query( 'COMMIT' ); return array( 'id' => $cu, 'loai' => 'post' ); }
+			$d['dong_y'] = true; $d['giay_phep'] = 'CC BY 4.0'; $d['gui_luc'] = gmdate( 'c' );
 			$id = (int) wp_insert_post( wp_slash( array( 'post_type' => KhaiBao::GOP_Y, 'post_status' => 'pending', 'post_title' => 'Bạn đọc góp tác phẩm', 'post_content' => $d['noi_dung'], 'post_author' => 0, 'meta_input' => array( '_cadao_loai' => 'tac_pham', '_cadao_bai' => $bai_id, '_phongdao_gop' => $d, '_phongdao_lan_gui' => $d['lan_gui'] ) ) ) );
 			$loai = 'post';
 			if ( ! $id || get_post_meta( $id, '_phongdao_lan_gui', true ) !== $d['lan_gui'] || get_post_meta( $id, '_phongdao_gop', true ) !== $d || ! \Phongdao\DichVu\ChongTrung\ChongTrung::ghi( 'gop:' . $id, array( $d['noi_dung'] ) ) ) { $wpdb->query( 'ROLLBACK' ); if ( $id ) { clean_post_cache( $id ); } return null; }

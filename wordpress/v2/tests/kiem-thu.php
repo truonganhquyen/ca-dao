@@ -4,16 +4,7 @@
  * Dữ liệu tổng hợp — không chứa nội dung thật của nguồn (repo này công khai).
  */
 
-$GLOBALS['v2_bat_dau'] = microtime( true );
-register_shutdown_function( static function (): void {
-	$e = error_get_last();
-	if ( $e && in_array( $e['type'], array( E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR ), true ) ) {
-		file_put_contents( '/repo/tests/.ket-qua.txt', "\nLỖI PHP TRƯỚC SHUTDOWN: " . $e['message'] . ' · ' . $e['file'] . ':' . $e['line'] . "\n", FILE_APPEND );
-	}
-} );
 define( 'WP_DISABLE_FATAL_ERROR_HANDLER', true );
-define( 'WP_DEBUG', true );
-define( 'WP_DEBUG_DISPLAY', true );
 require_once '/wordpress/wp-load.php';
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
@@ -50,9 +41,6 @@ register_shutdown_function(
 $GLOBALS['v2_dat']  = 0;
 $GLOBALS['v2_hong'] = 0;
 function kt( string $ten, bool $dk, $chi_tiet = null ): void {
-	if ( 0 === ( $GLOBALS['v2_dat'] + $GLOBALS['v2_hong'] ) % 100 ) {
-		ra( 'Mốc kiểm: ' . round( microtime( true ) - $GLOBALS['v2_bat_dau'], 1 ) . ' giây; đỉnh bộ nhớ ' . round( memory_get_peak_usage( true ) / 1048576 ) . ' MB; giới hạn ' . ini_get( 'memory_limit' ) . '/' . ini_get( 'max_execution_time' ) );
-	}
 	if ( $dk ) {
 		++$GLOBALS['v2_dat'];
 		ra( "ĐẠT   $ten" );

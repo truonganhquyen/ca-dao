@@ -351,10 +351,20 @@ final class UngVien implements Module {
 	 */
 	public static function dang( int $kho_id, array $nc, string $trang_thai = 'publish' ): array {
 		global $wpdb;
+		// D-123: cùng khoá với duyệt bạn đọc để nguồn đã có thẻ từ trước không đăng thêm lời y hệt sau đó.
+		if ( ! $wpdb->get_var( "SELECT option_id FROM {$wpdb->options} WHERE option_name='siteurl' FOR UPDATE" ) ) {
+			return array( 'ok' => false, 'bai' => 0, 'loi' => array( 'Chưa khoá được lượt đối chiếu trước khi đăng.' ) );
+		}
 		$m = Kho::lay( $kho_id );
 		if ( ! $m || 'moi' !== $m->trang_thai || '' === $m->loi || $m->post_id ) {
 			return array( 'ok' => false, 'bai' => 0, 'loi' => array( 'Câu này không còn chờ đăng.' ) );
 		}
+		try {
+			$da_co = \Phongdao\DichVu\NguoiDoc\SoTrung::bai_co_ghi_cong( $m->loi );
+			if ( $da_co ) {
+				return array( 'ok' => false, 'bai' => 0, 'loi' => array( 'Lời này đã có trong tác phẩm bạn đọc góp #' . $da_co . '. Mở mục này ở Kho để đối chiếu với bài đã có trước khi đăng; nguồn và thẻ vẫn được giữ.' ) );
+			}
+		} catch ( \Throwable $e ) { return array( 'ok' => false, 'bai' => 0, 'loi' => array( 'Chưa đối chiếu được với đóng góp đã duyệt; xin thử lại.' ) ); }
 		$the_loai = TheLoai::TU_LOAI_GOC[ (string) $m->loai ] ?? 'ca-dao';
 		$tieu_de  = trim( (string) $m->tieu_de ) ?: (string) strtok( (string) $m->loi, "\n" );
 		$id       = wp_insert_post(

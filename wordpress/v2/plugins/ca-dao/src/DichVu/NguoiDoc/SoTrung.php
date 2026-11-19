@@ -12,6 +12,18 @@ defined( 'ABSPATH' ) || exit;
 
 /** D-123: cùng vân tay, phạm vi khách lọc ngay trong SQL; không gọi đường tự gộp. */
 final class SoTrung {
+	/** Tra khớp lời có dấu với bài đã nhận đóng góp; dùng trước khi đăng mục nguồn còn chờ. */
+	public static function bai_co_ghi_cong( string $loi ): int {
+		global $wpdb;
+		$bam = VanTay::cua( $loi )['vt1']; $t = ChongTrung::bang( 'van_tay' );
+		$ds = $wpdb->get_results( $wpdb->prepare( "SELECT t.phan,p.ID FROM $t t JOIN {$wpdb->posts} p ON t.muc=CONCAT('bai:',p.ID) WHERE t.vt1=%s AND p.post_type='tac_pham' AND p.post_status NOT IN ('trash','auto-draft') AND EXISTS (SELECT 1 FROM {$wpdb->postmeta} m WHERE m.post_id=p.ID AND m.meta_key='_phongdao_dong_gop') LIMIT 20", $bam ) );
+		if ( $wpdb->last_error ) { throw new \RuntimeException( 'Chưa đối chiếu được đóng góp đã duyệt.' ); }
+		foreach ( $ds ?: array() as $m ) {
+			$dong = (int) $m->phan ? ( PhanBai::lay( (int) $m->ID, 'di_ban' )['muc'][ (int) $m->phan - 1 ]['dong'] ?? array() ) : ( PhanBai::lay( (int) $m->ID, 'loi' )['dong'] ?? array() );
+			if ( $bam === VanTay::cua( implode( "\n", $dong ) )['vt1'] ) { return (int) $m->ID; }
+		}
+		return 0;
+	}
 
 	public static function tim( string $loi, bool $cong_khai = true, int $bo_gop = 0 ): array {
 		global $wpdb;
