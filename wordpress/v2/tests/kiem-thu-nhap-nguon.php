@@ -37,6 +37,7 @@ kt( 'Xem trước và so trùng không ghi Kho/bài/thẻ; đổi tên tệp m�
 kt( 'Người không có quyền không tạo hoặc áp dụng lần nhập', ! Lan222::tao( $doc222['muc'], $hs222a, 'x.csv', 'x', 0 )['ok'] && ! Lan222::ap_dung( $v222['id'], 0, 0, array( 0 ) )['ok'] );
 $ap222 = Lan222::ap_dung( $v222['id'], 0, $ai_ql, array( 0, 1 ) );
 $v222 = Lan222::lay( $v222['id'] ); $ids222 = Lan222::ids( $v222['id'] );
+kt( 'Nhận tệp không tự xác nhận đã đọc trang nguồn', '' === Kho::lay( $ids222[0] )->doc_trang );
 kt( 'Áp dụng CSV: đúng tập mục, từng thể loại, chứng cứ nguồn; chưa có bài công khai', $ap222['ok'] && 0 === $ap222['con'] && 2 === count( $ids222 ) && $p222_0 === $b222() && 'thanh_ngu_tuc_ngu' === Kho::lay( $ids222[1] )->loai && 'iv' === Kho::du_lieu( Kho::lay( $ids222[0] ) )['trang'] && ! Lan222::ap_dung( $v222['id'], 0, $ai_ql, array( 0, 1 ) )['ok'], $ap222 );
 $_GET = array( 'lan_nhap' => $v222['id'], 'tt' => 'tat_ca' );
 $html222 = $DSK::hien();

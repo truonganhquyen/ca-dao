@@ -143,7 +143,7 @@ final class NhapTep {
 				if ( $trong_giao_dich ) { $wpdb->query( 'RELEASE SAVEPOINT phongdao_nhap_muc' ); }
 				return $kq( $giong ? 'da_co' : 'xung_dot', (int) $cu->id, $giong ? 'Đã có từ lần nhập trước; giữ nguyên mục cũ.' : 'Mã mục đã có nhưng lời, thể loại hoặc vị trí nguồn đã đổi. Mục cũ được giữ nguyên.' );
 			}
-			$tt = Kho::luu( self::NGUON, array( 'ma_goc' => $key, 'url' => $url, 'loai' => $loai, 'tieu_de' => mb_substr( (string) strtok( $loi, "\n" ), 0, 190 ), 'loi' => $loi, 'doc_trang' => gmdate( 'Y-m-d' ), 'ho_so' => $ho_so, 'nhap_boi' => $nguoi, 'trang' => $trang, 'ma_muc' => $ma, 'nhap_chi_kho' => true, 'nguoi_lam' => $nguoi_lam ), false );
+			$tt = Kho::luu( self::NGUON, array( 'ma_goc' => $key, 'url' => $url, 'loai' => $loai, 'tieu_de' => mb_substr( (string) strtok( $loi, "\n" ), 0, 190 ), 'loi' => $loi, 'doc_trang' => '', 'ho_so' => $ho_so, 'nhap_boi' => $nguoi, 'trang' => $trang, 'ma_muc' => $ma, 'nhap_chi_kho' => true, 'nguoi_lam' => $nguoi_lam ), false );
 			$id = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM ' . Kho::bang() . ' WHERE nguon_id = %s AND ma_goc = %s', self::NGUON, $key ) );
 			if ( 'moi' !== $tt || ! $id || ! ChongTrung::van_tay_kho( $id ) ) {
 				throw new \RuntimeException( 'Chưa ghi được mục và chỉ mục so trùng. Thử lại sau.' );

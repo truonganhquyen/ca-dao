@@ -294,7 +294,7 @@ final class DanhSachKho {
 		$co        = self::ten_co( (array) ( $d['co'] ?? array() ) );
 		$phu       = ( $so_ct ? '<span class="pq-the xanh">' . $so_ct . ' chú thích</span>' : '' ) . ( $so_db ? '<span class="pq-the xanh">' . $so_db . ' dị bản</span>' : '' )
 			. ( $co ? '<span class="pq-the do phongdao-kho-co">Cờ: ' . esc_html( implode( ', ', $co ) ) . '</span>' : '' )
-			. '<span class="pq-mo">' . esc_html( $ten_nguon . ' · lấy ' . self::ngay( (string) $m->ngay_lay ) . ( '' === $doc ? ' · chưa đọc trang gốc' : ( preg_match( '/^\d{4}-/', $doc ) ? '' : ' · không đọc được trang gốc' ) ) ) . '</span>'
+			. '<span class="pq-mo">' . esc_html( $ten_nguon . ( \Phongdao\DichVu\UngVien\NhapTep::NGUON === (string) $m->nguon_id ? ' · nhập ' . self::ngay( (string) $m->ngay_lay ) : ' · lấy ' . self::ngay( (string) $m->ngay_lay ) . ( '' === $doc ? ' · chưa đọc trang gốc' : ( preg_match( '/^\d{4}-/', $doc ) ? '' : ' · không đọc được trang gốc' ) ) ) ) . '</span>'
 			. ( '' === (string) $m->url ? '' : '<a href="' . esc_url( (string) $m->url ) . '" rel="noreferrer nofollow">Trang gốc ↗</a>' );
 
 		$tt  = array();
