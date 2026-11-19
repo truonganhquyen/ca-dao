@@ -53,6 +53,9 @@ $doi222 = Tep222::nhap_muc( array_replace( $r222, array( 'loai' => 've' ) ), $hs
 $r222ma = array( 'ma_muc' => 'stable-222', 'loi' => 'Lantern222 violet willow xylem yellow', 'loai' => 'ca_dao' );
 $ma222 = Tep222::nhap_muc( $r222ma, $hs222a, $ai_ql, 'digest-a' );
 $ma222doi = Tep222::nhap_muc( array_replace( $r222ma, array( 'loi' => 'Lantern222 changed content' ) ), $hs222a, $ai_ql, 'digest-a' );
+$conflict222 = Lan222::tao( array( array_replace( $r222ma, array( 'loai' => 've' ) ) ), $hs222a, 'conflict.csv', 'conflict222', $ai_ql );
+$conflict_ap222 = Lan222::ap_dung( $conflict222['lan'], 0, $ai_ql, array( 0 ) );
+kt( 'Mục xung đột giữ biên nhận để đối chiếu, không đưa mục cũ vào tập chọn đăng của lần nhập', $conflict_ap222['ok'] && 1 === Lan222::dem( Lan222::lay( $conflict222['lan'] ) )['xung_dot'] && array() === Lan222::ids( $conflict222['lan'] ) );
 kt( 'Cùng nhận diện mục đổi thể loại/lời báo xung đột, không cập nhật đè', 'xung_dot' === $doi222['tt'] && 'xung_dot' === $ma222doi['tt'] && $r222ma['loi'] === Kho::lay( $ma222['id'] )->loi && 'ca_dao' === Kho::lay( $a222['id'] )->loai );
 $pun222 = Tep222::nhap_muc( array_replace( $r222, array( 'loi' => $r222['loi'] . '!' ) ), $hs222a, $ai_ql, 'digest-a' );
 kt( 'Lời khác dấu câu vẫn giữ bản đã nhận; vân tay không ghi đè văn bản', $pun222['id'] !== $a222['id'] && $r222['loi'] . '!' === Kho::lay( $pun222['id'] )->loi && $r222['loi'] === Kho::lay( $a222['id'] )->loi );

@@ -114,7 +114,8 @@ final class LanNhap {
 
 	public static function ids( int $id ): array {
 		$v = self::lay( $id );
-		return $v ? array_values( array_unique( array_filter( array_map( 'intval', array_column( (array) ( $v['sau']['ket_qua'] ?? array() ), 'id' ) ) ) ) ) : array();
+		$kq = array_filter( (array) ( $v['sau']['ket_qua'] ?? array() ), static fn( array $k ): bool => in_array( $k['tt'], array( 'moi', 'da_co', 'da_gop', 'nghi_trung' ), true ) );
+		return array_values( array_unique( array_filter( array_map( 'intval', array_column( $kq, 'id' ) ) ) ) );
 	}
 
 	public static function gan_day(): array {

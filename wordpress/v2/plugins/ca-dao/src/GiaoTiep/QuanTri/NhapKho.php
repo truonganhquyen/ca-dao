@@ -188,7 +188,8 @@ final class NhapKho {
 		$d = LanNhap::dem( $v );
 		$o = '<details class="pq-khoi"><summary>Biên nhận và kết quả từng mục</summary><p>' . esc_html( self::tom_tat( $v ) ) . '</p><ol>';
 		foreach ( (array) ( $v['sau']['ket_qua'] ?? array() ) as $i => $k ) {
-			$o .= '<li>Mục ' . ( (int) $i + 1 ) . ': ' . esc_html( $k['chu'] ) . ( $k['id'] ? ' <a href="' . esc_url( DanhSachKho::url( array( 'q' => (string) $k['id'], 'tt' => 'tat_ca', 'lan_nhap' => $v['id'] ) ) ) . '">Xem trong Kho</a>' : '' ) . '</li>';
+			$loc = array( 'q' => (string) $k['id'], 'tt' => 'tat_ca', 'lan_nhap' => 'xung_dot' === $k['tt'] ? 0 : $v['id'] );
+			$o .= '<li>Mục ' . ( (int) $i + 1 ) . ': ' . esc_html( $k['chu'] ) . ( $k['id'] ? ' <a href="' . esc_url( DanhSachKho::url( $loc ) ) . '">Xem trong Kho</a>' : '' ) . '</li>';
 		}
 		$o .= '</ol></details>';
 		if ( $d['loi'] && LanNhap::XONG === $v['trang_thai'] ) {
