@@ -39,6 +39,7 @@ final class GopNguoiDoc {
 		'nhieu'     => 'Bạn đã gửi nhiều lần trong giờ này. Nội dung vẫn ở trên máy bạn; xin thử lại sau ít phút.',
 		'turnstile' => 'Chưa qua bước kiểm tra chống tin rác. Xin thử lại.',
 		'loi'       => 'Chưa gửi được, xin thử lại.',
+		'dong_dai'  => 'Có dòng dài quá 400 ký tự hoặc quá nhiều dòng. Bạn chia lại các dòng lời rồi gửi nhé.',
 	);
 
 	public const DAI_NOI_DUNG = 4000;
@@ -76,7 +77,9 @@ final class GopNguoiDoc {
 		if ( 'tac_pham' === $loai ) {
 			if ( ! mb_check_encoding( (string) ( $p['noi_dung'] ?? '' ), 'UTF-8' ) || ! mb_check_encoding( (string) ( $p['xuat_xu'] ?? '' ), 'UTF-8' ) ) { return array( 'loi', $sach ); }
 			$loi = $chu( 'noi_dung', self::DAI_NOI_DUNG );
-			if ( mb_strlen( trim( (string) ( $p['noi_dung'] ?? '' ) ) ) > self::DAI_NOI_DUNG || mb_strlen( (string) ( $p['xuat_xu'] ?? '' ) ) > 2000 || ! mb_check_encoding( $loi, 'UTF-8' ) ) { return array( 'loi', $sach ); }
+			if ( mb_strlen( trim( (string) ( $p['noi_dung'] ?? '' ) ) ) > self::DAI_NOI_DUNG || mb_strlen( (string) ( $p['xuat_xu'] ?? '' ) ) > 2000 ) { return array( 'loi', $sach ); }
+			$dong = explode( "\n", $loi );
+			if ( count( $dong ) > 600 || array_filter( $dong, static fn( $s ) => mb_strlen( $s ) > 400 ) ) { return array( 'dong_dai', $sach ); }
 			$sach += array( 'noi_dung' => \Normalizer::normalize( $loi, \Normalizer::FORM_C ), 'ten' => $ngan( 'ten', 80 ), 'xuat_xu' => $chu( 'xuat_xu', 2000 ), 'hien_ten' => ! empty( $p['hien_ten'] ) && '' !== $ngan( 'ten', 80 ) );
 			return array( VanTay::cua( $loi )['so_am'] > 0 && ! empty( $p['dong_y'] ) ? null : 'thieu', $sach );
 		}

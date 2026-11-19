@@ -126,7 +126,7 @@ final class TamSua {
 		$o = '<p class="small muted">Nguồn vẫn mang nhãn chưa đối chiếu. Có thể ẩn bút danh, sửa nguồn công khai hoặc gỡ dòng ghi công; bản gửi riêng tư và lịch sử được giữ. Không chuyển chứng cứ sang lời khác.</p>';
 		foreach ( $cu['muc'] ?? array() as $i => $m ) {
 			$id = 'gop-credit-' . $i; $p = 'muc[' . $i . ']';
-			$o .= '<fieldset><legend>' . esc_html( ( 'loi' === $m['phan'] ? 'Lời chính' : 'Dị bản' ) . ' · ' . ( $m['ten'] ?: 'Bạn đọc ẩn danh' ) ) . '</legend>'
+			$o .= '<fieldset><legend>' . esc_html( ( 'loi' === $m['phan'] ? 'Lời chính' : 'Dị bản' ) . ' · ' . ( ( $m['ten'] ?? '' ) ?: 'Bạn đọc ẩn danh' ) ) . '</legend>'
 				. self::vung( $id . '-nguon', $p . '[xuat_xu]', 'Nguồn công khai — không ghi thông tin cá nhân', $m['xuat_xu'] ?? '', '', 2 )
 				. ( empty( $m['ten'] ) ? '' : self::hop( $id . '-ten', $p . '[an_ten]', 'Ẩn bút danh trên dòng này', false ) )
 				. self::hop( $id . '-xoa', $p . '[xoa]', 'Gỡ dòng ghi công khỏi trang đọc', false ) . '</fieldset>';

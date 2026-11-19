@@ -12,6 +12,7 @@ use Phongdao\GiaoTiep\BienTap\TamSua;
 use Phongdao\GiaoTiep\BienTap\NhapDo;
 use Phongdao\HaTang\KhaiBao;
 use Phongdao\KhoLuu\Viec;
+use Phongdao\KhoLuu\PhanBai;
 use Phongdao\MienDuLieu\SoSanh;
 
 defined( 'ABSPATH' ) || exit;

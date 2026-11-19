@@ -49,7 +49,7 @@ if ( $b123 ) {
 	kt( 'Góp câu: trên 70% vẫn cho gửi để cân nhắc dị bản, không coi là xác suất trùng', $gvar123['ok'] && ( $near123[0]['diem'] ?? 0 ) > 70 && ! $near123[0]['khop'] );
 	$rvar123 = $quyet123( $gvar123['id'], 'gop_di_ban', $b123, array( 'gop_hien_ten' => 1 ) );
 	$credits123 = PhanBai::lay( $b123, 'dong_gop' )['muc'] ?? array();
-	kt( 'Góp câu: thêm dị bản nguyên lời, không công khai tên thiếu đồng ý dù người duyệt chọn', $rvar123['ok'] && $var123 === implode( "\n", PhanBai::lay( $b123, 'di_ban' )['muc'][0]['dong'] ?? array() ) && '' === ( $credits123[2]['ten'] ?? null ), $rvar123 );
+	kt( 'Góp câu: thêm dị bản nguyên lời, không công khai tên thiếu đồng ý dù người duyệt chọn', $rvar123['ok'] && $var123 === implode( "\n", PhanBai::lay( $b123, 'di_ban' )['muc'][0]['dong'] ?? array() ) && '' === ( $credits123[2]['ten'] ?? '' ), $rvar123 );
 	$twice123 = $gui123( $var123 );
 	kt( 'Góp câu: không thêm dị bản y hệt, vẫn nhận bổ sung nguồn', ! $quyet123( $twice123['id'], 'gop_di_ban', $b123 )['ok'] && $quyet123( $twice123['id'], 'gop_nguon', $b123 )['ok'] );
 	$stale123 = $gui123( $var123 ); $vstale123 = $the123( $stale123['id'] ); $stamp123 = DG::ban( $stale123['id'], $b123 );

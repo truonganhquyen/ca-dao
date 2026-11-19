@@ -25,7 +25,7 @@ final class GopMotCau {
 		$bai = $bai_id ? get_post( $bai_id ) : null;
 		if ( $bai && ( KhaiBao::TAC_PHAM !== $bai->post_type || 'publish' !== $bai->post_status || '' !== $bai->post_password || \Phongdao\KhoLuu\PhanBai::lay( $bai->ID, 'tho_tuc' ) ) ) { $bai = null; }
 		if ( $bai ) { $head .= '<p class="small">Bạn đang góp lời khác hoặc nguồn cho <a href="' . esc_url( get_permalink( $bai ) ) . '">' . esc_html( $bai->post_title ) . '</a>.</p>'; }
-		$uuid = wp_generate_uuid4(); $lan = $gia( 'lan_gui' ) ?: $uuid . '.' . wp_hash( $uuid . '|gop' );
+		$uuid = wp_generate_uuid4(); $lan = NhanGui::lan_hop_le( $gia( 'lan_gui' ) ) ? $gia( 'lan_gui' ) : $uuid . '.' . wp_hash( $uuid . '|gop' );
 		$them = '' !== $gia( 'xuat_xu' ) || '' !== $gia( 'ten' );
 		$head .= '<form id="gop-form" class="form-gop gop-loi-form" method="post" action="' . esc_url( Ve::url( 'gop' ) ) . '" data-gan-giong="' . esc_url( rest_url( \Phongdao\GiaoTiep\Rest\Module::KHONG_GIAN . '/gop/gan-giong' ) ) . '">'
 			. '<input type="hidden" name="action" value="' . NhanGui::HANH_DONG . '"><input type="hidden" name="loai" value="tac_pham"><input type="hidden" name="bai" value="' . ( $bai ? $bai->ID : 0 ) . '"><input type="hidden" name="lan_gui" value="' . esc_attr( $lan ) . '">' . wp_nonce_field( NhanGui::HANH_DONG, '_wpnonce', true, false )

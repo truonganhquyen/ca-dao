@@ -90,8 +90,7 @@ final class NhanGui {
 		// Bấm gửi hai lần (mạng chậm) hoặc gửi lại form vừa gửi: nhận là đã gửi, không tạo bản thứ hai. Khoá chỉ là dấu băm của
 		// chính nội dung gửi, giữ 10 phút; không lưu địa chỉ mạng hay gì của người gửi.
 		if ( 'tac_pham' === $d['loai'] ) {
-			$lan = explode( '.', (string) ( $p['lan_gui'] ?? '' ) );
-			if ( 2 !== count( $lan ) || ! preg_match( '/^[a-f0-9-]{36}$/', $lan[0] ) || ! hash_equals( wp_hash( $lan[0] . '|gop' ), $lan[1] ) ) { return $hong( 'cu' ); }
+			if ( ! self::lan_hop_le( (string) ( $p['lan_gui'] ?? '' ) ) ) { return $hong( 'cu' ); }
 			$d['lan_gui'] = hash( 'sha256', $p['lan_gui'] . wp_json_encode( $d ) );
 		}
 		$lap = 'phongdao_gop_lap_' . substr( wp_hash( (string) wp_json_encode( $d ) ), 0, 24 );
@@ -109,6 +108,11 @@ final class NhanGui {
 		}
 		set_transient( $lap, $luu, 10 * MINUTE_IN_SECONDS );
 		return array( 'ok' => true, 'ma' => '', 'id' => $luu['id'], 'bai' => $bai_id );
+	}
+
+	public static function lan_hop_le( string $token ): bool {
+		$lan = explode( '.', $token );
+		return 2 === count( $lan ) && (bool) preg_match( '/^[a-f0-9-]{36}$/', $lan[0] ) && hash_equals( wp_hash( $lan[0] . '|gop' ), $lan[1] );
 	}
 
 	/**
