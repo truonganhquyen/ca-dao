@@ -193,7 +193,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-218 | Quản trị làm lại đợt 2 (D-121): Sửa tác phẩm hai cột, khung Đăng bên phải, một nút "Lưu thay đổi", chip phân loại (chủ đề máy gợi ý nét đứt, bấm mới gắn), "Bài này còn thiếu"; bỏ mục lục 16 nút | A | T-217 | — | DONE |
 | T-219 | Quản trị làm lại đợt 3 (D-121): danh sách Tác phẩm, Bài mới (tab, hàng gọn, nút Đăng cuối hàng), Đăng nhanh (chủ đề gợi ý, phím tắt), Hộp việc (ba lựa chọn rõ chữ), Tuyển tập | A | T-218 | — | DONE |
 | T-220 | Quản trị làm lại đợt 4 (D-121): Bổ sung chia năm tab (Thiếu Ý nghĩa, Cần sửa, Gợi ý chủ đề/vùng, Việc khác, Nháp theo lô), Thêm tác phẩm báo trùng ngay dưới ô | A | T-219 | — | DONE |
-| T-221 | Sửa Đăng dữ liệu nhập từ tệp: giữ người nhập và hồ sơ nguồn, kiểm đủ đường Hộp việc / Đăng nhanh / lô, ghi lỗi rồi thử lại không tạo trùng | A | T-189, T-216 | — | IN_PROGRESS |
+| T-221 | Sửa Đăng dữ liệu nhập từ tệp: giữ người nhập và hồ sơ nguồn, kiểm đủ đường Hộp việc / Đăng nhanh / lô, ghi lỗi rồi thử lại không tạo trùng | A | T-189, T-216 | — | DONE |
 | **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
 | T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
 | T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | DONE |
@@ -1030,6 +1030,8 @@ Người sáng lập duyệt bản xem trước quản trị ngày 18/11/2026 (D
 ### Đăng dữ liệu nhập từ tệp — T-221
 
 **Chấp nhận:** lời nhập từ tệp giữ `nguoi_viet` và hồ sơ nguồn người đã chọn; khi người bấm Đăng, phần lời dùng ngữ cảnh người, các phần do máy thu vẫn qua `GOI_MAY`. Không nới bộ kiểm, không thay mô hình dữ liệu hoặc quyền. Kiểm thử phải đi hết tới bài đã đăng bằng thẻ Câu mới, Đăng nhanh và lô từ Kho; người không có quyền duyệt bị từ chối; thử lại thẻ đã xong không tạo trùng; ghi lời lỗi thì huỷ bài mới, giữ câu Kho / thẻ Chờ, thử lại thành công đúng một bài. Không đưa dữ liệu thật hoặc bằng chứng Kho riêng vào repo công khai. Nghiệm thu vận hành và nhận xét luồng đăng được lưu riêng ngoài repo.
+
+**Nghiệm thu (19/11/2026, plugin 1.0.84):** [PR #200](https://github.com/truonganhquyen/ca-dao/pull/200), mã `4d1ca6d`, [CI](https://github.com/truonganhquyen/ca-dao/actions/runs/44493285157) đạt đủ `kiem-tra`, `test:v2`, `quet:v2`, `e2e:v2` (75 bước, 0 lỗi, 0 bỏ qua). Tám ca WordPress mới kiểm đường thẻ, Đăng nhanh, lô Kho và lô thẻ đang chờ; quyền, chống đăng lại, huỷ khi ghi lỗi, thử lại và lằn ranh máy. PHP thuần CI đạt 287 ca; Windows đạt 281 ca với cấu hình không GD, các lượt Playground/trình duyệt Windows treo nên không tính đạt, nghiệm thu dùng CI chạy thật. Sau gộp `8e53db3`, `node scripts/kiem-site-that.mjs` xác nhận site plugin 1.0.84/theme 1.0.16. Theo yêu cầu đăng riêng của người sáng lập, đã kiểm thao tác từng thẻ rồi lô chuẩn trên site: kết quả đăng, đóng thẻ, lời/thể loại/nguồn và đường dẫn công khai khớp; đối chiếu toàn bộ tác phẩm trước/sau không đổi bài cũ. Báo cáo vận hành và đề xuất luồng đăng giữ ngoài repo; không đưa lời, số liệu hoặc ảnh Kho riêng vào đây. Bản sửa không thay UX, mô hình dữ liệu, giấy phép hay dấu duyệt nội dung.
 
 ### Trang tác phẩm gọn — T-212..T-216
 
