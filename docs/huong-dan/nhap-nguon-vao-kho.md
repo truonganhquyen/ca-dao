@@ -3,7 +3,7 @@
 Làm tại **Bài mới → Nhập tệp**. Nhập chỉ đưa tư liệu vào Kho; bạn chọn đăng ở bước sau.
 
 1. Chọn **Hồ sơ nguồn** đã có; nếu chưa có, mở **Quản lý hồ sơ nguồn** để thêm. Không rõ thì giữ **Chưa rõ nguồn**.
-2. Chọn tệp TXT/CSV UTF-8, tối đa 1 MB và 500 mục; hoặc mở **Hoặc dán chữ**. TXT dùng cho danh sách đơn giản: các mục cách nhau bằng dòng trống. Tệp trộn thể loại hoặc có dòng trống bên trong bài nên dùng **Tải mẫu CSV**.
+2. Chọn tệp TXT/CSV UTF-8, tối đa 1 MB và 400 mục; hoặc mở **Hoặc dán chữ**. TXT dùng cho danh sách đơn giản: các mục cách nhau bằng dòng trống. Tệp trộn thể loại hoặc có dòng trống bên trong bài nên dùng **Tải mẫu CSV**.
 3. Bấm **Xem trước nhập**. Đọc cách tách và dấu hiệu trùng, chọn thể loại chung hoặc từng mục, bỏ chọn mục chưa muốn đưa vào. Thiếu thể loại thì chọn lại tại đây; phần lựa chọn được giữ.
 4. Bấm **Đưa các mục đã chọn vào Kho**. Máy làm mỗi lượt 25 mục. Có thể dừng và mở lại để tiếp tục; khi tắt JavaScript, bấm **Tiếp tục nhập** từng lượt.
 5. Nhập xong, **Bài mới** lọc đúng lần nhập đó. **Xem để đăng / Tiếp tục đăng** mở thẻ đọc lại trước khi đăng; chọn nhiều mục để **Xem trước và đăng**. Mục nghi trùng có **Xem đối chiếu**; quyết xong trở về lần nhập.

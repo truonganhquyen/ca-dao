@@ -25,7 +25,7 @@ final class NhapTep {
 	public const HANH_DONG = 'phongdao_nhap_tep';
 
 	/** Mỗi lần nhập tối đa. */
-	public const TOI_DA = 500;
+	public const TOI_DA = 400; // mỗi mục hai trường; đủ dưới max_input_vars=1000 của máy chủ
 
 	public static function dang_ky(): void {
 		add_action( 'admin_post_' . self::HANH_DONG, array( self::class, 'nhan_form' ) );
@@ -219,7 +219,7 @@ final class NhapTep {
 			return array( 'ok' => false, 'muc' => array(), 'loi' => 'Chọn tệp TXT hoặc CSV.' );
 		}
 		$ok = count( $muc ) > 0 && count( $muc ) <= self::TOI_DA;
-		return array( 'ok' => $ok, 'muc' => $ok ? $muc : array(), 'loi' => $ok ? '' : 'Một lần nhập từ 1 đến 500 mục. Chia nhỏ tệp rồi nhập lại.' );
+		return array( 'ok' => $ok, 'muc' => $ok ? $muc : array(), 'loi' => $ok ? '' : 'Một lần nhập từ 1 đến ' . self::TOI_DA . ' mục. Chia nhỏ tệp rồi nhập lại.' );
 	}
 
 	/** Form nhập (Bài mới): kiểm quyền, nonce; đọc chữ dán hoặc tệp chữ ≤ 1 MB; về lại Bài mới kèm lời báo. */

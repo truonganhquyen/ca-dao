@@ -98,6 +98,10 @@ final class NhapKho {
 			$kq = LanNhap::thu_lai( $id, $phien, get_current_user_id(), 'xem_bo_chon' === $lam ? 'bo_qua' : 'loi' );
 			if ( $kq['ok'] ) { wp_safe_redirect( self::url_xem( $kq['lan'] ) ); exit; }
 		} elseif ( in_array( $lam, array( 'luu', 'nhap', 'tiep' ), true ) ) {
+			if ( 'tiep' !== $lam && '1' !== ( $_POST['du_mau'] ?? '' ) ) {
+				self::bao( 'Biểu mẫu lựa chọn chưa gửi đầy đủ. Chưa nhập mục nào; chia nhỏ tệp rồi xem trước lại.' );
+				wp_safe_redirect( self::url_xem( $id ) ); exit;
+			}
 			$giu = 'tiep' === $lam ? null : array_map( 'absint', (array) wp_unslash( $_POST['giu'] ?? array() ) );
 			$loai = array_map( 'sanitize_key', (array) wp_unslash( $_POST['loai'] ?? array() ) );
 			$kq = LanNhap::ap_dung( $id, $phien, get_current_user_id(), $giu, $loai, sanitize_key( (string) ( $_POST['loai_chung'] ?? '' ) ), 'luu' === $lam );
@@ -140,7 +144,7 @@ final class NhapKho {
 		foreach ( NhapTep::ho_so_chon() as $id => $ten ) { $hs .= '<option value="' . (int) $id . '"' . selected( $id, (int) ( $cu['ho_so'] ?? 0 ), false ) . '>' . esc_html( $ten ) . '</option>'; }
 		$mo = ! empty( $_GET['nhap'] ) || $cu; // phpcs:ignore WordPress.Security.NonceVerification -- chỉ mở biểu mẫu
 		$mau = wp_nonce_url( admin_url( 'admin-post.php?action=' . self::MAU ), self::MAU );
-		return '<details class="pq-khoi phongdao-kho-nhap" id="nhap-tep"' . ( $mo ? ' open' : '' ) . '><summary>Nhập tệp vào Kho</summary><p>Chọn TXT/CSV hoặc dán chữ. Xem trước cách tách và thể loại rồi đưa vào Kho; chưa đăng bài nào. Tối đa 500 mục, 1 MB.</p>'
+		return '<details class="pq-khoi phongdao-kho-nhap" id="nhap-tep"' . ( $mo ? ' open' : '' ) . '><summary>Nhập tệp vào Kho</summary><p>Chọn TXT/CSV hoặc dán chữ. Xem trước cách tách và thể loại rồi đưa vào Kho; chưa đăng bài nào. Tối đa ' . NhapTep::TOI_DA . ' mục, 1 MB.</p>'
 			. '<form method="post" enctype="multipart/form-data" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="' . NhapTep::HANH_DONG . '">' . wp_nonce_field( NhapTep::HANH_DONG, '_wpnonce', true, false )
 			. '<div class="phongdao-tp-loc"><div class="phongdao-tp-truong"><label for="nhap-ho-so">Hồ sơ nguồn</label><select id="nhap-ho-so" name="ho_so">' . $hs . '</select></div><div class="phongdao-tp-truong"><label for="nhap-loai">Thể loại chung (có thể chọn từng mục ở bước sau)</label>' . self::chon_loai( 'loai', 'nhap-loai', (string) ( $cu['loai'] ?? '' ) ) . '</div></div>'
 			. '<p><a href="' . esc_url( admin_url( 'admin.php?page=phongdao&the=ho_so' ) ) . '">Quản lý hồ sơ nguồn</a> · <a href="' . esc_url( $mau ) . '">Tải mẫu CSV</a></p>'
@@ -181,7 +185,7 @@ final class NhapKho {
 			$goi = $doi_chieu[ $i ];
 			$o .= '<tr><td><input type="checkbox" id="nhap-giu-' . $i . '" name="giu[]" value="' . $i . '"' . checked( ! in_array( $i, $nd['bo'], true ), true, false ) . '><label for="nhap-giu-' . $i . '">Mục ' . ( $i + 1 ) . '</label></td><td><pre>' . esc_html( (string) $m['loi'] ) . '</pre><p class="description">' . esc_html( ( '' !== $m['ma_muc'] ? 'Mã: ' . $m['ma_muc'] . ' · ' : '' ) . ( '' !== $m['trang'] ? 'Trang: ' . $m['trang'] . ' · ' : '' ) . $m['url'] ) . '</p><p>' . esc_html( $goi ) . '</p></td><td><label for="nhap-loai-' . $i . '" class="screen-reader-text">Thể loại mục ' . ( $i + 1 ) . '</label>' . self::chon_loai( 'loai[' . $i . ']', 'nhap-loai-' . $i, (string) $m['loai'] ) . '</td></tr>';
 		}
-		return $o . '</tbody></table></div><p><button type="submit" name="lam" value="nhap" class="button button-primary">Đưa các mục đã chọn vào Kho</button> <button type="submit" name="lam" value="luu" class="button">Xem lại lựa chọn</button></p><p><label><input type="checkbox" name="tu_chay" value="1" checked> Tự tiếp tục đến hết, mỗi lượt 25 mục</label></p><p>Không đăng bài và không sửa phần công khai của bài cũ. TXT tách chưa hợp lý: sửa tệp rồi tải lại hoặc dùng CSV giữ ngắt khổ.</p></form></div>';
+		return $o . '</tbody></table></div><p><button type="submit" name="lam" value="nhap" class="button button-primary">Đưa các mục đã chọn vào Kho</button> <button type="submit" name="lam" value="luu" class="button">Xem lại lựa chọn</button></p><p><label><input type="checkbox" name="tu_chay" value="1" checked> Tự tiếp tục đến hết, mỗi lượt 25 mục</label></p><p>Không đăng bài và không sửa phần công khai của bài cũ. TXT tách chưa hợp lý: sửa tệp rồi tải lại hoặc dùng CSV giữ ngắt khổ.</p><input type="hidden" name="du_mau" value="1"></form></div>';
 	}
 
 	public static function chi_tiet( array $v ): string {

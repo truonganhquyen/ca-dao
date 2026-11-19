@@ -4,7 +4,7 @@ Quyết định D-122, người sáng lập yêu cầu triển khai ngày 19/11/
 
 ## Luồng vận hành
 
-1. **Bài mới → Nhập tệp**: chọn hồ sơ nguồn có sẵn hoặc Chưa rõ, tải TXT/CSV hay dán chữ. Mỗi lần tối đa 500 mục, tệp UTF-8 ≤ 1 MB. Tệp không vào thư viện media công khai.
+1. **Bài mới → Nhập tệp**: chọn hồ sơ nguồn có sẵn hoặc Chưa rõ, tải TXT/CSV hay dán chữ. Mỗi lần tối đa 400 mục, tệp UTF-8 ≤ 1 MB. Tệp không vào thư viện media công khai.
 2. **Xem trước nhập**: kiểm lời và cách tách, chọn thể loại theo mục hoặc áp dụng một loại chung, bỏ chọn ngoại lệ. Xem trước chỉ có bản chuẩn bị riêng tư trong bảng việc. Thiếu lời/thể loại thì giữ bản xem trước và lựa chọn để sửa.
 3. **Đưa các mục đã chọn vào Kho**: mỗi lượt 25 mục, tự tiếp tục bằng JavaScript đang có hoặc bấm Tiếp tục khi tắt JavaScript. Khi xong mở lại Bài mới lọc đúng lần nhập; lịch sử thu gọn ở cùng màn.
 4. **Xem để đăng / Tiếp tục đăng** hoặc chọn nhiều để xem trước và đăng qua đường hiện có. Nghi trùng mở đúng thẻ Hộp việc, quyết xong trở về lần nhập. Phần người đã sửa và các quyết định cũ được giữ.
