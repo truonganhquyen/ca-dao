@@ -50,7 +50,7 @@ final class NhanGui {
 		}
 		$kq = '' === $ma ? self::luu( $p ) : array( 'ok' => false, 'ma' => $ma, 'bai' => 0 );
 		if ( $kq['ok'] ) {
-			$toi = 'tac_pham' === ( $p['loai'] ?? '' ) ? add_query_arg( array( 'loai' => 'tac_pham', 'gui' => 'da_gui' ), home_url( '/gop/' ) ) : ( $kq['bai'] ? add_query_arg( 'gop', 'da_gui', (string) get_permalink( $kq['bai'] ) ) . '#gop' : add_query_arg( 'gui', 'da_gui', home_url( '/gop/' ) ) );
+			$toi = 'tac_pham' === ( $p['loai'] ?? '' ) ? add_query_arg( array( 'loai' => 'tac_pham', 'gui' => 'da_gui' ), home_url( '/gop/' ) ) : ( $kq['bai'] ? add_query_arg( 'gop', 'da_gui', (string) get_permalink( $kq['bai'] ) ) . '#gop' : add_query_arg( array( 'loai' => $p['loai'], 'gui' => 'da_gui' ), home_url( '/gop/' ) ) );
 			wp_safe_redirect( $toi, 303 );
 			exit;
 		}
@@ -262,7 +262,7 @@ final class NhanGui {
 			// Form nhanh trên trang bài: quay lại đúng tầng Hiểu thêm, lời báo nằm cạnh form
 			$toi = add_query_arg( array( 'gop' => $kq['ok'] ? 'da_gui' : 'loi', 'gop_loai' => 'cach_hieu', 'ma' => $kq['ok'] ? false : $kq['ma'] ), (string) get_permalink( $kq['bai'] ) ) . '#cach-hieu';
 		} elseif ( $kq['ok'] ) {
-			$toi = $kq['bai'] ? add_query_arg( 'gop', 'da_gui', (string) get_permalink( $kq['bai'] ) ) . '#gop' : add_query_arg( 'gui', 'da_gui', $goc );
+			$toi = 'tac_pham' === ( $p['loai'] ?? '' ) || ! $kq['bai'] ? add_query_arg( array( 'loai' => sanitize_key( (string) ( $p['loai'] ?? '' ) ), 'gui' => 'da_gui' ), $goc ) : add_query_arg( 'gop', 'da_gui', (string) get_permalink( $kq['bai'] ) ) . '#gop';
 		} else {
 			$toi = add_query_arg(
 				array_filter(

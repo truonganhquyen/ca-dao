@@ -15,10 +15,10 @@ final class GopTacPham {
 	public static function the( array $v, bool $co_form ): string {
 		$id = (int) $v['doi_tuong_id']; $p = get_post( $id );
 		if ( ! $p ) { return '<p>Không còn bản gửi này.</p>'; }
-		$p->post_content = DuyetTacPham::loi( $id );
+		$loi = DuyetTacPham::loi( $id );
 		$d = get_post_meta( $id, '_phongdao_gop', true ); $d = is_array( $d ) ? $d : array();
-		$o = '<pre class="gop-loi-doi-chieu">' . esc_html( $p->post_content ) . '</pre><p>Nguồn người góp cung cấp, chưa đối chiếu: ' . esc_html( $d['xuat_xu'] ?? 'Chưa rõ' ) . '</p><p>Bút danh: ' . esc_html( $d['ten'] ?? '' ) . ( empty( $d['hien_ten'] ) ? ' · không đồng ý công khai tên' : ' · đã đồng ý công khai tên khi được dùng' ) . '</p>';
-		try { $near = SoTrung::tim( $p->post_content, false, $id ); } catch ( \Throwable $e ) { return $o . '<p role="alert">Chưa kiểm được trùng. Tải lại trước khi quyết.</p>'; }
+		$o = '<pre class="gop-loi-doi-chieu">' . esc_html( $loi ) . '</pre><p>Nguồn người góp cung cấp, chưa đối chiếu: ' . esc_html( $d['xuat_xu'] ?? 'Chưa rõ' ) . '</p><p>Bút danh: ' . esc_html( $d['ten'] ?? '' ) . ( empty( $d['hien_ten'] ) ? ' · không đồng ý công khai tên' : ' · đã đồng ý công khai tên khi được dùng' ) . '</p>';
+		try { $near = SoTrung::tim( $loi, false, $id ); } catch ( \Throwable $e ) { return $o . '<p role="alert">Chưa kiểm được trùng. Tải lại trước khi quyết.</p>'; }
 		$targets = array();
 		foreach ( $near as $r ) {
 			$o .= '<details class="pq-khoi"><summary>' . esc_html( $r['ten'] ) . ' · giống chữ ' . $r['diem'] . '%' . ( $r['khop'] ? ' · khớp lời sau chuẩn hoá' : '' ) . '</summary><pre class="gop-loi-doi-chieu">' . esc_html( implode( "\n", $r['dong'] ) ) . '</pre><p>' . esc_html( $r['muc'] ) . '</p></details>';
@@ -44,7 +44,7 @@ final class GopTacPham {
 			. '<p><label for="gop-nguon-' . $id . '">Nguồn sẽ công khai — bỏ thông tin cá nhân, để trống nếu chưa rõ</label><textarea' . $form . ' id="gop-nguon-' . $id . '" name="gop_nguon" rows="2" maxlength="2000">' . esc_textarea( $d['xuat_xu'] ?? '' ) . '</textarea></p>';
 		if ( ! empty( $d['hien_ten'] ) && '' !== ( $d['ten'] ?? '' ) ) { $o .= '<p><label><input' . $form . ' type="checkbox" name="gop_hien_ten" value="1"> Công khai bút danh “' . esc_html( $d['ten'] ) . '” trên phần được sử dụng</label></p>'; }
 		$o .= '<fieldset><legend>Gợi ý chủ đề — chỉ gắn cho bài mới khi bạn chọn</legend>';
-		$dummy = (object) array( 'loi' => $p->post_content, 'tieu_de' => '', 'loai' => '', 'du_lieu' => '{}' );
+		$dummy = (object) array( 'loi' => $loi, 'tieu_de' => '', 'loai' => '', 'du_lieu' => '{}' );
 		foreach ( \Phongdao\DichVu\GoiY\GoiY::cho_kho( $dummy ) as $g ) { $o .= '<label class="choice"><input' . $form . ' type="checkbox" name="gop_pl[]" value="' . esc_attr( $g['loai'] . ':' . $g['term']->term_id ) . '"> ' . esc_html( $g['term']->name . ' — ' . $g['ly_do'] ) . '</label>'; }
 		$o .= '</fieldset><details><summary>Chọn thêm chủ đề, vùng cho bài mới</summary><p class="description">Chỉ chọn vùng khi có căn cứ từ tư liệu. Thêm dị bản không thay phân loại bài đích.</p>';
 		foreach ( array( 'chu_de' => 'Chủ đề', 'vung' => 'Vùng' ) as $tax => $label ) {

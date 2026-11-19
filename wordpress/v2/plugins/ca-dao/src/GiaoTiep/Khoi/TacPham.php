@@ -514,10 +514,14 @@ final class TacPham {
 		$giai = $co
 			? 'Lời khớp với bản in trong sách, đúng trang đã ghi. Người biên soạn đối chiếu; máy không tự gắn nhãn này.'
 			: 'Lời ghi theo cách người Việt thường đọc, hát hiện nay. Thư viện đang đối chiếu dần với sách in; khi xong, dòng này ghi tên sách và số trang.';
-		$nut  = ( $co ? '' : Ve::lien_ket( 'gop', 'Có sách? Gửi số trang', 'btn compact' ) ) . Ve::lien_ket( 'phuong-phap', 'Cách biên soạn' );
+		$nut  = ( $co ? '' : self::gop_so_trang( $tp, 'btn compact' ) ) . Ve::lien_ket( 'phuong-phap', 'Cách biên soạn' );
 		$bang = self::tu_lieu_dong( $tp, false, false );
 		return '<details class="dong-nguon" id="tu-lieu"><summary>' . Ve::icon( $co ? 'check' : 'book' ) . '<span class="dong-nguon-chu">' . $chu . '</span><span class="dong-nguon-mo">Nguồn</span></summary>'
 			. '<div class="dong-nguon-than"><p>' . $giai . '</p>' . ( '' === $bang ? '' : '<dl class="metadata">' . $bang . '</dl>' ) . '<p class="dong-nguon-nut">' . $nut . '</p></div></details>';
+	}
+
+	private static function gop_so_trang( array $tp, string $lop = '' ): string {
+		return '<a class="' . esc_attr( $lop ) . '" href="' . esc_url( add_query_arg( array_filter( array( 'loai' => 'so_trang', 'bai' => is_numeric( $tp['ma'] ) ? (int) $tp['ma'] : 0 ) ), Ve::url( 'gop' ) ) ) . '">Có sách? Gửi số trang</a>';
 	}
 
 	/** Chú thích từ số này trở lên ở bài chia đoạn thì nằm sau từng đoạn (D-114, D-119). */
@@ -534,7 +538,7 @@ final class TacPham {
 	/** Các dòng của bảng nguồn: Lời ($loi), Ý nghĩa, Chú thích, Chuyện quanh bài, Cách làm ($cach_lam). */
 	private static function tu_lieu_dong( array $tp, bool $loi_dong = true, bool $cach_lam = true ): string {
 		$loi  = null === $tp['doi_chieu']
-			? 'Bản lưu truyền phổ biến, chưa đối chiếu với sách in. ' . Ve::lien_ket( 'gop', 'Có sách? Gửi số trang' )
+			? 'Bản lưu truyền phổ biến, chưa đối chiếu với sách in. ' . self::gop_so_trang( $tp )
 			: 'Đã đối chiếu với ' . esc_html( $tp['doi_chieu']['sach'] ) . '.';
 		$dong = $loi_dong ? '<dt>Lời</dt><dd>' . $loi . '</dd>' : '';
 		if ( ! empty( $tp['y_nghia']['chu'] ) ) {
