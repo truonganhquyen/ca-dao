@@ -471,7 +471,8 @@ final class UngVien implements Module {
 				}
 				unset( $moi );
 			}
-			if ( ! LuuPhan::luu( $bai_id, $phan, $gia_tri, array( 'nguoi' => $nguoi, 'goi' => $nguoi ? KiemPhan::GOI_NGUOI : KiemPhan::GOI_MAY ) )['ok'] ) {
+			$goi = $nguoi && 'nguon_may' !== $phan ? KiemPhan::GOI_NGUOI : KiemPhan::GOI_MAY;
+			if ( ! LuuPhan::luu( $bai_id, $phan, $gia_tri, array( 'nguoi' => $nguoi, 'goi' => $goi ) )['ok'] ) {
 				return false;
 			}
 		}
