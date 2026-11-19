@@ -56,6 +56,9 @@ kt( 'plugin V2 đang bật', is_plugin_active( 'ca-dao/ca-dao.php' ) );
 $du_lieu = get_plugin_data( WP_PLUGIN_DIR . '/ca-dao/ca-dao.php', false, false );
 kt( 'plugin tên "Phongdao — Thư viện Văn học Dân gian Việt Nam"', 'Phongdao — Thư viện Văn học Dân gian Việt Nam' === $du_lieu['Name'], $du_lieu['Name'] );
 kt( 'CADAO_PHIEN_BAN khớp dòng Version: của plugin', CADAO_PHIEN_BAN === $du_lieu['Version'], array( CADAO_PHIEN_BAN, $du_lieu['Version'] ) );
+$css_chung = (string) file_get_contents( WP_PLUGIN_DIR . '/ca-dao/assets/admin-chung.css' );
+$mat_literata = preg_match( '/@font-face\s*\{[^}]*font-family:\s*"Literata";[^}]*\}/', $css_chung, $khop_literata ) ? $khop_literata[0] : '';
+kt( 'quản trị khai báo Literata 400 tự lưu trữ trong CSS chung, đổi phông khi tải xong; tệp phông có thật', str_contains( $mat_literata, 'font-weight: 400;' ) && str_contains( $mat_literata, 'font-display: swap;' ) && str_contains( $mat_literata, 'url("phong/literata-400.ttf")' ) && is_file( WP_PLUGIN_DIR . '/ca-dao/assets/phong/literata-400.ttf' ) );
 kt( 'theme Phongdao đang dùng, là theme khối', 'Phongdao' === wp_get_theme()->get( 'Name' ) && wp_is_block_theme() );
 
 // ---------- Module ----------

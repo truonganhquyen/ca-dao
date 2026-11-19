@@ -7,6 +7,7 @@
  */
 @font-face { font-family: "Be Vietnam Pro"; font-style: normal; font-weight: 400; font-display: swap; src: url("phong/bvp-400.ttf") format("truetype"); }
 @font-face { font-family: "Be Vietnam Pro"; font-style: normal; font-weight: 600; font-display: swap; src: url("phong/bvp-600.ttf") format("truetype"); }
+@font-face { font-family: "Literata"; font-style: normal; font-weight: 400; font-display: swap; src: url("phong/literata-400.ttf") format("truetype"); }
 
 body.phongdao-menu {
 	--pq-nen: #f4f3f7; --pq-trang: #fff; --pq-chu: #1f1b2a; --pq-nhat: #5c5868; --pq-vien: #e3e0ea; --pq-vien-dam: #cfcbd9;

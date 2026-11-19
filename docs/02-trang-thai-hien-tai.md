@@ -67,9 +67,8 @@
 - **Rút gọn Ý nghĩa dài** (Bổ sung → "Ý nghĩa dài"): còn 2–3 câu; phần kể chuyện chuyển sang Từ khó hoặc Bối cảnh.
 - **Duyệt bảng Dọn chủ đề** (Danh mục → Dọn chủ đề): trên site thật, mục ngoài bộ là "Loại vè" và "Vè dân gian về động vật"; máy đề xuất bỏ (trùng thể loại Vè), bạn có thể chọn gộp vào một chủ đề trong bộ.
 - **Gửi thư cho Ca dao Mẹ** (`docs/12` mục 7): site đã mở cho Google, nên gửi sớm.
-- **Trang Quyền riêng tư:** nội dung do người sáng lập viết (`docs/27` mục 8.3). Liên kết ở chân trang tự ẩn tới khi trang được đăng.
-- **Hai cặp tác phẩm chung một đường dẫn** (#1764, #1769): chọn bài giữ đường dẫn. Trang Tác phẩm có nút "Cho bài này đường dẫn riêng".
-- **Chọn 20–30 bài làm sâu** (`docs/huong-dan/thu-lam-sau.md`): để biết một bài làm kỹ tốn bao lâu.
+- **Hồ sơ đối soát ngày chuyển** (`docs/22`, T-178.4, 19/11/2026): cần bảng ID/trạng thái cùng thời điểm để giải thích 630/631, danh sách 7 ID có phần `doan` và đủ 15 ánh xạ đường cũ–mới. Lượt GET hiện tại có 16.303 đường dẫn riêng và 7 vè có tiêu đề đoạn; hai cặp cũ #1764/#69, #1769/#1736 đều đã có địa chỉ riêng trả 200, nên không còn chờ chọn bài tách đường dẫn. Chưa dùng số hiện tại để xác nhận lịch sử hoặc kết luận mất dữ liệu.
+- **Chọn và thử làm sâu 20–30 bài** (`docs/huong-dan/thu-lam-sau.md`): ghi thời gian, giá trị và chỗ vướng. Phần máy đã xong, hiện ở Hôm nay + Số liệu (`docs/42` mục 3); phần thử thuộc người sáng lập, chưa có bằng chứng hoàn tất (đối soát 19/11/2026).
 - **Khoá Turnstile** (tuỳ chọn, chặn tin rác chắc hơn): Cloudflare → Turnstile, dán khoá ở Nguồn & cài đặt → Chống rác. Không gửi khoá cho ai, kể cả agent.
 
 ## Công việc kỹ thuật tiếp theo
