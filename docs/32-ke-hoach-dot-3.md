@@ -61,7 +61,7 @@ Mục đánh số theo báo cáo trinh sát lần 2 (`docs/e2e-review/v2-quan-tr
 - Bộ lọc, xếp: **Máy gợi ý hôm nay** (thay thẻ Câu mới hằng ngày, cùng quy tắc chọn câu: mong có, tìm không thấy, xoay vòng thể loại, câu có chú thích trước); người đọc mong có; có chú thích; không cờ; câu ngắn / dài. (4.1, 4.2)
 - **Để dành / Đề nghị đăng**: thay nút "Đưa vào Hộp việc" của Kho; câu đánh dấu nằm lại Kho, có bộ lọc riêng. Người chỉ có quyền soạn dùng "Đề nghị đăng"; người có quyền duyệt thấy số đề nghị ở Hôm nay.
 - Đăng một mạch giữ như đợt 2 (D-101). Màn xem trước nhắc cân nhắc gắn cờ "Có thể không phải dân gian" cho câu máy đánh "nghi là câu hiện đại" (máy không tự gắn).
-- **Nhập câu từ tệp**: dán danh sách hoặc tải tệp (câu đã gõ từ một cuốn sách), chọn hồ sơ nguồn, máy tách câu, đưa vào Kho qua chống trùng; không đăng thẳng. Lời là chữ người gõ từ sách, máy không viết, không sửa lời.
+- **Nhập câu từ tệp**: dán danh sách hoặc tải tệp (câu đã gõ từ một cuốn sách), chọn hồ sơ nguồn, máy tách câu, đưa vào Kho qua chống trùng; không đăng thẳng. Lời là chữ người gõ từ sách, máy không viết, không sửa lời. **Đã mở rộng theo D-122:** TXT/CSV có xem trước, giữ chứng cứ nguồn, lọc/lịch sử lần nhập và kết quả thực tế ngay trong Bài mới; [phạm vi/nghiệm thu](43-nhap-nguon-gon.md).
 - **Thêm tác phẩm trong wp-admin**: cùng biểu mẫu, kiểm trùng như `/bien-tap/them/` hiện nay. (3.4)
 - Điện thoại: Kho dạng thẻ ba dòng, bộ lọc gập. (3.2)
 

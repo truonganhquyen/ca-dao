@@ -20,3 +20,5 @@ Chỉ `loi` bắt buộc trong tệp. Ô lời nhiều dòng đặt trong dấu 
 Nhập lại cùng dữ liệu mở lần nhập cũ; đổi tên tệp không tạo thêm mục. Cùng lời từ hai hồ sơ vẫn giữ hai chứng cứ. Có lời khớp bài cũ thì chứng cứ được giữ trong Kho, không tự sửa bài công khai. Mã mục đã có nhưng lời/thể loại/vị trí thay đổi báo xung đột và giữ mục cũ; kiểm lại tư liệu trước khi nhập tiếp.
 
 Chủ đề và vùng vẫn chọn ở Đăng nhanh/Bổ sung; không cần điền Ý nghĩa để đăng. [Hướng dẫn đăng nhiều câu](dang-hang-loat.md).
+
+Lịch sử lần nhập áp dụng từ luồng mới. Tư liệu đã nhập trước đây vẫn tra bằng bộ lọc Kho hiện có; không cần nhập hoặc đăng lại để dùng công cụ mới.
