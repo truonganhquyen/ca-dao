@@ -256,6 +256,28 @@ try {
       if(thuMucAnh) await bt.screenshot({path:path.join(thuMucAnh,`admin-${man==='thùng rác'?'rac':'xoa'}-${width}.png`),fullPage:true});
     }
   }
+  // D-123: thẻ góp mới, chỉ gửi fixture trên Playground của chính lượt quét.
+  await bt.goto(G+'/gop/',{waitUntil:'load',timeout:120_000});
+  const nhanGop = await bt.evaluate(async () => {
+    const f=document.querySelector('#gop-form'), d=new FormData(f);
+    d.set('noi_dung','[UX-TEST-224-AXE] amber birch cedar drift ember fern glade hill');
+    d.set('xuat_xu','https://example.org/technical-source'); d.set('ten','Reader test'); d.set('hien_ten','1'); d.set('dong_y','1');
+    const r=await fetch(f.action,{method:'POST',body:d}); return r.ok && (await r.text()).includes('Đã nhận để người biên soạn xem');
+  });
+  if(!nhanGop)throw new Error('chưa tạo được fixture thẻ Góp một câu để quét');
+  await bt.goto(G+'/wp-admin/admin.php?page=phongdao-hop-viec&loai=nguoi_doc',{waitUntil:'load',timeout:120_000});
+  const denGop=await bt.$$eval('.phongdao-hv-ds .phongdao-hv-mo',as=>as.find(a=>a.textContent.includes('UX-TEST-224-AXE'))?.href);
+  if(!denGop)throw new Error('thiếu thẻ Góp một câu trong Hộp việc');
+  await bt.goto(denGop,{waitUntil:'load',timeout:120_000});
+  for(const width of [390,1440]) {
+    await bt.setViewport({width,height:900});
+    await bt.evaluate(()=>document.querySelectorAll('#wpbody-content details').forEach(d=>{d.open=true;}));
+    const tran=await doTran(bt);if(tran)loi.push(`Góp một câu ${width}: tràn ngang ${tran}`);
+    await bt.addScriptTag({content:axeNguon});
+    const kq=await bt.evaluate(the=>window.axe.run('#wpbody-content .wrap',{runOnly:{type:'tag',values:the}}),THE_WCAG);
+    for(const v of kq.violations)for(const n of v.nodes.slice(0,3))loi.push(`Góp một câu ${width}: [${v.id}] ${v.help} — ${n.target.join(' ')}`);
+    if(thuMucAnh)await bt.screenshot({path:path.join(thuMucAnh,`gop-cau-hop-viec-${width}.png`),fullPage:true});
+  }
   await bt.close();
   console.log(`Quét V2: ${DS_TRANG.length} trang × ${CHE_DO.length} chế độ + ${DS_TINH_320.size} trang tĩnh × 2 chế độ 320 px + ${DS_BIEN_TAP.length} trang biên tập + 19 trang admin + trang sửa 36 mục × 6 cỡ (gập/mở) + Danh mục × 2 cỡ + Thùng rác/Xem trước xoá × 2 cỡ (axe ${THE_WCAG.join(', ')}) — ${loi.length} lỗi.`);
 } catch (e) {
