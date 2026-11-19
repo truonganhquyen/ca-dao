@@ -46,6 +46,19 @@ export async function kiemNhapNguon({bt,k,di,datO,bamDoiTrang,thu,chac,coChu,doi
     await di(bt,`/wp-admin/admin.php?page=phongdao-kho&tt=tat_ca&lan_nhap=${lan}`);
     chac((await bt.$$('.phongdao-tp-hanh a[href*="xem=nhanh"]')).length===0,'mục đã đăng vẫn có hành động chờ đăng');
   });
+  await thu('mục nghi trùng mở đúng thẻ, quyết khác nhau rồi trở về đúng lần nhập và giữ kết quả',async()=>{
+    await di(bt,'/wp-admin/admin.php?page=phongdao-kho&nhap=1');
+    await bt.$eval('#nhap-tep details',d=>{d.open=true;});
+    await datO(bt,'#nhap-chu','[UX-TEST-223] North223 amber willow cypress píne');
+    await bt.select('#nhap-loai','ca_dao');
+    await bamDoiTrang(bt,'.phongdao-kho-nhap button[type=submit]');
+    await bamDoiTrang(bt,'button[name=lam][value=nhap]');
+    const trung=new URL(bt.url()).searchParams.get('lan_nhap');
+    chac(trung && await coChu(bt,'Đang chờ quyết trùng'),'mục khác dấu không qua đối chiếu');
+    await bamDoiTrang(bt,'.phongdao-tp-hanh a[href*="viec="]');
+    await bamDoiTrang(bt,'button[name=quyet][value=khac]');
+    chac(new URL(bt.url()).searchParams.get('page')==='phongdao-kho' && new URL(bt.url()).searchParams.get('lan_nhap')===trung && await coChu(bt,'Đã quyết là khác nhau'),'quyết thẻ không trở về đúng lần nhập/kết quả');
+  });
   await thu('nhập không JavaScript: thiếu thể loại giữ xem trước/lựa chọn; sửa rồi nhập và đăng qua form thường',async()=>{
     await bt.setJavaScriptEnabled(false);
     try {

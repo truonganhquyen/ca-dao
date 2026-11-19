@@ -268,7 +268,7 @@ final class UngVien implements Module {
 	public static function phan_tu_kho( object $muc, int $bai = 0 ): array {
 		global $wpdb;
 		$nguon = self::nguon_muc( $muc );
-		$goc = static fn( array $n ): array => array_filter( array( 'nguon' => array_filter( array( 'ho_so' => (int) ( $n['ho_so'] ?? 0 ), 'trang' => (string) ( $n['trang'] ?? '' ), 'url' => (string) ( $n['url_muc'] ?? '' ) ) ) ) );
+		$goc = static fn( array $n ): array => array_filter( array( 'nguon' => array_filter( array( 'ho_so' => (int) ( $n['ho_so'] ?? 0 ), 'trang' => (string) ( $n['trang'] ?? '' ), 'url' => (string) ( $n['url_muc'] ?? '' ) ), static fn( $v ): bool => '' !== $v && 0 !== $v ) ) );
 		$khoa  = array( 'kho:' . $muc->id );
 		if ( $bai ) {
 			$khoa[] = 'bai:' . $bai;
