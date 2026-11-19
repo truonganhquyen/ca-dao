@@ -57,7 +57,7 @@ export async function kiemNhapNguon({bt,k,di,datO,bamDoiTrang,thu,chac,coChu,doi
     chac(trung && await coChu(bt,'Đang chờ quyết trùng'),'mục khác dấu không qua đối chiếu');
     await bamDoiTrang(bt,'.phongdao-tp-hanh a[href*="viec="]');
     await bamDoiTrang(bt,'button[name=quyet][value=khac]');
-    chac(new URL(bt.url()).searchParams.get('page')==='phongdao-kho' && new URL(bt.url()).searchParams.get('lan_nhap')===trung && await coChu(bt,'Đã quyết là khác nhau'),'quyết thẻ không trở về đúng lần nhập/kết quả');
+    chac(new URL(bt.url()).searchParams.get('page')==='phongdao-kho' && new URL(bt.url()).searchParams.get('lan_nhap')===trung && await coChu(bt,'Đã xác nhận là bài khác.'),'quyết thẻ không trở về đúng lần nhập/kết quả');
   });
   await thu('nhập không JavaScript: thiếu thể loại giữ xem trước/lựa chọn; sửa rồi nhập và đăng qua form thường',async()=>{
     await bt.setJavaScriptEnabled(false);
