@@ -16,13 +16,10 @@ final class SoTrung {
 	public static function bai_co_ghi_cong( string $loi ): int {
 		global $wpdb;
 		$bam = VanTay::cua( $loi )['vt1']; $t = ChongTrung::bang( 'van_tay' );
-		$ds = $wpdb->get_results( $wpdb->prepare( "SELECT t.phan,p.ID FROM $t t JOIN {$wpdb->posts} p ON t.muc=CONCAT('bai:',p.ID) WHERE t.vt1=%s AND p.post_type='tac_pham' AND p.post_status NOT IN ('trash','auto-draft') AND EXISTS (SELECT 1 FROM {$wpdb->postmeta} m WHERE m.post_id=p.ID AND m.meta_key='_phongdao_dong_gop') LIMIT 20", $bam ) );
+		// Đọc có khoá để thấy lượt duyệt vừa COMMIT, kể cả khi caller đã mở snapshot lúc đọc Kho.
+		$id = $wpdb->get_var( $wpdb->prepare( "SELECT p.ID FROM $t t JOIN {$wpdb->posts} p ON t.muc=CONCAT('bai:',p.ID) JOIN {$wpdb->postmeta} m ON m.post_id=p.ID AND m.meta_key='_phongdao_dong_gop' WHERE t.vt1=%s AND p.post_type='tac_pham' AND p.post_status NOT IN ('trash','auto-draft') LIMIT 1 FOR UPDATE", $bam ) );
 		if ( $wpdb->last_error ) { throw new \RuntimeException( 'Chưa đối chiếu được đóng góp đã duyệt.' ); }
-		foreach ( $ds ?: array() as $m ) {
-			$dong = (int) $m->phan ? ( PhanBai::lay( (int) $m->ID, 'di_ban' )['muc'][ (int) $m->phan - 1 ]['dong'] ?? array() ) : ( PhanBai::lay( (int) $m->ID, 'loi' )['dong'] ?? array() );
-			if ( $bam === VanTay::cua( implode( "\n", $dong ) )['vt1'] ) { return (int) $m->ID; }
-		}
-		return 0;
+		return (int) $id;
 	}
 
 	public static function tim( string $loi, bool $cong_khai = true, int $bo_gop = 0 ): array {
