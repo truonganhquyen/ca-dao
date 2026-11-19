@@ -258,13 +258,12 @@ try {
   }
   // D-123: thẻ góp mới, chỉ gửi fixture trên Playground của chính lượt quét.
   await bt.goto(G+'/gop/',{waitUntil:'load',timeout:120_000});
-  const nhanGop = await bt.evaluate(async () => {
-    const f=document.querySelector('#gop-form'), d=new FormData(f);
-    d.set('noi_dung','[UX-TEST-224-AXE] amber birch cedar drift ember fern glade hill');
-    d.set('xuat_xu','https://example.org/technical-source'); d.set('ten','Reader test'); d.set('hien_ten','1'); d.set('dong_y','1');
-    const r=await fetch(f.action,{method:'POST',body:d}); return r.ok && (await r.text()).includes('Đã nhận để người biên soạn xem');
+  await bt.$eval('#gop-form',f=>{
+    for(const [name,value] of Object.entries({noi_dung:'[UX-TEST-224-AXE] amber birch cedar drift ember fern glade hill',xuat_xu:'https://example.org/technical-source',ten:'Reader test'}))f.elements[name].value=value;
+    f.elements.hien_ten.checked=true; f.elements.dong_y.checked=true;
   });
-  if(!nhanGop)throw new Error('chưa tạo được fixture thẻ Góp một câu để quét');
+  await Promise.all([bt.waitForNavigation({waitUntil:'load',timeout:120_000}),bt.click('#gop-form button[type=submit]')]);
+  if(!(await bt.evaluate(()=>document.body.textContent.includes('Đã nhận để người biên soạn xem'))))throw new Error('chưa tạo được fixture thẻ Góp một câu: '+await bt.$eval('#gop-bao-loi',e=>e.textContent));
   await bt.goto(G+'/wp-admin/admin.php?page=phongdao-hop-viec&loai=nguoi_doc',{waitUntil:'load',timeout:120_000});
   const denGop=await bt.$$eval('.phongdao-hv-ds .phongdao-hv-mo',as=>as.find(a=>a.textContent.includes('UX-TEST-224-AXE'))?.href);
   if(!denGop)throw new Error('thiếu thẻ Góp một câu trong Hộp việc');

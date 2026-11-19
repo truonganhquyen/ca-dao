@@ -22,7 +22,11 @@ final class GopTacPham {
 		$targets = array();
 		foreach ( $near as $r ) {
 			$o .= '<details class="pq-khoi"><summary>' . esc_html( $r['ten'] ) . ' · giống chữ ' . $r['diem'] . '%' . ( $r['khop'] ? ' · khớp lời sau chuẩn hoá' : '' ) . '</summary><pre class="gop-loi-doi-chieu">' . esc_html( implode( "\n", $r['dong'] ) ) . '</pre><p>' . esc_html( $r['muc'] ) . '</p></details>';
-			if ( $r['bai'] ) { $targets[ $r['bai'] ] = $r['ten']; }
+			if ( $r['bai'] ) {
+				$tt = get_post_status( $r['bai'] );
+				$o .= '<p><a href="' . esc_url( SuaTacPham::url( $r['bai'] ) ) . '">Mở trang Sửa tác phẩm</a> · ' . esc_html( array( 'publish' => 'Đã đăng', 'draft' => 'Bản nháp', 'private' => 'Đã ẩn', 'pending' => 'Chờ' )[ $tt ] ?? $tt ) . '</p>';
+				if ( in_array( $tt, array( 'publish', 'draft' ), true ) ) { $targets[ $r['bai'] ] = $r['ten'] . ( 'draft' === $tt ? ' · Bản nháp' : ' · Đã đăng' ); }
+			}
 		}
 		$context = (int) ( $v['noi_dung']['bai'] ?? 0 ); if ( $context && 'tac_pham' === get_post_type( $context ) ) { $targets[ $context ] = get_the_title( $context ); }
 		// Bài đích khác do người chọn qua GET trong chính Hộp việc, form quyết vẫn giữ snapshot của bài đó.

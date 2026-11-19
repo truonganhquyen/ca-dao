@@ -101,7 +101,7 @@ final class DuyetTacPham {
 		$r = wp_update_post( array( 'ID' => $id, 'post_status' => 'private' ), true ); clean_post_cache( $id );
 		$ket = $wpdb->update( Viec::bang(), array( 'sau' => wp_json_encode( array( 'bai' => $bai, 'phan' => $phan ) ) ), array( 'id' => $v['id'] ) );
 		if ( is_wp_error( $r ) || 'private' !== get_post_status( $id ) || false === $ket || ! ChongTrung::xoa( 'gop:' . $id ) || ! Viec::dong( $v['id'], Viec::XONG, $lam, $nguoi, $v['trang_thai'] ) ) { return $hong( 'Chưa chốt được kết quả; đóng góp vẫn cần đối soát.' ); }
-		return array( 'ok' => true, 'loi' => array(), 'thong_bao' => ( $moi ? 'Đã đăng tác phẩm' : ( 'gop_di_ban' === $lam ? 'Đã thêm dị bản' : 'Đã bổ sung nguồn' ) ) . ' từ đóng góp vào bài #' . $bai . '.', 'chuyen' => '' );
+		return array( 'ok' => true, 'loi' => array(), 'thong_bao' => ( $moi ? 'Đã đăng tác phẩm' : ( 'gop_di_ban' === $lam ? 'Đã thêm dị bản' : 'Đã bổ sung nguồn' ) ) . ' từ đóng góp vào bài #' . $bai . '.' . ( 'draft' === get_post_status( $bai ) ? ' Bài đích đang ở Bản nháp, chưa công khai.' : '' ), 'chuyen' => '' );
 	}
 
 }

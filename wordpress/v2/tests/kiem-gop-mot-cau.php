@@ -63,7 +63,7 @@ if ( $b123 ) {
 	remove_action( 'phongdao_da_luu_phan', $fail123, 99 );
 	kt( 'Góp câu: lỗi giữa lúc duyệt hoàn tác nguồn, trạng thái và thẻ; thử lại được', ! $rr123['ok'] && $truoc123 === PhanBai::lay( $b123, 'dong_gop' ) && 'pending' === get_post_status( $stale123['id'] ) && !! $the123( $stale123['id'] ) && $quyet123( $stale123['id'], 'gop_nguon', $b123 )['ok'], $rr123 );
 	// Kiểm ở bộ chuyển dữ liệu thuần để không phụ thuộc hình dạng DocBai.
-	$view123 = \Phongdao\DichVu\DungTrang\TrangTacPham::tu_phan( PhanBai::tat_ca( $b123 ), array( 'id' => $b123, 'tieu_de' => '[UX-TEST]', 'the_loai' => 'ca-dao', 'url' => get_permalink( $b123 ) ) );
+	$view123 = \Phongdao\DichVu\DungTrang\TrangTacPham::tu_phan( PhanBai::tat_ca( $b123, KhaiBao::TAC_PHAM ), array( 'id' => $b123, 'tieu_de' => '[UX-TEST]', 'the_loai' => 'ca-dao', 'url' => get_permalink( $b123 ) ) );
 	$html123 = \Phongdao\GiaoTiep\Khoi\TacPham::hien( $view123 );
 	kt( 'Góp câu: ghi công đúng lời/dị bản, escape tên, không lộ tên riêng tư', str_contains( $html123, 'Reader &lt;test&gt;' ) && ! str_contains( $html123, 'Private test name' ) && str_contains( $html123, 'https://example.org/second-test' ) );
 	$edit123 = \Phongdao\GiaoTiep\BienTap\TamSua::doc( 'dong_gop', array( 'muc' => array( array( 'an_ten' => 1, 'gop_id' => 999, 'phan' => 'di_ban', 'dau_loi' => 'forged', 'xuat_xu' => 'https://example.org/revised-test' ) ) ), PhanBai::lay( $b123, 'dong_gop' ) );
