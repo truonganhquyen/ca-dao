@@ -831,7 +831,8 @@ try {
 
     await thu('wp-admin Hộp việc hai phiên: thẻ đã quyết ở phiên khác thì màn cũ bị chặn, báo rõ, không quyết chồng', async () => {
       const chu = 'Góp thử hai phiên: dòng một nên đọc khác.';
-      await di(k, '/gop/');
+      await di(k, '/gop/?loai=bao_loi');
+      await bam(k, '.gop-chon-loai > summary');
       await bam(k, 'input[name=loai][value=bao_loi]');
       await datO(k, '#gop-noi-dung', chu);
       await bam(k, 'input[name=dong_y]');

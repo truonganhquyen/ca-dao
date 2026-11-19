@@ -127,3 +127,6 @@ Nhật ký (bảng việc) ghi mọi lần sửa một phần, quyết một th�
 - Sửa một phần (ý nghĩa, từ khó, dị bản) ngay trên trang bài từ điện thoại; lưu xong thấy khối mới đúng như người đọc thấy; hoàn tác được.
 - `e2e:v2` chạy các luồng: Kho → xem trước → đăng; Hộp việc quyết liền, tự sang thẻ kế, Hoàn tác; nháp → duyệt → người đọc thấy; người đọc gửi → xử lý; sửa tác phẩm hai cột, sang bài kế; thao tác hàng loạt có xem trước.
 - Nghiệm thu đợt 3: `docs/32` mục 9.
+
+
+**D-123 · Góp một câu:** [đặc tả, kiểm trùng và vận hành](44-gop-mot-cau.md) thay luồng mặc định của `/gop/`; các mục góp chú thích/báo lỗi/cảm nhận giữ đường riêng theo loại.

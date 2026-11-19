@@ -206,7 +206,7 @@ final class ChongTrung implements Module {
 		$vt  = self::bang( 'van_tay' );
 		$tot = array();
 		$xet = static function ( object $h, int $chung ) use ( $v, $tru, &$tot ): void {
-			if ( str_starts_with( $h->muc, 'tam:' ) || str_starts_with( $h->muc, 'cu:' ) || in_array( $h->muc, $tru, true ) ) {
+			if ( str_starts_with( $h->muc, 'tam:' ) || str_starts_with( $h->muc, 'cu:' ) || str_starts_with( $h->muc, 'gop:' ) || in_array( $h->muc, $tru, true ) ) {
 				return;
 			}
 			$b = array( 'vt1' => $h->vt1, 'vt2' => $h->vt2, 'so_am' => (int) $h->so_am, 'so_dong' => (int) $h->so_dong, 'so_cap' => (int) $h->so_cap );
@@ -221,13 +221,13 @@ final class ChongTrung implements Module {
 			}
 		};
 		// 1. Giống hệt (cả dị bản đã ghi)
-		foreach ( $wpdb->get_results( $wpdb->prepare( "SELECT muc, phan, vt1, vt2, so_am, so_dong, so_cap FROM $vt WHERE (vt1 = %s OR vt2 = %s) AND muc NOT LIKE 'tam:%%' AND muc NOT LIKE 'cu:%%' LIMIT 50", $v['vt1'], $v['vt2'] ) ) ?: array() as $h ) {
+		foreach ( $wpdb->get_results( $wpdb->prepare( "SELECT muc, phan, vt1, vt2, so_am, so_dong, so_cap FROM $vt WHERE (vt1 = %s OR vt2 = %s) AND muc NOT LIKE 'tam:%%' AND muc NOT LIKE 'cu:%%' AND muc NOT LIKE 'gop:%%' LIMIT 50", $v['vt1'], $v['vt2'] ) ) ?: array() as $h ) {
 			$xet( $h, 0 );
 		}
 		// 2. Gần giống: lời chính chung nhiều cặp âm tiết
 		if ( $v['so_am'] >= VanTay::AM_TOI_THIEU && $v['cap'] ) {
 			$trong = implode( ',', array_map( 'intval', $v['cap'] ) );
-			$ds    = $wpdb->get_results( 'SELECT t.muc, t.phan, t.vt1, t.vt2, t.so_am, t.so_dong, t.so_cap, COUNT(*) AS chung FROM ' . self::bang( 'cap_am' ) . " c JOIN $vt t ON t.id = c.van_tay_id WHERE c.cap IN ($trong) AND t.muc NOT LIKE 'tam:%' AND t.muc NOT LIKE 'cu:%' GROUP BY c.van_tay_id HAVING chung >= 3 ORDER BY chung DESC LIMIT 60" );
+			$ds    = $wpdb->get_results( 'SELECT t.muc, t.phan, t.vt1, t.vt2, t.so_am, t.so_dong, t.so_cap, COUNT(*) AS chung FROM ' . self::bang( 'cap_am' ) . " c JOIN $vt t ON t.id = c.van_tay_id WHERE c.cap IN ($trong) AND t.muc NOT LIKE 'tam:%' AND t.muc NOT LIKE 'cu:%' AND t.muc NOT LIKE 'gop:%' GROUP BY c.van_tay_id HAVING chung >= 3 ORDER BY chung DESC LIMIT 60" );
 			foreach ( $ds ?: array() as $h ) {
 				$xet( $h, (int) $h->chung );
 			}

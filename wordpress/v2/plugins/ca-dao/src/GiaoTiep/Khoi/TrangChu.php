@@ -46,7 +46,7 @@ final class TrangChu {
 	);
 
 	public static function hien(): string {
-		return self::dau() . self::cau_hom_nay()
+		return self::dau() . GopMotCau::moi() . self::cau_hom_nay()
 			. '<div id="role-sections">' . self::bat_dau() . self::tuyen_tap_noi_bat() . self::the_loai() . self::vua_bo_sung() . '</div>'
 			. '<section class="section band"><div><h2>Cẩn trọng với từng lời.</h2><p class="muted">Cùng tìm hiểu cách đọc mức kiểm và nguồn theo từng lớp.</p></div>' . Ve::lien_ket( 'phuong-phap', 'Cách chúng tôi biên soạn ' . Ve::icon( 'arrow' ), 'btn' ) . '</section>';
 	}

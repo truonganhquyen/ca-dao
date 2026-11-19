@@ -32,6 +32,9 @@ final class QuyetViec {
 
 	/** Nút hợp với một việc "Người đọc gửi": cảm nghĩ, bài cảm nhận có Hiện; góp ý có Đã xử lý. */
 	public static function nut_nguoi_doc( array $v ): array {
+		if ( \Phongdao\DichVu\NguoiDoc\DuyetTacPham::la( $v ) ) {
+			return array( 'gop_dang' => array( 'Đăng tác phẩm mới', 'primary' ), 'gop_di_ban' => array( 'Thêm dị bản', '' ), 'gop_nguon' => array( 'Bổ sung nguồn', '' ), 'de_sau' => array( 'Để sau', 'ghost' ), 'bo' => array( 'Bỏ', 'ghost' ) );
+		}
 		$hien = 'comment' === $v['doi_tuong_loai'] || 'phan_tich' === ( $v['noi_dung']['loai'] ?? '' );
 		return array_diff_key( self::LOAI['nguoi_doc'][1], array( $hien ? 'xong' : 'duyet' => 1 ) );
 	}
@@ -44,7 +47,7 @@ final class QuyetViec {
 	 *                             Duyệt / Hiện (rỗng = giữ đúng bản đang có).
 	 * @param string|null $ten_sua Tên hiển thị của cảm nghĩ, cách hiểu người đã sửa trên thẻ (null = giữ).
 	 */
-	public static function quyet( int $id, string $quyet, int $nguoi, bool $duyet, int $phien = -1, string $chu_sua = '', ?string $ten_sua = null ): array {
+	public static function quyet( int $id, string $quyet, int $nguoi, bool $duyet, int $phien = -1, string $chu_sua = '', ?string $ten_sua = null, array $gop = array() ): array {
 		global $wpdb;
 		$v = Viec::lay( $id );
 		if ( ! $v || ! in_array( $v['trang_thai'], array( Viec::CHO, Viec::DE_SAU ), true ) ) {
@@ -53,7 +56,8 @@ final class QuyetViec {
 		if ( $phien >= 0 && $phien !== $v['phien'] ) {
 			return self::kq( false, 'Thẻ đã đổi ở phiên khác. Tải lại Hộp việc để xem quyết định mới.' );
 		}
-		if ( ! isset( self::LOAI[ $v['loai'] ][1][ $quyet ] ) ) {
+		$nut = 'nguoi_doc' === $v['loai'] ? self::nut_nguoi_doc( $v ) : ( self::LOAI[ $v['loai'] ][1] ?? array() );
+		if ( ! isset( $nut[ $quyet ] ) ) {
 			return self::kq( false, 'Không có lựa chọn này cho việc này.' );
 		}
 		if ( Viec::DE_SAU === $v['trang_thai'] && 'de_sau' === $quyet ) {
@@ -71,7 +75,9 @@ final class QuyetViec {
 			return self::kq( false, 'Thẻ đã đổi ở phiên khác. Tải lại Hộp việc để xem quyết định mới.' );
 		}
 		try {
-			$kq = self::thuc_hien( $v, $quyet, $nguoi, $duyet, $chu_sua, $ten_sua );
+			$kq = \Phongdao\DichVu\NguoiDoc\DuyetTacPham::la( $v ) && str_starts_with( $quyet, 'gop_' )
+				? \Phongdao\DichVu\NguoiDoc\DuyetTacPham::quyet( $v, $quyet, $nguoi, $gop )
+				: self::thuc_hien( $v, $quyet, $nguoi, $duyet, $chu_sua, $ten_sua );
 		} catch ( \Throwable $e ) {
 			$kq = self::kq( false, 'Chưa lưu được quyết định. Thử lại sau.' );
 		}
@@ -86,6 +92,7 @@ final class QuyetViec {
 			self::don_dem_sau_huy( $v );
 			return self::kq( false, 'Chưa xác nhận được quyết định. Kiểm tra lại Hộp việc trước khi thử tiếp.' );
 		}
+		\Phongdao\DichVu\NguoiDoc\DuyetTacPham::don();
 		return $kq;
 	}
 
@@ -383,6 +390,7 @@ final class QuyetViec {
 
 	/** Giao dịch đã huỷ nhưng WordPress có thể còn đệm bài, phân loại hoặc cảm nghĩ. */
 	private static function don_dem_sau_huy( array $v ): void {
+		\Phongdao\DichVu\NguoiDoc\DuyetTacPham::don();
 		if ( 'post' === $v['doi_tuong_loai'] ) {
 			clean_post_cache( (int) $v['doi_tuong_id'] );
 		} elseif ( 'comment' === $v['doi_tuong_loai'] ) {

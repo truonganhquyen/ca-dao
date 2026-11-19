@@ -144,7 +144,7 @@ final class DanhSachViec {
 					$ra[ (int) $v['id'] ] = array( $ten_dt, self::gon( implode( ' · ', array_map( 'strval', (array) ( $n['ly_do'] ?? array() ) ) ) ) );
 					break;
 				case 'nguoi_doc':
-					$chu = 'comment' === $v['doi_tuong_loai'] ? ( $bl[ $id ] ?? '' ) : (string) ( get_post( $id )->post_content ?? '' );
+					$chu = \Phongdao\DichVu\NguoiDoc\DuyetTacPham::la( $v ) ? \Phongdao\DichVu\NguoiDoc\DuyetTacPham::loi( $id ) : ( 'comment' === $v['doi_tuong_loai'] ? ( $bl[ $id ] ?? '' ) : (string) ( get_post( $id )->post_content ?? '' ) );
 					$ra[ (int) $v['id'] ] = array( ( \Phongdao\MienDuLieu\GopNguoiDoc::LOAI[ (string) ( $n['loai'] ?? '' ) ][0] ?? 'Người đọc gửi' ) . ( empty( $n['bai'] ) ? '' : ' — ' . get_the_title( (int) $n['bai'] ) ), self::gon( wp_strip_all_tags( $chu ) ) );
 					break;
 				case 'co_the_trung':
@@ -172,6 +172,10 @@ final class DanhSachViec {
 
 	/** Nhãn quyết định cho người đọc (không in mã như "dang"). */
 	private static function nhan_quyet( array $v ): string {
+		if ( \Phongdao\DichVu\NguoiDoc\DuyetTacPham::la( $v ) ) {
+			$nhan = array( 'gop_dang' => 'Đã đăng tác phẩm mới', 'gop_di_ban' => 'Đã thêm dị bản', 'gop_nguon' => 'Đã bổ sung nguồn' );
+			if ( isset( $nhan[ $v['quyet'] ] ) ) { return $nhan[ $v['quyet'] ]; }
+		}
 		$ket = array( 'cung' => 'Đã gắn vào bài có sẵn', 'di_ban' => 'Đã thêm dị bản', 'khac' => 'Đã xác nhận là bài khác', 'dang' => 'Đã đăng bài mới' );
 		if ( isset( $ket[ $v['quyet'] ] ) ) { return $ket[ $v['quyet'] ]; }
 		$nut = QuyetViec::LOAI[ $v['loai'] ][1][ $v['quyet'] ][0] ?? '';
@@ -192,6 +196,7 @@ final class DanhSachViec {
 	/** Bài của thẻ (thẻ trên bài, hoặc bài đã đăng từ câu kho): lối Sửa bài trong quản trị và Xem bài trên trang đọc. */
 	private static function lien_bai( array $v ): string {
 		$bai = 'post' === $v['doi_tuong_loai'] ? (int) $v['doi_tuong_id'] : 0;
+		if ( \Phongdao\DichVu\NguoiDoc\DuyetTacPham::la( $v ) ) { $bai = (int) ( $v['sau']['bai'] ?? 0 ); }
 		if ( 'kho' === $v['doi_tuong_loai'] ) {
 			$bai = (int) ( Kho::lay( (int) $v['doi_tuong_id'] )?->post_id ?? 0 );
 		}

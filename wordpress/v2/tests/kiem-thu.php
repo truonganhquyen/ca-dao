@@ -2758,7 +2758,7 @@ $h = \Phongdao\GiaoTiep\Khoi\GopTuLieu::hien( 'so_trang', $bai_g, '', '', 0 );
 kt( 'trang Góp: POST tại trang có nonce, chọn sẵn loại, ô bẫy, thông báo riêng tư, có Cảm nghĩ khi gắn bài', str_contains( $h, 'action="' . esc_url( home_url( '/gop/#gop-form' ) ) . '"' ) && str_contains( $h, 'name="_wpnonce"' ) && str_contains( $h, 'value="so_trang" required checked' ) && str_contains( $h, 'name="web"' ) && str_contains( $h, 'không lưu địa chỉ mạng' ) && str_contains( $h, 'value="cam_nghi"' ) && ! str_contains( $h, 'value="vi_pham"' ), $h );
 kt( 'trang Góp nhận POST trước khi vẽ theme; giữ đường admin-post cho form cũ và Cách hiểu', 1 === has_action( 'template_redirect', array( $NG, 'nhan_trang' ) ) && false !== has_action( 'admin_post_nopriv_' . $NG::HANH_DONG, array( $NG, 'xu_ly' ) ) );
 $h_gop_moi = \Phongdao\GiaoTiep\Khoi\GopTuLieu::hien( '', 0, '', '', 0 );
-kt( 'Góp trực tiếp: chưa chọn hộ loại và không đánh dấu đồng ý hộ người gửi', ! str_contains( $h_gop_moi, 'checked=' ) && str_contains( $h_gop_moi, 'gop-chon-loai" open' ) );
+kt( 'Góp trực tiếp: ô lời ngay trước mắt, thông tin phụ gập và không đánh dấu đồng ý hộ', ! str_contains( $h_gop_moi, 'checked=' ) && str_contains( $h_gop_moi, 'gop-loi-form' ) && ! str_contains( $h_gop_moi, 'type="radio"' ) );
 $giu_gop = array( 'noi_dung' => "[UX-TEST] </textarea><script>alert(1)</script>\nChữ cần giữ", 'tieu_de' => 'Tiêu đề "mẫu"', 'ten' => 'Bút danh <mẫu>', 'vai' => 'giao_vien', 'tu_viet' => '1', 'dong_y' => '1' );
 $h_giu_gop = \Phongdao\GiaoTiep\Khoi\GopTuLieu::hien( 'phan_tich', $bai_g, 'loi', 'thieu_pt', 0, true, $giu_gop );
 kt( 'Góp lỗi: phục hồi nguyên chữ và ô đã điền bằng HTML escape, giữ các cam kết người gửi đã chọn', str_contains( $h_giu_gop, esc_textarea( $giu_gop['noi_dung'] ) ) && ! str_contains( $h_giu_gop, '<script>alert(1)</script>' ) && str_contains( $h_giu_gop, 'value="Tiêu đề &quot;mẫu&quot;"' ) && str_contains( $h_giu_gop, 'value="giao_vien" selected' ) && str_contains( $h_giu_gop, 'name="tu_viet" value="1" checked' ) && str_contains( $h_giu_gop, 'name="dong_y" value="1" required checked' ) );
@@ -3921,6 +3921,7 @@ require '/repo/tests/kiem-dang-nhanh.php';
 
 require '/repo/tests/kiem-tim-doc.php';
 require '/repo/tests/kiem-xoa-va-cho-trung.php';
+require '/repo/tests/kiem-gop-mot-cau.php';
 
 $tong = $GLOBALS['v2_dat'] + $GLOBALS['v2_hong'];
 ra( "\nKẾT QUẢ: " . ( $GLOBALS['v2_hong'] ? "HỎNG {$GLOBALS['v2_hong']} / $tong" : "ĐẠT $tong" ) );

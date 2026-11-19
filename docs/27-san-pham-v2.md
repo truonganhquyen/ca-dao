@@ -404,3 +404,6 @@ Chép từ `docs/luu-tru/20-dac-ta-giao-dien.md` mục 11 (11/11/2026, D-107); �
 - Tôn trọng `prefers-reduced-motion`.
 - HTML ngữ nghĩa trước ARIA: `<button>`, `<dialog>`, `<details>`, `<nav>`, `<main>`; ARIA chỉ bổ sung khi HTML không đủ.
 - Trợ năng nằm trong Definition of Done của mọi task (`docs/22` mục 5), không để cuối dự án.
+
+
+**D-123 · Góp một câu:** [đặc tả, kiểm trùng và vận hành](44-gop-mot-cau.md) thay luồng mặc định của `/gop/`; các mục góp chú thích/báo lỗi/cảm nhận giữ đường riêng theo loại.

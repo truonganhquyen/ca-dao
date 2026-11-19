@@ -113,7 +113,7 @@ final class TacPham {
 			// Bài có từ ngữ thô tục: tiêu đề trung tính ở ngoài khối che (h1), trong khung không in tên
 			. ( $che ? '' : '<h1 class="read-title' . ( $ngan ? ' loi-ten' : '' ) . '">' . $tieu_de . '</h1>' ) . $co_nghi
 			. ( '' === $so_lieu ? '' : '<p class="read-sub">' . $so_lieu . '</p>' )
-			. $sua_ve . ( $y_truoc ? $boi_canh . '<div class="hieu-gon">' . $hieu . '</div>' : $boi_canh ) . $be . $loi_gon . $goc( 'Lời', 'loi' )
+			. $sua_ve . ( $y_truoc ? $boi_canh . '<div class="hieu-gon">' . $hieu . '</div>' : $boi_canh ) . $be . $loi_gon . $goc( 'Lời', 'loi' ) . self::ghi_cong( $tp['ghi_cong'] ?? array() )
 			. ( $cau_do && ! empty( $tp['cau_hoi'] ) ? '<p class="riddle-q">' . esc_html( $tp['cau_hoi'] ) . '</p>' : '' )
 			. ( $cau_do ? $y . self::do_tiep( $tp ) : '' )
 			. ( '' === $ct_sau_loi . $sua_ct ? '' : '<div class="ct-khung">' . $ct_sau_loi . $sua_ct . '</div>' )
@@ -299,7 +299,17 @@ final class TacPham {
 				$v = str_replace( '>' . esc_html( $k ), '><ins>' . esc_html( $k ) . '</ins>', str_replace( ' ' . esc_html( $k ), ' <ins>' . esc_html( $k ) . '</ins>', $v ) );
 			}
 			$noi = array_filter( array( $d['noi'], $d['nguoi_ke'], $d['nam'] ?? '' ) );
-			$o  .= '<div class="variant"><span class="tag">' . sprintf( '%02d', $i + 1 ) . ' · Dị bản</span>' . $v . '<p class="small muted">' . ( $noi ? esc_html( implode( ' · ', $noi ) ) : 'Chưa ghi nơi, người kể hoặc năm.' ) . '</p></div>';
+			$o  .= '<div class="variant"><span class="tag">' . sprintf( '%02d', $i + 1 ) . ' · Dị bản</span>' . $v . '<p class="small muted">' . ( $noi ? esc_html( implode( ' · ', $noi ) ) : 'Chưa ghi nơi, người kể hoặc năm.' ) . '</p>' . self::ghi_cong( $d['ghi_cong'] ?? array() ) . '</div>';
+		}
+		return $o;
+	}
+
+	private static function ghi_cong( array $ds ): string {
+		$o = '';
+		foreach ( $ds as $m ) {
+			$s = '' !== $m['ten'] ? 'Bạn đọc ' . $m['ten'] . ' đóng góp.' : 'Bạn đọc đóng góp.';
+			if ( '' !== $m['xuat_xu'] ) { $s .= ' Nguồn người góp cung cấp — chưa đối chiếu: ' . $m['xuat_xu']; }
+			$o .= '<p class="small muted gop-ghi-cong">' . esc_html( $s ) . '</p>';
 		}
 		return $o;
 	}

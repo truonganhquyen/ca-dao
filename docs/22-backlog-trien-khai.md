@@ -196,6 +196,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-221 | Sửa Đăng dữ liệu nhập từ tệp: giữ người nhập và hồ sơ nguồn, kiểm đủ đường Hộp việc / Đăng nhanh / lô, ghi lỗi rồi thử lại không tạo trùng | A | T-189, T-216 | — | DONE |
 | T-222 | Nhập nguồn gọn (D-122): chống đè nguồn khi nhập lại, chỉ ghi Kho, gộp giữ hồ sơ và liên kết từ khó; kết quả phản ánh lỗi ghi thật | A | T-221 | — | DONE |
 | T-223 | Nhập nguồn gọn (D-122): TXT/CSV xem trước trong Bài mới, lọc/lịch sử lần nhập, tiếp tục thẻ/lô và thử lại đúng mục lỗi | A | T-222 | — | DONE |
+| T-224 | Góp một câu (D-123): CTA, form tập trung, tra gần giống công khai, một thẻ quản trị đối chiếu/phân loại/ghi công và quyết đăng mới/dị bản/nguồn | A | T-223 | — | IN_PROGRESS |
 | **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
 | T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
 | T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | DONE |
@@ -1062,6 +1063,12 @@ Người sáng lập duyệt bản xem trước lần 2 ngày 16/11/2026 (D-119)
 **T-216 — chấp nhận (phần 2, Bổ sung → Cần sửa):** khối **"Cần sửa"** ở Bổ sung: máy rà bài đã đăng (không mật khẩu) theo quy tắc viết (`DichVu\CanSua`, dùng `MienDuLieu\KiemTrinhBay`) và xếp theo loại: Ý nghĩa mở đầu nhắc lại câu, thiếu dấu câu cuối, quá 60 chữ (câu đố không xét độ dài), nhắc tác giả / bài thơ; từ khó có lời giải quá 80 chữ; lời có dấu cách trước dấu câu, chữ "Ð" thay "Đ", viết hoa giữa câu; nơi lưu truyền vừa "Phổ biến toàn quốc" vừa một vùng cụ thể. Mỗi nhóm thu gọn, ghi số bài, tối đa 20 bài: tên dẫn tới đúng phần ở màn Sửa tác phẩm, đoạn trích, nút **"Bỏ qua"** (nonce, quyền sửa bài; ghi dấu bản chữ lúc bấm vào post meta nội bộ `_phongdao_bo_nhac`, không đổi nội dung — chữ đổi thì bài hiện lại). Bảng ưu tiên có dòng "Cần sửa trình bày". Kết quả quét giữ trong transient, làm mới khi lưu phần, đổi trạng thái hay nơi lưu truyền. **Máy chỉ đánh dấu**, không sửa chữ, không sửa lời; không có nút sửa một chạm. Xong phần 2: PR #192 (plugin 1.0.77).
 
 **T-216 — chấp nhận (phần 3, Đăng nhanh ở Bài mới):** Bài mới có lối **"Đăng nhanh"** (chỉ người có quyền duyệt): mỗi câu kho một thẻ theo đúng bộ lọc và thứ tự của danh sách ("Thẻ i / N"), có thể loại, nguồn, trang gốc, lời, số chú thích / dị bản từ nguồn; ô **Ý nghĩa tuỳ chọn** (câu đố: Giải thích đáp án) — người điền thì lưu là người viết (không AI), để trống thì đăng chưa có nghĩa; công tắc **"Có từ ngữ thô tục"** chưa đánh dấu (chỉ người bật). **Đăng** đi đúng đường "Xem trước và đăng" của Kho (máy so trùng lại; câu chờ quyết trùng thì không có nút Đăng; chú thích chỉ chép từ nguồn bật "Chép chú thích"), xong ở lại cùng số thẻ (câu kế), lời báo có tên bài, "Xem bài", "Sửa đầy đủ" và lời nhắc trình bày của Ý nghĩa (không chặn). **Để sau** đánh dấu "Để dành" rồi sang thẻ sau; **Sang thẻ sau** không đổi gì. Bài không cần sửa: mở thẻ, bấm Đăng — sang câu kế. Người chỉ soạn không thấy lối, không đăng được. **Không làm:** "Lấy nháp AI" trên thẻ (gọi dịch vụ AI từ máy chủ chờ người sáng lập quyết), chủ đề gợi ý trên thẻ (gợi ý của máy vẫn ở Bổ sung sau khi đăng), phím tắt.
+
+### Góp một câu — T-224
+
+**Chấp nhận (D-123):** [phạm vi và vận hành](44-gop-mot-cau.md). Form một ô chính, nguồn/bút danh gập, đồng ý rõ ràng; tra công khai không lộ Kho/nháp/bản gửi/mật khẩu/nhạy cảm và lọc trước giới hạn. Điểm 30% là gợi ý gần chữ; trên 70% không chặn dị bản. Người duyệt đối chiếu, chọn thể loại/chủ đề/vùng có căn cứ và quyết đăng mới/thêm dị bản/bổ sung nguồn trong một thẻ. Không tạo bài/dị bản khớp lời có dấu; giữ mọi chứng cứ nguồn và consent. Native form không JavaScript, nonce/quyền/phiên/ảnh chụp bài đích; gửi lặp/duyệt lặp không nhân đôi, lỗi giữa chừng hoàn tác. CTA điện thoại/máy tính, WCAG và bốn cổng hiện có; nghiệm thu không ghi dữ liệu thật, xác nhận phiên bản live sau triển khai.
+
+**Tiến độ:** đang triển khai trên nhánh riêng; chưa nghiệm thu, chưa xác nhận site thật.
 
 ## 4. User story
 

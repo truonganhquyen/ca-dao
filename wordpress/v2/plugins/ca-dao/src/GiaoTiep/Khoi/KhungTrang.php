@@ -47,6 +47,9 @@ final class KhungTrang {
 	}
 
 	public static function dau_trang(): string {
+		if ( 'gop' === \Phongdao\GiaoTiep\TrangCoDinh\Module::dang_xem() ) {
+			return '<a class="skip" href="#main">Bỏ qua điều hướng</a><header class="site-header gop-header">' . Ve::brand() . Ve::lien_ket( 'trang-chu', 'Quay lại đọc', 'btn ghost' ) . '</header>';
+		}
 		$dang  = self::dang_xem();
 		$menu  = '';
 		$nhom  = array(
@@ -67,6 +70,7 @@ final class KhungTrang {
 		return '<a class="skip" href="#main">Bỏ qua điều hướng</a>'
 			. '<header class="site-header">' . Ve::brand()
 			. '<nav class="desktop-nav" aria-label="Điều hướng chính">' . $menu . '</nav>'
+			. Ve::lien_ket( 'gop', 'Góp một câu', 'btn primary header-gop' )
 			. '<form class="header-search" role="search" action="' . esc_url( Ve::url( 'tim' ) ) . '"><label class="sr-only" for="header-q">Tìm trong thư viện</label><input id="header-q" name="q" placeholder="Tìm câu, từ…" type="search"></form>'
 			. ( self::bien_tap()
 				? Ve::lien_ket( 'bien-tap', Ve::icon( 'check' ) . ' Hộp việc <span class="dem">' . \Phongdao\KhoLuu\Viec::dem_hop_viec() . '</span>', 'btn compact ghost header-saved' )
@@ -77,8 +81,11 @@ final class KhungTrang {
 	}
 
 	public static function chan_trang(): string {
+		if ( 'gop' === \Phongdao\GiaoTiep\TrangCoDinh\Module::dang_xem() ) {
+			return '<footer class="site-footer gop-footer"><p>Thư viện Văn học Dân gian Việt Nam</p><div class="footer-links">' . Ve::lien_ket( 'rieng-tu', 'Quyền riêng tư' ) . Ve::lien_ket( 'trang-chu', 'Quay lại đọc' ) . '</div></footer>';
+		}
 		$lien = '';
-		foreach ( array( 've-du-an' => 'Về dự án', 'phuong-phap' => 'Phương pháp', 'nguon' => 'Nguồn', 'chinh-sach' => 'Chính sách thu thập dữ liệu', 'rieng-tu' => 'Quyền riêng tư', 'gop' => 'Góp tư liệu' ) as $ma => $chu ) {
+		foreach ( array( 've-du-an' => 'Về dự án', 'phuong-phap' => 'Phương pháp', 'nguon' => 'Nguồn', 'chinh-sach' => 'Chính sách thu thập dữ liệu', 'rieng-tu' => 'Quyền riêng tư', 'gop' => 'Góp một câu' ) as $ma => $chu ) {
 			$lien .= Ve::co( $ma ) ? Ve::lien_ket( $ma, $chu ) : '';
 		}
 		$dang = self::dang_xem();
@@ -86,7 +93,7 @@ final class KhungTrang {
 		// Người biên soạn ở trang biên tập / trang bài: thanh dưới Đọc · Hộp việc · Tác phẩm · Thêm (màn mẫu B01–B04)
 		$muc = self::bien_tap() && ( \Phongdao\GiaoTiep\TrangCoDinh\Module::la_bien_tap() || is_singular( KhaiBao::TAC_PHAM ) )
 			? array( 'trang-chu' => array( 'Đọc', 'home' ), 'bien-tap' => array( 'Hộp việc', 'check' ), 'bt-tac-pham' => array( 'Tác phẩm', 'book' ), 'bt-them' => array( 'Thêm', 'edit' ) )
-			: array( 'trang-chu' => array( 'Trang chủ', 'home' ), 'tim' => array( 'Tìm', 'search' ), 'kham-pha' => array( 'Khám phá', 'compass' ), 'da-luu' => array( 'Đã lưu', 'save' ) );
+			: array( 'trang-chu' => array( 'Trang chủ', 'home' ), 'tim' => array( 'Tìm', 'search' ), 'kham-pha' => array( 'Khám phá', 'compass' ), 'da-luu' => array( 'Đã lưu', 'save' ), 'gop' => array( 'Góp câu', 'edit' ) );
 		$dang = array( 'bien-tap' => 'bien-tap', 'bien-tap/tac-pham' => 'bt-tac-pham', 'bien-tap/them' => 'bt-them' )[ \Phongdao\GiaoTiep\TrangCoDinh\Module::dang_xem() ] ?? $dang;
 		foreach ( $muc as $ma => [ $chu, $hinh ] ) {
 			$duoi .= Ve::lien_ket( $ma, Ve::icon( $hinh ) . '<span>' . $chu . '</span>', $ma === $dang ? 'active' : '', $ma === $dang ? ' aria-current="page"' : '' );
