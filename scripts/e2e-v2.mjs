@@ -844,6 +844,7 @@ try {
         if (thuMucAnh) await bt.screenshot({path:path.join(thuMucAnh,'gop-cau-duyet-no-js-390.png'),fullPage:true});
         await bamDoiTrang(bt, `${card} button[value=gop_dang]`);
         chac(await coChu(bt, 'Đã đăng tác phẩm'), 'quyết chưa đăng thành công');
+        chac(await bt.$('.phongdao-hv-bao .phongdao-viec-bai a'), 'thông báo thành công thiếu lối mở ngay bài vừa nhận đóng góp');
         await di(bt, `/wp-admin/admin.php?page=phongdao-hop-viec&loai=nguoi_doc&tt=xong&viec=${id}`);
         url = await bt.$eval('.phongdao-viec-bai a:last-child', e => new URL(e.href).pathname);
         await di(k, url);

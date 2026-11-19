@@ -262,6 +262,8 @@ final class DanhSachViec {
 		$ve = ! empty( $loc['lan_nhap'] ) ? NhapKho::url_lan( (int) $loc['lan_nhap'] ) : self::url( $loc, (int) $loc['paged'], (int) $loc['viec'] );
 		$o = '<div class="notice notice-info phongdao-hv-bao"><p role="status">' . esc_html( $da ) . ( $vua ? ' <a href="' . esc_url( self::url( $loc, (int) $loc['paged'], $vua ) ) . '">Xem lại thẻ vừa quyết</a>' : '' ) . '</p>'
 			. self::lui_sau_dang( $dang, $ve );
+		$gop = $vua ? Viec::lay( $vua ) : null;
+		if ( $gop && current_user_can( 'cadao_soan' ) && \Phongdao\DichVu\NguoiDoc\DuyetTacPham::la( $gop ) && Viec::XONG === $gop['trang_thai'] ) { $o .= self::lien_bai( $gop ); }
 		$v = $hoan ? Viec::lay( $hoan ) : null;
 		if ( $v && QuyetViec::co_the_hoan_tac( $v, get_current_user_id(), $phien ) ) {
 			$o .= '<form method="post" data-hv-hoan data-han="' . ( strtotime( $v['quyet_luc'] . ' UTC' ) + 10 ) . '" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="' . HopViec::HOAN_TAC . '"><input type="hidden" name="viec" value="' . $hoan . '"><input type="hidden" name="phien" value="' . (int) $v['phien'] . '">'
