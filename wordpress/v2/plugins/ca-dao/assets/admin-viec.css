@@ -223,3 +223,4 @@
 .phongdao-hv-lui .button { min-height: 44px; display: inline-flex; align-items: center; }
 
 .gop-loi-doi-chieu{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;padding:16px;border:1px solid #a7aaad;max-width:100%;box-sizing:border-box}.phongdao-viec textarea[name=gop_nguon]{width:100%;max-width:100%}
+.phongdao-hv-phai [name^="gop_"]{scroll-margin-block:90px 240px}

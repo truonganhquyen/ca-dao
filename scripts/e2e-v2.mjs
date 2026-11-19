@@ -837,6 +837,10 @@ try {
         chac(await bt.$(`${card} button[value=gop_di_ban]`) && await bt.$(`${card} button[value=gop_nguon]`), 'thiếu quyết dị bản/nguồn');
         await bt.select(`${card} select[name=gop_the_loai]`, 'ca-dao');
         await bam(bt, `${card} input[name=gop_hien_ten]`);
+        for(const field of ['select[name=gop_the_loai]','select[name=gop_dich]','input[type=number][name=gop_dich]','textarea[name=gop_nguon]','input[name=gop_hien_ten]']) {
+          await bt.focus(`${card} ${field}`);
+          chac(await bt.$eval(`${card} ${field}`,e=>{const r=e.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;return y>0&&y<innerHeight&&e===document.elementFromPoint(x,y);}),`focus ${field} bị thanh thao tác che`);
+        }
         if (thuMucAnh) await bt.screenshot({path:path.join(thuMucAnh,'gop-cau-duyet-no-js-390.png'),fullPage:true});
         await bamDoiTrang(bt, `${card} button[value=gop_dang]`);
         chac(await coChu(bt, 'Đã đăng tác phẩm'), 'quyết chưa đăng thành công');
