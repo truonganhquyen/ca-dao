@@ -945,6 +945,12 @@ try {
     const loiMoi = 'Câu thử đầu cuối không có thật';
     await thu('wp-admin Thêm tác phẩm: dán lời, máy nhận thể thơ, đăng ngay, mở trang Sửa tác phẩm của bài', async () => {
       await di(bt, '/wp-admin/admin.php?page=phongdao-them');
+      const phongLoi = await bt.evaluate(async () => {
+        const mat = await document.fonts.load('18px Literata', 'Lời');
+        await document.fonts.ready;
+        return mat.length > 0 && mat.every(f => f.status === 'loaded') && document.fonts.check('18px Literata') && getComputedStyle(document.querySelector('#them-loi')).fontFamily.includes('Literata');
+      });
+      chac(phongLoi, 'Thêm tác phẩm chưa tải được Literata từ CSS chung cho ô lời');
       await bam(bt, 'label.phongdao-them-loai:has(input[name=the_loai][value="tuc-ngu"])');
       chac(await bt.$eval('input[name=the_loai][value="tuc-ngu"]', o => o.checked), 'chọn thể loại không được');
       await bt.type('form[data-them-bai] [name=loi]', loiMoi);
