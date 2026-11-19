@@ -2,13 +2,15 @@
 
 | | |
 |---|---|
-| Phiên bản | 4.0 · 18/11/2026 (quản trị làm lại đợt 1: khung chung, menu gọn, Hôm nay mở nhanh — D-121; mở cho Google, lời hứa trang chủ mới — D-120; trang tác phẩm gọn — D-119; thùng rác và gỡ kẹt chờ trùng — D-115; trang thưa gọn, chuẩn bị Google — D-114; bộ lọc Tìm gọn — D-113; tìm đúng chữ và thứ tự danh sách — D-112; lịch sử đến 11/11/2026: `docs/luu-tru/02-trang-thai-den-11-11-2026.md`) |
+| Phiên bản | 4.0 · 19/11/2026 (quản trị làm lại đợt 1: khung chung, menu gọn, Hôm nay mở nhanh — D-121; mở cho Google, lời hứa trang chủ mới — D-120; trang tác phẩm gọn — D-119; thùng rác và gỡ kẹt chờ trùng — D-115; trang thưa gọn, chuẩn bị Google — D-114; bộ lọc Tìm gọn — D-113; tìm đúng chữ và thứ tự danh sách — D-112; lịch sử đến 11/11/2026: `docs/luu-tru/02-trang-thai-den-11-11-2026.md`) |
 | Mục đích | Trang tổng quan ngắn cho người sáng lập và AI agent |
 | Nguồn máy đọc | `du-an/trang-thai.json` (`npm run kiem-nhat-quan` đối chiếu với `docs/01`, `docs/22`) |
 
 > Tệp này mô tả **thực tế hiện tại**, không phải kế hoạch. Sau mỗi task đã gộp, agent cập nhật tệp này cùng `du-an/trang-thai.json` và trạng thái trong `docs/22-backlog-trien-khai.md`. Lịch sử từng việc đã làm nằm ở `docs/22` mục 3 và lịch sử Git; không chép lại ở đây.
 
 ## Đang chạy
+
+- **Nhập nguồn gọn đã triển khai (19/11/2026, D-122, plugin 1.0.85):** Bài mới → Nhập tệp TXT/CSV → xem trước cách tách/thể loại → Kho lọc đúng lần nhập. Lịch sử gọn ở cùng màn, đăng đơn/lô tiếp tục thẻ đang chờ, đối chiếu xong trở về lần nhập; kết quả nhập và đăng tách rõ, thử lại đúng mục lỗi. Giữ chứng cứ nguồn/từ khó, không nhập đè và không tự đổi phần công khai khi nạp tệp. Đủ bốn cổng CI, E2E 80/80 và quét 0 lỗi; site thật đúng phiên bản, biểu mẫu quản trị 390/1440 px và mẫu CSV đã kiểm chỉ đọc. [Hướng dẫn](huong-dan/nhap-nguon-vao-kho.md), [phạm vi/nghiệm thu](43-nhap-nguon-gon.md), [PR #202](https://github.com/truonganhquyen/ca-dao/pull/202).
 
 - **Đăng dữ liệu nhập từ tệp đã sửa (19/11/2026, plugin 1.0.84):** lời người nhập dùng đúng ngữ cảnh người đang đăng; giữ hồ sơ nguồn, các phần máy thu vẫn qua bộ kiểm máy. Thẻ Câu mới, Đăng nhanh và lô đều có kiểm hồi quy; đủ bốn cổng CI đạt, site thật đã đúng phiên bản. Đã nghiệm thu thao tác theo phạm vi người sáng lập yêu cầu; báo cáo dữ liệu và nhận xét luồng đăng lưu riêng ngoài repo (`docs/22`, T-221; [PR #200](https://github.com/truonganhquyen/ca-dao/pull/200)).
 

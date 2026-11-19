@@ -36,3 +36,9 @@ Kết quả nhập tách mới vào Kho, có từ trước, có lời khớp, c�
 Kiểm hồi quy WordPress bằng dữ liệu kỹ thuật: CSV nhiều dòng/thể loại, xem trước không ghi Kho/bài/thẻ, nhập lại/khác nguồn, lỗi từng mục/biên nhận, thử lại, lô tái dùng thẻ, dấu xem trước, gộp giữ nguồn và mục từ. E2E đi qua form nhập/xem trước/lọc/đăng và tắt JavaScript. Quét trợ năng màn nhập mở, xem trước, kết quả ở 390/1440 px trong `quet:v2`. Bốn cổng dự án và site thật phải được kiểm trước nghiệm thu.
 
 Không nạp dữ liệu thật làm kiểm thử, không tự phục hồi/gộp/sửa các bài đã có. Nội dung của một nguồn mới và quyền sử dụng vẫn do người vận hành quyết. Bộ đọc web mới/OCR/dịch vụ nền nằm ngoài đợt này.
+
+## Nghiệm thu
+
+**Nghiệm thu (19/11/2026, plugin 1.0.85):** [PR #202](https://github.com/truonganhquyen/ca-dao/pull/202), mã kiểm `944bfdd`, [CI](https://github.com/truonganhquyen/ca-dao/actions/runs/44552741903) đạt đủ `kiem-tra`, `test:v2`, `quet:v2`, `e2e:v2`; E2E 80 bước, 0 lỗi, 0 bỏ qua; quét WCAG 2.2 AA 0 lỗi. Kiểm hồi quy WordPress: nhận diện mục/nhập lại/khác nguồn, lỗi mục và biên nhận, thử lại đúng lỗi, bản xem trước cũ, dùng lại thẻ, giữ nguồn và liên kết từ khó khi gộp; mục xung đột không vào tập chọn đăng. E2E đi qua form CSV/TXT, quyết đối chiếu trở về lần nhập và nhập/đăng khi tắt JavaScript. Giữ giới hạn độ gọn thẻ điện thoại và nút chạm 44 px. Các lượt V2 trên Windows treo đã dừng, không tính đạt; nghiệm thu kỹ thuật dùng CI Linux đầy đủ. Sau gộp, `kiem-site-that` xác nhận site plugin 1.0.85/theme 1.0.16; wp-admin thật chỉ đọc tại 390/1440 px: đủ nhãn, không tràn ngang, axe 0 lỗi, mẫu CSV HTTP 200/đúng tiêu đề. Không nạp dữ liệu thật hoặc tự sửa quyết định gộp cũ. Bằng chứng vận hành riêng tư giữ ngoài repo. [Phạm vi](43-nhap-nguon-gon.md), [hướng dẫn](huong-dan/nhap-nguon-vao-kho.md).
+
+Lịch sử lần nhập áp dụng từ luồng mới; tư liệu nhập trước đây vẫn tra bằng bộ lọc Kho hiện có, không cần nhập lại.

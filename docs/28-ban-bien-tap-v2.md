@@ -58,6 +58,8 @@ Mỗi nguồn (Ca dao Mẹ, Wikipedia, Wiktionary, Commons, Wikidata, sách, ng�
 
 **Đợt 3 (D-104, đã làm — plugin 1.0.45):** máy thôi tạo thẻ Câu mới mỗi ngày; lịch 06:00 ghi danh sách **"Máy gợi ý hôm nay"** (câu "Mong có" trước, rồi xoay vòng thể loại) — một bộ lọc trong Bài mới; đăng một mạch (D-101). Câu muốn quyết sau đánh dấu **"Để dành"** (người chỉ có quyền soạn: **"Đề nghị đăng"**; dấu lưu ở bảng việc, loại `danh_dau`, không phải việc chờ) và nằm lại Kho. Thẻ Câu mới đang mở lúc chuyển (CSDL bước 13) đóng "Chuyển về Bài mới", câu đánh dấu Để dành. **Nhập câu từ tệp** (`DichVu\UngVien\NhapTep`): câu gõ từ sách, cách nhau một dòng trống, vào Kho nguồn "Nhập từ tệp" kèm hồ sơ người chọn, qua chống trùng, không đăng thẳng; khi đăng, lời là người viết, nguồn là hồ sơ đó.
 
+**D-122 (19/11/2026, plugin 1.0.85):** luồng tệp thay bằng TXT/CSV mẫu cố định có xem trước, bộ lọc/lịch sử lần nhập ngay trong Bài mới. Lời giữ đúng cách nhận do người chọn (người cung cấp gõ/chép hoặc máy trích có URL); hồ sơ/trang/URL từng mục được giữ. Nhập lại không ghi đè, cùng lời khác hồ sơ vẫn giữ chứng cứ; nạp tệp chỉ ghi Kho/quan hệ, không tự sửa bài công khai. Đăng đơn/lô dùng lại thẻ cũ, nghi trùng mở đúng thẻ rồi trở về lần nhập; kết quả và thử lại đúng lỗi. Không thêm menu/bảng. [Chi tiết](43-nhap-nguon-gon.md), [hướng dẫn](huong-dan/nhap-nguon-vao-kho.md).
+
 ### 3.4. Chống trùng
 
 Giữ thuật toán MVP (dấu vân tay cả lời, cặp âm tiết, bốn mức: y hệt / gần như y hệt / có thể là dị bản / khác; D-065, D-074):
