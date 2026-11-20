@@ -190,6 +190,9 @@ final class Module implements \Phongdao\HaTang\Module {
 			// Từ không có trong lời: nhắc kiểm chính tả, vẫn lưu (chú thích chung) — D-105
 			$thieu = \Phongdao\MienDuLieu\TuKho::thieu( (array) ( PhanBai::lay( $id, 'loi' )['dong'] ?? array() ), array_column( (array) ( $doc['gia_tri']['muc'] ?? $doc['gia_tri'] ?? array() ), 'tu' ) );
 			$bao  .= $thieu ? ' Không thấy từ ' . implode( ', ', array_map( static fn( string $t ): string => '«' . $t . '»', $thieu ) ) . ' trong lời, kiểm lại chính tả.' : '';
+			// Chữ của từ khó đã đổi: nối Từ điển cũ bị bỏ (D-125) — nói rõ để người sửa biết mà nối lại nếu cần
+			$bo   = array_values( array_unique( array_filter( TamSua::$bo_noi, 'strlen' ) ) );
+			$bao .= $bo ? ' Đã bỏ nối Từ điển của ' . implode( ', ', array_map( static fn( string $t ): string => '«' . $t . '»', $bo ) ) . ' vì chữ đã đổi.' : '';
 		}
 		return $kq + array( 'thong_bao' => $bao . $them_bao . ( $kq['ok'] ? self::nhac( $id, $phan, $doc['gia_tri'] ) : '' ) );
 	}

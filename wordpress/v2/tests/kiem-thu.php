@@ -3918,6 +3918,7 @@ require '/repo/tests/kiem-chuyen-quanh.php';
 require '/repo/tests/kiem-sua-gon.php';
 require '/repo/tests/kiem-sua-mot-nut.php';
 require '/repo/tests/kiem-can-sua.php';
+require '/repo/tests/kiem-tu-dien.php';
 require '/repo/tests/kiem-dang-nhanh.php';
 
 require '/repo/tests/kiem-tim-doc.php';

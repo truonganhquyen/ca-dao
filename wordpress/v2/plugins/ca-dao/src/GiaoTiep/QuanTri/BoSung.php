@@ -128,6 +128,55 @@ final class BoSung {
 	public static function dang_ky(): void {
 		add_action( 'admin_post_' . self::HANH_DONG, array( self::class, 'nhan_goi_y' ) );
 		add_action( 'admin_post_' . self::BO_QUA, array( self::class, 'nhan_bo_qua' ) );
+		add_action( 'admin_post_' . self::NOI_LAI, array( self::class, 'nhan_noi_lai' ) );
+	}
+
+	public const NOI_LAI = 'phongdao_bo_sung_noi_lai';
+
+	/** Số từ khó mất nối hiện tối đa trên một lần mở (bấm Nối lại xong, danh sách tự ngắn lại). */
+	private const NOI_LAI_HIEN = 200;
+
+	/**
+	 * Khối "Từ khó mất nối Từ điển" (D-125) ở tab Cần sửa: từ khó từng nối mục từ nhưng mất số nối khi sửa lời giải (lỗi
+	 * trước bản 1.0.88). Mỗi dòng đánh dấu sẵn; người bấm "Nối lại" mới ghi, qua Lịch sử. Không có dòng thì không hiện.
+	 *
+	 * @param list<array{bai:int,i:int,tu:string,muc:int}> $ds
+	 */
+	private static function khoi_noi_lai( array $ds ): string {
+		if ( ! $ds ) {
+			return '';
+		}
+		$li = '';
+		foreach ( array_slice( $ds, 0, self::NOI_LAI_HIEN ) as $d ) {
+			$t    = get_term( $d['muc'], 'muc_tu' );
+			$co   = $t instanceof \WP_Term;
+			$giai = $co ? trim( wp_strip_all_tags( (string) $t->description ) ) : '';
+			$giai = mb_strlen( $giai ) > 90 ? rtrim( mb_substr( $giai, 0, 89 ) ) . '…' : $giai;
+			$ma   = $d['bai'] . ':' . $d['i'];
+			$o    = 'noi-lai-' . $d['bai'] . '-' . $d['i'];
+			$li  .= '<li><input type="checkbox" name="chon[]" value="' . esc_attr( $ma ) . '" id="' . esc_attr( $o ) . '" checked> <label for="' . esc_attr( $o ) . '"><strong>«' . esc_html( $d['tu'] ) . '»</strong> trong <a href="' . esc_url( SuaTacPham::url( $d['bai'], self::url_tab( 'can_sua' ) . '#noi-lai' ) ) . '">' . esc_html( get_the_title( $d['bai'] ) ?: 'Bài #' . $d['bai'] ) . '</a>'
+				. ' → mục từ ' . ( $co ? '<a href="' . esc_url( (string) get_term_link( $t ) ) . '">' . esc_html( $t->name ) . '</a>' : '#' . (int) $d['muc'] ) . ( '' === $giai ? '' : ' <span class="description">' . esc_html( $giai ) . '</span>' ) . '</label></li>';
+		}
+		return '<h2 id="noi-lai">Từ khó mất nối Từ điển</h2>'
+			. '<p class="description">Các từ khó này từng nối với mục từ trong Từ điển (bài vẫn gắn mục từ cùng chữ), nhưng mất nối khi lời giải được sửa trước bản sửa lỗi. Bấm "Nối lại" để nối đúng mục từ đó; lời giải và nguồn giữ nguyên, Lịch sử ghi lại. Bỏ dấu dòng nào chưa chắc.</p>'
+			. '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="phongdao-noi-lai"><input type="hidden" name="action" value="' . self::NOI_LAI . '">' . wp_nonce_field( self::NOI_LAI, '_wpnonce', true, false )
+			. '<ul class="phongdao-bs-ds">' . $li . '</ul>'
+			. ( count( $ds ) > self::NOI_LAI_HIEN ? '<p class="description">Còn ' . esc_html( number_format_i18n( count( $ds ) - self::NOI_LAI_HIEN ) ) . ' từ nữa; nối các dòng trên rồi danh sách tự cập nhật.</p>' : '' )
+			. '<p class="phongdao-bs-nut"><button type="submit" class="button button-primary">Nối lại các từ đã chọn</button></p></form>';
+	}
+
+	/** "Nối lại": kiểm quyền, nonce; ghi số mục từ cho đúng các từ đã chọn (điều kiện kiểm lại lúc ghi). */
+	public static function nhan_noi_lai(): void {
+		if ( ! current_user_can( 'cadao_soan' ) ) {
+			wp_die( 'Bạn không có quyền sửa từ khó.', '', array( 'response' => 403 ) );
+		}
+		check_admin_referer( self::NOI_LAI );
+		$chon = array_values( array_filter( array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['chon'] ?? array() ) ), static fn( string $c ): bool => current_user_can( 'edit_post', (int) strtok( $c, ':' ) ) ) );
+		$kq   = \Phongdao\DichVu\TuDien\NoiLai::noi( $chon, get_current_user_id() );
+		$chu  = $chon ? 'Đã nối lại ' . $kq['muc'] . ' từ khó ở ' . $kq['bai'] . ' bài.' . ( $kq['loi'] ? ' ' . $kq['loi'] . ' bài chưa lưu được, thử lại.' : '' ) : 'Chưa chọn từ nào.';
+		set_transient( 'phongdao_lo_bao_' . get_current_user_id(), array( 'ok' => ! $kq['loi'], 'chu' => $chu ), 300 );
+		wp_safe_redirect( self::url_tab( 'can_sua' ) . '#noi-lai' );
+		exit;
 	}
 
 	public const BO_QUA = 'phongdao_bo_sung_bo_qua';
@@ -343,7 +392,8 @@ final class BoSung {
 		$cs   = \Phongdao\DichVu\CanSua\CanSua::ds();
 		$dai  = self::y_nghia_dai();
 		$thieu = DanhSachTacPham::dem_loc( array( 'tt' => 'publish', 'muc' => 'thieu_y_nghia' ) );
-		$dem  = array( 'y_nghia' => $thieu, 'can_sua' => \Phongdao\DichVu\CanSua\CanSua::so_bai( $cs ) + count( $dai ), 'goi_y' => Viec::dem( Viec::CHO, 'goi_y' ), 'khac' => null, 'nhap' => null );
+		$noi  = \Phongdao\DichVu\TuDien\NoiLai::ds();
+		$dem  = array( 'y_nghia' => $thieu, 'can_sua' => \Phongdao\DichVu\CanSua\CanSua::so_bai( $cs ) + count( $dai ) + count( $noi ), 'goi_y' => Viec::dem( Viec::CHO, 'goi_y' ), 'khac' => null, 'nhap' => null );
 		$tab  = '';
 		foreach ( self::TAB as $ma => $ten ) {
 			$tab .= '<a class="phongdao-chip" href="' . esc_url( self::url_tab( $ma ) ) . '"' . ( $ma === $xem ? ' aria-current="page"' : '' ) . '>' . esc_html( $ten ) . ( null === $dem[ $ma ] ? '' : ' <span class="phongdao-chip-so">' . esc_html( number_format_i18n( (int) $dem[ $ma ] ) ) . '</span>' ) . '</a>';
@@ -354,7 +404,7 @@ final class BoSung {
 		$tien = '<section class="pq-khoi phongdao-bs-google" aria-label="Tiến độ lên Google"><p><strong>' . esc_html( number_format_i18n( $lap ) . ' / ' . number_format_i18n( $tong ) ) . '</strong> bài có phần thư viện tự viết (lên Google). Mỗi Ý nghĩa bạn viết thêm một bài; bài chỉ có lời vẫn đọc được.</p>'
 			. '<progress class="pq-tien-do" max="' . (int) max( 1, $tong ) . '" value="' . (int) min( $lap, max( 1, $tong ) ) . '" aria-label="' . esc_attr( $lap . ' trên ' . $tong . ' bài lên Google' ) . '">' . (int) $lap . ' / ' . (int) $tong . '</progress></section>';
 		$than = match ( $xem ) {
-			'can_sua' => self::khoi_can_sua( $cs ) . self::khoi_y_nghia_dai( $dai ),
+			'can_sua' => self::khoi_noi_lai( $noi ) . self::khoi_can_sua( $cs ) . self::khoi_y_nghia_dai( $dai ),
 			'goi_y'   => self::khoi_goi_y(),
 			'khac'    => self::khoi_uu_tien(),
 			'nhap'    => NapNhap::khoi(),

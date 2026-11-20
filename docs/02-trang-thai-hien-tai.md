@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Phiên bản | 4.0 · 20/11/2026 (ghi công người góp — D-124; Góp một câu — D-123; quản trị làm lại đợt 1: khung chung, menu gọn, Hôm nay mở nhanh — D-121; mở cho Google, lời hứa trang chủ mới — D-120; trang tác phẩm gọn — D-119; thùng rác và gỡ kẹt chờ trùng — D-115; trang thưa gọn, chuẩn bị Google — D-114; bộ lọc Tìm gọn — D-113; tìm đúng chữ và thứ tự danh sách — D-112; lịch sử đến 11/11/2026: `docs/luu-tru/02-trang-thai-den-11-11-2026.md`) |
+| Phiên bản | 4.0 · 20/11/2026 (Từ điển và từ khó, sửa lỗi đợt 1 — D-125; ghi công người góp — D-124; Góp một câu — D-123; quản trị làm lại đợt 1: khung chung, menu gọn, Hôm nay mở nhanh — D-121; mở cho Google, lời hứa trang chủ mới — D-120; trang tác phẩm gọn — D-119; thùng rác và gỡ kẹt chờ trùng — D-115; trang thưa gọn, chuẩn bị Google — D-114; bộ lọc Tìm gọn — D-113; tìm đúng chữ và thứ tự danh sách — D-112; lịch sử đến 11/11/2026: `docs/luu-tru/02-trang-thai-den-11-11-2026.md`) |
 | Mục đích | Trang tổng quan ngắn cho người sáng lập và AI agent |
 | Nguồn máy đọc | `du-an/trang-thai.json` (`npm run kiem-nhat-quan` đối chiếu với `docs/01`, `docs/22`) |
 
@@ -10,6 +10,7 @@
 
 ## Đang chạy
 
+- **Từ điển và từ khó, sửa lỗi đợt 1 (20/11/2026, D-125, plugin 1.0.88/theme 1.0.18):** sửa lời giải không còn làm mất nối Từ điển; từ khó đã mất nối nằm ở Bổ sung → Cần sửa để người bấm "Nối lại"; tìm Từ điển xếp đúng chữ trước, gom chữ nhiều nghĩa, phân trang; trang mục từ có đường "Từ điển" và lối sang nghĩa khác; /ca-dao/, /ve/, /cau-do/… về trang thể loại; bài viết có đầu/chân trang. Đợt sau (nghĩa chung trên trang bài, gợi ý nối, giao diện) chờ người sáng lập trả lời 5 điều trong bản đề xuất 19/11.
 - **Ghi công người góp đã sửa (20/11/2026, D-124, plugin 1.0.87/theme 1.0.17):** dòng công khai dùng Đóng góp bởi/Nguồn từ, giữ nhãn Chưa đối chiếu. Thẻ duyệt chọn sẵn tên khi người gửi đã đồng ý; người duyệt có thể ẩn, màn Sửa tác phẩm cho bật lại đúng tên từ bản gửi khớp lời. Đủ bốn cổng CI, E2E 81/81, quét 0 lỗi; site thật đúng phiên bản. Đã bật đúng bút danh có đồng ý cho bài người sáng lập nêu qua form chuẩn, giữ lời/nguồn; người đọc khách 390/1440 px thấy ghi công đúng, không tràn. [Nghiệm thu](22-backlog-trien-khai.md#ghi-công-người-góp--t-225), [PR #206](https://github.com/truonganhquyen/ca-dao/pull/206).
 
 - **Góp một câu đã triển khai (20/11/2026, D-123, plugin 1.0.86/theme 1.0.17):** `/gop/` mở ngay ô lời, nguồn/bút danh tuỳ chọn; CTA trên điều hướng, trang chủ, tìm chưa có kết quả và cuối bài. Tra gần giống chỉ bài công khai; một thẻ Người đọc gửi để quản trị đối chiếu, chọn phân loại và quyết đăng mới/thêm dị bản/bổ sung nguồn. Ghi công đúng phần lời, nguồn nhãn chưa đối chiếu; bút danh cần người gửi đồng ý; từ D-124 thẻ duyệt chọn sẵn khi có đồng ý, người duyệt có thể ẩn. Có lối bật/ẩn tên và sửa nguồn tại Sửa tác phẩm. Đủ bốn cổng CI, E2E 81/81 và quét 0 lỗi; site thật đúng phiên bản, CTA/form/quản trị đã kiểm chỉ đọc ở 390/1440 px. [Vận hành/nghiệm thu](44-gop-mot-cau.md), [PR #204](https://github.com/truonganhquyen/ca-dao/pull/204).

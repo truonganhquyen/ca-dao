@@ -413,7 +413,8 @@ final class TamSua {
 				// Không có ô "bat" = tắt (gỡ phần); bật giữ nguyên bản cũ để lần bấm lại không ghi lịch sử giả
 				return array( 'gia_tri' => empty( $f['bat'] ) ? null : ( $cu ?? array( 'nguoi_lam' => NguoiLam::NGUOI_VIET ) ), 'nhap' => null );
 			case 'chu_thich':
-				$chuyen = array();
+				$chuyen       = array();
+				self::$bo_noi = array();
 				return array( 'gia_tri' => self::doc_ds( $phan, (array) ( $f['muc'] ?? array() ), $cu, $chuyen ), 'nhap' => null, 'chuyen' => array_map( array( self::class, 'sang_chuyen_quanh' ), $chuyen ) );
 			case 'chuyen_quanh':
 			case 'di_ban':
@@ -487,6 +488,15 @@ final class TamSua {
 		);
 	}
 
+	/** Từ khó vừa bị bỏ nối Từ điển vì người sửa đổi chữ (lần đọc form gần nhất) — để lời báo sau khi lưu nhắc lại. */
+	public static array $bo_noi = array();
+
+	/** Hai cách viết là cùng một chữ: bỏ khoảng trắng thừa, không phân biệt hoa thường (dấu vẫn phải giống). */
+	public static function cung_chu( string $a, string $b ): bool {
+		$chuan = static fn( string $s ): string => mb_strtolower( \Phongdao\MienDuLieu\BoDau::nfc( trim( (string) preg_replace( '/\s+/u', ' ', $s ) ) ) );
+		return '' !== $chuan( $a ) && $chuan( $a ) === $chuan( $b );
+	}
+
 	/** @param list<array> $chuyen (từ khó) mục người đánh dấu "Chuyển sang Chuyện quanh bài": không giữ ở phần này, trả ra đây */
 	private static function doc_ds( string $phan, array $hang, ?array $cu, array &$chuyen = array() ): ?array {
 		$cu_muc = array_values( $cu['muc'] ?? array() );
@@ -528,6 +538,19 @@ final class TamSua {
 			}
 			// Không đổi gì → giữ nguyên mục cũ (máy chép giữ người làm, nguồn); đổi → người viết
 			$muc = $goc && $moi == $so ? $goc : $moi + array( 'nguoi_lam' => NguoiLam::NGUOI_VIET ); // phpcs:ignore Universal.Operators.StrictComparisons -- thứ tự khoá không quan trọng
+			// Từ khó đã nối Từ điển: sửa lời giải, nguồn mà chữ giữ nguyên thì giữ nối (mục từ, vị trí trong lời); đổi chữ thì
+			// bỏ nối (mục từ cũ có thể không còn đúng) và báo cho người sửa
+			if ( 'chu_thich' === $phan && $goc && $muc !== $goc ) {
+				if ( self::cung_chu( (string) ( $moi['tu'] ?? '' ), (string) ( $goc['tu'] ?? '' ) ) ) {
+					foreach ( array( 'muc_tu_id', 'vi_tri' ) as $giu ) {
+						if ( ! empty( $goc[ $giu ] ) ) {
+							$muc[ $giu ] = $goc[ $giu ];
+						}
+					}
+				} elseif ( ! empty( $goc['muc_tu_id'] ) ) {
+					self::$bo_noi[] = (string) ( $goc['tu'] ?? '' );
+				}
+			}
 			if ( 'chu_thich' === $phan || 'chuyen_quanh' === $phan ) {
 				$truong = 'chu_thich' === $phan ? 'loi_giai' : 'chu';
 				unset( $muc['dinh_dang'] );
