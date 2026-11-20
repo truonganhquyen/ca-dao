@@ -197,7 +197,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-222 | Nhập nguồn gọn (D-122): chống đè nguồn khi nhập lại, chỉ ghi Kho, gộp giữ hồ sơ và liên kết từ khó; kết quả phản ánh lỗi ghi thật | A | T-221 | — | DONE |
 | T-223 | Nhập nguồn gọn (D-122): TXT/CSV xem trước trong Bài mới, lọc/lịch sử lần nhập, tiếp tục thẻ/lô và thử lại đúng mục lỗi | A | T-222 | — | DONE |
 | T-224 | Góp một câu (D-123): CTA, form tập trung, tra gần giống công khai, một thẻ quản trị đối chiếu/phân loại/ghi công và quyết đăng mới/dị bản/nguồn | A | T-223 | — | DONE |
-| T-225 | Sửa ghi công người góp (D-124): hiện tên/bút danh đã đồng ý, bật lại trong trang sửa, nhãn Đóng góp bởi/Nguồn từ | A | T-224 | — | IN_PROGRESS |
+| T-225 | Sửa ghi công người góp (D-124): hiện tên/bút danh đã đồng ý, bật lại trong trang sửa, nhãn Đóng góp bởi/Nguồn từ | A | T-224 | — | DONE |
 | **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
 | T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
 | T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | DONE |
@@ -1077,7 +1077,9 @@ Sau gộp, `node scripts/kiem-site-that.mjs` xác nhận **site thật plugin 1.
 
 **Chấp nhận (D-124):** dòng ghi công dùng nhãn Đóng góp bởi/Nguồn từ, tình trạng chưa đối chiếu giữ rõ; không có tên được phép thì Bạn đọc ẩn danh. Thẻ duyệt chọn sẵn tên chỉ khi người gửi đã đồng ý, người duyệt có thể bỏ chọn. Màn sửa cho bật/tắt đúng bút danh đã đồng ý từ bản gửi tương ứng vân tay; không tin tên/ID/phần lời do form giả gửi, không hiện tên thiếu đồng ý hoặc tự đổi các bài cũ. Native form, quyền/nonce/phiên/lịch sử, nguồn và phần lời được giữ. Kiểm hồi quy bật/ẩn/bật lại, ẩn danh và escape, đủ bốn cổng và xác nhận live; sửa dữ liệu thật chỉ dòng ghi công của bài người sáng lập nêu và có chứng cứ đồng ý.
 
-**Tiến độ:** đang triển khai; chưa nghiệm thu hay cập nhật dữ liệu thật.
+**Nghiệm thu (20/11/2026, plugin 1.0.87/theme 1.0.17):** [PR #206](https://github.com/truonganhquyen/ca-dao/pull/206), head `689315f`, gộp `2e68539`. [CI V2](https://github.com/truonganhquyen/ca-dao/actions/runs/44658660630) và [cổng nhất quán](https://github.com/truonganhquyen/ca-dao/actions/runs/44658660694) đạt đủ bốn lệnh: PHP thuần 292, WordPress 816, chuyển đổi 55; WCAG/ngân sách 0 lỗi; E2E 81 bước đạt, 0 lỗi, 0 bỏ qua (4 lần công cụ bấm lại). Luồng góp/duyệt không JavaScript kiểm chọn tên theo consent, ẩn rồi bật lại tên qua form chuẩn, giữ nguồn. Hồi quy kiểm tên thiếu đồng ý, vân tay sai, tên/ID giả, escape và chứng cứ không bị thay. Local Windows Playground/trình duyệt treo không tính đạt; dùng CI Linux đầy đủ.
+
+Sau gộp, `node scripts/kiem-site-that.mjs` xác nhận site plugin 1.0.87/theme 1.0.17. Đã đối chiếu bản gửi riêng tư có đồng ý công khai tên và bật đúng bút danh cho bài người sáng lập yêu cầu bằng form quản trị có nonce/phiên/lịch sử, tắt JavaScript. So trước/sau giữ nguyên lời và nguồn đã duyệt; không đổi trạng thái bài hay bài khác. Trình duyệt khách không đăng nhập, chỉ GET/HEAD, 390/1440 px: HTTP 200, dòng Đóng góp bởi/Nguồn từ đúng tên đã đồng ý, nhãn Chưa đối chiếu còn rõ, không tràn ngang; ảnh và dữ liệu thật giữ riêng ngoài repo. Không tự bật tên trên bài cũ, không đổi schema, quyền sử dụng hay cấu hình máy chủ.
 
 ## 4. User story
 

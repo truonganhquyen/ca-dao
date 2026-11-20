@@ -32,6 +32,6 @@
   "kiem_tra_cuoi": {
     "trang_thai": "DAT",
     "thoi_diem": "2026-11-20",
-    "pham_vi": "T-224 (D-123): Góp một câu, PR #204, CI head 12b5c7d đủ bốn cổng; PHP 292, WordPress 811, chuyển đổi 55, E2E 81/81 (4 lần bấm lại), quét 0 lỗi. Site thật plugin 1.0.86/theme 1.0.17; form/CTA và wp-admin 390/1440 px kiểm chỉ đọc đạt. Windows Playground/trình duyệt treo không tính đạt; nghiệm thu dùng CI Linux. Không thay dữ liệu thật; pilot T-198 vẫn chờ người biên soạn."
+    "pham_vi": "T-225 (D-124): ghi công người góp, PR #206, head 689315f đủ bốn cổng CI; PHP 292, WordPress 816, chuyển đổi 55, E2E 81/81 (4 lần bấm lại), quét 0 lỗi. Site plugin 1.0.87/theme 1.0.17; đã bật đúng bút danh có đồng ý của bài người sáng lập yêu cầu qua form chuẩn, giữ nguyên lời và nguồn. Khách không JavaScript 390/1440 px thấy đúng ghi công, không tràn. Windows Playground/trình duyệt treo không tính đạt; nghiệm thu bằng CI Linux. Không tự đổi bài khác; pilot T-198 vẫn chờ người biên soạn."
   }
 }
