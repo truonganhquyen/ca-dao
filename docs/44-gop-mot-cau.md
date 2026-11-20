@@ -41,3 +41,6 @@ Trong **Sửa tác phẩm → Phần khác → Ghi công và nguồn bạn đọ
 ## Nghiệm thu
 
 Bốn cổng dự án hiện có; fixture tổng hợp kỹ thuật, không ghi dữ liệu thật để thử. Kiểm tra gửi/duyệt lặp, bản gửi cùng lời khác nguồn, lỗi giao dịch, bài đích đổi, quyền, phạm vi khách, ẩn danh, nguồn nhiều chứng cứ, JavaScript bật/tắt, bàn phím và điện thoại. Sau gộp phải kiểm phiên bản live; CI không đồng nghĩa đã triển khai.
+
+
+Đã nghiệm thu trên [PR #204](https://github.com/truonganhquyen/ca-dao/pull/204), [CI bản cuối](https://github.com/truonganhquyen/ca-dao/actions/runs/44635897306): đủ bốn cổng, E2E 81/81, quét 0 lỗi; site thật đã chạy plugin 1.0.86/theme 1.0.17 ngày 20/11/2026. Chi tiết bằng chứng kỹ thuật ở `docs/22` mục T-224. Hướng dẫn thao tác ngắn: [Xử lý bài người đọc góp](huong-dan/xu-ly-bai-nguoi-doc-gop.md).
