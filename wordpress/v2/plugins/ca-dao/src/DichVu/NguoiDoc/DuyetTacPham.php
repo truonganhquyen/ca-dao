@@ -19,6 +19,15 @@ defined( 'ABSPATH' ) || exit;
 final class DuyetTacPham {
 	private static array $da_cham = array();
 
+	/** Chỉ lấy lại đúng bút danh người gửi đã đồng ý, cho đúng lời của chứng cứ đã lưu. */
+	public static function ten_da_dong_y( array $m ): string {
+		$id = (int) ( $m['gop_id'] ?? 0 );
+		if ( ! $id || KhaiBao::GOP_Y !== get_post_type( $id ) ) { return ''; }
+		$d = get_post_meta( $id, '_phongdao_gop', true );
+		if ( ! is_array( $d ) || empty( $d['hien_ten'] ) || ! is_string( $d['ten'] ?? null ) || ! is_string( $d['noi_dung'] ?? null ) || ( $m['dau_loi'] ?? '' ) !== VanTay::cua( $d['noi_dung'] )['vt1'] ) { return ''; }
+		return $d['ten'];
+	}
+
 	public static function loi( int $id ): string {
 		$d = get_post_meta( $id, '_phongdao_gop', true );
 		return is_array( $d ) ? (string) ( $d['noi_dung'] ?? '' ) : '';

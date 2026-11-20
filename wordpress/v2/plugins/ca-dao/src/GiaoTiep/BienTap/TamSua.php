@@ -123,12 +123,14 @@ final class TamSua {
 	}
 
 	private static function form_ghi_cong( ?array $cu ): string {
-		$o = '<p class="small muted">Nguồn vẫn mang nhãn chưa đối chiếu. Có thể ẩn bút danh, sửa nguồn công khai hoặc gỡ dòng ghi công; bản gửi riêng tư và lịch sử được giữ. Không chuyển chứng cứ sang lời khác.</p>';
+		$o = '<p class="small muted">Chọn hiện hoặc ẩn bút danh người gửi đã đồng ý; có thể sửa nguồn công khai hoặc gỡ dòng ghi công. Nguồn chưa đối chiếu, bản gửi riêng tư và lịch sử được giữ. Không chuyển chứng cứ sang lời khác.</p>';
 		foreach ( $cu['muc'] ?? array() as $i => $m ) {
 			$id = 'gop-credit-' . $i; $p = 'muc[' . $i . ']';
+			$ten = \Phongdao\DichVu\NguoiDoc\DuyetTacPham::ten_da_dong_y( $m );
 			$o .= '<fieldset><legend>' . esc_html( ( 'loi' === $m['phan'] ? 'Lời chính' : 'Dị bản' ) . ' · ' . ( ( $m['ten'] ?? '' ) ?: 'Bạn đọc ẩn danh' ) ) . '</legend>'
 				. self::vung( $id . '-nguon', $p . '[xuat_xu]', 'Nguồn công khai — không ghi thông tin cá nhân', $m['xuat_xu'] ?? '', '', 2 )
-				. ( empty( $m['ten'] ) ? '' : self::hop( $id . '-ten', $p . '[an_ten]', 'Ẩn bút danh trên dòng này', false ) )
+				. ( '' === $ten ? '<p class="small muted">Không có bút danh được đồng ý trong bản gửi để bật ghi công.</p>' : '<input type="hidden" name="' . $p . '[hien_ten]" value="0">' . self::hop( $id . '-ten', $p . '[hien_ten]', 'Hiện bút danh “' . $ten . '” — người gửi đã đồng ý', ! empty( $m['ten'] ) ) )
+				. ( '' === $ten && ! empty( $m['ten'] ) ? self::hop( $id . '-an-ten', $p . '[an_ten]', 'Ẩn bút danh trên dòng này', false ) : '' )
 				. self::hop( $id . '-xoa', $p . '[xoa]', 'Gỡ dòng ghi công khỏi trang đọc', false ) . '</fieldset>';
 		}
 		return $o;
@@ -361,6 +363,7 @@ final class TamSua {
 					$f_m = is_array( $f['muc'][ $i ] ?? null ) ? $f['muc'][ $i ] : array();
 					if ( ! empty( $f_m['xoa'] ) ) { continue; }
 					if ( ! empty( $f_m['an_ten'] ) ) { $m['ten'] = ''; }
+					elseif ( array_key_exists( 'hien_ten', $f_m ) ) { $m['ten'] = ! empty( $f_m['hien_ten'] ) ? \Phongdao\DichVu\NguoiDoc\DuyetTacPham::ten_da_dong_y( $m ) : ''; }
 					if ( isset( $f_m['xuat_xu'] ) && is_string( $f_m['xuat_xu'] ) ) { $m['xuat_xu'] = $chu( $f_m['xuat_xu'] ); }
 					$ds[] = $m;
 				}

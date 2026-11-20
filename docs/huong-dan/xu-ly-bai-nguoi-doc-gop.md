@@ -24,9 +24,9 @@ Chủ đề/vùng dùng bộ mục hiện có. Chưa rõ vùng thì để trốn
 
 Ô **Nguồn sẽ công khai** là nội dung chuẩn bị đưa lên trang đọc: bỏ thông tin cá nhân, không thêm tên sách/trang/URL chưa kiểm thấy. Nguồn người góp cung cấp mang nhãn **chưa đối chiếu**; không tự xem là nguồn đã xác thực.
 
-Bút danh chỉ có lựa chọn công khai khi người đọc đã đồng ý. Người duyệt phải chọn thêm ô **Công khai bút danh** nếu sử dụng tên đó. Không coi người góp là tác giả hoặc người kể. Ghi công gắn đúng lời chính/dị bản được dùng; các nguồn khác nhau của cùng lời được giữ riêng.
+Bút danh chỉ có lựa chọn công khai khi người đọc đã đồng ý. Thẻ duyệt chọn sẵn ghi công khi người gửi đã đồng ý; người duyệt bỏ chọn nếu muốn ẩn. Quyết duyệt sẽ lưu lựa chọn đang thấy (D-124). Không coi người góp là tác giả hoặc người kể. Ghi công gắn đúng lời chính/dị bản được dùng; các nguồn khác nhau của cùng lời được giữ riêng.
 
-Sau khi duyệt, muốn sửa nguồn hoặc ẩn tên: **Sửa tác phẩm → Phần khác → Ghi công và nguồn bạn đọc**. Có thể sửa nguồn công khai, ẩn bút danh hoặc gỡ dòng ghi công; bản gửi riêng tư và lịch sử vẫn được giữ. Không chuyển chứng cứ sang lời khác bằng form này.
+Sau khi duyệt, muốn sửa nguồn hoặc ẩn tên: **Sửa tác phẩm → Phần khác → Ghi công và nguồn bạn đọc**. Có thể sửa nguồn công khai, chọn hiện/ẩn bút danh đã đồng ý hoặc gỡ dòng ghi công; bản gửi riêng tư và lịch sử vẫn được giữ. Ô hiện tên chỉ nhận lại tên từ bản gửi đã đồng ý và đúng lời; không có ô nhập tên tuỳ ý. Không chuyển chứng cứ sang lời khác bằng form này.
 
 ## Kiểm kết quả
 
