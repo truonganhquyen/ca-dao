@@ -14,6 +14,13 @@ final class ChuyenHuong implements Module {
 	/** Tuỳ chọn (không tự nạp): đường cũ của mục phân loại đã gộp / bỏ (D-114) => {tax, id} của mục nhận, hoặc {duong}. */
 	public const PHAN_LOAI = 'phongdao_chuyen_phan_loai';
 
+	/** Tên cũ khác của trang thể loại => mã thể loại (ngoài chính các mã ca-dao, tuc-ngu, dong-dao, ve, cau-do). */
+	private const THE_LOAI_CU = array(
+		'thanh-ngu'         => 'tuc-ngu',
+		'tuc-ngu-thanh-ngu' => 'tuc-ngu',
+		'thanh-ngu-tuc-ngu' => 'tuc-ngu',
+	);
+
 	public function dang_ky(): void {
 		add_action(
 			'template_redirect',
@@ -67,6 +74,15 @@ final class ChuyenHuong implements Module {
 				}
 			}
 			return home_url( (string) ( $d['duong'] ?? '/' ) );
+		}
+		// Trang thể loại kiểu cũ (/ca-dao/, /ve/, /cau-do/…) → trang thể loại; nếu không, WordPress tự đoán và đưa sang một bài
+		// có tên gần giống (vd. /ca-dao/ → "Ca dao nói về rượu") — D-125
+		if ( preg_match( '~^/([a-z-]+)/$~', $duong, $m ) ) {
+			$ma = self::THE_LOAI_CU[ $m[1] ] ?? ( isset( \Phongdao\MienDuLieu\TheLoai::DS[ $m[1] ] ) ? $m[1] : '' );
+			if ( '' !== $ma ) {
+				$link = get_term_link( $ma, KhaiBao::THE_LOAI );
+				return is_wp_error( $link ) ? null : $link;
+			}
 		}
 		// Tình huống → tuyển tập cùng tên đường dẫn
 		if ( preg_match( '~^/tinh-huong/([^/]+)/$~', $duong, $m ) ) {

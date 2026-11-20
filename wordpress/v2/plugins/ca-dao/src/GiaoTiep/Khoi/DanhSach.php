@@ -22,7 +22,7 @@ final class DanhSach {
 		'vung'      => 'Nơi lưu truyền',
 		'mo_tip'    => 'Mô-típ',
 		'hinh_thuc' => 'Hình thức',
-		'muc_tu'    => 'Bài có từ này',
+		'muc_tu'    => 'Từ điển',
 		'tro_choi'  => 'Trò chơi',
 	);
 
@@ -52,8 +52,9 @@ final class DanhSach {
 			$dau = self::duong_dan( 'Tất cả tác phẩm' ) . '<p class="eyebrow">Kho tác phẩm</p><h1>Mỗi câu, một lối đọc.</h1><p class="muted">Tìm theo thể loại, hình thức, chủ đề hoặc nơi lưu truyền.</p>' . self::bo_loc( $q );
 		} else {
 			$mo_ta = trim( wp_strip_all_tags( (string) $term->description ) );
-			$dau   = self::duong_dan( $term->name ) . '<p class="eyebrow">' . esc_html( self::DAU[ $term->taxonomy ] ) . '</p><h1>' . esc_html( $term->name ) . '</h1>'
+			$dau   = self::duong_dan( $term->name, $term->taxonomy ) . '<p class="eyebrow">' . esc_html( self::DAU[ $term->taxonomy ] ) . '</p><h1>' . esc_html( $term->name ) . '</h1>'
 				. ( '' === $mo_ta ? '' : '<p class="muted">' . esc_html( $mo_ta ) . '</p>' )
+				. ( 'muc_tu' === $term->taxonomy ? self::nghia_khac( $term ) : '' )
 				// Mục từ: ảnh Commons, bản đồ nhỏ, Wikipedia của địa danh đã xác nhận (như MVP)
 				. ( 'muc_tu' === $term->taxonomy ? self::nguon_loi_giai( $term ) . DiaDanh::html( DiaDanh::cua_muc_tu( (int) $term->term_id ) ?? array() ) . \Phongdao\GiaoTiep\BienTap\SuaMucTu::form( $term ) : '' );
 		}
@@ -108,9 +109,25 @@ final class DanhSach {
 			. '<div class="row between"><span class="small muted">' . esc_html( (string) ( $c['ly_do'] ?? '' ) ) . '</span><a class="btn compact ghost" href="' . esc_url( $c['url'] ) . '" aria-label="' . esc_attr( $tho ? 'Đọc bài có từ ngữ thô tục' : 'Đọc: ' . $c['tieu_de'] ) . '">Đọc ' . Ve::icon( 'arrow' ) . '</a></div></article>';
 	}
 
-	private static function duong_dan( string $ten ): string {
-		$giua = 'Tất cả tác phẩm' === $ten ? '' : Ve::lien_ket( 'kho', 'Kho tác phẩm' ) . '<span aria-hidden="true">/</span>';
+	private static function duong_dan( string $ten, string $tax = '' ): string {
+		$giua = 'Tất cả tác phẩm' === $ten ? '' : ( 'muc_tu' === $tax ? Ve::lien_ket( 'tu-dien', 'Từ điển' ) : Ve::lien_ket( 'kho', 'Kho tác phẩm' ) ) . '<span aria-hidden="true">/</span>';
 		return '<nav aria-label="Đường dẫn" class="breadcrumbs">' . Ve::lien_ket( 'trang-chu', 'Trang chủ' ) . '<span aria-hidden="true">/</span>' . $giua . '<span>' . esc_html( $ten ) . '</span></nav>';
+	}
+
+	/** Trang mục từ: lối sang các nghĩa khác của cùng một chữ (vd. ba mục "Mai"), mỗi nghĩa một dòng tóm tắt. */
+	private static function nghia_khac( \WP_Term $term ): string {
+		$khac = TuDien::cung_mat_chu( $term );
+		if ( ! $khac ) {
+			return '';
+		}
+		$li = '';
+		foreach ( $khac as $t ) {
+			$giai = trim( wp_strip_all_tags( (string) $t->description ) );
+			$giai = mb_strlen( $giai ) > 90 ? rtrim( mb_substr( $giai, 0, 89 ) ) . '…' : $giai;
+			$url  = get_term_link( $t );
+			$li  .= '<li><a href="' . esc_url( is_wp_error( $url ) ? '' : $url ) . '">' . esc_html( '' === $giai ? $t->name : $giai ) . '</a> <span class="small muted">· ' . (int) $t->count . ' bài</span></li>';
+		}
+		return '<div class="tu-dien-khac"><p class="small muted">Chữ “' . esc_html( $term->name ) . '” còn ' . count( $khac ) . ' nghĩa khác trong Từ điển:</p><ul class="tu-dien-nghia">' . $li . '</ul></div>';
 	}
 
 	/** Bộ lọc của trang Tất cả: form GET, mỗi ô là một phân loại (WordPress tự lọc theo tham số cùng tên). */
