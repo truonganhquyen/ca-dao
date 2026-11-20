@@ -34,9 +34,9 @@ Mục nguồn đã có thẻ chờ từ trước cũng đối chiếu lại vớ
 
 Phần `dong_gop` dùng cơ chế meta/lịch sử sẵn có, không bảng mới. Mỗi chứng cứ gồm ID bản gửi, phần lời/dị bản, vân tay có dấu, bút danh được phép và nguồn người duyệt chọn công khai. Nhiều người góp cùng lời giữ nhiều chứng cứ. Không coi người đóng góp là tác giả hoặc người kể.
 
-Ghi công ngay dưới đúng lời/dị bản đã dùng. Không hiện bút danh khi thiếu một trong hai: người gửi đồng ý và quản trị chọn công khai. Nguồn mang nhãn **Nguồn người góp cung cấp — chưa đối chiếu**; ô nguồn quản trị nhắc bỏ thông tin cá nhân. Không đưa bản gửi riêng tư, token hoặc tên không được công khai vào HTML khách. Sửa lời sau này làm vân tay thay đổi thì chứng cứ cũ không tự chuyển sang lời mới.
+Ghi công ngay dưới đúng lời/dị bản đã dùng. Không hiện bút danh khi thiếu một trong hai: người gửi đồng ý và quản trị chọn công khai. D-124: ghi công dùng **Đóng góp bởi: … — Nguồn từ: …**, kèm nhãn ngắn **(Chưa đối chiếu)** khi có nguồn; ô nguồn quản trị nhắc bỏ thông tin cá nhân. Không đưa bản gửi riêng tư, token hoặc tên không được công khai vào HTML khách. Sửa lời sau này làm vân tay thay đổi thì chứng cứ cũ không tự chuyển sang lời mới.
 
-Trong **Sửa tác phẩm → Phần khác → Ghi công và nguồn bạn đọc**, người có quyền duyệt có thể ẩn bút danh, sửa nguồn công khai hoặc gỡ dòng ghi công. Form chỉ sửa chứng cứ đã có, giữ phần/vân tay/ID bản gửi tại máy chủ; không tự khôi phục tên đã ẩn. Mỗi lần lưu có phiên và lịch sử như các phần khác; bản gửi riêng tư được giữ.
+Trong **Sửa tác phẩm → Phần khác → Ghi công và nguồn bạn đọc**, người có quyền duyệt có thể ẩn bút danh, sửa nguồn công khai hoặc gỡ dòng ghi công. Form chỉ sửa chứng cứ đã có, giữ phần/vân tay/ID bản gửi tại máy chủ. D-124: có ô hiện/ẩn để bật lại đúng tên từ bản gửi đã đồng ý và khớp lời, chỉ khi người duyệt chọn rồi lưu; không tự khôi phục tên trên bài cũ. Mỗi lần lưu có phiên và lịch sử như các phần khác; bản gửi riêng tư được giữ.
 
 ## Nghiệm thu
 

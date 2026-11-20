@@ -197,6 +197,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-222 | Nhập nguồn gọn (D-122): chống đè nguồn khi nhập lại, chỉ ghi Kho, gộp giữ hồ sơ và liên kết từ khó; kết quả phản ánh lỗi ghi thật | A | T-221 | — | DONE |
 | T-223 | Nhập nguồn gọn (D-122): TXT/CSV xem trước trong Bài mới, lọc/lịch sử lần nhập, tiếp tục thẻ/lô và thử lại đúng mục lỗi | A | T-222 | — | DONE |
 | T-224 | Góp một câu (D-123): CTA, form tập trung, tra gần giống công khai, một thẻ quản trị đối chiếu/phân loại/ghi công và quyết đăng mới/dị bản/nguồn | A | T-223 | — | DONE |
+| T-225 | Sửa ghi công người góp (D-124): hiện tên/bút danh đã đồng ý, bật lại trong trang sửa, nhãn Đóng góp bởi/Nguồn từ | A | T-224 | — | IN_PROGRESS |
 | **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
 | T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
 | T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | DONE |
@@ -1071,6 +1072,12 @@ Người sáng lập duyệt bản xem trước lần 2 ngày 16/11/2026 (D-119)
 **Nghiệm thu (20/11/2026, plugin 1.0.86/theme 1.0.17):** [PR #204](https://github.com/truonganhquyen/ca-dao/pull/204), mã kiểm `12b5c7d`, gộp `9cdaf92`. [CI V2](https://github.com/truonganhquyen/ca-dao/actions/runs/44635897306) và [cổng nhất quán](https://github.com/truonganhquyen/ca-dao/actions/runs/44635897288) đạt đủ bốn lệnh bắt buộc: PHP thuần 292, WordPress 811, chuyển đổi 55 ca; E2E 81 bước, 0 lỗi, 0 bỏ qua (4 lần bấm lại theo cơ chế kiểm hiện hành); WCAG 2.2 AA/ngân sách 0 lỗi. Ca mới kiểm gửi lặp, nguồn nhiều chứng cứ, lời gần 30–60%/trên 70%, chặn tạo bài/dị bản y hệt, nguồn trống, consent, phiên cũ, snapshot bài đích, lỗi giữa giao dịch và thử lại; phân loại cùng giao dịch, mục nguồn đã chờ không đăng thêm bài y hệt sau khi đóng góp được duyệt. Luồng gửi/duyệt và ghi công đi hết khi tắt JavaScript; bàn phím không bị thanh thao tác che, thẻ góp quét 390/1440 px. Không sửa dữ liệu thật để thử. Windows: nhất quán/PHP thuần đạt; Playground/trình duyệt treo đã dừng, không tính đạt; nghiệm thu kỹ thuật dùng CI Linux đầy đủ.
 
 Sau gộp, `node scripts/kiem-site-that.mjs` xác nhận **site thật plugin 1.0.86/theme 1.0.17**. Trình duyệt khách 390/1440 px chỉ GET/HEAD: `/gop/` HTTP 200, ô lời ngay đầu, nguồn/bút danh gập, consent chưa chọn, mã tra gần giống đúng phiên bản; CTA trên trang chủ/điều hướng máy tính/điện thoại, cuối bài và tìm không kết quả; lối gửi số trang có đúng loại/ngữ cảnh; không tràn ngang. REST index đăng ký đúng route POST công khai, không gửi nội dung thử lên production. wp-admin đã xác thực mở Hộp việc → Người đọc gửi HTTP 200; kiểm chỉ đọc, chặn yêu cầu ghi nền. Ghi công công khai chỉ dùng phần đã duyệt; tên cần hai đồng ý, nguồn luôn nhãn chưa đối chiếu, có lối ẩn tên/sửa nguồn trong Sửa tác phẩm. Không bật thêm Turnstile hoặc thay cấu hình máy chủ. Báo cáo/ảnh thật giữ ngoài repo. [Đặc tả và vận hành](44-gop-mot-cau.md).
+
+### Ghi công người góp — T-225
+
+**Chấp nhận (D-124):** dòng ghi công dùng nhãn Đóng góp bởi/Nguồn từ, tình trạng chưa đối chiếu giữ rõ; không có tên được phép thì Bạn đọc ẩn danh. Thẻ duyệt chọn sẵn tên chỉ khi người gửi đã đồng ý, người duyệt có thể bỏ chọn. Màn sửa cho bật/tắt đúng bút danh đã đồng ý từ bản gửi tương ứng vân tay; không tin tên/ID/phần lời do form giả gửi, không hiện tên thiếu đồng ý hoặc tự đổi các bài cũ. Native form, quyền/nonce/phiên/lịch sử, nguồn và phần lời được giữ. Kiểm hồi quy bật/ẩn/bật lại, ẩn danh và escape, đủ bốn cổng và xác nhận live; sửa dữ liệu thật chỉ dòng ghi công của bài người sáng lập nêu và có chứng cứ đồng ý.
+
+**Tiến độ:** đang triển khai; chưa nghiệm thu hay cập nhật dữ liệu thật.
 
 ## 4. User story
 

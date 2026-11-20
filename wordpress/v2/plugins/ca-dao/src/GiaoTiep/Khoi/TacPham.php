@@ -307,9 +307,10 @@ final class TacPham {
 	private static function ghi_cong( array $ds ): string {
 		$o = '';
 		foreach ( $ds as $m ) {
-			$s = '' !== $m['ten'] ? 'Bạn đọc ' . $m['ten'] . ' đóng góp.' : 'Bạn đọc đóng góp.';
-			if ( '' !== $m['xuat_xu'] ) { $s .= ' Nguồn người góp cung cấp — chưa đối chiếu: ' . $m['xuat_xu']; }
-			$o .= '<p class="small muted gop-ghi-cong">' . esc_html( $s ) . '</p>';
+			$s = 'Đóng góp bởi: ' . ( '' !== $m['ten'] ? $m['ten'] : 'Bạn đọc ẩn danh' );
+			if ( '' !== $m['xuat_xu'] ) { $s .= ' — Nguồn từ: ' . $m['xuat_xu']; }
+			$s .= preg_match( '/[.!?…]$/u', $s ) ? '' : '.';
+			$o .= '<p class="small muted gop-ghi-cong">' . esc_html( $s ) . ( '' !== $m['xuat_xu'] ? ' <span class="gop-nguon-trang-thai">(Chưa đối chiếu)</span>' : '' ) . '</p>';
 		}
 		return $o;
 	}

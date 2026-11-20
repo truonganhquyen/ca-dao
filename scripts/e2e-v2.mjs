@@ -836,7 +836,7 @@ try {
         const card = `.phongdao-hv-phai article#viec-${id}`;
         chac(await bt.$(`${card} button[value=gop_di_ban]`) && await bt.$(`${card} button[value=gop_nguon]`), 'thiếu quyết dị bản/nguồn');
         await bt.select(`${card} select[name=gop_the_loai]`, 'ca-dao');
-        await bam(bt, `${card} input[name=gop_hien_ten]`);
+        chac(await bt.$eval(`${card} input[name=gop_hien_ten]`, e => e.checked), 'bút danh người gửi đã đồng ý chưa được chọn sẵn trên thẻ duyệt');
         for(const field of ['select[name=gop_the_loai]','select[name=gop_dich]','input[type=number][name=gop_dich]','textarea[name=gop_nguon]','input[name=gop_hien_ten]']) {
           await bt.focus(`${card} ${field}`);
           chac(await bt.$eval(`${card} ${field}`,e=>{const r=e.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;return y>0&&y<innerHeight&&e===document.elementFromPoint(x,y);}),`focus ${field} bị thanh thao tác che`);
@@ -846,9 +846,22 @@ try {
         chac(await coChu(bt, 'Đã đăng tác phẩm'), 'quyết chưa đăng thành công');
         chac(await bt.$('.phongdao-hv-bao .phongdao-viec-bai a'), 'thông báo thành công thiếu lối mở ngay bài vừa nhận đóng góp');
         await di(bt, `/wp-admin/admin.php?page=phongdao-hop-viec&loai=nguoi_doc&tt=xong&viec=${id}`);
+        const editCredit = await bt.$eval('.phongdao-viec-bai a[href*="phongdao-sua-tac-pham"]', e => new URL(e.href).pathname + new URL(e.href).search);
         url = await bt.$eval('.phongdao-viec-bai a:last-child', e => new URL(e.href).pathname);
         await di(k, url);
-        chac(await coChu(k, chu) && await coChu(k, 'E2E reader') && await coChu(k, 'Nguồn người góp cung cấp — chưa đối chiếu'), 'lời/ghi công/nguồn không hiện đúng');
+        chac(await coChu(k, chu) && await coChu(k, 'Đóng góp bởi: E2E reader — Nguồn từ: https://example.org/e2e-contribution.') && await coChu(k, 'Chưa đối chiếu'), 'lời/ghi công/nguồn không hiện đúng');
+        await di(bt, editCredit);
+        await bam(bt, '#phan-dong_gop > summary');
+        await bam(bt, '#phan-dong_gop input[type=checkbox][name="muc[0][hien_ten]"]');
+        await bamDoiTrang(bt, '#phan-dong_gop button[type=submit]');
+        await di(k, url);
+        chac(await coChu(k, 'Đóng góp bởi: Bạn đọc ẩn danh') && !(await k.$eval('.gop-ghi-cong', e => e.textContent.includes('E2E reader'))), 'ẩn tên không có hiệu lực');
+        await di(bt, editCredit);
+        await bam(bt, '#phan-dong_gop > summary');
+        await bam(bt, '#phan-dong_gop input[type=checkbox][name="muc[0][hien_ten]"]');
+        await bamDoiTrang(bt, '#phan-dong_gop button[type=submit]');
+        await di(k, url);
+        chac(await k.$eval('.gop-ghi-cong', e => e.textContent.includes('Đóng góp bởi: E2E reader — Nguồn từ: https://example.org/e2e-contribution.')), 'bật lại tên đã đồng ý không hoạt động hoặc mất nguồn');
       } finally { await k.setJavaScriptEnabled(true); await bt.setJavaScriptEnabled(true); }
       await di(k, '/gop/');
       await datO(k, '#gop-noi-dung', chu);

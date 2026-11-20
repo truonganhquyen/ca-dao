@@ -78,8 +78,18 @@ if ( $b123 ) {
 	$view123 = \Phongdao\DichVu\DungTrang\TrangTacPham::tu_phan( PhanBai::tat_ca( $b123, KhaiBao::TAC_PHAM ), array( 'id' => $b123, 'tieu_de' => '[UX-TEST]', 'the_loai' => 'ca-dao', 'url' => get_permalink( $b123 ) ) );
 	$html123 = \Phongdao\GiaoTiep\Khoi\TacPham::hien( $view123 );
 	kt( 'Góp câu: ghi công đúng lời/dị bản, escape tên, không lộ tên riêng tư', str_contains( $html123, 'Reader &lt;test&gt;' ) && ! str_contains( $html123, 'Private test name' ) && str_contains( $html123, 'https://example.org/second-test' ) );
+	kt( 'Ghi công: nhãn ngắn Đóng góp bởi/Nguồn từ, không làm nguồn thành đã đối chiếu', str_contains( $html123, 'Đóng góp bởi: Reader &lt;test&gt; — Nguồn từ: https://example.org/reader-test.' ) && str_contains( $html123, '(Chưa đối chiếu)' ) && str_contains( $html123, 'Đóng góp bởi: Bạn đọc ẩn danh' ) );
 	$edit123 = \Phongdao\GiaoTiep\BienTap\TamSua::doc( 'dong_gop', array( 'muc' => array( array( 'an_ten' => 1, 'gop_id' => 999, 'phan' => 'di_ban', 'dau_loi' => 'forged', 'xuat_xu' => 'https://example.org/revised-test' ) ) ), PhanBai::lay( $b123, 'dong_gop' ) );
 	kt( 'Góp câu: người duyệt có thể ẩn tên/sửa nguồn, không chuyển chứng cứ qua lời khác từ form', '' === $edit123['gia_tri'][0]['ten'] && $g123['id'] === $edit123['gia_tri'][0]['gop_id'] && 'loi' === $edit123['gia_tri'][0]['phan'] && 'forged' !== $edit123['gia_tri'][0]['dau_loi'] );
+	$credit_hide123 = array( 'muc' => $edit123['gia_tri'] );
+	$restore123 = \Phongdao\GiaoTiep\BienTap\TamSua::doc( 'dong_gop', array( 'muc' => array( array( 'hien_ten' => '1', 'ten' => 'Forged reader name', 'gop_id' => $other123['id'] ), array(), array( 'hien_ten' => '1', 'ten' => 'Private test name' ) ) ), $credit_hide123 );
+	kt( 'Ghi công: bật lại tên từ bản gửi đã đồng ý, bỏ qua tên/ID giả và không bật tên chưa đồng ý', 'Reader <test>' === ( $restore123['gia_tri'][0]['ten'] ?? '' ) && '' === ( $restore123['gia_tri'][2]['ten'] ?? '' ) && $g123['id'] === $restore123['gia_tri'][0]['gop_id'] );
+	$not_match123 = $credits123[0]; $not_match123['dau_loi'] = 'forged';
+	kt( 'Ghi công: chứng cứ không khớp lời không được lấy tên người gửi', '' === DG::ten_da_dong_y( $not_match123 ) );
+	$off123 = \Phongdao\GiaoTiep\BienTap\TamSua::doc( 'dong_gop', array( 'muc' => array( array( 'hien_ten' => '0' ) ) ), array( 'muc' => $restore123['gia_tri'] ) );
+	kt( 'Ghi công: bỏ chọn ẩn tên nhưng giữ nguồn/vân tay/ID', '' === $off123['gia_tri'][0]['ten'] && $credit_hide123['muc'][0]['xuat_xu'] === $off123['gia_tri'][0]['xuat_xu'] && $credit_hide123['muc'][0]['dau_loi'] === $off123['gia_tri'][0]['dau_loi'] );
+	$credit_form123 = \Phongdao\GiaoTiep\BienTap\TamSua::than( 'dong_gop', $credit_hide123, array() );
+	kt( 'Ghi công: form sửa có lựa chọn bật lại tên đã đồng ý, không cung cấp tên riêng tư chưa đồng ý', str_contains( $credit_form123, 'name="muc[0][hien_ten]"' ) && str_contains( $credit_form123, 'Reader &lt;test&gt;' ) && ! str_contains( $credit_form123, 'Private test name' ) );
 	wp_update_post( array( 'ID' => $b123, 'post_status' => 'draft' ) );
 	kt( 'Góp câu: bài chuyển nháp biến mất khỏi tra khách', ! ST123::cong_khai( $loi123 ) );
 	wp_update_post( array( 'ID' => $b123, 'post_status' => 'publish', 'post_password' => 'technical' ) );
