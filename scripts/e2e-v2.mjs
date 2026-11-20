@@ -846,7 +846,7 @@ try {
         chac(await coChu(bt, 'Đã đăng tác phẩm'), 'quyết chưa đăng thành công');
         chac(await bt.$('.phongdao-hv-bao .phongdao-viec-bai a'), 'thông báo thành công thiếu lối mở ngay bài vừa nhận đóng góp');
         await di(bt, `/wp-admin/admin.php?page=phongdao-hop-viec&loai=nguoi_doc&tt=xong&viec=${id}`);
-        const editCredit = await bt.$eval('.phongdao-viec-bai a:first-child', e => new URL(e.href).pathname + new URL(e.href).search);
+        const editCredit = await bt.$eval('.phongdao-viec-bai a[href*="phongdao-sua-tac-pham"]', e => new URL(e.href).pathname + new URL(e.href).search);
         url = await bt.$eval('.phongdao-viec-bai a:last-child', e => new URL(e.href).pathname);
         await di(k, url);
         chac(await coChu(k, chu) && await coChu(k, 'Đóng góp bởi: E2E reader — Nguồn từ: https://example.org/e2e-contribution.') && await coChu(k, 'Chưa đối chiếu'), 'lời/ghi công/nguồn không hiện đúng');
