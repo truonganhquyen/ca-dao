@@ -32,6 +32,6 @@
   "kiem_tra_cuoi": {
     "trang_thai": "DAT",
     "thoi_diem": "2026-11-20",
-    "pham_vi": "T-225 (D-124): ghi công người góp, PR #206, head 689315f đủ bốn cổng CI; PHP 292, WordPress 816, chuyển đổi 55, E2E 81/81 (4 lần bấm lại), quét 0 lỗi. Site plugin 1.0.87/theme 1.0.17; đã bật đúng bút danh có đồng ý của bài người sáng lập yêu cầu qua form chuẩn, giữ nguyên lời và nguồn. Khách không JavaScript 390/1440 px thấy đúng ghi công, không tràn. Windows Playground/trình duyệt treo không tính đạt; nghiệm thu bằng CI Linux. Không tự đổi bài khác; pilot T-198 vẫn chờ người biên soạn."
+    "pham_vi": "T-226 (D-125): Từ điển và từ khó, sửa lỗi đợt 1, PR #208 gộp 8b7d421, CI đạt (PHP 292, WordPress 826, chuyển đổi 55, quét 0 lỗi, E2E 81). Site plugin 1.0.88/theme 1.0.18; đường thể loại cũ 301 đúng, tìm Từ điển theo nhóm và phân trang, chữ nhiều nghĩa gom một dòng, bài viết có khung trang. Khối nối lại từ khó chờ người sáng lập xem trong wp-admin; đợt 2–3 chờ 5 quyết định."
   }
 }

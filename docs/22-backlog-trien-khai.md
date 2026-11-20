@@ -198,7 +198,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-223 | Nhập nguồn gọn (D-122): TXT/CSV xem trước trong Bài mới, lọc/lịch sử lần nhập, tiếp tục thẻ/lô và thử lại đúng mục lỗi | A | T-222 | — | DONE |
 | T-224 | Góp một câu (D-123): CTA, form tập trung, tra gần giống công khai, một thẻ quản trị đối chiếu/phân loại/ghi công và quyết đăng mới/dị bản/nguồn | A | T-223 | — | DONE |
 | T-225 | Sửa ghi công người góp (D-124): hiện tên/bút danh đã đồng ý, bật lại trong trang sửa, nhãn Đóng góp bởi/Nguồn từ | A | T-224 | — | DONE |
-| T-226 | Từ điển và từ khó, sửa lỗi đợt 1 (D-125): giữ nối khi sửa lời giải, danh sách nối lại, tìm Từ điển theo nhóm + phân trang, trang mục từ, đường thể loại cũ, khuôn bài viết | A | T-225 | — | IN_PROGRESS |
+| T-226 | Từ điển và từ khó, sửa lỗi đợt 1 (D-125): giữ nối khi sửa lời giải, danh sách nối lại, tìm Từ điển theo nhóm + phân trang, trang mục từ, đường thể loại cũ, khuôn bài viết | A | T-225 | — | DONE |
 | **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
 | T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
 | T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | DONE |
@@ -1077,6 +1077,8 @@ Sau gộp, `node scripts/kiem-site-that.mjs` xác nhận **site thật plugin 1.
 ### Từ điển và từ khó, đợt 1 — T-226
 
 **Chấp nhận (D-125):** (1) sửa lời giải từ khó mà chữ giữ nguyên (bỏ qua hoa thường, khoảng trắng) thì giữ `muc_tu_id` và vị trí; đổi chữ thì bỏ nối và lời báo sau khi lưu nói rõ từ nào bị bỏ nối. (2) Bổ sung → Cần sửa có khối "Từ khó mất nối Từ điển": chỉ từ khó không có số mục từ mà bài đang gắn **đúng một** mục từ cùng chữ chưa từ khó nào dùng; chữ nhiều nghĩa không đoán; dòng đánh dấu sẵn, người bấm "Nối lại" (nonce, quyền sửa bài) mới ghi qua đường lưu phần bài (Lịch sử), lời giải và nguồn giữ nguyên; điều kiện kiểm lại lúc ghi. (3) Tìm Từ điển: nhóm Đúng chữ → Có chứa chữ này (trọn chữ, đúng dấu) → Cùng chữ khi bỏ dấu → Tên gần giống → Nhắc tới trong lời giải; mục cùng mặt chữ gom một dòng "N nghĩa"; 30 dòng mỗi trang, tổng đúng, đường dẫn trang giữ câu tìm/chữ cái. (4) Trang mục từ: đường dẫn Trang chủ / Từ điển / tên, nhãn Từ điển, lối sang nghĩa khác cùng chữ. (5) /ca-dao/, /tuc-ngu/, /dong-dao/, /ve/, /cau-do/ (và /thanh-ngu/) đang 404 thì 301 về trang thể loại, chạy trước bước đoán của WordPress; đường đang có không bị đụng. (6) Loại "bài viết" có khuôn trang riêng (đầu, chân trang, khung đọc). **Không làm:** hiện nghĩa chung trên trang bài, gợi ý nối ở Bổ sung, làm lại giao diện (chờ người sáng lập quyết); ảnh trong bài viết lấy thẳng từ site khác vẫn bị chính sách bảo mật chặn — quyền dùng các bài viết đó do người sáng lập quyết.
+
+**Nghiệm thu (20/11/2026, plugin 1.0.88/theme 1.0.18):** [PR #208](https://github.com/truonganhquyen/ca-dao/pull/208), gộp `8b7d421`; CI đạt đủ các cổng (PHP thuần 292, WordPress 826, chuyển đổi 55, quét 0 lỗi, E2E 81 bước). Site thật, chỉ đọc: `/ca-dao/`, `/tuc-ngu/`, `/dong-dao/`, `/ve/`, `/cau-do/` trả 301 về `/the-loai/…/`; tìm “săng” ra 45 mục, trang 1/2, thứ tự Săng → Đậu săng, Hàng săng, Làm hàng săng, chết bó chiếu → Sàng → mục chỉ nhắc trong lời giải; tìm “mai” gom một dòng “3 nghĩa”; `/tu-dien/mai/` có đường “Từ điển” và “còn 2 nghĩa khác”; bài viết `/ca-dao-noi-ve-ruou/` có đầu trang và khung đọc. Khối “Từ khó mất nối Từ điển” trên site thật chưa kiểm (cần đăng nhập); người sáng lập mở Bổ sung → Cần sửa để xem và bấm Nối lại.
 
 ### Ghi công người góp — T-225
 
