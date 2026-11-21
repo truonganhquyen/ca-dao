@@ -561,8 +561,8 @@ $ds = static function ( array $tham, bool $tat_ca ): string {
 };
 $tong = (int) wp_count_posts( KhaiBao::TAC_PHAM )->publish;
 $h    = $ds( array(), true );
-kt( 'Tất cả: một thẻ cho mỗi tác phẩm đã đăng, có số bài', $tong === substr_count( $h, '<article class="card g-' ) && str_contains( $h, $tong . ' tác phẩm' ), $tong );
-kt( 'Tất cả: bộ lọc là form GET (tắt JavaScript vẫn lọc): thể loại, chủ đề, hình thức, nơi lưu truyền, sắp xếp', str_contains( $h, '<form method="get"' ) && 5 === preg_match_all( '/<select id="loc-[a-z_]+" name="(the_loai|chu_de|hinh_thuc|vung|sap)"/', $h ) );
+kt( 'Tất cả: một thẻ cho mỗi tác phẩm đã đăng, có số bài', $tong === substr_count( $h, '<article class="card the-loi g-' ) && str_contains( $h, $tong . ' tác phẩm' ), $tong );
+kt( 'Tất cả: bộ lọc là form GET (tắt JavaScript vẫn lọc): thể loại, chủ đề, hình thức, nơi lưu truyền, sắp xếp', str_contains( $h, '<form class="thanh-loc" method="get"' ) && 5 === preg_match_all( '/<select id="loc-[a-z_]+" name="(the_loai|chu_de|hinh_thuc|vung|sap)"/', $h ) );
 kt( 'thẻ bài: thể loại, tên dẫn tới bài, hai dòng đầu', str_contains( $h, '<span class="tag">Câu đố</span>' ) && str_contains( $h, '<a href="' . esc_url( (string) get_permalink( $mau_id['cau-do-mau'] ) ) . '">Câu đố mẫu</a>' ) && str_contains( $h, '<span class="dong">Câu đố mẫu dòng hai</span>' ) );
 $h = $ds( array( 'chu_de' => 'khong-co-chu-de-nay' ), true );
 kt( 'lọc không ra bài: báo rõ, có nút Xoá lọc', str_contains( $h, 'Chưa có bài khớp các bộ lọc' ) && str_contains( $h, 'Xoá lọc' ) );
@@ -570,7 +570,7 @@ $h = $ds( array( 'posts_per_page' => 2 ), true );
 kt( 'phân trang: trang đang xem đánh dấu, các trang khác là liên kết', str_contains( $h, '<nav class="pagination" aria-label="Phân trang">' ) && str_contains( $h, 'aria-current="page">1</span>' ) && str_contains( $h, 'aria-label="Trang 2"' ) );
 $h = $ds( array( KhaiBao::THE_LOAI => 'ca-dao' ), false );
 $so_ca_dao = count( get_posts( array( 'post_type' => KhaiBao::TAC_PHAM, 'numberposts' => -1, 'fields' => 'ids', 'tax_query' => array( array( 'taxonomy' => KhaiBao::THE_LOAI, 'field' => 'slug', 'terms' => 'ca-dao' ) ) ) ) );
-kt( 'trang thể loại: tiêu đề, đường dẫn về Kho, chỉ bài của thể loại', str_contains( $h, '<h1>Ca dao</h1>' ) && str_contains( $h, 'Đọc theo thể loại' ) && str_contains( $h, 'Kho tác phẩm' ) && $so_ca_dao === substr_count( $h, '<article class="card g-ca-dao"' ) && ! str_contains( $h, 'g-cau-do' ), $so_ca_dao );
+kt( 'trang thể loại: tiêu đề, đường dẫn về Kho, chỉ bài của thể loại', str_contains( $h, '<h1>Ca dao</h1>' ) && str_contains( $h, '<header class="dau-tl g-ca-dao">' ) && str_contains( $h, 'Kho tác phẩm' ) && $so_ca_dao === substr_count( $h, '<article class="card the-loi g-ca-dao"' ) && ! str_contains( $h, 'g-cau-do' ), $so_ca_dao );
 $h = \Phongdao\GiaoTiep\Khoi\DanhSach::the( array( 'id' => 1, 'tieu_de' => '<script>x</script>', 'url' => 'javascript:alert(1)', 'the_loai' => 'ca-dao', 'ten_the_loai' => 'Ca dao', 'dong' => array( '<b>a</b>' ), 'y_nghia' => '', 'co_nghi' => false ) );
 kt( 'thẻ bài: chữ lạ được thoát, không có đường dẫn javascript:', ! preg_match( '/<script|<b>|javascript:/i', $h ) );
 $c_trung = array( 'id' => 1, 'tieu_de' => 'Một chữ nên thầy', 'url' => home_url( '/' ), 'the_loai' => 'tuc-ngu', 'ten_the_loai' => 'Tục ngữ – Thành ngữ', 'y_nghia' => '', 'co_nghi' => false );
@@ -593,16 +593,16 @@ kt(
 kt( 'đã đăng ký khối cadao/trang-chu', $dang_ky->is_registered( 'cadao/trang-chu' ) );
 delete_transient( 'phongdao_cau_hom_nay_ds' );
 $h = do_blocks( '<!-- wp:cadao/trang-chu /-->' );
-kt( 'trang chủ: tên thư viện, ô tìm tới /tim/; lối tìm không có thẻ trùng ô tìm, "Tìm theo vùng" chỉ khi đủ bài có nơi lưu truyền (D-119)', str_contains( $h, '<h1>Thư viện Văn học Dân gian Việt Nam</h1>' ) && str_contains( $h, 'action="' . esc_url( home_url( '/tim/' ) ) . '"' ) && ( DuLieuTrangChu::so_bai_co_vung() >= \Phongdao\GiaoTiep\Khoi\TrangChu::NGUONG_VUNG ? 2 : 1 ) === substr_count( $h, 'class="entry-card"' ) && ! str_contains( $h, 'Tìm khi nhớ vài chữ' ) );
+kt( 'trang chủ: tên thư viện, ô tìm tới /tim/; lối tìm không có thẻ trùng ô tìm, "Tìm theo vùng" chỉ khi đủ bài có nơi lưu truyền (D-119)', str_contains( $h, '<h1>Thư viện Văn học Dân gian Việt Nam</h1>' ) && str_contains( $h, 'action="' . esc_url( home_url( '/tim/' ) ) . '"' ) && ( DuLieuTrangChu::so_bai_co_vung() >= \Phongdao\GiaoTiep\Khoi\TrangChu::NGUONG_VUNG ? 3 : 2 ) === substr_count( $h, 'class="loi-tat-chip"' ) && ! str_contains( $h, 'Tìm khi nhớ vài chữ' ) );
 $bat_dau = (string) strstr( (string) strstr( $h, '<h2>Bắt đầu từ đâu?</h2>' ), '</section>', true );
 $n_tn_ng = DuLieuTrangChu::so_co_nghia( 'tuc-ngu' );
 kt(
-	'Bắt đầu từ đâu? (D-119): "Hiểu nghĩa tục ngữ" dẫn tới các câu đã có nghĩa và ghi số câu (chưa có câu nào thì ẩn); không hứa "10 giây", "lọc theo tuổi"; "Đọc theo dịp" chỉ khi đã có tuyển tập theo dịp',
-	'' !== $bat_dau && ( $n_tn_ng ? str_contains( $bat_dau, 'co=nghia' ) && str_contains( $bat_dau, $n_tn_ng . ' câu đã có nghĩa' ) : ! str_contains( $bat_dau, 'Hiểu nghĩa tục ngữ' ) ) && ! str_contains( $h, '10 giây' ) && ! str_contains( $h, 'lọc theo tuổi' ) && ! str_contains( $bat_dau, 'Đọc theo dịp' ) && str_contains( $bat_dau, 'Cùng bé chơi' ),
+	'Bắt đầu từ đâu? (D-119, D-126 bốn lối vào): "Dạy và học" dẫn tới các câu đã có nghĩa và ghi số câu (chưa có câu nào thì ẩn); không hứa "10 giây", "lọc theo tuổi"; "Đọc theo dịp" chỉ khi đã có tuyển tập theo dịp',
+	'' !== $bat_dau && ( $n_tn_ng ? str_contains( $bat_dau, 'co=nghia' ) && str_contains( $bat_dau, $n_tn_ng . ' câu tục ngữ đã có nghĩa' ) : ! str_contains( $bat_dau, 'Dạy và học' ) ) && ! str_contains( $h, '10 giây' ) && ! str_contains( $h, 'lọc theo tuổi' ) && ! str_contains( $bat_dau, 'Đọc theo dịp' ) && str_contains( $bat_dau, 'Đọc cùng bé' ) && str_contains( $bat_dau, 'Tra từ khó' ) && str_contains( $bat_dau, 'href="' . esc_url( home_url( '/tu-dien/' ) ) . '"' ),
 	array( $n_tn_ng, $bat_dau )
 );
-kt( '"Bạn là" ẩn sẵn (cần JavaScript; tắt JavaScript không có nút chết), 4 vai + Bỏ qua', str_contains( $h, '<div class="role-bar" hidden>' ) && 4 === substr_count( $h, 'data-action="role"' ) && str_contains( $h, 'data-action="role-reset"' ) );
-$hom_nay = (string) strstr( (string) strstr( $h, '<section class="today-card"' ), '</section>', true );
+kt( 'trang chủ (D-126): bỏ "Bạn là"; Câu hôm nay nằm trong đầu trang, cạnh ô tìm', ! str_contains( $h, 'role-bar' ) && ! str_contains( $h, 'data-action="role"' ) && str_contains( (string) strstr( $h, '<section class="home-hero">' ), '<section class="today-card cau-hn"' ) && strpos( $h, 'today-card' ) < strpos( $h, 'Bắt đầu từ đâu?' ) );
+$hom_nay = (string) strstr( (string) strstr( $h, '<section class="today-card cau-hn"' ), '</section>', true );
 preg_match( '/<a class="btn primary" href="([^"]+)">Đọc bài/', $hom_nay, $doc_bai );
 $id_hom_nay = isset( $doc_bai[1] ) ? url_to_postid( html_entity_decode( $doc_bai[1] ) ) : 0;
 $so_cau     = substr_count( $hom_nay, 'class="line"' );
@@ -610,10 +610,10 @@ kt( 'Câu hôm nay: một tác phẩm thật 1–4 câu, có Đọc bài, Lưu, 
 kt( 'Câu hôm nay: nhãn mức kiểm dẫn tới "Lời này từ đâu?" của chính bài', str_contains( $hom_nay, 'href="' . esc_url( (string) get_permalink( $id_hom_nay ) . '#tu-lieu' ) . '"' ) );
 kt( 'Câu hôm nay: gọi lại trong ngày cho cùng bài', str_contains( do_blocks( '<!-- wp:cadao/trang-chu /-->' ), $doc_bai[1] ?? 'khong-co' ) );
 $the_loai = (string) strstr( (string) strstr( $h, '<div class="tiles five">' ), '</div>', true );
-kt( 'Đọc theo thể loại: một ô cho mỗi thể loại có bài, kèm số bài thật', count( DuLieuTrangChu::so_bai_the_loai() ) === substr_count( $the_loai, 'class="tile g-' ) && str_contains( $the_loai, DuLieuTrangChu::so_bai_the_loai()['ca-dao'] . ' bài' ) );
-kt( 'Vừa bổ sung: 2 thẻ bài mới nhất', 2 === substr_count( (string) strstr( $h, 'data-home-block="8"' ), '<article class="card' ) );
+kt( 'Đọc theo thể loại: một ô cho mỗi thể loại có bài, kèm số bài thật', count( DuLieuTrangChu::so_bai_the_loai() ) === substr_count( $the_loai, 'class="tile tl g-' ) && str_contains( $the_loai, DuLieuTrangChu::so_bai_the_loai()['ca-dao'] . ' bài' ) );
+kt( 'Vừa bổ sung: 2 thẻ bài mới nhất', 2 === substr_count( (string) strstr( $h, 'class="section vua-bo-sung"' ), '<article class="card' ) );
 kt( 'chưa có tuyển tập: không hiện Đọc theo dịp, Tuyển tập nổi bật (không độn)', ! str_contains( $h, '<h2>Đọc theo dịp</h2>' ) && ! str_contains( $h, 'Tuyển tập nổi bật' ) );
-kt( 'các khối đổi thứ tự theo vai có đánh dấu data-home-block', str_contains( $h, 'data-home-block="4"' ) && str_contains( $h, 'data-home-block="7"' ) && str_contains( $h, 'id="role-sections"' ) );
+kt( 'trang chủ (D-126): thể loại có chữ cái lớn theo màu, không còn khối đổi thứ tự theo vai', str_contains( $h, '<span class="tl-chu" aria-hidden="true">C</span><strong>Ca dao</strong>' ) && ! str_contains( $h, 'data-home-block' ) && ! str_contains( $h, 'id="role-sections"' ) );
 set_transient( 'phongdao_cau_hom_nay_ds', array( 1 ), HOUR_IN_SECONDS );
 LuuPhan::luu( $mau_id['cau-mau-thu-hai'], 'loi', array( 'dong' => array( 'Câu mẫu thứ hai sáu chữ', 'Câu tám chữ mẫu viết cho đủ dòng', 'Thêm dòng mẫu' ), 'nguoi_lam' => NguoiLam::NGUOI_VIET ), array( 'nguoi' => $ai_ql, 'goi' => KiemPhan::GOI_NGUOI ) );
 kt( 'lưu lời thì danh sách Câu hôm nay được làm mới', false === get_transient( 'phongdao_cau_hom_nay_ds' ) );
@@ -3919,6 +3919,7 @@ require '/repo/tests/kiem-sua-gon.php';
 require '/repo/tests/kiem-sua-mot-nut.php';
 require '/repo/tests/kiem-can-sua.php';
 require '/repo/tests/kiem-tu-dien.php';
+require '/repo/tests/kiem-giao-dien.php';
 require '/repo/tests/kiem-dang-nhanh.php';
 
 require '/repo/tests/kiem-tim-doc.php';

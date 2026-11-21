@@ -41,28 +41,34 @@ final class DanhSach {
 			return '';
 		}
 		$the = '';
+		$so  = 0;
+		$chen = $tat_ca || ! in_array( $term->taxonomy, array( 'muc_tu', 'tro_choi' ), true );
 		foreach ( $q->posts as $bai ) {
 			$c    = $bai instanceof \WP_Post ? DocBai::the( $bai ) : null;
 			if ( $c && $term instanceof \WP_Term && 'muc_tu' === $term->taxonomy ) {
 				$c = self::cau_muc_tu( $c, $bai, $term );
 			}
 			$the .= $c ? self::the( $c ) : '';
+			// Cứ một trang từ 10 thẻ: sau thẻ thứ 9 có một ô nổi bật (D-126), để trang 30 thẻ đỡ đều đều
+			if ( $c && 9 === ++$so && $chen && count( $q->posts ) >= 10 ) {
+				$the .= self::tu_kho_hom_nay();
+			}
 		}
 		$co_nghia = KhaiBao::chi_co_nghia( $q );
 		$dang_loc = ( $tat_ca && array_filter( array_map( static fn( string $k ): string => (string) $q->get( $k ), array_keys( self::LOC ) ) ) ) || $co_nghia;
 
 		if ( $tat_ca ) {
-			$dau = self::duong_dan( 'Tất cả tác phẩm' ) . '<p class="eyebrow">Kho tác phẩm</p><h1>Mỗi câu, một lối đọc.</h1><p class="muted">Tìm theo thể loại, hình thức, chủ đề hoặc nơi lưu truyền.</p>' . self::bo_loc( $q );
+			$dau = self::duong_dan( 'Tất cả tác phẩm' ) . '<p class="eyebrow">Kho tác phẩm</p><h1>Mỗi câu, một lối đọc.</h1><p class="muted">Tìm theo thể loại, hình thức, chủ đề hoặc nơi lưu truyền.</p>' . self::thanh_loc( $q, (string) get_post_type_archive_link( KhaiBao::TAC_PHAM ), true );
 		} else {
 			$mo_ta = trim( wp_strip_all_tags( (string) $term->description ) );
-			$dau   = self::duong_dan( $term->name, $term->taxonomy ) . '<p class="eyebrow">' . esc_html( self::DAU[ $term->taxonomy ] ) . '</p><h1>' . esc_html( $term->name ) . '</h1>'
-				. ( '' === $mo_ta ? '' : '<p class="muted">' . esc_html( $mo_ta ) . '</p>' )
+			$dau   = self::duong_dan( $term->name, $term->taxonomy ) . ( KhaiBao::THE_LOAI === $term->taxonomy ? self::dau_the_loai( $term, $mo_ta ) : '<p class="eyebrow">' . esc_html( self::DAU[ $term->taxonomy ] ) . '</p><h1>' . esc_html( $term->name ) . '</h1>'
+				. ( '' === $mo_ta ? '' : '<p class="muted">' . esc_html( $mo_ta ) . '</p>' ) )
 				. ( 'muc_tu' === $term->taxonomy ? self::nghia_khac( $term ) : '' )
 				// Mục từ: ảnh Commons, bản đồ nhỏ, Wikipedia của địa danh đã xác nhận (như MVP)
 				. ( 'muc_tu' === $term->taxonomy ? self::nguon_loi_giai( $term ) . DiaDanh::html( DiaDanh::cua_muc_tu( (int) $term->term_id ) ?? array() ) . \Phongdao\GiaoTiep\BienTap\SuaMucTu::form( $term ) : '' );
 		}
 		if ( ! $tat_ca && ! in_array( $term->taxonomy, array( 'muc_tu', 'tro_choi' ), true ) ) {
-			$dau .= '<form class="filters" method="get" action="' . esc_url( (string) get_term_link( $term ) ) . '"><div class="field-grid">' . self::bo_sap( $q ) . '</div><div class="actions"><button type="submit" class="btn">Áp dụng</button></div></form>';
+			$dau .= self::thanh_loc( $q, (string) get_term_link( $term ), false );
 		}
 		$dem = (int) $q->found_posts;
 		$giua = '<p class="small muted">' . number_format( $dem, 0, ',', '.' ) . ' tác phẩm' . ( $co_nghia ? ' đã có giải nghĩa' : '' ) . ( $q->max_num_pages > 1 ? ' · 30 bài mỗi trang' : '' ) . '</p>';
@@ -134,14 +140,16 @@ final class DanhSach {
 		$chu  = $c['tim_chu_html'] ?? $dong;
 		$than = '<h3><a href="' . esc_url( $c['url'] ) . '">' . ( $c['tim_ten_html'] ?? esc_html( $c['tieu_de'] ) ) . '</a></h3>'
 			. ( '' === $chu ? '' : '<p class="serif dong-wrap">' . $chu . '</p>' )
-			. ( isset( $c['tim_chu_html'] ) || '' === $c['y_nghia'] ? '' : '<p class="muted">' . esc_html( $c['y_nghia'] ) . '</p>' );
+			. ( isset( $c['tim_chu_html'] ) || '' === $c['y_nghia'] ? '' : '<p class="muted y-mot">' . esc_html( $c['y_nghia'] ) . '</p>' );
 		// Có từ ngữ thô tục (D-111): tên, lời, ý nghĩa nằm trong khối đóng; nút Đọc không đọc to tên bài
 		$tho  = ! empty( $c['tho_tuc'] );
-		return '<article class="card g-' . esc_attr( $c['the_loai'] ?: 'ca-dao' ) . '">'
+		$ly   = (string) ( $c['ly_do'] ?? '' );
+		$ly   = '' !== $ly ? $ly : ( empty( $c['so_tu_kho'] ) ? '' : $c['so_tu_kho'] . ' từ khó' );
+		return '<article class="card the-loi g-' . esc_attr( $c['the_loai'] ?: 'ca-dao' ) . '">'
 			. ( $c['ten_the_loai'] ? '<span class="tag">' . esc_html( $c['ten_the_loai'] ) . '</span>' : '' )
 			. ( $c['co_nghi'] ? '<p class="flag">Có thể không phải dân gian · <a href="' . esc_url( $c['url'] . '#vi-sao' ) . '">Vì sao?</a></p>' : '' )
 			. ( $tho ? Ve::che_tho_tuc( $than ) : $than )
-			. '<div class="row between"><span class="small muted">' . esc_html( (string) ( $c['ly_do'] ?? '' ) ) . '</span><a class="btn compact ghost" href="' . esc_url( $c['url'] ) . '" aria-label="' . esc_attr( $tho ? 'Đọc bài có từ ngữ thô tục' : 'Đọc: ' . $c['tieu_de'] ) . '">Đọc ' . Ve::icon( 'arrow' ) . '</a></div></article>';
+			. '<div class="row between"><span class="small muted">' . esc_html( $ly ) . '</span><a class="btn compact ghost" href="' . esc_url( $c['url'] ) . '" aria-label="' . esc_attr( $tho ? 'Đọc bài có từ ngữ thô tục' : 'Đọc: ' . $c['tieu_de'] ) . '">Đọc ' . Ve::icon( 'arrow' ) . '</a></div></article>';
 	}
 
 	private static function duong_dan( string $ten, string $tax = '' ): string {
@@ -166,38 +174,121 @@ final class DanhSach {
 	}
 
 	/** Bộ lọc của trang Tất cả: form GET, mỗi ô là một phân loại (WordPress tự lọc theo tham số cùng tên). */
-	private static function bo_loc( \WP_Query $q ): string {
-		$o   = '';
-		$dem = 0;
-		foreach ( self::LOC as $pl => [ $nhan, $tat_ca ] ) {
-			$chon = (string) $q->get( $pl );
-			$dem += '' === $chon ? 0 : 1;
-			$opt  = '<option value="">' . esc_html( $tat_ca ) . '</option>';
-			$ds   = 'the_loai' === $pl
-				? array_map( static fn( string $ma, string $ten ): array => array( $ma, $ten ), array_keys( TheLoai::DS ), TheLoai::DS )
-				: array_map( static fn( \WP_Term $t ): array => array( $t->slug, $t->name ), self::muc( $pl ) );
-			foreach ( $ds as [ $ma, $ten ] ) {
-				$opt .= '<option value="' . esc_attr( $ma ) . '"' . selected( $chon, $ma, false ) . '>' . esc_html( $ten ) . '</option>';
+	/**
+	 * Thanh lọc dùng chung (D-126) cho trang Tất cả và trang phân loại: một hàng ô chọn (Tất cả: thể loại, chủ đề, hình
+	 * thức, nơi lưu truyền) · "Có giải nghĩa" · Sắp xếp · Áp dụng; mục đang chọn hiện thành chip có dấu × và "Xoá lọc".
+	 * Điện thoại: một nút "Bộ lọc (n)" mở các ô (thẻ details, không cần JavaScript). Chọn xong bấm Áp dụng — không tự tải
+	 * lại trang khi đổi ô chọn (WCAG 3.2.2).
+	 */
+	private static function thanh_loc( \WP_Query $q, string $url, bool $tat_ca ): string {
+		$dang = array_filter( array( 'sap' => is_string( $q->get( 'sap' ) ) ? (string) $q->get( 'sap' ) : '', 'co' => KhaiBao::chi_co_nghia( $q ) ? 'nghia' : '' ) );
+		$o    = '';
+		$chip = array();
+		if ( $tat_ca ) {
+			foreach ( self::LOC as $pl => [ $nhan, $tat_ca_ten ] ) {
+				$chon = (string) $q->get( $pl );
+				$ds   = 'the_loai' === $pl
+					? array_map( static fn( string $ma, string $ten ): array => array( $ma, $ten ), array_keys( TheLoai::DS ), TheLoai::DS )
+					: array_map( static fn( \WP_Term $t ): array => array( $t->slug, $t->name ), self::muc( $pl ) );
+				$opt  = '<option value="">' . esc_html( array( 'the_loai' => 'Mọi thể loại', 'chu_de' => 'Mọi chủ đề', 'hinh_thuc' => 'Mọi hình thức', 'vung' => 'Mọi vùng' )[ $pl ] ?? $tat_ca_ten ) . '</option>';
+				foreach ( $ds as [ $ma, $ten ] ) {
+					$opt .= '<option value="' . esc_attr( $ma ) . '"' . selected( $chon, $ma, false ) . '>' . esc_html( $ten ) . '</option>';
+					if ( $chon === $ma ) {
+						$chip[ $pl ] = array( $nhan, $ten );
+					}
+				}
+				if ( '' !== $chon ) {
+					$dang[ $pl ] = $chon;
+				}
+				$o .= '<div class="loc-o"><label class="sr-only" for="loc-' . esc_attr( $pl ) . '">' . esc_html( $nhan ) . '</label><select id="loc-' . esc_attr( $pl ) . '" name="' . esc_attr( $pl ) . '"' . ( '' === $chon ? '' : ' class="co"' ) . '>' . $opt . '</select></div>';
 			}
-			$o .= '<div><label for="loc-' . esc_attr( $pl ) . '">' . esc_html( $nhan ) . '</label><select id="loc-' . esc_attr( $pl ) . '" name="' . esc_attr( $pl ) . '">' . $opt . '</select></div>';
 		}
-		$o .= self::bo_sap( $q );
-		$xoa = $dem ? '<a class="btn ghost" href="' . esc_url( (string) get_post_type_archive_link( KhaiBao::TAC_PHAM ) ) . '">Xoá lọc</a>' : '';
-		return '<details class="filters"' . ( $dem ? ' open' : '' ) . '><summary>Bộ lọc <span class="count">· ' . ( $dem ? $dem . ' đang chọn' : 'chưa chọn' ) . '</span></summary>'
-			. '<form method="get" action="' . esc_url( (string) get_post_type_archive_link( KhaiBao::TAC_PHAM ) ) . '"><div class="field-grid">' . $o . '</div>'
-			. '<div class="actions"><button type="submit" class="btn primary">Áp dụng</button>' . $xoa . '</div></form></details>';
+		$co = KhaiBao::chi_co_nghia( $q );
+		if ( $co ) {
+			$chip['co'] = array( 'Lọc', 'Có giải nghĩa' );
+		}
+		$o .= '<label class="loc-o loc-hop"><input type="checkbox" name="co" value="nghia"' . checked( $co, true, false ) . '> Có giải nghĩa</label>';
+		$ds_sap = array( 'hieu' => 'Có nghĩa trước', 'moi' => 'Mới thêm', 'doc' => 'Đọc nhiều', 'az' => 'A–Z' );
+		$sap    = isset( $ds_sap[ $dang['sap'] ?? '' ] ) ? $dang['sap'] : 'hieu';
+		$opt    = '';
+		foreach ( $ds_sap as $k => $ten ) {
+			$opt .= '<option value="' . $k . '"' . selected( $sap, $k, false ) . '>' . esc_html( 'Xếp: ' . mb_strtolower( $ten ) ) . '</option>';
+		}
+		$o .= '<div class="loc-o loc-sap"><label class="sr-only" for="loc-sap">Sắp xếp</label><select id="loc-sap" name="sap">' . $opt . '</select></div>'
+			. '<button type="submit" class="btn primary loc-ap">Áp dụng</button>';
+		$ds_chip = '';
+		foreach ( $chip as $pl => [ $nhan, $ten ] ) {
+			$ds_chip .= '<a class="loc-x" href="' . esc_url( add_query_arg( array_diff_key( $dang, array( $pl => 1 ) ), $url ) ) . '" aria-label="' . esc_attr( 'Bỏ lọc ' . $nhan . ': ' . $ten ) . '">' . esc_html( $ten ) . ' <span aria-hidden="true">×</span></a>';
+		}
+		$so = count( $chip );
+		return '<form class="thanh-loc" method="get" action="' . esc_url( $url ) . '" role="search" aria-label="Lọc danh sách"><details class="loc-mo"><summary>Bộ lọc' . ( $so ? ' (' . $so . ')' : '' ) . '</summary></details>'
+			. '<div class="loc-chon">' . $o . '</div></form>'
+			. ( $so ? '<p class="loc-ds"><span class="small muted">Đang lọc:</span> ' . $ds_chip . ' <a class="loc-xoa" href="' . esc_url( $url ) . '">Xoá lọc</a></p>' : '' );
 	}
 
-	private static function bo_sap( \WP_Query $q ): string {
-		$ds = array( 'hieu' => 'Có giải nghĩa trước', 'moi' => 'Mới thêm', 'doc' => 'Đọc nhiều tuần này', 'az' => 'A–Z' );
-		$chon = $q->get( 'sap' );
-		$sap = is_string( $chon ) && isset( $ds[ $chon ] ) ? $chon : 'hieu';
-		$o = '<div><label for="loc-sap">Sắp xếp</label><select id="loc-sap" name="sap">';
-		foreach ( $ds as $k => $ten ) {
-			$o .= '<option value="' . $k . '"' . selected( $sap, $k, false ) . '>' . esc_html( $ten ) . '</option>';
+	/**
+	 * Đầu trang thể loại (D-126): khối màu của thể loại, hoạ tiết sóng ở đáy, số bài và số bài đã có giải nghĩa, các thể
+	 * thơ / hình thức nhiều bài nhất (dẫn tới Tất cả đã lọc). Lời giới thiệu dài thu vào "Giới thiệu về …".
+	 */
+	private static function dau_the_loai( \WP_Term $term, string $mo_ta ): string {
+		$nghia = \Phongdao\DichVu\DungTrang\DuLieuTrangChu::so_co_nghia( $term->slug );
+		$ht    = '';
+		foreach ( self::hinh_thuc_nhieu( $term ) as [ $slug, $ten, $so ] ) {
+			$ht .= '<a href="' . esc_url( add_query_arg( array( 'the_loai' => $term->slug, 'hinh_thuc' => $slug ), (string) get_post_type_archive_link( KhaiBao::TAC_PHAM ) ) ) . '">' . esc_html( $ten ) . ' <span class="small">' . esc_html( number_format( $so, 0, ',', '.' ) ) . '</span></a>';
 		}
-		// Chỉ bài đã có giải nghĩa (D-119; lối "Hiểu nghĩa tục ngữ" ở trang chủ dẫn tới đây)
-		return $o . '</select></div><div class="loc-co"><label class="choice"><input type="checkbox" name="co" value="nghia"' . checked( KhaiBao::chi_co_nghia( $q ), true, false ) . '> Chỉ bài đã có giải nghĩa</label></div>';
+		$gt = '' === $mo_ta ? '' : ( mb_strlen( $mo_ta ) > 220
+			? '<details class="gioi-thieu"><summary>Giới thiệu về ' . esc_html( mb_strtolower( $term->name ) ) . '</summary><p>' . esc_html( $mo_ta ) . '</p></details>'
+			: '<p class="muted">' . esc_html( $mo_ta ) . '</p>' );
+		return '<header class="dau-tl g-' . esc_attr( $term->slug ) . '"><p class="eyebrow">Thể loại</p><h1>' . esc_html( $term->name ) . '</h1>'
+			. '<p class="dau-tl-so"><span><b>' . esc_html( number_format( (int) $term->count, 0, ',', '.' ) ) . '</b> bài</span>' . ( $nghia ? '<span><b>' . esc_html( number_format( $nghia, 0, ',', '.' ) ) . '</b> bài đã có giải nghĩa</span>' : '' ) . '</p>'
+			. ( '' === $ht ? '' : '<nav class="dau-tl-ht" aria-label="' . esc_attr( 'Hình thức của ' . $term->name ) . '">' . $ht . '</nav>' ) . '</header>' . $gt;
+	}
+
+	/** Hình thức có nhiều bài nhất trong một thể loại (tối đa 6, đệm 12 giờ). @return list<array{0:string,1:string,2:int}> */
+	private static function hinh_thuc_nhieu( \WP_Term $tl ): array {
+		$khoa = 'phongdao_tl_hinh_thuc_' . $tl->term_id;
+		$ds   = get_transient( $khoa );
+		if ( is_array( $ds ) ) {
+			return $ds;
+		}
+		global $wpdb;
+		$hang = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT t.slug, t.name, COUNT(*) AS so FROM {$wpdb->term_relationships} r1
+				JOIN {$wpdb->term_relationships} r2 ON r2.object_id = r1.object_id
+				JOIN {$wpdb->term_taxonomy} tt ON tt.term_taxonomy_id = r2.term_taxonomy_id AND tt.taxonomy = 'hinh_thuc'
+				JOIN {$wpdb->terms} t ON t.term_id = tt.term_id
+				JOIN {$wpdb->posts} p ON p.ID = r1.object_id AND p.post_status = 'publish'
+				WHERE r1.term_taxonomy_id = %d GROUP BY t.term_id ORDER BY so DESC LIMIT 6",
+				(int) $tl->term_taxonomy_id
+			)
+		) ?: array();
+		$ds = array_map( static fn( $h ): array => array( (string) $h->slug, (string) $h->name, (int) $h->so ), $hang );
+		set_transient( $khoa, $ds, 12 * HOUR_IN_SECONDS );
+		return $ds;
+	}
+
+	/**
+	 * Ô nổi bật "Từ khó hôm nay" (D-126): một mục từ có giải thích và từ hai bài, đổi mỗi ngày. Giải thích là của người
+	 * biên soạn trong Từ điển. Không có mục nào đủ điều kiện thì không hiện.
+	 */
+	private static function tu_kho_hom_nay(): string {
+		$khoa = 'phongdao_tu_kho_hom_nay_' . wp_date( 'Ymd' );
+		$id   = get_transient( $khoa );
+		if ( false === $id ) {
+			$ds = get_terms( array( 'taxonomy' => 'muc_tu', 'hide_empty' => true, 'orderby' => 'count', 'order' => 'DESC', 'number' => 300 ) );
+			$ds = array_values( array_filter( is_array( $ds ) ? $ds : array(), static fn( $t ): bool => $t instanceof \WP_Term && $t->count >= 2 && '' !== trim( wp_strip_all_tags( (string) $t->description ) ) ) );
+			$id = $ds ? (int) $ds[ crc32( wp_date( 'Y-m-d' ) ) % count( $ds ) ]->term_id : 0;
+			set_transient( $khoa, $id, DAY_IN_SECONDS );
+		}
+		$t = $id ? get_term( (int) $id, 'muc_tu' ) : null;
+		if ( ! $t instanceof \WP_Term ) {
+			return '';
+		}
+		$giai = trim( wp_strip_all_tags( (string) $t->description ) );
+		$giai = mb_strlen( $giai ) > 140 ? rtrim( mb_substr( $giai, 0, 139 ) ) . '…' : $giai;
+		$url  = get_term_link( $t );
+		return '<aside class="card o-noi" aria-labelledby="o-noi-h"><p class="eyebrow" id="o-noi-h">Từ khó hôm nay</p><p class="o-noi-ten"><a href="' . esc_url( is_wp_error( $url ) ? '' : $url ) . '">' . esc_html( $t->name ) . '</a></p><p>' . esc_html( $giai ) . '</p><p class="small muted">' . esc_html( number_format( (int) $t->count, 0, ',', '.' ) ) . ' bài có từ này · ' . Ve::lien_ket( 'tu-dien', 'Mở Từ điển' ) . '</p></aside>';
 	}
 
 	/** Phân trang: mọi trang khi ≤ 7 trang; nhiều hơn thì trang đầu, cuối và hai trang quanh trang đang xem. */
