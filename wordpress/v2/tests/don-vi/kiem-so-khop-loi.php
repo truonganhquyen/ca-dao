@@ -18,3 +18,4 @@ kt( 'truy vấn dài không nhân nhánh vô hạn', 2 === count( SoKhopLoi::tru
 kt( 'câu 6 tiếng tối đa 8 nhánh trong một HTTP request', 8 === count( SoKhopLoi::truy_van( 'mẫu đập dữ liệu kiểm thử' ) ) );
 $dai = implode( ' ', array_map( static fn( $i ) => 'fixture' . $i, range( 1, 500 ) ) );
 kt( 'bài dài không bị cắt rồi báo trùng hệt', SoKhopLoi::so( $dai, $dai )['khop'] && ! SoKhopLoi::so( $dai, $dai . ' phần thêm' )['khop'] );
+kt( 'một dòng ở cuối bài rất dài vẫn tìm được', 'lien_quan' === SoKhopLoi::so( 'fixture4999 fixture5000', implode( ' ', array_map( static fn( $i ) => 'fixture' . $i, range( 1, 5000 ) ) ) )['cap_do'] );

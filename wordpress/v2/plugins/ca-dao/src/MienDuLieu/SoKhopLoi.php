@@ -49,6 +49,9 @@ final class SoKhopLoi {
 		if ( ! $a || ! $b ) { return null; }
 		if ( $chinh === $dich ) { return array( 'khop' => true, 'diem' => 100, 'cap_do' => 'y_het', 'ly_do' => 'Trùng toàn bộ lời sau chuẩn hoá chữ và trình bày.' ); }
 		if ( $a === $b ) { return array( 'khop' => false, 'diem' => 99, 'cap_do' => 'gan_y_het', 'ly_do' => 'Trùng toàn bộ khi bỏ dấu; cần đối chiếu dấu chữ.' ); }
+		if ( str_contains( ' ' . implode( ' ', $b ) . ' ', ' ' . implode( ' ', $a ) . ' ' ) ) {
+			return array( 'khop' => false, 'diem' => 99, 'cap_do' => 'lien_quan', 'ly_do' => 'Câu nhập nằm trong lời của bài; chưa phải trùng toàn văn.' );
+		}
 		// Giới hạn chi phí; bài dài so cặp tiếng, không cắt lời rồi kết luận trùng toàn văn.
 		if ( count( $a ) > 64 || count( $b ) > 4096 ) {
 			$cap = static function ( array $tu ): array { $ra = array(); for ( $i = 1; $i < count( $tu ); ++$i ) { $ra[ $tu[ $i - 1 ] . ' ' . $tu[ $i ] ] = true; } return $ra; };

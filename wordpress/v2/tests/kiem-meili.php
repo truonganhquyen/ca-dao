@@ -9,6 +9,7 @@ kt( 'Meili mặc định tắt, không đòi dịch vụ ngoài ở mọi luồn
 define( 'PHONGDAO_MEILI_BAT', true );
 define( 'PHONGDAO_MEILI_URL', 'http://127.0.0.1:17770' );
 define( 'PHONGDAO_MEILI_KEY', 'technical-test-key-not-a-real-secret' );
+wp_set_current_user( $ai_ql );
 $meili_p = \Phongdao\GiaoTiep\BienTap\ThemBai::tao( array( 'the_loai' => 'ca-dao', 'loi' => "Fixture đập dữ liệu kiểm thử\nDòng kỹ thuật thêm riêng biệt", 'ten' => 'Fixture Meili', 'nguon' => '', 'dang' => true ), $ai_ql )['bai'];
 $meili_d = MeiliChiMuc::doc( 'bai:' . $meili_p, true )[0];
 kt( 'chỉ xuất bản tìm; không đưa hồ sơ nguồn và người góp vào engine', ! isset( $meili_d['nguon'], $meili_d['ten_nguoi_gop'] ) && str_contains( $meili_d['loi_kd'], 'dap' ) );

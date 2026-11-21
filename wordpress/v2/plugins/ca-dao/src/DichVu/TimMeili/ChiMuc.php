@@ -18,6 +18,9 @@ final class ChiMuc implements \Phongdao\HaTang\Module {
 
 	public function dang_ky(): void {
 		add_action( self::CRON, array( self::class, 'nen' ) );
+		add_action( 'init', static function (): void {
+			if ( MayTim::bat() && self::cho( 1 ) && ! wp_next_scheduled( self::CRON ) ) { wp_schedule_single_event( time() + 5, self::CRON ); }
+		} );
 		add_action( 'phongdao_da_luu_phan', static fn( int $id ) => self::doi( 'bai:' . $id ), 99 );
 		add_action( 'phongdao_kho_da_luu', static fn( int $id ) => self::doi( 'kho:' . $id ), 99 );
 		add_action( 'save_post', static function ( int $id, \WP_Post $p ): void {
@@ -32,9 +35,9 @@ final class ChiMuc implements \Phongdao\HaTang\Module {
 	}
 
 	public static function doi( string $muc ): void {
-		if ( ! MayTim::bat() || ! preg_match( '/^(bai|kho|gop):[1-9][0-9]*$/D', $muc ) ) { return; }
+		if ( ! preg_match( '/^(bai|kho|gop):[1-9][0-9]*$/D', $muc ) || ( ! MayTim::bat() && ! get_option( self::TT ) ) ) { return; }
 		update_option( self::DOI . str_replace( ':', '_', $muc ), bin2hex( random_bytes( 12 ) ), false );
-		if ( ! wp_next_scheduled( self::CRON ) ) { wp_schedule_single_event( time() + 5, self::CRON ); }
+		if ( MayTim::bat() && ! wp_next_scheduled( self::CRON ) ) { wp_schedule_single_event( time() + 5, self::CRON ); }
 	}
 
 	public static function cho( int $so = 100 ): array {
@@ -124,6 +127,7 @@ final class ChiMuc implements \Phongdao\HaTang\Module {
 	}
 
 	public static function nen(): void {
+		if ( ! MayTim::bat() ) { return; }
 		try { self::dong_bo(); delete_option( 'phongdao_meili_loi' ); }
 		catch ( \Throwable $e ) { update_option( 'phongdao_meili_loi', 'Chưa đồng bộ được máy tìm.', false ); }
 		if ( self::cho( 1 ) && ! wp_next_scheduled( self::CRON ) ) { wp_schedule_single_event( time() + 60, self::CRON ); }
