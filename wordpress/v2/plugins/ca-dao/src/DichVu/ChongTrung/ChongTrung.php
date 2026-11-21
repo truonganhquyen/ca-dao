@@ -94,6 +94,7 @@ final class ChongTrung implements Module {
 	// ---------- Chỉ mục vân tay ----------
 
 	public static function xoa( string $muc ): bool {
+		\Phongdao\DichVu\TimMeili\ChiMuc::doi( $muc );
 		global $wpdb;
 		$vt  = self::bang( 'van_tay' );
 		$ids = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM $vt WHERE muc = %s", $muc ) );
@@ -113,6 +114,7 @@ final class ChongTrung implements Module {
 
 	/** @param string[] $cac_loi phần tử 0 = lời chính, còn lại = dị bản */
 	public static function ghi( string $muc, array $cac_loi ): bool {
+		\Phongdao\DichVu\TimMeili\ChiMuc::doi( $muc );
 		global $wpdb;
 		// Dựng bản mới ở khoá tạm trước: lỗi ghi không được xoá chỉ mục đang dùng.
 		$tam = 'tam:' . bin2hex( random_bytes( 8 ) );

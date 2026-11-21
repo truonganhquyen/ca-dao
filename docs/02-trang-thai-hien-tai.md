@@ -72,6 +72,8 @@
 
 ## Đang chờ người sáng lập
 
+- **Meilisearch (D-131):** mã tích hợp có công tắc mặc định tắt, gói dịch vụ nội bộ và bộ hồi quy 100 tác phẩm ở [PR #215](https://github.com/truonganhquyen/ca-dao/pull/215); chi tiết `docs/58`. Cần môi trường/phiên truy cập máy chủ và diễn tập dịch vụ + WordPress để bật thật. Chưa thay tìm kiếm đang chạy trên phongdao.com; chưa nghiệm thu production.
+
 - **Ưu tiên — gửi thư xin phép Ca dao Mẹ** (`docs/12` mục 7; mẫu đã sửa cho đúng hiện trạng ngày 21/11/2026). Bạn đọc lại, sửa, tự gửi; ghi ngày gửi ở mục "Rủi ro đang theo dõi". Không đổi cách hiển thị chú thích trong lúc chờ trả lời (D-128).
 - **Chương trình nâng cấp lớn V2 — Giai đoạn 0** (D-127, D-130, D-132; kế hoạch `docs/57`). Khoảng 3–4 giờ mỗi tuần trong 6 tuần:
   - duyệt PR bước đầu (Sổ tay biên tập, phiếu duyệt, mẫu thư, D-132). Đây là PR mức cao: chỉ gộp sau khi bạn duyệt;
