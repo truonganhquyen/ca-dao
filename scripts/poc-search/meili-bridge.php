@@ -6,7 +6,7 @@ $d = json_decode( stream_get_contents( STDIN ), true, 512, JSON_THROW_ON_ERROR )
 $ra = array();
 foreach ( $d['rows'] as $r ) {
 	$ra[] = 'prepare' === $d['mode']
-		? array( 'loi' => SoKhopLoi::chu( $r ), 'loi_kd' => SoKhopLoi::chu( $r, true ), 'plan' => SoKhopLoi::truy_van( $r ) )
+		? array( 'loi' => SoKhopLoi::chu( $r ), 'loi_kd' => SoKhopLoi::chu( $r, true ), 'bam' => hash( 'sha256', SoKhopLoi::chu( $r ) ), 'bam_kd' => hash( 'sha256', SoKhopLoi::chu( $r, true ) ), 'plan' => SoKhopLoi::truy_van( $r ) )
 		: SoKhopLoi::so( $r[0], $r[1] );
 }
 echo json_encode( $ra, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR );

@@ -48,7 +48,9 @@ $meili_n = 0;
 $meili_kq = MeiliTim::tim( 'Fixture đập dữ liệu chạy thử' );
 kt( 'một HTTP request gom các nhánh và đối chiếu lại lời trong WordPress', 1 === $meili_n && count( $meili_kq ) === 1 && ! $meili_kq[0]['khop'] );
 $meili_hits[0]['ban'] = str_repeat( '0', 64 );
-kt( 'index cũ không được báo trùng thay lời hiện tại', ! MeiliTim::tim( 'Fixture đập dữ liệu kiểm thử' ) );
+try { MeiliTim::tim( 'Fixture đập dữ liệu kiểm thử' ); $meili_cu = false; } catch ( Throwable $e ) { $meili_cu = true; }
+kt( 'index sai bản chữ báo chưa kiểm được và hẹn sửa, không báo sạch', $meili_cu && ! MeiliChiMuc::san_sang() );
+while ( MeiliChiMuc::dong_bo() ) { }
 $meili_hits[0]['ban'] = $meili_d['ban'];
 wp_update_post( array( 'ID' => $meili_p, 'post_status' => 'draft' ) );
 while ( MeiliChiMuc::dong_bo() ) { }

@@ -17,7 +17,7 @@ final class Tim {
 		$index = $tt[ $cong_khai ? 'public' : 'staff' ];
 		foreach ( $nhanh as &$n ) {
 			$n += array( 'indexUid' => $index, 'limit' => 30, 'attributesToRetrieve' => array( 'muc', 'phan', 'ban' ) );
-			if ( isset( \Phongdao\MienDuLieu\TheLoai::DS[ $loai ] ) ) { $n['filter'] = 'the_loai = "' . $loai . '"'; }
+			if ( isset( \Phongdao\MienDuLieu\TheLoai::DS[ $loai ] ) ) { $n['filter'] = ( isset( $n['filter'] ) ? '(' . $n['filter'] . ') AND ' : '' ) . 'the_loai = "' . $loai . '"'; }
 		}
 		unset( $n );
 		$r = MayTim::goi( 'POST', '/multi-search', array( 'queries' => $nhanh ) );
@@ -31,7 +31,11 @@ final class Tim {
 				$da_xet[ $muc . '/' . $phan ] = true;
 				$docs[ $muc ] ??= ChiMuc::doc( $muc, $cong_khai );
 				foreach ( $docs[ $muc ] as $d ) {
-					if ( $d['phan'] !== $phan || ! hash_equals( $d['ban'], (string) ( $hit['ban'] ?? '' ) ) ) { continue; }
+					if ( $d['phan'] !== $phan ) { continue; }
+					if ( ! hash_equals( $d['ban'], (string) ( $hit['ban'] ?? '' ) ) ) {
+						ChiMuc::doi( $muc );
+						throw new \RuntimeException( 'Chỉ mục cần cập nhật lại; chưa kiểm tra được đầy đủ.' );
+					}
 					$so = SoKhopLoi::so( $q, implode( "\n", $d['dong'] ) );
 					if ( ! $so ) { continue; }
 					$d = array_merge( $d, $so );

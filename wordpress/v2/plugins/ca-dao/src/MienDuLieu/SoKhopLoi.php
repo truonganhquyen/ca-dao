@@ -22,7 +22,13 @@ final class SoKhopLoi {
 	public static function truy_van( string $q ): array {
 		$chu = self::chu( $q ); $kd = self::chu( $q, true ); $tu = self::tu( $q );
 		if ( ! $tu ) { return array(); }
-		$ra = array( array( 'q' => $chu, 'attributesToSearchOn' => array( 'loi' ) ), array( 'q' => $kd, 'attributesToSearchOn' => array( 'loi_kd' ) ) );
+		// Tra toàn văn trước bằng khoá chuẩn hoá: không để bài trùng rơi ngoài top ứng viên tìm gần.
+		$ra = array(
+			array( 'q' => '', 'filter' => 'bam = "' . hash( 'sha256', $chu ) . '"' ),
+			array( 'q' => '', 'filter' => 'bam_kd = "' . hash( 'sha256', $kd ) . '"' ),
+			array( 'q' => $chu, 'attributesToSearchOn' => array( 'loi' ) ),
+			array( 'q' => $kd, 'attributesToSearchOn' => array( 'loi_kd' ) )
+		);
 		if ( count( $tu ) >= 4 && count( $tu ) <= 16 ) {
 			foreach ( $tu as $i => $t ) {
 				$thu = $tu; unset( $thu[ $i ] );

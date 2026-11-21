@@ -84,7 +84,7 @@ def main():
             variants += [('substitution',' '.join(changed)),('omission',' '.join(omitted)),('insertion',' '.join(inserted))]
         for kind,q in variants:cases.append({'id':parent+'_'+kind,'kind':kind,'q':q,'expected':parent})
     prepared=php('prepare',[d['text'] for d in docs]);lookup={d['id']:d for d in docs}
-    indexed=[{'id':d['id'],'parent':d['parent'],'loi':p['loi'],'loi_kd':p['loi_kd']} for d,p in zip(docs,prepared)]
+    indexed=[{'id':d['id'],'parent':d['parent'],**{k:p[k] for k in ['loi','loi_kd','bam','bam_kd']}} for d,p in zip(docs,prepared)]
     qplans=php('prepare',[c['q'] for c in cases]);dataset_hash=hashlib.sha256(json.dumps([docs,cases],ensure_ascii=False,sort_keys=True).encode()).hexdigest()
     tmp=tempfile.mkdtemp(prefix='phongdao-meili-accept-');proc=None
     try:
@@ -98,7 +98,7 @@ def main():
                 time.sleep(.2)
         version=req('GET','/version')
         write('POST','/indexes',{'uid':'public','primaryKey':'id'})
-        write('PATCH','/indexes/public/settings',{'searchableAttributes':['loi','loi_kd']})
+        write('PATCH','/indexes/public/settings',{'searchableAttributes':['loi','loi_kd'],'filterableAttributes':['bam','bam_kd']})
         write('POST','/indexes/public/documents',indexed)
         metrics=[]
         for ix,(c,p) in enumerate(zip(cases,qplans)):

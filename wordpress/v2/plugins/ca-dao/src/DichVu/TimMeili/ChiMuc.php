@@ -76,7 +76,8 @@ final class ChiMuc implements \Phongdao\HaTang\Module {
 		foreach ( $lois as $phan => $loi ) {
 			$chu = SoKhopLoi::chu( (string) $loi );
 			if ( '' === $chu ) { continue; }
-			$ra[] = array( 'id' => str_replace( ':', '_', $muc ) . '_' . $phan, 'muc' => $muc, 'phan' => $phan, 'loi' => $chu, 'loi_kd' => SoKhopLoi::chu( (string) $loi, true ), 'ban' => hash( 'sha256', (string) $loi ), 'ten' => $ten, 'url' => $url, 'the_loai' => $the_loai, 'dong' => explode( "\n", (string) $loi ) );
+			$kd = SoKhopLoi::chu( (string) $loi, true );
+			$ra[] = array( 'id' => str_replace( ':', '_', $muc ) . '_' . $phan, 'muc' => $muc, 'phan' => $phan, 'loi' => $chu, 'loi_kd' => $kd, 'bam' => hash( 'sha256', $chu ), 'bam_kd' => hash( 'sha256', $kd ), 'ban' => hash( 'sha256', (string) $loi ), 'ten' => $ten, 'url' => $url, 'the_loai' => $the_loai, 'dong' => explode( "\n", (string) $loi ) );
 		}
 		return $ra;
 	}
@@ -142,7 +143,7 @@ final class ChiMuc implements \Phongdao\HaTang\Module {
 			$tt = array( 'san_sang' => true, 'public' => $prefix . '_public', 'staff' => $prefix . '_staff' );
 			foreach ( array( 'public', 'staff' ) as $scope ) {
 				MayTim::ghi( 'POST', '/indexes', array( 'uid' => $tt[ $scope ], 'primaryKey' => 'id' ) );
-				MayTim::ghi( 'PATCH', '/indexes/' . $tt[ $scope ] . '/settings', array( 'searchableAttributes' => array( 'loi', 'loi_kd' ), 'filterableAttributes' => array( 'muc', 'the_loai' ) ) );
+				MayTim::ghi( 'PATCH', '/indexes/' . $tt[ $scope ] . '/settings', array( 'searchableAttributes' => array( 'loi', 'loi_kd' ), 'filterableAttributes' => array( 'muc', 'the_loai', 'bam', 'bam_kd' ) ) );
 			}
 			global $wpdb; $tong = 0;
 			foreach ( array( 'post', 'kho' ) as $nhom ) {

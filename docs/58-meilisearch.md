@@ -10,7 +10,7 @@ Người sáng lập chốt Meilisearch làm hướng chính sau PoC. Tích hợ
 - Thêm tác phẩm và đóng góp dùng chung chuẩn hoá và đối chiếu. Chỉ khớp toàn bộ lời có dấu sau chuẩn hoá mới là khớp hệt; bỏ dấu hoặc gần giống không chặn như khớp hệt. Đoạn trích phân biệt với toàn văn. Người biên soạn vẫn quyết dị bản, nguồn, thể loại và đăng bài.
 - Lõi chống trùng tự động của kho giữ nguyên; chưa thay luật tự nối kho hoặc các quyết định trùng đã lưu. Meilisearch chưa thay mọi nơi tìm trong quản trị.
 - NFC, thường hoá, Ð/ð ↔ Đ/đ, dấu kiểu cũ/mới, khoảng trắng đặc biệt, ký tự định dạng ẩn; chỉ trong bản tìm, giữ nguyên lời lưu.
-- Mỗi lần tìm gần tối đa một HTTP multi-search (2–18 nhánh, 30 ứng viên/nhánh). Đọc lại lời và quyền từ WordPress, kiểm hash bản chữ rồi mới đối chiếu. Điểm là giống đoạn, không phải xác suất trùng.
+- Mỗi lần tìm gần tối đa một HTTP multi-search (4–20 nhánh, 30 ứng viên/nhánh). Hai nhánh tra băm toàn văn có dấu/không dấu đi riêng, không bị bài chung vài chữ đẩy ra ngoài top tìm gần. Đọc lại lời và quyền từ WordPress, kiểm hash bản chữ rồi mới đối chiếu. Điểm là giống đoạn, không phải xác suất trùng.
 - Hai chỉ mục public/staff. Public loại nháp, mật khẩu, cờ thô tục ngay khi xuất, và kiểm lại lúc trả kết quả. Staff chỉ gọi khi có quyền soạn. Không gửi email, bút danh, nguồn/hồ sơ cá nhân vào engine; khoá chỉ phía máy chủ.
 - Khi sửa/ẩn/xoá/đổi thể loại, hàng đợi bền chặn sử dụng chỉ mục cũ tới khi xác nhận cả hai index. WP-Cron thử lại; không coi HTTP 202 là đã hoàn tất. Khoá chống hai worker chạy chồng. Dựng lại dùng index mới, chuyển tên sau khi ghi xong.
 - Engine lỗi/chưa dựng/đang đồng bộ: trang tìm vẫn dùng tìm hiện tại; Thêm bài báo chưa kiểm được đầy đủ; góp bài dùng cơ chế báo lỗi và giữ chữ hiện có. Không coi lỗi là không trùng.
