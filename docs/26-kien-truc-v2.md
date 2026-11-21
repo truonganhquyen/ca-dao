@@ -335,6 +335,6 @@ Cron thật của máy chủ gọi WP-Cron mỗi 5 phút (như MVP); mỗi loạ
 
 Agent vào VPS bằng khóa SSH riêng trên máy người sáng lập (không dùng mật khẩu). Không ghi IP, tài khoản hay thông tin các site khác vào repo.
 
-## 17. T?m g?n b?ng Meilisearch (D-131)
+## 17. Tìm gần bằng Meilisearch (D-131)
 
-Ngo?i l? ph?m vi c?: Meilisearch t? l?u tr? n?i b?, m?c ??nh t?t; h?p ??ng, h?ng ??i, tri?n khai v? ho?n t?c ? `docs/58-meilisearch.md`. WordPress gi? d? li?u g?c. Kh?ng thay schema n?i dung.
+Ngoại lệ phạm vi cũ: Meilisearch tự lưu trữ nội bộ, mặc định tắt; hợp đồng, hàng đợi, triển khai và hoàn tác ở `docs/58-meilisearch.md`. WordPress giữ dữ liệu gốc. Không thay schema nội dung.
