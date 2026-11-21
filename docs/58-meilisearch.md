@@ -36,3 +36,11 @@ Các kiểm thử WordPress nằm trong `npm run test:v2`: mặc định tắt, 
 Chạy đủ `kiem-tra`, `test:v2`, `quet:v2`, `e2e:v2`. Bản thử engine thật lấy lời công khai vào thư mục riêng ngoài repo, chỉ lưu số đo; kết quả và giới hạn bổ sung sau khi chạy. Truy vấn sinh biến đổi kỹ thuật chưa thay thế bộ nhãn do con người đánh giá, không suy độ chính xác toàn kho từ vài tác phẩm.
 
 Để bật site thật cần: bộ đo đại diện, kiểm engine thật; CI đủ; thử dựng/đồng bộ/ẩn/xoá/dị bản; kiểm service, cron, quyền, hết kết nối; xác nhận cấu hình triển khai cụ thể. Chưa có bằng chứng thì ghi chưa đạt, không suy từ mã đã viết.
+
+### Kết quả hồi quy engine thật — 21/11/2026
+
+Chạy `scripts/poc-search/validate-meili.py` với binary Meilisearch 1.57.0, dùng đúng lớp PHP `SoKhopLoi` của plugin qua stdin. 100 tác phẩm công khai trong sơ đồ trang: ca dao 48, tục ngữ 30, vè 10, câu đố 7, đồng dao 5; tổng 138 phần lời/dị bản. 952 ca (toàn văn, NFD, không dấu, khoảng trắng Unicode, Ð/Đ, một dòng, cuối bài, thêm/bớt/thay một tiếng): bài đích top 5 **952/952**, top 1 **951/952**. Một ca âm không trả bài. Một HTTP multi-search mỗi ca. SHA256 dữ liệu `9ee735cbe3f6de611f5ae757a354ece7d1063625bfdc54dc006528d6d1bc14cb`; mã PHP `a15be3a496775ac60077dfe5339e7d7a8c10037ce257e39aa557c6d26d1ec1de`.
+
+Đây là hồi quy kỹ thuật: truy vấn sinh tự động, tìm trong 138 phần của mẫu, **chưa tìm trong toàn kho**, chưa có nhãn liên quan độc lập của người đọc, chưa đo một từ phổ biến, truy vấn theo ý nghĩa hay tải đồng thời. Thời gian script gồm tạo tiến trình PHP nên không dùng làm độ trễ sản phẩm. Các luồng WordPress đang kiểm bằng HTTP giả lập có engine trả kết quả lỗi/cũ; chưa phải diễn tập dịch vụ + WordPress trên máy chủ thật. Không công bố “100% chính xác” hoặc nghiệm thu production từ con số này.
+
+Đã mở [PR tích hợp](https://github.com/truonganhquyen/ca-dao/pull/215), có bản xem trước WordPress với công tắc tắt. CI tại PR là bằng chứng từng phiên bản mã. PR PoC trước đã đóng và giữ lịch sử; không gộp nhánh thử có mã task trùng với pilot biên tập.
