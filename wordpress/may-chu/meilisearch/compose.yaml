@@ -1,0 +1,25 @@
+# Gói để người vận hành áp dụng sau kiểm tra máy thật. Không có job tự triển khai.
+services:
+  meilisearch:
+    image: getmeili/meilisearch:v1.57.0
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:7700:7700"
+    environment:
+      MEILI_ENV: production
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:?Can dat khoa rieng tren may chu}
+      MEILI_NO_ANALYTICS: "true"
+      MEILI_DB_PATH: /meili_data
+      MEILI_MAX_INDEXING_THREADS: "2"
+      MEILI_MAX_INDEXING_MEMORY: 256MiB
+    volumes:
+      - meili_data:/meili_data
+    mem_limit: ${MEILI_MEMORY_LIMIT:-1g}
+    cpus: ${MEILI_CPU_LIMIT:-2}
+    logging:
+      driver: local
+      options:
+        max-size: 10m
+        max-file: "2"
+volumes:
+  meili_data:

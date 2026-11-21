@@ -23,6 +23,15 @@ final class SoTrung {
 	}
 
 	public static function tim( string $loi, bool $cong_khai = true, int $bo_gop = 0 ): array {
+		if ( \Phongdao\DichVu\TimMeili\MayTim::bat() ) {
+			$ra = array();
+			foreach ( \Phongdao\DichVu\TimMeili\Tim::tim( $loi, $cong_khai ) as $d ) {
+				if ( 'gop:' . $bo_gop === $d['muc'] ) { continue; }
+				[ $loai, $id ] = ChongTrung::tach_muc( $d['muc'] );
+				$ra[] = array( 'muc' => $d['muc'], 'bai' => 'bai' === $loai ? $id : 0, 'phan' => $d['phan'], 'khop' => $d['khop'], 'diem' => $d['diem'], 'ten' => $d['ten'], 'url' => $d['url'], 'dong' => $d['dong'] );
+			}
+			return array_slice( $ra, 0, $cong_khai ? 2 : 6 );
+		}
 		global $wpdb;
 		$v = VanTay::cua( $loi );
 		if ( ! $v['so_am'] ) { return array(); }

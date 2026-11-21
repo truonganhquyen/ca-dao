@@ -3925,6 +3925,7 @@ require '/repo/tests/kiem-dang-nhanh.php';
 require '/repo/tests/kiem-tim-doc.php';
 require '/repo/tests/kiem-xoa-va-cho-trung.php';
 require '/repo/tests/kiem-gop-mot-cau.php';
+require '/repo/tests/kiem-meili.php';
 
 $tong = $GLOBALS['v2_dat'] + $GLOBALS['v2_hong'];
 ra( "\nKẾT QUẢ: " . ( $GLOBALS['v2_hong'] ? "HỎNG {$GLOBALS['v2_hong']} / $tong" : "ĐẠT $tong" ) );
