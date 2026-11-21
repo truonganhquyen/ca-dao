@@ -113,40 +113,65 @@ Mỗi câu có lựa chọn "không cần với bài này". Không ngưỡng s�
 | **Chất lượng** | Lỗi nghiêm trọng / lớn / nhỏ trên bài đã kiểm | Pilot (kiểm 100%), sau đó kiểm mẫu |
 | **Dùng** | Lượt dùng tin cậy mỗi tuần (sao chép trích dẫn + chia sẻ), tìm không ra | 5 sự kiện hiện có |
 
-### 4.2. Số liệu nền (21/11/2026)
+### 4.2. Số liệu nền — đo 21/11/2026, 16:54–16:59 (+07:00)
 
-**Đã xuất bản:**
+**Cách đo:** `npm run do-so-nen -- --trang --kho` (T-230):
 
-- **16.453 bài**: ca dao 11.764 · tục ngữ – thành ngữ 3.487 · câu đố 765 · đồng dao 299 · vè 138.
-- Nguồn: bộ đếm trang chủ, GET chiều 21/11.
+- 784 lượt GET công khai, không đăng nhập;
+- không chạy JavaScript của trang, nên không cộng lượt đọc;
+- kết quả đầy đủ và danh sách đường dẫn giữ ngoài repo (`output/so-nen/`) để so với lần đo sau.
 
-**Các số cũ:**
+| Thể loại | Đã xuất bản | Có phần nghĩa công khai¹ | Đủ điều kiện lập chỉ mục (= trong sơ đồ trang) | … có Ý nghĩa người viết² | … chưa có Ý nghĩa người viết |
+|---|---|---|---|---|---|
+| Ca dao | 11.764 | 115 | 135 | 114 | 21 |
+| Tục ngữ – thành ngữ | 3.487 | 59 | 61 | 55 | 6 |
+| Câu đố | 765 | 4 | 7 | 4 | 3 |
+| Đồng dao | 299 | 3 | 5 | 3 | 2 |
+| Vè | 138 | 7 | 10 | 4 | 6 |
+| **Tổng** | **16.453** | **188** | **218** (1,3%) | **180** | **38** |
 
-| Số | Ngày, nguồn |
+¹ Dòng "N bài đã có giải nghĩa" ở đầu trang thể loại: Ý nghĩa, giải nghĩa sách, nghĩa đen / bóng, hình ảnh, bối cảnh — mọi người làm, kể cả phần máy chép.
+² Câu đố: Giải thích đáp án.
+
+**Kiểm chéo cùng mốc giờ:**
+
+- **Đã xuất bản:** bộ đếm trang chủ = đầu trang thể loại = thẻ ở 549 trang `/kho/` (16.453 đường dẫn khác nhau). Ba cách đếm chênh 0.
+- **Đủ điều kiện lập chỉ mục:**
+  - cả 218 bài trong sơ đồ trang đọc được (HTTP 200), không bài nào có `noindex`, đều có ở `/kho/`;
+  - bài ngoài sơ đồ có `noindex, follow` (kiểm mẫu 21/11).
+- **Ý nghĩa người viết:** 180 bài, trong đó 16 bài có hỗ trợ của AI, đã duyệt. Bài có Ý nghĩa người viết luôn có phần riêng, nên đây là số của toàn kho.
+- **38 bài đủ điều kiện mà chưa có Ý nghĩa người viết.** Các bài này vào sơ đồ trang nhờ chú thích người viết, bối cảnh hay phần khác — bằng chứng rằng đủ điều kiện không phải là đã biên tập.
+- **Phần riêng khác trong 218 bài:** 75 có chú thích người viết, 8 có chú thích theo Từ điển, 12 có chuyện quanh bài người viết.
+- **Lời đã đối chiếu sách (T2): 0.**
+
+**Đối soát các số cũ:**
+
+| Số | Ngày, cách đếm |
 |---|---|
 | 16.285 | 15/11, CSDL (D-117) |
-| 16.303 | 19/11, đường dẫn riêng (`docs/02`) |
-| 16.450 | 20/11, trang chủ |
+| 16.303 | 19/11, thẻ ở `/kho/` (T-178.4) |
+| 16.450 | 20/11, bộ đếm trang chủ |
+| **16.453** | **21/11 16:54, ba cách đếm khớp** |
 
-Các số này khác nhau do ngày đo và cách đếm; bài mới vẫn được đăng hằng ngày. T-230 đối soát một lần trên CSDL trang thử, cùng một mốc giờ.
+Hôm nay ba cách đếm cho cùng một số. Vì vậy chênh giữa các số cũ là **số bài đã đăng thay đổi giữa các ngày đo** (đăng hằng ngày, có ngày đăng theo lô), không do cách đếm. Số bài đăng theo từng ngày chỉ xác nhận được trên CSDL trang thử (T-231).
 
-**Đủ điều kiện lập chỉ mục = trong sơ đồ trang (tác phẩm):**
+**215 → 216 → 218 (đủ điều kiện):**
 
-- **216** (~1,3%): ca dao 133 · tục ngữ 61 · vè 10 · câu đố 7 · đồng dao 5.
-- Kiểm 7 trang mẫu: bài trong sơ đồ không có `noindex`; bài ngoài sơ đồ có `noindex, follow`.
-- **Đối soát 215 → 216:** lúc đo đầu phiên có 215 (đồng dao 4). Lúc 14:23 ngày 21/11 (+07:00, `lastmod` trong sơ đồ trang) **một bài đồng dao được sửa, có thêm phần riêng nên tự vào sơ đồ trang** theo luật hiện hành. Các thể loại khác không đổi.
-- Đây là **số đếm sống**: số nền luôn ghi kèm giờ đo.
+- đầu phiên 21/11: 215;
+- lúc 14:23: 216 — một bài đồng dao có thêm phần riêng (`lastmod` trong sơ đồ trang);
+- lúc 16:54: 218 — thêm hai bài ca dao.
+
+Đây là **số đếm sống**: số nền luôn ghi kèm giờ đo.
 
 **Các số khác:**
 
 | Chỉ số | Giá trị | Ngày, nguồn |
 |---|---|---|
-| URL khác trong sơ đồ trang | 55 (trang 8 · tuyển tập 8 · bài cảm nhận 3 · thể loại 5 · chủ đề 14 · vùng 6 · hình thức 7 · mục từ 4) | 21/11, GET |
-| **Đã biên tập (≥ H2)** | **chưa đo** — không suy từ số đủ điều kiện | Pilot đợt 1 đánh giá lại 10 bài trong số 216; con số cho toàn kho có sau khi lưu H2 trong dữ liệu (quyết định sau pilot) |
-| Google đã lập chỉ mục | **chưa đo** | Cần Search Console (T-230) |
-| Bài viết (`post`) | 46, `noindex` chờ quyền | 21/11, REST công khai |
-| Bài có Ý nghĩa người duyệt | khoảng 130 (15/11), chưa đo lại | D-117; T-230 |
-| Lượt dùng tin cậy / tuần | chưa tổng hợp | T-230 |
+| URL khác trong sơ đồ trang | 55 (trang 8 · tuyển tập 8 · bài cảm nhận 3 · thể loại 5 · chủ đề 14 · vùng 6 · hình thức 7 · mục từ 4) | 21/11 16:54, GET |
+| **Đã biên tập (≥ H2)** | **chưa đo** — không suy từ số đủ điều kiện | Pilot đợt 1 đánh giá lại 10 bài trong số đủ điều kiện; con số cho toàn kho có sau khi lưu H2 trong dữ liệu (quyết định sau pilot) |
+| Google đã lập chỉ mục | **chưa đo** | Cần Search Console (người sáng lập nối) |
+| Bài viết (`post`) | 46, `noindex` chờ quyền | 21/11 16:54, REST công khai |
+| Lượt dùng tin cậy / tuần | **chưa đo** | Màn Số liệu: sao chép trích dẫn + chia sẻ, 7 ngày (người sáng lập đọc) |
 
 ### 4.3. Mục tiêu theo ba mức — **đặt lại sau pilot đợt 2**
 
@@ -155,8 +180,8 @@ Các số này khác nhau do ngày đo và cách đếm; bài mới vẫn đư�
 | Chỉ số | Nền 21/11 | 3 tháng | 6 tháng | 12 tháng | 18 tháng |
 |---|---|---|---|---|---|
 | Bài **đã biên tập (≥ H2)** | chưa đo | 300 / 600 / 1.000 | 600 / 1.500 / 3.000 | 1.200 / 3.000 / 5.000 | 1.800 / 4.500 / 7.000 |
-| Bài **≥ T2** | chưa đo (rất ít) | 0 / 20 / 50 | 20 / 50 / 200 | 100 / 200 / 500 | 200 / 400 / 800 |
-| Câu đố đã rà an toàn, có giải thích | 7 có phần riêng | 200 / 400 / 765 | 400 / 765 / 765 | 765 | 765 |
+| Bài **≥ T2** | 0 | 0 / 20 / 50 | 20 / 50 / 200 | 100 / 200 / 500 | 200 / 400 / 800 |
+| Câu đố đã rà an toàn, có giải thích | 4 có giải thích đáp án người viết; 7 có phần riêng | 200 / 400 / 765 | 400 / 765 / 765 | 765 | 765 |
 | Hồ sơ thực thể (chỉ sau khi khoá schema) | 0 | 0 (PoC) | 0 / 50 / 200 | 50 / 200 / 1.000 | 150 / 500 / 1.500 |
 | Bài viết có quyền, đã nối | 0 | 0 | 0 / 5 / 20 | 5 / 20 / 50 | 10 / 40 / 100 |
 | Lỗi lớn qua kiểm (nghiêm trọng luôn = 0) | chưa đo | ≤ 3% / 2% / 1% | ≤ 3% / 2% / 1% | ≤ 2% / 1,5% / 1% | ≤ 2% / 1% / 1% |
@@ -372,7 +397,7 @@ Việc của GĐ1–GĐ4 chưa vào `docs/22`. Mỗi cổng mở thì agent đư
 |---|---|---|
 | **Thấp** | Tài liệu; công cụ đo, báo cáo chỉ đọc; kiểm thử; việc chỉ chạy trên trang thử đã đạt 8.1 | Agent làm; gộp khi bốn cổng đạt; báo trong bản tin hai tuần |
 | **Trung bình** | Thay đổi production **không** chạm luật, schema, SEO, quyền: sửa lỗi giao diện, màn quản trị nhỏ, công cụ biên tập | Người sáng lập xem bản xem trước rồi đồng ý gộp |
-| **Cao** | Luật (AGENTS.md, Human Gate, D-xxx); schema và dữ liệu; SEO, lập chỉ mục; quyền nội dung, nguồn; đường dẫn; xoá, gộp; cấu hình production | Người sáng lập **duyệt bằng lời trước khi làm**; review độc lập (D-048); diễn tập trên trang thử khi chạm dữ liệu |
+| **Cao** | Luật (AGENTS.md, Human Gate, D-xxx); schema và dữ liệu; SEO, lập chỉ mục; quyền nội dung, nguồn; đường dẫn; xoá, gộp; cấu hình production | Người sáng lập **duyệt bằng lời trước khi làm**; review độc lập (D-048); diễn tập trên trang thử khi chạm dữ liệu; **phê duyệt gộp ghi trên PR trước khi gộp**, agent không tự gộp (D-132) |
 
 Nội dung do người duyệt trong pilot là việc biên tập bình thường của người biên soạn, không phải thay đổi production của agent.
 

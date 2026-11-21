@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| Phiên bản | 2.1 · 11/11/2026 (thêm nguồn trong quản trị: D-104) · 2.0 · 23/10/2026 (nguồn web, Ca dao Mẹ, cách dùng chú thích: D-037, D-045, D-046) |
+| Phiên bản | 2.2 · 21/11/2026 (sửa mẫu thư Ca dao Mẹ cho đúng hiện trạng: D-128) · 2.1 · 11/11/2026 (thêm nguồn trong quản trị: D-104) · 2.0 · 23/10/2026 (nguồn web, Ca dao Mẹ, cách dùng chú thích: D-037, D-045, D-046) |
 | Trạng thái | **Ổn định.** Danh sách tư liệu ở mục 8 **chưa xác minh** |
 | Đọc khi | Trước khi tạo tệp `content/nguon/`; khi thu thập từ một trang web; khi dùng chú thích của người khác |
 
@@ -94,22 +94,32 @@ Kiểm trực tiếp ngày 23/10/2026. Tệp: `content/nguon/src-ca-dao-me.yaml`
 
 **Cách dùng (D-046):** lời lấy triệt để vào kho thô, xuất bản chọn lọc, ghi "Lời tham khảo từ Ca dao Mẹ" kèm link; chú thích tham chiếu ý nghĩa để viết lại; không lấy ảnh; phân loại chỉ dùng nội bộ. Trang bài có liên kết "Xem thêm chú thích tại Ca dao Mẹ" — dự án là hàng xóm, không phải đối thủ.
 
-## 7. Thư gửi Ca dao Mẹ (T-034, bản nháp)
+## 7. Thư gửi Ca dao Mẹ (T-034, bản nháp — sửa 21/11/2026)
 
-Gửi qua form `cadao.me/dong-gop`, trước khi mở công khai.
+Gửi qua form `cadao.me/dong-gop`. Site đã mở công khai và cho Google lập chỉ mục, nên **gửi sớm** (D-128).
+
+**Người sáng lập đọc lại, sửa và tự gửi; agent không gửi thay.** Trước khi gửi, kiểm lại ba điều in nghiêng trong thư vẫn đúng.
+
+Bản nháp cũ (trước khi mở công khai) ghi "ghi công và đặt liên kết về trang gốc ở từng bài" và xin dùng chú thích "có ghi rõ nguồn ở từng chú thích". Hai ý đó không còn đúng từ D-068, nên đã được thay.
 
 > Kính gửi Ban quản trị Ca dao Mẹ,
 >
-> Tôi là [tên], đang xây dựng [tên dự án], một trang ca dao tục ngữ phi lợi nhuận, không quảng cáo, tập trung vào trải nghiệm đọc trên điện thoại cho giáo viên và người trẻ.
+> Tôi là [tên], người làm Phong Dao (phongdao.com) — thư viện ca dao, tục ngữ, đồng dao, câu đố, vè trên mạng, phi thương mại, không quảng cáo, dành cho người yêu văn chương, giáo viên và học sinh.
 >
-> Ca dao Mẹ là kho tư liệu chúng tôi trân trọng nhất. Dự án tham khảo lời các bài từ Ca dao Mẹ, ghi công và đặt liên kết về trang gốc ở từng bài.
+> Ca dao Mẹ là kho tư liệu chúng tôi trân trọng và học hỏi nhiều nhất. Chúng tôi xin trình bày thẳng thắn cách Phong Dao đang dùng tư liệu từ Ca dao Mẹ để xin ý kiến của Ban quản trị:
 >
-> Chúng tôi trân trọng xin phép được sử dụng các chú thích của Ca dao Mẹ, có ghi rõ nguồn và liên kết ở từng chú thích. Nếu Ban quản trị đồng ý, chúng tôi rất mong được trao đổi thêm về khả năng hợp tác lâu dài.
+> - *Phần lớn lời các bài trên Phong Dao được thu thập từ Ca dao Mẹ khi dựng kho, rồi biên tập dần.*
+> - *Một phần chú thích trên Phong Dao được chép từ Ca dao Mẹ. Hiện trang bài ghi đây là chú thích lấy từ nguồn tham khảo, chưa ghi tên Ca dao Mẹ ngay tại chỗ.*
+> - *Nhóm Phong Dao đang viết dần chú thích, giải nghĩa của riêng mình để thay thế.*
+>
+> Chúng tôi trân trọng xin phép Ban quản trị cho tiếp tục dùng các chú thích này trong thời gian thay thế, và xin Ban quản trị cho biết cách ghi công mong muốn. Nếu Ban quản trị không đồng ý với phần nào, xin cho chúng tôi biết để điều chỉnh theo yêu cầu.
+>
+> Chúng tôi cũng rất mong được trao đổi về khả năng hợp tác lâu dài.
 >
 > Trân trọng,
 > [tên] · [email liên hệ của dự án]
 
-Có văn bản đồng ý: đổi `ban_quyen` của `src-ca-dao-me` sang `duoc_phep`, ghi phạm vi đồng ý vào `ghi_chu` và D-xxx (Human Gate H3). Bị từ chối: gỡ phần đã dùng theo yêu cầu, chuyển sang nguồn khác.
+Có văn bản đồng ý: đổi `ban_quyen` của `src-ca-dao-me` sang `duoc_phep`, ghi phạm vi đồng ý vào `ghi_chu` và D-xxx (Human Gate H3); trên WordPress V2 là hồ sơ nguồn Ca dao Mẹ ở Nguồn & cài đặt. Bị từ chối: gỡ phần đã dùng theo yêu cầu, chuyển sang nguồn khác. Mọi thay đổi cách hiển thị sau khi có trả lời do người sáng lập quyết; ghi ngày gửi, ngày trả lời ở `docs/02` mục "Rủi ro đang theo dõi".
 
 ## 8. Tư liệu để nâng nhãn (CHƯA XÁC MINH)
 

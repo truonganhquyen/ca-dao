@@ -17,7 +17,8 @@
     "kiem-nhat-quan": "node scripts/kiem-nhat-quan.mjs",
     "kiem-tra": "npm run test:nhat-quan && npm run kiem-nhat-quan",
     "viec-tiep-theo": "node scripts/viec-tiep-theo.mjs",
-    "kiem-site-that": "node scripts/kiem-site-that.mjs"
+    "kiem-site-that": "node scripts/kiem-site-that.mjs",
+    "do-so-nen": "node scripts/do-so-nen.mjs"
   },
   "engines": {
     "node": ">=22.12.0"

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Phiên bản | 4.1 · 21/11/2026 (chương trình nâng cấp lớn V2: chấp thuận có điều kiện, mở Giai đoạn 0 — D-127..D-130, `docs/57`) · 4.0 · 21/11/2026 (Từ điển nối bài, đợt 2 — D-126; Từ điển và từ khó, sửa lỗi đợt 1 — D-125; ghi công người góp — D-124; Góp một câu — D-123; quản trị làm lại đợt 1: khung chung, menu gọn, Hôm nay mở nhanh — D-121; mở cho Google, lời hứa trang chủ mới — D-120; trang tác phẩm gọn — D-119; thùng rác và gỡ kẹt chờ trùng — D-115; trang thưa gọn, chuẩn bị Google — D-114; bộ lọc Tìm gọn — D-113; tìm đúng chữ và thứ tự danh sách — D-112; lịch sử đến 11/11/2026: `docs/luu-tru/02-trang-thai-den-11-11-2026.md`) |
+| Phiên bản | 4.2 · 21/11/2026 (Giai đoạn 0, bước đầu: số đo nền, Sổ tay chờ duyệt, bộ thử trải nghiệm, hướng dẫn trang thử; PR mức cao duyệt trước khi gộp — D-132) · 4.1 · 21/11/2026 (chương trình nâng cấp lớn V2: chấp thuận có điều kiện, mở Giai đoạn 0 — D-127..D-130, `docs/57`) · 4.0 · 21/11/2026 (Từ điển nối bài, đợt 2 — D-126; Từ điển và từ khó, sửa lỗi đợt 1 — D-125; ghi công người góp — D-124; Góp một câu — D-123; quản trị làm lại đợt 1: khung chung, menu gọn, Hôm nay mở nhanh — D-121; mở cho Google, lời hứa trang chủ mới — D-120; trang tác phẩm gọn — D-119; thùng rác và gỡ kẹt chờ trùng — D-115; trang thưa gọn, chuẩn bị Google — D-114; bộ lọc Tìm gọn — D-113; tìm đúng chữ và thứ tự danh sách — D-112; lịch sử đến 11/11/2026: `docs/luu-tru/02-trang-thai-den-11-11-2026.md`) |
 | Mục đích | Trang tổng quan ngắn cho người sáng lập và AI agent |
 | Nguồn máy đọc | `du-an/trang-thai.json` (`npm run kiem-nhat-quan` đối chiếu với `docs/01`, `docs/22`) |
 
@@ -74,16 +74,30 @@
 
 - **Meilisearch (D-131):** mã tích hợp có công tắc mặc định tắt, gói dịch vụ nội bộ và bộ hồi quy 100 tác phẩm ở [PR #215](https://github.com/truonganhquyen/ca-dao/pull/215); chi tiết `docs/58`. Cần môi trường/phiên truy cập máy chủ và diễn tập dịch vụ + WordPress để bật thật. Chưa thay tìm kiếm đang chạy trên phongdao.com; chưa nghiệm thu production.
 
-- **Chương trình nâng cấp lớn V2 — Giai đoạn 0** (D-127, D-130; kế hoạch `docs/57`): duyệt PR kế hoạch; tạo trang thử theo danh sách kiểm an toàn, cách ly (`docs/57` mục 8.1) và thử khôi phục cùng agent (T-231); nối Search Console (T-230); mời 8–10 người thử trải nghiệm (T-232); duyệt Sổ tay biên tập v1 và phiếu duyệt (T-235); duyệt nháp pilot đợt 1 rồi quyết mở đợt 2 (T-234, T-238). Khoảng 3–4 giờ mỗi tuần trong 6 tuần.
+- **Ưu tiên — gửi thư xin phép Ca dao Mẹ** (`docs/12` mục 7; mẫu đã sửa cho đúng hiện trạng ngày 21/11/2026). Bạn đọc lại, sửa, tự gửi; ghi ngày gửi ở mục "Rủi ro đang theo dõi". Không đổi cách hiển thị chú thích trong lúc chờ trả lời (D-128).
+- **Chương trình nâng cấp lớn V2 — Giai đoạn 0** (D-127, D-130, D-132; kế hoạch `docs/57`). Khoảng 3–4 giờ mỗi tuần trong 6 tuần:
+  - duyệt PR bước đầu (Sổ tay biên tập, phiếu duyệt, mẫu thư, D-132). Đây là PR mức cao: chỉ gộp sau khi bạn duyệt;
+  - nối Search Console; đọc màn Số liệu (sao chép trích dẫn + chia sẻ, 7 ngày) để đủ số đo nền (T-230);
+  - khi sẵn sàng dựng trang thử: trả lời bốn câu đầu ở `docs/huong-dan/trang-thu.md` (T-231);
+  - mời 8–10 người thử trải nghiệm theo `docs/huong-dan/thu-trai-nghiem.md` (T-232);
+  - tìm một người kiểm thứ hai cho pilot (kiểm 100% bài, khác người duyệt);
+  - duyệt nháp pilot đợt 1 rồi quyết mở đợt 2 (T-234, T-238).
 - **Thử từng phần đợt 3** qua link bản xem trước trong mỗi PR (bấm thử trên điện thoại và máy tính).
 - **Bật công tắc "Có từ ngữ thô tục"** cho bài cần báo trước (nên bắt đầu từ Câu đố): máy không tự dò.
 - **Lô nháp Ý nghĩa đầu tiên**: Bổ sung → Tải tệp lô (30 bài), gửi tệp để soạn nháp (giữ ngoài kho mã), nạp lại và duyệt ở Hộp việc.
 - **Rút gọn Ý nghĩa dài** (Bổ sung → "Ý nghĩa dài"): còn 2–3 câu; phần kể chuyện chuyển sang Từ khó hoặc Bối cảnh.
 - **Duyệt bảng Dọn chủ đề** (Danh mục → Dọn chủ đề): trên site thật, mục ngoài bộ là "Loại vè" và "Vè dân gian về động vật"; máy đề xuất bỏ (trùng thể loại Vè), bạn có thể chọn gộp vào một chủ đề trong bộ.
-- **Gửi thư cho Ca dao Mẹ** (`docs/12` mục 7): site đã mở cho Google, nên gửi sớm.
 - **Hồ sơ đối soát ngày chuyển** (`docs/22`, T-178.4, 19/11/2026): cần bảng ID/trạng thái cùng thời điểm để giải thích 630/631, danh sách 7 ID có phần `doan` và đủ 15 ánh xạ đường cũ–mới. Lượt GET hiện tại có 16.303 đường dẫn riêng và 7 vè có tiêu đề đoạn; hai cặp cũ #1764/#69, #1769/#1736 đều đã có địa chỉ riêng trả 200, nên không còn chờ chọn bài tách đường dẫn. Chưa dùng số hiện tại để xác nhận lịch sử hoặc kết luận mất dữ liệu.
 - **Chọn và thử làm sâu 20–30 bài** (`docs/huong-dan/thu-lam-sau.md`): ghi thời gian, giá trị và chỗ vướng. Phần máy đã xong, hiện ở Hôm nay + Số liệu (`docs/42` mục 3); phần thử thuộc người sáng lập, chưa có bằng chứng hoàn tất (đối soát 19/11/2026).
 - **Khoá Turnstile** (tuỳ chọn, chặn tin rác chắc hơn): Cloudflare → Turnstile, dán khoá ở Nguồn & cài đặt → Chống rác. Không gửi khoá cho ai, kể cả agent.
+
+## Rủi ro đang theo dõi
+
+| Rủi ro | Hiện trạng (21/11/2026) | Việc ưu tiên | Giới hạn |
+|---|---|---|---|
+| **Quyền chú thích chép từ Ca dao Mẹ** (D-128) | Chú thích chép từ Ca dao Mẹ đang hiện trên nhiều bài, không ghi tên nguồn tại chỗ (D-068, D-117 (2)); chưa có thư đồng ý. Kho mã công khai (`docs/01`, `docs/12`, `docs/45`–`56`) đã mô tả việc này | Gửi thư xin phép (mẫu `docs/12` mục 7). Nhóm Phong Dao thay dần bằng chú thích thư viện viết, ưu tiên bài pilot | Agent không tự đổi cách hiển thị, cài đặt ghi nguồn hay xoá chú thích. Trả lời của Ca dao Mẹ do người sáng lập quyết (H3) |
+
+Thư xin phép: **chưa gửi.** Ghi ngày gửi, ngày trả lời vào đây.
 
 ## Công việc kỹ thuật tiếp theo
 
@@ -93,9 +107,19 @@ Chạy `npm run viec-tiep-theo` — máy suy ra từ backlog (`docs/22`), luôn 
 
 Q-008 (tài trợ, pháp nhân). Q-010, Q-011 đã chốt (D-130). Không câu nào chặn task kỹ thuật hiện tại.
 
+**Human Gate đang chặn: H2 (sự thật biên tập).**
+
+- Đang chặn phần nội dung còn lại của QA mẫu 10 bài (T-198) và thử làm sâu 20–30 bài (T-180). Cả hai chờ người biên soạn quyết; từ 21/11 làm qua pilot đợt 1 (T-234).
+- H2 không chặn việc nào khác của Giai đoạn 0. Trong pilot, H2 là bước người duyệt bấm duyệt từng nháp.
+
 ## Tài liệu
 
-- **Chương trình nâng cấp lớn V2 (21/11/2026):** kế hoạch đang dùng `docs/57`; căn cứ `docs/45` (kiểm kê) và `docs/50`–`56` (tầm nhìn, rà soát quyết định, nội dung, trải nghiệm, kiến trúc, lộ trình, gói quyết định); `docs/46`–`49` là lịch sử. Nơi khác nhau, `docs/57` thắng.
+- **Chương trình nâng cấp lớn V2 (21/11/2026):** kế hoạch đang dùng `docs/57`; căn cứ `docs/45` (kiểm kê) và `docs/50`–`56` (tầm nhìn, rà soát quyết định, nội dung, trải nghiệm, kiến trúc, lộ trình, gói quyết định); `docs/46`–`49` là lịch sử. Nơi khác nhau, `docs/57` thắng. Hướng dẫn Giai đoạn 0 ở `docs/huong-dan/`:
+  - `so-tay-bien-tap.md`, `phieu-duyet.md` (chờ duyệt);
+  - `trang-thu.md`;
+  - `thu-trai-nghiem.md`.
+
+  Số đo nền: `npm run do-so-nen` (chỉ đọc).
 - Đang dùng: `docs/00` (nền), `01` (quyết định), `02` (tệp này), `03` (quy trình), `12` (nguồn), `22` (backlog), `26` (kỹ thuật V2), `27` (sản phẩm), `28` (luồng nội dung, biên tập), `31` (cải tiến sau review, phần còn mở), `32` (đợt 3), `docs/huong-dan/` (hướng dẫn người sáng lập).
 - Lưu trữ (không còn dùng hằng ngày, giữ nguyên văn): `docs/luu-tru/` — danh mục ở `docs/luu-tru/README.md`.
 - Kế hoạch bổ sung theo phạm vi người sáng lập chốt ngày 12/11: [giữ chữ, chống ghi đè, ảnh minh hoạ và thử nội dung](33-ke-hoach-cai-tien-bien-tap-va-anh.md); bắt đầu triển khai 13/11. **Giữ chữ đã làm (plugin 1.0.53):** lỗi nhập trả lại đúng hàng/nội dung, phần chưa lưu được giữ theo tab/phiên tối đa 30 phút; rời trang có cảnh báo. Chống ghi đè đã làm (plugin 1.0.54): lưu phần so phiên trong giao dịch có khoá, giữ chữ và cho đối chiếu khi có bản mới. Ảnh minh hoạ đã bổ sung (plugin 1.0.55): Thư viện → xem trước → lưu → khách xem; thay/bỏ/khôi phục, ghi công và ảnh câu đố trong đáp án. Xem [hướng dẫn](huong-dan/bien-tap-an-toan-va-anh.md). Nhãn/form đã làm (plugin 1.0.56/theme 1.0.6); bản chốt 1.0.57 khoá khôi phục/duyệt đã qua bốn cổng và kiểm hai tiến trình MySQL. [Bàn giao và QA mẫu](34-ban-giao-bien-tap-va-anh.md), [phiếu pilot](huong-dan/pilot-10-bai.md). Phiên bản site kiểm trực tiếp bằng npm run kiem-site-that; pilot nội dung thật còn chờ người quyết. Bốn mục loại khỏi đợt giữ nguyên.
@@ -106,4 +130,5 @@ Q-008 (tài trợ, pháp nhân). Q-010, Q-011 đã chốt (D-130). Không câu n
 npm run viec-tiep-theo
 npm run kiem-tra
 npm run kiem-site-that      # site thật có đúng bản của main không (chỉ đọc)
+npm run do-so-nen           # số đo nền (chỉ đọc); thêm -- --trang, --kho, --ds <tệp>, --json <tệp>, kết quả giữ ngoài repo
 ```
