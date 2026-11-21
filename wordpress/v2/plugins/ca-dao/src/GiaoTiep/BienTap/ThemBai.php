@@ -92,6 +92,15 @@ final class ThemBai {
 	/** Máy nhận thể thơ và kiểm trùng cho lời đang dán (REST, chỉ người biên soạn). */
 	public static function kiem( string $loi ): array {
 		$dong = array_values( array_filter( array_map( 'trim', explode( "\n", str_replace( "\r", '', $loi ) ) ), 'strlen' ) );
+		if ( $dong && \Phongdao\DichVu\TimMeili\MayTim::bat() ) {
+			$ra = array(); $thong_bao = ''; $ok = true;
+			try {
+				foreach ( \Phongdao\DichVu\TimMeili\Tim::tim( implode( "\n", $dong ), false ) as $d ) {
+					$ra[] = array( 'muc' => VanTay::MUC[ $d['cap_do'] ], 'giong' => $d['diem'], 'ten' => $d['ten'], 'url' => $d['url'], 'ly_do' => $d['ly_do'] );
+				}
+			} catch ( \Throwable $e ) { $ok = false; $thong_bao = 'Chưa kiểm trùng được đầy đủ. Bạn vẫn có thể lưu nháp và kiểm tra lại.'; }
+			return array( 'the_tho' => TheTho::DS[ TheTho::nhan( $dong ) ], 'so_dong' => count( $dong ), 'trung' => $ra, 'kiem_trung_ok' => $ok, 'thong_bao' => $thong_bao );
+		}
 		$ra   = array();
 		foreach ( $dong ? ChongTrung::tim( implode( "\n", $dong ), array(), 5 ) : array() as $t ) {
 			[ $loai, $id ] = ChongTrung::tach_muc( $t['muc'] );
