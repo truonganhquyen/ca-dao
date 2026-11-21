@@ -201,7 +201,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-228 | Giao diện đợt 3 (D-126): trang chủ có trọng tâm (bỏ "Bạn là"), thanh lọc dùng chung, thẻ lời, ô Từ khó hôm nay, đầu trang thể loại, hoạ tiết sóng | A | T-227 | — | DONE |
 | T-227 | Từ điển nối bài, đợt 2 (D-126): nghĩa "Theo Từ điển" trên trang bài, Bổ sung → Gợi ý Từ điển, ô "Nối Từ điển" ở từ khó, trang mục từ hiện câu có chữ, bài viết tạm không lập chỉ mục | A | T-226 | — | DONE |
 | T-226 | Từ điển và từ khó, sửa lỗi đợt 1 (D-125): giữ nối khi sửa lời giải, danh sách nối lại, tìm Từ điển theo nhóm + phân trang, trang mục từ, đường thể loại cũ, khuôn bài viết | A | T-225 | — | DONE |
-| T-238 | PoC riêng Typesense/Meilisearch: cùng dữ liệu thử, số đo chất lượng/hiệu năng, không tích hợp hay triển khai production | A | — | — | IN_PROGRESS |
+| T-238 | PoC riêng Typesense/Meilisearch: cùng dữ liệu thử, số đo chất lượng/hiệu năng, không tích hợp hay triển khai production | A | — | — | DONE |
 | **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
 | T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
 | T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | DONE |
@@ -1100,6 +1100,14 @@ Sau gộp, `node scripts/kiem-site-that.mjs` xác nhận **site thật plugin 1.
 **Nghiệm thu (20/11/2026, plugin 1.0.87/theme 1.0.17):** [PR #206](https://github.com/truonganhquyen/ca-dao/pull/206), head `689315f`, gộp `2e68539`. [CI V2](https://github.com/truonganhquyen/ca-dao/actions/runs/44658660630) và [cổng nhất quán](https://github.com/truonganhquyen/ca-dao/actions/runs/44658660694) đạt đủ bốn lệnh: PHP thuần 292, WordPress 816, chuyển đổi 55; WCAG/ngân sách 0 lỗi; E2E 81 bước đạt, 0 lỗi, 0 bỏ qua (4 lần công cụ bấm lại). Luồng góp/duyệt không JavaScript kiểm chọn tên theo consent, ẩn rồi bật lại tên qua form chuẩn, giữ nguồn. Hồi quy kiểm tên thiếu đồng ý, vân tay sai, tên/ID giả, escape và chứng cứ không bị thay. Local Windows Playground/trình duyệt treo không tính đạt; dùng CI Linux đầy đủ.
 
 Sau gộp, `node scripts/kiem-site-that.mjs` xác nhận site plugin 1.0.87/theme 1.0.17. Đã đối chiếu bản gửi riêng tư có đồng ý công khai tên và bật đúng bút danh cho bài người sáng lập yêu cầu bằng form quản trị có nonce/phiên/lịch sử, tắt JavaScript. So trước/sau giữ nguyên lời và nguồn đã duyệt; không đổi trạng thái bài hay bài khác. Trình duyệt khách không đăng nhập, chỉ GET/HEAD, 390/1440 px: HTTP 200, dòng Đóng góp bởi/Nguồn từ đúng tên đã đồng ý, nhãn Chưa đối chiếu còn rõ, không tràn ngang; ảnh và dữ liệu thật giữ riêng ngoài repo. Không tự bật tên trên bài cũ, không đổi schema, quyền sử dụng hay cấu hình máy chủ.
+
+### Đối chiếu máy tìm — T-238
+
+**Phạm vi:** công cụ PoC riêng theo yêu cầu tiếp tục so Typesense/Meilisearch; không tích hợp production, không đổi plugin/theme, schema, luật hay nguồn. Nhánh giữ ở draft, không tự gộp main. Dữ liệu nguồn chỉ đọc từ URL công khai tại runtime; repo/log/artifact không có nguyên văn, chỉ mã ca và số đo. Không phụ thuộc PoC mô hình quan hệ/hồ sơ thực thể.
+
+**Kết quả (21/11/2026):** [lượt Linux](https://github.com/truonganhquyen/ca-dao/actions/runs/44887300740), code `e74e6db`, Typesense 30.2 và Meilisearch 1.57.0 trên cùng runner 4 CPU, cùng SHA256 bộ đầu vào, 1.004 record (hai họ tác phẩm, ba phần lời; còn lại fixture kỹ thuật). Core 15 ca có bài đích và hai ca âm, thêm bảy ca mở rộng. Tìm cơ bản: cả hai 13/22; thêm chuẩn hoá: Meili 16/22, Typesense 17/22; adapter tìm ứng viên trong lời và đối chiếu đoạn: cả hai 22/22 ở top 1, hai ca âm trả rỗng. Mẫu RAM sau truy vấn: Meili 47,18 MiB, Typesense 54,03 MiB; không phải RAM đỉnh. Adapter gọi trung vị tám, tối đa 16 API; cần batch/giảm nhánh khi tích hợp. Đây chưa là benchmark tải hay chất lượng toàn kho, chưa có bộ nhãn độc lập, chưa xác minh đầy đủ phân loại trùng. Chưa chọn engine thắng hoặc triển khai.
+
+**Cổng mã:** [V2](https://github.com/truonganhquyen/ca-dao/actions/runs/44887303707) và [nhất quán](https://github.com/truonganhquyen/ca-dao/actions/runs/44887303667) đạt tại code `e74e6db`: PHP thuần 292, WordPress 838, chuyển đổi 55; WCAG/ngân sách 0 lỗi; E2E 81 bước, 0 lỗi, 0 bỏ qua. Nghiệm thu dùng Linux CI; môi trường Windows không có Docker/distro WSL. Bản ghi PoC Windows cũ chỉ là đối chứng lịch sử; báo cáo đầy đủ và số đo tải về giữ ngoài repo. Lượt CI mã cũ đã huỷ không tính đạt.
 
 ## 4. User story
 
