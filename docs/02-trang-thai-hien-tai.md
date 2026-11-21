@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Phiên bản | 4.2 · 21/11/2026 (Giai đoạn 0, bước đầu: số đo nền, Sổ tay chờ duyệt, bộ thử trải nghiệm, hướng dẫn trang thử; PR mức cao duyệt trước khi gộp — D-131) · 4.1 · 21/11/2026 (chương trình nâng cấp lớn V2: chấp thuận có điều kiện, mở Giai đoạn 0 — D-127..D-130, `docs/57`) · 4.0 · 21/11/2026 (Từ điển nối bài, đợt 2 — D-126; Từ điển và từ khó, sửa lỗi đợt 1 — D-125; ghi công người góp — D-124; Góp một câu — D-123; quản trị làm lại đợt 1: khung chung, menu gọn, Hôm nay mở nhanh — D-121; mở cho Google, lời hứa trang chủ mới — D-120; trang tác phẩm gọn — D-119; thùng rác và gỡ kẹt chờ trùng — D-115; trang thưa gọn, chuẩn bị Google — D-114; bộ lọc Tìm gọn — D-113; tìm đúng chữ và thứ tự danh sách — D-112; lịch sử đến 11/11/2026: `docs/luu-tru/02-trang-thai-den-11-11-2026.md`) |
+| Phiên bản | 4.2 · 21/11/2026 (Giai đoạn 0, bước đầu: số đo nền, Sổ tay chờ duyệt, bộ thử trải nghiệm, hướng dẫn trang thử; PR mức cao duyệt trước khi gộp — D-132) · 4.1 · 21/11/2026 (chương trình nâng cấp lớn V2: chấp thuận có điều kiện, mở Giai đoạn 0 — D-127..D-130, `docs/57`) · 4.0 · 21/11/2026 (Từ điển nối bài, đợt 2 — D-126; Từ điển và từ khó, sửa lỗi đợt 1 — D-125; ghi công người góp — D-124; Góp một câu — D-123; quản trị làm lại đợt 1: khung chung, menu gọn, Hôm nay mở nhanh — D-121; mở cho Google, lời hứa trang chủ mới — D-120; trang tác phẩm gọn — D-119; thùng rác và gỡ kẹt chờ trùng — D-115; trang thưa gọn, chuẩn bị Google — D-114; bộ lọc Tìm gọn — D-113; tìm đúng chữ và thứ tự danh sách — D-112; lịch sử đến 11/11/2026: `docs/luu-tru/02-trang-thai-den-11-11-2026.md`) |
 | Mục đích | Trang tổng quan ngắn cho người sáng lập và AI agent |
 | Nguồn máy đọc | `du-an/trang-thai.json` (`npm run kiem-nhat-quan` đối chiếu với `docs/01`, `docs/22`) |
 
@@ -73,14 +73,13 @@
 ## Đang chờ người sáng lập
 
 - **Ưu tiên — gửi thư xin phép Ca dao Mẹ** (`docs/12` mục 7; mẫu đã sửa cho đúng hiện trạng ngày 21/11/2026). Bạn đọc lại, sửa, tự gửi; ghi ngày gửi ở mục "Rủi ro đang theo dõi". Không đổi cách hiển thị chú thích trong lúc chờ trả lời (D-128).
-- **Chương trình nâng cấp lớn V2 — Giai đoạn 0** (D-127, D-130, D-131; kế hoạch `docs/57`). Khoảng 3–4 giờ mỗi tuần trong 6 tuần:
-  - duyệt PR bước đầu (Sổ tay biên tập, phiếu duyệt, mẫu thư, D-131). Đây là PR mức cao: chỉ gộp sau khi bạn duyệt;
+- **Chương trình nâng cấp lớn V2 — Giai đoạn 0** (D-127, D-130, D-132; kế hoạch `docs/57`). Khoảng 3–4 giờ mỗi tuần trong 6 tuần:
+  - duyệt PR bước đầu (Sổ tay biên tập, phiếu duyệt, mẫu thư, D-132). Đây là PR mức cao: chỉ gộp sau khi bạn duyệt;
   - nối Search Console; đọc màn Số liệu (sao chép trích dẫn + chia sẻ, 7 ngày) để đủ số đo nền (T-230);
   - khi sẵn sàng dựng trang thử: trả lời bốn câu đầu ở `docs/huong-dan/trang-thu.md` (T-231);
   - mời 8–10 người thử trải nghiệm theo `docs/huong-dan/thu-trai-nghiem.md` (T-232);
   - tìm một người kiểm thứ hai cho pilot (kiểm 100% bài, khác người duyệt);
-  - duyệt nháp pilot đợt 1 rồi quyết mở đợt 2 (T-234, T-238);
-  - quyết PR nháp #214 (so máy tìm Typesense / Meilisearch): PR này dùng trùng số việc với pilot đợt 2 và nằm ngoài phạm vi Giai đoạn 0. Giữ thì đổi số việc, ghi là việc riêng; không thì đóng.
+  - duyệt nháp pilot đợt 1 rồi quyết mở đợt 2 (T-234, T-238).
 - **Thử từng phần đợt 3** qua link bản xem trước trong mỗi PR (bấm thử trên điện thoại và máy tính).
 - **Bật công tắc "Có từ ngữ thô tục"** cho bài cần báo trước (nên bắt đầu từ Câu đố): máy không tự dò.
 - **Lô nháp Ý nghĩa đầu tiên**: Bổ sung → Tải tệp lô (30 bài), gửi tệp để soạn nháp (giữ ngoài kho mã), nạp lại và duyệt ở Hộp việc.

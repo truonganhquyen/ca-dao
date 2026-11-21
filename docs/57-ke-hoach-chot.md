@@ -397,7 +397,7 @@ Việc của GĐ1–GĐ4 chưa vào `docs/22`. Mỗi cổng mở thì agent đư
 |---|---|---|
 | **Thấp** | Tài liệu; công cụ đo, báo cáo chỉ đọc; kiểm thử; việc chỉ chạy trên trang thử đã đạt 8.1 | Agent làm; gộp khi bốn cổng đạt; báo trong bản tin hai tuần |
 | **Trung bình** | Thay đổi production **không** chạm luật, schema, SEO, quyền: sửa lỗi giao diện, màn quản trị nhỏ, công cụ biên tập | Người sáng lập xem bản xem trước rồi đồng ý gộp |
-| **Cao** | Luật (AGENTS.md, Human Gate, D-xxx); schema và dữ liệu; SEO, lập chỉ mục; quyền nội dung, nguồn; đường dẫn; xoá, gộp; cấu hình production | Người sáng lập **duyệt bằng lời trước khi làm**; review độc lập (D-048); diễn tập trên trang thử khi chạm dữ liệu; **phê duyệt gộp ghi trên PR trước khi gộp**, agent không tự gộp (D-131) |
+| **Cao** | Luật (AGENTS.md, Human Gate, D-xxx); schema và dữ liệu; SEO, lập chỉ mục; quyền nội dung, nguồn; đường dẫn; xoá, gộp; cấu hình production | Người sáng lập **duyệt bằng lời trước khi làm**; review độc lập (D-048); diễn tập trên trang thử khi chạm dữ liệu; **phê duyệt gộp ghi trên PR trước khi gộp**, agent không tự gộp (D-132) |
 
 Nội dung do người duyệt trong pilot là việc biên tập bình thường của người biên soạn, không phải thay đổi production của agent.
 
