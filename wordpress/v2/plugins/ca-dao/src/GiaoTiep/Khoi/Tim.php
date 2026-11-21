@@ -47,17 +47,10 @@ final class Tim {
 		$muc = self::muc_tu( $q, $loc['khop'], $dang_go );
 		$tong = $kq['tong'];
 		$bo = self::bo_loc( $q, $loc, $kq, $dang_go );
+		$gan = self::gan( $q, $loc, $kq['ds'], $dang_go );
 		if ( ! $kq['ds'] && ! $muc && ! array_sum( $kq['nhom'] ) ) {
-			// Giữ nguyên tìm trọn chữ, bộ lọc và phân trang. Chỉ gợi ý gần khi chưa có kết quả, không áp cho cụm trong ngoặc kép.
-			if ( ! $dang_go && 'dung' === $loc['khop'] && ! preg_match( '/^["“].+["”]$/u', $q ) && \Phongdao\DichVu\TimMeili\MayTim::bat() ) {
-				try { $gan = \Phongdao\DichVu\TimMeili\Tim::tim( $q, true, $loc['loai'] ); } catch ( \Throwable $e ) { $gan = array(); }
-				if ( $gan ) {
-					$dong_gan = '';
-					foreach ( array_slice( $gan, 0, 5 ) as $g ) {
-						$dong_gan .= '<li><a href="' . esc_url( $g['url'] ) . '">' . esc_html( $g['ten'] ) . '</a><p>' . nl2br( esc_html( implode( "\n", array_slice( $g['dong'], 0, 4 ) ) ) ) . '</p></li>';
-					}
-					return '<p id="search-status" class="small muted" aria-live="polite">Có bài gần câu bạn nhớ</p><div id="search-results">' . $bo . '<section class="section"><h2>Có phải bạn nhớ những bài này?</h2><p>Chưa có kết quả khớp trọn chữ. Dưới đây là một số lời gần giống để bạn đối chiếu.</p><ul>' . $dong_gan . '</ul></section></div>';
-				}
+			if ( $gan ) {
+				return '<p id="search-status" class="small muted" aria-live="polite">Có bài gần câu bạn nhớ</p><div id="search-results">' . $bo . $gan . '</div>';
 			}
 			$sua = ChiMucTim::goi_y( $q );
 			$kho = ChongTrung::kho_co( $q );
@@ -93,7 +86,7 @@ final class Tim {
 				$dau = '<section class="section result-primary"><p class="eyebrow">Khớp cả câu · ' . esc_html( $the['ten_the_loai'] ) . '</p>' . $html . '<a class="btn primary" href="' . esc_url( $the['url'] ) . '">Đọc bài</a></section>';
 			} else { $dong .= $html; }
 		}
-		$o = $bo . $dau . ( $dong ? '<section class="section"><h2>Các bài phù hợp</h2><div class="grid two">' . $dong . '</div></section>' : '' );
+		$o = $bo . $gan . $dau . ( $dong ? '<section class="section"><h2>' . ( $gan ? 'Các kết quả khác' : 'Các bài phù hợp' ) . '</h2><div class="grid two">' . $dong . '</div></section>' : '' );
 		if ( ! $ids ) { $o .= '<p class="notice">Chưa có bài trong phạm vi này. Bạn có thể chọn kiểu khớp hoặc thể loại khác ở trên.</p>'; }
 		if ( $muc ) { $o .= '<section class="section"><h2>Từ điển</h2><ul class="uses">' . implode( '', $muc ) . '</ul></section>'; }
 		$so_trang = max( 1, (int) ceil( $tong / self::SO ) );
@@ -110,7 +103,30 @@ final class Tim {
 		}
 		$hien = count( $ids );
 		$dem = $tong > $hien ? $hien . ' trên ' . number_format_i18n( $tong ) . ' bài · Trang ' . $loc['trang'] . '/' . $so_trang : $hien . ' bài';
+		if ( $gan ) { $dem .= ' · Có bài gần câu bạn nhớ'; }
 		return '<p id="search-status" class="small muted" aria-live="polite">' . esc_html( $dem ) . '</p><div id="search-results">' . $o . '</div>';
+	}
+
+	/** Kết quả rời trong chú thích không được ngăn gợi ý khớp lời. Giữ nguyên tập kết quả và phân trang cũ. */
+	private static function gan( string $q, array $loc, array $ds, bool $dang_go ): string {
+		if ( $dang_go || 'dung' !== $loc['khop'] || 1 !== $loc['trang'] || preg_match( '/^["“].+["”]$/u', $q ) || ! \Phongdao\DichVu\TimMeili\MayTim::bat() ) { return ''; }
+		$chu = \Phongdao\MienDuLieu\SoKhopLoi::chu( $q, true );
+		// Một từ / cụm quá ngắn vẫn dùng danh sách thường; khi hoàn toàn trống vẫn giữ gợi ý trước đây.
+		if ( $ds && count( \Phongdao\MienDuLieu\SoKhopLoi::tu( $q ) ) < 4 ) { return ''; }
+		foreach ( $ds as $x ) {
+			$p = PhanBai::tat_ca( (int) $x['id'], KhaiBao::TAC_PHAM );
+			$lois = array_merge( array( $p['loi']['dong'] ?? array() ), array_column( $p['di_ban']['muc'] ?? array(), 'dong' ) );
+			foreach ( $lois as $dong ) {
+				if ( str_contains( ' ' . \Phongdao\MienDuLieu\SoKhopLoi::chu( implode( ' ', $dong ), true ) . ' ', ' ' . $chu . ' ' ) ) { return ''; }
+			}
+		}
+		try { $gan = \Phongdao\DichVu\TimMeili\Tim::tim( $q, true, $loc['loai'] ); } catch ( \Throwable $e ) { return ''; }
+		if ( ! $gan ) { return ''; }
+		$dong_gan = '';
+		foreach ( array_slice( $gan, 0, 5 ) as $g ) {
+			$dong_gan .= '<li><a href="' . esc_url( $g['url'] ) . '">' . esc_html( $g['ten'] ) . '</a><p>' . nl2br( esc_html( implode( "\n", array_slice( $g['dong'], 0, 4 ) ) ) ) . '</p></li>';
+		}
+		return '<section class="section"><h2>Có phải bạn nhớ những bài này?</h2><p>Dưới đây là một số lời gần câu bạn tìm để bạn đối chiếu.</p><ul>' . $dong_gan . '</ul></section>';
 	}
 
 	private static function url( string $q, array $loc ): string {

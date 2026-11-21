@@ -6,7 +6,7 @@ Người sáng lập chốt Meilisearch làm hướng chính sau PoC. Tích hợ
 
 ## Phạm vi nghiệm thu
 
-- Tìm hiện tại giữ nguyên bộ lọc, phân trang, từ điển và gợi ý khi gõ. Khi gửi câu tìm không có kết quả trọn chữ, thêm tối đa năm bài gần, ghi rõ là gợi ý; không nới cụm trong ngoặc kép.
+- Tìm hiện tại giữ nguyên bộ lọc, phân trang, từ điển và gợi ý khi gõ. Khi gửi câu tìm chưa có cụm liền trong lời/dị bản, thêm tối đa năm bài gần trên trang đầu, ghi rõ là gợi ý; kết quả rời trong chú thích không chặn nhóm này. Không nới cụm trong ngoặc kép. Cụm dưới bốn tiếng đang có kết quả thường không thêm nhóm gần.
 - Thêm tác phẩm và đóng góp dùng chung chuẩn hoá và đối chiếu. Chỉ khớp toàn bộ lời có dấu sau chuẩn hoá mới là khớp hệt; bỏ dấu hoặc gần giống không chặn như khớp hệt. Đoạn trích phân biệt với toàn văn. Người biên soạn vẫn quyết dị bản, nguồn, thể loại và đăng bài.
 - Lõi chống trùng tự động của kho giữ nguyên; chưa thay luật tự nối kho hoặc các quyết định trùng đã lưu. Meilisearch chưa thay mọi nơi tìm trong quản trị.
 - NFC, thường hoá, Ð/ð ↔ Đ/đ, dấu kiểu cũ/mới, khoảng trắng đặc biệt, ký tự định dạng ẩn; chỉ trong bản tìm, giữ nguyên lời lưu.
@@ -44,3 +44,11 @@ Chạy `scripts/poc-search/validate-meili.py` với binary Meilisearch 1.57.0, d
 Đây là hồi quy kỹ thuật: truy vấn sinh tự động, tìm trong 138 phần của mẫu, **chưa tìm trong toàn kho**, chưa có nhãn liên quan độc lập của người đọc, chưa đo một từ phổ biến, truy vấn theo ý nghĩa hay tải đồng thời. Thời gian script gồm tạo tiến trình PHP nên không dùng làm độ trễ sản phẩm. Các luồng WordPress đang kiểm bằng HTTP giả lập có engine trả kết quả lỗi/cũ; chưa phải diễn tập dịch vụ + WordPress trên máy chủ thật. Không công bố “100% chính xác” hoặc nghiệm thu production từ con số này.
 
 Đã mở [PR tích hợp](https://github.com/truonganhquyen/ca-dao/pull/215), có bản xem trước WordPress với công tắc tắt. CI tại PR là bằng chứng từng phiên bản mã. PR PoC trước đã đóng và giữ lịch sử; không gộp nhánh thử có mã task trùng với pilot biên tập.
+
+### Triển khai và kiểm tra site thật — đang hoàn tất
+
+Người sáng lập đã cho truy cập FlashPanel để triển khai. PR #215 đã gộp; plugin 1.0.91 lên site, đủ bốn cổng trên bản chốt (PHP 308, WordPress 856, chuyển đổi 55; axe/ngân sách đạt; E2E 81 bước, 0 lỗi). Docker có sẵn; container riêng loopback, không cấp quyền Docker cho tài khoản website, giới hạn 1 GiB/2 CPU; khoá và bản sao lưu cấu hình/CSDL nằm ngoài web root.
+
+Đã dựng chỉ mục thực tế và kiểm 100 tác phẩm (20 mỗi thể loại), tìm trên toàn chỉ mục: bài đích top 5 ở 792/795 ca, top 10 ở cả ba ca còn lại. Ba ca gồm hai truy vấn một/hai tiếng và một dòng có nhiều tác phẩm cùng lời. Bốn truy vấn người sáng lập nêu đều tìm đúng; mất kết nối báo chưa kiểm được; xoá/tạo lại **mục chỉ mục dẫn xuất** thành công, lời WordPress không đổi; mục riêng không có trong public, có trong staff. Không sửa trạng thái hoặc nội dung tác phẩm để thử.
+
+Kiểm HTTP trang thật phát hiện kết quả rời trong chú thích ngăn gọi gợi ý gần. Đã tạm tắt công tắc và sửa điều kiện; bản 1.0.92 đang qua cổng. Chưa đánh dấu hoàn tất cho tới khi trang Tìm thật, Góp và kiểm trùng quản trị đã được xác nhận sau khi bật lại. Hồi quy sinh tự động chưa thay bộ nhãn độc lập của người đọc, chưa phải kiểm tải đồng thời.
