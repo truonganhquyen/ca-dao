@@ -95,9 +95,10 @@ final class TacPham {
 		$sua_ct  = '';
 		if ( $sua ) {
 			// Người biên soạn: từ không có trong lời thì nhắc kiểm chính tả (vẫn lưu được — chú thích chung)
-			$thieu  = \Phongdao\MienDuLieu\TuKho::thieu( $tp['loi'], array_values( array_filter( array_column( $tp['chu_thich'], 'tu' ) ) ) );
-			$sua_ct = '<p class="row no-print">' . $nut( 'chu_thich', $tp['chu_thich'] ? 'Sửa từ khó' : 'Thêm từ khó' ) . '</p>'
-				. ( $tp['chu_thich'] ? '' : '<p class="small muted" data-chi-sua>Chưa có từ khó.</p>' )
+			$rieng  = array_values( array_filter( $tp['chu_thich'], static fn( array $c ): bool => empty( $c['theo_td'] ) ) );
+			$thieu  = \Phongdao\MienDuLieu\TuKho::thieu( $tp['loi'], array_values( array_filter( array_column( $rieng, 'tu' ) ) ) );
+			$sua_ct = '<p class="row no-print">' . $nut( 'chu_thich', $rieng ? 'Sửa từ khó' : 'Thêm từ khó' ) . '</p>'
+				. ( $rieng ? '' : '<p class="small muted" data-chi-sua>Chưa có từ khó riêng' . ( $tp['chu_thich'] ? '; nghĩa đang hiện lấy từ Từ điển' : '' ) . '.</p>' )
 				. ( $thieu ? '<p class="notice no-print" data-chi-sua role="note">' . esc_html( 'Không thấy từ ' . implode( ', ', array_map( static fn( string $t ): string => '«' . $t . '»', $thieu ) ) . ' trong lời, kiểm lại chính tả.' ) . '</p>' : '' )
 				. $goc( 'Từ khó', 'chu_thich' );
 		}
@@ -418,7 +419,9 @@ final class TacPham {
 	private static function giai_chu_thich( array $c ): string {
 		$nguon = empty( $c['nguon'] ) ? '' : '<br><span class="small">Nguồn: ' . ( empty( $c['nguon']['url'] ) ? esc_html( $c['nguon']['chu'] ) : '<a href="' . esc_url( $c['nguon']['url'] ) . '" rel="nofollow">' . esc_html( $c['nguon']['chu'] ) . '</a>' ) . '</span>';
 		$muc   = is_array( $c['muc'] ?? null ) ? '<br><a class="small" href="' . esc_url( $c['muc']['url'] ) . '">Xem trong Từ điển · ' . (int) $c['muc']['so_bai'] . ' bài</a>' . $c['muc']['them'] : '';
-		return \Phongdao\MienDuLieu\DinhDang::hien( $c['giai'], $c['dinh_dang'] ?? '' ) . $nguon . $muc;
+		// Nghĩa chung lấy từ mục từ người đã nối (D-126): nhãn để người đọc biết đây không phải chú thích riêng của bài
+		$td    = empty( $c['theo_td'] ) ? '' : ' <span class="nhan-td">Theo Từ điển</span>';
+		return \Phongdao\MienDuLieu\DinhDang::hien( $c['giai'], $c['dinh_dang'] ?? '' ) . $td . $nguon . $muc;
 	}
 
 	/** Một mục chú thích kiểu sách; $n > 0: mốc #ct-N và số (CSS vẽ từ data-so, chữ trong dt giữ nguyên cho ô chạm từ). */
@@ -545,16 +548,21 @@ final class TacPham {
 		if ( ! empty( $tp['y_nghia']['chu'] ) ) {
 			$dong .= '<dt>' . ( 'cau-do' === $tp['the_loai'] ? 'Giải thích đáp án' : 'Ý nghĩa' ) . '</dt><dd>Người biên soạn của thư viện viết' . ( empty( $tp['y_nghia']['ai'] ) ? '' : '; có hỗ trợ của AI, đã duyệt' ) . '.</dd>';
 		}
+		$rieng = array_values( array_filter( $tp['chu_thich'], static fn( array $c ): bool => empty( $c['theo_td'] ) ) );
+		$td    = count( $tp['chu_thich'] ) - count( $rieng );
 		if ( $tp['chu_thich'] ) {
 			// Dữ liệu mẫu không ghi người làm: coi như máy chép (nguồn ẩn)
-			$may  = count( array_filter( $tp['chu_thich'], static fn( array $c ): bool => $c['may'] ?? true ) );
-			$viet = count( $tp['chu_thich'] ) - $may;
+			$may  = count( array_filter( $rieng, static fn( array $c ): bool => $c['may'] ?? true ) );
+			$viet = count( $rieng ) - $may;
 			$o    = array();
 			if ( $may ) {
 				$o[] = $may . ' mục chép từ nguồn tham khảo · nguồn đã ẩn theo ' . Ve::lien_ket( 'chinh-sach', 'Chính sách thu thập dữ liệu' );
 			}
 			if ( $viet ) {
-				$o[] = $viet . ' mục người biên soạn viết' . ( array_filter( array_column( $tp['chu_thich'], 'nguon' ) ) ? ', nguồn ghi tại chỗ' : '' );
+				$o[] = $viet . ' mục người biên soạn viết' . ( array_filter( array_column( $rieng, 'nguon' ) ) ? ', nguồn ghi tại chỗ' : '' );
+			}
+			if ( $td ) {
+				$o[] = $td . ' mục theo ' . Ve::lien_ket( 'tu-dien', 'Từ điển' ) . ' của thư viện (người biên soạn nối nghĩa vào bài)';
 			}
 			$dong .= '<dt>Chú thích</dt><dd>' . implode( '<br>', $o ) . '</dd>';
 		}

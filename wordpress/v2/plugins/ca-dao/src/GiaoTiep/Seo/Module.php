@@ -22,7 +22,8 @@ defined( 'ABSPATH' ) || exit;
  * Ý nghĩa, nghĩa tục ngữ, chú thích người viết, dị bản người viết/bạn đọc góp, đối chiếu sách…; lời và phần máy chép từ nguồn
  * không tính), để thư viện không thành bản sao hàng loạt của nguồn; bài khác vẫn đọc được, tự vào khi được bổ sung. Tuyển
  * tập đã công khai, trang thể loại, trang chủ đề / vùng / mô-típ / hình thức có ≥ 3 tác phẩm như vậy, mục từ có lời giải do
- * dự án viết (D-068). Bài nháp, ẩn, trang lọc, trang tìm: noindex. Công tắc chặn Google toàn site (`blog_public`, H5) không
+ * dự án viết (D-068). Bài nháp, ẩn, trang lọc, trang tìm: noindex. Bài viết (loại "post") noindex cho tới khi người biên soạn
+ * đánh dấu đã có quyền đăng (D-126). Công tắc chặn Google toàn site (`blog_public`, H5) không
  * đổi ở đây.
  */
 final class Module implements \Phongdao\HaTang\Module {
@@ -58,6 +59,42 @@ final class Module implements \Phongdao\HaTang\Module {
 		add_filter( 'wp_sitemaps_posts_query_args', array( self::class, 'so_do_bai' ), 10, 2 );
 		add_filter( 'wp_sitemaps_taxonomies', static fn( array $ds ): array => array_intersect_key( $ds, array_flip( array_merge( array( KhaiBao::THE_LOAI, 'muc_tu', 'tro_choi' ), self::PHAN_LOAI_DEM ) ) ) );
 		add_filter( 'wp_sitemaps_taxonomies_query_args', array( self::class, 'so_do_phan_loai' ), 10, 2 );
+		// Bài viết (loại "post", phần lớn của tác giả khác): tạm không lập chỉ mục trong lúc hỏi quyền (D-126)
+		add_action( 'add_meta_boxes_post', array( self::class, 'hop_bai_viet' ) );
+		add_action( 'save_post_post', array( self::class, 'luu_bai_viet' ) );
+	}
+
+	/** Post meta: người biên soạn xác nhận đã có quyền đăng bài viết này, cho Google lập chỉ mục. */
+	public const BAI_VIET_GOOGLE = '_phongdao_bai_viet_cho_google';
+
+	public static function bai_viet_lap( int $id ): bool {
+		return '1' === (string) get_post_meta( $id, self::BAI_VIET_GOOGLE, true );
+	}
+
+	public static function hop_bai_viet(): void {
+		add_meta_box(
+			'phongdao-bai-viet-google',
+			'Google',
+			static function ( \WP_Post $bai ): void {
+				wp_nonce_field( 'phongdao_bai_viet_google_' . $bai->ID, 'phongdao_bai_viet_google_nonce' );
+				echo '<p><label><input type="checkbox" name="phongdao_bai_viet_cho_google" value="1"' . checked( self::bai_viet_lap( $bai->ID ), true, false ) . '> Đã có quyền đăng bài này: cho Google lập chỉ mục</label></p>'
+					. '<p class="description">Chưa đánh dấu thì bài vẫn đọc được trên site nhưng Google không lập chỉ mục. Bài của tác giả khác chỉ đánh dấu khi đã được đồng ý.</p>';
+			},
+			'post',
+			'side'
+		);
+	}
+
+	public static function luu_bai_viet( int $id ): void {
+		$nonce = (string) ( $_POST['phongdao_bai_viet_google_nonce'] ?? '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- kiểm bằng wp_verify_nonce
+		if ( '' === $nonce || ! wp_verify_nonce( $nonce, 'phongdao_bai_viet_google_' . $id ) || ! current_user_can( 'edit_post', $id ) || wp_is_post_revision( $id ) ) {
+			return;
+		}
+		if ( ! empty( $_POST['phongdao_bai_viet_cho_google'] ) ) {
+			update_post_meta( $id, self::BAI_VIET_GOOGLE, '1' );
+		} else {
+			delete_post_meta( $id, self::BAI_VIET_GOOGLE );
+		}
 	}
 
 	// ---------- Quy tắc ----------
@@ -163,6 +200,10 @@ final class Module implements \Phongdao\HaTang\Module {
 			$ko = ! ( $t instanceof \WP_Term && self::term_lap( $t ) ) || self::dang_loc();
 		} elseif ( is_post_type_archive( array( KhaiBao::TAC_PHAM, KhaiBao::TUYEN_TAP ) ) ) {
 			$ko = self::dang_loc();
+		} elseif ( is_singular( 'post' ) ) {
+			$ko = ! self::bai_viet_lap( get_queried_object_id() );
+		} elseif ( is_category() || is_tag() || is_author() || ( is_home() && ! is_front_page() ) ) {
+			$ko = true; // danh sách bài viết: theo bài viết, tạm không lập chỉ mục
 		}
 		if ( $ko ) {
 			$r['noindex'] = true;

@@ -163,6 +163,19 @@ final class Module implements \Phongdao\HaTang\Module {
 		}
 		$kq = LuuPhan::luu( $id, $phan, $doc['gia_tri'], self::nc() );
 		$them_bao = '';
+		// Ô "Nối Từ điển" (D-126): gắn mục từ vừa chọn vào bài, gỡ mục từ vừa bỏ nối nếu không từ khó nào khác còn dùng
+		if ( $kq['ok'] && 'chu_thich' === $phan && ( TamSua::$doi_noi['them'] || TamSua::$doi_noi['bo'] ) ) {
+			$con  = array_map( 'intval', array_column( (array) ( $doc['gia_tri']['muc'] ?? $doc['gia_tri'] ?? array() ), 'muc_tu_id' ) );
+			$dang = \Phongdao\DichVu\LuuPhan\LuuPhanLoai::dang_gan( $id, 'muc_tu' ) ?? array();
+			$moi  = array_values( array_unique( array_merge( array_diff( $dang, array_diff( TamSua::$doi_noi['bo'], $con ) ), TamSua::$doi_noi['them'] ) ) );
+			sort( $moi, SORT_NUMERIC );
+			if ( $moi !== $dang ) {
+				$kq_mt = \Phongdao\DichVu\LuuPhan\LuuPhanLoai::luu_muc_tu( $id, $moi, $dang, get_current_user_id(), 'luu', 0, true );
+				if ( ! $kq_mt['ok'] ) {
+					return array( 'ok' => false, 'loi' => array_merge( array( 'Chưa nối được Từ điển; từ khó chưa đổi.' ), $kq_mt['loi'] ), 'doi' => false, 'viec' => 0 );
+				}
+			}
+		}
 		if ( $kq['ok'] && ! empty( $doc['chuyen'] ) ) {
 			// Người đánh dấu "Chuyển sang Chuyện quanh bài" (D-119): mục rời Từ khó, nối vào cuối Chuyện quanh bài, cùng một lượt
 			// lưu (một phần hỏng thì cả hai không đổi); người làm, nguồn của mục giữ nguyên

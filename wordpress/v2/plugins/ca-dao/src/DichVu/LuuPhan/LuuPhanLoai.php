@@ -28,6 +28,26 @@ final class LuuPhanLoai {
 		'tro_choi'  => array( 'dong-dao' ),
 	);
 
+	/** Mục từ chỉ ghi qua luu_muc_tu() (D-126), không qua lối sửa phân loại chung. */
+	private static bool $cho_muc_tu = false;
+
+	/**
+	 * Nối / bỏ nối mục từ của bài (D-126): người chọn nghĩa ở Bổ sung → Gợi ý Từ điển hay ở ô "Nối Từ điển" của từ khó.
+	 * Cùng đường ghi với sửa phân loại (kiểm mốc, Lịch sử, khôi phục được); khối Phân loại không có hàng mục từ.
+	 *
+	 * @param int[] $chon
+	 * @param int[] $da_thay
+	 * @return array{ok:bool,loi:string[],doi:bool,viec:int}
+	 */
+	public static function luu_muc_tu( int $bai_id, array $chon, array $da_thay, int $nguoi, string $quyet = 'luu', int $tu_viec = 0, bool $trong_giao_dich = false ): array {
+		self::$cho_muc_tu = true;
+		try {
+			return self::luu( $bai_id, 'muc_tu', $chon, $da_thay, $nguoi, $quyet, $tu_viec, $trong_giao_dich );
+		} finally {
+			self::$cho_muc_tu = false;
+		}
+	}
+
 	/** Thể thơ sửa qua LuuTheTho (D-109), không qua checkbox hình thức bổ sung. */
 	public static function may_giu( string $tax, \WP_Term $t ): bool {
 		return 'hinh_thuc' === $tax && isset( TheTho::DS[ $t->slug ] );
@@ -79,7 +99,7 @@ final class LuuPhanLoai {
 		$tl       = get_the_terms( $bai, KhaiBao::THE_LOAI );
 		$the_loai = is_array( $tl ) && $tl ? $tl[0]->slug : null;
 		$ten      = KhaiBao::PHAN_LOAI[ $tax ][1] ?? $tax;
-		if ( ! self::sua_duoc( $tax, $the_loai ) ) {
+		if ( ! self::sua_duoc( $tax, $the_loai ) && ! ( 'muc_tu' === $tax && self::$cho_muc_tu ) ) {
 			return self::hong( "Không sửa “{$ten}” của bài này ở đây." );
 		}
 		$chon = self::ids( $chon );
@@ -158,11 +178,14 @@ final class LuuPhanLoai {
 	 */
 	public static function khoi_phuc( int $viec_id, int $nguoi ): array {
 		$v = Viec::lay( $viec_id );
-		if ( ! $v || Viec::SUA !== $v['loai'] || 'post' !== $v['doi_tuong_loai'] || ! array_key_exists( (string) $v['phan'], self::SUA_DUOC ) || ! is_array( $v['truoc']['term_ids'] ?? null ) || ! is_array( $v['sau']['term_ids'] ?? null ) ) {
+		if ( ! $v || Viec::SUA !== $v['loai'] || 'post' !== $v['doi_tuong_loai'] || ( ! array_key_exists( (string) $v['phan'], self::SUA_DUOC ) && 'muc_tu' !== (string) $v['phan'] ) || ! is_array( $v['truoc']['term_ids'] ?? null ) || ! is_array( $v['sau']['term_ids'] ?? null ) ) {
 			return self::hong( 'Không khôi phục được lần sửa này.' );
 		}
 		if ( Viec::moi_nhat_sua( (int) $v['doi_tuong_id'], (string) $v['phan'] ) !== $viec_id || ! self::con_nguyen( $v ) ) {
 			return self::hong( 'Phân loại này đã được sửa sau lần đó. Khôi phục từ lần sửa mới nhất trong Lịch sử, hoặc sửa tay.' );
+		}
+		if ( 'muc_tu' === (string) $v['phan'] ) {
+			return self::luu_muc_tu( (int) $v['doi_tuong_id'], $v['truoc']['term_ids'], $v['sau']['term_ids'], $nguoi, 'khoi_phuc', $viec_id );
 		}
 		return self::luu( (int) $v['doi_tuong_id'], (string) $v['phan'], $v['truoc']['term_ids'], $v['sau']['term_ids'], $nguoi, 'khoi_phuc', $viec_id );
 	}

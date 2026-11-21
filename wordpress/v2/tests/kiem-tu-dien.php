@@ -123,6 +123,9 @@ kt(
 $khuon_td = (string) file_get_contents( get_stylesheet_directory() . '/templates/single.html' );
 kt( 'Bài viết có khuôn trang riêng: đầu trang, chân trang của site, khung đọc', str_contains( $khuon_td, '"slug":"dau-trang"' ) && str_contains( $khuon_td, '"slug":"chan-trang"' ) && str_contains( $khuon_td, 'page reading bai-viet' ) && str_contains( $khuon_td, 'wp:post-content' ) );
 
+// Từ điển nối bài (D-126): dùng lại các mục từ ở trên trước khi dọn
+require '/repo/tests/kiem-tu-dien-noi.php';
+
 foreach ( array( $b_td, $b_mai ) as $x_td ) {
 	wp_delete_post( $x_td, true );
 }

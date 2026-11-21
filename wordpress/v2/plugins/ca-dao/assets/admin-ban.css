@@ -57,3 +57,22 @@
 .phongdao-can-sua-nhom li { margin: 0 0 10px; }
 .phongdao-bo-qua { display: inline; }
 .phongdao-bo-qua .button { min-height: 32px; }
+/* Gợi ý nối Từ điển (D-126) */
+.phongdao-td-tim { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0; }
+.phongdao-td-tim input[type=search] { min-height: 36px; min-width: 220px; }
+.phongdao-td-bang { max-width: 860px; margin: 8px 0 16px; }
+.phongdao-td-bang .button { min-height: 32px; }
+.phongdao-td-phu { margin: 12px 0; }
+.phongdao-td-phu > summary { min-height: 36px; cursor: pointer; font-weight: 600; }
+.phongdao-td-nghia { max-width: 860px; }
+.phongdao-td-nghia li { margin: 4px 0; }
+.phongdao-td-tat { margin: 8px 0 16px; }
+.phongdao-td-ds li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 16px; align-items: center; }
+.phongdao-td-cau p { margin: 0; }
+.phongdao-td-cau p:first-child { font-size: 15px; line-height: 1.6; }
+.phongdao-td-cau mark { background: #fff3b0; color: inherit; padding: 0 2px; border-radius: 3px; }
+.phongdao-td-chon { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; padding: 0; border: 0; }
+.phongdao-td-chon label { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 10px; border: 1px solid #c3c4c7; border-radius: 8px; background: #fff; cursor: pointer; }
+.phongdao-td-chon label:has(input:checked) { border-color: var(--pq-tim, #2271b1); background: #f0ebfa; font-weight: 600; }
+.phongdao-td-chon input[type=radio] { margin: 0; }
+@media (max-width: 782px) { .phongdao-td-ds li { grid-template-columns: minmax(0, 1fr); } }

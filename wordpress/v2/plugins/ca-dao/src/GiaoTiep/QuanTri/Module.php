@@ -110,6 +110,7 @@ final class Module implements \Phongdao\HaTang\Module {
 			add_action( 'admin_enqueue_scripts', static function ( string $trang ) use ( $bs, $tep_goc ): void {
 				if ( $trang === $bs ) {
 					wp_enqueue_style( 'phongdao-admin-ban', plugins_url( 'assets/admin-ban.css', $tep_goc ), array(), CADAO_PHIEN_BAN );
+					wp_enqueue_script( 'phongdao-admin-tu-dien', plugins_url( 'assets/admin-tu-dien.js', $tep_goc ), array(), CADAO_PHIEN_BAN, array( 'strategy' => 'defer', 'in_footer' => true ) );
 				}
 			} );
 		}

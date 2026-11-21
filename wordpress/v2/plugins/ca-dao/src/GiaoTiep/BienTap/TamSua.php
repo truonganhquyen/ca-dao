@@ -244,7 +244,7 @@ final class TamSua {
 				. ( ! empty( $ctx['sua_day_du'] ) ? \Phongdao\GiaoTiep\QuanTri\EditorDonGian::o( "$id-chu", $p . '[chu]', 'Nội dung', $m, 'chu', $p ) : self::vung( "$id-chu", $p . '[chu]', 'Nội dung', (string) ( $m['chu'] ?? '' ), '', 4 ) ),
 			default        => '<div class="field-grid">' . self::o( "$id-tu", $p . '[tu]', 'Từ trong lời', (string) ( $m['tu'] ?? '' ), 'để trống = chú thích chung' ) . '</div>'
 				. ( ! empty( $ctx['sua_day_du'] ) ? \Phongdao\GiaoTiep\QuanTri\EditorDonGian::o( "$id-giai", $p . '[loi_giai]', 'Lời giải', $m, 'loi_giai', $p ) : self::vung( "$id-giai", $p . '[loi_giai]', 'Lời giải', (string) ( $m['loi_giai'] ?? '' ), '', 3 ) )
-				. ( '' === $goc ? '' : self::chuyen( $id, $p, $m, $ctx ) ),
+				. ( '' === $goc ? '' : self::chon_noi( $id, $p, $m ) . self::chuyen( $id, $p, $m, $ctx ) ),
 		};
 		$tom = match ( $phan ) {
 			'di_ban'       => implode( ' ', $m['dong'] ?? array() ),
@@ -413,8 +413,9 @@ final class TamSua {
 				// Không có ô "bat" = tắt (gỡ phần); bật giữ nguyên bản cũ để lần bấm lại không ghi lịch sử giả
 				return array( 'gia_tri' => empty( $f['bat'] ) ? null : ( $cu ?? array( 'nguoi_lam' => NguoiLam::NGUOI_VIET ) ), 'nhap' => null );
 			case 'chu_thich':
-				$chuyen       = array();
-				self::$bo_noi = array();
+				$chuyen        = array();
+				self::$bo_noi  = array();
+				self::$doi_noi = array( 'them' => array(), 'bo' => array() );
 				return array( 'gia_tri' => self::doc_ds( $phan, (array) ( $f['muc'] ?? array() ), $cu, $chuyen ), 'nhap' => null, 'chuyen' => array_map( array( self::class, 'sang_chuyen_quanh' ), $chuyen ) );
 			case 'chuyen_quanh':
 			case 'di_ban':
@@ -491,6 +492,36 @@ final class TamSua {
 	/** Từ khó vừa bị bỏ nối Từ điển vì người sửa đổi chữ (lần đọc form gần nhất) — để lời báo sau khi lưu nhắc lại. */
 	public static array $bo_noi = array();
 
+	/** Mục từ người vừa chọn nối / bỏ nối ở ô "Nối Từ điển" (lần đọc form gần nhất): Module gắn, gỡ mục từ của bài theo đó. */
+	public static array $doi_noi = array( 'them' => array(), 'bo' => array() );
+
+	/**
+	 * Ô "Nối Từ điển" của một từ khó đã lưu (D-126): các nghĩa trong Từ điển cùng chữ với từ khó, nghĩa đang nối, và "Không
+	 * nối". Chữ không có trong Từ điển và chưa nối thì không có ô. Đổi chữ thì ô không có tác dụng (nối cũ bị bỏ, D-125).
+	 */
+	private static function chon_noi( string $id, string $p, array $m ): string {
+		$tu = trim( (string) ( $m['tu'] ?? '' ) );
+		if ( '' === $tu ) {
+			return '';
+		}
+		$cac  = \Phongdao\DichVu\TuDien\GoiYNoi::theo_chu()[ \Phongdao\DichVu\TuDien\GoiYNoi::khoa( $tu ) ] ?? array();
+		$dang = (int) ( $m['muc_tu_id'] ?? 0 );
+		$t    = $dang ? get_term( $dang, 'muc_tu' ) : null;
+		if ( $t instanceof \WP_Term && ! in_array( $dang, array_map( static fn( \WP_Term $x ): int => (int) $x->term_id, $cac ), true ) ) {
+			$cac[] = $t;
+		}
+		if ( ! $cac ) {
+			return '';
+		}
+		$o = '<option value="0"' . selected( 0, $dang, false ) . '>Không nối</option>';
+		foreach ( $cac as $x ) {
+			$g  = trim( wp_strip_all_tags( (string) $x->description ) );
+			$o .= '<option value="' . (int) $x->term_id . '"' . selected( (int) $x->term_id, $dang, false ) . '>' . esc_html( $x->name . ( '' === $g ? '' : ' · ' . mb_strimwidth( $g, 0, 60, '…' ) ) ) . '</option>';
+		}
+		return '<div class="o-nhap o-noi-td"><label for="' . esc_attr( "$id-td" ) . '">Nối Từ điển</label><select id="' . esc_attr( "$id-td" ) . '" name="' . esc_attr( $p . '[muc_tu]' ) . '">' . $o . '</select>'
+			. '<p class="small muted">' . ( $dang ? 'Đang nối nghĩa này: lời giải của bài hiện kèm lối sang Từ điển.' : 'Chọn nghĩa đúng với câu này; chữ nhiều nghĩa thì chọn đúng nghĩa.' ) . '</p></div>';
+	}
+
 	/** Hai cách viết là cùng một chữ: bỏ khoảng trắng thừa, không phân biệt hoa thường (dấu vẫn phải giống). */
 	public static function cung_chu( string $a, string $b ): bool {
 		$chuan = static fn( string $s ): string => mb_strtolower( \Phongdao\MienDuLieu\BoDau::nfc( trim( (string) preg_replace( '/\s+/u', ' ', $s ) ) ) );
@@ -549,6 +580,22 @@ final class TamSua {
 					}
 				} elseif ( ! empty( $goc['muc_tu_id'] ) ) {
 					self::$bo_noi[] = (string) ( $goc['tu'] ?? '' );
+				}
+			}
+			// Ô "Nối Từ điển" (D-126): chỉ có tác dụng khi chữ giữ nguyên; chọn nghĩa khác thì vị trí cũ không còn đúng
+			if ( 'chu_thich' === $phan && $goc && isset( $h['muc_tu'] ) && is_scalar( $h['muc_tu'] ) && self::cung_chu( (string) ( $muc['tu'] ?? '' ), (string) ( $goc['tu'] ?? '' ) ) ) {
+				$chon = absint( $h['muc_tu'] );
+				$cu_n = (int) ( $goc['muc_tu_id'] ?? 0 );
+				$t    = $chon ? get_term( $chon, 'muc_tu' ) : null;
+				if ( $chon !== $cu_n && ( ! $chon || $t instanceof \WP_Term ) ) {
+					unset( $muc['muc_tu_id'], $muc['vi_tri'] );
+					if ( $chon ) {
+						$muc['muc_tu_id']             = $chon;
+						self::$doi_noi['them'][]      = $chon;
+					}
+					if ( $cu_n ) {
+						self::$doi_noi['bo'][] = $cu_n;
+					}
 				}
 			}
 			if ( 'chu_thich' === $phan || 'chuyen_quanh' === $phan ) {
