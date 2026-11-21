@@ -19,6 +19,8 @@ Người sáng lập chốt Meilisearch làm hướng chính sau PoC. Tích hợ
 
 Chỉ chạy trên trang thử hoặc lần triển khai đã được người vận hành cho phép. Không đăng ký dịch vụ, không đổi DNS. Meilisearch ghim `v1.57.0`, chỉ lắng nghe loopback, tắt telemetry, dữ liệu lưu bền, tự khởi động lại; không mở cổng ra Internet. Giới hạn CPU/RAM theo máy thật sau kiểm tải; snapshot PoC không phải cấu hình sizing.
 
+Gói Compose ở `wordpress/may-chu/meilisearch/compose.yaml` để người vận hành xem và chạy nếu máy **đã có Docker Compose**. Giới hạn mẫu 1 GiB/2 CPU phải đối chiếu tài nguyên còn lại của WordPress; chưa đo tải thật. Đặt biến khoá trong môi trường dịch vụ riêng, không commit tệp `.env`. Không chạy `docker compose config` vào log/chụp màn vì có thể hiện khoá. Không tự cài Docker hay thay cấu hình máy chủ. Máy WordPress chạy trong container cần thiết kế kết nối nội bộ riêng; mẫu loopback này dành cho PHP chạy trực tiếp trên host.
+
 Trong cấu hình WordPress ngoài repo, đặt `PHONGDAO_MEILI_BAT=true`, `PHONGDAO_MEILI_URL` dạng `http://127.0.0.1:7700`, `PHONGDAO_MEILI_KEY` là khoá riêng đủ mạnh. Tạo khoá trực tiếp tại máy chủ, không gửi qua chat, không đưa vào repo. Bản đầu chỉ chấp nhận loopback IPv4; PHP và Meili phải cùng host/network namespace.
 
 Chạy `wp phongdao meili --dung-lai`; sau đó `wp phongdao meili` phải báo sẵn sàng. Lệnh dựng lại cũng xử lý hàng đợi phát sinh trong quá trình dựng. WP-Cron tự đồng bộ các lần sửa sau đó; có thể chạy `wp phongdao meili --dong-bo` khi cần. Các lệnh chỉ ghi chỉ mục/hàng đợi, không sửa lời hay trạng thái tác phẩm.

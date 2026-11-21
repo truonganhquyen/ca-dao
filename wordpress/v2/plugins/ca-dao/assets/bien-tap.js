@@ -130,7 +130,7 @@
         if (!d.so_dong) { ra.innerHTML = '<p class="small muted">Dán lời để máy nhận thể thơ và kiểm trùng.</p>'; return; }
         ra.innerHTML = '<p class="nhan-may">Máy nhận: ' + esc(d.the_tho) + ' · ' + d.so_dong + ' dòng</p>'
           + (d.thong_bao ? '<p class="notice">' + esc(d.thong_bao) + '</p>' : '')
-          + (d.trung || []).map(t => '<div class="notice"><strong>' + esc(t.muc) + '</strong> (' + t.giong + '% giống đoạn lời) với ' + (t.url ? '<a href="' + esc(t.url) + '">' + esc(t.ten) + '</a>' : esc(t.ten)) + '. ' + esc(t.ly_do || '') + ' Vẫn lưu được; nếu là cùng bài, thêm làm dị bản ở trang bài đó.</div>').join('');
+          + (d.trung || []).map(t => '<div class="notice"><strong>' + esc(t.muc) + '</strong> (' + t.giong + '% độ giống gợi ý) với ' + (t.url ? '<a href="' + esc(t.url) + '">' + esc(t.ten) + '</a>' : esc(t.ten)) + '. ' + esc(t.ly_do || '') + ' Vẫn lưu được; nếu là cùng bài, thêm làm dị bản ở trang bài đó.</div>').join('');
       }, 400);
     });
   }
