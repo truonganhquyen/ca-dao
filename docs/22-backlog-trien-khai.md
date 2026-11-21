@@ -198,7 +198,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-223 | Nhập nguồn gọn (D-122): TXT/CSV xem trước trong Bài mới, lọc/lịch sử lần nhập, tiếp tục thẻ/lô và thử lại đúng mục lỗi | A | T-222 | — | DONE |
 | T-224 | Góp một câu (D-123): CTA, form tập trung, tra gần giống công khai, một thẻ quản trị đối chiếu/phân loại/ghi công và quyết đăng mới/dị bản/nguồn | A | T-223 | — | DONE |
 | T-225 | Sửa ghi công người góp (D-124): hiện tên/bút danh đã đồng ý, bật lại trong trang sửa, nhãn Đóng góp bởi/Nguồn từ | A | T-224 | — | DONE |
-| T-228 | Giao diện đợt 3 (D-126): trang chủ có trọng tâm (bỏ "Bạn là"), thanh lọc dùng chung, thẻ lời, ô Từ khó hôm nay, đầu trang thể loại, hoạ tiết sóng | A | T-227 | — | IN_PROGRESS |
+| T-228 | Giao diện đợt 3 (D-126): trang chủ có trọng tâm (bỏ "Bạn là"), thanh lọc dùng chung, thẻ lời, ô Từ khó hôm nay, đầu trang thể loại, hoạ tiết sóng | A | T-227 | — | DONE |
 | T-227 | Từ điển nối bài, đợt 2 (D-126): nghĩa "Theo Từ điển" trên trang bài, Bổ sung → Gợi ý Từ điển, ô "Nối Từ điển" ở từ khó, trang mục từ hiện câu có chữ, bài viết tạm không lập chỉ mục | A | T-226 | — | DONE |
 | T-226 | Từ điển và từ khó, sửa lỗi đợt 1 (D-125): giữ nối khi sửa lời giải, danh sách nối lại, tìm Từ điển theo nhóm + phân trang, trang mục từ, đường thể loại cũ, khuôn bài viết | A | T-225 | — | DONE |
 | **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
@@ -1079,6 +1079,8 @@ Sau gộp, `node scripts/kiem-site-that.mjs` xác nhận **site thật plugin 1.
 ### Giao diện, đợt 3 — T-228
 
 **Chấp nhận (D-126):** (1) Trang chủ: bỏ khối "Bạn là" (và mã đổi thứ tự khối); đầu trang hai cột — tên thư viện, ô tìm, lối tìm nhanh dạng chip (Tra từ khó · Theo vùng khi đủ bài · Theo chủ đề · Theo dịp khi có tuyển tập dịp) | Câu hôm nay, viền hoạ tiết sóng; Đọc nhiều tuần này thành bảng xếp hạng hai cột số lớn (khi có từ 3 bài), cạnh thẻ "Ca dao theo vùng" dẫn tới bản đồ (khi đủ bài có vùng); "Bắt đầu từ đâu?" bốn lối vào có màu (Dạy và học — số tục ngữ đã có nghĩa · Đọc cùng bé · Đọc theo dịp khi có · Tra từ khó); ô thể loại có chữ cái lớn theo màu. (2) Thanh lọc chung cho trang Tất cả và trang phân loại: một hàng ô chọn + "Chỉ bài đã có giải nghĩa" + Sắp xếp + Áp dụng (không tự tải lại khi đổi ô — WCAG 3.2.2); mục đang chọn thành chip có × (bỏ đúng mục đó) và Xoá lọc; điện thoại: nút "Bộ lọc (n)" mở các ô (details, không cần JavaScript); vẫn là form GET. (3) Thẻ bài: lời làm trọng tâm (tới bốn dòng, chữ Literata), dải màu thể loại bên trái, Ý nghĩa tối đa hai dòng, số từ khó. (4) Trang Tất cả và trang phân loại (trừ mục từ, trò chơi) từ 10 thẻ: sau thẻ thứ 9 có ô "Từ khó hôm nay" (mục từ có giải thích, từ hai bài, đổi mỗi ngày). (5) Trang thể loại: đầu trang màu thể loại có hoạ tiết sóng, số bài, số bài đã có giải nghĩa, các hình thức nhiều bài nhất (dẫn tới Tất cả đã lọc); lời giới thiệu dài thu vào "Giới thiệu về …". (6) Hoạ tiết tự vẽ (SVG đường nét trong CSS), không dùng ảnh. **Không làm:** trang bài (bản đồ nhỏ, Đọc tiếp dạng thẻ, từ khó mở tại chỗ) — để đợt sau nếu người sáng lập muốn. Gộp sau khi người sáng lập duyệt bản xem trước.
+
+**Nghiệm thu (21/11/2026):** người sáng lập duyệt bản xem trước; PR #211 gộp, CI đạt; site thật plugin 1.0.90/theme 1.0.20: trang chủ không còn "Bạn là", Câu hôm nay trong đầu trang, bốn lối vào, bảng Đọc nhiều, thẻ bản đồ; trang Ca dao có đầu trang màu, thanh lọc chung, ô Từ khó hôm nay; Kho đang lọc có chip "Ca dao ×" và Xoá lọc.
 
 ### Từ điển nối bài, đợt 2 — T-227
 
