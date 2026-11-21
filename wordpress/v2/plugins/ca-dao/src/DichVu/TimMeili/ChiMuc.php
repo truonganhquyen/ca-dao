@@ -40,15 +40,15 @@ final class ChiMuc implements \Phongdao\HaTang\Module {
 		if ( MayTim::bat() && ! wp_next_scheduled( self::CRON ) ) { wp_schedule_single_event( time() + 5, self::CRON ); }
 	}
 
-	public static function cho( int $so = 100 ): array {
+	public static function cho( int $so = 100, bool $cong_khai = false ): array {
 		global $wpdb;
-		$r = $wpdb->get_results( $wpdb->prepare( "SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name LIKE %s ORDER BY option_id LIMIT %d", $wpdb->esc_like( self::DOI ) . '%', $so ), ARRAY_A );
+		$r = $wpdb->get_results( $wpdb->prepare( "SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name LIKE %s ORDER BY option_id LIMIT %d", $wpdb->esc_like( self::DOI . ( $cong_khai ? 'bai_' : '' ) ) . '%', $so ), ARRAY_A );
 		if ( $wpdb->last_error ) { throw new \RuntimeException( 'Chưa đọc được hàng đợi máy tìm.' ); }
 		return $r ?: array();
 	}
 
-	public static function san_sang(): bool {
-		return MayTim::bat() && ! empty( get_option( self::TT, array() )['san_sang'] ) && ! self::cho( 1 );
+	public static function san_sang( bool $cong_khai = false ): bool {
+		return MayTim::bat() && ! empty( get_option( self::TT, array() )['san_sang'] ) && ! self::cho( 1, $cong_khai );
 	}
 
 	/** Chỉ xuất lời và định danh, không xuất ghi công, email, nguồn hay hồ sơ cá nhân. */

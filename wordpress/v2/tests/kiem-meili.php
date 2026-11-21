@@ -44,6 +44,9 @@ MeiliChiMuc::dong_bo();
 kt( 'sửa trong lúc đồng bộ giữ token mới, không xác nhận sạch theo bản cũ', MeiliChiMuc::cho( 1 ) && ! MeiliChiMuc::san_sang() );
 while ( MeiliChiMuc::dong_bo() ) { /* xác nhận sau khi cả hai chỉ mục đã ghi thành công */ }
 kt( 'thử lại thành công: hết hàng đợi, máy tìm sẵn sàng', MeiliChiMuc::san_sang() );
+MeiliChiMuc::doi( 'kho:999999' );
+kt( 'mục kho riêng đang chờ không làm dừng gợi ý cho độc giả', MeiliChiMuc::san_sang( true ) && ! MeiliChiMuc::san_sang() );
+while ( MeiliChiMuc::dong_bo() ) { }
 $meili_n = 0;
 $meili_kq = MeiliTim::tim( 'Fixture đập dữ liệu chạy thử' );
 kt( 'một HTTP request gom các nhánh và đối chiếu lại lời trong WordPress', 1 === $meili_n && count( $meili_kq ) === 1 && ! $meili_kq[0]['khop'] );

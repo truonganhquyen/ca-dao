@@ -12,7 +12,7 @@ Người sáng lập chốt Meilisearch làm hướng chính sau PoC. Tích hợ
 - NFC, thường hoá, Ð/ð ↔ Đ/đ, dấu kiểu cũ/mới, khoảng trắng đặc biệt, ký tự định dạng ẩn; chỉ trong bản tìm, giữ nguyên lời lưu.
 - Mỗi lần tìm gần tối đa một HTTP multi-search (4–20 nhánh, 30 ứng viên/nhánh). Hai nhánh tra băm toàn văn có dấu/không dấu đi riêng, không bị bài chung vài chữ đẩy ra ngoài top tìm gần. Đọc lại lời và quyền từ WordPress, kiểm hash bản chữ rồi mới đối chiếu. Điểm là giống đoạn, không phải xác suất trùng.
 - Hai chỉ mục public/staff. Public loại nháp, mật khẩu, cờ thô tục ngay khi xuất, và kiểm lại lúc trả kết quả. Staff chỉ gọi khi có quyền soạn. Không gửi email, bút danh, nguồn/hồ sơ cá nhân vào engine; khoá chỉ phía máy chủ.
-- Khi sửa/ẩn/xoá/đổi thể loại, hàng đợi bền chặn sử dụng chỉ mục cũ tới khi xác nhận cả hai index. WP-Cron thử lại; không coi HTTP 202 là đã hoàn tất. Khoá chống hai worker chạy chồng. Dựng lại dùng index mới, chuyển tên sau khi ghi xong.
+- Khi sửa/ẩn/xoá/đổi thể loại, hàng đợi bền chặn sử dụng chỉ mục cũ tới khi xác nhận cả hai index. Hàng đợi kho/góp riêng không làm dừng gợi ý công khai. WP-Cron thử lại; không coi HTTP 202 là đã hoàn tất. Khoá chống hai worker chạy chồng. Dựng lại dùng index mới, chuyển tên sau khi ghi xong.
 - Engine lỗi/chưa dựng/đang đồng bộ: trang tìm vẫn dùng tìm hiện tại; Thêm bài báo chưa kiểm được đầy đủ; góp bài dùng cơ chế báo lỗi và giữ chữ hiện có. Không coi lỗi là không trùng.
 
 ## Cấu hình và thao tác vận hành
@@ -39,7 +39,7 @@ Chạy đủ `kiem-tra`, `test:v2`, `quet:v2`, `e2e:v2`. Bản thử engine th�
 
 ### Kết quả hồi quy engine thật — 21/11/2026
 
-Chạy `scripts/poc-search/validate-meili.py` với binary Meilisearch 1.57.0, dùng đúng lớp PHP `SoKhopLoi` của plugin qua stdin. 100 tác phẩm công khai trong sơ đồ trang: ca dao 48, tục ngữ 30, vè 10, câu đố 7, đồng dao 5; tổng 138 phần lời/dị bản. 952 ca (toàn văn, NFD, không dấu, khoảng trắng Unicode, Ð/Đ, một dòng, cuối bài, thêm/bớt/thay một tiếng): bài đích top 5 **952/952**, top 1 **951/952**. Một ca âm không trả bài. Một HTTP multi-search mỗi ca. SHA256 dữ liệu `9ee735cbe3f6de611f5ae757a354ece7d1063625bfdc54dc006528d6d1bc14cb`; mã PHP `a15be3a496775ac60077dfe5339e7d7a8c10037ce257e39aa557c6d26d1ec1de`.
+Chạy `scripts/poc-search/validate-meili.py` với binary Meilisearch 1.57.0, dùng đúng lớp PHP `SoKhopLoi` của plugin qua stdin. 100 tác phẩm công khai trong sơ đồ trang: ca dao 48, tục ngữ 30, vè 10, câu đố 7, đồng dao 5; tổng 138 phần lời/dị bản. 952 ca (toàn văn, NFD, không dấu, khoảng trắng Unicode, Ð/Đ, một dòng, cuối bài, thêm/bớt/thay một tiếng): bài đích top 5 **952/952**, top 1 **951/952**. Một ca âm không trả bài. Một HTTP multi-search mỗi ca. SHA256 dữ liệu `9ee735cbe3f6de611f5ae757a354ece7d1063625bfdc54dc006528d6d1bc14cb`; mã PHP `40acca5484d2a01d9befd10d1bc27e8c71a9ad8b906042b0b9d8c621a52e1590`.
 
 Đây là hồi quy kỹ thuật: truy vấn sinh tự động, tìm trong 138 phần của mẫu, **chưa tìm trong toàn kho**, chưa có nhãn liên quan độc lập của người đọc, chưa đo một từ phổ biến, truy vấn theo ý nghĩa hay tải đồng thời. Thời gian script gồm tạo tiến trình PHP nên không dùng làm độ trễ sản phẩm. Các luồng WordPress đang kiểm bằng HTTP giả lập có engine trả kết quả lỗi/cũ; chưa phải diễn tập dịch vụ + WordPress trên máy chủ thật. Không công bố “100% chính xác” hoặc nghiệm thu production từ con số này.
 

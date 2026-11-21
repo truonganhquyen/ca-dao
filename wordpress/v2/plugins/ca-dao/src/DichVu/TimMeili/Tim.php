@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 final class Tim {
 	public static function tim( string $q, bool $cong_khai = true, string $loai = '' ): array {
 		if ( ! $cong_khai && ! current_user_can( 'cadao_soan' ) ) { throw new \RuntimeException( 'Không có quyền tìm trong kho riêng.' ); }
-		if ( ! ChiMuc::san_sang() ) { throw new \RuntimeException( 'Chỉ mục đang cập nhật; chưa kiểm tra được đầy đủ.' ); }
+		if ( ! ChiMuc::san_sang( $cong_khai ) ) { throw new \RuntimeException( 'Chỉ mục đang cập nhật; chưa kiểm tra được đầy đủ.' ); }
 		$q = mb_substr( $q, 0, 20000 ); $nhanh = SoKhopLoi::truy_van( $q );
 		if ( ! $nhanh ) { return array(); }
 		$tt = get_option( ChiMuc::TT );
