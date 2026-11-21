@@ -201,6 +201,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-228 | Giao diện đợt 3 (D-126): trang chủ có trọng tâm (bỏ "Bạn là"), thanh lọc dùng chung, thẻ lời, ô Từ khó hôm nay, đầu trang thể loại, hoạ tiết sóng | A | T-227 | — | DONE |
 | T-227 | Từ điển nối bài, đợt 2 (D-126): nghĩa "Theo Từ điển" trên trang bài, Bổ sung → Gợi ý Từ điển, ô "Nối Từ điển" ở từ khó, trang mục từ hiện câu có chữ, bài viết tạm không lập chỉ mục | A | T-226 | — | DONE |
 | T-226 | Từ điển và từ khó, sửa lỗi đợt 1 (D-125): giữ nối khi sửa lời giải, danh sách nối lại, tìm Từ điển theo nhóm + phân trang, trang mục từ, đường thể loại cũ, khuôn bài viết | A | T-225 | — | DONE |
+| T-238 | PoC riêng Typesense/Meilisearch: cùng dữ liệu thử, số đo chất lượng/hiệu năng, không tích hợp hay triển khai production | A | — | — | IN_PROGRESS |
 | **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
 | T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
 | T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | DONE |

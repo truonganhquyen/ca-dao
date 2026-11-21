@@ -1,0 +1,26 @@
+name: PoC tìm kiếm — Typesense và Meilisearch
+on:
+  push:
+    branches: ['poc/search-engines-20261121']
+    paths: ['scripts/poc-search/**', '.github/workflows/poc-search.yml']
+permissions:
+  contents: read
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: So sánh hai engine trong container riêng
+        run: python scripts/poc-search/compare.py
+      - name: Lưu số đo, không có lời nguồn
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: poc-search-metrics
+          path: poc-output/metrics.json
+          if-no-files-found: warn
+          retention-days: 14
