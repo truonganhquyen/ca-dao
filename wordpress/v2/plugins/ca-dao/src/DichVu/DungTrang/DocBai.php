@@ -165,7 +165,6 @@ final class DocBai {
 		return is_array( $t ) && $t ? $t[0]->slug : null;
 	}
 
-	/** Các phần hiển thị (bỏ nguon_may ngay từ đây). */
 	/**
 	 * Nghĩa chung của các mục từ bài đang gắn (người nối ở Bổ sung → Gợi ý Từ điển, hay từ dữ liệu cũ) mà không từ khó nào
 	 * của bài dùng và bài không có từ khó cùng chữ: mỗi mục một từ khó "theo Từ điển" (lời giải là phần giải thích của mục
@@ -196,6 +195,7 @@ final class DocBai {
 		return $ra;
 	}
 
+	/** Các phần hiển thị (bỏ nguon_may ngay từ đây). */
 	private static function phan( \WP_Post $bai ): array {
 		$ra = array();
 		foreach ( Phan::ds( $bai->post_type ) as $p ) {

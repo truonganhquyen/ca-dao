@@ -60,7 +60,7 @@ $cd = TrangTacPham::tu_phan( array( 'loi' => array( 'dong' => array( 'Câu đố
 kt( 'câu đố: có đáp án, gợi ý', 'Đáp án mẫu' === $cd['dap_an'] && 'Gợi ý mẫu' === $cd['goi_y'] );
 
 $the = TrangTacPham::the( array( 'loi' => array( 'dong' => array( 'Một', '', 'Hai', 'Ba' ) ), 'y_nghia' => array( 'chu' => str_repeat( 'ý ', 100 ) ), 'co_nghi' => array( 'ly_do' => 'x' ) ), $bai );
-kt( 'thẻ danh sách: hai dòng đầu, ý nghĩa cắt ở 160 ký tự, cờ nghi', array( 'Một', 'Hai' ) === $the['dong'] && 160 === mb_strlen( $the['y_nghia'] ) && str_ends_with( $the['y_nghia'], '…' ) && $the['co_nghi'] );
+kt( 'thẻ danh sách: tới bốn dòng đầu (dòng trống bỏ — D-126), ý nghĩa cắt ở 160 ký tự, cờ nghi', array( 'Một', 'Hai', 'Ba' ) === $the['dong'] && 160 === mb_strlen( $the['y_nghia'] ) && str_ends_with( $the['y_nghia'], '…' ) && $the['co_nghi'] );
 kt( 'thẻ danh sách: chưa có lời → không có thẻ', null === TrangTacPham::the( array(), $bai ) );
 
 // ---------- Câu hôm nay (giữ cách MVP) ----------

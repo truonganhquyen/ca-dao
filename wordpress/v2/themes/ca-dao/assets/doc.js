@@ -64,15 +64,6 @@
   const coLuu = id => daLuu().some(x => x && String(x.id) === id);
   $$('[data-action=save]').forEach(b => { if (coLuu(b.dataset.id)) { b.setAttribute('aria-pressed', 'true'); $('.nhan', b).textContent = 'Đã lưu'; } });
 
-  // Bạn là: chỉ đổi thứ tự khối trang chủ, nhớ trên máy (D-087); tắt JavaScript thì thanh này ẩn sẵn
-  const THU_TU = { 'Phụ huynh': [4, 7, 5, 6, 8], 'Giáo viên': [5, 4, 7, 6, 8], 'Yêu văn hoá': [5, 7, 4, 6, 8] };
-  const vai = v => {
-    const goc = $('#role-sections'); if (!goc) return;
-    (THU_TU[v] || [4, 5, 6, 7, 8]).forEach(n => { const k = $(`[data-home-block="${n}"]`, goc); if (k) goc.append(k); });
-    $$('[data-action=role]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.value === v)));
-  };
-  const thanhVai = $('.role-bar'); if (thanhVai) { thanhVai.hidden = false; vai((doc('phongdao-vai') || {}).vai); }
-
   // Nghe (D-095): giọng tiếng Việt có sẵn trên máy; không có thì ẩn nút; không tự phát
   const nutNghe = $('[data-action=nghe]');
   let giong = null;
@@ -154,8 +145,6 @@
       const tl = b.dataset.theLoai || (($('.work-head .tag-pill') || {}).textContent || '').split('·')[0].trim();
       chep(loiBai(b.closest('.verse-card, .today-card') || document).join('\n') + '\n— ' + (tl ? tl + ' · ' : '') + 'Thư viện Văn học Dân gian Việt Nam\n' + b.dataset.url, 'Đã sao chép lời và đường dẫn bài.');
     }
-    else if (viec === 'role') { ghi('phongdao-vai', { vai: b.dataset.value }); vai(b.dataset.value); }
-    else if (viec === 'role-reset') { ghi('phongdao-vai', {}); vai(null); }
     else if (viec === 'copy-link') chep(b.dataset.url, 'Đã sao chép liên kết.');
     else if (viec === 'save') {
       const id = b.dataset.id, co = coLuu(id), ds = daLuu().filter(x => x && String(x.id) !== id);

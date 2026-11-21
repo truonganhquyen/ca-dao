@@ -180,12 +180,10 @@ try {
   const caDao = T.caDao;
 
   // —— Người đọc ——
-  await thu('Trang chủ: chọn "Bạn là" rồi tải lại, máy nhớ', async () => {
+  await thu('Trang chủ: Câu hôm nay nằm ngay trong đầu trang, cạnh ô tìm; không còn "Bạn là"', async () => {
     await di(k, '/');
-    await bam(k, '[data-action=role][data-value="Giáo viên"]');
-    await k.reload({ waitUntil: 'load' });
-    chac(await k.$eval('[data-action=role][data-value="Giáo viên"]', b => b.getAttribute('aria-pressed')) === 'true', 'tải lại thì mất lựa chọn');
-    await bam(k, '[data-action=role-reset]');
+    chac(await k.$('.home-hero .today-card') !== null, 'Câu hôm nay không ở đầu trang');
+    chac(await k.$('.role-bar') === null, 'vẫn còn "Bạn là"');
   });
 
   await thu('Liên kết trong menu, chân trang, thanh dưới, trang chủ, Khám phá, trang bài không hỏng', async () => {
