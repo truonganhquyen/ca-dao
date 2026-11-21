@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Phiên bản | 2.6 · 05/11/2026 (kế hoạch cải tiến sau review T-173..T-183; `docs/31`, gồm nhánh quản trị `docs/30`) |
+| Phiên bản | 2.7 · 21/11/2026 (chương trình nâng cấp lớn V2, Giai đoạn 0: T-229..T-238 — D-127..D-130, `docs/57`) · 2.6 · 05/11/2026 (kế hoạch cải tiến sau review T-173..T-183; `docs/31`, gồm nhánh quản trị `docs/30`) |
 | Trạng thái | **Sống.** Cập nhật cột trạng thái ở mục 1 sau mỗi task/PR; enum: `READY`, `IN_PROGRESS`, `REVIEW`, `BLOCKED`, `DONE`, `DEFERRED` |
 | Đọc khi | Nhận việc. Mỗi task ghi rõ cần đọc tài liệu nào |
 | Ai làm | **N** = người sáng lập · **A** = AI agent hoặc dev · **N+A** = A làm, N duyệt và quyết định |
@@ -154,7 +154,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-171 | Xử lý lô: duyệt gợi ý, sửa phân loại/nhiều phần, ẩn/thùng rác, đổi trạng thái việc; xem trước và kết quả từng mục | A | T-170 | — | DONE |
 | T-172 | Dùng thử admin trên máy tính/điện thoại, kiểm tương đương, chuyển lối vào `/bien-tap/…` an toàn — gộp vào T-189 (D-104: gộp `/bien-tap/` về wp-admin; dùng thử qua bản xem trước từng bước đợt 3) | N+A | T-171 | — | DEFERRED |
 | T-184 | Màn Kho wp-admin: người quản trị tự tìm, tự chọn câu đủ điều kiện đưa vào Hộp việc | A | T-167, T-168 | — | DONE |
-| T-185 | Phần thiết kế V2 chưa làm (đối soát T-178.3): Đố vui `/do-vui/`, Trò chơi có lọc `/tro-choi/` và trang sửa trò chơi, khối Biên soạn + bút danh trong Cài đặt, tấm sửa SGK, gợi ý mô-típ / Wikidata thành việc chờ, nạp nháp ý nghĩa theo lô thành việc chờ, sửa tuyển tập / mô-típ / chủ đề / vùng / thể loại | A | T-189 | — | READY |
+| T-185 | Phần thiết kế V2 chưa làm (đối soát T-178.3): Đố vui `/do-vui/`, Trò chơi có lọc `/tro-choi/` và trang sửa trò chơi, khối Biên soạn + bút danh trong Cài đặt, tấm sửa SGK, gợi ý mô-típ / Wikidata thành việc chờ, nạp nháp ý nghĩa theo lô thành việc chờ, sửa tuyển tập / mô-típ / chủ đề / vùng / thể loại — **tạm dừng theo D-127:** các phần đã chia vào chương trình nâng cấp (`docs/55` mục 11), mở lại khi giai đoạn tương ứng được duyệt | A | T-189 | — | DEFERRED |
 | T-186 | Đăng hàng loạt từ Kho (D-099): chọn nhiều câu ở Kho đưa vào Hộp việc, lô Đăng thẻ Câu mới có xem trước | A | T-171, T-184 | — | DONE |
 | **V2 · Quản trị gọn sau trinh sát (D-100..D-102; `docs/e2e-review/v2-quan-tri/BAO-CAO.md`)** ||||||
 | T-187 | Đợt 1: sửa lỗi trinh sát (lời dính dòng, giờ, lịch 06:00, bẫy Kho → Hộp việc, ngõ cụt sau quyết, chữ kỹ thuật, tên nguồn); menu theo việc, đăng nhập vào Bàn làm việc; khối lô gọn; trang sửa hiện lời và nút trạng thái; hai nút lưu (D-102); Thêm tác phẩm trong wp-admin | A | T-171, T-184 | — | DONE |
@@ -170,7 +170,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-195 | Chặn bản mở cũ ghi đè ở lưu phần chung; giữ chữ khi xung đột; kiểm hai tài khoản và thao tác ghi (`docs/33` mục 3.2) | A | T-194 | — | DONE |
 | T-196 | Ảnh minh hoạ tuỳ chọn: chọn/tải, gắn bài, xem trước, khách thấy, thay/bỏ/khôi phục; không mở nguồn văn bản (`docs/33` mục 4) | A | T-195 | — | DONE |
 | T-197 | Nhãn lưu/lỗi theo thể loại; Hiểu thêm trống gọn và tuyển tập chưa có nội dung trung thực (`docs/33` mục 5) | A | T-196 | — | DONE |
-| T-198 | QA mẫu quan hệ/lối đọc trẻ, 10 bài thuộc 5 thể loại, một tuyển tập và thử tác vụ; người biên soạn quyết nội dung (`docs/33` mục 6, 8) | N+A | T-197 | — | IN_PROGRESS |
+| T-198 | QA mẫu quan hệ/lối đọc trẻ, 10 bài thuộc 5 thể loại, một tuyển tập và thử tác vụ; người biên soạn quyết nội dung (`docs/33` mục 6, 8) — làm qua pilot T-234 và nghiên cứu trải nghiệm T-232 (D-127) | N+A | T-197 | — | IN_PROGRESS |
 | T-199 | Form Góp gọn theo loại, giữ chữ khi đổi loại/gửi lỗi, phản hồi rõ; kiểm đủ nhánh và luồng Hộp việc (`docs/35`) | A | T-197 | — | DONE |
 | T-200 | Tối ưu trang sửa đầy đủ: trạng thái/lưu, mục lục, danh sách dài, thể thơ người quyết và quản lý danh mục (`docs/36`) | A | T-199 | — | DONE |
 | T-201 | Editor đơn giản trong màn sửa hiện tại và quản trị sửa tên cuối URL tác phẩm, có lịch sử/kiểm phiên/chuyển hướng (`docs/37`, D-110) | A | T-200 | — | DONE |
@@ -201,6 +201,17 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-228 | Giao diện đợt 3 (D-126): trang chủ có trọng tâm (bỏ "Bạn là"), thanh lọc dùng chung, thẻ lời, ô Từ khó hôm nay, đầu trang thể loại, hoạ tiết sóng | A | T-227 | — | DONE |
 | T-227 | Từ điển nối bài, đợt 2 (D-126): nghĩa "Theo Từ điển" trên trang bài, Bổ sung → Gợi ý Từ điển, ô "Nối Từ điển" ở từ khó, trang mục từ hiện câu có chữ, bài viết tạm không lập chỉ mục | A | T-226 | — | DONE |
 | T-226 | Từ điển và từ khó, sửa lỗi đợt 1 (D-125): giữ nối khi sửa lời giải, danh sách nối lại, tìm Từ điển theo nhóm + phân trang, trang mục từ, đường thể loại cũ, khuôn bài viết | A | T-225 | — | DONE |
+| **V2 · Nâng cấp lớn — Giai đoạn 0 (D-127..D-130; `docs/57`)** ||||||
+| T-229 | Kế hoạch chốt chương trình nâng cấp (`docs/57`); ghi D-127..D-130 (Q-010, Q-011 đã chốt); backlog Giai đoạn 0; tạm dừng T-185 | A | — | — | DONE |
+| T-230 | Số đo nền thống nhất một ngày: đã đăng, đủ điều kiện lập chỉ mục, trong sơ đồ trang, Google đã lập chỉ mục (Search Console), lượt dùng tin cậy; đo chỉ đọc, không đổi production (`docs/57` mục 4) | N+A | — | — | READY |
+| T-231 | Trang thử riêng tư có bản sao dữ liệu thật, đạt danh sách kiểm an toàn và cách ly (`docs/57` mục 8.1); thử khôi phục sao lưu một lần | N+A | — | — | READY |
+| T-232 | Nghiên cứu trải nghiệm: chuẩn so sánh trên site hiện tại, bản mẫu ngoài kho mã bằng tác phẩm thật (hai phương án thị giác, bài ít / nhiều dữ liệu), cổng PG1, PG2 (`docs/57` mục 7) | N+A | — | — | READY |
+| T-233 | Benchmark trong phiên làm việc trên bộ dữ liệu chuẩn 60 bài: so cách soạn; không báo cáo token, chi phí, so mô hình; benchmark API chỉ khi được duyệt riêng (`docs/57` mục 5.2) | N+A | T-235 | — | BLOCKED |
+| T-234 | Pilot biên tập đợt 1: 30–50 bài kiểm quy trình bằng công cụ hiện có, kiểm 100%; cổng sang đợt 2 (`docs/57` mục 5.3) | N+A | T-233, T-235 | — | BLOCKED |
+| T-235 | Sổ tay biên tập v1 cho pilot: chất lượng hai trục, câu hỏi "đủ cho bài này", ranh giới các phần, quy tắc nháp AI (`docs/57` mục 3, 5) | N+A | — | — | READY |
+| T-236 | PoC kiến trúc trên trang thử với dữ liệu thật, sau danh sách kiểm 8.1, sao lưu, thử khôi phục: bảng quan hệ, hồ sơ thực thể (hai cách), diễn tập di chuyển, hiệu năng; không đổi production; đề xuất schema v1 (`docs/57` mục 6) | A | T-231 | — | BLOCKED |
+| T-237 | Discovery NEXT: phỏng vấn 5–8 giáo viên, phụ huynh; rà đối tác tiềm năng; không viết mã (`docs/57` mục 8, 9) | N+A | — | — | READY |
+| T-238 | Pilot biên tập đợt 2: mở rộng tới tổng 100–200 bài, chỉ khi đợt 1 đạt cổng và người sáng lập đồng ý; theo dõi SEO, không đổi luật lập chỉ mục (`docs/57` mục 5.3, 5.5) | N+A | T-234 | — | BLOCKED |
 | **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
 | T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
 | T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | DONE |
@@ -209,7 +220,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-177 | Chặn hai quyết định đồng thời, bảo toàn cập nhật bài/việc/nhật ký khi ghi lỗi hoặc thử lại | A | T-173 | — | DONE |
 | T-178 | Đối soát số bài, dữ liệu sau chuyển và backlog với site thật; ghi bằng chứng sai khác | A | T-173 | — | IN_PROGRESS |
 | T-179 | Hồ sơ nguồn và nội dung máy đưa vào: căn cứ, lịch sử, quyền và công cụ sửa/ẩn theo phần | A | T-169 | — | DONE |
-| T-180 | Bàn làm việc tuần, danh sách ngoại lệ dữ liệu và thử 20–30 bài nội dung chuyên sâu | N+A | T-176 | — | IN_PROGRESS |
+| T-180 | Bàn làm việc tuần, danh sách ngoại lệ dữ liệu và thử 20–30 bài nội dung chuyên sâu — phần thử bài làm qua pilot T-234 (D-127) | N+A | T-176 | — | IN_PROGRESS |
 | T-181 | Đo và sửa độ đầy đủ/thứ tự tìm kiếm khi kho lớn, giữ tìm không dấu | A | T-173 | — | DONE |
 | T-182 | Đo và tối ưu nghẽn Bản đồ, Số liệu tuần, ảnh và truy vấn dữ liệu lớn (hoãn — D-098) | A | T-181 | — | DEFERRED |
 | T-183 | Thử nhỏ lối đọc theo chủ đề, bài viết dài và công cụ giáo viên với dữ liệu đã duyệt | N+A | T-180 | — | BLOCKED |
@@ -1099,6 +1110,21 @@ Sau gộp, `node scripts/kiem-site-that.mjs` xác nhận **site thật plugin 1.
 **Nghiệm thu (20/11/2026, plugin 1.0.87/theme 1.0.17):** [PR #206](https://github.com/truonganhquyen/ca-dao/pull/206), head `689315f`, gộp `2e68539`. [CI V2](https://github.com/truonganhquyen/ca-dao/actions/runs/44658660630) và [cổng nhất quán](https://github.com/truonganhquyen/ca-dao/actions/runs/44658660694) đạt đủ bốn lệnh: PHP thuần 292, WordPress 816, chuyển đổi 55; WCAG/ngân sách 0 lỗi; E2E 81 bước đạt, 0 lỗi, 0 bỏ qua (4 lần công cụ bấm lại). Luồng góp/duyệt không JavaScript kiểm chọn tên theo consent, ẩn rồi bật lại tên qua form chuẩn, giữ nguồn. Hồi quy kiểm tên thiếu đồng ý, vân tay sai, tên/ID giả, escape và chứng cứ không bị thay. Local Windows Playground/trình duyệt treo không tính đạt; dùng CI Linux đầy đủ.
 
 Sau gộp, `node scripts/kiem-site-that.mjs` xác nhận site plugin 1.0.87/theme 1.0.17. Đã đối chiếu bản gửi riêng tư có đồng ý công khai tên và bật đúng bút danh cho bài người sáng lập yêu cầu bằng form quản trị có nonce/phiên/lịch sử, tắt JavaScript. So trước/sau giữ nguyên lời và nguồn đã duyệt; không đổi trạng thái bài hay bài khác. Trình duyệt khách không đăng nhập, chỉ GET/HEAD, 390/1440 px: HTTP 200, dòng Đóng góp bởi/Nguồn từ đúng tên đã đồng ý, nhãn Chưa đối chiếu còn rõ, không tràn ngang; ảnh và dữ liệu thật giữ riêng ngoài repo. Không tự bật tên trên bài cũ, không đổi schema, quyền sử dụng hay cấu hình máy chủ.
+
+### Chương trình nâng cấp lớn — Giai đoạn 0 — T-229..T-238
+
+Kế hoạch đang dùng: `docs/57` (D-127..D-130); căn cứ `docs/45`–`56`. Chỉ Giai đoạn 0 được mở; giai đoạn sau vào backlog khi cổng của nó được duyệt (`docs/57` mục 9). Mức duyệt theo rủi ro: `docs/57` mục 10. Hai luồng song song: chất lượng nội dung (T-230 → T-235 → T-233 → T-234 → T-238) và trải nghiệm người đọc (T-232); PoC (T-236) sau khi trang thử đạt điều kiện an toàn (T-231).
+
+- **T-229:** `docs/57`; D-127..D-130 ở `docs/01` (Q-010, Q-011 đã chốt); nhóm việc này; T-185 tạm dừng. Nghiệm thu: `npm run kiem-tra` đạt; `npm run viec-tiep-theo` chỉ ra việc Giai đoạn 0; người sáng lập duyệt PR.
+- **T-230:** số liệu nền một mốc giờ theo định nghĩa `docs/57` mục 4.1, đủ các dòng mục 4.2 kèm giờ đo và nguồn; đối soát 16.285 / 16.303 / 16.450 / 16.453 và 215 / 216; Google đã lập chỉ mục chỉ lấy từ Search Console. **Không** dùng số đủ điều kiện lập chỉ mục làm số bài đã biên tập. Đo chỉ đọc (GET công khai, CSDL trang thử); không đổi production.
+- **T-231:** trang thử đạt đủ 10 mục danh sách kiểm `docs/57` mục 8.1 (truy cập công khai, kết nối production, tác vụ tự động, email, tài khoản, dữ liệu cá nhân, khoá dịch vụ, sao lưu và khôi phục, số liệu đọc, thu dọn), mỗi mục có bằng chứng ghi ở đây, không chứa dữ liệu cá nhân, mật khẩu, khoá; biên bản khôi phục (thời gian, số bài, số phần, số dòng nhật ký khớp). Người sáng lập làm phần FlashPanel, Cloudflare, DNS (AGENTS.md, KHÔNG BAO GIỜ 15); agent chạy lệnh trên trang thử khi được đồng ý từng lần.
+- **T-232:** báo cáo UX-0 (8–10 người, 6 tác vụ, site hiện tại); bản mẫu ngoài kho mã, hai phương án thị giác, 12 bài thật ít / nhiều dữ liệu và các trạng thái ở `docs/57` mục 7; biên bản PG1; kết quả thử PG2. Không lưu thông tin cá nhân người thử trong repo.
+- **T-233:** bộ 60 bài (12 mỗi thể loại) có đầu ra tham chiếu do người viết hoặc duyệt, 20% chấm đôi; AI soạn nháp trong phiên làm việc; báo cáo tỷ lệ duyệt không sửa / sửa nhẹ / sửa nặng / bỏ, lỗi theo loại, thời gian người duyệt, so các cách soạn. **Không** báo cáo token, chi phí, so sánh mô hình. Benchmark API là việc riêng, chỉ khi người sáng lập duyệt đề xuất cụ thể.
+- **T-234 (đợt 1):** 30–50 bài phân tầng (gồm 10 bài đối chứng người viết, 10 bài trong 216 bài đủ điều kiện để đánh giá lại theo H2); quy trình chạy trọn tải lô → soạn nháp → nạp → duyệt → hiển thị; nháp chỉ vào bài khi người bấm duyệt (lô ≤ 50, D-117 (3)); kiểm 100% bởi người thứ hai. Cổng sang đợt 2: 0 lỗi nghiêm trọng; lỗi lớn ≤ 5%; ≥ 70% bài nhắm H2 đạt H2 theo phiếu; không lỗi chặn trong quy trình; Sổ tay, cách soạn đã sửa; người sáng lập đồng ý. Không đạt thì sửa và chạy lại ≤ 30 bài.
+- **T-235:** `docs/huong-dan/` có Sổ tay biên tập v1 và phiếu duyệt (câu hỏi "đủ cho bài này", H2 / H3, lỗi theo loại, thời gian); ranh giới các phần; cách viết điều chưa chắc; quy tắc nháp AI. Không chép lời, chú thích nguồn hay dữ liệu kho vào repo. Người sáng lập duyệt.
+- **T-236:** chỉ bắt đầu khi T-231 xong (danh sách kiểm 8.1 đạt, đã thử khôi phục); chỉ trên trang thử, nhánh riêng không gộp vào `main` khi chưa khoá schema; không đổi production; báo cáo theo tiêu chí `docs/57` mục 6 và đề xuất schema v1 cho người sáng lập duyệt (H1).
+- **T-237:** ghi chép tổng hợp, ẩn danh, của 5–8 cuộc phỏng vấn; thẻ cơ hội cho Play, Học, Creator; danh sách đối tác tiềm năng; không viết mã.
+- **T-238 (đợt 2):** chỉ mở khi T-234 đạt cổng và người sáng lập đồng ý; thêm tới tổng 100–200 bài (10–20 bài đối chứng); kiểm 100%; mỗi bài pilot ghi bốn trạng thái (đã xuất bản, đã biên tập, đủ điều kiện lập chỉ mục, Google đã lập chỉ mục) trước / sau, danh sách mã bài giữ ngoài repo; nhóm so sánh chưa biên tập; Search Console đo lúc bắt đầu, khi xong đợt 2, sau 8 tuần; không đổi luật lập chỉ mục. Báo cáo: năng suất theo thể loại, lỗi, tỷ lệ đạt H2 / H3, so đối chứng, Sổ tay v1.1, khuyến nghị mục tiêu ba mức và phạm vi Xưởng, SEO lần 1.
 
 ## 4. User story
 
