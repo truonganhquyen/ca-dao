@@ -12,3 +12,4 @@ Phạm vi người sáng lập yêu cầu: tiếp tục so sánh hai máy tìm. 
 - Thời gian đơn lẻ của mẫu nhỏ không phải benchmark tải. Kết quả không phải nghiệm thu tích hợp WordPress hay độ chính xác toàn kho.
 
 Chạy trên Linux có Docker và Python 3.13: `python scripts/poc-search/compare.py`. Workflow chỉ tự chạy khi đẩy đúng nhánh PoC; không có job deploy, không cần production secret. Không sửa các luật hay schema nội dung.
+Đo thêm snapshot docker stats sau khởi động, sau lập hai chỉ mục và sau truy vấn. Đây là các điểm lấy mẫu, không phải RAM đỉnh hay kiểm tải. Thời gian profile gồm tất cả lượt gọi API và đối chiếu; không so tốc độ engine qua một lời gọi đầu tiên riêng lẻ.

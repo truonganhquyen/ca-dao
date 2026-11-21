@@ -124,7 +124,7 @@ def docker(*args,capture=True):
     return r.stdout.strip() if capture else ''
 
 def main():
-    ROOT.mkdir(parents=True,exist_ok=True);names=[];report={'status':'running','engines':{},'sources':URLS,'raw_content_saved':False}
+    ROOT.mkdir(parents=True,exist_ok=True);names=[];report={'status':'running','engines':{},'sources':URLS,'raw_content_saved':False,'runner_cpus':os.cpu_count()}
     try:
         docs,queries=fixtures();original={d['id']:d for d in docs}
         frozen=json.dumps([docs,queries],ensure_ascii=False,sort_keys=True).encode()
@@ -143,6 +143,7 @@ def main():
                     if time.monotonic()>deadline:raise TimeoutError(kind+' startup timeout')
                     time.sleep(.25)
             ver=engine.req('GET','/version' if kind=='meili' else '/debug')
+            resources={'after_start':json.loads(docker('stats','--no-stream','--format','{{json .}}',name))}
             results=[]
             for index in ['raw','normalized']:
                 records=[]
@@ -153,6 +154,7 @@ def main():
                     d['loi_kd']=norm(source['loi'],True) if index=='normalized' else ''
                     records.append(d)
                 engine.index(index,records)
+            resources['after_index']=json.loads(docker('stats','--no-stream','--format','{{json .}}',name))
             for case,q,expected,group in queries:
                 row={'case':case,'group':group,'expected_parent':expected,'profiles':{}}
                 for profile,index,query in [('raw_engine','raw',q),('normalized_engine','normalized',norm(q)),('adapter','normalized',norm(q))]:
@@ -171,11 +173,12 @@ def main():
                         if h['parent'] not in parents:parents.append(h['parent'])
                     row['profiles'][profile]={'top5':parents[:5],'hit1':expected is not None and expected in parents[:1],'hit5':expected is not None and expected in parents[:5],'no_hits':not hits,'calls':engine.calls-before,'elapsed_ms':round((time.perf_counter()-start)*1000,3)}
                 results.append(row)
+            resources['after_search']=json.loads(docker('stats','--no-stream','--format','{{json .}}',name))
             summary={}
             for group in ['core','extension']:
                 positive=[r for r in results if r['group']==group and r['expected_parent'] is not None]
                 summary[group]={p:{'hit1':sum(r['profiles'][p]['hit1'] for r in positive),'hit5':sum(r['profiles'][p]['hit5'] for r in positive),'cases':len(positive)} for p in ['raw_engine','normalized_engine','adapter']}
-            report['engines'][kind]={'image':image,'image_id':docker('image','inspect',image,'--format','{{.Id}}'),'version':ver,'summary':summary,'cases':results}
+            report['engines'][kind]={'image':image,'image_id':docker('image','inspect',image,'--format','{{.Id}}'),'version':ver,'summary':summary,'cases':results,'resource_snapshots':resources}
             print(json.dumps({'engine':kind,'summary':summary},ensure_ascii=False),flush=True)
         report['status']='complete'
         report['limits']=['Small diagnostic set, two public works only','Extension cases were not tuned separately, but same work families as core','No production or concurrency benchmark','Adapter prototype is not final duplicate confirmation logic','No claim of corpus-wide accuracy']
