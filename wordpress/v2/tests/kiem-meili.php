@@ -50,6 +50,19 @@ while ( MeiliChiMuc::dong_bo() ) { }
 $meili_n = 0;
 $meili_kq = MeiliTim::tim( 'Fixture đập dữ liệu chạy thử' );
 kt( 'một HTTP request gom các nhánh và đối chiếu lại lời trong WordPress', 1 === $meili_n && count( $meili_kq ) === 1 && ! $meili_kq[0]['khop'] );
+$meili_note = \Phongdao\GiaoTiep\BienTap\ThemBai::tao( array( 'the_loai' => 've', 'loi' => 'Fixture riêng biệt của bài nhiều chú thích', 'ten' => 'Fixture chú thích rời', 'nguon' => '', 'dang' => true ), $ai_ql )['bai'];
+update_post_meta( $meili_note, '_phongdao_y_nghia', array( 'chu' => 'fixture ở đầu. đập tại một chỗ. dữ trong phần khác. liệu còn ở đây. chạy thêm nhiều đoạn. thử ở cuối.', 'nguoi_lam' => 'nguoi_viet' ) );
+\Phongdao\DichVu\ChiMucTim\ChiMucTim::ghi( $meili_note );
+while ( MeiliChiMuc::dong_bo() ) { }
+$meili_legacy = \Phongdao\DichVu\ChiMucTim\TimDoc::tim( 'Fixture đập dữ liệu chạy thử' );
+$meili_html = \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 'Fixture đập dữ liệu chạy thử' );
+kt( 'kết quả rời trong chú thích không chặn gợi ý đúng lời: gợi ý trước, kết quả cũ giữ sau', $meili_legacy['tong'] > 0 && str_contains( $meili_html, 'Có phải bạn nhớ những bài này?' ) && strpos( $meili_html, 'Fixture Meili' ) < strpos( $meili_html, 'Các kết quả khác' ) && str_contains( $meili_html, 'Fixture chú thích rời' ) );
+$meili_exact_html = \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 'Fixture đập dữ liệu kiểm thử' );
+kt( 'khớp lời trọn cụm giữ kết quả trực tiếp, không thêm gợi ý lặp', ! str_contains( $meili_exact_html, 'Có phải bạn nhớ những bài này?' ) );
+kt( 'cụm trong ngoặc kép không tự nới sang câu gần', ! str_contains( \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( '"Fixture đập dữ liệu chạy thử"' ), 'Có phải bạn nhớ những bài này?' ) );
+kt( 'đang gõ không mở gợi ý câu gần', ! str_contains( \Phongdao\GiaoTiep\Khoi\Tim::ket_qua( 'Fixture đập dữ liệu chạy thử', array(), true ), 'Có phải bạn nhớ những bài này?' ) );
+wp_delete_post( $meili_note, true );
+while ( MeiliChiMuc::dong_bo() ) { }
 $meili_hits[0]['ban'] = str_repeat( '0', 64 );
 try { MeiliTim::tim( 'Fixture đập dữ liệu kiểm thử' ); $meili_cu = false; } catch ( Throwable $e ) { $meili_cu = true; }
 kt( 'index sai bản chữ báo chưa kiểm được và hẹn sửa, không báo sạch', $meili_cu && ! MeiliChiMuc::san_sang() );
