@@ -72,6 +72,8 @@
 
 ## Đang chờ người sáng lập
 
+- **Meilisearch (D-131):** mã tích hợp có công tắc mặc định tắt, gói dịch vụ nội bộ và bộ hồi quy 100 tác phẩm ở [PR #215](https://github.com/truonganhquyen/ca-dao/pull/215); chi tiết `docs/58`. Cần môi trường/phiên truy cập máy chủ và diễn tập dịch vụ + WordPress để bật thật. Chưa thay tìm kiếm đang chạy trên phongdao.com; chưa nghiệm thu production.
+
 - **Chương trình nâng cấp lớn V2 — Giai đoạn 0** (D-127, D-130; kế hoạch `docs/57`): duyệt PR kế hoạch; tạo trang thử theo danh sách kiểm an toàn, cách ly (`docs/57` mục 8.1) và thử khôi phục cùng agent (T-231); nối Search Console (T-230); mời 8–10 người thử trải nghiệm (T-232); duyệt Sổ tay biên tập v1 và phiếu duyệt (T-235); duyệt nháp pilot đợt 1 rồi quyết mở đợt 2 (T-234, T-238). Khoảng 3–4 giờ mỗi tuần trong 6 tuần.
 - **Thử từng phần đợt 3** qua link bản xem trước trong mỗi PR (bấm thử trên điện thoại và máy tính).
 - **Bật công tắc "Có từ ngữ thô tục"** cho bài cần báo trước (nên bắt đầu từ Câu đố): máy không tự dò.

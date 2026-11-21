@@ -114,18 +114,24 @@
   if (them) {
     const o = them.querySelector('[name=loi]'), ten = them.querySelector('[name=ten]'), ra = document.getElementById('them-phan-tich');
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
-    let hen, ten_tu_go = false;
+    let hen, ten_tu_go = false, phien_kiem = 0;
     ten.addEventListener('input', () => { ten_tu_go = true; });
     o.addEventListener('input', () => {
       if (!ten_tu_go) ten.value = (o.value.split('\n').find(d => d.trim()) || '').trim();
       clearTimeout(hen);
+      const phien = ++phien_kiem;
       hen = setTimeout(async () => {
         const f = new FormData();
         f.append('loi', o.value);
-        const d = await goi('/trung/kiem', f);
+        let d;
+        try { d = await goi('/trung/kiem', f); }
+        catch (_) { if (phien === phien_kiem) ra.innerHTML = '<p class="notice">Chưa kiểm trùng được. Bạn vẫn có thể lưu nháp và thử lại.</p>'; return; }
+        if (phien !== phien_kiem) return;
+        if (d.loi || typeof d.so_dong !== 'number') { ra.innerHTML = '<p class="notice">Chưa kiểm trùng được. Bạn vẫn có thể lưu nháp và thử lại.</p>'; return; }
         if (!d.so_dong) { ra.innerHTML = '<p class="small muted">Dán lời để máy nhận thể thơ và kiểm trùng.</p>'; return; }
         ra.innerHTML = '<p class="nhan-may">Máy nhận: ' + esc(d.the_tho) + ' · ' + d.so_dong + ' dòng</p>'
-          + (d.trung || []).map(t => '<div class="notice"><strong>' + esc(t.muc) + '</strong> (' + t.giong + '%) với ' + (t.url ? '<a href="' + esc(t.url) + '">' + esc(t.ten) + '</a>' : esc(t.ten)) + '. Vẫn lưu được; nếu là cùng bài, thêm làm dị bản ở trang bài đó.</div>').join('');
+          + (d.thong_bao ? '<p class="notice">' + esc(d.thong_bao) + '</p>' : '')
+          + (d.trung || []).map(t => '<div class="notice"><strong>' + esc(t.muc) + '</strong> (' + t.giong + '% độ giống gợi ý) với ' + (t.url ? '<a href="' + esc(t.url) + '">' + esc(t.ten) + '</a>' : esc(t.ten)) + '. ' + esc(t.ly_do || '') + ' Vẫn lưu được; nếu là cùng bài, thêm làm dị bản ở trang bài đó.</div>').join('');
       }, 400);
     });
   }

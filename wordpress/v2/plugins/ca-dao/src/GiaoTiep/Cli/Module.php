@@ -15,6 +15,7 @@ final class Module implements \Phongdao\HaTang\Module {
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			\WP_CLI::add_command( 'phongdao phien-ban', array( $this, 'phien_ban' ) );
 			\WP_CLI::add_command( 'phongdao tim', array( $this, 'tim' ) );
+			\WP_CLI::add_command( 'phongdao meili', array( $this, 'meili' ) );
 			\WP_CLI::add_command( 'phongdao tom-tat', array( $this, 'tom_tat' ) );
 			\WP_CLI::add_command( 'phongdao nguon', array( $this, 'nguon' ) );
 			\WP_CLI::add_command( 'phongdao cau-moi', array( $this, 'cau_moi' ) );
@@ -22,6 +23,27 @@ final class Module implements \Phongdao\HaTang\Module {
 			\WP_CLI::add_command( 'phongdao nhap', array( $this, 'nhap' ) );
 			\WP_CLI::add_command( 'phongdao doi-chieu', array( $this, 'doi_chieu' ) );
 		}
+	}
+
+	/**
+	 * Kiểm trạng thái máy tìm nội bộ; --dung-lai dựng chỉ mục mới, --dong-bo xử lý hết hàng đợi.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--dung-lai]
+	 * : Dựng hai chỉ mục từ WordPress; không thay lời hay trạng thái bài.
+	 *
+	 * [--dong-bo]
+	 * : Đồng bộ các thay đổi còn chờ; lỗi thì dừng, giữ hàng đợi.
+	 */
+	public function meili( array $doi, array $tuy ): void {
+		try {
+			$n = 0;
+			if ( isset( $tuy['dung-lai'] ) ) { $n = \Phongdao\DichVu\TimMeili\ChiMuc::dung_lai(); }
+			if ( isset( $tuy['dong-bo'] ) || isset( $tuy['dung-lai'] ) ) { while ( $so = \Phongdao\DichVu\TimMeili\ChiMuc::dong_bo() ) { $n += $so; } }
+			\WP_CLI::line( \Phongdao\DichVu\TimMeili\ChiMuc::san_sang() ? 'Máy tìm sẵn sàng.' : 'Máy tìm chưa sẵn sàng.' );
+			if ( $n ) { \WP_CLI::success( "Đã xử lý $n mục; giữ nguyên dữ liệu gốc." ); }
+		} catch ( \Throwable $e ) { \WP_CLI::error( $e->getMessage() ); }
 	}
 
 	/**

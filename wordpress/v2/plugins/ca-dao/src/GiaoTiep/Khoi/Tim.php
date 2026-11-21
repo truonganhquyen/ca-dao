@@ -48,6 +48,17 @@ final class Tim {
 		$tong = $kq['tong'];
 		$bo = self::bo_loc( $q, $loc, $kq, $dang_go );
 		if ( ! $kq['ds'] && ! $muc && ! array_sum( $kq['nhom'] ) ) {
+			// Giữ nguyên tìm trọn chữ, bộ lọc và phân trang. Chỉ gợi ý gần khi chưa có kết quả, không áp cho cụm trong ngoặc kép.
+			if ( ! $dang_go && 'dung' === $loc['khop'] && ! preg_match( '/^["“].+["”]$/u', $q ) && \Phongdao\DichVu\TimMeili\MayTim::bat() ) {
+				try { $gan = \Phongdao\DichVu\TimMeili\Tim::tim( $q, true, $loc['loai'] ); } catch ( \Throwable $e ) { $gan = array(); }
+				if ( $gan ) {
+					$dong_gan = '';
+					foreach ( array_slice( $gan, 0, 5 ) as $g ) {
+						$dong_gan .= '<li><a href="' . esc_url( $g['url'] ) . '">' . esc_html( $g['ten'] ) . '</a><p>' . nl2br( esc_html( implode( "\n", array_slice( $g['dong'], 0, 4 ) ) ) ) . '</p></li>';
+					}
+					return '<p id="search-status" class="small muted" aria-live="polite">Có bài gần câu bạn nhớ</p><div id="search-results">' . $bo . '<section class="section"><h2>Có phải bạn nhớ những bài này?</h2><p>Chưa có kết quả khớp trọn chữ. Dưới đây là một số lời gần giống để bạn đối chiếu.</p><ul>' . $dong_gan . '</ul></section></div>';
+				}
+			}
 			$sua = ChiMucTim::goi_y( $q );
 			$kho = ChongTrung::kho_co( $q );
 			return '<p id="search-status" class="small muted" aria-live="polite">0 kết quả</p><div id="search-results">'

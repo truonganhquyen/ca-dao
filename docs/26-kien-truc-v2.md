@@ -19,7 +19,7 @@
 | Trang người đọc | Theme khối 1.0 + khối động `cadao/*` render trên máy chủ + JavaScript thuần nhỏ |
 | Quản trị | wp-admin là nơi làm việc (D-096, D-100); ba dòng việc Bài mới · Hộp việc · Bổ sung (D-103); sửa nhanh trên trang đọc giữ; `/bien-tap/` đã gộp về wp-admin (D-104, `docs/32`; chuyển hướng 301); một đường kiểm/lưu; không Gutenberg cho tác phẩm |
 | Việc nền | WP-Cron theo lô (như MVP) + cron thật của máy chủ |
-| Không làm | Headless, Next.js, Astro, Meilisearch / Elasticsearch, Action Scheduler, React / bước dựng JavaScript, thư viện JavaScript ngoài, tài khoản người đọc |
+| Không làm | Headless, Next.js, Astro, Elasticsearch, Action Scheduler, React / bước dựng JavaScript, thư viện JavaScript ngoài, tài khoản người đọc |
 
 ## 2. Repo trong lúc xây và sau khi chuyển
 
@@ -334,3 +334,7 @@ Cron thật của máy chủ gọi WP-Cron mỗi 5 phút (như MVP); mỗi loạ
 | Sao lưu | Người sáng lập: FlashPanel → *Sao Lưu*, hằng ngày, gồm site và cơ sở dữ liệu cadao, lưu ra ngoài VPS (Google Drive…) |
 
 Agent vào VPS bằng khóa SSH riêng trên máy người sáng lập (không dùng mật khẩu). Không ghi IP, tài khoản hay thông tin các site khác vào repo.
+
+## 17. Tìm gần bằng Meilisearch (D-131)
+
+Ngoại lệ phạm vi cũ: Meilisearch tự lưu trữ nội bộ, mặc định tắt; hợp đồng, hàng đợi, triển khai và hoàn tác ở `docs/58-meilisearch.md`. WordPress giữ dữ liệu gốc. Không thay schema nội dung.
