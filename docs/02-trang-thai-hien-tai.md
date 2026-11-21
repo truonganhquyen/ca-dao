@@ -10,6 +10,8 @@
 
 ## Đang chạy
 
+- **Tìm gần và kiểm trùng với Meilisearch đã bật** (D-131, plugin 1.0.92, 21/11/2026): gợi ý lời gần đứng trước kết quả rời trong chú thích; Thêm tác phẩm và Góp dùng chung đối chiếu; chỉ mục công khai/nội bộ tách riêng. Đủ bốn cổng và đã kiểm trình duyệt/site thật; lời và quyết định biên tập không đổi. Phạm vi, giới hạn và hoàn tác ở [docs/58](58-meilisearch.md).
+
 - **Từ điển nối bài, đợt 2 (21/11/2026, D-126, plugin 1.0.89/theme 1.0.19):** bài người đã nối mà chưa có từ khó riêng hiện nghĩa "Theo Từ điển"; Bổ sung → Gợi ý Từ điển để người chọn nghĩa cho từng câu có chữ (máy không tự gắn); ô "Nối Từ điển" ở từ khó; trang mục từ hiện câu có chữ; bài viết của tác giả khác tạm không lập chỉ mục, người biên soạn bật lại từng bài khi đã có quyền. Đã chạy trên site thật (21/11, PR #210). Đợt giao diện (trang chủ mới không còn "Bạn là", thanh lọc chung, thẻ lời, đầu trang thể loại, hoạ tiết — plugin 1.0.90/theme 1.0.20) người sáng lập đã duyệt, chạy trên site thật 21/11 (PR #211).
 - **Từ điển và từ khó, sửa lỗi đợt 1 (20/11/2026, D-125, plugin 1.0.88/theme 1.0.18):** sửa lời giải không còn làm mất nối Từ điển; từ khó đã mất nối nằm ở Bổ sung → Cần sửa để người bấm "Nối lại"; tìm Từ điển xếp đúng chữ trước, gom chữ nhiều nghĩa, phân trang; trang mục từ có đường "Từ điển" và lối sang nghĩa khác; /ca-dao/, /ve/, /cau-do/… về trang thể loại; bài viết có đầu/chân trang. Đợt sau (nghĩa chung trên trang bài, gợi ý nối, giao diện) chờ người sáng lập trả lời 5 điều trong bản đề xuất 19/11.
 - **Ghi công người góp đã sửa (20/11/2026, D-124, plugin 1.0.87/theme 1.0.17):** dòng công khai dùng Đóng góp bởi/Nguồn từ, giữ nhãn Chưa đối chiếu. Thẻ duyệt chọn sẵn tên khi người gửi đã đồng ý; người duyệt có thể ẩn, màn Sửa tác phẩm cho bật lại đúng tên từ bản gửi khớp lời. Đủ bốn cổng CI, E2E 81/81, quét 0 lỗi; site thật đúng phiên bản. Đã bật đúng bút danh có đồng ý cho bài người sáng lập nêu qua form chuẩn, giữ lời/nguồn; người đọc khách 390/1440 px thấy ghi công đúng, không tràn. [Nghiệm thu](22-backlog-trien-khai.md#ghi-công-người-góp--t-225), [PR #206](https://github.com/truonganhquyen/ca-dao/pull/206).
@@ -71,8 +73,6 @@
 **Bộ lọc Tìm gọn đã làm** (D-113, plugin 1.0.63/theme 1.0.10): máy tính có hai ô Cách khớp/Thể loại và Áp dụng cùng hàng; điện thoại thu vào Bộ lọc, có tóm tắt và số lựa chọn khác mặc định. Đặt lại giữ từ khoá, về trang 1; 0 kết quả mở sẵn và chỉ phạm vi còn bài. Dùng một form GET, không đổi thuật toán. Bốn cổng đã đạt trên nhánh, E2E 68/68; chỉ gộp khi CI head cuối đạt, kiểm phiên bản site riêng sau gộp. [Nghiệm thu](40-bo-loc-tim-gon.md), [PR #177](https://github.com/truonganhquyen/ca-dao/pull/177).
 
 ## Đang chờ người sáng lập
-
-- **Meilisearch (D-131):** mã tích hợp có công tắc mặc định tắt, gói dịch vụ nội bộ và bộ hồi quy 100 tác phẩm ở [PR #215](https://github.com/truonganhquyen/ca-dao/pull/215); chi tiết `docs/58`. Cần môi trường/phiên truy cập máy chủ và diễn tập dịch vụ + WordPress để bật thật. Chưa thay tìm kiếm đang chạy trên phongdao.com; chưa nghiệm thu production.
 
 - **Ưu tiên — gửi thư xin phép Ca dao Mẹ** (`docs/12` mục 7; mẫu đã sửa cho đúng hiện trạng ngày 21/11/2026). Bạn đọc lại, sửa, tự gửi; ghi ngày gửi ở mục "Rủi ro đang theo dõi". Không đổi cách hiển thị chú thích trong lúc chờ trả lời (D-128).
 - **Chương trình nâng cấp lớn V2 — Giai đoạn 0** (D-127, D-130, D-132; kế hoạch `docs/57`). Khoảng 3–4 giờ mỗi tuần trong 6 tuần:

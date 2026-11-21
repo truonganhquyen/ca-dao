@@ -1,6 +1,6 @@
 # 58 · Meilisearch — tìm gần và kiểm trùng
 
-Ngày 21/11/2026 · D-131 · T-239 · đang kiểm chứng, chưa bật site thật.
+Ngày 21/11/2026 · D-131 · T-239 · đã bật trên site thật với plugin 1.0.92.
 
 Người sáng lập chốt Meilisearch làm hướng chính sau PoC. Tích hợp nhỏ trong plugin hiện có, không tạo màn quản trị hay luồng biên tập mới. Đây là phạm vi riêng đã được yêu cầu, không mở rộng PoC schema của `docs/57`.
 
@@ -45,10 +45,27 @@ Chạy `scripts/poc-search/validate-meili.py` với binary Meilisearch 1.57.0, d
 
 Đã mở [PR tích hợp](https://github.com/truonganhquyen/ca-dao/pull/215), có bản xem trước WordPress với công tắc tắt. CI tại PR là bằng chứng từng phiên bản mã. PR PoC trước đã đóng và giữ lịch sử; không gộp nhánh thử có mã task trùng với pilot biên tập.
 
-### Triển khai và kiểm tra site thật — đang hoàn tất
+### Triển khai và kiểm tra site thật — đã hoàn tất
 
 Người sáng lập đã cho truy cập FlashPanel để triển khai. PR #215 đã gộp; plugin 1.0.91 lên site, đủ bốn cổng trên bản chốt (PHP 308, WordPress 856, chuyển đổi 55; axe/ngân sách đạt; E2E 81 bước, 0 lỗi). Docker có sẵn; container riêng loopback, không cấp quyền Docker cho tài khoản website, giới hạn 1 GiB/2 CPU; khoá và bản sao lưu cấu hình/CSDL nằm ngoài web root.
 
 Đã dựng chỉ mục thực tế và kiểm 100 tác phẩm (20 mỗi thể loại), tìm trên toàn chỉ mục: bài đích top 5 ở 792/795 ca, top 10 ở cả ba ca còn lại. Ba ca gồm hai truy vấn một/hai tiếng và một dòng có nhiều tác phẩm cùng lời. Bốn truy vấn người sáng lập nêu đều tìm đúng; mất kết nối báo chưa kiểm được; xoá/tạo lại **mục chỉ mục dẫn xuất** thành công, lời WordPress không đổi; mục riêng không có trong public, có trong staff. Không sửa trạng thái hoặc nội dung tác phẩm để thử.
 
-Kiểm HTTP trang thật phát hiện kết quả rời trong chú thích ngăn gọi gợi ý gần. Đã tạm tắt công tắc và sửa điều kiện; bản 1.0.92 đang qua cổng. Chưa đánh dấu hoàn tất cho tới khi trang Tìm thật, Góp và kiểm trùng quản trị đã được xác nhận sau khi bật lại. Hồi quy sinh tự động chưa thay bộ nhãn độc lập của người đọc, chưa phải kiểm tải đồng thời.
+Kiểm HTTP trang thật phát hiện kết quả rời trong chú thích ngăn gọi gợi ý gần. Đã tạm tắt công tắc, sửa điều kiện ở [PR #217](https://github.com/truonganhquyen/ca-dao/pull/217), chạy lại đủ cổng và bật lại trên plugin 1.0.92. [CI bản sửa](https://github.com/truonganhquyen/ca-dao/actions/runs/44908855120): PHP 308, WordPress 861, chuyển đổi 55; trợ năng/ngân sách đạt; E2E 81 bước, 0 lỗi, 0 bỏ qua, 4 lần bấm lại. `npm run kiem-site-that` xác nhận plugin 1.0.92/theme 1.0.20 đúng main.
+
+Kiểm trình duyệt thật sau khi bật (21/11, khoảng 20:38 giờ Việt Nam):
+
+- Phiên khách tìm câu thay một tiếng: bài gần câu nhớ đứng trước kết quả rời trong chú thích; câu có Ð/Đ cũng trả đúng liên kết bài.
+- Trong Thêm tác phẩm: đoạn nhập một dòng báo Liên quan (83% độ giống gợi ý); đủ hai dòng nhưng khác chữ báo Có thể là dị bản (85%). Không coi các điểm này là xác suất trùng. Chỉ nhập để xem, đã xoá chữ thử; không lưu/đăng bài.
+- Phiên khách ở Góp: toàn văn đã có hiện “Câu này đã có trên Phong Dao — xem bài”; câu thay một tiếng hiện “Có bài gần giống — xem”. Không gửi form, không thay đồng ý giấy phép hoặc ghi công.
+- Dừng/khởi động lại đúng container để kiểm mất kết nối thật: quản trị báo chưa kiểm được, dữ liệu chỉ mục còn nguyên sau khởi động lại. API index không có khoá trả 401, listener chỉ ở loopback; không nới quyền Docker của tài khoản website.
+- Xếp lại một mục chỉ mục lúc 20:39:23; tới 20:40:34 cron thật đã xử lý hết hàng đợi, hai chỉ mục sẵn sàng, không có lỗi đồng bộ. Không gọi lệnh đồng bộ tay giữa hai mốc này.
+- GET trang Tìm không chạy JavaScript: ba truy vấn nhớ sai/khác Unicode/không dấu đều có liên kết đúng trong HTML; cụm trong ngoặc kép không tự nới, lọc Vè không trả gợi ý Ca dao, tìm một từ vẫn có danh sách thường. Đã xem bố cục 390 px, không tràn ngang.
+
+Hồi quy sinh tự động chưa thay bộ nhãn độc lập của người đọc, chưa phải kiểm tải đồng thời. Hai truy vấn một/hai tiếng trong mẫu chưa có bài đích ở top 5, nên không bảo đảm một từ ngắn sẽ đưa đúng một tác phẩm mong muốn lên đầu.
+
+### Cấu hình đã áp dụng và hoàn tác trên máy thật
+
+Các tệp nằm trong `/home/cadao/.phongdao-meili/` ngoài web root: `meili.env` chứa khoá tự sinh tại máy, `constants.php` khai báo URL nội bộ và chỉ bật khi có tệp `enabled`, `cli.php` cho lượt dựng/kiểm riêng trước khi mở công khai. Tệp riêng quyền 600, thư mục 700. `wp-config.php` nạp helper trước `wp-settings.php`, đã sao lưu và kiểm cú pháp trước khi đổi. Container `phongdao-meilisearch` chạy bằng UID/GID của website, root filesystem chỉ đọc, không capabilities mới, bind volume riêng; image v1.57.0 đã ghi digest trong biên bản vận hành riêng.
+
+Tắt nhanh bằng đổi tên `/home/cadao/.phongdao-meili/enabled` sang `enabled.off`; không cần thay `wp-config.php` hoặc phục hồi CSDL. Đồng bộ lại bằng WP-CLI với `--require=/home/cadao/.phongdao-meili/cli.php` trước khi tạo lại tệp bật. Không in `docker inspect` toàn bộ hoặc nội dung `meili.env` vào log, vì có khoá. Bản sao CSDL/cấu hình trước triển khai ở thư mục `backup/` riêng, không đưa vào repo. Các script kiểm cũng ở thư mục riêng, chỉ xuất số đo không có lời hay dữ liệu cá nhân.

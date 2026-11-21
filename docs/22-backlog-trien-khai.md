@@ -212,7 +212,7 @@ Mã task v2 bắt đầu từ T-031 để không trùng với backlog v1 đã l�
 | T-236 | PoC kiến trúc trên trang thử với dữ liệu thật, sau danh sách kiểm 8.1, sao lưu, thử khôi phục: bảng quan hệ, hồ sơ thực thể (hai cách), diễn tập di chuyển, hiệu năng; không đổi production; đề xuất schema v1 (`docs/57` mục 6) | A | T-231 | — | BLOCKED |
 | T-237 | Discovery NEXT: phỏng vấn 5–8 giáo viên, phụ huynh; rà đối tác tiềm năng; không viết mã (`docs/57` mục 8, 9) | N+A | — | — | READY |
 | T-238 | Pilot biên tập đợt 2: mở rộng tới tổng 100–200 bài, chỉ khi đợt 1 đạt cổng và người sáng lập đồng ý; theo dõi SEO, không đổi luật lập chỉ mục (`docs/57` mục 5.3, 5.5) | N+A | T-234 | — | BLOCKED |
-| T-239 | Tích hợp Meilisearch có công tắc: gợi ý tìm gần, kiểm trùng người góp và Thêm bài; đồng bộ và kiểm chứng (`docs/58`) | A | — | — | IN_PROGRESS |
+| T-239 | Tích hợp Meilisearch có công tắc: gợi ý tìm gần, kiểm trùng người góp và Thêm bài; đồng bộ và kiểm chứng (`docs/58`) | A | — | — | DONE |
 | **V2 · Cải tiến tổng thể sau review (`docs/31`)** ||||||
 | T-173 | Lập lộ trình chung sau review, đối chiếu toàn bộ đề xuất và đồng bộ tài liệu/backlog | A | T-166 | — | DONE |
 | T-174 | Đóng lỗi trang đọc E2E: Bản đồ, ảnh, câu đố thiếu Ý nghĩa, tràn ngang, trang Quyền riêng tư | A | T-173 | — | DONE |
@@ -1161,3 +1161,5 @@ Kế hoạch đang dùng: `docs/57` (D-127..D-130); căn cứ `docs/45`–`56`. 
 ### T-239 · Tìm gần và kiểm trùng với Meilisearch
 
 Người sáng lập chốt tiếp tục triển khai 21/11/2026 (D-131). Phạm vi, tiêu chí và giới hạn ở `docs/58-meilisearch.md`. Không dùng mã T-238 cho PoC tìm kiếm: mã đó dành cho pilot biên tập đợt 2 trong kế hoạch đang dùng.
+
+**Nghiệm thu 21/11:** PR #215 và bản sửa #217 đã gộp, plugin 1.0.92 đúng main và đã bật trên phongdao.com. Đủ bốn cổng: PHP 308, WordPress 861, chuyển đổi 55, axe/ngân sách đạt, E2E 81 bước/0 lỗi/0 bỏ qua; CI bản sửa `44908855120`, kiểm nhất quán `44908855128`. Mẫu 100 tác phẩm trên toàn chỉ mục: 792/795 ca top 5; ba ca còn lại top 10. Bốn truy vấn đã nêu, báo trùng Thêm bài và gợi ý Góp kiểm trực tiếp; không gửi/lưu form thật. Container loopback, khoá riêng, bản sao lưu trước triển khai, diễn tập mất kết nối/khởi động lại/đồng bộ mục dẫn xuất và kiểm public/staff đạt. Giới hạn tìm một từ, bộ nhãn độc lập và kiểm tải ghi đúng ở docs/58; không đổi luật tự nối Kho hoặc dữ liệu văn hoá.

@@ -92,12 +92,14 @@ Người tìm văn học dân gian trên mạng gặp sáu vấn đề lặp l�
 | Chatbot; AI sinh nội dung công khai khi người đọc mở trang | Một lỗi ảo giác phá niềm tin | Không bao giờ |
 | App iOS/Android | Web tốt trên điện thoại là đủ | Có nhu cầu ngoại tuyến rõ (T-065) |
 | Xuất bản hàng loạt từ kho | Thành trang sao chép (D-045) | Không bao giờ |
-| Headless, Next.js, Meilisearch, Elasticsearch | Không có bằng chứng cần | Có log và đo thấy nghẽn thật |
+| Headless, Next.js, Elasticsearch | Không có bằng chứng cần | Có log và đo thấy nghẽn thật |
 | Điểm thưởng, bảng xếp hạng, chấm điểm trẻ | Lệch trọng tâm | Có đối tác giáo dục cần |
 | Tra năm sinh, phong thuỷ, meme để kéo lượt xem | Lạc định vị | Không bao giờ |
 | Quảng cáo, liên kết tiếp thị, khối liên kết chân trang | Mâu thuẫn với lý do tồn tại | Không bao giờ |
 
 Đã đổi so với bản MVP: **giọng đọc máy** được làm, luôn ghi "Giọng đọc máy" (D-063); **bản đồ** đã có, không gọi dịch vụ ngoài (T-104); **công cụ quản trị riêng** nay là Bàn biên tập V2 nằm trong plugin WordPress, thay hẳn trình soạn Gutenberg cho tác phẩm (D-083, D-086).
+
+**Meilisearch** được chấp thuận riêng theo D-131 sau kiểm chứng lỗi tìm/kiểm trùng và PoC: tự lưu trữ nội bộ, WordPress giữ dữ liệu gốc, có công tắc quay lại. Phạm vi và nghiệm thu ở `docs/58`; không mở headless hay dịch vụ tìm bên thứ ba.
 
 ## 6. V2 là gì
 
