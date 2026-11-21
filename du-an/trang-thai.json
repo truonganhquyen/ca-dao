@@ -31,7 +31,7 @@
   },
   "kiem_tra_cuoi": {
     "trang_thai": "DAT",
-    "thoi_diem": "2026-11-20",
-    "pham_vi": "T-226 (D-125): Từ điển và từ khó, sửa lỗi đợt 1, PR #208 gộp 8b7d421, CI đạt (PHP 292, WordPress 826, chuyển đổi 55, quét 0 lỗi, E2E 81). Site plugin 1.0.88/theme 1.0.18; đường thể loại cũ 301 đúng, tìm Từ điển theo nhóm và phân trang, chữ nhiều nghĩa gom một dòng, bài viết có khung trang. Khối nối lại từ khó chờ người sáng lập xem trong wp-admin; đợt 2–3 chờ 5 quyết định."
+    "thoi_diem": "2026-11-21",
+    "pham_vi": "T-227, T-228 (D-126): Từ điển nối bài PR #210 (plugin 1.0.89) và giao diện đợt 3 PR #211 (plugin 1.0.90/theme 1.0.20), CI đạt (PHP 292, WordPress 838, chuyển đổi 55, quét 0 lỗi, E2E 81); người sáng lập duyệt bản xem trước giao diện. Site: trang mục từ có khối Câu có chữ, bài viết noindex, trang chủ mới (không còn Bạn là), thanh lọc chung có chip, đầu trang thể loại, ô Từ khó hôm nay. Gợi ý Từ điển trong wp-admin chờ người sáng lập dùng."
   }
 }
