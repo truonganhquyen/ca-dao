@@ -26,6 +26,7 @@ final class BoSung {
 		'y_nghia' => 'Thiếu Ý nghĩa',
 		'can_sua' => 'Cần sửa',
 		'goi_y'   => 'Gợi ý chủ đề, vùng',
+		'tu_dien' => 'Gợi ý Từ điển',
 		'khac'    => 'Việc khác',
 		'nhap'    => 'Nháp Ý nghĩa theo lô',
 	);
@@ -129,6 +130,159 @@ final class BoSung {
 		add_action( 'admin_post_' . self::HANH_DONG, array( self::class, 'nhan_goi_y' ) );
 		add_action( 'admin_post_' . self::BO_QUA, array( self::class, 'nhan_bo_qua' ) );
 		add_action( 'admin_post_' . self::NOI_LAI, array( self::class, 'nhan_noi_lai' ) );
+		add_action( 'admin_post_' . self::TU_DIEN, array( self::class, 'nhan_tu_dien' ) );
+		add_action( 'admin_post_' . self::TU_DIEN_TAT, array( self::class, 'nhan_tu_dien_tat' ) );
+	}
+
+	public const TU_DIEN     = 'phongdao_bo_sung_tu_dien';
+	public const TU_DIEN_TAT = 'phongdao_bo_sung_tu_dien_tat';
+
+	/** Số chữ hiện ở bảng tổng quan (chữ có nhiều câu chưa nối trước); tìm một chữ cụ thể bằng ô tìm. */
+	private const TU_DIEN_HIEN = 100;
+
+	public static function url_tu_dien( string $khoa = '' ): string {
+		return add_query_arg( array_filter( array( 'page' => self::TRANG, 'xem' => 'tu_dien', 'chu' => $khoa ) ), admin_url( 'admin.php' ) );
+	}
+
+	/** Nghĩa một mục từ, cắt ngắn cho một dòng. */
+	private static function nghia_ngan( \WP_Term $t, int $toi_da = 90 ): string {
+		$g = trim( wp_strip_all_tags( (string) $t->description ) );
+		return mb_strlen( $g ) > $toi_da ? rtrim( mb_substr( $g, 0, $toi_da - 1 ) ) . '…' : $g;
+	}
+
+	/** Nút tắt / bật lại gợi ý một chữ. */
+	private static function nut_tat( string $khoa, bool $tat, string $ve ): string {
+		return '<form method="post" class="phongdao-td-tat" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="' . self::TU_DIEN_TAT . '"><input type="hidden" name="chu" value="' . esc_attr( $khoa ) . '"><input type="hidden" name="tat" value="' . ( $tat ? '1' : '0' ) . '"><input type="hidden" name="ve" value="' . esc_attr( $ve ) . '">' . wp_nonce_field( self::TU_DIEN_TAT, '_wpnonce', true, false )
+			. '<button type="submit" class="button">' . ( $tat ? 'Tắt gợi ý chữ này' : 'Bật lại gợi ý' ) . '</button></form>';
+	}
+
+	/**
+	 * Tab "Gợi ý Từ điển" (D-126): mỗi chữ trong Từ điển một dòng — số nghĩa, số bài đã nối, số câu có trọn chữ mà chưa nối.
+	 * Chữ có nhiều câu nhất trước; chữ rất thông dụng và chữ đã tắt gợi ý xếp riêng ở cuối.
+	 */
+	private static function khoi_tu_dien(): string {
+		// phpcs:ignore WordPress.Security.NonceVerification -- chỉ lọc danh sách
+		$q    = \Phongdao\DichVu\TuDien\GoiYNoi::khoa( sanitize_text_field( wp_unslash( (string) ( $_GET['q'] ?? '' ) ) ) );
+		$tq   = \Phongdao\DichVu\TuDien\GoiYNoi::tong_quan();
+		$tat  = array_flip( \Phongdao\DichVu\TuDien\GoiYNoi::da_tat() );
+		$ds   = array_filter( $tq, static fn( array $d, string $k ): bool => $d['goi_y'] > 0 && ( '' === $q || str_contains( $k, $q ) ), ARRAY_FILTER_USE_BOTH );
+		uasort( $ds, static fn( array $a, array $b ): int => $b['goi_y'] <=> $a['goi_y'] ?: strcmp( $a['ten'], $b['ten'] ) );
+		$chinh = array();
+		$nhieu = array();
+		$da_tat = array();
+		foreach ( $ds as $k => $d ) {
+			if ( isset( $tat[ $k ] ) ) {
+				$da_tat[ $k ] = $d;
+			} elseif ( $d['goi_y'] > \Phongdao\DichVu\TuDien\GoiYNoi::THONG_DUNG ) {
+				$nhieu[ $k ] = $d;
+			} else {
+				$chinh[ $k ] = $d;
+			}
+		}
+		$bang = static function ( array $ds, string $chu_thich ): string {
+			$hang = '';
+			foreach ( $ds as $k => $d ) {
+				$hang .= '<tr><th scope="row"><a href="' . esc_url( self::url_tu_dien( (string) $k ) ) . '">' . esc_html( $d['ten'] ) . '</a></th><td>' . esc_html( number_format_i18n( $d['nghia'] ) ) . '</td><td>' . esc_html( number_format_i18n( $d['noi'] ) ) . '</td><td><a class="button" href="' . esc_url( self::url_tu_dien( (string) $k ) ) . '" aria-label="' . esc_attr( 'Duyệt ' . $d['goi_y'] . ' câu có chữ ' . $d['ten'] ) . '">' . esc_html( number_format_i18n( $d['goi_y'] ) ) . ' câu</a></td></tr>';
+			}
+			return '<table class="widefat striped phongdao-td-bang"><caption class="screen-reader-text">' . esc_html( $chu_thich ) . '</caption><thead><tr><th scope="col">Chữ</th><th scope="col">Nghĩa trong Từ điển</th><th scope="col">Bài đã nối</th><th scope="col">Câu chưa nối</th></tr></thead><tbody>' . $hang . '</tbody></table>';
+		};
+		$tim = '<form method="get" class="phongdao-td-tim" action="' . esc_url( admin_url( 'admin.php' ) ) . '"><input type="hidden" name="page" value="' . self::TRANG . '"><input type="hidden" name="xem" value="tu_dien"><label for="phongdao-td-q">Tìm chữ</label> <input type="search" id="phongdao-td-q" name="q" value="' . esc_attr( $q ) . '"> <button type="submit" class="button">Tìm</button>' . ( '' === $q ? '' : ' <a href="' . esc_url( self::url_tu_dien() ) . '">Bỏ tìm</a>' ) . '</form>';
+		$o   = '<h2 id="tu-dien">Gợi ý nối Từ điển</h2><p class="description">Máy tìm câu có trọn chữ, đúng dấu của một mục từ mà chưa nối với nghĩa nào của chữ đó. Bạn chọn nghĩa cho từng câu, hoặc "Không nối". Máy không tự gắn. Bài đã nối mà chưa có từ khó riêng sẽ hiện nghĩa trong Từ điển, có nhãn "Theo Từ điển".</p>' . $tim;
+		if ( ! $chinh && ! $nhieu && ! $da_tat ) {
+			return $o . '<p>' . ( '' === $q ? 'Không còn câu nào chờ nối.' : 'Không có chữ nào khớp.' ) . '</p>';
+		}
+		$o .= $chinh ? $bang( array_slice( $chinh, 0, self::TU_DIEN_HIEN, true ), 'Chữ có câu chưa nối' ) . ( count( $chinh ) > self::TU_DIEN_HIEN ? '<p class="description">Còn ' . esc_html( number_format_i18n( count( $chinh ) - self::TU_DIEN_HIEN ) ) . ' chữ ít câu hơn; dùng ô Tìm chữ để mở.</p>' : '' ) : '';
+		$o .= $nhieu ? '<details class="phongdao-td-phu"><summary>Chữ rất thông dụng (' . esc_html( number_format_i18n( count( $nhieu ) ) ) . ')</summary><p class="description">Mỗi chữ có hơn ' . esc_html( number_format_i18n( \Phongdao\DichVu\TuDien\GoiYNoi::THONG_DUNG ) ) . ' câu; phần lớn không mang nghĩa trong Từ điển.</p>' . $bang( $nhieu, 'Chữ rất thông dụng' ) . '</details>' : '';
+		$o .= $da_tat ? '<details class="phongdao-td-phu"><summary>Đã tắt gợi ý (' . esc_html( number_format_i18n( count( $da_tat ) ) ) . ')</summary>' . $bang( $da_tat, 'Chữ đã tắt gợi ý' ) . '</details>' : '';
+		return $o;
+	}
+
+	/**
+	 * Duyệt một chữ: các nghĩa trong Từ điển, rồi mỗi câu có chữ một hàng chọn (một nghĩa · Không nối · Chưa chọn). Chưa chọn
+	 * thì không lưu gì. "Chọn cả nhóm" đặt mọi câu đang Chưa chọn vào một nghĩa (cần JavaScript); sửa câu ngoại lệ rồi Lưu.
+	 */
+	private static function hien_tu_dien( string $khoa ): string {
+		$cac = \Phongdao\DichVu\TuDien\GoiYNoi::theo_chu()[ $khoa ] ?? array();
+		$ve  = self::url_tu_dien( $khoa );
+		$lui = '<p><a href="' . esc_url( self::url_tu_dien() ) . '">← Bổ sung: gợi ý Từ điển</a></p>';
+		if ( ! $cac ) {
+			return '<div class="wrap phongdao-ban phongdao-bo-sung">' . $lui . '<h1>Không có chữ này trong Từ điển</h1></div>';
+		}
+		$ten  = (string) $cac[0]->name;
+		$tat  = in_array( $khoa, \Phongdao\DichVu\TuDien\GoiYNoi::da_tat(), true );
+		$cau  = \Phongdao\DichVu\TuDien\GoiYNoi::cau( $khoa );
+		$them = admin_url( 'edit-tags.php?taxonomy=muc_tu&post_type=' . \Phongdao\HaTang\KhaiBao::TAC_PHAM );
+		$nghia = '';
+		foreach ( $cac as $t ) {
+			$sua    = get_edit_term_link( $t, 'muc_tu' );
+			$nghia .= '<li><strong>' . esc_html( $t->name ) . '</strong> ' . esc_html( self::nghia_ngan( $t, 160 ) ?: '(chưa có giải thích)' ) . ' <span class="description">· ' . esc_html( number_format_i18n( (int) $t->count ) ) . ' bài đã nối</span>' . ( $sua ? ' · <a href="' . esc_url( $sua ) . '">Sửa nghĩa</a>' : '' ) . '</li>';
+		}
+		$dau = '<h1>Chữ “' . esc_html( $ten ) . '”</h1><p>' . esc_html( number_format_i18n( $cau['tong'] ) ) . ' câu có trọn chữ này chưa nối' . ( $cau['tong'] > count( $cau['ds'] ) ? '; hiện ' . number_format_i18n( count( $cau['ds'] ) ) . ' câu đọc nhiều trước' : '' ) . '.</p>'
+			. '<h2>Nghĩa trong Từ điển</h2><ol class="phongdao-td-nghia">' . $nghia . '</ol>'
+			. '<p class="phongdao-td-hang"><a href="' . esc_url( $them ) . '">＋ Thêm nghĩa mới</a> <span class="description">(câu mang nghĩa chưa có: bạn viết nghĩa ở Từ điển rồi quay lại đây)</span></p>'
+			. self::nut_tat( $khoa, ! $tat, $ve );
+		if ( ! $cau['ds'] ) {
+			return '<div class="wrap phongdao-ban phongdao-bo-sung">' . $lui . $dau . TrangLo::lay_bao() . '<p role="status">Không còn câu nào chờ nối cho chữ này.</p></div>';
+		}
+		$hang = '';
+		foreach ( $cau['ds'] as $c ) {
+			$b   = (int) $c['bai'];
+			$ten_o = 'chon[' . $b . ']';
+			$chon = '<label><input type="radio" name="' . esc_attr( $ten_o ) . '" value="" checked> Chưa chọn</label>';
+			foreach ( $cac as $t ) {
+				$chon .= '<label><input type="radio" name="' . esc_attr( $ten_o ) . '" value="' . (int) $t->term_id . '" data-nghia="' . (int) $t->term_id . '"> ' . esc_html( self::nghia_ngan( $t, 40 ) ?: $t->name ) . '</label>';
+			}
+			$chon .= '<label><input type="radio" name="' . esc_attr( $ten_o ) . '" value="0"> Không nối</label>';
+			$hang .= '<li><div class="phongdao-td-cau"><p>' . implode( '<br>', array_slice( $c['dong'], 0, 3 ) ) . '</p><p class="description"><a href="' . esc_url( SuaTacPham::url( $b, $ve ) ) . '">' . esc_html( $c['tieu_de'] ) . '</a>' . ( '' === $c['the_loai'] ? '' : ' · ' . esc_html( $c['the_loai'] ) ) . '</p></div>'
+				. '<fieldset class="phongdao-td-chon"><legend class="screen-reader-text">' . esc_html( 'Nghĩa của “' . $ten . '” trong ' . $c['tieu_de'] ) . '</legend>' . $chon . '</fieldset></li>';
+		}
+		$ca_nhom = '';
+		foreach ( $cac as $t ) {
+			$ca_nhom .= '<button type="button" class="button" data-ca-nhom="' . (int) $t->term_id . '" data-chi-js hidden>' . esc_html( 'Chọn cả nhóm: ' . ( self::nghia_ngan( $t, 30 ) ?: $t->name ) ) . '</button> ';
+		}
+		$form = '<form method="post" class="phongdao-td-form" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="' . self::TU_DIEN . '"><input type="hidden" name="chu" value="' . esc_attr( $khoa ) . '">' . wp_nonce_field( self::TU_DIEN, '_wpnonce', true, false )
+			. '<ul class="phongdao-bs-ds phongdao-td-ds">' . $hang . '</ul>'
+			. '<p class="phongdao-bs-nut"><button type="submit" class="button button-primary">Lưu các lựa chọn</button> ' . $ca_nhom . '<span class="description" data-td-dem aria-live="polite"></span></p>'
+			. '<p class="description">Chỉ câu đã chọn được lưu; Chưa chọn thì giữ nguyên. Nối một nghĩa ghi vào Lịch sử của bài (khôi phục được); "Không nối" làm câu đó không hiện lại ở đây.</p></form>';
+		return '<div class="wrap phongdao-ban phongdao-bo-sung">' . $lui . $dau . TrangLo::lay_bao() . $form . '</div>';
+	}
+
+	/** Lưu lựa chọn nối Từ điển: kiểm quyền, nonce; mỗi câu được kiểm lại lúc ghi. */
+	public static function nhan_tu_dien(): void {
+		if ( ! current_user_can( 'cadao_soan' ) ) {
+			wp_die( 'Bạn không có quyền nối Từ điển.', '', array( 'response' => 403 ) );
+		}
+		check_admin_referer( self::TU_DIEN );
+		$khoa = \Phongdao\DichVu\TuDien\GoiYNoi::khoa( sanitize_text_field( wp_unslash( (string) ( $_POST['chu'] ?? '' ) ) ) );
+		$chon = array();
+		foreach ( (array) wp_unslash( $_POST['chon'] ?? array() ) as $bai => $muc ) {
+			if ( is_scalar( $muc ) && '' !== (string) $muc && absint( $bai ) ) {
+				$chon[ absint( $bai ) ] = absint( $muc );
+			}
+		}
+		$kq  = \Phongdao\DichVu\TuDien\GoiYNoi::luu( $khoa, $chon, get_current_user_id() );
+		$chu = $chon
+			? 'Đã nối ' . $kq['noi'] . ' câu' . ( $kq['khong'] ? ', ' . $kq['khong'] . ' câu không nối' : '' ) . '.' . ( $kq['loi'] ? ' ' . $kq['loi'] . ' câu chưa lưu được (bài vừa đổi hoặc đã nối ở nơi khác).' : '' )
+			: 'Chưa chọn câu nào.';
+		set_transient( 'phongdao_lo_bao_' . get_current_user_id(), array( 'ok' => ! $kq['loi'], 'chu' => $chu ), 300 );
+		wp_safe_redirect( self::url_tu_dien( $khoa ) );
+		exit;
+	}
+
+	/** Tắt / bật lại gợi ý một chữ. */
+	public static function nhan_tu_dien_tat(): void {
+		if ( ! current_user_can( 'cadao_soan' ) ) {
+			wp_die( 'Bạn không có quyền đổi gợi ý.', '', array( 'response' => 403 ) );
+		}
+		check_admin_referer( self::TU_DIEN_TAT );
+		$khoa = \Phongdao\DichVu\TuDien\GoiYNoi::khoa( sanitize_text_field( wp_unslash( (string) ( $_POST['chu'] ?? '' ) ) ) );
+		$tat  = '1' === ( $_POST['tat'] ?? '' );
+		if ( '' !== $khoa ) {
+			\Phongdao\DichVu\TuDien\GoiYNoi::tat( $khoa, $tat );
+		}
+		set_transient( 'phongdao_lo_bao_' . get_current_user_id(), array( 'ok' => true, 'chu' => $tat ? 'Đã tắt gợi ý chữ này; xem lại ở cuối tab Gợi ý Từ điển.' : 'Đã bật lại gợi ý chữ này.' ), 300 );
+		wp_safe_redirect( self::url_tu_dien( $khoa ) );
+		exit;
 	}
 
 	public const NOI_LAI = 'phongdao_bo_sung_noi_lai';
@@ -379,6 +533,10 @@ final class BoSung {
 		$nhom = sanitize_text_field( wp_unslash( (string) ( $_GET['nhom'] ?? '' ) ) );
 		$bai  = absint( $_GET['bai'] ?? 0 );
 		// phpcs:enable
+		$chu_td = sanitize_text_field( wp_unslash( (string) ( $_GET['chu'] ?? '' ) ) ); // phpcs:ignore WordPress.Security.NonceVerification -- chỉ chọn màn
+		if ( '' !== $chu_td ) {
+			return self::hien_tu_dien( \Phongdao\DichVu\TuDien\GoiYNoi::khoa( $chu_td ) );
+		}
 		if ( '' !== $nhom || $bai ) {
 			return self::hien_duyet( preg_match( '/^(chu_de|vung):[a-z0-9_-]+$/', $nhom ) ? $nhom : '', $bai );
 		}
@@ -393,7 +551,7 @@ final class BoSung {
 		$dai  = self::y_nghia_dai();
 		$thieu = DanhSachTacPham::dem_loc( array( 'tt' => 'publish', 'muc' => 'thieu_y_nghia' ) );
 		$noi  = \Phongdao\DichVu\TuDien\NoiLai::ds();
-		$dem  = array( 'y_nghia' => $thieu, 'can_sua' => \Phongdao\DichVu\CanSua\CanSua::so_bai( $cs ) + count( $dai ) + count( $noi ), 'goi_y' => Viec::dem( Viec::CHO, 'goi_y' ), 'khac' => null, 'nhap' => null );
+		$dem  = array( 'y_nghia' => $thieu, 'can_sua' => \Phongdao\DichVu\CanSua\CanSua::so_bai( $cs ) + count( $dai ) + count( $noi ), 'goi_y' => Viec::dem( Viec::CHO, 'goi_y' ), 'tu_dien' => null, 'khac' => null, 'nhap' => null );
 		$tab  = '';
 		foreach ( self::TAB as $ma => $ten ) {
 			$tab .= '<a class="phongdao-chip" href="' . esc_url( self::url_tab( $ma ) ) . '"' . ( $ma === $xem ? ' aria-current="page"' : '' ) . '>' . esc_html( $ten ) . ( null === $dem[ $ma ] ? '' : ' <span class="phongdao-chip-so">' . esc_html( number_format_i18n( (int) $dem[ $ma ] ) ) . '</span>' ) . '</a>';
@@ -406,6 +564,7 @@ final class BoSung {
 		$than = match ( $xem ) {
 			'can_sua' => self::khoi_noi_lai( $noi ) . self::khoi_can_sua( $cs ) . self::khoi_y_nghia_dai( $dai ),
 			'goi_y'   => self::khoi_goi_y(),
+			'tu_dien' => self::khoi_tu_dien(),
 			'khac'    => self::khoi_uu_tien(),
 			'nhap'    => NapNhap::khoi(),
 			default   => self::khoi_thieu( $thieu ),
@@ -413,7 +572,7 @@ final class BoSung {
 		return '<div class="wrap pq-man phongdao-ban phongdao-bo-sung"><div class="pq-dau"><div class="pq-dau-chu"><h1>Bổ sung</h1><p>Làm bài đã đăng đầy đủ hơn. Bài đọc nhiều trước; làm xong một bài, lưu và sang bài kế. Không có chỉ tiêu phải điền kín cả kho.</p></div></div><hr class="wp-header-end">'
 			. TrangLo::lay_bao() . $tien . '<nav class="phongdao-hv-tab" aria-label="Việc bổ sung">' . $tab . '</nav>'
 			. '<div class="phongdao-bs-than">' . $than . '</div>'
-			. '<p class="description">Máy chỉ đếm và xếp thứ tự; không viết nội dung, không tự gắn chủ đề hay vùng.</p></div>';
+			. '<p class="description">Máy chỉ đếm và xếp thứ tự; không viết nội dung, không tự gắn chủ đề, vùng hay Từ điển.</p></div>';
 	}
 
 	/** Tab "Thiếu Ý nghĩa": bài đọc nhiều tuần này chưa có, nút Bắt đầu (bài đầu, đọc nhiều trước) và lối mở cả danh sách. */

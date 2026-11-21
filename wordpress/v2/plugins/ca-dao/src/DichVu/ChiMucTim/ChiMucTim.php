@@ -51,7 +51,13 @@ final class ChiMucTim implements Module {
 		add_action( 'deleted_post', static fn( int $id ) => self::xoa( $id ) );
 		add_action( self::VIEC_NEN, array( self::class, 'dung_lai_lo' ) );
 		foreach ( array( 'created_muc_tu', 'edited_muc_tu', 'delete_muc_tu', 'set_object_terms' ) as $viec ) {
-			add_action( $viec, static fn() => delete_transient( 'phongdao_tim_muc_tu' ) );
+			add_action(
+				$viec,
+				static function (): void {
+					delete_transient( 'phongdao_tim_muc_tu' );
+					delete_transient( \Phongdao\DichVu\TuDien\GoiYNoi::DEM ); // số gợi ý nối Từ điển (D-126)
+				}
+			);
 		}
 	}
 

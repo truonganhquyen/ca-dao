@@ -48,6 +48,8 @@ final class DocBai {
 		if ( ! $tp ) {
 			return null;
 		}
+		// Mục từ người đã nối vào bài mà bài chưa có từ khó riêng cho chữ đó (D-126): hiện nghĩa chung, nhãn "Theo Từ điển"
+		$tp['chu_thich'] = array_merge( $tp['chu_thich'], self::theo_tu_dien( $bai, $tp['chu_thich'] ) );
 		// Từ khó nối mục từ: lối sang Từ điển (số bài), ảnh, bản đồ của địa danh đã xác nhận; đáp án câu đố có ảnh
 		foreach ( $tp['chu_thich'] as $i => $c ) {
 			$t = $c['muc'] ? get_term( $c['muc'], 'muc_tu' ) : null;
@@ -164,6 +166,36 @@ final class DocBai {
 	}
 
 	/** Các phần hiển thị (bỏ nguon_may ngay từ đây). */
+	/**
+	 * Nghĩa chung của các mục từ bài đang gắn (người nối ở Bổ sung → Gợi ý Từ điển, hay từ dữ liệu cũ) mà không từ khó nào
+	 * của bài dùng và bài không có từ khó cùng chữ: mỗi mục một từ khó "theo Từ điển" (lời giải là phần giải thích của mục
+	 * từ do người biên soạn viết). Bài đã có từ khó riêng thì chỉ hiện từ khó riêng. Mục từ chưa có giải thích thì bỏ.
+	 *
+	 * @param list<array> $ct từ khó riêng của bài (muc là số mục từ)
+	 * @return list<array>
+	 */
+	public static function theo_tu_dien( \WP_Post $bai, array $ct ): array {
+		$gan = get_the_terms( $bai, 'muc_tu' );
+		if ( ! is_array( $gan ) || ! $gan ) {
+			return array();
+		}
+		$dung = array_flip( array_filter( array_map( 'intval', array_column( $ct, 'muc' ) ) ) );
+		$ra   = array();
+		foreach ( $gan as $t ) {
+			$giai = trim( wp_strip_all_tags( (string) $t->description ) );
+			if ( '' === $giai || isset( $dung[ (int) $t->term_id ] ) ) {
+				continue;
+			}
+			foreach ( $ct as $c ) {
+				if ( \Phongdao\GiaoTiep\BienTap\TamSua::cung_chu( (string) ( $c['tu'] ?? '' ), (string) $t->name ) ) {
+					continue 2;
+				}
+			}
+			$ra[] = array( 'tu' => (string) $t->name, 'giai' => $giai, 'dinh_dang' => '', 'muc' => (int) $t->term_id, 'may' => false, 'nguon' => null, 'theo_td' => true );
+		}
+		return $ra;
+	}
+
 	private static function phan( \WP_Post $bai ): array {
 		$ra = array();
 		foreach ( Phan::ds( $bai->post_type ) as $p ) {

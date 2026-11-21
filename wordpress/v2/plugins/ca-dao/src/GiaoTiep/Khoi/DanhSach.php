@@ -43,6 +43,9 @@ final class DanhSach {
 		$the = '';
 		foreach ( $q->posts as $bai ) {
 			$c    = $bai instanceof \WP_Post ? DocBai::the( $bai ) : null;
+			if ( $c && $term instanceof \WP_Term && 'muc_tu' === $term->taxonomy ) {
+				$c = self::cau_muc_tu( $c, $bai, $term );
+			}
 			$the .= $c ? self::the( $c ) : '';
 		}
 		$co_nghia = KhaiBao::chi_co_nghia( $q );
@@ -71,7 +74,39 @@ final class DanhSach {
 		} else {
 			$giua .= '<div class="grid">' . $the . '</div>' . self::phan_trang( $q );
 		}
-		return $dau . '<section class="section" aria-labelledby="ds-tieu-de"><h2 class="sr-only" id="ds-tieu-de">Các tác phẩm</h2>' . $giua . '</section>';
+		$h2 = $term instanceof \WP_Term && 'muc_tu' === $term->taxonomy ? '<h2 id="ds-tieu-de">Câu có chữ “' . esc_html( $term->name ) . '”</h2>' : '<h2 class="sr-only" id="ds-tieu-de">Các tác phẩm</h2>';
+		return $dau . '<section class="section" aria-labelledby="ds-tieu-de">' . $h2 . $giua . '</section>';
+	}
+
+	/**
+	 * Trang mục từ (D-126): thẻ bài hiện đúng dòng có chữ, chữ được tô; dòng dưới cho biết bài có chú giải riêng hay hiện
+	 * nghĩa theo Từ điển.
+	 */
+	private static function cau_muc_tu( array $c, \WP_Post $bai, \WP_Term $term ): array {
+		$khoa = \Phongdao\DichVu\TuDien\GoiYNoi::khoa( (string) $term->name );
+		$dong = array();
+		foreach ( (array) ( \Phongdao\KhoLuu\PhanBai::lay( $bai->ID, 'loi' )['dong'] ?? array() ) as $d ) {
+			$to = \Phongdao\DichVu\TuDien\GoiYNoi::to( (string) $d, $khoa );
+			if ( null !== $to ) {
+				$dong[] = '<span class="dong">' . $to . '</span>';
+			}
+			if ( count( $dong ) >= 2 ) {
+				break;
+			}
+		}
+		if ( $dong ) {
+			$c['tim_chu_html'] = implode( '', $dong );
+		}
+		$rieng = false;
+		$ct    = \Phongdao\KhoLuu\PhanBai::lay( $bai->ID, 'chu_thich' );
+		foreach ( (array) ( $ct['muc'] ?? array() ) as $m ) {
+			if ( is_array( $m ) && ( (int) ( $m['muc_tu_id'] ?? 0 ) === (int) $term->term_id || \Phongdao\GiaoTiep\BienTap\TamSua::cung_chu( (string) ( $m['tu'] ?? '' ), (string) $term->name ) ) ) {
+				$rieng = true;
+				break;
+			}
+		}
+		$c['ly_do'] = $rieng ? 'Bài có chú giải riêng' : ( '' === trim( (string) $term->description ) ? '' : 'Hiện nghĩa theo Từ điển' );
+		return $c;
 	}
 
 	/** Nguồn lời giải của mục từ: người biên soạn điền thì hiện (D-081); lời giải máy chép thì ẩn nguồn theo chính sách (D-068). */

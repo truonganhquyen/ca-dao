@@ -767,7 +767,7 @@ final class SuaTacPham {
 		} else {
 			$ra .= '<p class="pq-pl-phu">Thể loại: ' . esc_html( $ten_tl ) . '</p>';
 		}
-		$ra .= ( is_array( $mt ) && $mt ? '<p class="pq-mo-ta">Mục từ trong Từ điển: ' . esc_html( implode( ', ', wp_list_pluck( $mt, 'name' ) ) ) . ' · gắn theo phần Từ khó.</p>' : '' );
+		$ra .= ( is_array( $mt ) && $mt ? '<p class="pq-mo-ta">Mục từ trong Từ điển: ' . esc_html( implode( ', ', wp_list_pluck( $mt, 'name' ) ) ) . ' · nối ở phần Từ khó hoặc Bổ sung → Gợi ý Từ điển.</p>' : '' );
 		return $ra . '</div></section>';
 	}
 
